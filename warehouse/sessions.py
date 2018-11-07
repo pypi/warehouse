@@ -29,6 +29,7 @@ def _invalid_method(method):
     @functools.wraps(method)
     def wrapped(self, *args, **kwargs):
         self._error_message()
+
     return wrapped
 
 
@@ -71,6 +72,7 @@ def _changed_method(method):
     def wrapped(self, *args, **kwargs):
         self.changed()
         return method(self, *args, **kwargs)
+
     return wrapped
 
 
@@ -214,8 +216,7 @@ class SessionFactory:
         # De-serialize our session data
         try:
             data = msgpack.unpackb(bdata, encoding="utf8", use_list=True)
-        except (msgpack.exceptions.UnpackException,
-                msgpack.exceptions.ExtraData):
+        except (msgpack.exceptions.UnpackException, msgpack.exceptions.ExtraData):
             # If the session data was invalid we'll give the user a new session
             return Session()
 
@@ -249,11 +250,7 @@ class SessionFactory:
             self.redis.setex(
                 self._redis_key(request.session.sid),
                 self.max_age,
-                msgpack.packb(
-                    request.session,
-                    encoding="utf8",
-                    use_bin_type=True,
-                ),
+                msgpack.packb(request.session, encoding="utf8", use_bin_type=True),
             )
 
             # Send our session cookie to the client
@@ -263,7 +260,7 @@ class SessionFactory:
                 max_age=self.max_age,
                 httponly=True,
                 secure=request.scheme == "https",
-                samesite=b"lax"
+                samesite=b"lax",
             )
 
 
@@ -319,11 +316,7 @@ def includeme(config):
         SessionFactory(
             config.registry.settings["sessions.secret"],
             config.registry.settings["sessions.url"],
-        ),
+        )
     )
 
-    config.add_view_deriver(
-        session_view,
-        over="csrf_view",
-        under=viewderivers.INGRESS,
-    )
+    config.add_view_deriver(session_view, over="csrf_view", under=viewderivers.INGRESS)

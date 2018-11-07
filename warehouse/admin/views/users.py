@@ -70,9 +70,7 @@ def user_list(request):
 class EmailField(forms.Form):
 
     email = wtforms.fields.html5.EmailField(
-        validators=[
-            wtforms.validators.DataRequired(),
-        ],
+        validators=[wtforms.validators.DataRequired()]
     )
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
@@ -81,10 +79,7 @@ class EmailField(forms.Form):
 class UserForm(forms.Form):
 
     name = wtforms.StringField(
-        validators=[
-            wtforms.validators.Optional(),
-            wtforms.validators.Length(max=100),
-        ],
+        validators=[wtforms.validators.Optional(), wtforms.validators.Length(max=100)]
     )
 
     is_active = wtforms.fields.BooleanField()
@@ -93,31 +88,31 @@ class UserForm(forms.Form):
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailField))
 
 
-@view_config(route_name="admin.user.detail",
-             renderer="admin/users/detail.html",
-             permission="admin",
-             uses_session=True,
-             require_csrf=True,
-             require_methods=False)
+@view_config(
+    route_name="admin.user.detail",
+    renderer="admin/users/detail.html",
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
 def user_detail(request):
     try:
         user = (
-            request.db.query(User)
-                      .filter(User.id == request.matchdict["user_id"])
-                      .one()
+            request.db.query(User).filter(User.id == request.matchdict["user_id"]).one()
         )
     except NoResultFound:
         raise HTTPNotFound
 
     roles = (
         request.db.query(Role)
-                  .join(User)
-                  .filter(Role.user == user)
-                  .order_by(Role.role_name, Role.package_name)
-                  .all()
+        .join(User)
+        .filter(Role.user == user)
+        .order_by(Role.role_name, Role.package_name)
+        .all()
     )
 
-    form = UserForm(request.POST, user)
+    form = UserForm(request.POST if request.method == "POST" else None, user)
 
     if request.method == "POST" and form.validate():
         form.populate_obj(user)
@@ -127,46 +122,35 @@ def user_detail(request):
 
 
 @view_config(
-    route_name='admin.user.delete',
-    require_methods=['POST'],
-    permission='admin',
+    route_name="admin.user.delete",
+    require_methods=["POST"],
+    permission="admin",
     uses_session=True,
     require_csrf=True,
 )
 def user_delete(request):
-    user = request.db.query(User).get(request.matchdict['user_id'])
+    user = request.db.query(User).get(request.matchdict["user_id"])
 
-    if user.username != request.params.get('username'):
-        request.session.flash(f'Wrong confirmation input', queue='error')
-        return HTTPSeeOther(
-            request.route_path('admin.user.detail', user_id=user.id)
-        )
+    if user.username != request.params.get("username"):
+        request.session.flash(f"Wrong confirmation input", queue="error")
+        return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
     # Delete all the user's projects
-    projects = (
-        request.db.query(Project)
-        .filter(
-            Project.name.in_(
-                request.db.query(Project.name)
-                .join(Role.project)
-                .filter(Role.user == user)
-                .subquery()
-            )
+    projects = request.db.query(Project).filter(
+        Project.name.in_(
+            request.db.query(Project.name)
+            .join(Role.project)
+            .filter(Role.user == user)
+            .subquery()
         )
     )
     projects.delete(synchronize_session=False)
 
     # Update all journals to point to `deleted-user` instead
-    deleted_user = (
-        request.db.query(User)
-        .filter(User.username == 'deleted-user')
-        .one()
-    )
+    deleted_user = request.db.query(User).filter(User.username == "deleted-user").one()
 
     journals = (
-        request.db.query(JournalEntry)
-        .filter(JournalEntry.submitted_by == user)
-        .all()
+        request.db.query(JournalEntry).filter(JournalEntry.submitted_by == user).all()
     )
 
     for journal in journals:
@@ -176,11 +160,11 @@ def user_delete(request):
     request.db.delete(user)
     request.db.add(
         JournalEntry(
-            name=f'user:{user.username}',
-            action=f'nuke user',
+            name=f"user:{user.username}",
+            action=f"nuke user",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
     )
-    request.session.flash(f'Nuked user {user.username!r}', queue='success')
-    return HTTPSeeOther(request.route_path('admin.user.list'))
+    request.session.flash(f"Nuked user {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.list"))

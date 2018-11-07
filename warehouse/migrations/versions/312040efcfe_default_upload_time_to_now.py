@@ -26,11 +26,7 @@ down_revision = "57b1053998d"
 
 
 def upgrade():
-    op.alter_column(
-        "release_files",
-        "upload_time",
-        server_default=sa.text("now()"),
-    )
+    op.alter_column("release_files", "upload_time", server_default=sa.text("now()"))
 
 
 def downgrade():

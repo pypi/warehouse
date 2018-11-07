@@ -30,14 +30,9 @@ def upgrade():
     # operations. This will ensure that existing users still have a null value
     # for their password_date, but new users get one set to NOW().
     op.add_column(
-        "accounts_user",
-        sa.Column("password_date", sa.DateTime(), nullable=True),
+        "accounts_user", sa.Column("password_date", sa.DateTime(), nullable=True)
     )
-    op.alter_column(
-        "accounts_user",
-        "password_date",
-        server_default=sa.text("now()"),
-    )
+    op.alter_column("accounts_user", "password_date", server_default=sa.text("now()"))
 
     op.execute(
         """ CREATE FUNCTION update_password_date()

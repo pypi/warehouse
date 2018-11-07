@@ -10,7 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+import logging
+
 from datetime import datetime, timezone
+
+import redis
 
 from first import first
 from limits import parse_many
@@ -18,41 +23,69 @@ from limits.strategies import MovingWindowRateLimiter
 from limits.storage import storage_from_string
 from zope.interface import implementer
 
+from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting.interfaces import IRateLimiter
+
+
+logger = logging.getLogger(__name__)
+
+
+def _return_on_exception(rvalue, *exceptions):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(self, *args, **kwargs):
+            try:
+                return fn(self, *args, **kwargs)
+            except exceptions as exc:
+                logging.warning("Error computing rate limits: %r", exc)
+                self._metrics.increment(
+                    "warehouse.ratelimiter.error", tags=[f"call:{fn.__name__}"]
+                )
+                return rvalue
+
+        return wrapper
+
+    return deco
 
 
 @implementer(IRateLimiter)
 class RateLimiter:
-
-    def __init__(self, storage, limit, identifiers=None):
+    def __init__(self, storage, limit, *, identifiers=None, metrics):
         if identifiers is None:
             identifiers = []
 
         self._window = MovingWindowRateLimiter(storage)
         self._limits = parse_many(limit)
         self._identifiers = identifiers
+        self._metrics = metrics
 
     def _get_identifiers(self, identifiers):
         return [str(i) for i in list(self._identifiers) + list(identifiers)]
 
+    @_return_on_exception(True, redis.RedisError)
     def test(self, *identifiers):
-        return all([
-            self._window.test(limit, *self._get_identifiers(identifiers))
-            for limit in self._limits
-        ])
+        return all(
+            [
+                self._window.test(limit, *self._get_identifiers(identifiers))
+                for limit in self._limits
+            ]
+        )
 
+    @_return_on_exception(True, redis.RedisError)
     def hit(self, *identifiers):
-        return all([
-            self._window.hit(limit, *self._get_identifiers(identifiers))
-            for limit in self._limits
-        ])
+        return all(
+            [
+                self._window.hit(limit, *self._get_identifiers(identifiers))
+                for limit in self._limits
+            ]
+        )
 
+    @_return_on_exception(None, redis.RedisError)
     def resets_in(self, *identifiers):
         resets = []
         for limit in self._limits:
             resets_at, remaining = self._window.get_window_stats(
-                limit,
-                *self._get_identifiers(identifiers),
+                limit, *self._get_identifiers(identifiers)
             )
 
             # If this limit has any remaining limits left, then we will skip it
@@ -80,7 +113,6 @@ class RateLimiter:
 
 @implementer(IRateLimiter)
 class DummyRateLimiter:
-
     def test(self, *identifiers):
         return True
 
@@ -92,7 +124,6 @@ class DummyRateLimiter:
 
 
 class RateLimit:
-
     def __init__(self, limit, identifiers=None, limiter_class=RateLimiter):
         self.limit = limit
         self.identifiers = identifiers
@@ -103,10 +134,21 @@ class RateLimit:
             request.registry["ratelimiter.storage"],
             limit=self.limit,
             identifiers=self.identifiers,
+            metrics=request.find_service(IMetricsService, context=None),
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, RateLimit):
+            return NotImplemented
+
+        return (self.limit, self.identifiers, self.limiter_class) == (
+            other.limit,
+            other.identifiers,
+            other.limiter_class,
         )
 
 
 def includeme(config):
     config.registry["ratelimiter.storage"] = storage_from_string(
-        config.registry.settings["ratelimit.url"],
+        config.registry.settings["ratelimit.url"]
     )

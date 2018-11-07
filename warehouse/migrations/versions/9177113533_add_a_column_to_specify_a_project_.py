@@ -26,10 +26,7 @@ down_revision = "10cb17aea73"
 
 
 def upgrade():
-    op.add_column(
-        "packages",
-        sa.Column("upload_limit", sa.Integer(), nullable=True),
-    )
+    op.add_column("packages", sa.Column("upload_limit", sa.Integer(), nullable=True))
 
 
 def downgrade():

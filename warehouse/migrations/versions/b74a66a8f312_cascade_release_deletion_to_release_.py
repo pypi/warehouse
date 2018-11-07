@@ -19,34 +19,34 @@ Create Date: 2018-03-09 22:55:38.166123
 
 from alembic import op
 
-revision = 'b74a66a8f312'
-down_revision = '29d87a24d79e'
+revision = "b74a66a8f312"
+down_revision = "29d87a24d79e"
 
 
 def upgrade():
     op.drop_constraint(
-        'release_classifiers_name_fkey',
-        'release_classifiers',
-        type_='foreignkey'
+        "release_classifiers_name_fkey", "release_classifiers", type_="foreignkey"
     )
     op.create_foreign_key(
-        'release_classifiers_name_fkey',
-        'release_classifiers',
-        'releases', ['name', 'version'], ['name', 'version'],
-        onupdate='CASCADE',
-        ondelete='CASCADE'
+        "release_classifiers_name_fkey",
+        "release_classifiers",
+        "releases",
+        ["name", "version"],
+        ["name", "version"],
+        onupdate="CASCADE",
+        ondelete="CASCADE",
     )
 
 
 def downgrade():
     op.drop_constraint(
-        'release_classifiers_name_fkey',
-        'release_classifiers',
-        type_='foreignkey'
+        "release_classifiers_name_fkey", "release_classifiers", type_="foreignkey"
     )
     op.create_foreign_key(
-        'release_classifiers_name_fkey',
-        'release_classifiers',
-        'releases', ['name', 'version'], ['name', 'version'],
-        onupdate='CASCADE'
+        "release_classifiers_name_fkey",
+        "release_classifiers",
+        "releases",
+        ["name", "version"],
+        ["name", "version"],
+        onupdate="CASCADE",
     )

@@ -29,8 +29,7 @@ def upgrade():
     # We need to add the column as nullable at first, because we need to
     # backfill our data.
     op.add_column(
-        "accounts_user",
-        sa.Column("sitemap_bucket", sa.Text(), nullable=True),
+        "accounts_user", sa.Column("sitemap_bucket", sa.Text(), nullable=True)
     )
 
     op.execute(

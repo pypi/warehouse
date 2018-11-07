@@ -23,6 +23,7 @@ def stamp(config, revision, **kwargs):
     """
     Stamp the revision table with the given revision.
     """
-    with alembic_lock(config.registry["sqlalchemy.engine"],
-                      config.alembic_config()) as alembic_config:
+    with alembic_lock(
+        config.registry["sqlalchemy.engine"], config.alembic_config()
+    ) as alembic_config:
         alembic.command.stamp(alembic_config, revision, **kwargs)

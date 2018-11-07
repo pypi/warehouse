@@ -19,7 +19,6 @@ from warehouse import redirects
 
 
 class TestRedirectView:
-
     def test_redirect_view(self):
         target = "/{wat}/{_request.method}"
         view = redirects.redirect_view_factory(target)
@@ -35,8 +34,9 @@ class TestRedirectView:
         view = redirects.redirect_view_factory(target)
         request = pretend.stub(method="GET", matchdict={"wat": "the-thing\n"})
 
-        with pytest.raises(HTTPBadRequest,
-                           match="URL may not contain control characters"):
+        with pytest.raises(
+            HTTPBadRequest, match="URL may not contain control characters"
+        ):
             view(request)
 
 
@@ -53,34 +53,24 @@ def test_add_redirect(monkeypatch):
     source = "/the/{thing}/"
     target = "/other/{thing}/"
     redirect = pretend.stub()
-    kwargs = {
-        'redirect': redirect,
-    }
+    kwargs = {"redirect": redirect}
 
     redirects.add_redirect(config, source, target, **kwargs)
 
     assert config.add_route.calls == [
-        pretend.call(
-            "warehouse.redirects." + source + str(kwargs), source, **kwargs
-        ),
+        pretend.call("warehouse.redirects." + source + str(kwargs), source, **kwargs)
     ]
     assert config.add_view.calls == [
-        pretend.call(
-            rview, route_name="warehouse.redirects." + source + str(kwargs)
-        ),
+        pretend.call(rview, route_name="warehouse.redirects." + source + str(kwargs))
     ]
     assert rview_factory.calls == [pretend.call(target, redirect=redirect)]
 
 
 def test_includeme():
     config = pretend.stub(
-        add_directive=pretend.call_recorder(lambda n, fn, action_wrap: None),
+        add_directive=pretend.call_recorder(lambda n, fn, action_wrap: None)
     )
     redirects.includeme(config)
     assert config.add_directive.calls == [
-        pretend.call(
-            "add_redirect",
-            redirects.add_redirect,
-            action_wrap=False,
-        ),
+        pretend.call("add_redirect", redirects.add_redirect, action_wrap=False)
     ]

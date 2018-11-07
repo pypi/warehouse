@@ -20,7 +20,6 @@ from warehouse.manage import forms
 
 
 class TestCreateRoleForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.CreateRoleForm(user_service=user_service)
@@ -29,7 +28,7 @@ class TestCreateRoleForm:
 
     def test_validate_username_with_no_user(self):
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: None),
+            find_userid=pretend.call_recorder(lambda userid: None)
         )
         form = forms.CreateRoleForm(user_service=user_service)
         field = pretend.stub(data="my_username")
@@ -40,9 +39,7 @@ class TestCreateRoleForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     def test_validate_username_with_user(self):
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: 1),
-        )
+        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         form = forms.CreateRoleForm(user_service=user_service)
         field = pretend.stub(data="my_username")
 
@@ -50,20 +47,18 @@ class TestCreateRoleForm:
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
-    @pytest.mark.parametrize(("value", "expected"), [
-        ("", "Select a role"),
-        ("invalid", "Not a valid choice"),
-        (None, "Not a valid choice"),
-    ])
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            ("", "Select role"),
+            ("invalid", "Not a valid choice"),
+            (None, "Not a valid choice"),
+        ],
+    )
     def test_validate_role_name_fails(self, value, expected):
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: 1),
-        )
+        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         form = forms.CreateRoleForm(
-            MultiDict({
-                'role_name': value,
-                'username': 'valid_username',
-            }),
+            MultiDict({"role_name": value, "username": "valid_username"}),
             user_service=user_service,
         )
 
@@ -72,7 +67,6 @@ class TestCreateRoleForm:
 
 
 class TestAddEmailForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.AddEmailForm(user_service=user_service)
@@ -81,9 +75,13 @@ class TestAddEmailForm:
 
 
 class TestChangePasswordForm:
-
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.ChangePasswordForm(user_service=user_service)
+        breach_service = pretend.stub()
+
+        form = forms.ChangePasswordForm(
+            user_service=user_service, breach_service=breach_service
+        )
 
         assert form.user_service is user_service
+        assert form._breach_service is breach_service

@@ -16,7 +16,6 @@ from warehouse.utils.attrs import make_repr
 
 
 class TestMakeRepr:
-
     def test_on_class(self):
         class Fake:
             foo = "bar"

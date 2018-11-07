@@ -18,8 +18,14 @@ import factory.fuzzy
 import packaging.utils
 
 from warehouse.packaging.models import (
-    BlacklistedProject, Dependency, DependencyKind, File, JournalEntry,
-    Project, Release, Role,
+    BlacklistedProject,
+    Dependency,
+    DependencyKind,
+    File,
+    JournalEntry,
+    Project,
+    Release,
+    Role,
 )
 
 from .accounts import UserFactory
@@ -62,19 +68,18 @@ class FileFactory(WarehouseFactory):
         lambda o: hashlib.sha256(o.filename.encode("utf8")).hexdigest()
     )
     blake2_256_digest = factory.LazyAttribute(
-        lambda o: hashlib.blake2b(o.filename.encode("utf8"),
-                                  digest_size=32).hexdigest()
+        lambda o: hashlib.blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
     )
-    upload_time = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime(2008, 1, 1)
-    )
+    upload_time = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
     path = factory.LazyAttribute(
-        lambda o: "/".join([
-            o.blake2_256_digest[:2],
-            o.blake2_256_digest[2:4],
-            o.blake2_256_digest[4:],
-            o.filename,
-        ])
+        lambda o: "/".join(
+            [
+                o.blake2_256_digest[:2],
+                o.blake2_256_digest[2:4],
+                o.blake2_256_digest[4:],
+                o.filename,
+            ]
+        )
     )
 
 
@@ -104,9 +109,7 @@ class JournalEntryFactory(WarehouseFactory):
     id = factory.Sequence(lambda n: n)
     name = factory.fuzzy.FuzzyText(length=12)
     version = factory.Sequence(lambda n: str(n) + ".0")
-    submitted_date = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime(2008, 1, 1)
-    )
+    submitted_date = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
     submitted_by = factory.SubFactory(UserFactory)
 
 

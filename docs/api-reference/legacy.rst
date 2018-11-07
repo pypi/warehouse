@@ -123,3 +123,31 @@ legacy PyPI upload API. This is the endpoint that tools such as `twine
 <https://docs.python.org/3.6/distutils/packageindex.html#the-upload-command>`_
 use to `upload distributions to PyPI
 <https://packaging.python.org/tutorials/distributing-packages/>`_.
+
+The upload api can be used to upload artifacts by sending a multipart/form-data
+POST request with the following fields:
+
+- ``:action`` set to ``file_upload``
+- ``protocol_version`` set to ``1``
+- ``content`` with the file to be uploaded and the proper filename
+  (i.e. ``my_foo_bar-4.2-cp36-cp36m-manylinux1_x86_64.whl``)
+- ``md5_digest`` set to the md5 hash of the uploaded file in urlsafe base64
+  with no padding
+- ``filetype`` set to the type of the artifact, i.e. ``bdist_wheel``
+  or ``sdist``
+- When used with ``bdist_wheel`` for ``filetype`, ``pyversion`` must be set to
+  a specific release, i.e. ``cp36``, when used with ``sdist`` it must be set to
+  ``source``
+- ``metadata_version``, ``name`` and ``version`` set according to the
+  `Core metadata specifications`_
+- You can set any other field from the `Core metadata specifications`_.
+  All fields need to be renamed to lowercase and hyphens need to replaced
+  by underscores. So instead of "Description-Content-Type" the field must be
+  named "description_content_type". Note that adding a field
+  "Description-Content-Type" will not raise an error but will be silently
+  ignored.
+
+Note that uploading an artifact with a new version will automatically create
+that release.
+
+.. _`Core metadata specifications`: https://packaging.python.org/specifications/core-metadata/

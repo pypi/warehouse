@@ -40,13 +40,57 @@
           <td>{{ release.created }}</td>
         </tr>
         <tr>
-          <td>Hidden</td>
-          <td>{{ release._pypi_hidden }}</td>
-        </tr>
-        <tr>
           <td>Uploader</td>
           <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
         </tr>
+        <tr>
+          <td>Created via</td>
+          <td><code>{{ release.uploaded_via }}</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box-header with-border">
+      <h3>Files</h3>
+    </div>
+    <div class="box-body table-responsive">
+      <table class="table table-hover">
+        <tr>
+          <th>Filename</th>
+          <th>Package Type</th>
+          <th>Python Version</th>
+          <th>Uploaded via</th>
+        </tr>
+        {% for file in release.files %}
+        <tr>
+          <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a></td>
+          <td>{{ file.packagetype }}</td>
+          <td>{{ file.python_version }}</td>
+          <td><code>{{ file.uploaded_via }}</code></td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box-header with-border">
+      <h3>Journals</h3>
+    </div>
+    <div class="box-body table-responsive">
+      <table class="table table-hover">
+        <tr>
+          <th>Action</th>
+          <th>Date</th>
+          <th>User</th>
+        </tr>
+        {% for journal in journals %}
+        <tr>
+          <td>{{ journal.action }}</td>
+          <td>{{ journal.submitted_date|format_datetime() }}</td>
+          <td>{{ journal.submitted_by.username }} from {{ journal.submitted_from }}</td>
+        </tr>
+        {% endfor %}
       </table>
     </div>
   </div>

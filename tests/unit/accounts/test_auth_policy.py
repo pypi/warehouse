@@ -22,32 +22,27 @@ from warehouse.accounts.interfaces import IUserService
 
 
 class TestBasicAuthAuthenticationPolicy:
-
     def test_verify(self):
         assert verifyClass(
-            IAuthenticationPolicy,
-            auth_policy.BasicAuthAuthenticationPolicy,
+            IAuthenticationPolicy, auth_policy.BasicAuthAuthenticationPolicy
         )
 
     def test_unauthenticated_userid_no_userid(self, monkeypatch):
-        extract_http_basic_credentials = \
-            pretend.call_recorder(lambda request: None)
+        extract_http_basic_credentials = pretend.call_recorder(lambda request: None)
         monkeypatch.setattr(
             authentication,
             "extract_http_basic_credentials",
             extract_http_basic_credentials,
         )
 
-        policy = auth_policy.BasicAuthAuthenticationPolicy(
-            check=pretend.stub(),
-        )
+        policy = auth_policy.BasicAuthAuthenticationPolicy(check=pretend.stub())
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
         monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
+            add_response_callback=pretend.call_recorder(lambda cb: None)
         )
 
         assert policy.unauthenticated_userid(request) is None
@@ -56,20 +51,16 @@ class TestBasicAuthAuthenticationPolicy:
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
     def test_unauthenticated_userid_with_userid(self, monkeypatch):
-        extract_http_basic_credentials = \
-            pretend.call_recorder(
-                lambda request:
-                    authentication.HTTPBasicCredentials("username", "password")
-            )
+        extract_http_basic_credentials = pretend.call_recorder(
+            lambda request: authentication.HTTPBasicCredentials("username", "password")
+        )
         monkeypatch.setattr(
             authentication,
             "extract_http_basic_credentials",
             extract_http_basic_credentials,
         )
 
-        policy = auth_policy.BasicAuthAuthenticationPolicy(
-            check=pretend.stub(),
-        )
+        policy = auth_policy.BasicAuthAuthenticationPolicy(check=pretend.stub())
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
@@ -77,7 +68,7 @@ class TestBasicAuthAuthenticationPolicy:
 
         userid = uuid.uuid4()
         service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: userid),
+            find_userid=pretend.call_recorder(lambda username: userid)
         )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface, context: service),
@@ -86,20 +77,16 @@ class TestBasicAuthAuthenticationPolicy:
 
         assert policy.unauthenticated_userid(request) == str(userid)
         assert extract_http_basic_credentials.calls == [pretend.call(request)]
-        assert request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-        ]
+        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
         assert service.find_userid.calls == [pretend.call("username")]
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
 
 class TestSessionAuthenticationPolicy:
-
     def test_verify(self):
         assert verifyClass(
-            IAuthenticationPolicy,
-            auth_policy.SessionAuthenticationPolicy,
+            IAuthenticationPolicy, auth_policy.SessionAuthenticationPolicy
         )
 
     def test_unauthenticated_userid(self, monkeypatch):

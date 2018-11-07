@@ -84,4 +84,19 @@
   &--bottom-margin {
     margin-bottom: $spacing-unit / 2;
   }
+
+  &--dismissed {
+    display: none;
+  }
+
+  &__dismiss {
+    background: transparent;
+    border: 0;
+    position: absolute;
+    top: 0;
+    right: 15px;
+    cursor: pointer;
+    font-size: 1.0rem;
+    line-height: 3.25rem;
+  }
 }

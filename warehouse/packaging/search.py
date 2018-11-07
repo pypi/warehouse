@@ -12,7 +12,7 @@
 
 import packaging.version
 
-from elasticsearch_dsl import DocType, Text, Keyword, analyzer, MetaField, Date
+from elasticsearch_dsl import Document, Text, Keyword, analyzer, Date
 
 from warehouse.search.utils import doc_type
 
@@ -31,7 +31,7 @@ NameAnalyzer = analyzer(
 
 
 @doc_type
-class Project(DocType):
+class Project(Document):
 
     name = Text()
     normalized_name = Text(analyzer=NameAnalyzer)
@@ -51,19 +51,13 @@ class Project(DocType):
     created = Date()
     classifiers = Keyword(multi=True)
 
-    class Meta:
-        # disable the _all field to save some space
-        all = MetaField(enabled=False)
-
     @classmethod
     def from_db(cls, release):
         obj = cls(meta={"id": release.normalized_name})
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
         obj["version"] = sorted(
-            release.all_versions,
-            key=lambda r: packaging.version.parse(r),
-            reverse=True,
+            release.all_versions, key=lambda r: packaging.version.parse(r), reverse=True
         )
         obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary

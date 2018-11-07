@@ -15,7 +15,6 @@ from pyramid.static import ManifestCacheBuster as _ManifestCacheBuster
 
 
 class ManifestCacheBuster(_ManifestCacheBuster):
-
     def __init__(self, *args, strict=True, **kwargs):
         super().__init__(*args, **kwargs)
 

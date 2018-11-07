@@ -17,14 +17,8 @@ def gcloud_bigquery_factory(context, request):
     credentials = request.registry.settings["gcloud.credentials"]
     project = request.registry.settings["gcloud.project"]
 
-    return bigquery.Client.from_service_account_json(
-        credentials,
-        project=project,
-    )
+    return bigquery.Client.from_service_account_json(credentials, project=project)
 
 
 def includeme(config):
-    config.register_service_factory(
-        gcloud_bigquery_factory,
-        name="gcloud.bigquery",
-    )
+    config.register_service_factory(gcloud_bigquery_factory, name="gcloud.bigquery")

@@ -11,12 +11,15 @@
 # limitations under the License.
 
 import functools
+import urllib.parse
 
 import celery.app.backends
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES["rediss"] = "warehouse.tasks:TLSRedisBackend"  # noqa
+celery.app.backends.BACKEND_ALIASES[
+    "rediss"
+] = "warehouse.tasks:TLSRedisBackend"  # noqa
 
 import celery
 import celery.backends.redis
@@ -30,8 +33,11 @@ from pyramid.threadlocal import get_current_request
 from warehouse.config import Environment
 
 
-class TLSRedisBackend(celery.backends.redis.RedisBackend):
+# We need to register that the sqs:// url scheme uses a netloc
+urllib.parse.uses_netloc.append("sqs")
 
+
+class TLSRedisBackend(celery.backends.redis.RedisBackend):
     def _params_from_url(self, url, defaults):
         params = super()._params_from_url(url, defaults)
         params.update({"connection_class": self.redis.SSLConnection})
@@ -39,7 +45,6 @@ class TLSRedisBackend(celery.backends.redis.RedisBackend):
 
 
 class WarehouseTask(celery.Task):
-
     def __new__(cls, *args, **kwargs):
         obj = super().__new__(cls, *args, **kwargs)
         if getattr(obj, "__header__", None) is not None:
@@ -57,8 +62,9 @@ class WarehouseTask(celery.Task):
                 try:
                     return original_run(*args, **kwargs)
                 except BaseException as exc:
-                    if (isinstance(exc, pyramid_retry.RetryableException) or
-                            pyramid_retry.IRetryableError.providedBy(exc)):
+                    if isinstance(
+                        exc, pyramid_retry.RetryableException
+                    ) or pyramid_retry.IRetryableError.providedBy(exc):
                         raise obj.retry(exc=exc)
                     raise
 
@@ -99,9 +105,7 @@ class WarehouseTask(celery.Task):
         # called from within a request, response cycle. Ideally we shouldn't be
         # waiting for responses in a request/response cycle anyways though.
         request.tm.get().addAfterCommitHook(
-            self._after_commit_hook,
-            args=args,
-            kws=kwargs,
+            self._after_commit_hook, args=args, kws=kwargs
         )
 
     def _after_commit_hook(self, success, *args, **kwargs):
@@ -125,10 +129,7 @@ def task(**kwargs):
 
 
 def _get_task(celery_app, task_func):
-    task_name = celery_app.gen_task_name(
-        task_func.__name__,
-        task_func.__module__,
-    )
+    task_name = celery_app.gen_task_name(task_func.__name__, task_func.__module__)
     return celery_app.tasks[task_name]
 
 
@@ -146,32 +147,44 @@ def _get_celery_app(config):
     return config.registry["celery.app"]
 
 
-def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None,
-                       **opts):
+def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **opts):
     def add_task():
         config.registry["celery.app"].add_periodic_task(
-            schedule,
-            config.task(func).s(),
-            args=args,
-            kwargs=kwargs,
-            name=name,
-            **opts
+            schedule, config.task(func).s(), args=args, kwargs=kwargs, name=name, **opts
         )
+
     config.action(None, add_task, order=100)
 
 
 def includeme(config):
     s = config.registry.settings
 
+    queue_name = "celery"
+    broker_transport_options = {}
+
+    broker_url = s["celery.broker_url"]
+    if broker_url.startswith("sqs://"):
+        parsed_url = urllib.parse.urlparse(broker_url)
+        parsed_query = urllib.parse.parse_qs(parsed_url.query)
+        # Celery doesn't handle paths/query arms being passed into the SQS broker,
+        # so we'll jsut remove them from here.
+        broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
+
+        if parsed_url.path:
+            queue_name = parsed_url.path[1:]
+
+        if "region" in parsed_query:
+            broker_transport_options["region"] = parsed_query["region"][0]
+
     config.registry["celery.app"] = celery.Celery(
-        "warehouse",
-        autofinalize=False,
-        set_as_current=False,
+        "warehouse", autofinalize=False, set_as_current=False
     )
     config.registry["celery.app"].conf.update(
         accept_content=["json", "msgpack"],
-        broker_url=s["celery.broker_url"],
+        broker_url=broker_url,
         broker_use_ssl=s["warehouse.env"] == Environment.production,
+        broker_transport_options=broker_transport_options,
+        task_default_queue=queue_name,
         task_queue_ha_policy="all",
         task_serializer="json",
         worker_disable_rate_limits=True,
@@ -180,16 +193,9 @@ def includeme(config):
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
 
-    config.action(
-        ("celery", "finalize"),
-        config.registry["celery.app"].finalize,
-    )
+    config.action(("celery", "finalize"), config.registry["celery.app"].finalize)
 
-    config.add_directive(
-        "add_periodic_task",
-        _add_periodic_task,
-        action_wrap=False,
-    )
+    config.add_directive("add_periodic_task", _add_periodic_task, action_wrap=False)
     config.add_directive("make_celery_app", _get_celery_app, action_wrap=False)
     config.add_directive("task", _get_task_from_config, action_wrap=False)
     config.add_request_method(_get_task_from_request, name="task", reify=True)

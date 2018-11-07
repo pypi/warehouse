@@ -21,24 +21,26 @@ import venusian
 import zope.sqlalchemy
 
 from sqlalchemy import event
+from sqlalchemy.exc import OperationalError
 
 from warehouse import db
 from warehouse.db import (
-    DEFAULT_ISOLATION, ModelBase, includeme, _configure_alembic,
-    _create_engine, _create_session, _readonly, _reset,
+    DEFAULT_ISOLATION,
+    DatabaseNotAvailable,
+    ModelBase,
+    includeme,
+    _configure_alembic,
+    _create_engine,
+    _create_session,
+    _readonly,
+    _reset,
 )
 
 
 def test_model_base_repr(monkeypatch):
     @pretend.call_recorder
     def inspect(item):
-        return pretend.stub(
-            mapper=pretend.stub(
-                column_attrs=[
-                    pretend.stub(key="foo"),
-                ],
-            ),
-        )
+        return pretend.stub(mapper=pretend.stub(column_attrs=[pretend.stub(key="foo")]))
 
     monkeypatch.setattr(db, "inspect", inspect)
 
@@ -75,14 +77,12 @@ def test_listens_for(monkeypatch):
     venusian_attach.calls[0].args[1](scanner, None, handler)
 
     assert event_listen.calls == [
-        pretend.call(target, identifier, mock.ANY, *args, **kwargs),
+        pretend.call(target, identifier, mock.ANY, *args, **kwargs)
     ]
 
 
 def test_configure_alembic(monkeypatch):
-    config_obj = pretend.stub(
-        set_main_option=pretend.call_recorder(lambda *a: None),
-    )
+    config_obj = pretend.stub(set_main_option=pretend.call_recorder(lambda *a: None))
 
     def config_cls():
         return config_obj
@@ -90,7 +90,7 @@ def test_configure_alembic(monkeypatch):
     monkeypatch.setattr(alembic.config, "Config", config_cls)
 
     config = pretend.stub(
-        registry=pretend.stub(settings={"database.url": pretend.stub()}),
+        registry=pretend.stub(settings={"database.url": pretend.stub()})
     )
 
     alembic_config = _configure_alembic(config)
@@ -105,7 +105,7 @@ def test_configure_alembic(monkeypatch):
 @pytest.mark.parametrize("needs_reset", [True, False, None])
 def test_resets_connection(needs_reset):
     dbapi_connection = pretend.stub(
-        set_session=pretend.call_recorder(lambda **kw: None),
+        set_session=pretend.call_recorder(lambda **kw: None)
     )
     connection_record = pretend.stub(info={})
 
@@ -117,10 +117,8 @@ def test_resets_connection(needs_reset):
     if needs_reset:
         assert dbapi_connection.set_session.calls == [
             pretend.call(
-                isolation_level=DEFAULT_ISOLATION,
-                readonly=False,
-                deferrable=False,
-            ),
+                isolation_level=DEFAULT_ISOLATION, readonly=False, deferrable=False
+            )
         ]
     else:
         assert dbapi_connection.set_session.calls == []
@@ -144,9 +142,28 @@ def test_creates_engine(monkeypatch):
             pool_size=35,
             max_overflow=65,
             pool_timeout=20,
-        ),
+        )
     ]
     assert listen.calls == [pretend.call(engine, "reset", _reset)]
+
+
+def test_raises_db_available_error(pyramid_services, metrics):
+    def raiser():
+        raise OperationalError("foo", {}, psycopg2.OperationalError())
+
+    engine = pretend.stub(connect=raiser)
+    request = pretend.stub(
+        find_service=pyramid_services.find_service,
+        registry={"sqlalchemy.engine": engine},
+    )
+
+    with pytest.raises(DatabaseNotAvailable):
+        _create_session(request)
+
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.db.session.start"),
+        pretend.call("warehouse.db.session.error", tags=["error_in:connecting"]),
+    ]
 
 
 @pytest.mark.parametrize(
@@ -158,7 +175,7 @@ def test_creates_engine(monkeypatch):
         (False, psycopg2.extensions.TRANSACTION_STATUS_INTRANS),
     ],
 )
-def test_create_session(monkeypatch, read_only, tx_status):
+def test_create_session(monkeypatch, pyramid_services, read_only, tx_status):
     session_obj = pretend.stub(
         close=pretend.call_recorder(lambda: None),
         query=lambda *a: pretend.stub(get=lambda *a: None),
@@ -177,6 +194,7 @@ def test_create_session(monkeypatch, read_only, tx_status):
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
+        find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(),
         read_only=read_only,
@@ -189,13 +207,9 @@ def test_create_session(monkeypatch, read_only, tx_status):
     monkeypatch.setattr(zope.sqlalchemy, "register", register)
 
     assert _create_session(request) is session_obj
-    assert connection.connection.get_transaction_status.calls == [
-        pretend.call(),
-    ]
+    assert connection.connection.get_transaction_status.calls == [pretend.call()]
     assert session_cls.calls == [pretend.call(bind=connection)]
-    assert register.calls == [
-        pretend.call(session_obj, transaction_manager=request.tm),
-    ]
+    assert register.calls == [pretend.call(session_obj, transaction_manager=request.tm)]
     assert request.add_finished_callback.calls == [pretend.call(mock.ANY)]
     request.add_finished_callback.calls[0].args[0](request2)
     assert session_obj.close.calls == [pretend.call()]
@@ -204,11 +218,7 @@ def test_create_session(monkeypatch, read_only, tx_status):
     if read_only:
         assert connection.info == {"warehouse.needs_reset": True}
         assert connection.connection.set_session.calls == [
-            pretend.call(
-                isolation_level="SERIALIZABLE",
-                readonly=True,
-                deferrable=True,
-            )
+            pretend.call(isolation_level="SERIALIZABLE", readonly=True, deferrable=True)
         ]
 
     if tx_status != psycopg2.extensions.TRANSACTION_STATUS_IDLE:
@@ -222,20 +232,20 @@ def test_create_session(monkeypatch, read_only, tx_status):
         (None, False, []),
         (pretend.stub(enabled=False), True, []),
         (pretend.stub(enabled=False), False, []),
-        (pretend.stub(enabled=True, description='flag description'), True, []),
+        (pretend.stub(enabled=True, description="flag description"), True, []),
         (
-            pretend.stub(enabled=True, description='flag description'),
+            pretend.stub(enabled=True, description="flag description"),
             False,
             [pretend.call()],
         ),
     ],
 )
 def test_create_session_read_only_mode(
-        admin_flag, is_superuser, doom_calls, monkeypatch):
+    admin_flag, is_superuser, doom_calls, monkeypatch, pyramid_services
+):
     get = pretend.call_recorder(lambda *a: admin_flag)
     session_obj = pretend.stub(
-        close=lambda: None,
-        query=lambda *a: pretend.stub(get=get),
+        close=lambda: None, query=lambda *a: pretend.stub(get=get)
     )
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
@@ -254,6 +264,7 @@ def test_create_session_read_only_mode(
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
+        find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
         read_only=False,
@@ -262,7 +273,7 @@ def test_create_session_read_only_mode(
     )
 
     assert _create_session(request) is session_obj
-    assert get.calls == [pretend.call('read-only')]
+    assert get.calls == [pretend.call("read-only")]
     assert request.tm.doom.calls == doom_calls
 
 
@@ -308,10 +319,10 @@ def test_includeme(monkeypatch):
     includeme(config)
 
     assert config.add_directive.calls == [
-        pretend.call("alembic_config", _configure_alembic),
+        pretend.call("alembic_config", _configure_alembic)
     ]
     assert create_engine.calls == [
-        pretend.call(config.registry.settings["database.url"]),
+        pretend.call(config.registry.settings["database.url"])
     ]
     assert config.registry["sqlalchemy.engine"] is engine
     assert config.add_request_method.calls == [
@@ -319,5 +330,5 @@ def test_includeme(monkeypatch):
         pretend.call(_readonly, name="read_only", reify=True),
     ]
     assert config.add_route_predicate.calls == [
-        pretend.call("read_only", db.ReadOnlyPredicate),
+        pretend.call("read_only", db.ReadOnlyPredicate)
     ]

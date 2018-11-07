@@ -16,13 +16,11 @@ from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import func, literal, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import (
-    Project, Release, File, Role, BlacklistedProject
-)
+from warehouse.packaging.models import Project, Release, File, Role, BlacklistedProject
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_project
@@ -42,9 +40,8 @@ def blacklist(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    blacklist_query = (
-        request.db.query(BlacklistedProject)
-                  .order_by(BlacklistedProject.name)
+    blacklist_query = request.db.query(BlacklistedProject).order_by(
+        BlacklistedProject.name
     )
 
     if q:
@@ -87,28 +84,19 @@ def confirm_blacklist(request):
     # need to warn that blacklisting will delete those.
     project = (
         request.db.query(Project)
-                  .filter(Project.normalized_name ==
-                          func.normalize_pep426_name(project_name))
-                  .first()
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
     )
     if project is not None:
-        releases = (
-            request.db.query(Release)
-                      .filter(Release.name == project.name)
-                      .all()
-        )
-        files = (
-            request.db.query(File)
-                      .filter(File.name == project.name)
-                      .all()
-        )
+        releases = request.db.query(Release).filter(Release.name == project.name).all()
+        files = request.db.query(File).filter(File.name == project.name).all()
         roles = (
             request.db.query(Role)
-                      .join(User)
-                      .filter(Role.project == project)
-                      .distinct(User.username)
-                      .order_by(User.username)
-                      .all()
+            .join(User)
+            .filter(Role.project == project)
+            .distinct(User.username)
+            .order_by(User.username)
+            .all()
         )
     else:
         releases = []
@@ -116,16 +104,13 @@ def confirm_blacklist(request):
         roles = []
 
     return {
-        "blacklist": {
-            "project": project_name,
-            "comment": comment,
-        },
+        "blacklist": {"project": project_name, "comment": comment},
         "existing": {
             "project": project,
             "releases": releases,
             "files": files,
             "roles": roles,
-        }
+        },
     }
 
 
@@ -145,24 +130,33 @@ def add_blacklist(request):
     # Verify that the user has confirmed the request to blacklist.
     confirm = request.POST.get("confirm")
     if not confirm:
-        request.session.flash(
-            "Confirm the blacklist request",
-            queue="error",
-        )
+        request.session.flash("Confirm the blacklist request", queue="error")
         return HTTPSeeOther(request.current_route_path())
     elif canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
-            f"{confirm!r} is not the same as {project_name!r}",
-            queue="error",
+            f"{confirm!r} is not the same as {project_name!r}", queue="error"
         )
         return HTTPSeeOther(request.current_route_path())
+
+    # Check to make sure the object doesn't already exist.
+    if (
+        request.db.query(literal(True))
+        .filter(
+            request.db.query(BlacklistedProject)
+            .filter(BlacklistedProject.name == project_name)
+            .exists()
+        )
+        .scalar()
+    ):
+        request.session.flash(
+            f"{project_name!r} has already been blacklisted.", queue="error"
+        )
+        return HTTPSeeOther(request.route_path("admin.blacklist.list"))
 
     # Add our requested blacklist.
     request.db.add(
         BlacklistedProject(
-            name=project_name,
-            comment=comment,
-            blacklisted_by=request.user,
+            name=project_name, comment=comment, blacklisted_by=request.user
         )
     )
 
@@ -171,17 +165,13 @@ def add_blacklist(request):
     # blacklist only takes effect on new project registration).
     project = (
         request.db.query(Project)
-                  .filter(Project.normalized_name ==
-                          func.normalize_pep426_name(project_name))
-                  .first()
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
     )
     if project is not None:
         remove_project(project, request)
 
-    request.session.flash(
-        f"Blacklisted {project_name!r}",
-        queue="success",
-    )
+    request.session.flash(f"Blacklisted {project_name!r}", queue="success")
 
     return HTTPSeeOther(request.route_path("admin.blacklist.list"))
 
@@ -201,24 +191,20 @@ def remove_blacklist(request):
     try:
         blacklist = (
             request.db.query(BlacklistedProject)
-                      .filter(BlacklistedProject.id == blacklist_id)
-                      .one()
+            .filter(BlacklistedProject.id == blacklist_id)
+            .one()
         )
     except NoResultFound:
         raise HTTPNotFound from None
 
     request.db.delete(blacklist)
 
-    request.session.flash(
-        f"{blacklist.name!r} unblacklisted",
-        queue="success",
-    )
+    request.session.flash(f"{blacklist.name!r} unblacklisted", queue="success")
 
     redirect_to = request.POST.get("next")
     # If the user-originating redirection url is not safe, then redirect to
     # the index instead.
-    if (not redirect_to or
-            not is_safe_url(url=redirect_to, host=request.host)):
+    if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
         redirect_to = request.route_path("admin.blacklist.list")
 
     return HTTPSeeOther(redirect_to)

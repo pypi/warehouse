@@ -13,6 +13,8 @@
 import threading
 import requests
 
+from requests.adapters import HTTPAdapter
+
 
 class ThreadLocalSessionFactory:
     def __init__(self, config=None):
@@ -26,7 +28,12 @@ class ThreadLocalSessionFactory:
             return session
         except AttributeError:
             request.log.debug("creating new session")
+
+            adapter = HTTPAdapter(max_retries=1)
+
             session = requests.Session()
+            session.mount("http://", adapter)
+            session.mount("https://", adapter)
 
             if self.config is not None:
                 for attr, val in self.config.items():
@@ -40,5 +47,6 @@ class ThreadLocalSessionFactory:
 def includeme(config):
     config.add_request_method(
         ThreadLocalSessionFactory(config.registry.settings.get("http")),
-        name="http", reify=True
+        name="http",
+        reify=True,
     )

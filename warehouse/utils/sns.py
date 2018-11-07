@@ -24,9 +24,7 @@ from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.hashes import SHA1
 
 
-_signing_url_host_re = re.compile(
-    r"^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$",
-)
+_signing_url_host_re = re.compile(r"^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$")
 
 
 class InvalidMessage(Exception):
@@ -34,7 +32,6 @@ class InvalidMessage(Exception):
 
 
 class MessageVerifier:
-
     def __init__(self, *, topics, session=None):
         self.topics = topics
         self.http = session if session is not None else requests.session()
@@ -56,8 +53,7 @@ class MessageVerifier:
 
         try:
             timestamp = datetime.datetime.strptime(
-                timestamp_str,
-                "%Y-%m-%dT%H:%M:%S.%fZ",
+                timestamp_str, "%Y-%m-%dT%H:%M:%S.%fZ"
             )
         except ValueError:
             raise InvalidMessage("Unknown Timestamp format")
@@ -99,8 +95,7 @@ class MessageVerifier:
     def _get_data_to_sign(self, message):
         if message["Type"] == "Notification":
             parts = self._get_parts_to_sign_notification(message)
-        elif (message["Type"] in
-                {"SubscriptionConfirmation", "UnsubscribeConfirmation"}):
+        elif message["Type"] in {"SubscriptionConfirmation", "UnsubscribeConfirmation"}:
             parts = self._get_parts_to_sign_subscription(message)
         else:
             raise InvalidMessage("Invalid Type")
@@ -108,29 +103,38 @@ class MessageVerifier:
         return ("\n".join(parts) + "\n").encode("utf8")
 
     def _get_parts_to_sign_notification(self, message):
-        parts = [
-            "Message", message["Message"],
-            "MessageId", message["MessageId"],
-        ]
+        parts = ["Message", message["Message"], "MessageId", message["MessageId"]]
 
         if "Subject" in message:
             parts.extend(["Subject", message["Subject"]])
 
-        parts.extend([
-            "Timestamp", message["Timestamp"],
-            "TopicArn", message["TopicArn"],
-            "Type", message["Type"],
-        ])
+        parts.extend(
+            [
+                "Timestamp",
+                message["Timestamp"],
+                "TopicArn",
+                message["TopicArn"],
+                "Type",
+                message["Type"],
+            ]
+        )
 
         return parts
 
     def _get_parts_to_sign_subscription(self, message):
         return [
-            "Message", message["Message"],
-            "MessageId", message["MessageId"],
-            "SubscribeURL", message["SubscribeURL"],
-            "Timestamp", message["Timestamp"],
-            "Token", message["Token"],
-            "TopicArn", message["TopicArn"],
-            "Type", message["Type"],
+            "Message",
+            message["Message"],
+            "MessageId",
+            message["MessageId"],
+            "SubscribeURL",
+            message["SubscribeURL"],
+            "Timestamp",
+            message["Timestamp"],
+            "Token",
+            message["Token"],
+            "TopicArn",
+            message["TopicArn"],
+            "Type",
+            message["Type"],
         ]
