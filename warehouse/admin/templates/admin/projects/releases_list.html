@@ -49,7 +49,7 @@
 
       {% for release in releases %}
       <tr>
-        <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.name }}-{{ release.version }}</a></td>
+        <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.project.name }}-{{ release.version }}</a></td>
         <td>{{ release.created }}</td>
         <td>
           {% if release.uploader %}
