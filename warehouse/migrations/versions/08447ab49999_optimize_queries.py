@@ -37,9 +37,11 @@ def upgrade():
         ["submitted_date", "id"],
         unique=False,
     )
+    op.create_index(op.f("ix_projects_created"), "projects", ["created"], unique=False)
 
 
 def downgrade():
+    op.drop_index(op.f("ix_projects_created"), table_name="projects")
     op.drop_index("journakls_submitted_date_id_idx", table_name="journals")
     op.drop_index(op.f("ix_users_sitemap_bucket"), table_name="users")
     op.drop_index(op.f("ix_projects_sitemap_bucket"), table_name="projects")

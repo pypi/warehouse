@@ -109,7 +109,10 @@ class Project(SitemapMixin, db.Model):
     name = Column(Text, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
     created = Column(
-        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+        index=True,
     )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
