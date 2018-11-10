@@ -18,7 +18,7 @@
 <div class="button-group button-group--pagination">
     {# previous button #}
     {% if map.current_page.value == map.first_page.number %}
-    <a class="button button-group__button button--disabled">Previous</a>
+  <a class="button button-group__button button--disabled">Previous</a>
     {% else %}
     <a href="{{ map.previous_page.href }}" class="button button-group__button">Previous</a>
     {% endif %}

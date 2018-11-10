@@ -13,7 +13,7 @@
 -#}
 {% extends "base.html" %}
 
-{% import "pagination.html" as pagination %}
+{% import "warehouse:templates/includes/pagination.html" as pagination %}
 
 {% block title %}Search results{% endblock %}
 
@@ -48,7 +48,7 @@
 
 {% block search_form_extra_inputs -%}
   {%- for classifier in applied_filters %}
-    <input name="c" type="hidden" value="{{ classifier|e }}">
+  <input name="c" type="hidden" value="{{ classifier|e }}">
   {%- endfor -%}
 {%- endblock %}
 
