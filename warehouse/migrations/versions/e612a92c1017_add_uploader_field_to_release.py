@@ -32,29 +32,6 @@ def upgrade():
         "releases",
         sa.Column("uploader_id", postgresql.UUID(as_uuid=True), nullable=True),
     )
-    op.execute(
-        """
-        UPDATE releases
-        SET uploader_id = s.user_id
-        FROM (
-            SELECT accounts_user.id as user_id,
-                    packages.id as project_id,
-                    releases.version as release_version,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY journals.name, journals.version
-                        ORDER BY journals.id DESC
-                    ) as rn
-            FROM accounts_user, packages, journals, releases
-            WHERE journals.name = packages.name
-                AND journals.version = releases.version
-                AND journals.action = 'new release'
-                AND accounts_user.username = journals.submitted_by
-        ) s
-        WHERE releases.project_id = s.project_id
-            AND releases.version = s.release_version
-            AND s.rn = 1
-        """
-    )
     op.create_foreign_key(
         None,
         "releases",
