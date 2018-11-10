@@ -17,6 +17,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
@@ -1283,7 +1284,9 @@ class TestManageProjectRoles:
             "form": form_obj,
         }
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "add Owner new_user"
@@ -1415,7 +1418,9 @@ class TestChangeProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "change Owner testuser to Maintainer"
@@ -1477,7 +1482,9 @@ class TestChangeProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
@@ -1583,7 +1590,9 @@ class TestDeleteProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"

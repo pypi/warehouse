@@ -511,7 +511,7 @@ class JournalEntry(db.ModelBase):
     _submitted_by = Column(
         "submitted_by", CIText, ForeignKey("users.username", onupdate="CASCADE")
     )
-    submitted_by = orm.relationship(User)
+    submitted_by = orm.relationship(User, lazy="raise_on_sql")
     submitted_from = Column(Text)
 
 

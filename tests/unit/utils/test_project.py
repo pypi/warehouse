@@ -13,6 +13,7 @@
 import pytest
 from pretend import call, call_recorder, stub, raiser
 from pyramid.httpexceptions import HTTPSeeOther
+from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.models import (
     Project,
@@ -132,7 +133,10 @@ def test_remove_project(db_request, flash):
     )
 
     journal_entry = (
-        db_request.db.query(JournalEntry).filter(JournalEntry.name == "foo").one()
+        db_request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
+        .filter(JournalEntry.name == "foo")
+        .one()
     )
     assert journal_entry.action == "remove project"
     assert journal_entry.submitted_by == db_request.user
@@ -154,7 +158,10 @@ def test_destroy_docs(db_request, flash):
     destroy_docs(project, db_request, flash=flash)
 
     journal_entry = (
-        db_request.db.query(JournalEntry).filter(JournalEntry.name == "foo").one()
+        db_request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
+        .filter(JournalEntry.name == "foo")
+        .one()
     )
     assert journal_entry.action == "docdestroy"
     assert journal_entry.submitted_by == db_request.user
