@@ -498,6 +498,7 @@ class JournalEntry(db.ModelBase):
             Index("journals_name_idx", "name"),
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
+            Index("journakls_submitted_date_id_idx", cls.submitted_date, cls.id),
         )
 
     id = Column(Integer, primary_key=True, nullable=False)
