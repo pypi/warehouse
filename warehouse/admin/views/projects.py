@@ -41,7 +41,7 @@ def project_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    projects_query = request.db.query(Project).order_by(Project.name)
+    projects_query = request.db.query(Project).order_by(Project.normalized_name)
 
     if q:
         terms = shlex.split(q)
