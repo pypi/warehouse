@@ -88,11 +88,23 @@ def confirm_blacklist(request):
         .first()
     )
     if project is not None:
-        releases = request.db.query(Release).filter(Release.name == project.name).all()
-        files = request.db.query(File).filter(File.name == project.name).all()
+        releases = (
+            request.db.query(Release)
+            .join(Project)
+            .filter(Release.project == project)
+            .all()
+        )
+        files = (
+            request.db.query(File)
+            .join(Release)
+            .join(Project)
+            .filter(Release.project == project)
+            .all()
+        )
         roles = (
             request.db.query(Role)
             .join(User)
+            .join(Project)
             .filter(Role.project == project)
             .distinct(User.username)
             .order_by(User.username)

@@ -86,7 +86,7 @@
                         <div class="modal-dialog" role="document">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h4 class="modal-title" id="exampleModalLabel">Remove role for {{ role.user_name }}?</h4>
+                              <h4 class="modal-title" id="exampleModalLabel">Remove role for {{ role.user.username }}?</h4>
                               <button type="button" class="close" data-dismiss="modal">
                                 <span>&times;</span>
                               </button>
@@ -97,9 +97,9 @@
                               </p>
                               <hr>
                               <p>
-                                To delete role "{{ role.role_name }}" for "{{role.user_name}}", type the username:
+                                To delete role "{{ role.role_name }}" for "{{role.user.username}}", type the username:
                               </p>
-                              <input type="text" name="username" placeholder="{{ role.user_name }}" required>
+                              <input type="text" name="username" placeholder="{{ role.user.username }}" required>
                             </div>
                             <div class="modal-footer">
                               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -148,7 +148,11 @@
                 <tr>
                   <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.name }}-{{ release.version }}</a></td>
                   <td>{{ release.created }}</td>
-                  <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
+                  <td>
+                    {% if release.uploader %}
+                    <a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a>
+                    {% endif %}
+                  </td>
                   <td>{{ release.author_email }}</td>
                 </tr>
                 {% endfor %}

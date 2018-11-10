@@ -41,7 +41,11 @@
         </tr>
         <tr>
           <td>Uploader</td>
-          <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
+          <td>
+            {% if release.uploader %}
+            <a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <td>Created via</td>

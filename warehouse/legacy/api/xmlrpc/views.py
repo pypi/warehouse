@@ -491,15 +491,12 @@ def browse(request, classifiers: List[str]):
     )
 
     releases = (
-        request.db.query(Release.name, Release.version)
-        .join(
-            release_classifiers_q,
-            (Release.name == release_classifiers_q.c.name)
-            & (Release.version == release_classifiers_q.c.version),
-        )
-        .group_by(Release.name, Release.version)
+        request.db.query(Project.name, Release.version)
+        .join(Release)
+        .join(release_classifiers_q, Release.id == release_classifiers_q.c.release_id)
+        .group_by(Project.name, Release.version)
         .having(func.count() == len(classifiers))
-        .order_by(Release.name, Release.version)
+        .order_by(Project.name, Release.version)
         .all()
     )
 

@@ -22,7 +22,7 @@ from webob.multidict import MultiDict
 
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
-from warehouse.packaging.models import JournalEntry, Project, Role, User
+from warehouse.packaging.models import JournalEntry, Project, File, Role, User
 from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
@@ -30,6 +30,7 @@ from ...common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
+    FileFactory,
     RoleFactory,
     UserFactory,
 )
@@ -977,53 +978,51 @@ class TestManageProjectRelease:
             )
         ]
 
-    def test_delete_project_release_file(self, monkeypatch):
-        release_file = pretend.stub(filename="foo-bar.tar.gz", id=str(uuid.uuid4()))
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
-        request = pretend.stub(
-            POST={
-                "confirm_project_name": release.project.name,
-                "file_id": release_file.id,
-            },
-            method="POST",
-            db=pretend.stub(
-                delete=pretend.call_recorder(lambda a: None),
-                add=pretend.call_recorder(lambda a: None),
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: release_file)
-                ),
-            ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(),
-            remote_addr=pretend.stub(),
-        )
-        journal_obj = pretend.stub()
-        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
-        monkeypatch.setattr(views, "JournalEntry", journal_cls)
+    def test_delete_project_release_file(self, db_request):
+        user = UserFactory.create()
 
-        view = views.ManageProjectRelease(release, request)
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+        release_file = FileFactory.create(
+            release=release, filename=f"foobar-{release.version}.tar.gz"
+        )
+
+        db_request.POST = {
+            "confirm_project_name": release.project.name,
+            "file_id": release_file.id,
+        }
+        db_request.method = ("POST",)
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+        db_request.remote_addr = "1.2.3.4"
+
+        view = views.ManageProjectRelease(release, db_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert request.session.flash.calls == [
+        assert db_request.session.flash.calls == [
             pretend.call(f"Deleted file {release_file.filename!r}", queue="success")
         ]
-        assert request.db.delete.calls == [pretend.call(release_file)]
-        assert request.db.add.calls == [pretend.call(journal_obj)]
-        assert journal_cls.calls == [
-            pretend.call(
-                name=release.project.name,
-                action=f"remove file {release_file.filename}",
+
+        assert db_request.db.query(File).filter_by(id=release_file.id).first() is None
+        assert (
+            db_request.db.query(JournalEntry)
+            .filter_by(
+                name=project.name,
                 version=release.version,
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
+                action=f"remove file {release_file.filename}",
+                submitted_by=user,
+                submitted_from="1.2.3.4",
             )
-        ]
-        assert request.route_path.calls == [
+            .one()
+        )
+        assert db_request.route_path.calls == [
             pretend.call(
                 "manage.project.release",
                 project_name=release.project.name,
@@ -1059,36 +1058,38 @@ class TestManageProjectRelease:
             )
         ]
 
-    def test_delete_project_release_file_not_found(self):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+    def test_delete_project_release_file_not_found(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
 
         def no_result_found():
             raise NoResultFound
 
-        request = pretend.stub(
-            POST={"confirm_project_name": "whatever"},
-            method="POST",
-            db=pretend.stub(
-                delete=pretend.call_recorder(lambda a: None),
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=no_result_found)
-                ),
+        db_request.POST = {"confirm_project_name": "whatever"}
+        db_request.method = "POST"
+        db_request.db = pretend.stub(
+            delete=pretend.call_recorder(lambda a: None),
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(one=no_result_found)
             ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
-        view = views.ManageProjectRelease(release, request)
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert request.db.delete.calls == []
-        assert request.session.flash.calls == [
+        assert db_request.db.delete.calls == []
+        assert db_request.session.flash.calls == [
             pretend.call("Could not find file", queue="error")
         ]
-        assert request.route_path.calls == [
+        assert db_request.route_path.calls == [
             pretend.call(
                 "manage.project.release",
                 project_name=release.project.name,
@@ -1096,37 +1097,38 @@ class TestManageProjectRelease:
             )
         ]
 
-    def test_delete_project_release_file_bad_confirm(self):
-        release_file = pretend.stub(filename="foo-bar.tar.gz", id=str(uuid.uuid4()))
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
-        request = pretend.stub(
-            POST={"confirm_project_name": "invalid"},
-            method="POST",
-            db=pretend.stub(
-                delete=pretend.call_recorder(lambda a: None),
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: release_file)
-                ),
-            ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+    def test_delete_project_release_file_bad_confirm(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.2.3")
+        release_file = FileFactory.create(
+            release=release, filename="foobar-1.2.3.tar.gz"
         )
-        view = views.ManageProjectRelease(release, request)
+
+        db_request.POST = {
+            "confirm_project_name": "invalid",
+            "file_id": str(release_file.id),
+        }
+        db_request.method = "POST"
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-
-        assert request.db.delete.calls == []
-        assert request.session.flash.calls == [
+        assert db_request.db.query(File).filter_by(id=release_file.id).one()
+        assert db_request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - "
                 + f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]
-        assert request.route_path.calls == [
+        assert db_request.route_path.calls == [
             pretend.call(
                 "manage.project.release",
                 project_name=release.project.name,

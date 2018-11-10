@@ -42,23 +42,28 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
 def user_projects(request):
     """ Return all the projects for which the user is a sole owner """
     projects_owned = (
-        request.db.query(Project)
+        request.db.query(Project.id)
         .join(Role.project)
         .filter(Role.role_name == "Owner", Role.user == request.user)
         .subquery()
     )
 
     with_sole_owner = (
-        request.db.query(Role.package_name)
+        request.db.query(Role.project_id)
         .join(projects_owned)
         .filter(Role.role_name == "Owner")
-        .group_by(Role.package_name)
-        .having(func.count(Role.package_name) == 1)
+        .group_by(Role.project_id)
+        .having(func.count(Role.project_id) == 1)
         .subquery()
     )
 
     return {
-        "projects_owned": request.db.query(projects_owned).all(),
+        "projects_owned": (
+            request.db.query(Project)
+            .join(projects_owned, Project.id == projects_owned.c.id)
+            .order_by(Project.name)
+            .all()
+        ),
         "projects_sole_owned": (
             request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
         ),
@@ -454,7 +459,7 @@ class ManageProjectRelease:
             release_file = (
                 self.request.db.query(File)
                 .filter(
-                    File.name == self.release.project.name,
+                    File.release == self.release,
                     File.id == self.request.POST.get("file_id"),
                 )
                 .one()
@@ -610,6 +615,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             # TODO: This branch should be removed when fixing GH-2745.
             roles = (
                 request.db.query(Role)
+                .join(User)
                 .filter(
                     Role.id.in_(role_ids),
                     Role.project == project,
@@ -629,7 +635,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     request.db.add(
                         JournalEntry(
                             name=project.name,
-                            action=f"remove {role.role_name} {role.user_name}",
+                            action=f"remove {role.role_name} {role.user.username}",
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
                         )
@@ -640,6 +646,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             try:
                 role = (
                     request.db.query(Role)
+                    .join(User)
                     .filter(
                         Role.id == request.POST.get("role_id"), Role.project == project
                     )
@@ -654,7 +661,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         JournalEntry(
                             name=project.name,
                             action="change {} {} to {}".format(
-                                role.role_name, role.user_name, form.role_name.data
+                                role.role_name, role.user.username, form.role_name.data
                             ),
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
@@ -683,6 +690,7 @@ def delete_project_role(project, request):
 
     roles = (
         request.db.query(Role)
+        .join(User)
         .filter(Role.id.in_(request.POST.getall("role_id")), Role.project == project)
         .all()
     )
@@ -700,7 +708,7 @@ def delete_project_role(project, request):
             request.db.add(
                 JournalEntry(
                     name=project.name,
-                    action=f"remove {role.role_name} {role.user_name}",
+                    action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
