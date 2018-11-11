@@ -269,6 +269,7 @@ class ManageAccountViews:
 
         journals = (
             self.request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.submitted_by == self.request.user)
             .all()
         )
