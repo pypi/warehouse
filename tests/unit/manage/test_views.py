@@ -576,7 +576,7 @@ class TestManageAccount:
     def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()
         deleted_user = UserFactory.create(username="deleted-user")
-        journal = JournalEntryFactory(submitted_by=user)
+        jid = JournalEntryFactory.create(submitted_by=user).id
 
         db_request.user = user
         db_request.params = {"confirm_username": user.username}
@@ -595,6 +595,14 @@ class TestManageAccount:
         view = views.ManageAccountViews(db_request)
 
         assert view.delete_account() == logout_response
+
+        journal = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .filter_by(id=jid)
+            .one()
+        )
+
         assert journal.submitted_by == deleted_user
         assert db_request.db.query(User).all() == [deleted_user]
         assert send_email.calls == [pretend.call(db_request, user)]
