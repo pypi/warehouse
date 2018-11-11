@@ -285,7 +285,7 @@
                       None
                     {% endif %}
                   </td>
-                  <td>{{ file.upload_time|format_date() }}</td>
+                  <td>{{ localize(file.upload_time) }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
