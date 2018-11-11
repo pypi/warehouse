@@ -109,7 +109,10 @@ class Project(SitemapMixin, db.Model):
     name = Column(Text, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
     created = Column(
-        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+        index=True,
     )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
@@ -498,6 +501,7 @@ class JournalEntry(db.ModelBase):
             Index("journals_name_idx", "name"),
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
+            Index("journakls_submitted_date_id_idx", cls.submitted_date, cls.id),
         )
 
     id = Column(Integer, primary_key=True, nullable=False)
@@ -510,7 +514,7 @@ class JournalEntry(db.ModelBase):
     _submitted_by = Column(
         "submitted_by", CIText, ForeignKey("users.username", onupdate="CASCADE")
     )
-    submitted_by = orm.relationship(User)
+    submitted_by = orm.relationship(User, lazy="raise_on_sql")
     submitted_from = Column(Text)
 
 

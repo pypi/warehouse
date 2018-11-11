@@ -16,6 +16,8 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import or_, func
+
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -41,7 +43,7 @@ def project_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    projects_query = request.db.query(Project).order_by(Project.name)
+    projects_query = request.db.query(Project).order_by(Project.normalized_name)
 
     if q:
         terms = shlex.split(q)
@@ -101,6 +103,7 @@ def project_detail(project, request):
         entry
         for entry in (
             request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
             .limit(30)
@@ -190,6 +193,7 @@ def releases_list(project, request):
 def release_detail(release, request):
     journals = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == release.project.name)
         .filter(JournalEntry.version == release.version)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
@@ -220,6 +224,7 @@ def journals_list(project, request):
 
     journals_query = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
     )

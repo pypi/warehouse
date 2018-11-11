@@ -15,6 +15,7 @@ from collections import defaultdict
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
@@ -730,6 +731,7 @@ def delete_project_role(project, request):
 def manage_project_history(project, request):
     journals = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()

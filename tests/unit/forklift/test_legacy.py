@@ -25,6 +25,7 @@ import pytest
 import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
@@ -1320,7 +1321,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2257,7 +2261,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2360,7 +2367,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2590,7 +2600,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2756,7 +2769,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
