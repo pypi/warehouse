@@ -33,12 +33,13 @@ def _format_sender(sitename, sender):
         return str(Address(sitename, addr_spec=sender))
 
 
-@attr.s(auto_attribs=True, frozen=True, slots=True)
+@attr.s(frozen=True, slots=True)
 class EmailMessage:
 
-    subject: str
-    body_text: str
-    body_html: Optional[str] = None
+    # TODO: PyPy 3.6 - Switch to auto_attribs=True
+    subject = attr.ib(type=str)
+    body_text = attr.ib(type=str)
+    body_html = attr.ib(type=Optional[str], default=None)
 
     @classmethod
     def from_template(cls, email_name, context, *, request):

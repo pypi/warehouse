@@ -57,7 +57,7 @@ class RedisLru(object):
             return None
         if value:
             self.metric_reporter.increment(f"{self.name}.cache.hit")
-            value = json.loads(value)
+            value = json.loads(value.decode("utf8"))
         return value
 
     def add(self, func_name, key, value, tag, expires):

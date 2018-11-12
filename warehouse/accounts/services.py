@@ -304,7 +304,7 @@ class HaveIBeenPwnedPasswordBreachedService:
 
     def __init__(
         self,
-        *,
+        # *,  # TODO: Bug Report to PyPy? Wait for PyPy 3.6?
         session,
         metrics,
         api_base="https://api.pwnedpasswords.com",
