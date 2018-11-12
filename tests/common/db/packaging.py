@@ -18,6 +18,8 @@ import factory
 import factory.fuzzy
 import packaging.utils
 
+from pyblake2 import blake2b as hashlib_blake2b
+
 from warehouse.packaging.models import (
     BlacklistedProject,
     Dependency,
@@ -69,7 +71,7 @@ class FileFactory(WarehouseFactory):
         lambda o: hashlib.sha256(o.filename.encode("utf8")).hexdigest()
     )
     blake2_256_digest = factory.LazyAttribute(
-        lambda o: hashlib.blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
+        lambda o: hashlib_blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
     )
     upload_time = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
     path = factory.LazyAttribute(

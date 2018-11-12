@@ -24,6 +24,7 @@ import pretend
 import pytest
 import requests
 
+from pyblake2 import blake2b as hashlib_blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict
@@ -551,7 +552,7 @@ class TestIsDuplicateFile:
         hashes = {
             "sha256": hashlib.sha256(file_value).hexdigest(),
             "md5": hashlib.md5(file_value).hexdigest(),
-            "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
+            "blake2_256": hashlib_blake2b(file_value, digest_size=256 // 8).hexdigest(),
         }
         db_request.db.add(
             File(
@@ -585,7 +586,7 @@ class TestIsDuplicateFile:
         hashes = {
             "sha256": hashlib.sha256(file_value).hexdigest(),
             "md5": hashlib.md5(file_value).hexdigest(),
-            "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
+            "blake2_256": hashlib_blake2b(file_value, digest_size=256 // 8).hexdigest(),
         }
         db_request.db.add(
             File(
@@ -624,7 +625,7 @@ class TestIsDuplicateFile:
         hashes = {
             "sha256": hashlib.sha256(file_value).hexdigest(),
             "md5": hashlib.md5(file_value).hexdigest(),
-            "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
+            "blake2_256": hashlib_blake2b(file_value, digest_size=256 // 8).hexdigest(),
         }
         db_request.db.add(
             File(
@@ -660,7 +661,7 @@ class TestIsDuplicateFile:
         hashes = {
             "sha256": hashlib.sha256(file_value).hexdigest(),
             "md5": hashlib.md5(file_value).hexdigest(),
-            "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
+            "blake2_256": hashlib_blake2b(file_value, digest_size=256 // 8).hexdigest(),
         }
 
         wrong_hashes = {"sha256": "nah", "md5": "nope", "blake2_256": "nuh uh"}
@@ -1880,7 +1881,7 @@ class TestFileUpload:
                 filename=filename,
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(file_content.getvalue()).hexdigest(),
-                blake2_256_digest=hashlib.blake2b(
+                blake2_256_digest=hashlib_blake2b(
                     file_content.getvalue(), digest_size=256 // 8
                 ).hexdigest(),
                 path="source/{name[0]}/{name}/{filename}".format(
@@ -1927,7 +1928,7 @@ class TestFileUpload:
                 filename=filename,
                 md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
                 sha256_digest=hashlib.sha256(filename.encode("utf8")).hexdigest(),
-                blake2_256_digest=hashlib.blake2b(
+                blake2_256_digest=hashlib_blake2b(
                     filename.encode("utf8"), digest_size=256 // 8
                 ).hexdigest(),
                 path="source/{name[0]}/{name}/{filename}".format(
@@ -1981,7 +1982,7 @@ class TestFileUpload:
                 filename=filename,
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(file_content.getvalue()).hexdigest(),
-                blake2_256_digest=hashlib.blake2b(
+                blake2_256_digest=hashlib_blake2b(
                     file_content.getvalue(), digest_size=256 // 8
                 ).hexdigest(),
                 path="source/{name[0]}/{name}/{filename}".format(
