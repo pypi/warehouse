@@ -10,8 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ssl import VerifyMode
-
+from ssl import CERT_REQUIRED
 from unittest import mock
 
 import pretend
@@ -34,7 +33,7 @@ def test_tls_redis_backend():
         "connection_class": backend.redis.SSLConnection,
         "host": "localhost",
         "db": 0,
-        "ssl_cert_reqs": VerifyMode.CERT_REQUIRED,
+        "ssl_cert_reqs": CERT_REQUIRED,
     }
 
 
