@@ -13,7 +13,7 @@
 from collections import defaultdict
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
@@ -735,7 +735,7 @@ def manage_project_history(project, request):
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
+        raise HTTPBadRequest("'page' must be an integer.")
 
     journals_query = (
         request.db.query(JournalEntry)
@@ -750,6 +750,9 @@ def manage_project_history(project, request):
         items_per_page=25,
         url_maker=paginate_url_factory(request),
     )
+
+    if journals.page_count and page_num > journals.page_count:
+        raise HTTPNotFound
 
     return {"project": project, "journals": journals}
 
