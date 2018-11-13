@@ -253,14 +253,14 @@
         <label class="form-group__label" for="name">New password</label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength") }}
+          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength") }}
         </div>
         {{ field_errors(change_password_form.new_password) }}
         {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
       </div>
       <div class="form-group">
         <label class="form-group__label" for="name">Confirm new password</label>
-        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
+        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch") }}
         {{ field_errors(change_password_form.password_confirm) }}
       </div>
       <div class="form-group">

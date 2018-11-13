@@ -16,7 +16,7 @@ import os
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
-from sqlalchemy import and_, func
+from sqlalchemy import func
 from sqlalchemy.orm import aliased
 import certifi
 import elasticsearch
@@ -32,17 +32,17 @@ from warehouse.utils.db import windowed_query
 def _project_docs(db, project_name=None):
 
     releases_list = (
-        db.query(Release.name, Release.version)
+        db.query(Release.id)
         .order_by(
-            Release.name,
+            Release.project_id,
             Release.is_prerelease.nullslast(),
             Release._pypi_ordering.desc(),
         )
-        .distinct(Release.name)
+        .distinct(Release.project_id)
     )
 
     if project_name:
-        releases_list = releases_list.filter(Release.name == project_name)
+        releases_list = releases_list.join(Project).filter(Project.name == project_name)
 
     releases_list = releases_list.subquery()
 
@@ -50,7 +50,7 @@ def _project_docs(db, project_name=None):
 
     all_versions = (
         db.query(func.array_agg(r.version))
-        .filter(r.name == Release.name)
+        .filter(r.project_id == Release.project_id)
         .correlate(Release)
         .as_scalar()
         .label("all_versions")
@@ -60,8 +60,7 @@ def _project_docs(db, project_name=None):
         db.query(func.array_agg(Classifier.classifier))
         .select_from(release_classifiers)
         .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
-        .filter(Release.name == release_classifiers.c.name)
-        .filter(Release.version == release_classifiers.c.version)
+        .filter(Release.id == release_classifiers.c.release_id)
         .correlate(Release)
         .as_scalar()
         .label("classifiers")
@@ -70,7 +69,6 @@ def _project_docs(db, project_name=None):
     release_data = (
         db.query(
             Release.description,
-            Release.name,
             Release.version.label("latest_version"),
             all_versions,
             Release.author,
@@ -88,18 +86,11 @@ def _project_docs(db, project_name=None):
             Project.name,
         )
         .select_from(releases_list)
-        .join(
-            Release,
-            and_(
-                Release.name == releases_list.c.name,
-                Release.version == releases_list.c.version,
-            ),
-        )
+        .join(Release, Release.id == releases_list.c.id)
         .outerjoin(Release.project)
-        .order_by(Release.name)
     )
 
-    for release in windowed_query(release_data, Release.name, 50000):
+    for release in windowed_query(release_data, Release.project_id, 50000):
         p = ProjectDocument.from_db(release)
         p._index = None
         p.full_clean()

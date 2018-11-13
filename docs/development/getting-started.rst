@@ -51,6 +51,7 @@ you stay up-to-date with our repository:
 
     git remote add upstream https://github.com/pypa/warehouse.git
     git checkout master
+    git fetch master
     git merge upstream/master
 
 

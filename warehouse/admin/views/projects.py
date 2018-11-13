@@ -15,7 +15,9 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import or_, func
+
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -41,7 +43,7 @@ def project_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    projects_query = request.db.query(Project).order_by(Project.name)
+    projects_query = request.db.query(Project).order_by(Project.normalized_name)
 
     if q:
         terms = shlex.split(q)
@@ -101,17 +103,34 @@ def project_detail(project, request):
         entry
         for entry in (
             request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
             .limit(30)
         )
     ]
 
+    squattees = (
+        request.db.query(Project)
+        .filter(Project.created < project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
+
+    squatters = (
+        request.db.query(Project)
+        .filter(Project.created > project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
+
     return {
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "squatters": squatters,
+        "squattees": squattees,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
     }
@@ -174,7 +193,8 @@ def releases_list(project, request):
 def release_detail(release, request):
     journals = (
         request.db.query(JournalEntry)
-        .filter(JournalEntry.name == release.name)
+        .options(joinedload("submitted_by"))
+        .filter(JournalEntry.name == release.project.name)
         .filter(JournalEntry.version == release.version)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
@@ -204,6 +224,7 @@ def journals_list(project, request):
 
     journals_query = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
     )
@@ -363,7 +384,7 @@ def delete_role(project, request):
             )
         )
 
-    if not confirm or confirm != role.user_name:
+    if not confirm or confirm != role.user.username:
         request.session.flash("Confirm the request", queue="error")
         raise HTTPSeeOther(
             request.route_path(
@@ -372,13 +393,13 @@ def delete_role(project, request):
         )
 
     request.session.flash(
-        f"Removed '{role.user_name}' as '{role.role_name}' on '{project.name}'",
+        f"Removed '{role.user.username}' as '{role.role_name}' on '{project.name}'",
         queue="success",
     )
     request.db.add(
         JournalEntry(
             name=project.name,
-            action=f"remove {role.role_name} {role.user_name}",
+            action=f"remove {role.role_name} {role.user.username}",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )

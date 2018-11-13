@@ -113,7 +113,7 @@ def json_release(release, request):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
-        .options(Load(Release).load_only("version"))
+        .options(Load(Release).load_only("version", "requires_python"))
         .outerjoin(File)
         .filter(Release.project == project)
         .order_by(Release._pypi_ordering.desc(), File.filename)
@@ -195,11 +195,13 @@ def json_release(release, request):
     context=Release,
     decorator=_CACHE_DECORATOR,
 )
-def json_release_slash(project, request):
+def json_release_slash(release, request):
     return HTTPMovedPermanently(
         # Respond with redirect to url without trailing slash
         request.route_path(
-            "legacy.api.json.release", name=project.name, version=project.version
+            "legacy.api.json.release",
+            name=release.project.name,
+            version=release.version,
         ),
         headers=_CORS_HEADERS,
     )
