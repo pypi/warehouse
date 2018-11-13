@@ -13,6 +13,8 @@
 -#}
 {% extends "manage_project_base.html" %}
 
+{% import "warehouse:templates/includes/pagination.html" as pagination %}
+
 {% set active_tab = 'history' %}
 
 {% block title %}Manage '{{ project.name }}' history{% endblock %}
@@ -47,4 +49,5 @@
       {% endfor %}
     </tbody>
   </table>
+  {{ pagination.paginate(journals) }}
 {% endblock %}
