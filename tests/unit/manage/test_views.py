@@ -16,7 +16,8 @@ import uuid
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPSeeOther
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
@@ -24,6 +25,7 @@ from webob.multidict import MultiDict
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
 from warehouse.packaging.models import JournalEntry, Project, File, Role, User
+from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
@@ -576,7 +578,7 @@ class TestManageAccount:
     def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()
         deleted_user = UserFactory.create(username="deleted-user")
-        journal = JournalEntryFactory(submitted_by=user)
+        jid = JournalEntryFactory.create(submitted_by=user).id
 
         db_request.user = user
         db_request.params = {"confirm_username": user.username}
@@ -595,6 +597,14 @@ class TestManageAccount:
         view = views.ManageAccountViews(db_request)
 
         assert view.delete_account() == logout_response
+
+        journal = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .filter_by(id=jid)
+            .one()
+        )
+
         assert journal.submitted_by == deleted_user
         assert db_request.db.query(User).all() == [deleted_user]
         assert send_email.calls == [pretend.call(db_request, user)]
@@ -1657,3 +1667,104 @@ class TestManageProjectHistory:
             "project": project,
             "journals": [newer_journal, older_journal],
         }
+
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+        params = MultiDict({"page": "abc"})
+        db_request.params = params
+
+        journals_query = pretend.stub()
+        db_request.journals_query = pretend.stub(
+            journals_query=lambda *a, **kw: journals_query
+        )
+
+        page_obj = pretend.stub(page_count=10, item_count=1000)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        project = ProjectFactory.create()
+        with pytest.raises(HTTPBadRequest):
+            views.manage_project_history(project, db_request)
+
+        assert page_cls.calls == []
+
+    def test_first_page(self, db_request):
+        page_number = 1
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            JournalEntryFactory.create(
+                name=project.name, submitted_date=datetime.datetime.now()
+            )
+        journals_query = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .filter(JournalEntry.name == project.name)
+            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        )
+
+        journals_page = SQLAlchemyORMPage(
+            journals_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_project_history(project, db_request) == {
+            "project": project,
+            "journals": journals_page,
+        }
+
+    def test_last_page(self, db_request):
+        page_number = 2
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            JournalEntryFactory.create(
+                name=project.name, submitted_date=datetime.datetime.now()
+            )
+        journals_query = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .filter(JournalEntry.name == project.name)
+            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        )
+
+        journals_page = SQLAlchemyORMPage(
+            journals_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_project_history(project, db_request) == {
+            "project": project,
+            "journals": journals_page,
+        }
+
+    def test_raises_404_with_out_of_range_page(self, db_request):
+        page_number = 3
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            JournalEntryFactory.create(
+                name=project.name, submitted_date=datetime.datetime.now()
+            )
+
+        with pytest.raises(HTTPNotFound):
+            assert views.manage_project_history(project, db_request)

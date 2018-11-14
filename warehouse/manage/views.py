@@ -12,7 +12,8 @@
 
 from collections import defaultdict
 
-from pyramid.httpexceptions import HTTPSeeOther
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
@@ -37,6 +38,7 @@ from warehouse.manage.forms import (
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
 
@@ -269,6 +271,7 @@ class ManageAccountViews:
 
         journals = (
             self.request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.submitted_by == self.request.user)
             .all()
         )
@@ -729,13 +732,28 @@ def delete_project_role(project, request):
     permission="manage:project",
 )
 def manage_project_history(project, request):
-    journals = (
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    journals_query = (
         request.db.query(JournalEntry)
         .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-        .all()
     )
+
+    journals = SQLAlchemyORMPage(
+        journals_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if journals.page_count and page_num > journals.page_count:
+        raise HTTPNotFound
+
     return {"project": project, "journals": journals}
 
 
