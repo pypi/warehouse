@@ -138,6 +138,11 @@ def database(request):
 
 @pytest.fixture(scope="session")
 def app_config(database):
+    from warehouse.utils.static import ManifestCacheBuster
+    from pyramid.static import ManifestCacheBuster as _ManifestCacheBuster
+    ManifestCacheBuster.get_manifest = lambda x: {}
+    ManifestCacheBuster.__call__ = _ManifestCacheBuster.__call__
+    
     config = configure(
         settings={
             "warehouse.prevent_esi": True,
