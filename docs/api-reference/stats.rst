@@ -1,8 +1,8 @@
-STATS API
+Stats API
 =========
 
-PyPI offers a JSON stats endpoint via a `Content-Type: application/json` GET
-request. Without the Content-Type header set, you will be returned a HTML page.
+PyPI offers a JSON stats endpoint via a ```Content-Type: application/json`` GET
+request. Without the ``Content-Type`` header set, you will be returned a HTML page.
 
 **Example Client**: https://github.com/cooperlees/pypistats
 
@@ -12,7 +12,6 @@ Project
 .. http:get:: /stats/
 
     Returns statistics in JSON format. This includes:
-
     - Total size of PyPI packages in bytes
     - Top 100 packages + their size in bytes
 
@@ -29,22 +28,22 @@ Project
 
     **Example response**:
 
-    .. code:: http
+    .. code:: json
 
-    {
-      "top_packages": {
-        "CodeIntel": {
-          "size": 23767329521
+      {
+        "top_packages": {
+          "CodeIntel": {
+            "size": 23767329521
+          },
+          "Fiona": {
+            "size": 6209535709
+          },
+          "FlexGet": {
+            "size": 4387002448
+          },
+          ...
         },
-        "Fiona": {
-          "size": 6209535709
-        },
-        "FlexGet": {
-          "size": 4387002448
-        },
-        ...
-      },
-      "total_packages_size": 23965450269
-    }
+        "total_packages_size": 23965450269
+      }
 
     :statuscode 200: no error
