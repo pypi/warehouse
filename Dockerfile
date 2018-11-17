@@ -162,7 +162,7 @@ RUN set -x \
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl3  \
+        libexpat1 libpq5 libxml2 libxslt1.1 libcurl3  \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
