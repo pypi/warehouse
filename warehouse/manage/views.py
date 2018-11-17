@@ -12,9 +12,11 @@
 
 from collections import defaultdict
 
-from pyramid.httpexceptions import HTTPSeeOther
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
@@ -36,29 +38,35 @@ from warehouse.manage.forms import (
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
 
 def user_projects(request):
     """ Return all the projects for which the user is a sole owner """
     projects_owned = (
-        request.db.query(Project)
+        request.db.query(Project.id)
         .join(Role.project)
         .filter(Role.role_name == "Owner", Role.user == request.user)
         .subquery()
     )
 
     with_sole_owner = (
-        request.db.query(Role.package_name)
+        request.db.query(Role.project_id)
         .join(projects_owned)
         .filter(Role.role_name == "Owner")
-        .group_by(Role.package_name)
-        .having(func.count(Role.package_name) == 1)
+        .group_by(Role.project_id)
+        .having(func.count(Role.project_id) == 1)
         .subquery()
     )
 
     return {
-        "projects_owned": request.db.query(projects_owned).all(),
+        "projects_owned": (
+            request.db.query(Project)
+            .join(projects_owned, Project.id == projects_owned.c.id)
+            .order_by(Project.name)
+            .all()
+        ),
         "projects_sole_owned": (
             request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
         ),
@@ -263,6 +271,7 @@ class ManageAccountViews:
 
         journals = (
             self.request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.submitted_by == self.request.user)
             .all()
         )
@@ -454,7 +463,7 @@ class ManageProjectRelease:
             release_file = (
                 self.request.db.query(File)
                 .filter(
-                    File.name == self.release.project.name,
+                    File.release == self.release,
                     File.id == self.request.POST.get("file_id"),
                 )
                 .one()
@@ -610,6 +619,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             # TODO: This branch should be removed when fixing GH-2745.
             roles = (
                 request.db.query(Role)
+                .join(User)
                 .filter(
                     Role.id.in_(role_ids),
                     Role.project == project,
@@ -629,7 +639,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     request.db.add(
                         JournalEntry(
                             name=project.name,
-                            action=f"remove {role.role_name} {role.user_name}",
+                            action=f"remove {role.role_name} {role.user.username}",
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
                         )
@@ -640,6 +650,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             try:
                 role = (
                     request.db.query(Role)
+                    .join(User)
                     .filter(
                         Role.id == request.POST.get("role_id"), Role.project == project
                     )
@@ -654,7 +665,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         JournalEntry(
                             name=project.name,
                             action="change {} {} to {}".format(
-                                role.role_name, role.user_name, form.role_name.data
+                                role.role_name, role.user.username, form.role_name.data
                             ),
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
@@ -683,6 +694,7 @@ def delete_project_role(project, request):
 
     roles = (
         request.db.query(Role)
+        .join(User)
         .filter(Role.id.in_(request.POST.getall("role_id")), Role.project == project)
         .all()
     )
@@ -700,7 +712,7 @@ def delete_project_role(project, request):
             request.db.add(
                 JournalEntry(
                     name=project.name,
-                    action=f"remove {role.role_name} {role.user_name}",
+                    action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
@@ -720,12 +732,28 @@ def delete_project_role(project, request):
     permission="manage:project",
 )
 def manage_project_history(project, request):
-    journals = (
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    journals_query = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-        .all()
     )
+
+    journals = SQLAlchemyORMPage(
+        journals_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if journals.page_count and page_num > journals.page_count:
+        raise HTTPNotFound
+
     return {"project": project, "journals": journals}
 
 

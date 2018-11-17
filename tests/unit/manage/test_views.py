@@ -16,13 +16,16 @@ import uuid
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPSeeOther
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
-from warehouse.packaging.models import JournalEntry, Project, Role, User
+from warehouse.packaging.models import JournalEntry, Project, File, Role, User
+from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
@@ -30,6 +33,7 @@ from ...common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
+    FileFactory,
     RoleFactory,
     UserFactory,
 )
@@ -574,7 +578,7 @@ class TestManageAccount:
     def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()
         deleted_user = UserFactory.create(username="deleted-user")
-        journal = JournalEntryFactory(submitted_by=user)
+        jid = JournalEntryFactory.create(submitted_by=user).id
 
         db_request.user = user
         db_request.params = {"confirm_username": user.username}
@@ -593,6 +597,14 @@ class TestManageAccount:
         view = views.ManageAccountViews(db_request)
 
         assert view.delete_account() == logout_response
+
+        journal = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .filter_by(id=jid)
+            .one()
+        )
+
         assert journal.submitted_by == deleted_user
         assert db_request.db.query(User).all() == [deleted_user]
         assert send_email.calls == [pretend.call(db_request, user)]
@@ -977,53 +989,51 @@ class TestManageProjectRelease:
             )
         ]
 
-    def test_delete_project_release_file(self, monkeypatch):
-        release_file = pretend.stub(filename="foo-bar.tar.gz", id=str(uuid.uuid4()))
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
-        request = pretend.stub(
-            POST={
-                "confirm_project_name": release.project.name,
-                "file_id": release_file.id,
-            },
-            method="POST",
-            db=pretend.stub(
-                delete=pretend.call_recorder(lambda a: None),
-                add=pretend.call_recorder(lambda a: None),
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: release_file)
-                ),
-            ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(),
-            remote_addr=pretend.stub(),
-        )
-        journal_obj = pretend.stub()
-        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
-        monkeypatch.setattr(views, "JournalEntry", journal_cls)
+    def test_delete_project_release_file(self, db_request):
+        user = UserFactory.create()
 
-        view = views.ManageProjectRelease(release, request)
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+        release_file = FileFactory.create(
+            release=release, filename=f"foobar-{release.version}.tar.gz"
+        )
+
+        db_request.POST = {
+            "confirm_project_name": release.project.name,
+            "file_id": release_file.id,
+        }
+        db_request.method = ("POST",)
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+        db_request.remote_addr = "1.2.3.4"
+
+        view = views.ManageProjectRelease(release, db_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert request.session.flash.calls == [
+        assert db_request.session.flash.calls == [
             pretend.call(f"Deleted file {release_file.filename!r}", queue="success")
         ]
-        assert request.db.delete.calls == [pretend.call(release_file)]
-        assert request.db.add.calls == [pretend.call(journal_obj)]
-        assert journal_cls.calls == [
-            pretend.call(
-                name=release.project.name,
-                action=f"remove file {release_file.filename}",
+
+        assert db_request.db.query(File).filter_by(id=release_file.id).first() is None
+        assert (
+            db_request.db.query(JournalEntry)
+            .filter_by(
+                name=project.name,
                 version=release.version,
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
+                action=f"remove file {release_file.filename}",
+                submitted_by=user,
+                submitted_from="1.2.3.4",
             )
-        ]
-        assert request.route_path.calls == [
+            .one()
+        )
+        assert db_request.route_path.calls == [
             pretend.call(
                 "manage.project.release",
                 project_name=release.project.name,
@@ -1059,36 +1069,38 @@ class TestManageProjectRelease:
             )
         ]
 
-    def test_delete_project_release_file_not_found(self):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+    def test_delete_project_release_file_not_found(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
 
         def no_result_found():
             raise NoResultFound
 
-        request = pretend.stub(
-            POST={"confirm_project_name": "whatever"},
-            method="POST",
-            db=pretend.stub(
-                delete=pretend.call_recorder(lambda a: None),
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=no_result_found)
-                ),
+        db_request.POST = {"confirm_project_name": "whatever"}
+        db_request.method = "POST"
+        db_request.db = pretend.stub(
+            delete=pretend.call_recorder(lambda a: None),
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(one=no_result_found)
             ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
-        view = views.ManageProjectRelease(release, request)
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        assert request.db.delete.calls == []
-        assert request.session.flash.calls == [
+        assert db_request.db.delete.calls == []
+        assert db_request.session.flash.calls == [
             pretend.call("Could not find file", queue="error")
         ]
-        assert request.route_path.calls == [
+        assert db_request.route_path.calls == [
             pretend.call(
                 "manage.project.release",
                 project_name=release.project.name,
@@ -1096,37 +1108,38 @@ class TestManageProjectRelease:
             )
         ]
 
-    def test_delete_project_release_file_bad_confirm(self):
-        release_file = pretend.stub(filename="foo-bar.tar.gz", id=str(uuid.uuid4()))
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
-        request = pretend.stub(
-            POST={"confirm_project_name": "invalid"},
-            method="POST",
-            db=pretend.stub(
-                delete=pretend.call_recorder(lambda a: None),
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one=lambda: release_file)
-                ),
-            ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+    def test_delete_project_release_file_bad_confirm(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.2.3")
+        release_file = FileFactory.create(
+            release=release, filename="foobar-1.2.3.tar.gz"
         )
-        view = views.ManageProjectRelease(release, request)
+
+        db_request.POST = {
+            "confirm_project_name": "invalid",
+            "file_id": str(release_file.id),
+        }
+        db_request.method = "POST"
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
 
         result = view.delete_project_release_file()
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-
-        assert request.db.delete.calls == []
-        assert request.session.flash.calls == [
+        assert db_request.db.query(File).filter_by(id=release_file.id).one()
+        assert db_request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - "
                 + f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]
-        assert request.route_path.calls == [
+        assert db_request.route_path.calls == [
             pretend.call(
                 "manage.project.release",
                 project_name=release.project.name,
@@ -1281,7 +1294,9 @@ class TestManageProjectRoles:
             "form": form_obj,
         }
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "add Owner new_user"
@@ -1413,7 +1428,9 @@ class TestChangeProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "change Owner testuser to Maintainer"
@@ -1475,7 +1492,9 @@ class TestChangeProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
@@ -1581,7 +1600,9 @@ class TestDeleteProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = db_request.db.query(JournalEntry).one()
+        entry = (
+            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+        )
 
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
@@ -1646,3 +1667,104 @@ class TestManageProjectHistory:
             "project": project,
             "journals": [newer_journal, older_journal],
         }
+
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+        params = MultiDict({"page": "abc"})
+        db_request.params = params
+
+        journals_query = pretend.stub()
+        db_request.journals_query = pretend.stub(
+            journals_query=lambda *a, **kw: journals_query
+        )
+
+        page_obj = pretend.stub(page_count=10, item_count=1000)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        project = ProjectFactory.create()
+        with pytest.raises(HTTPBadRequest):
+            views.manage_project_history(project, db_request)
+
+        assert page_cls.calls == []
+
+    def test_first_page(self, db_request):
+        page_number = 1
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            JournalEntryFactory.create(
+                name=project.name, submitted_date=datetime.datetime.now()
+            )
+        journals_query = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .filter(JournalEntry.name == project.name)
+            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        )
+
+        journals_page = SQLAlchemyORMPage(
+            journals_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_project_history(project, db_request) == {
+            "project": project,
+            "journals": journals_page,
+        }
+
+    def test_last_page(self, db_request):
+        page_number = 2
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            JournalEntryFactory.create(
+                name=project.name, submitted_date=datetime.datetime.now()
+            )
+        journals_query = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .filter(JournalEntry.name == project.name)
+            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        )
+
+        journals_page = SQLAlchemyORMPage(
+            journals_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_project_history(project, db_request) == {
+            "project": project,
+            "journals": journals_page,
+        }
+
+    def test_raises_404_with_out_of_range_page(self, db_request):
+        page_number = 3
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            JournalEntryFactory.create(
+                name=project.name, submitted_date=datetime.datetime.now()
+            )
+
+        with pytest.raises(HTTPNotFound):
+            assert views.manage_project_history(project, db_request)

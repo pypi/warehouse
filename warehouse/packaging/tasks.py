@@ -77,10 +77,10 @@ def compute_trending(request):
     # turn it into the primary key of the Project object and construct a list
     # of primary key: new zscore, including a default of None if the item isn't
     # in the result set.
-    query = request.db.query(Project.name, Project.normalized_name).all()
+    query = request.db.query(Project.id, Project.normalized_name).all()
     to_update = [
-        {"name": name, "zscore": zscores[normalized_name]}
-        for name, normalized_name in query
+        {"id": id, "zscore": zscores[normalized_name]}
+        for id, normalized_name in query
         if normalized_name in zscores
     ]
 

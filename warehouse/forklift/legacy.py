@@ -1018,6 +1018,7 @@ def file_upload(request):
                     "requires_python",
                 }
             },
+            uploader=request.user,
             uploaded_via=request.user_agent,
         )
         request.db.add(release)

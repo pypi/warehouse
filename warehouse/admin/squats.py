@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer
 from sqlalchemy import orm, sql
 
 from warehouse import db
@@ -18,18 +18,20 @@ from warehouse import db
 
 class Squat(db.ModelBase):
 
-    __tablename__ = "warehouse_admin_squat"
+    __tablename__ = "admin_squats"
 
     id = Column(Integer, primary_key=True, nullable=False)
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
-    squatter_name = Column(
-        Text, ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE")
+    squatter_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
     )
-    squattee_name = Column(
-        Text, ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE")
+    squattee_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
     )
-    squatter = orm.relationship("Project", foreign_keys=[squatter_name], lazy=False)
-    squattee = orm.relationship("Project", foreign_keys=[squattee_name], lazy=False)
+    squatter = orm.relationship("Project", foreign_keys=[squatter_id], lazy=False)
+    squattee = orm.relationship("Project", foreign_keys=[squattee_id], lazy=False)
     reviewed = Column(Boolean, nullable=False, server_default=sql.false())

@@ -194,8 +194,7 @@ class TestJSONRelease:
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=releases[3].project.name,
-                    version="3.0",
+                    release=releases[3],
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )
@@ -460,7 +459,9 @@ class TestJSONReleaseSlash:
         assert isinstance(resp, HTTPMovedPermanently)
         assert db_request.route_path.calls == [
             pretend.call(
-                "legacy.api.json.release", name=release.name, version=release.version
+                "legacy.api.json.release",
+                name=release.project.name,
+                version=release.version,
             )
         ]
         assert resp.headers["Location"] == "/project/the-redirect"
