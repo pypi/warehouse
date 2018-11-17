@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
@@ -48,8 +49,9 @@ class TestProjectDetail:
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
-        resp = views.project_detail(project, db_request)
-        assert isinstance(resp, HTTPNotFound)
+
+        with pytest.raises(HTTPNotFound):
+            views.project_detail(project, db_request)
 
     def test_calls_release_detail(self, monkeypatch, db_request):
         project = ProjectFactory.create()

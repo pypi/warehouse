@@ -10,16 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections.abc
 import datetime
 import functools
 import xmlrpc.client
 import xmlrpc.server
 
+from typing import List, Mapping, Union
+
+import elasticsearch
+import typeguard
+
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
 from pyramid.view import view_config
+from pyramid_rpc.mapper import MapplyViewMapper
 from pyramid_rpc.xmlrpc import (
+    XmlRpcError,
+    XmlRpcInvalidMethodParams,
     exception_view as _exception_view,
     xmlrpc_method as _xmlrpc_method,
 )
@@ -28,6 +35,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
     Role,
     Project,
@@ -39,7 +47,23 @@ from warehouse.packaging.models import (
 from warehouse.search.queries import SEARCH_BOOSTS
 
 
-_MAX_MULTICALLS = 20
+def submit_xmlrpc_metrics(method=None):
+    """
+    Submit metrics.
+    """
+
+    def decorator(f):
+        def wrapped(context, request):
+            metrics = request.find_service(IMetricsService, context=None)
+            metrics.increment("warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"])
+            with metrics.timed(
+                "warehouse.xmlrpc.timing", tags=[f"rpc_method:{method}"]
+            ):
+                return f(context, request)
+
+        return wrapped
+
+    return decorator
 
 
 def xmlrpc_method(**kwargs):
@@ -48,7 +72,12 @@ def xmlrpc_method(**kwargs):
     xmlrpc_method
     """
     # Add some default arguments
-    kwargs.update(require_csrf=False, require_methods=["POST"])
+    kwargs.update(
+        require_csrf=False,
+        require_methods=["POST"],
+        decorator=(submit_xmlrpc_metrics(method=kwargs["method"]),),
+        mapper=TypedMapplyViewMapper,
+    )
 
     def decorator(f):
         rpc2 = _xmlrpc_method(endpoint="RPC2", **kwargs)
@@ -62,11 +91,33 @@ def xmlrpc_method(**kwargs):
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
-    xmlrpc_cache_expires=24 * 60 * 60,  # 24 hours
+    xmlrpc_cache_expires=48 * 60 * 60,  # 48 hours
     xmlrpc_cache_tag="project/%s",
     xmlrpc_cache_arg_index=0,
     xmlrpc_cache_tag_processor=canonicalize_name,
 )
+
+
+xmlrpc_cache_all_projects = functools.partial(
+    xmlrpc_method,
+    xmlrpc_cache=True,
+    xmlrpc_cache_expires=1 * 60 * 60,  # 1 hours
+    xmlrpc_cache_tag="all-projects",
+)
+
+
+class XMLRPCServiceUnavailable(XmlRpcError):
+    faultCode = -32403
+    faultString = "server error; service unavailable"
+
+
+class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
+    def __init__(self, exc):
+        self.exc = exc
+
+    @property
+    def faultString(self):  # noqa
+        return f"client error; {self.exc}"
 
 
 class XMLRPCWrappedError(xmlrpc.server.Fault):
@@ -79,22 +130,31 @@ class XMLRPCWrappedError(xmlrpc.server.Fault):
         return "{exc.__class__.__name__}: {exc}".format(exc=self.wrapped_exception)
 
 
+class TypedMapplyViewMapper(MapplyViewMapper):
+    def mapply(self, fn, args, kwargs):
+        try:
+            memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
+            typeguard.check_argument_types(memo)
+        except TypeError as exc:
+            print(exc)
+            raise XMLRPCInvalidParamTypes(exc)
+
+        return super().mapply(fn, args, kwargs)
+
+
 @view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
 def exception_view(exc, request):
     return _exception_view(exc, request)
 
 
 @xmlrpc_method(method="search")
-def search(request, spec, operator="and"):
-    if not isinstance(spec, collections.abc.Mapping):
-        raise XMLRPCWrappedError(
-            TypeError("Invalid spec, must be a mapping/dictionary.")
-        )
-
+def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "and"):
     if operator not in {"and", "or"}:
         raise XMLRPCWrappedError(
             ValueError("Invalid operator, must be one of 'and' or 'or'.")
         )
+
+    metrics = request.find_service(IMetricsService, context=None)
 
     # Remove any invalid spec fields
     spec = {
@@ -137,15 +197,19 @@ def search(request, spec, operator="and"):
     else:
         query = request.es.query("bool", should=queries)
 
-    results = query[:100].execute()
+    try:
+        results = query[:100].execute()
+    except elasticsearch.TransportError:
+        metrics.increment("warehouse.xmlrpc.search.error")
+        raise XMLRPCServiceUnavailable
 
-    request.registry.datadog.histogram("warehouse.xmlrpc.search.results", len(results))
+    metrics.histogram("warehouse.xmlrpc.search.results", len(results))
 
     if "version" in spec.keys():
         return [
             {
                 "name": r.name,
-                "summary": getattr(r, "summary"),
+                "summary": getattr(r, "summary", None),
                 "version": v,
                 "_pypi_ordering": False,
             }
@@ -156,7 +220,7 @@ def search(request, spec, operator="and"):
     return [
         {
             "name": r.name,
-            "summary": getattr(r, "summary"),
+            "summary": getattr(r, "summary", None),
             "version": r.latest_version,
             "_pypi_ordering": False,
         }
@@ -164,34 +228,25 @@ def search(request, spec, operator="and"):
     ]
 
 
-@xmlrpc_method(method="list_packages")
+@xmlrpc_cache_all_projects(method="list_packages")
 def list_packages(request):
-    names = request.db.query(Project.name).order_by(Project.name).all()
+    names = request.db.query(Project.name).all()
     return [n[0] for n in names]
 
 
-@xmlrpc_method(method="list_packages_with_serial")
+@xmlrpc_cache_all_projects(method="list_packages_with_serial")
 def list_packages_with_serial(request):
     serials = request.db.query(Project.name, Project.last_serial).all()
     return dict((serial[0], serial[1]) for serial in serials)
 
 
 @xmlrpc_method(method="package_hosting_mode")
-def package_hosting_mode(request, package_name):
-    try:
-        project = (
-            request.db.query(Project)
-            .filter(Project.normalized_name == func.normalize_pep426_name(package_name))
-            .one()
-        )
-    except NoResultFound:
-        return None
-    else:
-        return project.hosting_mode
+def package_hosting_mode(request, package_name: str):
+    return "pypi-only"
 
 
 @xmlrpc_method(method="user_packages")
-def user_packages(request, username):
+def user_packages(request, username: str):
     roles = (
         request.db.query(Role)
         .join(User, Project)
@@ -210,7 +265,7 @@ def top_packages(request, num=None):
 
 
 @xmlrpc_cache_by_project(method="package_releases")
-def package_releases(request, package_name, show_hidden=False):
+def package_releases(request, package_name: str, show_hidden: bool = False):
     try:
         project = (
             request.db.query(Project)
@@ -250,7 +305,7 @@ def package_data(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="release_data")
-def release_data(request, package_name, version):
+def release_data(request, package_name: str, version: str):
     try:
         release = (
             request.db.query(Release)
@@ -268,8 +323,8 @@ def release_data(request, package_name, version):
     return {
         "name": release.project.name,
         "version": release.version,
-        "stable_version": release.project.stable_version,
-        "bugtrack_url": release.project.bugtrack_url,
+        "stable_version": None,
+        "bugtrack_url": None,
         "package_url": request.route_url(
             "packaging.project", name=release.project.name
         ),
@@ -299,7 +354,6 @@ def release_data(request, package_name, version):
         "requires_python": release.requires_python,
         "requires_external": list(release.requires_external),
         "_pypi_ordering": release._pypi_ordering,
-        "_pypi_hidden": release._pypi_hidden,
         "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
         "cheesecake_code_kwalitee_id": None,
         "cheesecake_documentation_id": None,
@@ -324,7 +378,7 @@ def package_urls(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="release_urls")
-def release_urls(request, package_name, version):
+def release_urls(request, package_name: str, version: str):
     files = (
         request.db.query(File)
         .join(Release, Project)
@@ -358,7 +412,7 @@ def release_urls(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="package_roles")
-def package_roles(request, package_name):
+def package_roles(request, package_name: str):
     roles = (
         request.db.query(Role)
         .join(User, Project)
@@ -375,7 +429,7 @@ def changelog_last_serial(request):
 
 
 @xmlrpc_method(method="changelog_since_serial")
-def changelog_since_serial(request, serial):
+def changelog_since_serial(request, serial: int):
     entries = (
         request.db.query(JournalEntry)
         .filter(JournalEntry.id > serial)
@@ -396,7 +450,7 @@ def changelog_since_serial(request, serial):
 
 
 @xmlrpc_method(method="changelog")
-def changelog(request, since, with_ids=False):
+def changelog(request, since: int, with_ids: bool = False):
     since = datetime.datetime.utcfromtimestamp(since)
     entries = (
         request.db.query(JournalEntry)
@@ -423,7 +477,7 @@ def changelog(request, since, with_ids=False):
 
 
 @xmlrpc_method(method="browse")
-def browse(request, classifiers):
+def browse(request, classifiers: List[str]):
     classifiers_q = (
         request.db.query(Classifier)
         .filter(Classifier.classifier.in_(classifiers))
@@ -437,15 +491,12 @@ def browse(request, classifiers):
     )
 
     releases = (
-        request.db.query(Release.name, Release.version)
-        .join(
-            release_classifiers_q,
-            (Release.name == release_classifiers_q.c.name)
-            & (Release.version == release_classifiers_q.c.version),
-        )
-        .group_by(Release.name, Release.version)
+        request.db.query(Project.name, Release.version)
+        .join(Release)
+        .join(release_classifiers_q, Release.id == release_classifiers_q.c.release_id)
+        .group_by(Project.name, Release.version)
         .having(func.count() == len(classifiers))
-        .order_by(Release.name, Release.version)
+        .order_by(Project.name, Release.version)
         .all()
     )
 

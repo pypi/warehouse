@@ -16,13 +16,15 @@
 {% block title %}{% if testPyPI %}Test{% endif %}PyPI – the Python Package Index{% endblock %}
 
 {% macro project_snippet(release) -%}
-<div class="package-snippet">
-  <h3 class="package-snippet__title">
-    <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
-    <span class="package-snippet__version">{{ release.version }}</span>
-  </h3>
-  <p class="package-snippet__description">{{ release.summary }}</p>
-</div>
+<li>
+  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
+    <h3 class="package-snippet__title">
+      <span class="package-snippet__name">{{ release.project.name }}</span>
+      <span class="package-snippet__version">{{ release.version }}</span>
+    </h3>
+    <p class="package-snippet__description">{{ release.summary }}</p>
+  </a>
+</li>
 {%- endmacro %}
 
 
@@ -92,29 +94,29 @@
 <section class="horizontal-section horizontal-section--grey">
   <div class="site-container">
     <div class="col-half">
-      <div class="heading-wsubtitle">
+      <div class="heading-wsubtitle" id="pypi-trending-packages">
         <h2 class="heading-wsubtitle__heading">Trending projects</h2>
         <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
       </div>
-      <div class="package-list">
+      <ul class="unstyled" aria-labelledby="pypi-trending-packages">
         {% for release in trending_projects %}
           {{ project_snippet(release) }}
         {% endfor %}
-      </div>
+      </ul>
       {#
       <a class="button" href="TODO">Show more</a>
       #}
     </div>
     <div class="col-half">
-      <div class="heading-wsubtitle">
+      <div class="heading-wsubtitle" id="pypi-new-packages">
         <h2 class="heading-wsubtitle__heading">New releases</h2>
         <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
       </div>
-      <div class="package-list">
+      <ul class="unstyled" aria-labelledby="pypi-new-packages">
         {% for release in latest_releases %}
           {{ project_snippet(release) }}
         {% endfor %}
-      </div>
+      </ul>
       {#
       <a class="button" href="TODO">Show more</a>
       #}

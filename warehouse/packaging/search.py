@@ -12,7 +12,7 @@
 
 import packaging.version
 
-from elasticsearch_dsl import DocType, Text, Keyword, analyzer, MetaField, Date
+from elasticsearch_dsl import Document, Text, Keyword, analyzer, Date
 
 from warehouse.search.utils import doc_type
 
@@ -31,7 +31,7 @@ NameAnalyzer = analyzer(
 
 
 @doc_type
-class Project(DocType):
+class Project(Document):
 
     name = Text()
     normalized_name = Text(analyzer=NameAnalyzer)
@@ -50,10 +50,6 @@ class Project(DocType):
     platform = Keyword()
     created = Date()
     classifiers = Keyword(multi=True)
-
-    class Meta:
-        # disable the _all field to save some space
-        all = MetaField(enabled=False)
 
     @classmethod
     def from_db(cls, release):

@@ -33,7 +33,7 @@ def content_security_policy_tween_factory(handler, registry):
 
         try:
             policy = request.find_service(name="csp")
-        except ValueError:
+        except LookupError:
             policy = collections.defaultdict(list)
 
         # Replace CSP headers on /simple/ pages.
@@ -79,12 +79,14 @@ def includeme(config):
                 "base-uri": [SELF],
                 "block-all-mixed-content": [],
                 "connect-src": [
+                    SELF,
+                    "https://api.github.com/repos/",
+                    "*.fastly-insights.com",
+                    "sentry.io",
+                ]
+                + [
                     item
-                    for item in [
-                        SELF,
-                        config.registry.settings.get("statuspage.url"),
-                        "https://api.github.com/repos/",
-                    ]
+                    for item in [config.registry.settings.get("statuspage.url")]
                     if item
                 ],
                 "default-src": [NONE],
@@ -96,13 +98,17 @@ def includeme(config):
                     SELF,
                     config.registry.settings["camo.url"],
                     "www.google-analytics.com",
+                    "*.fastly-insights.com",
                 ],
                 "script-src": [
                     SELF,
                     "www.googletagmanager.com",
                     "www.google-analytics.com",
+                    "*.fastly-insights.com",
+                    "https://cdn.ravenjs.com",
                 ],
                 "style-src": [SELF, "fonts.googleapis.com"],
+                "worker-src": ["*.fastly-insights.com"],
             }
         }
     )

@@ -90,6 +90,21 @@ class TestEmailStatus:
         assert status.save().status is EmailStatuses.Delivered
         assert email.transient_bounces == 0
 
+    def test_delivery_after_soft_bounce(self, db_session):
+        email = EmailFactory.create()
+        em = EmailMessageFactory.create(to=email.email)
+
+        status = EmailStatus.load(em)
+        status.soft_bounce()
+
+        assert status.save().status is EmailStatuses.SoftBounced
+        assert email.transient_bounces == 1
+
+        status.deliver()
+
+        assert status.save().status is EmailStatuses.Delivered
+        assert email.transient_bounces == 0
+
     def test_soft_bounce_without_an_email_obj(self, db_session):
         em = EmailMessageFactory.create()
 

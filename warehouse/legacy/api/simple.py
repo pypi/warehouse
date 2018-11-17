@@ -80,16 +80,10 @@ def simple_detail(project, request):
     files = sorted(
         request.db.query(File)
         .options(joinedload(File.release))
-        .filter(
-            File.name == project.name,
-            File.version.in_(
-                request.db.query(Release)
-                .filter(Release.project == project)
-                .with_entities(Release.version)
-            ),
-        )
+        .join(Release)
+        .filter(Release.project == project)
         .all(),
-        key=lambda f: (parse(f.version), f.filename),
+        key=lambda f: (parse(f.release.version), f.filename),
     )
 
     return {"project": project, "files": files}

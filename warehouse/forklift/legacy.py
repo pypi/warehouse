@@ -39,6 +39,7 @@ from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
@@ -77,6 +78,19 @@ STDLIB_PROHIBITTED = {
 }
 
 # Wheel platform checking
+
+# Note: defining new platform ABI compatibility tags that don't
+#       have a python.org binary release to anchor them is a
+#       complex task that needs more than just OS+architecture info.
+#       For Linux specifically, the platform ABI is defined by each
+#       individual distro version, so wheels built on one version may
+#       not even work on older versions of the same distro, let alone
+#       a completely different distro.
+#
+#       That means new entries should only be added given an
+#       accompanying ABI spec that explains how to build a
+#       compatible binary (see the manylinux specs as examples).
+
 # These platforms can be handled by a simple static list:
 _allowed_platforms = {
     "any",
@@ -91,7 +105,7 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_10_(\d+)+_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
@@ -701,6 +715,26 @@ def file_upload(request):
             HTTPForbidden, "Invalid or non-existent authentication information."
         )
 
+    # Ensure that user has a verified, primary email address. This should both
+    # reduce the ease of spam account creation and activty, as well as act as
+    # a forcing function for https://github.com/pypa/warehouse/issues/3632.
+    # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
+    #       we might consider a different condition, possibly looking at
+    #       User.is_active instead.
+    if not (request.user.primary_email and request.user.primary_email.verified):
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "User {!r} does not have a verified primary email address. "
+                "Please add a verified primary email before attempting to "
+                "upload to PyPI. See {project_help} for more information."
+                "for more information."
+            ).format(
+                request.user.username,
+                project_help=request.help_url(_anchor="verified-email"),
+            ),
+        ) from None
+
     # Do some cleanup of the various form fields
     for key in list(request.POST):
         value = request.POST.get(key)
@@ -796,24 +830,6 @@ def file_upload(request):
                 ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
             ) from None
 
-        # Ensure that user has at least one verified email address. This should
-        # reduce the ease of spam account creation and activity.
-        # TODO: Once legacy is shutdown consider the condition here, perhaps
-        # move to user.is_active or some other boolean
-        if not any(email.verified for email in request.user.emails):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "User {!r} has no verified email addresses, "
-                    "verify at least one address before registering "
-                    "a new project on PyPI. See {projecthelp} "
-                    "for more information."
-                ).format(
-                    request.user.username,
-                    projecthelp=request.help_url(_anchor="verified-email"),
-                ),
-            ) from None
-
         # Before we create the project, we're going to check our blacklist to
         # see if this project is even allowed to be registered. If it is not,
         # then we're going to deny the request to create this project.
@@ -848,10 +864,29 @@ def file_upload(request):
                 ),
             ) from None
 
-        # The project doesn't exist in our database, so we'll add it along with
-        # a role setting the current user as the "Owner" of the project.
+        # The project doesn't exist in our database, so first we'll check for
+        # projects with a similar name
+        squattees = (
+            request.db.query(Project)
+            .filter(
+                func.levenshtein(
+                    Project.normalized_name, func.normalize_pep426_name(form.name.data)
+                )
+                <= 2
+            )
+            .all()
+        )
+
+        # Next we'll create the project
         project = Project(name=form.name.data)
         request.db.add(project)
+
+        # Now that the project exists, add any squats which it is the squatter for
+        for squattee in squattees:
+            request.db.add(Squat(squatter=project, squattee=squattee))
+
+        # Then we'll add a role setting the current user as the "Owner" of the
+        # project.
         request.db.add(Role(user=request.user, project=project, role_name="Owner"))
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -946,7 +981,6 @@ def file_upload(request):
             _classifiers=[
                 c for c in all_classifiers if c.classifier in form.classifiers.data
             ],
-            _pypi_hidden=False,
             dependencies=list(
                 _construct_dependencies(
                     form,
@@ -984,6 +1018,8 @@ def file_upload(request):
                     "requires_python",
                 }
             },
+            uploader=request.user,
+            uploaded_via=request.user_agent,
         )
         request.db.add(release)
         # TODO: This should be handled by some sort of database trigger or
@@ -1005,19 +1041,13 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .options(orm.load_only(Release._pypi_ordering, Release._pypi_hidden))
+        .options(orm.load_only(Release._pypi_ordering))
         .all()
     )
     for i, r in enumerate(
         sorted(releases, key=lambda x: packaging.version.parse(x.version))
     ):
         r._pypi_ordering = i
-
-    # TODO: Again, we should figure out a better solution to doing this than
-    #       just inlining this inside this method.
-    if project.autohide:
-        for r in releases:
-            r._pypi_hidden = bool(not r == release)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
@@ -1225,6 +1255,7 @@ def file_upload(request):
                     filename,
                 ]
             ),
+            uploaded_via=request.user_agent,
         )
         request.db.add(file_)
 

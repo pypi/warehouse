@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
@@ -39,19 +41,21 @@ _CORS_HEADERS = {
     "Access-Control-Expose-Headers": ", ".join(["X-PyPI-Last-Serial"]),
 }
 
+_CACHE_DECORATOR = [
+    cache_control(15 * 60),  # 15 minutes
+    origin_cache(
+        1 * 24 * 60 * 60,  # 1 day
+        stale_while_revalidate=5 * 60,  # 5 minutes
+        stale_if_error=1 * 24 * 60 * 60,  # 1 day
+    ),
+]
+
 
 @view_config(
     route_name="legacy.api.json.project",
     context=Project,
     renderer="json",
-    decorator=[
-        cache_control(15 * 60),  # 15 minutes
-        origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=5 * 60,  # 5 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
-        ),
-    ],
+    decorator=_CACHE_DECORATOR,
 )
 def json_project(project, request):
     if project.name != request.matchdict.get("name", project.name):
@@ -74,17 +78,23 @@ def json_project(project, request):
 
 
 @view_config(
+    route_name="legacy.api.json.project_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_project_slash(project, request):
+    return HTTPMovedPermanently(
+        # Respond with redirect to url without trailing slash
+        request.route_path("legacy.api.json.project", name=project.name),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
     route_name="legacy.api.json.release",
     context=Release,
     renderer="json",
-    decorator=[
-        cache_control(15 * 60),  # 15 minutes
-        origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=5 * 60,  # 5 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
-        ),
-    ],
+    decorator=_CACHE_DECORATOR,
 )
 def json_release(release, request):
     project = release.project
@@ -103,7 +113,7 @@ def json_release(release, request):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
-        .options(Load(Release).load_only("version"))
+        .options(Load(Release).load_only("version", "requires_python"))
         .outerjoin(File)
         .filter(Release.project == project)
         .order_by(Release._pypi_ordering.desc(), File.filename)
@@ -136,6 +146,7 @@ def json_release(release, request):
                 "downloads": -1,
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "url": request.route_url("packaging.file", path=f.path),
+                "requires_python": r.requires_python if r.requires_python else None,
             }
             for f in fs
         ]
@@ -161,6 +172,7 @@ def json_release(release, request):
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
             "project_url": request.route_url("packaging.project", name=project.name),
+            "project_urls": OrderedDict(release.urls) if release.urls else None,
             "release_url": request.route_url(
                 "packaging.release", name=project.name, version=release.version
             ),
@@ -168,7 +180,7 @@ def json_release(release, request):
                 list(release.requires_dist) if release.requires_dist else None
             ),
             "docs_url": project.documentation_url,
-            "bugtrack_url": project.bugtrack_url,
+            "bugtrack_url": None,
             "home_page": release.home_page,
             "download_url": release.download_url,
         },
@@ -176,3 +188,20 @@ def json_release(release, request):
         "releases": releases,
         "last_serial": project.last_serial,
     }
+
+
+@view_config(
+    route_name="legacy.api.json.release_slash",
+    context=Release,
+    decorator=_CACHE_DECORATOR,
+)
+def json_release_slash(release, request):
+    return HTTPMovedPermanently(
+        # Respond with redirect to url without trailing slash
+        request.route_path(
+            "legacy.api.json.release",
+            name=release.project.name,
+            version=release.version,
+        ),
+        headers=_CORS_HEADERS,
+    )

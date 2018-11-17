@@ -15,3 +15,13 @@ import datetime
 
 def now():
     return datetime.datetime.utcnow()
+
+
+def dotted_navigator(path):
+    def method(self):
+        obj = self
+        for item in path.split("."):
+            obj = getattr(obj, item)
+        return obj
+
+    return property(method)

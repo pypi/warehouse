@@ -23,7 +23,7 @@ def includeme(config):
 
     # Internal route to make it easier to force a particular status for
     # debugging HTTPException templates.
-    config.add_route("force-status", "/_force-status/{status:[45]\d\d}/")
+    config.add_route("force-status", r"/_force-status/{status:[45]\d\d}/")
 
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
@@ -82,6 +82,12 @@ def includeme(config):
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
+
+    # Stats Routes
+    config.add_route("stats", "/stats/", accept="text/html", domain=warehouse)
+    config.add_route(
+        "stats.json", "/stats/", accept="application/json", domain=warehouse
+    )
 
     # Accounts
     config.add_route(
@@ -215,6 +221,7 @@ def includeme(config):
         read_only=True,
         domain=warehouse,
     )
+
     config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
@@ -224,8 +231,25 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "legacy.api.json.project_slash",
+        "/pypi/{name}/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/{version}",
+        read_only=True,
+        domain=warehouse,
+    )
+    config.add_route(
+        "legacy.api.json.release_slash",
+        "/pypi/{name}/{version}/json/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
         read_only=True,

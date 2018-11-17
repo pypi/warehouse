@@ -15,8 +15,9 @@ import uuid
 
 import pretend
 import pytest
+import requests
 
-from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
 
 from warehouse.email.ses import views
 from warehouse.email.ses.models import EmailMessage, EmailStatuses, Event, EventTypes
@@ -131,11 +132,26 @@ class TestConfirmSubscription:
 
 
 class TestNotification:
-    def test_raises_when_invalid_type(self):
-        request = pretend.stub(json_body={"Type": "SubscriptionConfirmation"})
+    def test_raises_when_invalid_type(self, pyramid_request):
+        pyramid_request.json_body = {"Type": "SubscriptionConfirmation"}
 
         with pytest.raises(HTTPBadRequest):
-            views.notification(request)
+            views.notification(pyramid_request)
+
+    def test_error_fetching_pubkey(self, pyramid_request, monkeypatch, metrics):
+        def raiser(*args, **kwargs):
+            raise requests.HTTPError
+
+        monkeypatch.setattr(views, "_verify_sns_message", raiser)
+
+        pyramid_request.json_body = {"Type": "Notification"}
+
+        with pytest.raises(HTTPServiceUnavailable):
+            views.notification(pyramid_request)
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.ses.sns_verify.error")
+        ]
 
     def test_returns_200_existing_event(self, db_request, monkeypatch):
         verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
@@ -288,6 +304,41 @@ class TestNotification:
             "bounceType": "Transient",
             "someData": "this is some soft bounce data",
         }
+
+    def test_soft_bounce_to_deliver(self, db_request, monkeypatch):
+        verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
+
+        e = EmailFactory.create()
+        em = EmailMessageFactory.create(to=e.email, status=EmailStatuses.SoftBounced)
+
+        event_id = str(uuid.uuid4())
+        db_request.json_body = {
+            "Type": "Notification",
+            "MessageId": event_id,
+            "Message": json.dumps(
+                {
+                    "notificationType": "Delivery",
+                    "mail": {"messageId": em.message_id},
+                    "delivery": {"someData": "this is some data"},
+                }
+            ),
+        }
+
+        resp = views.notification(db_request)
+
+        assert verify_sns_message.calls == [
+            pretend.call(db_request, db_request.json_body)
+        ]
+        assert resp.status_code == 200
+
+        assert em.status is EmailStatuses.Delivered
+
+        event = db_request.db.query(Event).filter(Event.event_id == event_id).one()
+
+        assert event.email == em
+        assert event.event_type is EventTypes.Delivery
+        assert event.data == {"someData": "this is some data"}
 
     def test_spam_complaint(self, db_request, monkeypatch):
         verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)

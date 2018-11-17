@@ -46,7 +46,7 @@ class TestCSPTween:
         tween = csp.content_security_policy_tween_factory(handler, registry)
 
         request = pretend.stub(
-            path="/path/to/nowhere/", find_service=pretend.raiser(ValueError)
+            path="/path/to/nowhere/", find_service=pretend.raiser(LookupError)
         )
 
         assert tween(request) is response
@@ -200,21 +200,31 @@ def test_includeme():
                     "block-all-mixed-content": [],
                     "connect-src": [
                         "'self'",
-                        "https://2p66nmmycsj3.statuspage.io",
                         "https://api.github.com/repos/",
+                        "*.fastly-insights.com",
+                        "sentry.io",
+                        "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
                     "font-src": ["'self'", "fonts.gstatic.com"],
                     "form-action": ["'self'"],
                     "frame-ancestors": ["'none'"],
                     "frame-src": ["'none'"],
-                    "img-src": ["'self'", "camo.url.value", "www.google-analytics.com"],
+                    "img-src": [
+                        "'self'",
+                        "camo.url.value",
+                        "www.google-analytics.com",
+                        "*.fastly-insights.com",
+                    ],
                     "script-src": [
                         "'self'",
                         "www.googletagmanager.com",
                         "www.google-analytics.com",
+                        "*.fastly-insights.com",
+                        "https://cdn.ravenjs.com",
                     ],
                     "style-src": ["'self'", "fonts.googleapis.com"],
+                    "worker-src": ["*.fastly-insights.com"],
                 }
             }
         )
