@@ -108,11 +108,11 @@ def user_detail(request):
         request.db.query(Role)
         .join(User)
         .filter(Role.user == user)
-        .order_by(Role.role_name, Role.package_name)
+        .order_by(Role.role_name, Role.project_id)
         .all()
     )
 
-    form = UserForm(request.POST, user)
+    form = UserForm(request.POST if request.method == "POST" else None, user)
 
     if request.method == "POST" and form.validate():
         form.populate_obj(user)

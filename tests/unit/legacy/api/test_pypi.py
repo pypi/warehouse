@@ -93,7 +93,6 @@ def test_search():
 
 
 class TestBrowse:
-
     def test_browse(self, db_request):
         classifier = ClassifierFactory.create(classifier="foo :: bar")
 
@@ -129,7 +128,6 @@ class TestBrowse:
 
 
 class TestFiles:
-
     def test_files(self, db_request):
         name = "pip"
         version = "10.0.0"
@@ -168,7 +166,6 @@ class TestFiles:
 
 
 class TestDisplay:
-
     def test_display(self, db_request):
         name = "pip"
         version = "10.0.0"

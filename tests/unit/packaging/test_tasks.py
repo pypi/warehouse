@@ -23,7 +23,6 @@ from ...common.db.packaging import ProjectFactory
 
 
 class TestComputeTrending:
-
     @pytest.mark.parametrize("with_purges", [True, False])
     def test_computes_trending(self, db_request, with_purges):
         projects = [
@@ -48,7 +47,7 @@ class TestComputeTrending:
             if with_purges and issubclass(iface, IOriginCache):
                 return cacher
 
-            raise ValueError
+            raise LookupError
 
         db_request.find_service = find_service
         db_request.registry.settings = {

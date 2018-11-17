@@ -17,7 +17,6 @@ from warehouse.domain import DomainPredicate, includeme
 
 
 class TestDomainPredicate:
-
     @pytest.mark.parametrize(
         ("value", "expected"),
         [(None, "domain = None"), ("pypi.io", "domain = {!r}".format("pypi.io"))],

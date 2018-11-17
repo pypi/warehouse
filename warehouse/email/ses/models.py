@@ -155,6 +155,13 @@ class EmailStatus:
         collector=lambda iterable: list(iterable)[-1],
     )
 
+    soft_bounced.upon(
+        deliver,
+        enter=delivered,
+        outputs=[_reset_transient_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
+
     # This is an OOTO response, it's techincally a bounce, but we don't
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
@@ -256,8 +263,11 @@ class Event(db.Model):
 
     email_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("ses_emails.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey(
+            "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
+        ),
         nullable=False,
+        index=True,
     )
 
     event_id = Column(Text, nullable=False, unique=True, index=True)

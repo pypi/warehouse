@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
@@ -28,7 +29,6 @@ from ...common.db.packaging import (
 
 
 class TestProjectDetail:
-
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
@@ -49,8 +49,9 @@ class TestProjectDetail:
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
-        resp = views.project_detail(project, db_request)
-        assert isinstance(resp, HTTPNotFound)
+
+        with pytest.raises(HTTPNotFound):
+            views.project_detail(project, db_request)
 
     def test_calls_release_detail(self, monkeypatch, db_request):
         project = ProjectFactory.create()
@@ -106,7 +107,6 @@ class TestProjectDetail:
 
 
 class TestReleaseDetail:
-
     def test_normalizing_name_redirects(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
@@ -255,7 +255,6 @@ class TestReleaseDetail:
 
 
 class TestEditProjectButton:
-
     def test_edit_project_button_returns_project(self):
         project = pretend.stub()
         assert views.edit_project_button(project, pretend.stub()) == {

@@ -14,6 +14,8 @@ import os
 import os.path
 import xmlrpc.client
 
+from contextlib import contextmanager
+
 import alembic.command
 import click.testing
 import pretend
@@ -31,6 +33,7 @@ from sqlalchemy import event
 from warehouse.config import configure
 from warehouse.accounts import services
 from warehouse.admin.flags import Flags
+from warehouse.metrics import IMetricsService
 
 from .common.db import Session
 
@@ -53,10 +56,50 @@ def pytest_collection_modifyitems(items):
             raise RuntimeError("Unknown test type (filename = {0})".format(module_path))
 
 
+@contextmanager
+def metrics_timing(*args, **kwargs):
+    yield None
+
+
 @pytest.fixture
-def pyramid_request(datadog):
+def metrics():
+    return pretend.stub(
+        event=pretend.call_recorder(lambda *args, **kwargs: None),
+        increment=pretend.call_recorder(lambda *args, **kwargs: None),
+        histogram=pretend.call_recorder(lambda *args, **kwargs: None),
+        timing=pretend.call_recorder(lambda *args, **kwargs: None),
+        timed=pretend.call_recorder(
+            lambda *args, **kwargs: metrics_timing(*args, **kwargs)
+        ),
+    )
+
+
+class _Services:
+    def __init__(self):
+        self._services = {}
+
+    def register_service(self, iface, context, service_obj):
+        self._services[(iface, context)] = service_obj
+
+    def find_service(self, iface, context):
+        return self._services[(iface, context)]
+
+
+@pytest.fixture
+def pyramid_services(metrics):
+    services = _Services()
+
+    # Register our global services.
+    services.register_service(IMetricsService, None, metrics)
+
+    return services
+
+
+@pytest.fixture
+def pyramid_request(pyramid_services):
     dummy_request = pyramid.testing.DummyRequest()
-    dummy_request.registry.datadog = datadog
+    dummy_request.find_service = pyramid_services.find_service
+
     return dummy_request
 
 
@@ -64,15 +107,6 @@ def pyramid_request(datadog):
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
-
-
-@pytest.yield_fixture
-def datadog():
-    return pretend.stub(
-        event=pretend.call_recorder(lambda *args, **kwargs: None),
-        increment=pretend.call_recorder(lambda *args, **kwargs: None),
-        histogram=pretend.call_recorder(lambda *args, **kwargs: None),
-    )
 
 
 @pytest.yield_fixture
@@ -161,8 +195,8 @@ def db_session(app_config):
 
 
 @pytest.yield_fixture
-def user_service(db_session, app_config):
-    return services.DatabaseUserService(db_session, app_config.registry.settings)
+def user_service(db_session, metrics):
+    return services.DatabaseUserService(db_session, metrics=metrics)
 
 
 @pytest.yield_fixture
@@ -171,7 +205,6 @@ def token_service(app_config):
 
 
 class QueryRecorder:
-
     def __init__(self):
         self.queries = []
         self.recording = False
@@ -210,15 +243,13 @@ def query_recorder(app_config):
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session, datadog):
-    pyramid_request.registry.datadog = datadog
+def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     pyramid_request.flags = Flags(pyramid_request)
     return pyramid_request
 
 
 class _TestApp(_webtest.TestApp):
-
     def xmlrpc(self, path, method, *args):
         body = xmlrpc.client.dumps(args, methodname=method)
         resp = self.post(path, body, headers={"Content-Type": "text/xml"})

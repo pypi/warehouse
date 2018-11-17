@@ -20,7 +20,6 @@ from warehouse.manage import forms
 
 
 class TestCreateRoleForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.CreateRoleForm(user_service=user_service)
@@ -51,7 +50,7 @@ class TestCreateRoleForm:
     @pytest.mark.parametrize(
         ("value", "expected"),
         [
-            ("", "Select a role"),
+            ("", "Select role"),
             ("invalid", "Not a valid choice"),
             (None, "Not a valid choice"),
         ],
@@ -68,7 +67,6 @@ class TestCreateRoleForm:
 
 
 class TestAddEmailForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.AddEmailForm(user_service=user_service)
@@ -77,9 +75,13 @@ class TestAddEmailForm:
 
 
 class TestChangePasswordForm:
-
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.ChangePasswordForm(user_service=user_service)
+        breach_service = pretend.stub()
+
+        form = forms.ChangePasswordForm(
+            user_service=user_service, breach_service=breach_service
+        )
 
         assert form.user_service is user_service
+        assert form._breach_service is breach_service

@@ -1,5 +1,8 @@
 version: '3'
 
+volumes:
+  packages:
+
 services:
   db:
     image: postgres:10.1
@@ -8,20 +11,29 @@ services:
       - "5433:5432"
 
   redis:
-    image: redis:latest
+    image: redis:4.0
 
-  rabbitmq:
-    image: rabbitmq:latest
+  localstack:
+    image: localstack/localstack:0.8.7
+    environment:
+      SERVICES: "sqs"
+      HOSTNAME: "localstack"
+      HOSTNAME_EXTERNAL: "localstack"
+      DEFAULT_REGION: "us-east-2"
+    ports:
+      - "4576:4576"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    environment:
+      - xpack.security.enabled=false
 
   camo:
     image: pypa/warehouse-camo:latest
     ports:
       - "9000:9000"
     environment:
-      CAMO_KEY: "insecure camo key"
+      CAMO_KEY: "insecurecamokey"
 
   web:
     build:
@@ -33,7 +45,7 @@ services:
         # working on pypi-theme, this is a private repository due to the fact
         # that other people's IP is contained in it.
         #THEME_REPO:
-    command: hupper -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn-cabotage.conf warehouse.wsgi:application
+    command: hupper -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn.conf warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify all of these directories instead of just . because we want to
@@ -50,14 +62,25 @@ services:
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
+      - packages:/var/opt/warehouse/packages
     ports:
       - "80:8000"
     links:
       - db
       - redis
-      - rabbitmq
+      - localstack
       - elasticsearch
       - notdatadog
+
+  files:
+    build:
+      context: .
+    working_dir: /var/opt/warehouse
+    command: python -m http.server 9001
+    volumes:
+      - packages:/var/opt/warehouse/packages
+    ports:
+      - "9001:9001"
 
   worker:
     build:
@@ -73,7 +96,7 @@ services:
     links:
       - db
       - redis
-      - rabbitmq
+      - localstack
       - elasticsearch
       - smtp
       - notdatadog

@@ -47,7 +47,7 @@ def execute_purge(config, session):
 
     try:
         cacher_factory = config.find_service_factory(IOriginCache)
-    except ValueError:
+    except LookupError:
         return
 
     cacher = cacher_factory(None, config)
@@ -59,7 +59,6 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
         keys = []
 
     def inner(view):
-
         @functools.wraps(view)
         def wrapped(context, request):
             cache_keys = request.registry["cache_keys"]
@@ -70,7 +69,7 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
 
             try:
                 cacher = request.find_service(IOriginCache)
-            except ValueError:
+            except LookupError:
                 pass
             else:
                 request.add_response_callback(
@@ -94,7 +93,6 @@ CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 
 
 def key_factory(keystring, iterate_on=None):
-
     def generate_key(obj):
         if iterate_on:
             for itr in operator.attrgetter(iterate_on)(obj):

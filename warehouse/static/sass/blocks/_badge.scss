@@ -35,4 +35,9 @@
   &--danger {
     background-color: $danger-color;
   }
+
+  &--warning {
+    background-color: $warn-color;
+    color: $warn-text;
+  }
 }

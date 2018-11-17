@@ -21,7 +21,6 @@ def test_routes(warehouse):
     docs_route_url = pretend.stub()
 
     class FakeConfig:
-
         def __init__(self):
             self.registry = pretend.stub(
                 settings={
@@ -75,7 +74,7 @@ def test_routes(warehouse):
 
     assert config.add_route.calls == [
         pretend.call("health", "/_health/"),
-        pretend.call("force-status", "/_force-status/{status:[45]\d\d}/"),
+        pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
@@ -112,6 +111,10 @@ def test_routes(warehouse):
         ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
+        pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
+        pretend.call(
+            "stats.json", "/stats/", accept="application/json", domain=warehouse
+        ),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",
@@ -241,8 +244,24 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "legacy.api.json.project_slash",
+            "/pypi/{name}/json/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
             "legacy.api.json.release",
             "/pypi/{name}/{version}/json",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/{version}",
+            read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
+            "legacy.api.json.release_slash",
+            "/pypi/{name}/{version}/json/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
             read_only=True,

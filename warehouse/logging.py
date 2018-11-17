@@ -22,7 +22,6 @@ RENDERER = structlog.processors.JSONRenderer()
 
 
 class StructlogFormatter(logging.Formatter):
-
     def format(self, record):
         # TODO: Figure out a better way of handling this besides just looking
         #       at the logger name, ideally this would have some way to

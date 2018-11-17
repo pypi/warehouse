@@ -15,6 +15,7 @@ from collections import OrderedDict
 import pretend
 import pytest
 
+from pyramid.location import lineage
 from pyramid.security import Allow
 
 from warehouse.packaging.models import ProjectFactory, Dependency, DependencyKind, File
@@ -28,7 +29,6 @@ from ...common.db.packaging import (
 
 
 class TestRole:
-
     def test_role_ordering(self, db_request):
         project = DBProjectFactory.create()
         owner_role = DBRoleFactory.create(project=project, role_name="Owner")
@@ -37,7 +37,6 @@ class TestRole:
 
 
 class TestProjectFactory:
-
     @pytest.mark.parametrize(("name", "normalized"), [("foo", "foo"), ("Bar", "bar")])
     def test_traversal_finds(self, db_request, name, normalized):
         project = DBProjectFactory.create(name=name)
@@ -54,7 +53,6 @@ class TestProjectFactory:
 
 
 class TestProject:
-
     def test_traversal_finds(self, db_request):
         project = DBProjectFactory.create()
         release = DBReleaseFactory.create(project=project)
@@ -111,17 +109,28 @@ class TestProject:
         maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
 
-        assert project.__acl__() == [
+        acls = []
+        for location in lineage(project):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage", "upload"]),
-            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
             (Allow, str(maintainer1.user.id), ["upload"]),
             (Allow, str(maintainer2.user.id), ["upload"]),
         ]
 
 
 class TestRelease:
-
     def test_has_meta_true_with_keywords(self, db_session):
         release = DBReleaseFactory.create(keywords="foo, bar")
         assert release.has_meta
@@ -251,8 +260,7 @@ class TestRelease:
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=release.project.name,
-                    version=release.version,
+                    release=release,
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )
@@ -269,10 +277,22 @@ class TestRelease:
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
         release = DBReleaseFactory.create(project=project)
 
-        assert release.__acl__() == [
+        acls = []
+        for location in lineage(release):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage", "upload"]),
-            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
             (Allow, str(maintainer1.user.id), ["upload"]),
             (Allow, str(maintainer2.user.id), ["upload"]),
         ]
@@ -309,7 +329,6 @@ class TestRelease:
 
 
 class TestFile:
-
     def test_requires_python(self, db_session):
         """ Attempt to write a File by setting requires_python directly,
             which should fail to validate (it should only be set in Release).

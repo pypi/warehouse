@@ -17,7 +17,7 @@ from warehouse import db
 
 class AdminFlag(db.ModelBase):
 
-    __tablename__ = "warehouse_admin_flag"
+    __tablename__ = "admin_flags"
 
     id = Column(Text, primary_key=True, nullable=False)
     description = Column(Text, nullable=False)
@@ -26,7 +26,6 @@ class AdminFlag(db.ModelBase):
 
 
 class Flags:
-
     def __init__(self, request):
         self.request = request
 

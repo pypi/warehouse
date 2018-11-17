@@ -12,6 +12,7 @@
 
 import datetime
 import hashlib
+import uuid
 
 import factory
 import factory.fuzzy
@@ -33,19 +34,18 @@ from .base import WarehouseFactory
 
 
 class ProjectFactory(WarehouseFactory):
-
     class Meta:
         model = Project
 
+    id = factory.LazyFunction(uuid.uuid4)
     name = factory.fuzzy.FuzzyText(length=12)
 
 
 class ReleaseFactory(WarehouseFactory):
-
     class Meta:
         model = Release
 
-    name = factory.LazyAttribute(lambda o: o.project.name)
+    id = factory.LazyFunction(uuid.uuid4)
     project = factory.SubFactory(ProjectFactory)
     version = factory.Sequence(lambda n: str(n) + ".0")
     canonical_version = factory.LazyAttribute(
@@ -57,11 +57,9 @@ class ReleaseFactory(WarehouseFactory):
 
 
 class FileFactory(WarehouseFactory):
-
     class Meta:
         model = File
 
-    name = factory.LazyAttribute(lambda o: o.release.name)
     release = factory.SubFactory(ReleaseFactory)
     python_version = "source"
     md5_digest = factory.LazyAttribute(
@@ -87,7 +85,6 @@ class FileFactory(WarehouseFactory):
 
 
 class RoleFactory(WarehouseFactory):
-
     class Meta:
         model = Role
 
@@ -97,18 +94,15 @@ class RoleFactory(WarehouseFactory):
 
 
 class DependencyFactory(WarehouseFactory):
-
     class Meta:
         model = Dependency
 
-    name = factory.fuzzy.FuzzyText(length=12)
-    version = factory.Sequence(lambda n: str(n) + ".0")
+    release = factory.SubFactory(ReleaseFactory)
     kind = factory.fuzzy.FuzzyChoice(int(kind) for kind in DependencyKind)
     specifier = factory.fuzzy.FuzzyText(length=12)
 
 
 class JournalEntryFactory(WarehouseFactory):
-
     class Meta:
         model = JournalEntry
 
@@ -120,7 +114,6 @@ class JournalEntryFactory(WarehouseFactory):
 
 
 class BlacklistedProjectFactory(WarehouseFactory):
-
     class Meta:
         model = BlacklistedProject
 

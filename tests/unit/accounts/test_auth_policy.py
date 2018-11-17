@@ -22,7 +22,6 @@ from warehouse.accounts.interfaces import IUserService
 
 
 class TestBasicAuthAuthenticationPolicy:
-
     def test_verify(self):
         assert verifyClass(
             IAuthenticationPolicy, auth_policy.BasicAuthAuthenticationPolicy
@@ -85,7 +84,6 @@ class TestBasicAuthAuthenticationPolicy:
 
 
 class TestSessionAuthenticationPolicy:
-
     def test_verify(self):
         assert verifyClass(
             IAuthenticationPolicy, auth_policy.SessionAuthenticationPolicy

@@ -25,10 +25,12 @@ import pytest
 import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.packaging.interfaces import IFileStorage
@@ -62,7 +64,6 @@ def test_exc_with_message():
 
 
 class TestValidation:
-
     @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1"])
     def test_validates_valid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
@@ -340,7 +341,6 @@ def test_construct_dependencies():
 
 
 class TestListField:
-
     @pytest.mark.parametrize(
         ("data", "expected"),
         [
@@ -359,7 +359,6 @@ class TestListField:
 
     @pytest.mark.parametrize(("value", "expected"), [("", []), ("wutang", ["wutang"])])
     def test_coerce_string_into_list(self, value, expected):
-
         class MyForm(Form):
             test = legacy.ListField()
 
@@ -369,7 +368,6 @@ class TestListField:
 
 
 class TestMetadataForm:
-
     @pytest.mark.parametrize(
         "data",
         [
@@ -404,7 +402,6 @@ class TestMetadataForm:
 
 
 class TestFileValidation:
-
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "")
 
@@ -538,7 +535,6 @@ class TestFileValidation:
 
 
 class TestIsDuplicateFile:
-
     def test_is_duplicate_true(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
@@ -686,12 +682,13 @@ class TestIsDuplicateFile:
 
 
 class TestFileUpload:
-
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_config.testing_securitypolicy(userid=1)
         pyramid_request.POST["protocol_version"] = version
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
+
+        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(pyramid_request)
@@ -707,7 +704,7 @@ class TestFileUpload:
             # metadata_version errors.
             (
                 {},
-                "None is an invalid value for Metadata-Version. "
+                "'' is an invalid value for Metadata-Version. "
                 "Error: This field is required. "
                 "See "
                 "https://packaging.python.org/specifications/core-metadata",
@@ -871,6 +868,9 @@ class TestFileUpload:
         self, pyramid_config, db_request, post_data, message
     ):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(post_data)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -919,6 +919,7 @@ class TestFileUpload:
             "for more information."
         ).format(name)
 
+    @pytest.mark.xfail(reason="https://github.com/pypa/warehouse/issues/4079")
     @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
         [
@@ -945,6 +946,7 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         db_request.POST = MultiDict(
             {
@@ -1051,6 +1053,9 @@ class TestFileUpload:
         )
         admin_flag.enabled = True
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         name = "fails-with-admin-flag"
         db_request.POST = MultiDict(
             {
@@ -1084,6 +1089,9 @@ class TestFileUpload:
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1104,8 +1112,10 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("value", [("UNKNOWN"), ("UNKNOWN\n\n")])
     def test_upload_cleans_unknown_values(self, pyramid_config, db_request, value):
-
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1123,6 +1133,9 @@ class TestFileUpload:
 
     def test_upload_escapes_nul_characters(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1202,6 +1215,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.40"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         content = FieldStorage()
         content.filename = filename
@@ -1294,16 +1308,23 @@ class TestFileUpload:
             )
 
         # Ensure that a File object has been created.
-        db_request.db.query(File).filter(
-            (File.release == release) & (File.filename == filename)
-        ).one()
+        uploaded_file = (
+            db_request.db.query(File)
+            .filter((File.release == release) & (File.filename == filename))
+            .one()
+        )
+
+        assert uploaded_file.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -1327,6 +1348,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1365,6 +1387,7 @@ class TestFileUpload:
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1400,6 +1423,7 @@ class TestFileUpload:
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1436,6 +1460,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1476,6 +1501,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1513,6 +1539,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1552,6 +1579,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1628,6 +1656,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1665,6 +1694,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1697,6 +1727,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create(
             name="foobar", upload_limit=(60 * 1024 * 1024)  # 60 MB
@@ -1738,6 +1769,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1776,6 +1808,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1819,6 +1852,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1865,6 +1899,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1916,6 +1951,8 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1967,6 +2004,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2005,6 +2043,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2045,6 +2084,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2155,6 +2195,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2220,7 +2261,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2257,6 +2301,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2322,7 +2367,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2354,6 +2402,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2400,6 +2449,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2436,6 +2486,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2486,6 +2537,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2536,6 +2588,7 @@ class TestFileUpload:
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
         assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a File object has been created.
         db_request.db.query(File).filter(
@@ -2547,7 +2600,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2579,6 +2635,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2624,6 +2681,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2675,6 +2733,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
 
@@ -2698,6 +2757,8 @@ class TestFileUpload:
             .one()
         )
 
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
         # Ensure that a File object has been created.
         db_request.db.query(File).filter(
             (File.release == release) & (File.filename == filename)
@@ -2708,7 +2769,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2732,14 +2796,60 @@ class TestFileUpload:
             ),
         ]
 
+    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        squattee = ProjectFactory(name="example")
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("exmaple", "1.0")
+
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "exmaple",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Project object has been created.
+        squatter = db_request.db.query(Project).filter(Project.name == "exmaple").one()
+
+        # Ensure that a Squat object has been created.
+        squat = db_request.db.query(Squat).one()
+
+        assert squat.squattee == squattee
+        assert squat.squatter == squatter
+        assert squat.reviewed is False
+
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),
         [
-            ((True,), True),
-            ((False,), False),
-            ((True, True), True),
-            ((True, False), True),
-            ((False, False), False),
+            ([], False),
+            ([True], True),
+            ([False], False),
+            ([True, True], True),
+            ([True, False], True),
+            ([False, False], False),
+            ([False, True], False),
         ],
     )
     def test_upload_requires_verified_email(
@@ -2748,8 +2858,8 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
-        for verified in emails_verified:
-            EmailFactory.create(user=user, verified=verified)
+        for i, verified in enumerate(emails_verified):
+            EmailFactory.create(user=user, verified=verified, primary=i == 0)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
@@ -2772,6 +2882,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         if expected_success:
             resp = legacy.file_upload(db_request)
@@ -2788,11 +2899,10 @@ class TestFileUpload:
             assert resp.status_code == 400
             assert resp.status == (
                 (
-                    "400 User {!r} has no verified email "
-                    "addresses, verify at least one "
-                    "address before registering a new project "
-                    "on PyPI. See /the/help/url/ "
-                    "for more information."
+                    "400 User {!r} does not have a verified primary email "
+                    "address. Please add a verified primary email before "
+                    "attempting to upload to PyPI. See /the/help/url/ for "
+                    "more information.for more information."
                 ).format(user.username)
             )
 
@@ -2823,6 +2933,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
 
@@ -2852,150 +2963,6 @@ class TestFileUpload:
         assert resp.status == (
             "403 Invalid or non-existent authentication information."
         )
-
-    def test_autohides_old_releases(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create(autohide=True)
-        ReleaseFactory.create(project=project, version="0.5", _pypi_hidden=False)
-        RoleFactory.create(user=user, project=project)
-
-        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
-        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
-
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
-
-        db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0",
-                "summary": "This is my summary!",
-                "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"A fake file."),
-                    type="application/tar",
-                ),
-            }
-        )
-        db_request.POST.extend(
-            [
-                ("classifiers", "Environment :: Other Environment"),
-                ("classifiers", "Programming Language :: Python"),
-                ("requires_dist", "foo"),
-                ("requires_dist", "bar (>1.0)"),
-                ("project_urls", "Test, https://example.com/"),
-                ("requires_external", "Cheese (>1.0)"),
-                ("provides", "testing"),
-            ]
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-        # Ensure that a Release object has been created and is not hidden.
-        release = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.0"))
-            .one()
-        )
-        assert not release._pypi_hidden
-
-        # Ensure that all the old release objects are hidden.
-        other_releases = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version != "1.0"))
-            .all()
-        )
-        assert len(other_releases)
-        for r in other_releases:
-            assert r._pypi_hidden
-
-    def test_doesnt_autohides_old_releases(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create(autohide=False)
-        previous_releases = {
-            "0.5": ReleaseFactory.create(
-                project=project, version="0.5", _pypi_hidden=False
-            ),
-            "0.75": ReleaseFactory.create(
-                project=project, version="0.75", _pypi_hidden=False
-            ),
-        }
-        RoleFactory.create(user=user, project=project)
-
-        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
-        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
-
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
-
-        db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0",
-                "summary": "This is my summary!",
-                "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"A fake file."),
-                    type="application/tar",
-                ),
-            }
-        )
-        db_request.POST.extend(
-            [
-                ("classifiers", "Environment :: Other Environment"),
-                ("classifiers", "Programming Language :: Python"),
-                ("requires_dist", "foo"),
-                ("requires_dist", "bar (>1.0)"),
-                ("project_urls", "Test, https://example.com/"),
-                ("requires_external", "Cheese (>1.0)"),
-                ("provides", "testing"),
-            ]
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-        # Ensure that a Release object has been created and is not hidden.
-        release = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.0"))
-            .one()
-        )
-        assert not release._pypi_hidden
-
-        # Ensure that all the old release objects still have the same hidden
-        # state.
-        other_releases = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version != "1.0"))
-            .all()
-        )
-        assert len(other_releases)
-        for r in other_releases:
-            assert r._pypi_hidden == previous_releases[r.version]._pypi_hidden
 
 
 @pytest.mark.parametrize("status", [True, False])
