@@ -101,8 +101,8 @@
           <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
             <button type="button" class="accordion__link -js-accordion-trigger">{{ top_level }}</button>
             <div class="accordion__content">
-              <div class="checkbox-tree markup">
-                <ul class="tree">
+              <div class="checkbox-tree">
+                <ul>
                  {{ generate_classifier_tree(top_level, classifiers, applied_filters, parent=None) }}
                 </ul>
               </div>
