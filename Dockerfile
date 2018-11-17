@@ -45,7 +45,8 @@ RUN gulp dist
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM pypy:3-6.0.0-slim as build
+# FROM pypy:3-6.0.0-slim as build
+FROM debian:jessie-slim as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -62,8 +63,18 @@ ARG IPYTHON=no
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
+        bzip2 build-essential libexpat1-dev libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
         $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
+
+# We need to install the nightly version of PyPy that we're using.
+# TODO: Switch to a premade docker image when that version works for us? Or should we
+#       keep doing this? Build our own docker image? what?
+ADD http://buildbot.pypy.org/nightly/py3.5/pypy-c-jit-95312-3bb86a88e1d3-linux64.tar.bz2 /tmp/pypy.tar.bz2
+RUN set -x \
+    && echo "9d6e7c11645833794f5f207051331f1835f1ba10aec3c9aaa0ae0612e8829b4e  /tmp/pypy.tar.bz2" | sha256sum -c - \
+    && mkdir -p /opt/pypy \
+    && tar vxjf /tmp/pypy.tar.bz2 --strip-components=1 -C /opt/pypy
+ENV PATH="/opt/pypy/bin:${PATH}"
 
 # We need a way for the build system to pass in a repository that will be used
 # to install our theme from. For this we'll add the THEME_REPO build argument
@@ -121,12 +132,15 @@ RUN set -x \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM pypy:3-6.0.0-slim
+# FROM pypy:3-6.0.0-slim
+FROM debian:jessie-slim
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /opt/warehouse/src/
-ENV PATH="/opt/warehouse/bin:${PATH}"
+ENV PATH="/opt/warehouse/bin:/opt/pypy/bin:${PATH}"
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 WORKDIR /opt/warehouse/src/
 
@@ -157,5 +171,6 @@ RUN set -x \
 # deploying new code changes.
 COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/warehouse/static/dist/
 COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
+COPY --from=build /opt/pypy/ /opt/pypy/
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
