@@ -18,8 +18,10 @@ from warehouse.utils.static import ManifestCacheBuster
 class TestManifestCacheBuster:
     def test_returns_when_valid(self, monkeypatch):
         monkeypatch.setattr(
-            ManifestCacheBuster, "get_manifest",
-            lambda x: {"/the/path/style.css": "/the/busted/path/style.css"})
+            ManifestCacheBuster,
+            "get_manifest",
+            lambda x: {"/the/path/style.css": "/the/busted/path/style.css"},
+        )
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")
         result = cb(None, "/the/path/style.css", {"keyword": "arg"})
 

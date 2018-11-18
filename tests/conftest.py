@@ -138,11 +138,11 @@ def database(request):
 
 
 class MockManifestCacheBuster(ManifestCacheBuster):
-        def __init__(self, *args, strict=True, **kwargs):
-            super().__init__(*args, **kwargs)
+    def __init__(self, *args, strict=True, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        def get_manifest(self):
-            return {}
+    def get_manifest(self):
+        return {}
 
 
 @pytest.fixture
@@ -152,32 +152,31 @@ def mock_manifest_cache_buster():
 
 @pytest.fixture(scope="session")
 def app_config(database):
+    settings = {
+        "warehouse.prevent_esi": True,
+        "warehouse.token": "insecure token",
+        "camo.url": "http://localhost:9000/",
+        "camo.key": "insecure key",
+        "celery.broker_url": "amqp://",
+        "celery.result_url": "redis://localhost:0/",
+        "celery.scheduler_url": "redis://localhost:0/",
+        "database.url": database,
+        "docs.url": "http://docs.example.com/",
+        "ratelimit.url": "memory://",
+        "elasticsearch.url": "https://localhost/warehouse",
+        "files.backend": "warehouse.packaging.services.LocalFileStorage",
+        "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+        "mail.backend": "warehouse.email.services.SMTPEmailSender",
+        "files.url": "http://localhost:7000/",
+        "sessions.secret": "123456",
+        "sessions.url": "redis://localhost:0/",
+        "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+        "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
+    }
     with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
         with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
             with mock.patch.object(static, "whitenoise_add_manifest"):
-                cfg = config.configure(
-                    settings={
-                        "warehouse.prevent_esi": True,
-                        "warehouse.token": "insecure token",
-                        "camo.url": "http://localhost:9000/",
-                        "camo.key": "insecure key",
-                        "celery.broker_url": "amqp://",
-                        "celery.result_url": "redis://localhost:0/",
-                        "celery.scheduler_url": "redis://localhost:0/",
-                        "database.url": database,
-                        "docs.url": "http://docs.example.com/",
-                        "ratelimit.url": "memory://",
-                        "elasticsearch.url": "https://localhost/warehouse",
-                        "files.backend": "warehouse.packaging.services.LocalFileStorage",
-                        "docs.backend": "warehouse.packaging.services.LocalFileStorage",
-                        "mail.backend": "warehouse.email.services.SMTPEmailSender",
-                        "files.url": "http://localhost:7000/",
-                        "sessions.secret": "123456",
-                        "sessions.url": "redis://localhost:0/",
-                        "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
-                        "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
-                    }
-                )
+                cfg = config.configure(settings=settings)
 
     # Ensure our migrations have been ran.
     alembic.command.upgrade(cfg.alembic_config(), "head")
