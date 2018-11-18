@@ -17,16 +17,16 @@
 
   <div class="repo-info">
     <em>Service statistics:</em> // GitHub or GitLab
-    <span class="statistic-item">
+    <span class="repo-info__item">
       <i class="fa fa-star" aria-hidden="true"></i> // fa icon
       <strong>Star: </strong> // item title
-      <span class="repo-info__item" data-key="star_count">1</span> // item value
+      <span>1</span> // item value
     </span>
   </div>
 
 */
 .repo-info {
-  .statistic-item {
+  &__item {
     @include clearfix;
     display: block;
     padding: $spacing-unit / 4 $spacing-unit / 2;

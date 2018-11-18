@@ -26,50 +26,59 @@
 </div>
 {% endif %}
 
-{% macro statistic_item(title, json_data_key, json_base_url_key=None, url_ending=None, icon=None) %}
+{% macro repo_item(title, json_data_key, json_base_url_key=None, url_ending=None, icon=None) %}
 {% if not icon %}
   {% if title == 'Stars' %}
     {% set icon = 'fa-star' %}
   {% elif title == 'Forks' %}
     {% set icon = 'fa-code-branch' %}
-  {% elif title == 'Open issues/PRs' %}
+  {% elif title == 'Open issues / PRs' %}
     {% set icon = 'fa-exclamation-circle' %}
   {% endif %}
 {% endif %}
 {% if json_base_url_key %}
-<a class="statistic-item repo-info__item"
-    data-key="{{ json_base_url_key }}" data-attr="href" data-supplement="{{ url_ending }}"
-    rel="noopener" target="_blank">
-{% else %}
-<span class="statistic-item">
-{% endif %}
+<a class="repo-info__item js-repo-data"
+   data-key="{{ json_base_url_key }}"
+   data-attr="href"
+   data-supplement="{{ url_ending }}"
+   rel="noopener"
+   target="_blank">
   <i class="fa {{ icon }}" aria-hidden="true"></i>
   <strong>{{ title }}: </strong>
-  <span class="repo-info__item" data-key="{{ json_data_key }}"></span>
-{% if json_base_url_key %}
+  <span class="js-repo-data" data-key="{{ json_data_key }}"></span>
 </a>
 {% else %}
+<span class="repo-info__item">
+  <i class="fa {{ icon }}" aria-hidden="true"></i>
+  <strong>{{ title }}: </strong>
+  <span class="js-repo-data" data-key="{{ json_data_key }}"></span>
 </span>
 {% endif %}
 {% endmacro %}
 
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">Statistics</h3>
   {% if release.github_repo_info_url %}
+  <h3 class="sidebar-section__title">
+    <i class="fab fa-github" aria-hidden="true"></i>
+    GitHub statistics
+  </h3>
   <div class="repo-info hidden" data-url="{{release.github_repo_info_url}}">
-    <em>GitHub statistics:</em>
-    {{ statistic_item('Stars', 'stargazers_count', 'html_url', '/stargazers') }}
-    {{ statistic_item('Forks', 'forks_count', 'html_url', '/network') }}
-    {{ statistic_item('Open issues/PRs', 'open_issues_count', 'html_url', '/issues') }}
+    {{ repo_item('Stars', 'stargazers_count', 'html_url', '/stargazers') }}
+    {{ repo_item('Forks', 'forks_count', 'html_url', '/network') }}
+    {{ repo_item('Open issues / PRs', 'open_issues_count', 'html_url', '/issues') }}
   </div>
   {% elif release.gitlab_repo_info_url %}
+  <h3 class="sidebar-section__title">
+    <i class="fab fa-gitlab" aria-hidden="true"></i>
+    GitLab statistics
+  </h3>
   <div class="repo-info hidden" data-url="{{release.gitlab_repo_info_url}}">
-    <em>GitLab statistics:</em>
-    {{ statistic_item('Stars', 'star_count') }}
-    {{ statistic_item('Forks', 'forks_count', 'web_url', '/forks') }}
+    {{ repo_item('Stars', 'star_count') }}
+    {{ repo_item('Forks', 'forks_count', 'web_url', '/forks') }}
   </div>
   {% endif %}
-  <p>View statistics for this project via <a
+  <br/>
+  <p>View other statistics for this project via <a
       href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using
     <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google
       BigQuery</a></p>

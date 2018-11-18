@@ -29,7 +29,7 @@ export default () => {
         return;
       }
       repoInfoContainer.classList.remove("hidden");
-      const items = document.querySelectorAll(".repo-info__item");
+      const items = document.querySelectorAll(".js-repo-data");
       items.forEach(function(elem) {
         const jsonKey = elem.dataset.key;
         let jsonValue = json[jsonKey];
