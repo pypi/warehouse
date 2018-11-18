@@ -95,7 +95,7 @@ serve: .state/docker-build
 debug: .state/docker-build
 	docker-compose run --rm --service-ports web
 
-tests:
+tests_backend:
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
@@ -104,6 +104,9 @@ tests_frontend:
 	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests_frontend
+
+tests:
+	$(MAKE) tests_backend && $(MAKE) tests_frontend
 
 reformat: .state/env/pyvenv.cfg
 	$(BINDIR)/black warehouse/ tests/
