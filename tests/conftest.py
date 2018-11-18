@@ -12,6 +12,7 @@
 
 import os
 import os.path
+from unittest import mock
 import xmlrpc.client
 
 from contextlib import contextmanager
@@ -23,6 +24,7 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from pyramid.static import ManifestCacheBuster
 from pytest_postgresql.factories import (
     init_postgresql_database,
     drop_postgresql_database,
@@ -30,9 +32,8 @@ from pytest_postgresql.factories import (
 )
 from sqlalchemy import event
 
-from warehouse.config import configure
+from warehouse import config, admin, static
 from warehouse.accounts import services
-from warehouse.admin.flags import Flags
 from warehouse.metrics import IMetricsService
 
 from .common.db import Session
@@ -136,41 +137,52 @@ def database(request):
     return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
 
 
+class MockManifestCacheBuster(ManifestCacheBuster):
+        def __init__(self, *args, strict=True, **kwargs):
+            super().__init__(*args, **kwargs)
+
+        def get_manifest(self):
+            return {}
+
+
+@pytest.fixture
+def mock_manifest_cache_buster():
+    return MockManifestCacheBuster
+
+
 @pytest.fixture(scope="session")
 def app_config(database):
-    from warehouse.utils.static import ManifestCacheBuster
-    from pyramid.static import ManifestCacheBuster as _ManifestCacheBuster
-    ManifestCacheBuster.get_manifest = lambda x: {}
-    ManifestCacheBuster.__call__ = _ManifestCacheBuster.__call__
-    
-    config = configure(
-        settings={
-            "warehouse.prevent_esi": True,
-            "warehouse.token": "insecure token",
-            "camo.url": "http://localhost:9000/",
-            "camo.key": "insecure key",
-            "celery.broker_url": "amqp://",
-            "celery.result_url": "redis://localhost:0/",
-            "celery.scheduler_url": "redis://localhost:0/",
-            "database.url": database,
-            "docs.url": "http://docs.example.com/",
-            "ratelimit.url": "memory://",
-            "elasticsearch.url": "https://localhost/warehouse",
-            "files.backend": "warehouse.packaging.services.LocalFileStorage",
-            "docs.backend": "warehouse.packaging.services.LocalFileStorage",
-            "mail.backend": "warehouse.email.services.SMTPEmailSender",
-            "files.url": "http://localhost:7000/",
-            "sessions.secret": "123456",
-            "sessions.url": "redis://localhost:0/",
-            "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
-            "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
-        }
-    )
+    with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
+        with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
+            with mock.patch.object(static, "whitenoise_add_manifest"):
+                cfg = config.configure(
+                    settings={
+                        "warehouse.prevent_esi": True,
+                        "warehouse.token": "insecure token",
+                        "camo.url": "http://localhost:9000/",
+                        "camo.key": "insecure key",
+                        "celery.broker_url": "amqp://",
+                        "celery.result_url": "redis://localhost:0/",
+                        "celery.scheduler_url": "redis://localhost:0/",
+                        "database.url": database,
+                        "docs.url": "http://docs.example.com/",
+                        "ratelimit.url": "memory://",
+                        "elasticsearch.url": "https://localhost/warehouse",
+                        "files.backend": "warehouse.packaging.services.LocalFileStorage",
+                        "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+                        "mail.backend": "warehouse.email.services.SMTPEmailSender",
+                        "files.url": "http://localhost:7000/",
+                        "sessions.secret": "123456",
+                        "sessions.url": "redis://localhost:0/",
+                        "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+                        "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
+                    }
+                )
 
     # Ensure our migrations have been ran.
-    alembic.command.upgrade(config.alembic_config(), "head")
+    alembic.command.upgrade(cfg.alembic_config(), "head")
 
-    return config
+    return cfg
 
 
 @pytest.yield_fixture
@@ -250,7 +262,7 @@ def query_recorder(app_config):
 @pytest.fixture
 def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
-    pyramid_request.flags = Flags(pyramid_request)
+    pyramid_request.flags = admin.flags.Flags(pyramid_request)
     return pyramid_request
 
 
