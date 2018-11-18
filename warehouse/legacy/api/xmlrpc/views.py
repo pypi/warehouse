@@ -230,7 +230,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
 
 @xmlrpc_cache_all_projects(method="list_packages")
 def list_packages(request):
-    names = request.db.query(Project.name).order_by(Project.normalized_name).all()
+    names = request.db.query(Project.name).all()
     return [n[0] for n in names]
 
 
