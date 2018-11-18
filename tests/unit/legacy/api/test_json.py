@@ -10,15 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
+from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    ProjectFactory, ReleaseFactory, FileFactory, JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    FileFactory,
+    JournalEntryFactory,
 )
 
 
@@ -34,7 +40,6 @@ def _assert_has_cors_headers(headers):
 
 
 class TestJSONProject:
-
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
@@ -52,9 +57,7 @@ class TestJSONProject:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=project.name),
-        ]
+        assert db_request.current_route_path.calls == [pretend.call(name=project.name)]
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
@@ -115,8 +118,24 @@ class TestJSONProject:
         assert json_release.calls == [pretend.call(release, db_request)]
 
 
-class TestJSONRelease:
+class TestJSONProjectSlash:
+    def test_normalizing_redirects(self, db_request):
+        project = ProjectFactory.create()
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
+
+        resp = json.json_project_slash(project, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [
+            pretend.call("legacy.api.json.project", name=project.name)
+        ]
+        assert resp.headers["Location"] == "/project/the-redirect"
+
+
+class TestJSONRelease:
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
@@ -136,12 +155,30 @@ class TestJSONRelease:
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         _assert_has_cors_headers(resp.headers)
         assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.name),
+            pretend.call(name=release.project.name)
         ]
 
-    def test_detail_renders(self, pyramid_config, db_request):
+    def test_detail_renders(self, pyramid_config, db_request, db_session):
         project = ProjectFactory.create(has_docs=True)
         description_content_type = "text/x-rst"
+        url = "/the/fake/url/"
+        project_urls = [
+            "url," + url,
+            "Homepage,https://example.com/home2/",
+            "Source Code,https://example.com/source-code/",
+            "uri,http://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",  # noqa: E501
+            "ldap,ldap://[2001:db8::7]/c=GB?objectClass?one",
+            "tel,tel:+1-816-555-1212",
+            "telnet,telnet://192.0.2.16:80/",
+            "urn,urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
+            "reservedchars,http://example.com?&$+/:;=@#",  # Commas don't work!
+            r"unsafechars,http://example.com <>[]{}|\^%",
+        ]
+        expected_urls = []
+        for project_url in reversed(project_urls):
+            expected_urls.append(tuple(project_url.split(",")))
+        expected_urls = OrderedDict(tuple(expected_urls))
+
         releases = [
             ReleaseFactory.create(project=project, version=v)
             for v in ["0.1", "1.0", "2.0"]
@@ -153,6 +190,15 @@ class TestJSONRelease:
                 description_content_type=description_content_type,
             )
         ]
+
+        for urlspec in project_urls:
+            db_session.add(
+                Dependency(
+                    release=releases[3],
+                    kind=DependencyKind.project_url.value,
+                    specifier=urlspec,
+                )
+            )
 
         files = [
             FileFactory.create(
@@ -166,12 +212,8 @@ class TestJSONRelease:
         ]
         user = UserFactory.create()
         JournalEntryFactory.reset_sequence()
-        je = JournalEntryFactory.create(
-            name=project.name,
-            submitted_by=user,
-        )
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
 
         result = json.json_release(releases[3], db_request)
@@ -182,9 +224,7 @@ class TestJSONRelease:
             pretend.call("packaging.file", path=files[2].path),
             pretend.call("packaging.project", name=project.name),
             pretend.call(
-                "packaging.release",
-                name=project.name,
-                version=releases[3].version,
+                "packaging.release", name=project.name, version=releases[3].version
             ),
             pretend.call("legacy.docs", project=project.name),
         }
@@ -202,20 +242,17 @@ class TestJSONRelease:
                 "description": None,
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
-                "downloads": {
-                    "last_day": -1,
-                    "last_week": -1,
-                    "last_month": -1,
-                },
+                "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
                 "home_page": None,
                 "keywords": None,
                 "license": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
+                "package_url": "/the/fake/url/",
                 "platform": None,
                 "project_url": "/the/fake/url/",
-                "package_url": "/the/fake/url/",
+                "project_urls": expected_urls,
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
@@ -239,10 +276,11 @@ class TestJSONRelease:
                         "python_version": "source",
                         "size": 200,
                         "upload_time": files[0].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
-                    },
+                        "requires_python": None,
+                    }
                 ],
                 "2.0": [
                     {
@@ -259,10 +297,11 @@ class TestJSONRelease:
                         "python_version": "source",
                         "size": 200,
                         "upload_time": files[1].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
-                    },
+                        "requires_python": None,
+                    }
                 ],
                 "3.0": [
                     {
@@ -279,10 +318,11 @@ class TestJSONRelease:
                         "python_version": "source",
                         "size": 200,
                         "upload_time": files[2].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
-                    },
+                        "requires_python": None,
+                    }
                 ],
             },
             "urls": [
@@ -299,11 +339,10 @@ class TestJSONRelease:
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": files[2].upload_time.strftime(
-                        "%Y-%m-%dT%H:%M:%S",
-                    ),
+                    "upload_time": files[2].upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "url": "/the/fake/url/",
-                },
+                    "requires_python": None,
+                }
             ],
             "last_serial": je.id,
         }
@@ -321,10 +360,7 @@ class TestJSONRelease:
 
         user = UserFactory.create()
         JournalEntryFactory.reset_sequence()
-        je = JournalEntryFactory.create(
-            name=project.name,
-            submitted_by=user,
-        )
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
@@ -335,9 +371,7 @@ class TestJSONRelease:
             pretend.call("packaging.file", path=file.path),
             pretend.call("packaging.project", name=project.name),
             pretend.call(
-                "packaging.release",
-                name=project.name,
-                version=release.version,
+                "packaging.release", name=project.name, version=release.version
             ),
         }
 
@@ -354,20 +388,17 @@ class TestJSONRelease:
                 "description": None,
                 "docs_url": None,
                 "download_url": None,
-                "downloads": {
-                    "last_day": -1,
-                    "last_week": -1,
-                    "last_month": -1,
-                },
+                "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
                 "home_page": None,
                 "keywords": None,
                 "license": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
+                "package_url": "/the/fake/url/",
                 "platform": None,
                 "project_url": "/the/fake/url/",
-                "package_url": "/the/fake/url/",
+                "project_urls": None,
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
@@ -389,12 +420,11 @@ class TestJSONRelease:
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
-                        "upload_time": file.upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
-                        ),
+                        "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                         "url": "/the/fake/url/",
-                    },
-                ],
+                        "requires_python": None,
+                    }
+                ]
             },
             "urls": [
                 {
@@ -403,18 +433,35 @@ class TestJSONRelease:
                     "filename": file.filename,
                     "has_sig": True,
                     "md5_digest": file.md5_digest,
-                    "digests": {
-                        "md5": file.md5_digest,
-                        "sha256": file.sha256_digest,
-                    },
+                    "digests": {"md5": file.md5_digest, "sha256": file.sha256_digest},
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": file.upload_time.strftime(
-                        "%Y-%m-%dT%H:%M:%S",
-                    ),
+                    "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "url": "/the/fake/url/",
-                },
+                    "requires_python": None,
+                }
             ],
             "last_serial": je.id,
         }
+
+
+class TestJSONReleaseSlash:
+    def test_normalizing_redirects(self, db_request):
+        release = ReleaseFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
+
+        resp = json.json_release_slash(release, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "legacy.api.json.release",
+                name=release.project.name,
+                version=release.version,
+            )
+        ]
+        assert resp.headers["Location"] == "/project/the-redirect"

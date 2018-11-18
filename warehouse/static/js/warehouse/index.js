@@ -39,12 +39,19 @@ import Clipboard from "clipboard";
 import PositionWarning from "warehouse/utils/position-warning";
 import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
-import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 
+// Do this before anything else, to potentially capture errors down the line
+docReady(() => {
+  let element = document.querySelector("script[data-sentry-frontend-dsn]");
+  if (element) {
+    /* global Raven */
+    Raven.config(element.dataset.sentryFrontendDsn).install();
+  }
+});
 
 // Show unsupported browser warning if necessary
 docReady(() => {
@@ -61,12 +68,6 @@ docReady(() => {
 // Human-readable timestamps for project histories
 docReady(() => {
   timeAgo();
-});
-
-// project detail tabs
-docReady(() => {
-  projectTabs();
-  window.addEventListener("resize", projectTabs, false);
 });
 
 // toggle search panel behavior

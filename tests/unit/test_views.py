@@ -12,31 +12,38 @@
 
 import datetime
 
+import elasticsearch
 import pretend
 import pytest
-from elasticsearch_dsl import Q
+
 from webob.multidict import MultiDict
 
-from pyramid.httpexceptions import (
-    HTTPNotFound, HTTPBadRequest,
-)
+from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServiceUnavailable
 
 from warehouse import views
 from warehouse.views import (
-    SEARCH_BOOSTS, SEARCH_FIELDS, classifiers, current_user_indicator,
-    forbidden, health, httpexception_view, index, robotstxt, opensearchxml,
-    search, force_status, flash_messages, forbidden_include
+    classifiers,
+    current_user_indicator,
+    forbidden,
+    health,
+    httpexception_view,
+    index,
+    robotstxt,
+    opensearchxml,
+    search,
+    stats,
+    force_status,
+    flash_messages,
+    forbidden_include,
+    service_unavailable,
 )
 
 from ..common.db.accounts import UserFactory
 from ..common.db.classifiers import ClassifierFactory
-from ..common.db.packaging import (
-    ProjectFactory, ReleaseFactory, FileFactory,
-)
+from ..common.db.packaging import ProjectFactory, ReleaseFactory, FileFactory
 
 
 class TestHTTPExceptionView:
-
     def test_returns_context_when_no_template(self, pyramid_config):
         pyramid_config.testing_add_renderer("non-existent.html")
 
@@ -46,8 +53,7 @@ class TestHTTPExceptionView:
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
     def test_renders_template(self, pyramid_config, status_code):
-        renderer = pyramid_config.testing_add_renderer(
-            "{}.html".format(status_code))
+        renderer = pyramid_config.testing_add_renderer("{}.html".format(status_code))
 
         context = pretend.stub(
             status="{} My Cool Status".format(status_code),
@@ -63,8 +69,7 @@ class TestHTTPExceptionView:
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
     def test_renders_template_with_headers(self, pyramid_config, status_code):
-        renderer = pyramid_config.testing_add_renderer(
-            "{}.html".format(status_code))
+        renderer = pyramid_config.testing_add_renderer("{}.html".format(status_code))
 
         context = pretend.stub(
             status="{} My Cool Status".format(status_code),
@@ -86,10 +91,7 @@ class TestHTTPExceptionView:
         services = {"csp": pretend.stub(merge=csp.update)}
 
         context = HTTPNotFound()
-        request = pretend.stub(
-            find_service=lambda name: services[name],
-            path=""
-        )
+        request = pretend.stub(find_service=lambda name: services[name], path="")
         response = httpexception_view(context, request)
 
         assert response.status_code == 404
@@ -104,14 +106,8 @@ class TestHTTPExceptionView:
         csp = {}
         services = {"csp": pretend.stub(merge=csp.update)}
         context = HTTPNotFound()
-        for path in (
-            "/simple/not_found_package",
-            "/simple/some/unusual/path/"
-        ):
-            request = pretend.stub(
-                find_service=lambda name: services[name],
-                path=path
-            )
+        for path in ("/simple/not_found_package", "/simple/some/unusual/path/"):
+            request = pretend.stub(find_service=lambda name: services[name], path=path)
             response = httpexception_view(context, request)
             assert response.status_code == 404
             assert response.status == "404 Not Found"
@@ -120,7 +116,6 @@ class TestHTTPExceptionView:
 
 
 class TestForbiddenView:
-
     def test_logged_in_returns_exception(self, pyramid_config):
         renderer = pyramid_config.testing_add_renderer("403.html")
 
@@ -143,12 +138,10 @@ class TestForbiddenView:
         resp = forbidden(exc, request)
 
         assert resp.status_code == 303
-        assert resp.headers["Location"] == \
-            "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
+        assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
 
 
 class TestForbiddenIncludeView:
-
     def test_forbidden_include(self):
         exc = pretend.stub()
         request = pretend.stub()
@@ -156,8 +149,20 @@ class TestForbiddenIncludeView:
         resp = forbidden_include(exc, request)
 
         assert resp.status_code == 403
-        assert resp.content_type == 'text/html'
+        assert resp.content_type == "text/html"
         assert resp.content_length == 0
+
+
+class TestServiceUnavailableView:
+    def test_renders_503(self, pyramid_config, pyramid_request):
+        renderer = pyramid_config.testing_add_renderer("503.html")
+        renderer.string_response = "A 503 Error"
+
+        resp = service_unavailable(pretend.stub(), pyramid_request)
+
+        assert resp.status_code == 503
+        assert resp.content_type == "text/html"
+        assert resp.body == b"A 503 Error"
 
 
 def test_robotstxt(pyramid_request):
@@ -171,7 +176,6 @@ def test_opensearchxml(pyramid_request):
 
 
 class TestIndex:
-
     def test_index(self, db_request):
 
         project = ProjectFactory.create()
@@ -188,12 +192,12 @@ class TestIndex:
 
         assert index(db_request) == {
             # assert that ordering is correct
-            'latest_releases': [release2, release1],
-            'trending_projects': [release2],
-            'num_projects': 1,
-            'num_users': 3,
-            'num_releases': 2,
-            'num_files': 1,
+            "latest_releases": [release2, release1],
+            "trending_projects": [release2],
+            "num_projects": 1,
+            "num_users": 3,
+            "num_releases": 2,
+            "num_files": 1,
         }
 
 
@@ -206,32 +210,16 @@ def test_esi_flash_messages():
 
 
 class TestSearch:
-
-    def _gather_es_queries(self, q):
-        queries = []
-        for field in SEARCH_FIELDS:
-            kw = {"query": q}
-            if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]
-            queries.append(Q("match", **{field: kw}))
-        if len(q) > 1:
-            queries.append(Q("prefix", normalized_name=q))
-        return queries
-
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_a_query(self, monkeypatch, db_request, page):
+    def test_with_a_query(self, monkeypatch, db_request, metrics, page):
         params = MultiDict({"q": "foo bar"})
         if page is not None:
             params["page"] = page
         db_request.params = params
 
         sort = pretend.stub()
-        suggest = pretend.stub(
-            sort=pretend.call_recorder(lambda *a, **kw: sort),
-        )
-        es_query = pretend.stub(
-            suggest=pretend.call_recorder(lambda *a, **kw: suggest),
-        )
+        suggest = pretend.stub(sort=pretend.call_recorder(lambda *a, **kw: sort))
+        es_query = pretend.stub(suggest=pretend.call_recorder(lambda *a, **kw: suggest))
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
@@ -246,43 +234,80 @@ class TestSearch:
 
         assert search(db_request) == {
             "page": page_obj,
-            "term": params.get("q", ''),
-            "order": params.get("o", ''),
+            "term": params.get("q", ""),
+            "order": params.get("o", ""),
             "applied_filters": [],
             "available_filters": [],
         }
         assert page_cls.calls == [
-            pretend.call(suggest, url_maker=url_maker, page=page or 1),
+            pretend.call(suggest, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
-            pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
-            )
+            pretend.call(views.gather_es_queries(params["q"]))
         ]
         assert es_query.suggest.calls == [
-            pretend.call(
-                "name_suggestion",
-                params["q"],
-                term={"field": "name"},
-            ),
+            pretend.call("name_suggestion", params["q"], term={"field": "name"})
+        ]
+        assert metrics.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_a_single_char_query(self, monkeypatch, db_request, page):
+    def test_with_exact_phrase_query(self, monkeypatch, db_request, metrics, page):
+        params = MultiDict({"q": '"foo bar"'})
+        if page is not None:
+            params["page"] = page
+        db_request.params = params
+
+        sort = pretend.stub()
+        suggest = pretend.stub(sort=pretend.call_recorder(lambda *a, **kw: sort))
+        es_query = pretend.stub(suggest=pretend.call_recorder(lambda *a, **kw: suggest))
+        db_request.es = pretend.stub(
+            query=pretend.call_recorder(lambda *a, **kw: es_query)
+        )
+
+        page_obj = pretend.stub(
+            page_count=(page or 1) + 10, item_count=(page or 1) + 10
+        )
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        assert search(db_request) == {
+            "page": page_obj,
+            "term": params.get("q", ""),
+            "order": params.get("o", ""),
+            "applied_filters": [],
+            "available_filters": [],
+        }
+        assert page_cls.calls == [
+            pretend.call(suggest, url_maker=url_maker, page=page or 1)
+        ]
+        assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert db_request.es.query.calls == [
+            pretend.call(views.gather_es_queries(params["q"]))
+        ]
+        assert es_query.suggest.calls == [
+            pretend.call("name_suggestion", params["q"], term={"field": "name"})
+        ]
+        assert metrics.histogram.calls == [
+            pretend.call("warehouse.views.search.results", (page or 1) + 10)
+        ]
+
+    @pytest.mark.parametrize("page", [None, 1, 5])
+    def test_with_a_single_char_query(self, monkeypatch, db_request, metrics, page):
         params = MultiDict({"q": "a"})
         if page is not None:
             params["page"] = page
         db_request.params = params
 
         sort = pretend.stub()
-        suggest = pretend.stub(
-            sort=pretend.call_recorder(lambda *a, **kw: sort),
-        )
-        es_query = pretend.stub(
-            suggest=pretend.call_recorder(lambda *a, **kw: suggest),
-        )
+        suggest = pretend.stub(sort=pretend.call_recorder(lambda *a, **kw: sort))
+        es_query = pretend.stub(suggest=pretend.call_recorder(lambda *a, **kw: suggest))
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
@@ -297,46 +322,36 @@ class TestSearch:
 
         assert search(db_request) == {
             "page": page_obj,
-            "term": params.get("q", ''),
-            "order": params.get("o", ''),
+            "term": params.get("q", ""),
+            "order": params.get("o", ""),
             "applied_filters": [],
             "available_filters": [],
         }
         assert page_cls.calls == [
-            pretend.call(suggest, url_maker=url_maker, page=page or 1),
+            pretend.call(suggest, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
-            pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
-            )
+            pretend.call(views.gather_es_queries(params["q"]))
         ]
         assert es_query.suggest.calls == [
-            pretend.call(
-                "name_suggestion",
-                params["q"],
-                term={"field": "name"},
-            ),
+            pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
-        assert db_request.registry.datadog.histogram.calls == [
-            pretend.call('warehouse.views.search.results', 1000)
+        assert metrics.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
         ]
 
     @pytest.mark.parametrize(
         ("page", "order", "expected"),
         [
             (None, None, []),
-            (
-                1,
-                "-created",
-                [{"created": {"order": "desc", "unmapped_type": "long"}}],
-            ),
+            (1, "-created", [{"created": {"order": "desc", "unmapped_type": "long"}}]),
             (5, "created", [{"created": {"unmapped_type": "long"}}]),
         ],
     )
-    def test_with_an_ordering(self, monkeypatch, db_request, page, order,
-                              expected):
+    def test_with_an_ordering(
+        self, monkeypatch, db_request, metrics, page, order, expected
+    ):
         params = MultiDict({"q": "foo bar"})
         if page is not None:
             params["page"] = page
@@ -345,12 +360,8 @@ class TestSearch:
         db_request.params = params
 
         sort = pretend.stub()
-        suggest = pretend.stub(
-            sort=pretend.call_recorder(lambda *a, **kw: sort),
-        )
-        es_query = pretend.stub(
-            suggest=pretend.call_recorder(lambda *a, **kw: suggest),
-        )
+        suggest = pretend.stub(sort=pretend.call_recorder(lambda *a, **kw: sort))
+        es_query = pretend.stub(suggest=pretend.call_recorder(lambda *a, **kw: suggest))
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
@@ -365,8 +376,8 @@ class TestSearch:
 
         assert search(db_request) == {
             "page": page_obj,
-            "term": params.get("q", ''),
-            "order": params.get("o", ''),
+            "term": params.get("q", ""),
+            "order": params.get("o", ""),
             "applied_filters": [],
             "available_filters": [],
         }
@@ -375,31 +386,23 @@ class TestSearch:
                 sort if order is not None else suggest,
                 url_maker=url_maker,
                 page=page or 1,
-            ),
+            )
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
-            pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
-            )
+            pretend.call(views.gather_es_queries(params["q"]))
         ]
         assert es_query.suggest.calls == [
-            pretend.call(
-                "name_suggestion",
-                params["q"],
-                term={"field": "name"},
-            ),
+            pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
         assert suggest.sort.calls == [pretend.call(i) for i in expected]
+        assert metrics.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
+        ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_classifiers(self, monkeypatch, db_request, page):
-        params = MultiDict([
-            ("q", "foo bar"),
-            ("c", "foo :: bar"),
-            ("c", "fiz :: buz"),
-        ])
+    def test_with_classifiers(self, monkeypatch, db_request, metrics, page):
+        params = MultiDict([("q", "foo bar"), ("c", "foo :: bar"), ("c", "fiz :: buz")])
         if page is not None:
             params["page"] = page
         db_request.params = params
@@ -434,45 +437,39 @@ class TestSearch:
         search_view = search(db_request)
         assert search_view == {
             "page": page_obj,
-            "term": params.get("q", ''),
-            "order": params.get("o", ''),
+            "term": params.get("q", ""),
+            "order": params.get("o", ""),
             "applied_filters": params.getall("c"),
             "available_filters": [
-                ('foo', [
-                    classifier1.classifier,
-                    classifier2.classifier,
-                ])
+                {
+                    "foo": {
+                        classifier1.classifier.split(" :: ")[1]: {},
+                        classifier2.classifier.split(" :: ")[1]: {},
+                    }
+                }
             ],
         }
-        assert (
-            ("fiz", [
-                classifier3.classifier
-            ]) not in search_view["available_filters"]
-        )
+        assert ("fiz", [classifier3.classifier]) not in search_view["available_filters"]
         assert page_cls.calls == [
-            pretend.call(es_query, url_maker=url_maker, page=page or 1),
+            pretend.call(es_query, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
-            pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
-            )
+            pretend.call(views.gather_es_queries(params["q"]))
         ]
         assert es_query.suggest.calls == [
-            pretend.call(
-                "name_suggestion",
-                params["q"],
-                term={"field": "name"},
-            ),
+            pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
-        assert es_query.query.calls == [
-            pretend.call('prefix', classifiers='foo :: bar'),
-            pretend.call('prefix', classifiers='fiz :: buz')
+        assert es_query.filter.calls == [
+            pretend.call("terms", classifiers=["foo :: bar"]),
+            pretend.call("terms", classifiers=["fiz :: buz"]),
+        ]
+        assert metrics.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_without_a_query(self, monkeypatch, db_request, page):
+    def test_without_a_query(self, monkeypatch, db_request, metrics, page):
         params = MultiDict()
         if page is not None:
             params["page"] = page
@@ -491,17 +488,20 @@ class TestSearch:
 
         assert search(db_request) == {
             "page": page_obj,
-            "term": params.get("q", ''),
-            "order": params.get("o", ''),
+            "term": params.get("q", ""),
+            "order": params.get("o", ""),
             "applied_filters": [],
             "available_filters": [],
         }
         assert page_cls.calls == [
-            pretend.call(es_query, url_maker=url_maker, page=page or 1),
+            pretend.call(es_query, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert metrics.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
+        ]
 
-    def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request):
+    def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request, metrics):
         params = MultiDict({"page": 15})
         db_request.params = params
 
@@ -516,15 +516,16 @@ class TestSearch:
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
         monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
-        resp = search(db_request)
-        assert isinstance(resp, HTTPNotFound)
+        with pytest.raises(HTTPNotFound):
+            search(db_request)
 
         assert page_cls.calls == [
-            pretend.call(es_query, url_maker=url_maker, page=15 or 1),
+            pretend.call(es_query, url_maker=url_maker, page=15 or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert metrics.histogram.calls == []
 
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request, metrics):
         params = MultiDict({"page": "abc"})
         db_request.params = params
 
@@ -543,22 +544,62 @@ class TestSearch:
             search(db_request)
 
         assert page_cls.calls == []
+        assert metrics.histogram.calls == []
+
+    def test_returns_503_when_es_unavailable(self, monkeypatch, db_request, metrics):
+        params = MultiDict({"page": 15})
+        db_request.params = params
+
+        es_query = pretend.stub()
+        db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+
+        def raiser(*args, **kwargs):
+            raise elasticsearch.ConnectionError()
+
+        monkeypatch.setattr(views, "ElasticsearchPage", raiser)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        with pytest.raises(HTTPServiceUnavailable):
+            search(db_request)
+
+        assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert metrics.increment.calls == [pretend.call("warehouse.views.search.error")]
+        assert metrics.histogram.calls == []
 
 
 def test_classifiers(db_request):
-    classifier_a = ClassifierFactory(classifier='I am first')
-    classifier_b = ClassifierFactory(classifier='I am last')
+    classifier_a = ClassifierFactory(classifier="I am first")
+    classifier_b = ClassifierFactory(classifier="I am last")
 
     assert classifiers(db_request) == {
-        'classifiers': [(classifier_a.classifier,), (classifier_b.classifier,)]
+        "classifiers": [(classifier_a.classifier,), (classifier_b.classifier,)]
+    }
+
+
+def test_stats(db_request):
+
+    project = ProjectFactory.create()
+    release1 = ReleaseFactory.create(project=project)
+    release1.created = datetime.date(2011, 1, 1)
+    FileFactory.create(
+        release=release1,
+        filename="{}-{}.tar.gz".format(project.name, release1.version),
+        python_version="source",
+        size=69,
+    )
+
+    assert stats(db_request) == {
+        "total_packages_size": 69,
+        "top_packages": {project.name: {"size": 69}},
     }
 
 
 def test_health():
     request = pretend.stub(
-        db=pretend.stub(
-            execute=pretend.call_recorder(lambda q: None),
-        ),
+        db=pretend.stub(execute=pretend.call_recorder(lambda q: None))
     )
 
     assert health(request) == "OK"
@@ -566,7 +607,6 @@ def test_health():
 
 
 class TestForceStatus:
-
     def test_valid(self):
         with pytest.raises(HTTPBadRequest):
             force_status(pretend.stub(matchdict={"status": "400"}))

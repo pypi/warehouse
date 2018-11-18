@@ -14,8 +14,16 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
-    CheckConstraint, Column, Enum, ForeignKey, Index, UniqueConstraint,
-    Boolean, DateTime, Integer, String,
+    CheckConstraint,
+    Column,
+    Enum,
+    ForeignKey,
+    Index,
+    UniqueConstraint,
+    Boolean,
+    DateTime,
+    Integer,
+    String,
 )
 from sqlalchemy import orm, select, sql
 from sqlalchemy.dialects.postgresql import UUID
@@ -28,27 +36,29 @@ from warehouse.utils.attrs import make_repr
 
 
 class UserFactory:
-
     def __init__(self, request):
         self.request = request
 
     def __getitem__(self, username):
         try:
-            return self.request.db.query(User).filter(
-                User.username == username
-            ).one()
+            return self.request.db.query(User).filter(User.username == username).one()
         except NoResultFound:
             raise KeyError from None
 
 
+class DisableReason(enum.Enum):
+
+    CompromisedPassword = "password compromised"
+
+
 class User(SitemapMixin, db.Model):
 
-    __tablename__ = "accounts_user"
+    __tablename__ = "users"
     __table_args__ = (
-        CheckConstraint("length(username) <= 50", name="packages_valid_name"),
+        CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
         CheckConstraint(
             "username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
-            name="accounts_user_valid_username",
+            name="users_valid_username",
         ),
     )
 
@@ -57,26 +67,18 @@ class User(SitemapMixin, db.Model):
     username = Column(CIText, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
-    password_date = Column(
-        DateTime,
-        nullable=True,
-        server_default=sql.func.now(),
-    )
+    password_date = Column(DateTime, nullable=True, server_default=sql.func.now())
     is_active = Column(Boolean, nullable=False)
-    is_staff = Column(Boolean, nullable=False)
     is_superuser = Column(Boolean, nullable=False)
     date_joined = Column(DateTime, server_default=sql.func.now())
-    last_login = Column(
-        DateTime,
-        nullable=False,
-        server_default=sql.func.now(),
+    last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
+    disabled_for = Column(
+        Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
+        nullable=True,
     )
 
     emails = orm.relationship(
-        "Email",
-        backref="user",
-        cascade="all, delete-orphan",
-        lazy=False,
+        "Email", backref="user", cascade="all, delete-orphan", lazy=False
     )
 
     @property
@@ -108,18 +110,16 @@ class UnverifyReasons(enum.Enum):
 
 class Email(db.ModelBase):
 
-    __tablename__ = "accounts_email"
+    __tablename__ = "user_emails"
     __table_args__ = (
-        UniqueConstraint("email", name="accounts_email_email_key"),
-
-        Index("accounts_email_email_like", "email"),
-        Index("accounts_email_user_id", "user_id"),
+        UniqueConstraint("email", name="user_emails_email_key"),
+        Index("user_emails_user_id", "user_id"),
     )
 
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
     email = Column(String(length=254), nullable=False)
@@ -131,8 +131,4 @@ class Email(db.ModelBase):
         Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
-    transient_bounces = Column(
-        Integer,
-        nullable=False,
-        server_default=sql.text("0"),
-    )
+    transient_bounces = Column(Integer, nullable=False, server_default=sql.text("0"))

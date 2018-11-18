@@ -16,7 +16,6 @@ from warehouse.utils.static import ManifestCacheBuster
 
 
 class TestManifestCacheBuster:
-
     def test_returns_when_valid(self):
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")
         cb._manifest = {"/the/path/style.css": "/the/busted/path/style.css"}
@@ -32,10 +31,7 @@ class TestManifestCacheBuster:
             cb(None, "/the/path/style.css", {"keyword": "arg"})
 
     def test_returns_when_invalid_and_not_strict(self):
-        cb = ManifestCacheBuster(
-            "warehouse:static/dist/manifest.json",
-            strict=False,
-        )
+        cb = ManifestCacheBuster("warehouse:static/dist/manifest.json", strict=False)
         cb._manifest = {}
         result = cb(None, "/the/path/style.css", {"keyword": "arg"})
 

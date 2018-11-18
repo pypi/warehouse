@@ -20,13 +20,7 @@ def test_build_search():
     release = pretend.stub(
         name="Foobar",
         normalized_name="foobar",
-        all_versions=[
-            "5.0.dev0",
-            "4.0",
-            "3.0",
-            "2.0",
-            "1.0",
-        ],
+        all_versions=["5.0.dev0", "4.0", "3.0", "2.0", "1.0"],
         latest_version="4.0",
         summary="This is my summary",
         description="This is my description",
@@ -58,4 +52,4 @@ def test_build_search():
     assert obj["keywords"] == "the, keywords, lol"
     assert obj["platform"] == "any platform"
     assert obj["created"] == datetime.datetime(1956, 1, 31)
-    assert obj["classifiers"] == ['Alpha', 'Beta']
+    assert obj["classifiers"] == ["Alpha", "Beta"]

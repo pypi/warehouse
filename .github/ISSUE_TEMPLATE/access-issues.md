@@ -60,7 +60,7 @@ about: Let us know if you're having trouble reaching PyPI
     for MacOS and Windows.
 
     dig is used for these examples, if you are familiar with another tool that
-    performs a similar utility, please provide that output.
+    performs a similar utility, provide that output.
 -->
 
 ```shell
@@ -87,7 +87,7 @@ dig files.pythonhosted.org AAAA
 
 <!--
     traceroute is used for these examples, if you are familiar with another tool
-    that performs a similar utility, please provide that output.
+    that performs a similar utility, provide that output.
 -->
 
 #### IPv4

@@ -1,9 +1,9 @@
 language: python
-python: 3.6.1
+python: 3.6.6
 
 env:
   global:
-    - TRAVIS_NODE_VERSION=6.6.0
+    - TRAVIS_NODE_VERSION=8.9.4
     - PGPORT=5433
 
 dist: trusty
@@ -17,6 +17,7 @@ addons:
     packages:
     - postgresql-10
     - postgresql-client-10
+    - nasm
 
 services:
   - postgresql

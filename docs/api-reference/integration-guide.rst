@@ -47,10 +47,10 @@ Here are some tips.
 * JSON API: ``https://pypi.org/pypi/{name}/json`` returns the
   expected JSON response directly. See :doc:`json`.
 
-* XML-RPC API: see :ref:`changes-to-legacy-api`. Will be deprecated in
+* XML-RPC API: See :ref:`changes-to-legacy-api`. Will be deprecated in
   the future (no specific end date set yet); switch to the RSS or JSON
   APIs. If you depend on an XML-RPC call that our other APIs do not
-  support, please `tell us <https://pypi.org/help/#feedback>`_.
+  support, `tell us <https://pypi.org/help/#feedback>`_.
 
 * Packages/updates RSS feeds: ``https://pypi.org/pypi?%3Aaction=rss``
   redirects to ``https://pypi.org/rss/updates.xml``, and
@@ -76,6 +76,52 @@ Here are some tips.
   <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
 
 If you're a PyPI end user or packager looking to migrate to the new
-PyPI, please see `the official Python Packaging User Guide on
-migrating to PyPI
+PyPI, see `the official Python Packaging User Guide on migrating to PyPI
 <https://packaging.python.org/guides/migrating-to-pypi-org/>`_.
+
+
+Querying PyPI for Package URLs
+------------------------------
+
+When copying a download link from https://pypi.org, you get a URL with a
+random hash value in it.
+
+This hash value is calculated from the checksum of the file. The URLs on
+PyPI for individual files are static and do not change.
+
+Official guidance
+-----------------
+
+Query PyPI’s `JSON
+API <https://warehouse.readthedocs.io/api-reference/json/>`__ to
+determine where to download files from.
+
+If you so choose
+----------------
+
+You can use our conveyor service to fetch this file, but this
+realistically exists primarily to support that historical predictable
+URLs still work.
+
+Example:
+~~~~~~~~
+
+::
+
+   $ curl -I https://files.pythonhosted.org/packages/source/v/virtualenv/virtualenv-15.2.0.tar.gz
+   HTTP/2 302
+   location: https://files.pythonhosted.org/packages/b1/72/2d70c5a1de409ceb3a27ff2ec007ecdd5cc52239e7c74990e32af57affe9/virtualenv-15.2.0.tar.gz
+
+But as you’ll note, it is just a redirect to the canonical file.
+
+You should generally query the index for package URLs rather than
+guessing, but the URL structure for the redirect service is:
+
+::
+
+   /packages/{python_version}/{project_l}/{project_name}/{filename}
+
+where ``project_l`` is the first letter of the project name.
+``python_version`` can be one of many things, akin to the old file
+structure PyPI used to hold on disk. In general this is only a good idea
+for ``source`` as a ``python_version`` to fetch tar and zip files.

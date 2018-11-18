@@ -13,31 +13,22 @@
 import wtforms
 
 from warehouse import forms
-from warehouse.accounts.forms import (
-    NewEmailMixin, NewPasswordMixin, PasswordMixin,
-)
+from warehouse.accounts.forms import NewEmailMixin, NewPasswordMixin, PasswordMixin
 
 
 class RoleNameMixin:
 
     role_name = wtforms.SelectField(
-        'Select a role',
-        choices=[
-            ('Maintainer', 'Maintainer'),
-            ('Owner', 'Owner'),
-        ],
-        validators=[
-            wtforms.validators.DataRequired(message="Must select a role"),
-        ]
+        "Select role",
+        choices=[("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
 
 class UsernameMixin:
 
     username = wtforms.StringField(
-        validators=[
-            wtforms.validators.DataRequired(message="Must specify a username"),
-        ]
+        validators=[wtforms.validators.DataRequired(message="Specify username")]
     )
 
     def validate_username(self, field):
@@ -50,7 +41,6 @@ class UsernameMixin:
 
 
 class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
-
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
@@ -62,14 +52,14 @@ class ChangeRoleForm(RoleNameMixin, forms.Form):
 
 class SaveAccountForm(forms.Form):
 
-    __params__ = ['name']
+    __params__ = ["name"]
 
     name = wtforms.StringField()
 
 
 class AddEmailForm(NewEmailMixin, forms.Form):
 
-    __params__ = ['email']
+    __params__ = ["email"]
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,7 +68,7 @@ class AddEmailForm(NewEmailMixin, forms.Form):
 
 class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
 
-    __params__ = ['password', 'new_password', 'password_confirm']
+    __params__ = ["password", "new_password", "password_confirm"]
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)

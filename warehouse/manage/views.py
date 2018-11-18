@@ -12,32 +12,65 @@
 
 from collections import defaultdict
 
-from pyramid.httpexceptions import HTTPSeeOther
-from pyramid.security import Authenticated
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
 from warehouse.accounts.models import User, Email
 from warehouse.accounts.views import logout
 from warehouse.email import (
-    send_account_deletion_email, send_added_as_collaborator_email,
-    send_collaborator_added_email, send_email_verification_email,
-    send_password_change_email, send_primary_email_change_email
+    send_account_deletion_email,
+    send_added_as_collaborator_email,
+    send_collaborator_added_email,
+    send_email_verification_email,
+    send_password_change_email,
+    send_primary_email_change_email,
 )
 from warehouse.manage.forms import (
-    AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
+    AddEmailForm,
+    ChangePasswordForm,
+    CreateRoleForm,
+    ChangeRoleForm,
     SaveAccountForm,
 )
-from warehouse.packaging.models import (
-    File, JournalEntry, Project, Release, Role,
-)
-from warehouse.utils.project import (
-    confirm_project,
-    destroy_docs,
-    remove_project,
-)
+from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import confirm_project, destroy_docs, remove_project
+
+
+def user_projects(request):
+    """ Return all the projects for which the user is a sole owner """
+    projects_owned = (
+        request.db.query(Project.id)
+        .join(Role.project)
+        .filter(Role.role_name == "Owner", Role.user == request.user)
+        .subquery()
+    )
+
+    with_sole_owner = (
+        request.db.query(Role.project_id)
+        .join(projects_owned)
+        .filter(Role.role_name == "Owner")
+        .group_by(Role.project_id)
+        .having(func.count(Role.project_id) == 1)
+        .subquery()
+    )
+
+    return {
+        "projects_owned": (
+            request.db.query(Project)
+            .join(projects_owned, Project.id == projects_owned.c.id)
+            .order_by(Project.name)
+            .all()
+        ),
+        "projects_sole_owned": (
+            request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
+        ),
+    }
 
 
 @view_defaults(
@@ -46,202 +79,149 @@ from warehouse.utils.project import (
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    effective_principals=Authenticated,
+    permission="manage:user",
 )
 class ManageAccountViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
+        self.breach_service = request.find_service(
+            IPasswordBreachedService, context=None
+        )
 
     @property
     def active_projects(self):
-        ''' Return all the projects for with the user is a sole owner '''
-        projects_owned = (
-            self.request.db.query(Project)
-            .join(Role.project)
-            .filter(Role.role_name == 'Owner', Role.user == self.request.user)
-            .subquery()
-        )
-
-        with_sole_owner = (
-            self.request.db.query(Role.package_name)
-            .join(projects_owned)
-            .filter(Role.role_name == 'Owner')
-            .group_by(Role.package_name)
-            .having(func.count(Role.package_name) == 1)
-            .subquery()
-        )
-
-        return (
-            self.request.db.query(Project)
-            .join(with_sole_owner)
-            .order_by(Project.name)
-            .all()
-        )
+        return user_projects(request=self.request)["projects_sole_owned"]
 
     @property
     def default_response(self):
         return {
-            'save_account_form': SaveAccountForm(name=self.request.user.name),
-            'add_email_form': AddEmailForm(user_service=self.user_service),
-            'change_password_form': ChangePasswordForm(
-                user_service=self.user_service
+            "save_account_form": SaveAccountForm(name=self.request.user.name),
+            "add_email_form": AddEmailForm(user_service=self.user_service),
+            "change_password_form": ChangePasswordForm(
+                user_service=self.user_service, breach_service=self.breach_service
             ),
-            'active_projects': self.active_projects,
+            "active_projects": self.active_projects,
         }
 
     @view_config(request_method="GET")
     def manage_account(self):
         return self.default_response
 
-    @view_config(
-        request_method="POST",
-        request_param=SaveAccountForm.__params__,
-    )
+    @view_config(request_method="POST", request_param=SaveAccountForm.__params__)
     def save_account(self):
         form = SaveAccountForm(self.request.POST)
 
         if form.validate():
             self.user_service.update_user(self.request.user.id, **form.data)
-            self.request.session.flash(
-                'Account details updated', queue='success'
-            )
+            self.request.session.flash("Account details updated", queue="success")
 
-        return {
-            **self.default_response,
-            'save_account_form': form,
-        }
+        return {**self.default_response, "save_account_form": form}
 
-    @view_config(
-        request_method="POST",
-        request_param=AddEmailForm.__params__,
-    )
+    @view_config(request_method="POST", request_param=AddEmailForm.__params__)
     def add_email(self):
         form = AddEmailForm(self.request.POST, user_service=self.user_service)
 
         if form.validate():
-            email = self.user_service.add_email(
-                self.request.user.id, form.email.data,
-            )
+            email = self.user_service.add_email(self.request.user.id, form.email.data)
 
-            send_email_verification_email(
-                self.request,
-                self.request.user,
-                email,
-            )
+            send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
-                f'Email {email.email} added - check your email for ' +
-                'a verification link',
-                queue='success',
+                f"Email {email.email} added - check your email for "
+                + "a verification link",
+                queue="success",
             )
             return self.default_response
 
-        return {
-            **self.default_response,
-            'add_email_form': form,
-        }
+        return {**self.default_response, "add_email_form": form}
 
-    @view_config(
-        request_method="POST",
-        request_param=["delete_email_id"],
-    )
+    @view_config(request_method="POST", request_param=["delete_email_id"])
     def delete_email(self):
         try:
-            email = self.request.db.query(Email).filter(
-                Email.id == self.request.POST['delete_email_id'],
-                Email.user_id == self.request.user.id,
-            ).one()
-        except NoResultFound:
-            self.request.session.flash(
-                'Email address not found', queue='error'
+            email = (
+                self.request.db.query(Email)
+                .filter(
+                    Email.id == self.request.POST["delete_email_id"],
+                    Email.user_id == self.request.user.id,
+                )
+                .one()
             )
+        except NoResultFound:
+            self.request.session.flash("Email address not found", queue="error")
             return self.default_response
 
         if email.primary:
             self.request.session.flash(
-                'Cannot remove primary email address', queue='error'
+                "Cannot remove primary email address", queue="error"
             )
         else:
             self.request.user.emails.remove(email)
             self.request.session.flash(
-                f'Email address {email.email} removed', queue='success'
+                f"Email address {email.email} removed", queue="success"
             )
         return self.default_response
 
-    @view_config(
-        request_method="POST",
-        request_param=["primary_email_id"],
-    )
+    @view_config(request_method="POST", request_param=["primary_email_id"])
     def change_primary_email(self):
-        previous_primary_email = self.request.user.email
+        previous_primary_email = self.request.user.primary_email
         try:
-            new_primary_email = self.request.db.query(Email).filter(
-                Email.user_id == self.request.user.id,
-                Email.id == self.request.POST['primary_email_id'],
-                Email.verified.is_(True),
-            ).one()
-        except NoResultFound:
-            self.request.session.flash(
-                'Email address not found', queue='error'
+            new_primary_email = (
+                self.request.db.query(Email)
+                .filter(
+                    Email.user_id == self.request.user.id,
+                    Email.id == self.request.POST["primary_email_id"],
+                    Email.verified.is_(True),
+                )
+                .one()
             )
+        except NoResultFound:
+            self.request.session.flash("Email address not found", queue="error")
             return self.default_response
 
         self.request.db.query(Email).filter(
-            Email.user_id == self.request.user.id,
-            Email.primary.is_(True),
-        ).update(values={'primary': False})
+            Email.user_id == self.request.user.id, Email.primary.is_(True)
+        ).update(values={"primary": False})
 
         new_primary_email.primary = True
 
         self.request.session.flash(
-            f'Email address {new_primary_email.email} set as primary',
-            queue='success',
+            f"Email address {new_primary_email.email} set as primary", queue="success"
         )
 
-        send_primary_email_change_email(
-            self.request, self.request.user, previous_primary_email
-        )
+        if previous_primary_email is not None:
+            send_primary_email_change_email(
+                self.request, (self.request.user, previous_primary_email)
+            )
         return self.default_response
 
-    @view_config(
-        request_method="POST",
-        request_param=['reverify_email_id'],
-    )
+    @view_config(request_method="POST", request_param=["reverify_email_id"])
     def reverify_email(self):
         try:
-            email = self.request.db.query(Email).filter(
-                Email.id == self.request.POST['reverify_email_id'],
-                Email.user_id == self.request.user.id,
-            ).one()
-        except NoResultFound:
-            self.request.session.flash(
-                'Email address not found', queue='error'
+            email = (
+                self.request.db.query(Email)
+                .filter(
+                    Email.id == self.request.POST["reverify_email_id"],
+                    Email.user_id == self.request.user.id,
+                )
+                .one()
             )
+        except NoResultFound:
+            self.request.session.flash("Email address not found", queue="error")
             return self.default_response
 
         if email.verified:
-            self.request.session.flash(
-                'Email is already verified', queue='error'
-            )
+            self.request.session.flash("Email is already verified", queue="error")
         else:
-            send_email_verification_email(
-                self.request,
-                self.request.user,
-                email,
-            )
+            send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
-                f'Verification email for {email.email} resent',
-                queue='success',
+                f"Verification email for {email.email} resent", queue="success"
             )
 
         return self.default_response
 
-    @view_config(
-        request_method='POST',
-        request_param=ChangePasswordForm.__params__,
-    )
+    @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
         form = ChangePasswordForm(
             **self.request.POST,
@@ -249,60 +229,49 @@ class ManageAccountViews:
             full_name=self.request.user.name,
             email=self.request.user.email,
             user_service=self.user_service,
+            breach_service=self.breach_service,
+            check_password_metrics_tags=["method:new_password"],
         )
 
         if form.validate():
             self.user_service.update_user(
-                self.request.user.id,
-                password=form.new_password.data,
+                self.request.user.id, password=form.new_password.data
             )
             send_password_change_email(self.request, self.request.user)
-            self.request.session.flash(
-                'Password updated', queue='success'
-            )
+            self.request.session.flash("Password updated", queue="success")
 
-        return {
-            **self.default_response,
-            'change_password_form': form,
-        }
+        return {**self.default_response, "change_password_form": form}
 
-    @view_config(
-        request_method='POST',
-        request_param=['confirm_username']
-    )
+    @view_config(request_method="POST", request_param=["confirm_username"])
     def delete_account(self):
-        username = self.request.params.get('confirm_username')
+        username = self.request.params.get("confirm_username")
 
         if not username:
-            self.request.session.flash(
-                "Must confirm the request", queue='error'
-            )
+            self.request.session.flash("Confirm the request", queue="error")
             return self.default_response
 
         if username != self.request.user.username:
             self.request.session.flash(
                 f"Could not delete account - {username!r} is not the same as "
                 f"{self.request.user.username!r}",
-                queue='error'
+                queue="error",
             )
             return self.default_response
 
         if self.active_projects:
             self.request.session.flash(
-                "Cannot delete account with active project ownerships",
-                queue='error',
+                "Cannot delete account with active project ownerships", queue="error"
             )
             return self.default_response
 
         # Update all journals to point to `deleted-user` instead
         deleted_user = (
-            self.request.db.query(User)
-            .filter(User.username == 'deleted-user')
-            .one()
+            self.request.db.query(User).filter(User.username == "deleted-user").one()
         )
 
         journals = (
             self.request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.submitted_by == self.request.user)
             .all()
         )
@@ -323,28 +292,26 @@ class ManageAccountViews:
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
-    effective_principals=Authenticated,
+    permission="manage:user",
 )
 def manage_projects(request):
-
     def _key(project):
         if project.releases:
             return project.releases[0].created
         return project.created
 
+    all_user_projects = user_projects(request)
     projects_owned = set(
-        project.name
-        for project in (
-            request.db.query(Project.name)
-            .join(Role.project)
-            .filter(Role.role_name == 'Owner', Role.user == request.user)
-            .all()
-        )
+        project.name for project in all_user_projects["projects_owned"]
+    )
+    projects_sole_owned = set(
+        project.name for project in all_user_projects["projects_sole_owned"]
     )
 
     return {
-        'projects': sorted(request.user.projects, key=_key, reverse=True),
-        'projects_owned': projects_owned,
+        "projects": sorted(request.user.projects, key=_key, reverse=True),
+        "projects_owned": projects_owned,
+        "projects_sole_owned": projects_sole_owned,
     }
 
 
@@ -353,8 +320,7 @@ def manage_projects(request):
     context=Project,
     renderer="manage/settings.html",
     uses_session=True,
-    permission="manage",
-    effective_principals=Authenticated,
+    permission="manage:project",
 )
 def manage_project_settings(project, request):
     return {"project": project}
@@ -365,13 +331,13 @@ def manage_project_settings(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def delete_project(project, request):
     confirm_project(project, request, fail_route="manage.project.settings")
     remove_project(project, request)
 
-    return HTTPSeeOther(request.route_path('manage.projects'))
+    return HTTPSeeOther(request.route_path("manage.projects"))
 
 
 @view_config(
@@ -379,18 +345,15 @@ def delete_project(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def destroy_project_docs(project, request):
-    confirm_project(
-        project, request, fail_route="manage.project.documentation"
-    )
+    confirm_project(project, request, fail_route="manage.project.documentation")
     destroy_docs(project, request)
 
     return HTTPSeeOther(
         request.route_path(
-            'manage.project.documentation',
-            project_name=project.normalized_name,
+            "manage.project.documentation", project_name=project.normalized_name
         )
     )
 
@@ -400,8 +363,7 @@ def destroy_project_docs(project, request):
     context=Project,
     renderer="manage/releases.html",
     uses_session=True,
-    permission="manage",
-    effective_principals=Authenticated,
+    permission="manage:project",
 )
 def manage_project_releases(project, request):
     return {"project": project}
@@ -414,8 +376,7 @@ def manage_project_releases(project, request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage",
-    effective_principals=Authenticated,
+    permission="manage:project",
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -430,19 +391,14 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
-    @view_config(
-        request_method="POST",
-        request_param=["confirm_version"]
-    )
+    @view_config(request_method="POST", request_param=["confirm_version"])
     def delete_project_release(self):
-        version = self.request.POST.get('confirm_version')
+        version = self.request.POST.get("confirm_version")
         if not version:
-            self.request.session.flash(
-                "Must confirm the request", queue='error'
-            )
+            self.request.session.flash("Confirm the request", queue="error")
             return HTTPSeeOther(
                 self.request.route_path(
-                    'manage.project.release',
+                    "manage.project.release",
                     project_name=self.release.project.name,
                     version=self.release.version,
                 )
@@ -450,13 +406,13 @@ class ManageProjectRelease:
 
         if version != self.release.version:
             self.request.session.flash(
-                "Could not delete release - " +
-                f"{version!r} is not the same as {self.release.version!r}",
+                "Could not delete release - "
+                + f"{version!r} is not the same as {self.release.version!r}",
                 queue="error",
             )
             return HTTPSeeOther(
                 self.request.route_path(
-                    'manage.project.release',
+                    "manage.project.release",
                     project_name=self.release.project.name,
                     version=self.release.version,
                 )
@@ -469,61 +425,56 @@ class ManageProjectRelease:
                 version=self.release.version,
                 submitted_by=self.request.user,
                 submitted_from=self.request.remote_addr,
-            ),
+            )
         )
 
         self.request.db.delete(self.release)
 
         self.request.session.flash(
-            f"Successfully deleted release {self.release.version!r}",
-            queue="success",
+            f"Deleted release {self.release.version!r}", queue="success"
         )
 
         return HTTPSeeOther(
             self.request.route_path(
-                'manage.project.releases',
-                project_name=self.release.project.name,
+                "manage.project.releases", project_name=self.release.project.name
             )
         )
 
     @view_config(
-        request_method="POST",
-        request_param=["confirm_project_name", "file_id"]
+        request_method="POST", request_param=["confirm_project_name", "file_id"]
     )
     def delete_project_release_file(self):
-
         def _error(message):
-            self.request.session.flash(message, queue='error')
+            self.request.session.flash(message, queue="error")
             return HTTPSeeOther(
                 self.request.route_path(
-                    'manage.project.release',
+                    "manage.project.release",
                     project_name=self.release.project.name,
                     version=self.release.version,
                 )
             )
 
-        project_name = self.request.POST.get('confirm_project_name')
+        project_name = self.request.POST.get("confirm_project_name")
 
         if not project_name:
-            return _error("Must confirm the request")
+            return _error("Confirm the request")
 
         try:
             release_file = (
                 self.request.db.query(File)
                 .filter(
-                    File.name == self.release.project.name,
-                    File.id == self.request.POST.get('file_id'),
+                    File.release == self.release,
+                    File.id == self.request.POST.get("file_id"),
                 )
                 .one()
             )
         except NoResultFound:
-            return _error('Could not find file')
+            return _error("Could not find file")
 
         if project_name != self.release.project.name:
             return _error(
-                "Could not delete file - " +
-                f"{project_name!r} is not the same as "
-                f"{self.release.project.name!r}",
+                "Could not delete file - " + f"{project_name!r} is not the same as "
+                f"{self.release.project.name!r}"
             )
 
         self.request.db.add(
@@ -533,19 +484,18 @@ class ManageProjectRelease:
                 version=self.release.version,
                 submitted_by=self.request.user,
                 submitted_from=self.request.remote_addr,
-            ),
+            )
         )
 
         self.request.db.delete(release_file)
 
         self.request.session.flash(
-            f"Successfully deleted file {release_file.filename!r}",
-            queue="success",
+            f"Deleted file {release_file.filename!r}", queue="success"
         )
 
         return HTTPSeeOther(
             self.request.route_path(
-                'manage.project.release',
+                "manage.project.release",
                 project_name=self.release.project.name,
                 version=self.release.version,
             )
@@ -558,7 +508,7 @@ class ManageProjectRelease:
     renderer="manage/roles.html",
     uses_session=True,
     require_methods=False,
-    permission="manage",
+    permission="manage:project",
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -570,16 +520,22 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         userid = user_service.find_userid(username)
         user = user_service.get_user(userid)
 
-        if (request.db.query(
-                request.db.query(Role).filter(
-                    Role.user == user,
-                    Role.project == project,
-                    Role.role_name == role_name,
-                )
-                .exists()).scalar()):
+        if request.db.query(
+            request.db.query(Role)
+            .filter(
+                Role.user == user, Role.project == project, Role.role_name == role_name
+            )
+            .exists()
+        ).scalar():
             request.session.flash(
                 f"User '{username}' already has {role_name} role for project",
-                queue="error"
+                queue="error",
+            )
+        elif user.primary_email is None or not user.primary_email.verified:
+            request.session.flash(
+                f"User '{username}' does not have a verified primary email "
+                f"address and cannot be added as a {role_name} for project.",
+                queue="error",
             )
         else:
             request.db.add(
@@ -591,13 +547,13 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     action=f"add {role_name} {username}",
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
-                ),
+                )
             )
 
             owner_roles = (
                 request.db.query(Role)
                 .join(Role.user)
-                .filter(Role.role_name == 'Owner', Role.project == project)
+                .filter(Role.role_name == "Owner", Role.project == project)
             )
             owner_users = {owner.user for owner in owner_roles}
 
@@ -609,33 +565,27 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
             send_collaborator_added_email(
                 request,
-                user,
-                request.user,
-                project.name,
-                form.role_name.data,
                 owner_users,
+                user=user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             send_added_as_collaborator_email(
                 request,
-                request.user,
-                project.name,
-                form.role_name.data,
                 user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             request.session.flash(
-                f"Added collaborator '{form.username.data}'",
-                queue="success"
+                f"Added collaborator '{form.username.data}'", queue="success"
             )
         form = _form_class(user_service=user_service)
 
-    roles = (
-        request.db.query(Role)
-        .join(User)
-        .filter(Role.project == project)
-        .all()
-    )
+    roles = request.db.query(Role).join(User).filter(Role.project == project).all()
 
     # TODO: The following lines are a hack to handle multiple roles for a
     # single user and should be removed when fixing GH-2745
@@ -643,11 +593,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     for role in roles:
         roles_by_user[role.user.username].append(role)
 
-    return {
-        "project": project,
-        "roles_by_user": roles_by_user,
-        "form": form,
-    }
+    return {"project": project, "roles_by_user": roles_by_user, "form": form}
 
 
 @view_config(
@@ -655,7 +601,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -664,7 +610,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     form = _form_class(request.POST)
 
     if form.validate():
-        role_ids = request.POST.getall('role_id')
+        role_ids = request.POST.getall("role_id")
 
         if len(role_ids) > 1:
             # This user has more than one role, so just delete all the ones
@@ -673,10 +619,11 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             # TODO: This branch should be removed when fixing GH-2745.
             roles = (
                 request.db.query(Role)
+                .join(User)
                 .filter(
                     Role.id.in_(role_ids),
                     Role.project == project,
-                    Role.role_name != form.role_name.data
+                    Role.role_name != form.role_name.data,
                 )
                 .all()
             )
@@ -685,31 +632,27 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 for role in roles
             )
             if removing_self:
-                request.session.flash(
-                    "Cannot remove yourself as Owner", queue="error"
-                )
+                request.session.flash("Cannot remove yourself as Owner", queue="error")
             else:
                 for role in roles:
                     request.db.delete(role)
                     request.db.add(
                         JournalEntry(
                             name=project.name,
-                            action=f"remove {role.role_name} {role.user_name}",
+                            action=f"remove {role.role_name} {role.user.username}",
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
-                        ),
+                        )
                     )
-                request.session.flash(
-                    'Successfully changed role', queue="success"
-                )
+                request.session.flash("Changed role", queue="success")
         else:
             # This user only has one role, so get it and change the type.
             try:
                 role = (
                     request.db.query(Role)
+                    .join(User)
                     .filter(
-                        Role.id == request.POST.get('role_id'),
-                        Role.project == project,
+                        Role.id == request.POST.get("role_id"), Role.project == project
                     )
                     .one()
                 )
@@ -722,23 +665,19 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         JournalEntry(
                             name=project.name,
                             action="change {} {} to {}".format(
-                                role.role_name,
-                                role.user_name,
-                                form.role_name.data,
+                                role.role_name, role.user.username, form.role_name.data
                             ),
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
-                        ),
+                        )
                     )
                     role.role_name = form.role_name.data
-                    request.session.flash(
-                        'Successfully changed role', queue="success"
-                    )
+                    request.session.flash("Changed role", queue="success")
             except NoResultFound:
                 request.session.flash("Could not find role", queue="error")
 
     return HTTPSeeOther(
-        request.route_path('manage.project.roles', project_name=project.name)
+        request.route_path("manage.project.roles", project_name=project.name)
     )
 
 
@@ -747,7 +686,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def delete_project_role(project, request):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -755,15 +694,12 @@ def delete_project_role(project, request):
 
     roles = (
         request.db.query(Role)
-        .filter(
-            Role.id.in_(request.POST.getall('role_id')),
-            Role.project == project,
-        )
+        .join(User)
+        .filter(Role.id.in_(request.POST.getall("role_id")), Role.project == project)
         .all()
     )
     removing_self = any(
-        role.role_name == "Owner" and role.user == request.user
-        for role in roles
+        role.role_name == "Owner" and role.user == request.user for role in roles
     )
 
     if not roles:
@@ -776,15 +712,15 @@ def delete_project_role(project, request):
             request.db.add(
                 JournalEntry(
                     name=project.name,
-                    action=f"remove {role.role_name} {role.user_name}",
+                    action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
-                ),
+                )
             )
-        request.session.flash("Successfully removed role", queue="success")
+        request.session.flash("Removed role", queue="success")
 
     return HTTPSeeOther(
-        request.route_path('manage.project.roles', project_name=project.name)
+        request.route_path("manage.project.roles", project_name=project.name)
     )
 
 
@@ -793,19 +729,32 @@ def delete_project_role(project, request):
     context=Project,
     renderer="manage/history.html",
     uses_session=True,
-    permission="manage",
+    permission="manage:project",
 )
 def manage_project_history(project, request):
-    journals = (
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    journals_query = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-        .all()
     )
-    return {
-        'project': project,
-        'journals': journals,
-    }
+
+    journals = SQLAlchemyORMPage(
+        journals_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if journals.page_count and page_num > journals.page_count:
+        raise HTTPNotFound
+
+    return {"project": project, "journals": journals}
 
 
 @view_config(
@@ -813,9 +762,7 @@ def manage_project_history(project, request):
     context=Project,
     renderer="manage/documentation.html",
     uses_session=True,
-    permission="manage",
+    permission="manage:project",
 )
 def manage_project_documentation(project, request):
-    return {
-        'project': project,
-    }
+    return {"project": project}

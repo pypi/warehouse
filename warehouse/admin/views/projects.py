@@ -13,13 +13,12 @@
 import shlex
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import (
-    HTTPBadRequest,
-    HTTPMovedPermanently,
-    HTTPSeeOther,
-)
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import or_, func
+
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
@@ -44,7 +43,7 @@ def project_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    projects_query = request.db.query(Project).order_by(Project.name)
+    projects_query = request.db.query(Project).order_by(Project.normalized_name)
 
     if q:
         terms = shlex.split(q)
@@ -65,26 +64,29 @@ def project_list(request):
     return {"projects": projects, "query": q}
 
 
-@view_config(route_name="admin.project.detail",
-             renderer="admin/projects/detail.html",
-             permission="admin",
-             uses_session=True,
-             require_csrf=True,
-             require_methods=False)
+@view_config(
+    route_name="admin.project.detail",
+    renderer="admin/projects/detail.html",
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
 def project_detail(project, request):
     project_name = request.matchdict["project_name"]
 
     if project_name != project.normalized_name:
         raise HTTPMovedPermanently(
-            request.current_route_path(
-                project_name=project.normalized_name,
-            ),
+            request.current_route_path(project_name=project.normalized_name)
         )
 
-    releases = (request.db.query(Release)
-                .filter(Release.project == project)
-                .order_by(Release._pypi_ordering.desc())
-                .limit(10).all())
+    releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .order_by(Release._pypi_ordering.desc())
+        .limit(10)
+        .all()
+    )
 
     maintainers = [
         role
@@ -96,30 +98,41 @@ def project_detail(project, request):
             .all()
         )
     ]
-    maintainers = sorted(
-        maintainers,
-        key=lambda x: (x.role_name, x.user.username),
-    )
+    maintainers = sorted(maintainers, key=lambda x: (x.role_name, x.user.username))
     journal = [
         entry
         for entry in (
             request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.name == project.name)
-            .order_by(
-                JournalEntry.submitted_date.desc(),
-                JournalEntry.id.desc(),
-            )
+            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
             .limit(30)
         )
     ]
+
+    squattees = (
+        request.db.query(Project)
+        .filter(Project.created < project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
+
+    squatters = (
+        request.db.query(Project)
+        .filter(Project.created > project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
 
     return {
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "squatters": squatters,
+        "squattees": squattees,
         "ONE_MB": ONE_MB,
-        "MAX_FILESIZE": MAX_FILESIZE
+        "MAX_FILESIZE": MAX_FILESIZE,
     }
 
 
@@ -135,9 +148,7 @@ def releases_list(project, request):
 
     if project_name != project.normalized_name:
         raise HTTPMovedPermanently(
-            request.current_route_path(
-                project_name=project.normalized_name,
-            ),
+            request.current_route_path(project_name=project.normalized_name)
         )
 
     try:
@@ -145,9 +156,11 @@ def releases_list(project, request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    releases_query = (request.db.query(Release)
-                      .filter(Release.project == project)
-                      .order_by(Release._pypi_ordering.desc()))
+    releases_query = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .order_by(Release._pypi_ordering.desc())
+    )
 
     if q:
         terms = shlex.split(q)
@@ -168,11 +181,7 @@ def releases_list(project, request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {
-        "releases": releases,
-        "project": project,
-        "query": q,
-    }
+    return {"releases": releases, "project": project, "query": q}
 
 
 @view_config(
@@ -182,9 +191,15 @@ def releases_list(project, request):
     uses_session=True,
 )
 def release_detail(release, request):
-    return {
-        'release': release,
-    }
+    journals = (
+        request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
+        .filter(JournalEntry.name == release.project.name)
+        .filter(JournalEntry.version == release.version)
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        .all()
+    )
+    return {"release": release, "journals": journals}
 
 
 @view_config(
@@ -199,9 +214,7 @@ def journals_list(project, request):
 
     if project_name != project.normalized_name:
         raise HTTPMovedPermanently(
-            request.current_route_path(
-                project_name=project.normalized_name,
-            ),
+            request.current_route_path(project_name=project.normalized_name)
         )
 
     try:
@@ -209,11 +222,12 @@ def journals_list(project, request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    journals_query = (request.db.query(JournalEntry)
-                      .filter(JournalEntry.name == project.name)
-                      .order_by(
-                          JournalEntry.submitted_date.desc(),
-                          JournalEntry.id.desc()))
+    journals_query = (
+        request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
+        .filter(JournalEntry.name == project.name)
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+    )
 
     if q:
         terms = shlex.split(q)
@@ -258,7 +272,8 @@ def set_upload_limit(project, request):
         except ValueError:
             raise HTTPBadRequest(
                 f"Invalid value for upload limit: {upload_limit}, "
-                f"must be integer or empty string.")
+                f"must be integer or empty string."
+            )
 
         # The form is in MB, but the database field is in bytes.
         upload_limit *= ONE_MB
@@ -266,18 +281,135 @@ def set_upload_limit(project, request):
         if upload_limit < MAX_FILESIZE:
             raise HTTPBadRequest(
                 f"Upload limit can not be less than the default limit of "
-                f"{MAX_FILESIZE / ONE_MB}MB.")
+                f"{MAX_FILESIZE / ONE_MB}MB."
+            )
 
     project.upload_limit = upload_limit
 
-    request.session.flash(
-        f"Successfully set the upload limit on {project.name!r}",
-        queue="success",
-    )
+    request.session.flash(f"Set the upload limit on {project.name!r}", queue="success")
 
     return HTTPSeeOther(
-        request.route_path(
-            'admin.project.detail', project_name=project.normalized_name))
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.project.add_role",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def add_role(project, request):
+    username = request.POST.get("username")
+    if not username:
+        request.session.flash("Provide a username", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    try:
+        user = request.db.query(User).filter(User.username == username).one()
+    except NoResultFound:
+        request.session.flash(f"Unknown username '{username}'", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    role_name = request.POST.get("role_name")
+    if not role_name:
+        request.session.flash("Provide a role", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    already_there = (
+        request.db.query(Role)
+        .filter(Role.user == user, Role.project == project)
+        .count()
+    )
+
+    if already_there > 0:
+        request.session.flash(
+            f"User '{user.username}' already has a role on this project", queue="error"
+        )
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"add {role_name} {user.username}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    request.db.add(Role(role_name=role_name, user=user, project=project))
+
+    request.session.flash(
+        f"Added '{user.username}' as '{role_name}' on '{project.name}'", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.project.delete_role",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_role(project, request):
+    confirm = request.POST.get("username")
+    role_id = request.matchdict.get("role_id")
+
+    role = request.db.query(Role).get(role_id)
+    if not role:
+        request.session.flash(f"This role no longer exists", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    if not confirm or confirm != role.user.username:
+        request.session.flash("Confirm the request", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    request.session.flash(
+        f"Removed '{role.user.username}' as '{role.role_name}' on '{project.name}'",
+        queue="success",
+    )
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"remove {role.role_name} {role.user.username}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    request.db.delete(role)
+
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
 
 
 @view_config(
@@ -291,4 +423,4 @@ def delete_project(project, request):
     confirm_project(project, request, fail_route="admin.project.detail")
     remove_project(project, request)
 
-    return HTTPSeeOther(request.route_path('admin.project.list'))
+    return HTTPSeeOther(request.route_path("admin.project.list"))

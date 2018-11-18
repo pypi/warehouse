@@ -16,6 +16,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.models import JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
@@ -37,9 +38,8 @@ def journals_list(request):
 
     journals_query = (
         request.db.query(JournalEntry)
-                  .order_by(
-                      JournalEntry.submitted_date.desc(),
-                      JournalEntry.id.desc())
+        .options(joinedload(JournalEntry.submitted_by))
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
     )
 
     if q:

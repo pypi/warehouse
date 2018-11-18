@@ -28,8 +28,8 @@ Create Date: 2016-12-02 00:58:53.109880
 from alembic import op
 
 
-revision = '99291f0fe9c2'
-down_revision = 'e7b09b5c089d'
+revision = "99291f0fe9c2"
+down_revision = "e7b09b5c089d"
 
 
 def upgrade():
@@ -53,7 +53,8 @@ def upgrade():
               AFTER INSERT ON release_files
               FOR EACH ROW
                   EXECUTE PROCEDURE update_release_files_requires_python();
-        """)
+        """
+    )
 
 
 def downgrade():

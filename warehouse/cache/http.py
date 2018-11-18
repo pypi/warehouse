@@ -22,6 +22,7 @@ def add_vary_callback(*varies):
         vary = set(response.vary if response.vary is not None else [])
         vary |= set(varies)
         response.vary = vary
+
     return inner
 
 
@@ -31,27 +32,30 @@ def add_vary(*varies):
         def wrapped(context, request):
             request.add_response_callback(add_vary_callback(*varies))
             return view(context, request)
+
         return wrapped
+
     return inner
 
 
-def cache_control(seconds, *, public=True, stale_while_revalidate=None,
-                  stale_if_error=None):
+def cache_control(
+    seconds, *, public=True, stale_while_revalidate=None, stale_if_error=None
+):
     def inner(view):
         @functools.wraps(view)
         def wrapped(context, request):
             response = view(context, request)
 
-            if not request.registry.settings.get(
-                    "pyramid.prevent_http_cache", False):
+            if not request.registry.settings.get("pyramid.prevent_http_cache", False):
                 if seconds:
                     if public:
                         response.cache_control.public = True
                     else:
                         response.cache_control.private = True
 
-                    response.cache_control.stale_while_revalidate = \
+                    response.cache_control.stale_while_revalidate = (
                         stale_while_revalidate
+                    )
                     response.cache_control.stale_if_error = stale_if_error
                     response.cache_control.max_age = seconds
                 else:
@@ -60,7 +64,9 @@ def cache_control(seconds, *, public=True, stale_while_revalidate=None,
                     response.cache_control.must_revalidate = True
 
             return response
+
         return wrapped
+
     return inner
 
 
@@ -87,8 +93,11 @@ def conditional_http_tween_factory(handler, registry):
             # If we have a streaming response, but it's small enough, we'll
             # just go ahead and buffer it in memory so that we can generate a
             # ETag for it.
-            if (streaming and response.content_length is not None and
-                    response.content_length <= BUFFER_MAX):
+            if (
+                streaming
+                and response.content_length is not None
+                and response.content_length <= BUFFER_MAX
+            ):
                 response.body
                 streaming = False
 

@@ -14,14 +14,16 @@ import pretend
 import pytest
 
 from warehouse.cache.http import (
-    add_vary, cache_control, conditional_http_tween_factory, includeme,
+    add_vary,
+    cache_control,
+    conditional_http_tween_factory,
+    includeme,
 )
 
 
 @pytest.mark.parametrize("vary", [None, [], ["wat"]])
 def test_add_vary(vary):
     class FakeRequest:
-
         def __init__(self):
             self.callbacks = []
 
@@ -47,10 +49,9 @@ def test_add_vary(vary):
 
 
 class TestCacheControl:
-
     def test_cache_public(self):
         response_obj = pretend.stub(
-            cache_control=pretend.stub(public=None, max_age=None),
+            cache_control=pretend.stub(public=None, max_age=None)
         )
         request_obj = pretend.stub(registry=pretend.stub(settings={}))
         context_obj = pretend.stub()
@@ -69,7 +70,7 @@ class TestCacheControl:
 
     def test_cache_private(self):
         response_obj = pretend.stub(
-            cache_control=pretend.stub(private=None, max_age=None),
+            cache_control=pretend.stub(private=None, max_age=None)
         )
         request_obj = pretend.stub(registry=pretend.stub(settings={}))
         context_obj = pretend.stub()
@@ -89,10 +90,8 @@ class TestCacheControl:
     def test_no_cache(self):
         response_obj = pretend.stub(
             cache_control=pretend.stub(
-                no_cache=None,
-                no_store=None,
-                must_revalidate=None,
-            ),
+                no_cache=None, no_store=None, must_revalidate=None
+            )
         )
         request_obj = pretend.stub(registry=pretend.stub(settings={}))
         context_obj = pretend.stub()
@@ -113,9 +112,7 @@ class TestCacheControl:
     def test_bypass_cache(self):
         response_obj = pretend.stub()
         request_obj = pretend.stub(
-            registry=pretend.stub(
-                settings={"pyramid.prevent_http_cache": True},
-            ),
+            registry=pretend.stub(settings={"pyramid.prevent_http_cache": True})
         )
         context_obj = pretend.stub()
 
@@ -131,7 +128,6 @@ class TestCacheControl:
 
 
 class TestConditionalHTTPTween:
-
     def test_has_last_modified(self):
         response = pretend.stub(
             last_modified=pretend.stub(),
@@ -268,11 +264,9 @@ class TestConditionalHTTPTween:
 
 
 def test_includeme():
-    config = pretend.stub(
-        add_tween=pretend.call_recorder(lambda t: None),
-    )
+    config = pretend.stub(add_tween=pretend.call_recorder(lambda t: None))
     includeme(config)
 
     assert config.add_tween.calls == [
-        pretend.call("warehouse.cache.http.conditional_http_tween_factory"),
+        pretend.call("warehouse.cache.http.conditional_http_tween_factory")
     ]

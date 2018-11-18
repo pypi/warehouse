@@ -24,16 +24,10 @@ from warehouse import filters
 def test_camo_url():
     request = pretend.stub(
         registry=pretend.stub(
-            settings={
-                "camo.url": "https://camo.example.net/",
-                "camo.key": "fake key",
-            },
-        ),
+            settings={"camo.url": "https://camo.example.net/", "camo.key": "fake key"}
+        )
     )
-    c_url = filters._camo_url(
-        request,
-        "http://example.com/image.jpg",
-    )
+    c_url = filters._camo_url(request, "http://example.com/image.jpg")
     assert c_url == (
         "https://camo.example.net/b410d235a3d2fc44b50ccab827e531dece213062/"
         "687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067"
@@ -49,22 +43,21 @@ class TestCamoify:
                 settings={
                     "camo.url": "https://camo.example.net/",
                     "camo.key": "fake key",
-                },
-            ),
+                }
+            )
         )
         camo_url = partial(filters._camo_url, request)
         request.camo_url = camo_url
 
         ctx = {"request": request}
 
-        result = filters.camoify(
-            ctx, html
-        )
+        result = filters.camoify(ctx, html)
 
         assert result == (
             '<img src="https://camo.example.net/'
-            'b410d235a3d2fc44b50ccab827e531dece213062/'
-            '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067">')
+            "b410d235a3d2fc44b50ccab827e531dece213062/"
+            '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067">'
+        )
 
     def test_camoify_no_src(self, monkeypatch):
         html = "<img>"
@@ -74,8 +67,8 @@ class TestCamoify:
                 settings={
                     "camo.url": "https://camo.example.net/",
                     "camo.key": "fake key",
-                },
-            ),
+                }
+            )
         )
         camo_url = partial(filters._camo_url, request)
         request.camo_url = camo_url
@@ -110,9 +103,7 @@ def test_shorten_number(inp, expected):
 
 @pytest.mark.parametrize(
     ("inp", "expected"),
-    [
-        ({"foo": "bar", "left": "right"}, '{"foo":"bar","left":"right"}'),
-    ],
+    [({"foo": "bar", "left": "right"}, '{"foo":"bar","left":"right"}')],
 )
 def test_tojson(inp, expected):
     assert filters.tojson(inp) == expected
@@ -129,21 +120,15 @@ def test_urlparse():
     [
         (
             "'python', finance, \"data\",        code    , test automation",
-            ["python", "finance", "data", "code", "test automation"]
+            ["python", "finance", "data", "code", "test automation"],
         ),
         (
             "'python'; finance; \"data\";        code    ; test automation",
-            ["python", "finance", "data", "code", "test automation"]
+            ["python", "finance", "data", "code", "test automation"],
         ),
-        (
-            "a \"b\" c   d  'e'",
-            ["a", "b", "c", "d", "e"]
-        ),
-        (
-            "      '    '   \"  \"",
-            []
-        )
-    ]
+        ("a \"b\" c   d  'e'", ["a", "b", "c", "d", "e"]),
+        ("      '    '   \"  \"", []),
+    ],
 )
 def test_format_tags(inp, expected):
     assert filters.format_tags(inp) == expected
@@ -169,19 +154,10 @@ def test_format_classifiers(inp, expected):
 @pytest.mark.parametrize(
     ("inp", "expected"),
     [
-        (
-            ["abcdef", "ghijkl"],
-            False
-        ),
-        (
-            ["https://github.com/example/test", "https://pypi.io/"],
-            True
-        ),
-        (
-            ["abcdef", "https://github.com/example/test"],
-            True
-        )
-    ]
+        (["abcdef", "ghijkl"], False),
+        (["https://github.com/example/test", "https://pypi.io/"], True),
+        (["abcdef", "https://github.com/example/test"], True),
+    ],
 )
 def test_contains_valid_uris(inp, expected):
     assert filters.contains_valid_uris(inp) == expected
@@ -206,10 +182,7 @@ def test_format_package_type(inp, expected):
 
 
 @pytest.mark.parametrize(
-    ("inp", "expected"),
-    [
-        ("1.0", packaging.version.Version("1.0")),
-    ]
+    ("inp", "expected"), [("1.0", packaging.version.Version("1.0"))]
 )
 def test_parse_version(inp, expected):
     assert filters.parse_version(inp) == expected

@@ -29,21 +29,11 @@ def test_includeme():
         pretend.call("admin.login", "/admin/login/", domain=warehouse),
         pretend.call("admin.logout", "/admin/logout/", domain=warehouse),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
+        pretend.call("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse),
         pretend.call(
-            "admin.user.detail",
-            "/admin/users/{user_id}/",
-            domain=warehouse,
+            "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
         ),
-        pretend.call(
-            "admin.user.delete",
-            "/admin/users/{user_id}/delete/",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "admin.project.list",
-            "/admin/projects/",
-            domain=warehouse,
-        ),
+        pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
         pretend.call(
             "admin.project.detail",
             "/admin/projects/{project_name}/",
@@ -80,61 +70,47 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.add_role",
+            "/admin/projects/{project_name}/add_role/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.delete_role",
+            "/admin/projects/{project_name}/delete_role/{role_id}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.delete",
             "/admin/projects/{project_name}/delete/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
+        pretend.call("admin.classifiers", "/admin/classifiers/", domain=warehouse),
         pretend.call(
-            "admin.journals.list",
-            "/admin/journals/",
-            domain=warehouse,
+            "admin.classifiers.add", "/admin/classifiers/add/", domain=warehouse
         ),
         pretend.call(
-            'admin.classifiers',
-            '/admin/classifiers/',
+            "admin.classifiers.deprecate",
+            "/admin/classifiers/deprecate/",
             domain=warehouse,
         ),
+        pretend.call("admin.blacklist.list", "/admin/blacklist/", domain=warehouse),
+        pretend.call("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse),
         pretend.call(
-            'admin.classifiers.add',
-            '/admin/classifiers/add/',
-            domain=warehouse,
-        ),
-        pretend.call(
-            'admin.classifiers.deprecate',
-            '/admin/classifiers/deprecate/',
-            domain=warehouse,
-        ),
-        pretend.call(
-            "admin.blacklist.list",
-            "/admin/blacklist/",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "admin.blacklist.add",
-            "/admin/blacklist/add/",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "admin.blacklist.remove",
-            "/admin/blacklist/remove/",
-            domain=warehouse,
+            "admin.blacklist.remove", "/admin/blacklist/remove/", domain=warehouse
         ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
         pretend.call(
-            "admin.emails.detail",
-            "/admin/emails/{email_id}/",
-            domain=warehouse,
+            "admin.emails.detail", "/admin/emails/{email_id}/", domain=warehouse
         ),
-        pretend.call(
-            "admin.flags",
-            "/admin/flags/",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "admin.flags.edit",
-            "/admin/flags/edit/",
-            domain=warehouse,
-        ),
+        pretend.call("admin.flags", "/admin/flags/", domain=warehouse),
+        pretend.call("admin.flags.edit", "/admin/flags/edit/", domain=warehouse),
+        pretend.call("admin.squats", "/admin/squats/", domain=warehouse),
+        pretend.call("admin.squats.review", "/admin/squats/review/", domain=warehouse),
     ]

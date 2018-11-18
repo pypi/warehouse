@@ -16,21 +16,31 @@ import wtforms
 
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.models import DisableReason
 
 
 class TestLoginForm:
-
     def test_creation(self):
+        request = pretend.stub()
         user_service = pretend.stub()
-        form = forms.LoginForm(user_service=user_service)
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            request=request, user_service=user_service, breach_service=breach_service
+        )
 
+        assert form.request is request
         assert form.user_service is user_service
+        assert form.breach_service is breach_service
 
     def test_validate_username_with_no_user(self):
+        request = pretend.stub()
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: None),
+            find_userid=pretend.call_recorder(lambda userid: None)
         )
-        form = forms.LoginForm(user_service=user_service)
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            request=request, user_service=user_service, breach_service=breach_service
+        )
         field = pretend.stub(data="my_username")
 
         with pytest.raises(wtforms.validators.ValidationError):
@@ -39,10 +49,12 @@ class TestLoginForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     def test_validate_username_with_user(self):
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: 1),
+        request = pretend.stub()
+        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            request=request, user_service=user_service, breach_service=breach_service
         )
-        form = forms.LoginForm(user_service=user_service)
         field = pretend.stub(data="my_username")
 
         form.validate_username(field)
@@ -50,94 +62,190 @@ class TestLoginForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     def test_validate_password_no_user(self):
+        request = pretend.stub()
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: None),
+            find_userid=pretend.call_recorder(lambda userid: None)
         )
+        breach_service = pretend.stub()
         form = forms.LoginForm(
             data={"username": "my_username"},
+            request=request,
             user_service=user_service,
+            breach_service=breach_service,
         )
         field = pretend.stub(data="password")
 
         form.validate_password(field)
 
+        assert user_service.find_userid.calls == [
+            pretend.call("my_username"),
+            pretend.call("my_username"),
+        ]
+
+    def test_validate_password_disabled_for_compromised_pw(self, db_session):
+        request = pretend.stub()
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            is_disabled=pretend.call_recorder(
+                lambda userid: (True, DisableReason.CompromisedPassword)
+            ),
+        )
+        breach_service = pretend.stub(failure_message="Bad Password!")
+        form = forms.LoginForm(
+            data={"username": "my_username"},
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+        field = pretend.stub(data="pw")
+
+        with pytest.raises(wtforms.validators.ValidationError, match=r"Bad Password\!"):
+            form.validate_password(field)
+
         assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.is_disabled.calls == [pretend.call(1)]
 
     def test_validate_password_ok(self):
+        request = pretend.stub()
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password: True
+                lambda userid, password, tags=None: True
             ),
+            is_disabled=pretend.call_recorder(lambda userid: (False, None)),
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags: False)
         )
         form = forms.LoginForm(
             data={"username": "my_username"},
+            request=request,
             user_service=user_service,
+            breach_service=breach_service,
+            check_password_metrics_tags=["bar"],
         )
         field = pretend.stub(data="pw")
 
         form.validate_password(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
-        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+        assert user_service.find_userid.calls == [
+            pretend.call("my_username"),
+            pretend.call("my_username"),
+        ]
+        assert user_service.is_disabled.calls == [pretend.call(1)]
+        assert user_service.check_password.calls == [
+            pretend.call(1, "pw", tags=["bar"])
+        ]
+        assert breach_service.check_password.calls == [
+            pretend.call("pw", tags=["method:auth", "auth_method:login_form"])
+        ]
 
     def test_validate_password_notok(self, db_session):
+        request = pretend.stub()
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                lambda userid, password: False
+                lambda userid, password, tags=None: False
             ),
+            is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
+        breach_service = pretend.stub()
         form = forms.LoginForm(
             data={"username": "my_username"},
+            request=request,
             user_service=user_service,
+            breach_service=breach_service,
         )
         field = pretend.stub(data="pw")
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_password(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
-        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+        assert user_service.find_userid.calls == [
+            pretend.call("my_username"),
+            pretend.call("my_username"),
+        ]
+        assert user_service.is_disabled.calls == [pretend.call(1)]
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
 
     def test_validate_password_too_many_failed(self):
         @pretend.call_recorder
-        def check_password(userid, password):
+        def check_password(userid, password, tags=None):
             raise TooManyFailedLogins(resets_in=None)
 
+        request = pretend.stub()
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=check_password,
+            is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
+        breach_service = pretend.stub()
         form = forms.LoginForm(
             data={"username": "my_username"},
+            request=request,
             user_service=user_service,
+            breach_service=breach_service,
         )
         field = pretend.stub(data="pw")
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_password(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
-        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+        assert user_service.find_userid.calls == [
+            pretend.call("my_username"),
+            pretend.call("my_username"),
+        ]
+        assert user_service.is_disabled.calls == [pretend.call(1)]
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
+
+    def test_password_breached(self, monkeypatch):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(forms, "send_password_compromised_email", send_email)
+
+        user = pretend.stub(id=1)
+        request = pretend.stub()
+        user_service = pretend.stub(
+            find_userid=lambda _: 1,
+            get_user=lambda _: user,
+            check_password=lambda userid, pw, tags=None: True,
+            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
+            is_disabled=lambda userid: (False, None),
+        )
+        breach_service = pretend.stub(
+            check_password=lambda pw, tags=None: True, failure_message="Bad Password!"
+        )
+
+        form = forms.LoginForm(
+            data={"password": "password"},
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+        assert not form.validate()
+        assert form.password.errors.pop() == "Bad Password!"
+        assert user_service.disable_password.calls == [
+            pretend.call(1, reason=DisableReason.CompromisedPassword)
+        ]
+        assert send_email.calls == [pretend.call(request, user)]
 
 
 class TestRegistrationForm:
-
     def test_create(self):
         user_service = pretend.stub()
+        breach_service = pretend.stub()
 
-        form = forms.RegistrationForm(data={}, user_service=user_service)
+        form = forms.RegistrationForm(
+            data={}, user_service=user_service, breach_service=breach_service
+        )
         assert form.user_service is user_service
 
     def test_password_confirm_required_error(self):
         form = forms.RegistrationForm(
             data={"password_confirm": ""},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(
-                    lambda _: pretend.stub()
-                ),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
+            breach_service=pretend.stub(check_password=lambda pw: False),
         )
 
         assert not form.validate()
@@ -145,29 +253,23 @@ class TestRegistrationForm:
 
     def test_passwords_mismatch_error(self):
         user_service = pretend.stub(
-            find_userid_by_email=pretend.call_recorder(
-                lambda _: pretend.stub()
-            ),
+            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
         )
         form = forms.RegistrationForm(
-            data={
-                "new_password": "password",
-                "password_confirm": "mismatch",
-            },
+            data={"new_password": "password", "password_confirm": "mismatch"},
             user_service=user_service,
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert not form.validate()
         assert (
-            form.password_confirm.errors.pop() ==
-            "Your passwords do not match. Try again."
+            form.password_confirm.errors.pop()
+            == "Your passwords don't match. Try again."
         )
 
     def test_passwords_match_success(self):
         user_service = pretend.stub(
-            find_userid_by_email=pretend.call_recorder(
-                lambda _: pretend.stub()
-            ),
+            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
         )
         form = forms.RegistrationForm(
             data={
@@ -175,6 +277,7 @@ class TestRegistrationForm:
                 "password_confirm": "MyStr0ng!shPassword",
             },
             user_service=user_service,
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         form.validate()
@@ -185,10 +288,9 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": ""},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(
-                    lambda _: pretend.stub()
-                ),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert not form.validate()
@@ -198,31 +300,27 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": "bad"},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(lambda _: None),
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert not form.validate()
-        assert (
-            form.email.errors.pop() ==
-            "The email address you have chosen is not a valid format. "
-            "Try again."
-        )
+        assert form.email.errors.pop() == "The email address isn't valid. Try again."
 
     def test_email_exists_error(self):
         form = forms.RegistrationForm(
             data={"email": "foo@bar.com"},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(
-                    lambda _: pretend.stub()
-                ),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert not form.validate()
         assert (
-            form.email.errors.pop() ==
-            "This email address is already being used by another account. "
+            form.email.errors.pop()
+            == "This email address is already being used by another account. "
             "Use a different email."
         )
 
@@ -230,14 +328,15 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(lambda _: None),
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert not form.validate()
         assert (
-            form.email.errors.pop() ==
-            "You cannot create an account with an email address from "
+            form.email.errors.pop()
+            == "You can't create an account with an email address from "
             "this domain. Use a different email."
         )
 
@@ -245,28 +344,29 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"username": "foo"},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda name: 1),
+                find_userid=pretend.call_recorder(lambda name: 1)
             ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
         assert not form.validate()
         assert (
-            form.username.errors.pop() ==
-            "This username is already being used by another account. "
+            form.username.errors.pop()
+            == "This username is already being used by another account. "
             "Choose a different username."
         )
 
-    @pytest.mark.parametrize("username", ['_foo', 'bar_', 'foo^bar'])
+    @pytest.mark.parametrize("username", ["_foo", "bar_", "foo^bar"])
     def test_username_is_valid(self, username):
         form = forms.RegistrationForm(
             data={"username": username},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda _: None),
+                find_userid=pretend.call_recorder(lambda _: None)
             ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
         assert not form.validate()
         assert (
-            form.username.errors.pop() ==
-            "The username is invalid. Usernames "
+            form.username.errors.pop() == "The username is invalid. Usernames "
             "must be composed of letters, numbers, "
             "dots, hyphens and underscores. And must "
             "also start and finish with a letter or number. "
@@ -283,27 +383,47 @@ class TestRegistrationForm:
             form = forms.RegistrationForm(
                 data={"new_password": pwd, "password_confirm": pwd},
                 user_service=pretend.stub(),
+                breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
             )
             form.validate()
             assert (len(form.new_password.errors) == 0) == valid
+
+    def test_password_breached(self):
+        form = forms.RegistrationForm(
+            data={"new_password": "password"},
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None)
+            ),
+            breach_service=pretend.stub(
+                check_password=lambda pw, tags=None: True,
+                failure_message=(
+                    "This password has appeared in a breach or has otherwise been "
+                    "compromised and cannot be used."
+                ),
+            ),
+        )
+        assert not form.validate()
+        assert form.new_password.errors.pop() == (
+            "This password has appeared in a breach or has otherwise been "
+            "compromised and cannot be used."
+        )
 
     def test_name_too_long(self):
         form = forms.RegistrationForm(
             data={"full_name": "hello " * 50},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda _: None),
+                find_userid=pretend.call_recorder(lambda _: None)
             ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
         )
         assert not form.validate()
         assert (
-            form.full_name.errors.pop() ==
-            "The name you have chosen is too long. Choose "
-            "a name with under 100 characters."
+            form.full_name.errors.pop()
+            == "The name is too long. Choose a name with 100 characters or less."
         )
 
 
 class TestRequestPasswordResetForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.RequestPasswordResetForm(user_service=user_service)
@@ -312,7 +432,7 @@ class TestRequestPasswordResetForm:
     def test_no_password_field(self):
         user_service = pretend.stub()
         form = forms.RequestPasswordResetForm(user_service=user_service)
-        assert 'password' not in form._fields
+        assert "password" not in form._fields
 
     def test_validate_username_or_email(self):
         user_service = pretend.stub(
@@ -349,9 +469,11 @@ class TestRequestPasswordResetForm:
 
 
 class TestResetPasswordForm:
-
     def test_password_confirm_required_error(self):
-        form = forms.ResetPasswordForm(data={"password_confirm": ""})
+        form = forms.ResetPasswordForm(
+            data={"password_confirm": ""},
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
 
         assert not form.validate()
         assert form.password_confirm.errors.pop() == "This field is required."
@@ -365,19 +487,19 @@ class TestResetPasswordForm:
                 "full_name": "full_name",
                 "email": "email",
             },
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert not form.validate()
         assert (
-            form.password_confirm.errors.pop() ==
-            "Your passwords do not match. Try again."
+            form.password_confirm.errors.pop()
+            == "Your passwords don't match. Try again."
         )
 
-    @pytest.mark.parametrize(("password", "expected"), [
-        ("foobar", False),
-        ("somethingalittlebetter9", True),
-        ("1aDeCent!1", True),
-    ])
+    @pytest.mark.parametrize(
+        ("password", "expected"),
+        [("foobar", False), ("somethingalittlebetter9", True), ("1aDeCent!1", True)],
+    )
     def test_password_strength(self, password, expected):
         form = forms.ResetPasswordForm(
             data={
@@ -387,6 +509,7 @@ class TestResetPasswordForm:
                 "full_name": "full_name",
                 "email": "email",
             },
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert form.validate() == expected
@@ -400,6 +523,33 @@ class TestResetPasswordForm:
                 "full_name": "full_name",
                 "email": "email",
             },
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
         assert form.validate()
+
+    def test_password_breached(self):
+        form = forms.ResetPasswordForm(
+            data={
+                "new_password": "MyStr0ng!shPassword",
+                "password_confirm": "MyStr0ng!shPassword",
+                "username": "username",
+                "full_name": "full_name",
+                "email": "email",
+            },
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None)
+            ),
+            breach_service=pretend.stub(
+                check_password=lambda pw, tags=None: True,
+                failure_message=(
+                    "This password has appeared in a breach or has otherwise been "
+                    "compromised and cannot be used."
+                ),
+            ),
+        )
+        assert not form.validate()
+        assert form.new_password.errors.pop() == (
+            "This password has appeared in a breach or has otherwise been "
+            "compromised and cannot be used."
+        )

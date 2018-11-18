@@ -23,7 +23,6 @@ from ....common.db.ses import EmailMessageFactory
 
 
 class TestEmailList:
-
     def test_no_query(self, db_request):
         emails = sorted(
             [EmailMessageFactory.create() for _ in range(30)],
@@ -32,10 +31,7 @@ class TestEmailList:
         )
         result = views.email_list(db_request)
 
-        assert result == {
-            "emails": emails[:25],
-            "query": None,
-        }
+        assert result == {"emails": emails[:25], "query": None}
 
     def test_with_page(self, db_request):
         emails = sorted(
@@ -46,10 +42,7 @@ class TestEmailList:
         db_request.GET["page"] = "2"
         result = views.email_list(db_request)
 
-        assert result == {
-            "emails": emails[25:],
-            "query": None,
-        }
+        assert result == {"emails": emails[25:], "query": None}
 
     def test_with_invalid_page(self):
         request = pretend.stub(params={"page": "not an integer"})
@@ -66,10 +59,7 @@ class TestEmailList:
         db_request.GET["q"] = emails[0].to
         result = views.email_list(db_request)
 
-        assert result == {
-            "emails": [emails[0]],
-            "query": emails[0].to,
-        }
+        assert result == {"emails": [emails[0]], "query": emails[0].to}
 
     def test_wildcard_query(self, db_request):
         emails = sorted(
@@ -80,31 +70,21 @@ class TestEmailList:
         db_request.GET["q"] = emails[0].to[:-1] + "%"
         result = views.email_list(db_request)
 
-        assert result == {
-            "emails": [emails[0]],
-            "query": emails[0].to[:-1] + "%",
-        }
+        assert result == {"emails": [emails[0]], "query": emails[0].to[:-1] + "%"}
 
 
 class TestEmailDetail:
-
     def test_existing_email(self, db_session):
         em = EmailMessageFactory.create()
 
-        request = pretend.stub(
-            matchdict={"email_id": em.id},
-            db=db_session,
-        )
+        request = pretend.stub(matchdict={"email_id": em.id}, db=db_session)
 
         assert views.email_detail(request) == {"email": em}
 
     def test_nonexistent_email(self, db_session):
         EmailMessageFactory.create()
 
-        request = pretend.stub(
-            matchdict={"email_id": str(uuid.uuid4())},
-            db=db_session,
-        )
+        request = pretend.stub(matchdict={"email_id": str(uuid.uuid4())}, db=db_session)
 
         with pytest.raises(HTTPNotFound):
             views.email_detail(request)

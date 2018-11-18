@@ -54,7 +54,9 @@ def compute_trending(request):
             GROUP BY project, todays_downloads
             HAVING SUM(downloads) >= 5000
             ORDER BY zscore DESC
-        """.format(table=request.registry.settings["warehouse.trending_table"])
+        """.format(
+            table=request.registry.settings["warehouse.trending_table"]
+        )
     )
 
     zscores = {}
@@ -65,18 +67,20 @@ def compute_trending(request):
     # We're going to "reset" all of our zscores to a steady state where they
     # are all equal to ``None``. The next query will then set any that have a
     # value back to the expected value.
-    (request.db.query(Project)
-               .filter(Project.zscore != None)  # noqa
-               .update({Project.zscore: None}))
+    (
+        request.db.query(Project)
+        .filter(Project.zscore != None)  # noqa
+        .update({Project.zscore: None})
+    )
 
     # We need to convert the normalized name that we get out of BigQuery and
     # turn it into the primary key of the Project object and construct a list
     # of primary key: new zscore, including a default of None if the item isn't
     # in the result set.
-    query = request.db.query(Project.name, Project.normalized_name).all()
+    query = request.db.query(Project.id, Project.normalized_name).all()
     to_update = [
-        {"name": name, "zscore": zscores[normalized_name]}
-        for name, normalized_name in query
+        {"id": id, "zscore": zscores[normalized_name]}
+        for id, normalized_name in query
         if normalized_name in zscores
     ]
 
@@ -86,7 +90,7 @@ def compute_trending(request):
     # Trigger a purge of the trending surrogate key.
     try:
         cacher = request.find_service(IOriginCache)
-    except ValueError:
+    except LookupError:
         pass
     else:
         cacher.purge(["trending"])

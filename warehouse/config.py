@@ -13,19 +13,17 @@
 import enum
 import os
 import shlex
-import urllib.parse
 
 import transaction
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
-from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
-from pyramid.security import Allow
+from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
-from warehouse import __commit__
+from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
@@ -36,7 +34,6 @@ class Environment(enum.Enum):
 
 
 class Configurator(_Configurator):
-
     def add_wsgi_middleware(self, middleware, *args, **kwargs):
         middlewares = self.get_settings().setdefault("wsgi.middlewares", [])
         middlewares.append((middleware, args, kwargs))
@@ -58,55 +55,10 @@ class RootFactory:
     __parent__ = None
     __name__ = None
 
-    __acl__ = [
-        (Allow, "group:admins", "admin"),
-    ]
+    __acl__ = [(Allow, "group:admins", "admin"), (Allow, Authenticated, "manage:user")]
 
     def __init__(self, request):
         pass
-
-
-def junk_encoding_tween_factory(handler, request):
-
-    def junk_encoding_tween(request):
-        # We're going to test our request a bit, before we pass it into the
-        # handler. This will let us return a better error than a 500 if we
-        # can't decode these.
-
-        # Ref: https://github.com/Pylons/webob/issues/161
-        # Ref: https://github.com/Pylons/webob/issues/115
-        try:
-            request.GET.get("", None)
-        except UnicodeDecodeError:
-            return HTTPBadRequest("Invalid bytes in query string.")
-
-        # Look for invalid bytes in a path.
-        try:
-            request.path_info
-        except UnicodeDecodeError:
-            return HTTPBadRequest("Invalid bytes in URL.")
-
-        # Everything worked! Handle this request as normal.
-        return handler(request)
-
-    return junk_encoding_tween
-
-
-def unicode_redirect_tween_factory(handler, request):
-
-    def unicode_redirect_tween(request):
-        response = handler(request)
-        if response.location:
-            try:
-                response.location.encode('ascii')
-            except UnicodeEncodeError:
-                response.location = '/'.join(
-                    [urllib.parse.quote_plus(x)
-                     for x in response.location.split('/')])
-
-        return response
-
-    return unicode_redirect_tween
 
 
 def require_https_tween_factory(handler, registry):
@@ -118,11 +70,7 @@ def require_https_tween_factory(handler, registry):
         # If we have an :action URL and we're not using HTTPS, then we want to
         # return a 403 error.
         if request.params.get(":action", None) and request.scheme != "https":
-            resp = Response(
-                "SSL is required.",
-                status=403,
-                content_type="text/plain",
-            )
+            resp = Response("SSL is required.", status=403, content_type="text/plain")
             resp.status = "403 SSL is required"
             resp.headers["X-Fastly-Error"] = "803"
             return resp
@@ -136,6 +84,16 @@ def activate_hook(request):
     if request.path.startswith(("/_debug_toolbar/", "/static/")):
         return False
     return True
+
+
+def commit_veto(request, response):
+    # By default pyramid_tm will veto the commit anytime request.exc_info is not None,
+    # we are going to copy that logic with one difference, we are still going to commit
+    # if the exception was for a BreachedPassword.
+    # TODO: We should probably use a registry or something instead of hardcoded.
+    exc_info = getattr(request, "exc_info", None)
+    if exc_info is not None and not isinstance(exc_info[1], BasicAuthBreachedPassword):
+        return True
 
 
 def template_view(config, name, route, template, route_kw=None):
@@ -170,12 +128,15 @@ def configure(settings=None):
         settings = {}
 
     # Add information about the current copy of the code.
-    settings.setdefault("warehouse.commit", __commit__)
+    maybe_set(settings, "warehouse.commit", "SOURCE_COMMIT", default="null")
 
     # Set the environment from an environment variable, if one hasn't already
     # been set.
     maybe_set(
-        settings, "warehouse.env", "WAREHOUSE_ENV", Environment,
+        settings,
+        "warehouse.env",
+        "WAREHOUSE_ENV",
+        Environment,
         default=Environment.production,
     )
 
@@ -193,12 +154,14 @@ def configure(settings=None):
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
-    maybe_set(settings, "celery.broker_url", "AMQP_URL")
+    maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
+    maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
+    maybe_set(settings, "sentry.frontend_dsn", "SENTRY_FRONTEND_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
@@ -211,18 +174,8 @@ def configure(settings=None):
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
-    maybe_set(
-        settings,
-        "token.password.max_age",
-        "TOKEN_PASSWORD_MAX_AGE",
-        coercer=int,
-    )
-    maybe_set(
-        settings,
-        "token.email.max_age",
-        "TOKEN_EMAIL_MAX_AGE",
-        coercer=int,
-    )
+    maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
+    maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
     maybe_set(
         settings,
         "token.default.max_age",
@@ -234,6 +187,8 @@ def configure(settings=None):
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
+    maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
+    maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -267,15 +222,11 @@ def configure(settings=None):
     config = Configurator(settings=settings)
     config.set_root_factory(RootFactory)
 
-    # Add some fixups for some encoding/decoding issues
-    config.add_tween(
-        "warehouse.config.junk_encoding_tween_factory",
-        over="warehouse.csp.content_security_policy_tween_factory",
-    )
-    config.add_tween("warehouse.config.unicode_redirect_tween_factory")
+    # Register support for services
+    config.include("pyramid_services")
 
-    # Register DataDog metrics
-    config.include(".datadog")
+    # Register metrics
+    config.include(".metrics")
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
@@ -315,29 +266,19 @@ def configure(settings=None):
 
     # We need to enable our Client Side Include extension
     config.get_settings().setdefault(
-        "jinja2.extensions",
-        ["warehouse.utils.html.ClientSideIncludeExtension"],
+        "jinja2.extensions", ["warehouse.utils.html.ClientSideIncludeExtension"]
     )
 
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
-    filters.setdefault(
-        "format_classifiers",
-        "warehouse.filters:format_classifiers",
-    )
+    filters.setdefault("format_classifiers", "warehouse.filters:format_classifiers")
     filters.setdefault("format_tags", "warehouse.filters:format_tags")
     filters.setdefault("json", "warehouse.filters:tojson")
     filters.setdefault("camoify", "warehouse.filters:camoify")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
     filters.setdefault("urlparse", "warehouse.filters:urlparse")
-    filters.setdefault(
-        "contains_valid_uris",
-        "warehouse.filters:contains_valid_uris"
-    )
-    filters.setdefault(
-        "format_package_type",
-        "warehouse.filters:format_package_type"
-    )
+    filters.setdefault("contains_valid_uris", "warehouse.filters:contains_valid_uris")
+    filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
 
     # We also want to register some global functions for Jinja
@@ -355,10 +296,7 @@ def configure(settings=None):
 
     # We want to configure our JSON renderer to sort the keys, and also to use
     # an ultra compact serialization format.
-    config.add_renderer(
-        "json",
-        renderers.JSON(sort_keys=True, separators=(",", ":")),
-    )
+    config.add_renderer("json", renderers.JSON(sort_keys=True, separators=(",", ":")))
 
     # Configure retry support.
     config.add_settings({"retry.attempts": 3})
@@ -367,15 +305,15 @@ def configure(settings=None):
     # Configure our transaction handling so that each request gets its own
     # transaction handler and the lifetime of the transaction is tied to the
     # lifetime of the request.
-    config.add_settings({
-        "tm.manager_hook": lambda request: transaction.TransactionManager(),
-        "tm.activate_hook": activate_hook,
-        "tm.annotate_user": False,
-    })
+    config.add_settings(
+        {
+            "tm.manager_hook": lambda request: transaction.TransactionManager(),
+            "tm.activate_hook": activate_hook,
+            "tm.commit_veto": commit_veto,
+            "tm.annotate_user": False,
+        }
+    )
     config.include("pyramid_tm")
-
-    # Register support for services
-    config.include("pyramid_services")
 
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")
@@ -463,8 +401,7 @@ def configure(settings=None):
     )
 
     # Enable Warehouse to serve our static files
-    prevent_http_cache = \
-        config.get_settings().get("pyramid.prevent_http_cache", False)
+    prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)
     config.add_static_view(
         "static",
         "warehouse:static/dist/",
@@ -483,9 +420,11 @@ def configure(settings=None):
     config.whitenoise_serve_static(
         autorefresh=prevent_http_cache,
         max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
-        manifest="warehouse:static/dist/manifest.json",
     )
     config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
+    config.whitenoise_add_manifest(
+        "warehouse:static/dist/manifest.json", prefix="/static/"
+    )
 
     # Enable Warehouse to serve our locale files
     config.add_static_view("locales", "warehouse:locales/")
@@ -515,11 +454,7 @@ def configure(settings=None):
     # Register Referrer-Policy service
     config.include(".referrer_policy")
 
-    config.add_settings({
-        "http": {
-            "verify": "/etc/ssl/certs/",
-        },
-    })
+    config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
 
     # Add our theme if one was configured
@@ -528,12 +463,13 @@ def configure(settings=None):
 
     # Scan everything for configuration
     config.scan(
-        ignore=[
-            "warehouse.migrations.env",
-            "warehouse.celery",
-            "warehouse.wsgi",
-        ],
+        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
     )
+
+    # Sanity check our request and responses.
+    # Note: It is very important that this go last. We need everything else that might
+    #       have added a tween to be registered prior to this.
+    config.include(".sanity")
 
     # Finally, commit all of our changes
     config.commit()
