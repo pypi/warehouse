@@ -27,17 +27,23 @@
     <div class="package-snippet">
       <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
         <div>
-          <h3 class="package-snippet__title">{{ project.name }}</h3>
+          <h3 class="package-snippet__title">{{ project.name }}
+            {% if project.name in projects_sole_owned %}
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}">
+              <span class="badge package-snippet__sole-owner-badge">Sole owner</span>
+            </a>
+            {% endif %}
+          </h3>
           {% if release %}
           <p class="package-snippet__meta">
-            <em>Last released on {{ release.created|format_date() }}</em>
+            Last released on {{ release.created|format_date() }}
           </p>
           <p class="package-snippet__description">
             {{ release.summary }}
           </p>
           {% else %}
           <p class="package-snippet__meta">
-            <em>Created on {{ project.created|format_date() }}</em>
+            Created on {{ project.created|format_date() }}
           </p>
           {% endif %}
         </div>

@@ -263,8 +263,11 @@ class Event(db.Model):
 
     email_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("ses_emails.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey(
+            "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
+        ),
         nullable=False,
+        index=True,
     )
 
     event_id = Column(Text, nullable=False, unique=True, index=True)

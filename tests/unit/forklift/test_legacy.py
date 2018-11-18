@@ -25,10 +25,12 @@ import pytest
 import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.packaging.interfaces import IFileStorage
@@ -1319,7 +1321,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2256,7 +2261,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2359,7 +2367,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2589,7 +2600,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2755,7 +2769,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2778,6 +2795,50 @@ class TestFileUpload:
                 "10.10.10.10",
             ),
         ]
+
+    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        squattee = ProjectFactory(name="example")
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("exmaple", "1.0")
+
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "exmaple",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Project object has been created.
+        squatter = db_request.db.query(Project).filter(Project.name == "exmaple").one()
+
+        # Ensure that a Squat object has been created.
+        squat = db_request.db.query(Squat).one()
+
+        assert squat.squattee == squattee
+        assert squat.squatter == squatter
+        assert squat.reviewed is False
 
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),
@@ -2902,152 +2963,6 @@ class TestFileUpload:
         assert resp.status == (
             "403 Invalid or non-existent authentication information."
         )
-
-    def test_autohides_old_releases(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create(autohide=True)
-        ReleaseFactory.create(project=project, version="0.5", _pypi_hidden=False)
-        RoleFactory.create(user=user, project=project)
-
-        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
-        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
-
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
-
-        db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0",
-                "summary": "This is my summary!",
-                "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"A fake file."),
-                    type="application/tar",
-                ),
-            }
-        )
-        db_request.POST.extend(
-            [
-                ("classifiers", "Environment :: Other Environment"),
-                ("classifiers", "Programming Language :: Python"),
-                ("requires_dist", "foo"),
-                ("requires_dist", "bar (>1.0)"),
-                ("project_urls", "Test, https://example.com/"),
-                ("requires_external", "Cheese (>1.0)"),
-                ("provides", "testing"),
-            ]
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-        # Ensure that a Release object has been created and is not hidden.
-        release = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.0"))
-            .one()
-        )
-        assert not release._pypi_hidden
-
-        # Ensure that all the old release objects are hidden.
-        other_releases = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version != "1.0"))
-            .all()
-        )
-        assert len(other_releases)
-        for r in other_releases:
-            assert r._pypi_hidden
-
-    def test_doesnt_autohides_old_releases(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create(autohide=False)
-        previous_releases = {
-            "0.5": ReleaseFactory.create(
-                project=project, version="0.5", _pypi_hidden=False
-            ),
-            "0.75": ReleaseFactory.create(
-                project=project, version="0.75", _pypi_hidden=False
-            ),
-        }
-        RoleFactory.create(user=user, project=project)
-
-        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
-        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
-
-        filename = "{}-{}.tar.gz".format(project.name, "1.0")
-
-        db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0",
-                "summary": "This is my summary!",
-                "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(b"A fake file."),
-                    type="application/tar",
-                ),
-            }
-        )
-        db_request.POST.extend(
-            [
-                ("classifiers", "Environment :: Other Environment"),
-                ("classifiers", "Programming Language :: Python"),
-                ("requires_dist", "foo"),
-                ("requires_dist", "bar (>1.0)"),
-                ("project_urls", "Test, https://example.com/"),
-                ("requires_external", "Cheese (>1.0)"),
-                ("provides", "testing"),
-            ]
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-        # Ensure that a Release object has been created and is not hidden.
-        release = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version == "1.0"))
-            .one()
-        )
-        assert not release._pypi_hidden
-
-        # Ensure that all the old release objects still have the same hidden
-        # state.
-        other_releases = (
-            db_request.db.query(Release)
-            .filter((Release.project == project) & (Release.version != "1.0"))
-            .all()
-        )
-        assert len(other_releases)
-        for r in other_releases:
-            assert r._pypi_hidden == previous_releases[r.version]._pypi_hidden
 
 
 @pytest.mark.parametrize("status", [True, False])
