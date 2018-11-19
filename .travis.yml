@@ -39,7 +39,7 @@ script:
   - node -v
   - npm -v
   - bin/tests --postgresql-host 127.0.0.1
-  - bin/test_frontend
+  - bin/tests_frontend
 
 matrix:
   include:
