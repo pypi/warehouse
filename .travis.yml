@@ -16,6 +16,10 @@ cache:
     - ~/.cache/pip
     - node_modules/
 
+before_install:
+  - docker --version
+  - docker-compose version
+
 script:
   - make build
   - make tests
