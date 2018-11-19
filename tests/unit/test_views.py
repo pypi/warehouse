@@ -410,6 +410,7 @@ class TestSearch:
         es_query = pretend.stub(
             suggest=pretend.call_recorder(lambda *a, **kw: es_query),
             filter=pretend.call_recorder(lambda *a, **kw: es_query),
+            query=pretend.call_recorder(lambda *a, **kw: es_query),
             sort=pretend.call_recorder(lambda *a, **kw: es_query),
         )
         db_request.es = pretend.stub(
@@ -460,9 +461,9 @@ class TestSearch:
         assert es_query.suggest.calls == [
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
-        assert es_query.filter.calls == [
-            pretend.call("terms", classifiers=["foo :: bar"]),
-            pretend.call("terms", classifiers=["fiz :: buz"]),
+        assert es_query.query.calls == [
+            pretend.call("prefix", classifiers="foo :: bar"),
+            pretend.call("prefix", classifiers="fiz :: buz"),
         ]
         assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
