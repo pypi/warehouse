@@ -83,6 +83,8 @@ build:
 	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
 	docker-compose build worker
 	docker-compose build static
+	docker-compsoe build notdatadog
+	docker-compose build smtp
 
 	# Mark this state so that the other target will known it's recently been
 	# rebuilt.
