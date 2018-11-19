@@ -73,7 +73,7 @@ ADD http://buildbot.pypy.org/nightly/py3.5/pypy-c-jit-95312-3bb86a88e1d3-linux64
 RUN set -x \
     && echo "9d6e7c11645833794f5f207051331f1835f1ba10aec3c9aaa0ae0612e8829b4e  /tmp/pypy.tar.bz2" | sha256sum -c - \
     && mkdir -p /opt/pypy \
-    && tar vxjf /tmp/pypy.tar.bz2 --strip-components=1 -C /opt/pypy
+    && tar xjf /tmp/pypy.tar.bz2 --strip-components=1 -C /opt/pypy
 ENV PATH="/opt/pypy/bin:${PATH}"
 
 # We need a way for the build system to pass in a repository that will be used
