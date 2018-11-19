@@ -46,8 +46,8 @@ pycodestyle==2.4.0 \
 pyflakes==2.0.0 \
     --hash=sha256:9a7662ec724d0120012f6e29d6248ae3727d821bba522a0e6b356eff19126a49 \
     --hash=sha256:f661252913bc1dbe7fcfcbf0af0db3f42ab65aabd1a6ca68fe5d466bace94dae
-restructuredtext-lint==1.1.3 \
-    --hash=sha256:c48ca9a84c312b262809f041fe47dcfaedc9ee4879b3e1f9532f745c182b4037
+restructuredtext-lint==1.2.1 \
+    --hash=sha256:8712f9066d2c748002ec24f6f7ddca13e0c37654ae4f1ba0dcf0e78ba453c387
 six==1.11.0 \
     --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9 \
     --hash=sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb
@@ -62,6 +62,6 @@ toml==0.10.0 \
     --hash=sha256:f1db651f9657708513243e61e6cc67d101a39bad662eaa9b5546f789338e07a3
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==40.4.3 \
-    --hash=sha256:acbc5740dd63f243f46c2b4b8e2c7fd92259c2ddb55a4115b16418a2ed371b15 \
-    --hash=sha256:ce4137d58b444bac11a31d4e0c1805c69d89e8ed4e91fde1999674ecc2f6f9ff
+setuptools==40.6.2 \
+    --hash=sha256:86bb4d8e1b0fabad1f4642b64c335b673e53e7a381de03c9a89fe678152c4c64 \
+    --hash=sha256:88ee6bcd5decec9bd902252e02e641851d785c6e5e75677d2744a9d13fed0b0a
