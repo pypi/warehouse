@@ -59,10 +59,3 @@ matrix:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-notifications:
-  irc:
-    channels:
-      - "irc.freenode.org#pypa-dev"
-    use_notice: true
-    skip_join: true
