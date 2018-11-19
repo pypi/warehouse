@@ -29,7 +29,7 @@ paginate_sqlalchemy
 passlib>=1.6.4
 premailer
 psycopg2cffi
-pyblake
+pyblake2
 pycurl
 pyramid>=1.9,<1.11.0
 pyramid_jinja2>=2.5
