@@ -115,6 +115,8 @@ services:
   smtp:
     build:
       context: .
+      args:
+        DEVEL: "yes"
     command: python /opt/warehouse/dev/smtp.py 0.0.0.0:2525
     ports:
       - "2525:2525"
@@ -124,6 +126,8 @@ services:
   notdatadog:
     build:
       context: .
+      args:
+        DEVEL: "yes"
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
     ports:
       - "8125:8125/udp"
