@@ -1,61 +1,41 @@
 language: python
 python: 3.6.6
 
-env:
-  global:
-    - TRAVIS_NODE_VERSION=8.9.4
-    - PGPORT=5433
-
-dist: trusty
-sudo: true
+sudo: required
 
 addons:
-  hosts:
-    - warehouse.local
-  postgresql: 10
   apt:
     packages:
-    - postgresql-10
-    - postgresql-client-10
-    - nasm
+      - docker-ce
 
 services:
-  - postgresql
+  - docker
 
 cache:
   directories:
     - ~/.cache/pip
     - node_modules/
 
-install:
-  - 'rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION'
-  - pip install -U pip setuptools wheel
-  - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
-  - npm install
-  - sudo cp /etc/postgresql/{9.6,10}/main/pg_hba.conf
-  - sudo service postgresql restart
-
 script:
-  - node -v
-  - npm -v
-  - bin/tests --postgresql-host 127.0.0.1
+  - make build
+  - make tests
 
 matrix:
   include:
     - env:
       - SUITE=Tests
-    - script: make lint BINDIR="$(dirname $(which python))"
-      env:
+    - env:
         - SUITE=Lint
-    - script: make docs BINDIR="$(dirname $(which python))"
-      env:
+      script: make lint
+    - env:
         - SUITE=Documentation
-    - script: make travis-deps BINDIR="$(dirname $(which python))"
-      env:
+      script: make docs
+    - env:
         - SUITE=Dependencies
-    - script: make licenses BINDIR="$(dirname $(which python))"
-      env:
+      script: make travis-deps
+    - env:
         - SUITE=Licenses
+      script: make licenses
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
