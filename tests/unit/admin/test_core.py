@@ -13,10 +13,11 @@
 import pretend
 
 from warehouse.accounts import views as accounts_views
-from warehouse.admin import includeme
+from warehouse import admin
 
 
-def test_includeme():
+def test_includeme(mock_manifest_cache_buster, monkeypatch):
+    monkeypatch.setattr(admin, "ManifestCacheBuster", mock_manifest_cache_buster)
     config = pretend.stub(
         get_settings=lambda: {},
         registry=pretend.stub(settings={"pyramid.reload_assets": False}),
@@ -29,7 +30,7 @@ def test_includeme():
         add_view=pretend.call_recorder(lambda *a, **kw: None),
     )
 
-    includeme(config)
+    admin.includeme(config)
 
     assert config.whitenoise_add_files.calls == [
         pretend.call("warehouse.admin:static/dist/", prefix="/admin/static/")
