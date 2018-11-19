@@ -54,7 +54,7 @@ default:
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
 	# Create our Python 3.6 virtual environment
 	rm -rf .state/env
-	python3.6 -m venv .state/env
+	virtualenv -ppython3.6 .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
