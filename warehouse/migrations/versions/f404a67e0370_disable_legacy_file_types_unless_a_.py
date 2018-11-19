@@ -26,7 +26,7 @@ down_revision = "b8fda0d7fbb5"
 
 def upgrade():
     op.execute(
-        """ UPDATE packages
+        r""" UPDATE packages
             SET allow_legacy_files = 'f'
             WHERE name NOT IN (
                 SELECT DISTINCT ON (packages.name) packages.name
