@@ -76,6 +76,11 @@
 
   &__sole-owner-badge {
     margin-left: 4px;
+    font-size: 11px;
+    background-color: $highlight-color;
+    color: $text-color;
+    position: relative;
+    top: -2px;
   }
 
   &__buttons {
