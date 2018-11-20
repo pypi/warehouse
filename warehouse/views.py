@@ -354,7 +354,10 @@ def search(request):
 
     if hasattr(page, "items"):
         for item in page.items:
-            item.created = datetime.strptime(item.created, "%Y-%m-%dT%H:%M:%S.%f")
+            try:
+                item.created = datetime.strptime(item.created, "%Y-%m-%dT%H:%M:%S.%f")
+            except ValueError:
+                item.created = datetime.strptime(item.created, "%Y-%m-%dT%H:%M:%S")
 
     return {
         "page": page,
