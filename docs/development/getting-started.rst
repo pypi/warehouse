@@ -501,7 +501,19 @@ To run all tests, in the root of the repository:
     make tests
 
 This will run the tests with the supported interpreter as well as all of the
-additional testing that we require.
+additional testing that we require, including Javascript tests for the frontend.
+
+If you want to run only the tests for the Python codebase, use the following:
+
+.. code-block:: console
+
+    make web_tests
+
+Conversely, to run only the Javascript tests use:
+
+.. code-block:: console
+
+    make static_tests
 
 If you want to run a specific test, you can use the ``T`` variable:
 
