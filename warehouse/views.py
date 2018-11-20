@@ -12,6 +12,7 @@
 
 import collections
 import re
+from datetime import datetime
 
 import elasticsearch
 
@@ -350,6 +351,10 @@ def search(request):
 
     metrics = request.find_service(IMetricsService, context=None)
     metrics.histogram("warehouse.views.search.results", page.item_count)
+
+    if hasattr(page, "items"):
+        for item in page.items:
+            item.created = datetime.strptime(item.created, "%Y-%m-%dT%H:%M:%S.%f")
 
     return {
         "page": page,
