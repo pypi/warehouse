@@ -37,20 +37,10 @@
   background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
   background-position: 20px;
 
-  // Mobile specific visibility
   @media screen and (max-width: $mobile) {
-    .hide-on-mobile {
-      display: none;
-    }
-
-    .break-on-mobile {
-      word-break: break-all;
-    }
-
-    &__released {
-      float: none;
-      display: block;
-    }
+    margin: 5px 0 ($spacing-unit / 2);
+    padding: 10px;
+    background-image: none;
   }
 
   &__title {
@@ -73,18 +63,14 @@
   }
 
   &__version {
+    color: $text-color;
     font-weight: $bold-font-weight;
-  }
-
-  &__released {
-    font-size: 1rem;
-    font-weight: $base-font-weight;
-    float: right;
   }
 
   &__description {
     @include add-ellipsis;
     clear: both;
+    color: $text-color;
     font-size: 1rem;
   }
 
