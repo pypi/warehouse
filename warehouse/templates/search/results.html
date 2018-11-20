@@ -13,6 +13,8 @@
 -#}
 {% extends "base.html" %}
 
+{% import "warehouse:templates/includes/pagination.html" as pagination %}
+
 {% block title %}Search results{% endblock %}
 
 {% macro project_snippet(item) -%}
@@ -44,50 +46,28 @@
 {%- endmacro %}
 
 
-{% macro pagination(page) -%}
-{% if page.items and page.page_count > 1 %}
-  {% set map = page.link_map() %}
-  <div class="button-group button-group--pagination">
-    {# previous button #}
-    {% if map.current_page.value == map.first_page.number %}
-    <a class="button button-group__button button--disabled">Previous</a>
-    {% else %}
-    <a href="{{ map.previous_page.href }}" class="button button-group__button">Previous</a>
-    {% endif %}
-
-    {# show first page button - special case #}
-    {% if map.current_page.value > map.first_page.number + map.radius %}
-    <a href="{{ map.first_page.href }}" class="button button-group__button">{{ map.first_page.number }}</a>
-    {% endif %}
-
-    {% for p in map.range_pages %}
-      {% if p.type == 'current_page' %}
-      <span class="button button-group__button button--primary">{{ p.number }}</span>
-      {% elif p.type == 'page' %}
-      <a href="{{ p.href }}" class="button button-group__button">{{ p.number }}</a>
-      {% elif p.type == 'span' %}
-      <span class="button button-group__button">...</span>
-      {% endif %}
-    {% endfor %}
-
-    {# show last page button - special case #}
-    {% if map.current_page.value < map.last_page.number - map.radius %}
-    <a href="{{ map.last_page.href }}" class="button button-group__button">{{ map.last_page.number }}</a>
-    {% endif %}
-
-    {# "next" button #}
-    {% if map.current_page.value == map.last_page.number %}
-    <a class="button button-group__button button--disabled">Next</a>
-    {% else %}
-    <a href="{{ map.next_page.href }}" class="button button-group__button">Next</a>
-    {% endif %}
-  </div>
-{% endif %}
+{% macro generate_classifier_tree(top_level, classifiers, applied_filters, parent=None) -%}
+  {% set level_id = top_level %}
+  {%- for classifier in classifiers %}
+  {% set children = classifiers[classifier] %}
+  {% if parent is not none %}
+    {% set level_id = level_id +' :: '+ parent %}
+  {% endif %}
+  {% set id = level_id + ' :: ' + classifier %}
+  <li>
+    <input name="c" type="checkbox" id="{{ id }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ id }}" {{ 'checked' if id in applied_filters else '' }}>
+    <label class="checkbox-tree__label" for="{{ id }}">{{ classifier }}</label>
+    {%- if children %}
+    <ul>{{ generate_classifier_tree(level_id, children, applied_filters, parent=classifier) }}</ul>
+    {%- endif %}
+  </li>
+  {%- endfor %}
 {%- endmacro %}
+
 
 {% block search_form_extra_inputs -%}
   {%- for classifier in applied_filters %}
-    <input name="c" type="hidden" value="{{ classifier|e }}">
+  <input name="c" type="hidden" value="{{ classifier|e }}">
   {%- endfor -%}
 {%- endblock %}
 
@@ -116,22 +96,19 @@
         <input type="hidden" name="o" value="{{ order }}">
 
         {% set applied_filters_str = applied_filters|join(' ') %}
-        {% for top_level, classifiers in available_filters %}
+        {% for each_filter in available_filters %}
+        {% for top_level, classifiers in each_filter.items() recursive %}
           <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
             <button type="button" class="accordion__link -js-accordion-trigger">{{ top_level }}</button>
             <div class="accordion__content">
               <div class="checkbox-tree">
-              {% for classifier in classifiers %}
-                <div class="checkbox-tree__item">
-                  {% set sub_levels = classifier.split(' :: ') %}
-                  {{ ("&nbsp;&nbsp;&nbsp;&nbsp;"*(sub_levels|length))|safe }}
-                  <input name="c" type="checkbox" id="{{ classifier }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ classifier }}" {{ 'checked' if classifier in applied_filters else '' }}>
-                  <label class="checkbox-tree__label" for="{{ classifier }}">{{ sub_levels[-1] }}</label>
-                </div>
-              {% endfor %}
+                <ul>
+                 {{ generate_classifier_tree(top_level, classifiers, applied_filters, parent=None) }}
+                </ul>
               </div>
             </div>
           </div>
+        {% endfor %}
         {% endfor %}
         </form>
       </aside>
@@ -169,7 +146,7 @@
             <p>
               <strong>{{ page.item_count|format_number }}{%if page.item_count == 10000 %}+{% endif %}</strong>
                 projects
-                {% if term %}for "<em>{{ term }}</em>"{% endif %}
+                {% if term %}for "{{ term }}"{% endif %}
                 {% if applied_filters %} with the selected classifier{% if applied_filters|length > 1 %}s{% endif %}{% endif %}
 
                 {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
@@ -224,12 +201,12 @@
           <div class="callout-block">
             <p>
               {% if term %}
-                There were no results for '<em>{{ term }}</em>'
+                There were no results for '{{ term }}'
               {% elif applied_filters %}
                 {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
-                  There were no results for '<em>{{ filters }}</em>' filter
+                  There were no results for '{{ filters }}' filter
                 {% pluralize %}
-                  There were no results for '<em>{{ filters }}</em>' filters
+                  There were no results for '{{ filters }}' filters
                 {% endtrans %}
               {% endif %}
               {% if page.collection.best_guess %}
@@ -238,7 +215,7 @@
             </p>
           </div>
           {% endif %}
-          {{ pagination(page) }}
+          {{ pagination.paginate(page) }}
         </section>
         {% endif %}
       </form>

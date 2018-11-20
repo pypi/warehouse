@@ -57,7 +57,7 @@ def test_project_docs(db_session):
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
             },
         }
-        for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].id)
     ]
 
 

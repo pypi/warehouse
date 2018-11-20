@@ -107,10 +107,6 @@
     margin-left: 4px;
   }
 
-  &__version-date {
-    font-style: italic;
-  }
-
   &--current {
     background-color: darken($background-color, 1);
     border: 1px dotted #ccc;
