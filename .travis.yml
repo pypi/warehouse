@@ -56,6 +56,3 @@ matrix:
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
