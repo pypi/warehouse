@@ -10,5 +10,5 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 
 # Actually run our tests.
 python -m coverage run -m pytest --strict $@
-python -m coverage report -m
 python -m coverage html
+python -m coverage report -m --fail-under 100
