@@ -40,6 +40,10 @@ script:
   - npm -v
   - bin/tests --postgresql-host 127.0.0.1
 
+branches:
+  except:
+    - /^dependabot\//
+
 matrix:
   include:
     - env:
