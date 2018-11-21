@@ -502,36 +502,6 @@ class TestSearch:
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
-    @pytest.mark.parametrize(
-        "created,expected",
-        [
-            (
-                "2018-11-21T12:42:47.490593",
-                datetime.datetime(2018, 11, 21, 12, 42, 47, 490593),
-            ),
-            ("2018-11-21T12:42:47", datetime.datetime(2018, 11, 21, 12, 42, 47)),
-        ],
-    )
-    def test_item_created_casting(self, db_request, created, expected, monkeypatch):
-        es_query = pretend.stub()
-        db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
-        db_request.params = MultiDict()
-
-        page_obj = pretend.stub(
-            page_count=1, item_count=1, items=[pretend.stub(created=created)]
-        )
-        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
-
-        assert search(db_request) == {
-            "page": page_obj,
-            "term": "",
-            "order": "",
-            "applied_filters": [],
-            "available_filters": [],
-        }
-        assert page_obj.items[0].created == expected
-
     def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request, metrics):
         params = MultiDict({"page": 15})
         db_request.params = params
