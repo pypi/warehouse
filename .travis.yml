@@ -40,6 +40,10 @@ script:
   - npm -v
   - bin/tests --postgresql-host 127.0.0.1
 
+branches:
+  except:
+    - /^dependabot\//
+
 matrix:
   include:
     - env:
@@ -56,6 +60,3 @@ matrix:
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)

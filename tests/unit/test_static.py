@@ -102,6 +102,46 @@ class TestCreateWhitenoise:
             pretend.call("/manifest.json", "/static/")
         ]
 
+    def test_whitenoise_serve_static(self):
+        config = pretend.stub(
+            action=pretend.call_recorder(lambda t, f: f()),
+            registry=pretend.stub(settings={}),
+        )
+        kwargs = {"foo": "bar"}
+
+        static.whitenoise_serve_static(config, **kwargs)
+
+        assert config.registry.settings["whitenoise"] == kwargs
+        assert len(config.action.calls) == 1
+
+    def test_whitenoise_add_files(self):
+        config = pretend.stub(
+            action=pretend.call_recorder(lambda t, f: f()),
+            registry=pretend.stub(settings={}),
+        )
+        path = pretend.stub()
+        prefix = pretend.stub()
+
+        static.whitenoise_add_files(config, path, prefix)
+
+        assert config.registry.settings["whitenoise.files"] == [
+            (path, {"prefix": prefix})
+        ]
+        assert len(config.action.calls) == 1
+
+    def test_whitenoise_add_manifest(self):
+        config = pretend.stub(
+            action=pretend.call_recorder(lambda t, f: f()),
+            registry=pretend.stub(settings={}),
+        )
+        manifest = pretend.stub()
+        prefix = pretend.stub()
+
+        static.whitenoise_add_manifest(config, manifest, prefix)
+
+        assert config.registry.settings["whitenoise.manifests"] == [(manifest, prefix)]
+        assert len(config.action.calls) == 1
+
 
 def test_includeme():
     config = pretend.stub(
