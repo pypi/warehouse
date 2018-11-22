@@ -71,9 +71,9 @@ bleach==3.0.2 \
 boto3==1.9.49 \
     --hash=sha256:5675516a3d818df222c5964645ebc649536fbdd2f5090b27fc7b3dddff3d3e3a \
     --hash=sha256:8796418580007d328ebf93d3688c915f8b8217b81dea675ba3e0c421ea78d854
-botocore==1.12.49 \
-    --hash=sha256:98c8268a00e4aedebf5ea2db1ad912e352354bfc008d7eb29522c746ada74987 \
-    --hash=sha256:b9cdee093ce362076eea5e1a463b7aa64ef12b7a95d4266eff1ace9377ba6737
+botocore==1.12.50 \
+    --hash=sha256:07fae5a2b8cfb5a92c1dbee3f2feb4da7c471bcead7e18ce735babe5f39e270f \
+    --hash=sha256:eeaa190f50ee05a56225ee78c64cb8bf0c3bf090ec605ca6c2f325aa3826a347
 cachetools==3.0.0 \
     --hash=sha256:0a258d82933a1dd18cb540aca4ac5d5690731e24d1239a08577b814998f49785 \
     --hash=sha256:4621965b0d9d4c82a79a29edbad19946f5e7702df4afae7d1ed2df951559a8cc
@@ -181,7 +181,7 @@ docutils==0.14 \
     --hash=sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6 \
     --hash=sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274 \
     --hash=sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6
-elasticsearch_dsl==6.3.0 \
+elasticsearch-dsl==6.3.0 \
     --hash=sha256:0e8a48a438cc627cf743439c7595d7939035a6608ef1d84edc71e94dde42f823 \
     --hash=sha256:ab39e7aa9654e0ba65db6ac7586a635ddd2b216477474ba561ba86a2995c3eeb
 elasticsearch==6.3.1 \
