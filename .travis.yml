@@ -29,7 +29,6 @@ matrix:
     - env:
       - SUITE=Tests
     - name: Linter checks
-        - SUITE=Lint
       script: make lint
     - env:
         - SUITE=Documentation
