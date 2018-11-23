@@ -2,13 +2,13 @@
 
 -- Set all of the email addresses to a random value so we don't leak people's
 -- email addresses.
-UPDATE accounts_email
+UPDATE user_emails
     SET email = encode(gen_random_bytes(16), 'hex') || '@example.com';
 
 
 -- Set all of our passwords to use the password 'password', hashed with bcrypt,
 -- as well as setting the last_login and date_joined to today.
-UPDATE accounts_user
+UPDATE users
     SET password = 'bcrypt$$2a$16$xq9g/NAFoiOtFkGpk/kgjOiPDPs1/pMG0GHeDHWHSOd9IY7Fah.yC',
         last_login = now(),
         date_joined = now();

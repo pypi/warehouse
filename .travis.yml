@@ -24,21 +24,18 @@ script:
   - make build
   - make tests
 
+branches:
+  except:
+    - /^dependabot\//
+
 matrix:
   include:
-    - env:
-      - SUITE=Tests
-    - name: Linter checks
+    - name: Tests
+    - name: Lint
       script: make lint
-    - env:
-        - SUITE=Documentation
+    - name: Documentation
       script: make docs
-    - env:
-        - SUITE=Dependencies
+    - name: Dependencies
       script: make travis-deps
-    - env:
-        - SUITE=Licenses
+    - name: Licenses
       script: make licenses
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)

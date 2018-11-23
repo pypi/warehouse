@@ -29,7 +29,7 @@
   {% set icon = "fab fa-google" %}
 {% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
   {% set icon = "fab fa-bitbucket" %}
-{% elif parsed.netloc in ["readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org"] or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")) %}
+{% elif parsed.netloc in ["readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org"] or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")) or parsed.netloc.startswith(("docs.", "documentation.")) %}
   {% set icon = "fas fa-book" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
   {% set icon = "fab fa-reddit-alien" %}
