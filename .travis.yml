@@ -28,7 +28,7 @@ matrix:
   include:
     - env:
       - SUITE=Tests
-    - env:
+    - name: Linter checks
         - SUITE=Lint
       script: make lint
     - env:
