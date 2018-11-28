@@ -22,9 +22,9 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
     IPasswordBreachedService,
+    ITokenService,
+    IUserService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,

@@ -15,41 +15,40 @@ import re
 
 import elasticsearch
 
+from elasticsearch_dsl import Q
+from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPException,
-    HTTPSeeOther,
     HTTPMovedPermanently,
     HTTPNotFound,
-    HTTPBadRequest,
+    HTTPSeeOther,
     HTTPServiceUnavailable,
     exception_response,
 )
-from pyramid.exceptions import PredicateMismatch
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.view import (
-    notfound_view_config,
-    forbidden_view_config,
     exception_view_config,
+    forbidden_view_config,
+    notfound_view_config,
     view_config,
 )
-from elasticsearch_dsl import Q
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
 
-from warehouse.db import DatabaseNotAvailable
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
-from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import add_vary, cache_control
+from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
+from warehouse.db import DatabaseNotAvailable
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.models import Project, Release, File, release_classifiers
+from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
-from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
-
+from warehouse.utils.row_counter import RowCount
 
 # 403, 404, 410, 500,
 
@@ -166,10 +165,10 @@ def opensearchxml(request):
     ],
 )
 def index(request):
-    project_names = [
+    project_ids = [
         r[0]
         for r in (
-            request.db.query(Project.name)
+            request.db.query(Project.id)
             .order_by(Project.zscore.desc().nullslast(), func.random())
             .limit(5)
             .all()
@@ -178,10 +177,10 @@ def index(request):
     release_a = aliased(
         Release,
         request.db.query(Release)
-        .distinct(Release.name)
-        .filter(Release.name.in_(project_names))
+        .distinct(Release.project_id)
+        .filter(Release.project_id.in_(project_ids))
         .order_by(
-            Release.name,
+            Release.project_id,
             Release.is_prerelease.nullslast(),
             Release._pypi_ordering.desc(),
         )
@@ -190,7 +189,7 @@ def index(request):
     trending_projects = (
         request.db.query(release_a)
         .options(joinedload(release_a.project))
-        .order_by(func.array_idx(project_names, release_a.name))
+        .order_by(func.array_idx(project_ids, release_a.project_id))
         .all()
     )
 
@@ -276,7 +275,7 @@ def search(request):
 
     # Require match to all specified classifiers
     for classifier in request.params.getall("c"):
-        query = query.filter("terms", classifiers=[classifier])
+        query = query.query("prefix", classifiers=classifier)
 
     try:
         page_num = int(request.params.get("page", 1))
@@ -318,6 +317,36 @@ def search(request):
         except ValueError:
             return 1, 0, item[0]
 
+    def form_filters_tree(split_list):
+        """
+        Takes a list of lists, each of them containing a filter and
+        one of its children.
+        Returns a dictionary, each key being a filter and each value being
+        the filter's children.
+        """
+        d = {}
+        for l in split_list:
+            current_level = d
+            for part in l:
+                if part not in current_level:
+                    current_level[part] = {}
+                current_level = current_level[part]
+        return d
+
+    def process_available_filters():
+        """
+        Processes available filters and returns a list of dictionaries.
+        The value of a key in the dictionary represents its children
+        """
+        sorted_filters = sorted(available_filters.items(), key=filter_key)
+        output = []
+        for f in sorted_filters:
+            classifier_list = f[1]
+            split_list = [i.split(" :: ") for i in classifier_list]
+            tree = form_filters_tree(split_list)
+            output.append(tree)
+        return output
+
     metrics = request.find_service(IMetricsService, context=None)
     metrics.histogram("warehouse.views.search.results", page.item_count)
 
@@ -325,7 +354,7 @@ def search(request):
         "page": page,
         "term": q,
         "order": request.params.get("o", ""),
-        "available_filters": sorted(available_filters.items(), key=filter_key),
+        "available_filters": process_available_filters(),
         "applied_filters": request.params.getall("c"),
     }
 
@@ -360,8 +389,10 @@ def search(request):
 def stats(request):
     total_size_query = request.db.query(func.sum(File.size)).all()
     top_100_packages = (
-        request.db.query(File.name, func.sum(File.size))
-        .group_by(File.name)
+        request.db.query(Project.name, func.sum(File.size))
+        .join(Release)
+        .join(File)
+        .group_by(Project.name)
         .order_by(func.sum(File.size).desc())
         .limit(100)
         .all()

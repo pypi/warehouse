@@ -14,11 +14,13 @@ import pretend
 import pytest
 
 from pyramid.response import Response
-from webob.acceptparse import AcceptEncodingValidHeader, AcceptEncodingNoHeader
+from webob.acceptparse import AcceptEncodingNoHeader, AcceptEncodingValidHeader
 from webob.response import gzip_app_iter
 
-from warehouse.utils.compression import _compressor as compressor
-from warehouse.utils.compression import compression_tween_factory
+from warehouse.utils.compression import (
+    _compressor as compressor,
+    compression_tween_factory,
+)
 
 
 class TestCompressor:

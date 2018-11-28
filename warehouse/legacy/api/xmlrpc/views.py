@@ -37,11 +37,11 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
-    Role,
-    Project,
-    Release,
     File,
     JournalEntry,
+    Project,
+    Release,
+    Role,
     release_classifiers,
 )
 from warehouse.search.queries import SEARCH_BOOSTS
@@ -230,7 +230,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
 
 @xmlrpc_cache_all_projects(method="list_packages")
 def list_packages(request):
-    names = request.db.query(Project.name).order_by(Project.name).all()
+    names = request.db.query(Project.name).all()
     return [n[0] for n in names]
 
 
@@ -491,15 +491,12 @@ def browse(request, classifiers: List[str]):
     )
 
     releases = (
-        request.db.query(Release.name, Release.version)
-        .join(
-            release_classifiers_q,
-            (Release.name == release_classifiers_q.c.name)
-            & (Release.version == release_classifiers_q.c.version),
-        )
-        .group_by(Release.name, Release.version)
+        request.db.query(Project.name, Release.version)
+        .join(Release)
+        .join(release_classifiers_q, Release.id == release_classifiers_q.c.release_id)
+        .group_by(Project.name, Release.version)
         .having(func.count() == len(classifiers))
-        .order_by(Release.name, Release.version)
+        .order_by(Project.name, Release.version)
         .all()
     )
 

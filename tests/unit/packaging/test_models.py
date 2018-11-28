@@ -18,12 +18,12 @@ import pytest
 from pyramid.location import lineage
 from pyramid.security import Allow
 
-from warehouse.packaging.models import ProjectFactory, Dependency, DependencyKind, File
+from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
 
 from ...common.db.packaging import (
+    FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
-    FileFactory as DBFileFactory,
     RoleFactory as DBRoleFactory,
 )
 
@@ -260,8 +260,7 @@ class TestRelease:
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=release.project.name,
-                    version=release.version,
+                    release=release,
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )

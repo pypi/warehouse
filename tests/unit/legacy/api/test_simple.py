@@ -18,10 +18,10 @@ from warehouse.legacy.api import simple
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    ProjectFactory,
-    ReleaseFactory,
     FileFactory,
     JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
 )
 
 

@@ -13,7 +13,13 @@
 -#}
 
 {% macro humanize(timestamp) -%}
-<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">
+<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="true">
+  {{ timestamp|format_date()}}
+</time>
+{%- endmacro %}
+
+{% macro localize(timestamp) -%}
+<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time">
   {{ timestamp|format_date()}}
 </time>
 {%- endmacro %}
@@ -248,9 +254,7 @@
           <li>
             <h2>About PyPI</h2>
           </li>
-          {% if request.registry.settings.get("statuspage.url") %}
-          <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a></li>
-          {% endif %}
+          <li><a href="https://twitter.com/PyPI">PyPI on Twitter</a></li>
           <li><a href="https://dtdg.co/pypi">Infrastructure dashboard</a></li>
           <li><a href="https://www.python.org/dev/peps/pep-0541/">Package index name retention</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
@@ -279,6 +283,9 @@
       <hr class="footer__divider">
 
       <div class="footer__text">
+        {% if request.registry.settings.get("statuspage.url") %}
+        <p>Status: <a href="https://status.python.org/"><span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a></p>
+        {% endif %}
         <p>
           Developed and maintained by the Python community, for the Python community.
           <br>

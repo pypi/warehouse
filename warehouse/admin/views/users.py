@@ -16,13 +16,13 @@ import wtforms
 import wtforms.fields.html5
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPSeeOther, HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import Email, User
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -108,7 +108,7 @@ def user_detail(request):
         request.db.query(Role)
         .join(User)
         .filter(Role.user == user)
-        .order_by(Role.role_name, Role.package_name)
+        .order_by(Role.role_name, Role.project_id)
         .all()
     )
 

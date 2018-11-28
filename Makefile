@@ -102,11 +102,13 @@ tests:
 
 
 reformat: .state/env/pyvenv.cfg
+	$(BINDIR)/isort -rc warehouse/ tests/
 	$(BINDIR)/black warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
 	$(BINDIR)/black --check warehouse/ tests/
+	$(BINDIR)/isort -rc -c warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.

@@ -11,8 +11,10 @@
 # limitations under the License.
 
 import os
-import warehouse
+
 from jinja2 import Environment, FileSystemLoader
+
+import warehouse
 
 
 def test_templates_for_empty_titles():

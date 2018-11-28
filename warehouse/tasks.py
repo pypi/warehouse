@@ -13,15 +13,8 @@
 import functools
 import urllib.parse
 
-import celery.app.backends
-
-# We need to trick Celery into supporting rediss:// URLs which is how redis-py
-# signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES[
-    "rediss"
-] = "warehouse.tasks:TLSRedisBackend"  # noqa
-
 import celery
+import celery.app.backends
 import celery.backends.redis
 import pyramid.scripting
 import pyramid_retry
@@ -31,6 +24,12 @@ import venusian
 from pyramid.threadlocal import get_current_request
 
 from warehouse.config import Environment
+
+# We need to trick Celery into supporting rediss:// URLs which is how redis-py
+# signals that you should use Redis with TLS.
+celery.app.backends.BACKEND_ALIASES[
+    "rediss"
+] = "warehouse.tasks:TLSRedisBackend"  # noqa
 
 
 # We need to register that the sqs:// url scheme uses a netloc

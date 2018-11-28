@@ -25,6 +25,8 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    environment:
+      - xpack.security.enabled=false
 
   camo:
     image: pypa/warehouse-camo:latest

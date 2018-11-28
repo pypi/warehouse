@@ -15,9 +15,9 @@ import datetime
 import factory
 import factory.fuzzy
 
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import Email, User
 
-from .base import WarehouseFactory, FuzzyEmail
+from .base import FuzzyEmail, WarehouseFactory
 
 
 class UserFactory(WarehouseFactory):

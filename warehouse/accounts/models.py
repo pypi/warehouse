@@ -14,21 +14,23 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Column,
+    DateTime,
     Enum,
     ForeignKey,
     Index,
-    UniqueConstraint,
-    Boolean,
-    DateTime,
     Integer,
     String,
+    UniqueConstraint,
+    orm,
+    select,
+    sql,
 )
-from sqlalchemy import orm, select, sql
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
 from warehouse.sitemap.models import SitemapMixin
@@ -53,12 +55,12 @@ class DisableReason(enum.Enum):
 
 class User(SitemapMixin, db.Model):
 
-    __tablename__ = "accounts_user"
+    __tablename__ = "users"
     __table_args__ = (
-        CheckConstraint("length(username) <= 50", name="packages_valid_name"),
+        CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
         CheckConstraint(
             "username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
-            name="accounts_user_valid_username",
+            name="users_valid_username",
         ),
     )
 
@@ -110,16 +112,16 @@ class UnverifyReasons(enum.Enum):
 
 class Email(db.ModelBase):
 
-    __tablename__ = "accounts_email"
+    __tablename__ = "user_emails"
     __table_args__ = (
-        UniqueConstraint("email", name="accounts_email_email_key"),
-        Index("accounts_email_user_id", "user_id"),
+        UniqueConstraint("email", name="user_emails_email_key"),
+        Index("user_emails_user_id", "user_id"),
     )
 
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
     email = Column(String(length=254), nullable=False)

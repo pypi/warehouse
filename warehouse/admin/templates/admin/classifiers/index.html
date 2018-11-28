@@ -31,7 +31,7 @@
     <div class="box-body">
       <div class="form-group col-sm-4">
         <label for="parent">Classifier:</label>
-        <input name="parent" data-action="input->parent-classifier#update" data-target="parent-classifier.input" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off">
+        <input name="parent" id="parent" data-action="input->parent-classifier#update" data-target="parent-classifier.input" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off">
       </div>
     </div>
     <div class="box-footer">
@@ -53,7 +53,7 @@
     <div class="box-body">
       <div class="form-group col-sm-4">
         <label for="parent_id">Parent:</label>
-        <select name="parent_id" data-target="child-classifier.parent" data-action="child-classifier#update">
+        <select name="parent_id" id="parent_id" data-target="child-classifier.parent" data-action="child-classifier#update">
           <option disabled selected>Select one</option>
           {% for classifier in classifiers %}
           {% if classifier.l5 == 0 %}
@@ -86,8 +86,8 @@
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="box-body">
       <div class="form-group col-sm-4">
-        <label for="parent_id">Classifier:</label>
-        <select name="classifier_id">
+        <label for="classifier_id">Classifier:</label>
+        <select name="classifier_id" id="classifier_id">
           <option disabled selected>Select one</option>
           {% for classifier in classifiers %}
           <option value="{{ classifier.id }}" {{'disabled' if classifier.deprecated else ''}}>

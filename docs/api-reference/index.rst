@@ -65,5 +65,6 @@ Available APIs
     feeds
     json
     legacy
+    stats
     xml-rpc
     integration-guide

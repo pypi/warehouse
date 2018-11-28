@@ -17,7 +17,7 @@ from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
-from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
