@@ -17,8 +17,9 @@ Revises: 312040efcfe
 Create Date: 2015-07-20 19:50:55.153532
 """
 
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "5ff0c99c94"

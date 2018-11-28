@@ -11,20 +11,21 @@
 # limitations under the License.
 
 import celery
-import redis
 import pretend
 import pytest
+import redis
 
 from pyramid.exceptions import ConfigurationError
 
 import warehouse.legacy.api.xmlrpc.cache
-from warehouse.legacy.api.xmlrpc.cache import services
+
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import (
-    cached_return_view,
     NullXMLRPCCache,
     RedisLru,
     RedisXMLRPCCache,
+    cached_return_view,
+    services,
 )
 from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError, IXMLRPCCache
 

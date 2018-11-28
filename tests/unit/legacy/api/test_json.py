@@ -21,10 +21,10 @@ from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    ProjectFactory,
-    ReleaseFactory,
     FileFactory,
     JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
 )
 
 

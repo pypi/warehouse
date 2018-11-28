@@ -11,7 +11,6 @@
 # limitations under the License.
 
 from ssl import VerifyMode
-
 from unittest import mock
 
 import pretend

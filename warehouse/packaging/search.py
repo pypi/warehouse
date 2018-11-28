@@ -12,10 +12,9 @@
 
 import packaging.version
 
-from elasticsearch_dsl import Document, Text, Keyword, analyzer, Date
+from elasticsearch_dsl import Date, Document, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
-
 
 EmailAnalyzer = analyzer(
     "email",

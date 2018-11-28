@@ -16,11 +16,11 @@ from pyramid import events, viewderivers
 from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import (
-    includeme,
-    NullMetrics,
     DataDogMetrics,
     IMetricsService,
+    NullMetrics,
     event_handlers,
+    includeme,
     views,
 )
 

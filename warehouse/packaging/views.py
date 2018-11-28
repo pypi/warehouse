@@ -14,10 +14,10 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.utils import readme
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release, Role
+from warehouse.utils import readme
 
 
 @view_config(

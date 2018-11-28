@@ -13,7 +13,6 @@
 import collections.abc
 import functools
 
-
 BUFFER_MAX = 1 * 1024 * 1024  # We'll buffer up to 1MB
 
 

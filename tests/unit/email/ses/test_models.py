@@ -15,9 +15,9 @@ import pytest
 from warehouse.accounts.models import UnverifyReasons
 from warehouse.email.ses.models import (
     MAX_TRANSIENT_BOUNCES,
+    EmailMessage,
     EmailStatus,
     EmailStatuses,
-    EmailMessage,
 )
 
 from ....common.db.accounts import EmailFactory

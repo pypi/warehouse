@@ -23,9 +23,9 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
     IPasswordBreachedService,
+    ITokenService,
+    IUserService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -35,7 +35,7 @@ from warehouse.accounts.models import DisableReason
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
-from ...common.db.accounts import UserFactory, EmailFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 
 
 class TestDatabaseUserService:

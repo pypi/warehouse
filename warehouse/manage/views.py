@@ -19,8 +19,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email,
@@ -33,8 +33,8 @@ from warehouse.email import (
 from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
-    CreateRoleForm,
     ChangeRoleForm,
+    CreateRoleForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role

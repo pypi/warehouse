@@ -14,21 +14,23 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Column,
+    DateTime,
     Enum,
     ForeignKey,
     Index,
-    UniqueConstraint,
-    Boolean,
-    DateTime,
     Integer,
     String,
+    UniqueConstraint,
+    orm,
+    select,
+    sql,
 )
-from sqlalchemy import orm, select, sql
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
 from warehouse.sitemap.models import SitemapMixin

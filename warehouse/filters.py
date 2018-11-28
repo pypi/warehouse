@@ -22,7 +22,6 @@ import html5lib
 import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
-
 import packaging.version
 
 from pyramid.threadlocal import get_current_request

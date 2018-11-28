@@ -17,9 +17,9 @@ Revises: 116be7c87e1
 Create Date: 2015-11-07 22:43:21.589230
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "18e4cf2bb3e"
 down_revision = "116be7c87e1"

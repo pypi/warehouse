@@ -12,8 +12,8 @@
 
 import pretend
 
-from warehouse.accounts import views as accounts_views
 from warehouse import admin
+from warehouse.accounts import views as accounts_views
 
 
 def test_includeme(mock_manifest_cache_buster, monkeypatch):

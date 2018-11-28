@@ -20,7 +20,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.security import remember, forget
+from pyramid.security import forget, remember
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -32,20 +32,19 @@ from warehouse.accounts.forms import (
     ResetPasswordForm,
 )
 from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
     IPasswordBreachedService,
+    ITokenService,
+    IUserService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_password_reset_email, send_email_verification_email
+from warehouse.email import send_email_verification_email, send_password_reset_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
-
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 

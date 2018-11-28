@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 
 
 def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):

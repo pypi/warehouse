@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+
 import pretend
 
 from warehouse.packaging.search import Project

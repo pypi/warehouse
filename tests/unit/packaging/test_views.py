@@ -21,9 +21,9 @@ from warehouse.utils import readme
 from ...common.db.accounts import UserFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
+    FileFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
 )
 

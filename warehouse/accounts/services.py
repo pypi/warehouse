@@ -26,9 +26,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
     IPasswordBreachedService,
+    ITokenService,
+    IUserService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -36,9 +36,8 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import Email, User
 from warehouse.metrics import IMetricsService
-from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
+from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
-
 
 logger = logging.getLogger(__name__)
 

@@ -16,7 +16,6 @@ import os.path
 from pyramid.path import AssetResolver
 from whitenoise import WhiteNoise
 
-
 resolver = AssetResolver()
 
 

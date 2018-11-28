@@ -11,9 +11,9 @@
 # limitations under the License.
 
 import disposable_email_domains
+import jinja2
 import wtforms
 import wtforms.fields.html5
-import jinja2
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins

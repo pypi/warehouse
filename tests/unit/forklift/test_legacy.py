@@ -30,28 +30,28 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from warehouse.admin.flags import AdminFlag
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
-    File,
-    Filename,
     Dependency,
     DependencyKind,
-    Release,
-    Project,
-    Role,
+    File,
+    Filename,
     JournalEntry,
+    Project,
+    Release,
+    Role,
 )
-from warehouse.admin.flags import AdminFlag
 
-from ...common.db.accounts import UserFactory, EmailFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
+    FileFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
 )
 

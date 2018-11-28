@@ -12,10 +12,10 @@
 
 import uuid
 
-import pytest
 import pretend
+import pytest
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
 from warehouse.admin.views import emails as views
 

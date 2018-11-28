@@ -23,11 +23,11 @@ from warehouse.packaging.models import BlacklistedProject, Project
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
+    BlacklistedProjectFactory,
+    FileFactory,
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
-    FileFactory,
-    BlacklistedProjectFactory,
 )
 
 
