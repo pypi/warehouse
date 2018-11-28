@@ -15,8 +15,8 @@ import pytest
 from warehouse.accounts.models import User, UserFactory
 
 from ...common.db.accounts import (
-    UserFactory as DBUserFactory,
     EmailFactory as DBEmailFactory,
+    UserFactory as DBUserFactory,
 )
 
 

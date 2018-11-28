@@ -10,8 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer
-from sqlalchemy import orm, sql
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, orm, sql
 
 from warehouse import db
 

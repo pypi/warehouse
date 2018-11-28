@@ -17,10 +17,10 @@ Revises: f7577b6938c1
 Create Date: 2018-02-28 22:40:42.495355
 """
 
-from alembic import op
 import sqlalchemy as sa
-from packaging.utils import canonicalize_version
 
+from alembic import op
+from packaging.utils import canonicalize_version
 
 revision = "1fdf5dc6bbf3"
 down_revision = "f7577b6938c1"

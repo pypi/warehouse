@@ -11,10 +11,10 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import pretend
 import pytest
-import uuid
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 

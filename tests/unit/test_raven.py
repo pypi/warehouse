@@ -10,13 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import pretend
 import pytest
 import raven as real_raven
 
 from pyramid.tweens import EXCVIEW, INGRESS
 from raven.middleware import Sentry as SentryMiddleware
-from unittest import mock
 
 from warehouse import raven
 

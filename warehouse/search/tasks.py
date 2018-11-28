@@ -11,21 +11,22 @@
 # limitations under the License.
 
 import binascii
-import urllib
 import os
+import urllib
+
+import certifi
+import elasticsearch
+import redis
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
 from sqlalchemy import func
 from sqlalchemy.orm import aliased
-import certifi
-import elasticsearch
-import redis
 
+from warehouse import tasks
 from warehouse.packaging.models import Classifier, Project, Release, release_classifiers
 from warehouse.packaging.search import Project as ProjectDocument
 from warehouse.search.utils import get_index
-from warehouse import tasks
 from warehouse.utils.db import windowed_query
 
 

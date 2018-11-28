@@ -14,15 +14,13 @@ import enum
 
 import automat
 
-from sqlalchemy import sql, orm
-from sqlalchemy import Boolean, Column, Enum, ForeignKey, DateTime, Text
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Text, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
-
 
 MAX_TRANSIENT_BOUNCES = 5
 

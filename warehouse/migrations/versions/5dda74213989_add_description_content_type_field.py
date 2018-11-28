@@ -17,9 +17,9 @@ Revises: 2730e54f8717
 Create Date: 2017-09-08 21:15:55.822175
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "5dda74213989"
 down_revision = "2730e54f8717"

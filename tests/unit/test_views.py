@@ -16,31 +16,30 @@ import elasticsearch
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPServiceUnavailable
 from webob.multidict import MultiDict
-
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServiceUnavailable
 
 from warehouse import views
 from warehouse.views import (
     classifiers,
     current_user_indicator,
+    flash_messages,
     forbidden,
+    forbidden_include,
+    force_status,
     health,
     httpexception_view,
     index,
-    robotstxt,
     opensearchxml,
+    robotstxt,
     search,
-    stats,
-    force_status,
-    flash_messages,
-    forbidden_include,
     service_unavailable,
+    stats,
 )
 
 from ..common.db.accounts import UserFactory
 from ..common.db.classifiers import ClassifierFactory
-from ..common.db.packaging import ProjectFactory, ReleaseFactory, FileFactory
+from ..common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 class TestHTTPExceptionView:

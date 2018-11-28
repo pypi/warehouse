@@ -20,7 +20,7 @@ from pyramid.tweens import EXCVIEW
 
 from warehouse import config
 from warehouse.errors import BasicAuthBreachedPassword
-from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
+from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
 class TestRequireHTTPSTween:

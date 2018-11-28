@@ -22,14 +22,14 @@ import redis
 from first import first
 
 import warehouse.search.tasks
+
 from warehouse.search.tasks import (
+    SearchLock,
+    _project_docs,
     reindex,
     reindex_project,
     unindex_project,
-    _project_docs,
-    SearchLock,
 )
-
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 

@@ -17,13 +17,12 @@ import os.path
 import re
 import tempfile
 import zipfile
-from cgi import parse_header
 
-from cgi import FieldStorage
+from cgi import FieldStorage, parse_header
 from itertools import chain
 
-import packaging.specifiers
 import packaging.requirements
+import packaging.specifiers
 import packaging.utils
 import packaging.version
 import pkg_resources
@@ -43,18 +42,17 @@ from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
-    Project,
-    Release,
+    BlacklistedProject,
     Dependency,
     DependencyKind,
-    Role,
     File,
     Filename,
     JournalEntry,
-    BlacklistedProject,
+    Project,
+    Release,
+    Role,
 )
 from warehouse.utils import http
-
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024  # 8K

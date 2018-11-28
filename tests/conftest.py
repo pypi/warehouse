@@ -12,10 +12,10 @@
 
 import os
 import os.path
-from unittest import mock
 import xmlrpc.client
 
 from contextlib import contextmanager
+from unittest import mock
 
 import alembic.command
 import click.testing
@@ -26,13 +26,13 @@ import webtest as _webtest
 
 from pyramid.static import ManifestCacheBuster
 from pytest_postgresql.factories import (
-    init_postgresql_database,
     drop_postgresql_database,
     get_config,
+    init_postgresql_database,
 )
 from sqlalchemy import event
 
-from warehouse import config, admin, static
+from warehouse import admin, config, static
 from warehouse.accounts import services
 from warehouse.metrics import IMetricsService
 

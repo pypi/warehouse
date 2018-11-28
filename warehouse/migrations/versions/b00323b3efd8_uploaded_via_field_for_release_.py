@@ -17,9 +17,9 @@ Revises: f2a453c96ded
 Create Date: 2018-07-25 17:29:01.995083
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "b00323b3efd8"
 down_revision = "f2a453c96ded"

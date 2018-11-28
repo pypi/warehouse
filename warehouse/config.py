@@ -25,7 +25,7 @@ from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.utils.static import ManifestCacheBuster
-from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
+from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
 class Environment(enum.Enum):

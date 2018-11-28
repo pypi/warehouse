@@ -23,8 +23,8 @@ from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import (
     EmailMessage,
-    SMTPEmailSender,
     SESEmailSender,
+    SMTPEmailSender,
     _format_sender,
 )
 from warehouse.email.ses.models import EmailMessage as SESEmailMessage

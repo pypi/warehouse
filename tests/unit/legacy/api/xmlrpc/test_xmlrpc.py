@@ -21,11 +21,11 @@ from warehouse.packaging.models import Classifier
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
+    FileFactory,
+    JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
-    JournalEntryFactory,
 )
 
 

@@ -13,7 +13,7 @@
 import urllib.parse
 
 from pyramid.config import PHASE3_CONFIG
-from pyramid.httpexceptions import HTTPException, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPException
 from pyramid.interfaces import ITweens
 
 

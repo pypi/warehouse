@@ -37,11 +37,11 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
-    Role,
-    Project,
-    Release,
     File,
     JournalEntry,
+    Project,
+    Release,
+    Role,
     release_classifiers,
 )
 from warehouse.search.queries import SEARCH_BOOSTS

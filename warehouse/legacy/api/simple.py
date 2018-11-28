@@ -19,7 +19,7 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import JournalEntry, File, Project, Release
+from warehouse.packaging.models import File, JournalEntry, Project, Release
 
 
 @view_config(

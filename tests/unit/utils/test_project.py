@@ -11,23 +11,24 @@
 # limitations under the License.
 
 import pytest
-from pretend import call, call_recorder, stub, raiser
+
+from pretend import call, call_recorder, raiser, stub
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.models import (
-    Project,
-    Release,
     Dependency,
     File,
-    Role,
     JournalEntry,
+    Project,
+    Release,
+    Role,
 )
 from warehouse.utils.project import (
     confirm_project,
     destroy_docs,
-    remove_project,
     remove_documentation,
+    remove_project,
 )
 
 from ...common.db.accounts import UserFactory

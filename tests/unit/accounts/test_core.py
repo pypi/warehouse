@@ -18,18 +18,18 @@ import pytest
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
     IPasswordBreachedService,
-)
-from warehouse.accounts.services import (
-    TokenServiceFactory,
-    HaveIBeenPwnedPasswordBreachedService,
-    database_login_factory,
+    ITokenService,
+    IUserService,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.services import (
+    HaveIBeenPwnedPasswordBreachedService,
+    TokenServiceFactory,
+    database_login_factory,
+)
 from warehouse.errors import BasicAuthBreachedPassword
-from warehouse.rate_limiting import RateLimit, IRateLimiter
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 class TestLogin:

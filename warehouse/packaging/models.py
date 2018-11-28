@@ -21,25 +21,27 @@ from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Column,
+    DateTime,
     Enum,
+    Float,
     ForeignKey,
     Index,
-    Boolean,
-    DateTime,
     Integer,
-    Float,
     Table,
     Text,
+    func,
+    orm,
+    sql,
 )
-from sqlalchemy import func, orm, sql
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import validates
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import validates
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import db
 from warehouse.accounts.models import User
