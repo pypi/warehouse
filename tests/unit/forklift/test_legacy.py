@@ -2562,7 +2562,11 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         # Ensure that a Project object name has been updated.
-        project = db_request.db.query(Project).filter(Project.name == new_project_name).one()
+        project = (
+            db_request.db.query(Project)
+            .filter(Project.name == new_project_name)
+            .one()
+        )
 
         # Ensure that a Release object has been created.
         release = (
