@@ -2527,10 +2527,10 @@ class TestFileUpload:
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
-        project = ProjectFactory.create(name='Package-Name')
+        project = ProjectFactory.create(name="Package-Name")
         RoleFactory.create(user=user, project=project)
 
-        new_project_name = 'package-name'
+        new_project_name = "package-name"
         filename = "{}-{}.tar.gz".format(new_project_name, "1.1")
 
         db_request.user = user
@@ -2563,9 +2563,7 @@ class TestFileUpload:
 
         # Ensure that a Project object name has been updated.
         project = (
-            db_request.db.query(Project)
-            .filter(Project.name == new_project_name)
-            .one()
+            db_request.db.query(Project).filter(Project.name == new_project_name).one()
         )
 
         # Ensure that a Release object has been created.
