@@ -816,9 +816,6 @@ def file_upload(request):
             .one()
         )
 
-        # Update name if it differs but is still equivalent
-        if project.name != form.name.data:
-            project.name = form.name.data
     except NoResultFound:
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -925,6 +922,10 @@ def file_upload(request):
                 request.help_url(_anchor="project-name"),
             ),
         )
+
+    # Update name if it differs but is still equivalent
+    if project.name != form.name.data:
+        project.name = form.name.data
 
     # Uploading should prevent broken rendered descriptions.
     # Temporarily disabled, see
