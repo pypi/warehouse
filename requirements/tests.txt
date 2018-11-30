@@ -11,9 +11,9 @@ beautifulsoup4==4.6.3 \
 bok-choy==0.9.0 \
     --hash=sha256:b15f41f41a67d3e4cf7b2a06804e59958df3fcbfab34264ebf645bc3df46cb72 \
     --hash=sha256:fc5a2872b21a827aee5996f50b3b8956eebff47c8d9a3c5a558c263b886ebf2e
-certifi==2018.10.15 \
-    --hash=sha256:339dc09518b07e2fa7eda5450740925974815557727d6bd35d319c1524a04a4c \
-    --hash=sha256:6d58c986d22b038c8c0df30d639f23a3e6d172a05c3583e766f4c0b785c0986a
+certifi==2018.11.29 \
+    --hash=sha256:47f9c83ef4c0c621eaef743f133f09fa8a74a9b75f037e8624f83bd1b6626cb7 \
+    --hash=sha256:993f830721089fef441cdfeb4b2c8c9df86f0c63239f06bd025a76a7daddb033
 chardet==3.0.4 \
     --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae \
     --hash=sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691
@@ -64,7 +64,7 @@ freezegun==0.3.11 \
 idna==2.7 \
     --hash=sha256:156a6814fb5ac1fc6850fb002e0852d56c0c8d2531923a51032d1b70760e186e \
     --hash=sha256:684a38a6f903c1d71d6d5fac066b58d7768af4de2b832e426ec79c30daa94a16
-importlib_metadata==0.7 \
+importlib-metadata==0.7 \
     --hash=sha256:28fba9f65e5415a691dd254cdb602bcc4d6f738e68407ad251651db358b63bcf \
     --hash=sha256:4a545e6125dc72b4ad98201ea3f40f92e8126e3a19667352b3a134d22b8bc74f
 lazy==1.3 \
