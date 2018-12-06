@@ -77,8 +77,8 @@ botocore==1.12.53 \
 cachetools==3.0.0 \
     --hash=sha256:0a258d82933a1dd18cb540aca4ac5d5690731e24d1239a08577b814998f49785 \
     --hash=sha256:4621965b0d9d4c82a79a29edbad19946f5e7702df4afae7d1ed2df951559a8cc
-celery-redbeat==0.11.1 \
-    --hash=sha256:fa1951cee7dfb8e185f53ce6dfb78f53b66ace76d5799f67ddac75ae1550aa87
+celery-redbeat==0.12.0 \
+    --hash=sha256:94b2a227828af143a54d338b46bde6315641940d818d15c9f9f2134668a9fade
 celery[sqs]==4.2.1 \
     --hash=sha256:77dab4677e24dc654d42dfbdfed65fa760455b6bb563a0877ecc35f4cfcfc678 \
     --hash=sha256:ad7a7411772b80a4d6c64f2f7f723200e39fb66cf614a7fdfab76d345acc7b13
@@ -523,6 +523,9 @@ stdlib-list==0.5.0 \
 structlog==18.2.0 \
     --hash=sha256:e361edb3b9aeaa85cd38a1bc9ddbb60cda8a991fc29de9db26832f6300e81eb4 \
     --hash=sha256:e912c03a3cf6876803c3f1b1e4b09dd4b9e4bcd0977586cb59cf538351ba6b1b
+tenacity==5.0.2 \
+    --hash=sha256:4c10be4f8fbeb1cae24b9315103d8aca3f2b1ef001d455cbb1671d3d79924be6 \
+    --hash=sha256:9db46cea3ea23e294932ccc3cdccf1c2177dbb4100b0ff975d653b961e52af8a
 transaction==2.4.0 \
     --hash=sha256:726059c461b9ec4e69e5bead6680667a3db01bf2adf901f23e4031228a0f9f9f \
     --hash=sha256:b96a5e9aaa73f905759bc9ccf0021bf4864c01ac36666e0d28395e871f6d584a
