@@ -63,8 +63,8 @@ bcrypt==3.1.4 \
     --hash=sha256:f2fe545d27a619a552396533cddf70d83cecd880a611cdfdbb87ca6aec52f66b \
     --hash=sha256:f7fd3ed3745fe6e81e28dc3b3d76cce31525a91f32a387e1febd6b982caf8cdb \
     --hash=sha256:f9210820ee4818d84658ed7df16a7f30c9fba7d8b139959950acef91745cc0f7
-billiard==3.5.0.4 \
-    --hash=sha256:ed65448da5877b5558f19d2f7f11f8355ea76b3e63e1c0a6059f47cfae5f1c84
+billiard==3.5.0.5 \
+    --hash=sha256:42d9a227401ac4fba892918bba0a0c409def5435c4b483267ebfe821afaaba0e
 bleach==3.0.2 \
     --hash=sha256:48d39675b80a75f6d1c3bdbffec791cf0bbbab665cf01e20da701c77de278718 \
     --hash=sha256:73d26f018af5d5adcdabf5c1c974add4361a9c76af215fe32fdec8a6fc5fb9b9
