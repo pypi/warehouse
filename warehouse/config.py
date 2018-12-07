@@ -13,21 +13,19 @@
 import enum
 import os
 import shlex
-import urllib.parse
 
 import transaction
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
-from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
-from warehouse import __commit__
+from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.utils.static import ManifestCacheBuster
-from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
+from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
 class Environment(enum.Enum):
@@ -63,47 +61,6 @@ class RootFactory:
         pass
 
 
-def junk_encoding_tween_factory(handler, request):
-    def junk_encoding_tween(request):
-        # We're going to test our request a bit, before we pass it into the
-        # handler. This will let us return a better error than a 500 if we
-        # can't decode these.
-
-        # Ref: https://github.com/Pylons/webob/issues/161
-        # Ref: https://github.com/Pylons/webob/issues/115
-        try:
-            request.GET.get("", None)
-        except UnicodeDecodeError:
-            return HTTPBadRequest("Invalid bytes in query string.")
-
-        # Look for invalid bytes in a path.
-        try:
-            request.path_info
-        except UnicodeDecodeError:
-            return HTTPBadRequest("Invalid bytes in URL.")
-
-        # Everything worked! Handle this request as normal.
-        return handler(request)
-
-    return junk_encoding_tween
-
-
-def unicode_redirect_tween_factory(handler, request):
-    def unicode_redirect_tween(request):
-        response = handler(request)
-        if response.location:
-            try:
-                response.location.encode("ascii")
-            except UnicodeEncodeError:
-                response.location = "/".join(
-                    [urllib.parse.quote_plus(x) for x in response.location.split("/")]
-                )
-
-        return response
-
-    return unicode_redirect_tween
-
-
 def require_https_tween_factory(handler, registry):
 
     if not registry.settings.get("enforce_https", True):
@@ -127,6 +84,16 @@ def activate_hook(request):
     if request.path.startswith(("/_debug_toolbar/", "/static/")):
         return False
     return True
+
+
+def commit_veto(request, response):
+    # By default pyramid_tm will veto the commit anytime request.exc_info is not None,
+    # we are going to copy that logic with one difference, we are still going to commit
+    # if the exception was for a BreachedPassword.
+    # TODO: We should probably use a registry or something instead of hardcoded.
+    exc_info = getattr(request, "exc_info", None)
+    if exc_info is not None and not isinstance(exc_info[1], BasicAuthBreachedPassword):
+        return True
 
 
 def template_view(config, name, route, template, route_kw=None):
@@ -161,7 +128,7 @@ def configure(settings=None):
         settings = {}
 
     # Add information about the current copy of the code.
-    settings.setdefault("warehouse.commit", __commit__)
+    maybe_set(settings, "warehouse.commit", "SOURCE_COMMIT", default="null")
 
     # Set the environment from an environment variable, if one hasn't already
     # been set.
@@ -220,6 +187,8 @@ def configure(settings=None):
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
+    maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
+    maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -253,15 +222,11 @@ def configure(settings=None):
     config = Configurator(settings=settings)
     config.set_root_factory(RootFactory)
 
-    # Add some fixups for some encoding/decoding issues
-    config.add_tween(
-        "warehouse.config.junk_encoding_tween_factory",
-        over="warehouse.csp.content_security_policy_tween_factory",
-    )
-    config.add_tween("warehouse.config.unicode_redirect_tween_factory")
+    # Register support for services
+    config.include("pyramid_services")
 
-    # Register DataDog metrics
-    config.include(".datadog")
+    # Register metrics
+    config.include(".metrics")
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
@@ -344,13 +309,11 @@ def configure(settings=None):
         {
             "tm.manager_hook": lambda request: transaction.TransactionManager(),
             "tm.activate_hook": activate_hook,
+            "tm.commit_veto": commit_veto,
             "tm.annotate_user": False,
         }
     )
     config.include("pyramid_tm")
-
-    # Register support for services
-    config.include("pyramid_services")
 
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")
@@ -457,9 +420,11 @@ def configure(settings=None):
     config.whitenoise_serve_static(
         autorefresh=prevent_http_cache,
         max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
-        manifest="warehouse:static/dist/manifest.json",
     )
     config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
+    config.whitenoise_add_manifest(
+        "warehouse:static/dist/manifest.json", prefix="/static/"
+    )
 
     # Enable Warehouse to serve our locale files
     config.add_static_view("locales", "warehouse:locales/")
@@ -500,6 +465,11 @@ def configure(settings=None):
     config.scan(
         ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
     )
+
+    # Sanity check our request and responses.
+    # Note: It is very important that this go last. We need everything else that might
+    #       have added a tween to be registered prior to this.
+    config.include(".sanity")
 
     # Finally, commit all of our changes
     config.commit()

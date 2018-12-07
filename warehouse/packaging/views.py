@@ -14,10 +14,10 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.utils import readme
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release, Role
+from warehouse.utils import readme
 
 
 @view_config(
@@ -26,9 +26,7 @@ from warehouse.packaging.models import Project, Release, Role
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
 )
@@ -45,7 +43,7 @@ def project_detail(project, request):
             .one()
         )
     except NoResultFound:
-        return HTTPNotFound()
+        raise HTTPNotFound
 
     return release_detail(release, request)
 
@@ -56,9 +54,7 @@ def project_detail(project, request):
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
 )

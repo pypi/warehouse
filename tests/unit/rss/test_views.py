@@ -15,6 +15,7 @@ import datetime
 import pretend
 
 from warehouse.rss import views as rss
+
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 

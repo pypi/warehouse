@@ -40,12 +40,12 @@
           <td>{{ release.created }}</td>
         </tr>
         <tr>
-          <td>Hidden</td>
-          <td>{{ release._pypi_hidden }}</td>
-        </tr>
-        <tr>
           <td>Uploader</td>
-          <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
+          <td>
+            {% if release.uploader %}
+            <a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <td>Created via</td>
@@ -110,7 +110,7 @@
         </tr>
         <tr>
           <td>Name</td>
-          <td><code>{{ release.name }}</code></td>
+          <td><code>{{ release.project.name }}</code></td>
         </tr>
         <tr>
           <td>Version</td>

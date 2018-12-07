@@ -10,9 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import email.utils
+
 import babel.dates
 import babel.numbers
-import email.utils
 import jinja2
 
 from pyramid.threadlocal import get_current_request

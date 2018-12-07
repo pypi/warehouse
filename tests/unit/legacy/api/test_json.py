@@ -21,10 +21,10 @@ from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    ProjectFactory,
-    ReleaseFactory,
     FileFactory,
     JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
 )
 
 
@@ -118,6 +118,23 @@ class TestJSONProject:
         assert json_release.calls == [pretend.call(release, db_request)]
 
 
+class TestJSONProjectSlash:
+    def test_normalizing_redirects(self, db_request):
+        project = ProjectFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
+
+        resp = json.json_project_slash(project, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [
+            pretend.call("legacy.api.json.project", name=project.name)
+        ]
+        assert resp.headers["Location"] == "/project/the-redirect"
+
+
 class TestJSONRelease:
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
@@ -155,7 +172,7 @@ class TestJSONRelease:
             "telnet,telnet://192.0.2.16:80/",
             "urn,urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
             "reservedchars,http://example.com?&$+/:;=@#",  # Commas don't work!
-            "unsafechars,http://example.com <>[]{}|\^%",
+            r"unsafechars,http://example.com <>[]{}|\^%",
         ]
         expected_urls = []
         for project_url in reversed(project_urls):
@@ -177,8 +194,7 @@ class TestJSONRelease:
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=releases[3].project.name,
-                    version="3.0",
+                    release=releases[3],
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )
@@ -428,3 +444,24 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
         }
+
+
+class TestJSONReleaseSlash:
+    def test_normalizing_redirects(self, db_request):
+        release = ReleaseFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
+
+        resp = json.json_release_slash(release, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "legacy.api.json.release",
+                name=release.project.name,
+                version=release.version,
+            )
+        ]
+        assert resp.headers["Location"] == "/project/the-redirect"

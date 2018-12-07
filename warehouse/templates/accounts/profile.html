@@ -57,7 +57,7 @@
         <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
           <h3 class="package-snippet__title">{{ project.name }}</h3>
           <p class="package-snippet__meta">
-            <em>Last released on {{ project.releases[0].created|format_date() }}</em>
+            Last released on {{ project.releases[0].created|format_date() }}
           </p>
           <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
         </a>

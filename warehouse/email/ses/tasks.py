@@ -15,7 +15,6 @@ import datetime
 from warehouse import tasks
 from warehouse.email.ses.models import EmailMessage
 
-
 CLEANUP_DELIVERED_AFTER = datetime.timedelta(days=14)
 
 CLEANUP_AFTER = datetime.timedelta(days=90)

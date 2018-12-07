@@ -47,6 +47,31 @@
   {% endif %}
 {% endmacro %}
 
+{% macro email_verification_label(email) -%}
+  {% if email.verified %}
+    {% if email.transient_bounces %}
+    {% set message = "Intermittent delivery problems may lead to verification loss" %}
+    <span class="badge badge--warning tooltipped tooltipped-s" data-original-label="{{ message }}" aria-label="{{ message }}"><i class="fa fa-exclamation-triangle"></i> Verified</span>
+    {% else %}
+    <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span>
+    {% endif %}
+  {% else %}
+    {% set icon = 'exclamation-triangle' %}
+    {% if email.unverify_reason.value == "spam complaint" %}
+      {% set message = "Email from PyPI being treated as spam" %}
+      {% set icon = 'ban' %}
+    {% elif email.unverify_reason.value == "hard bounce" %}
+      {% set message = "Hard failure during delivery" %}
+    {% elif email.unverify_reason.value == "soft bounce" %}
+      {% set message = "Too many delivery problems" %}
+    {% else %}
+      {% set message = "Verification in progress" %}
+      {% set icon = 'spinner' %}
+    {% endif %}
+    <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}"><i class="fa fa-{{ icon }}"></i> Unverified</span>
+  {% endif %}
+{% endmacro %}
+
 {% macro email_row(email) -%}
   <tr>
     <td class="table__email">
@@ -57,15 +82,11 @@
         {% if email.primary %}
         <span class="badge">Primary</span>
         {% endif %}
-        {% if email.verified %}
-        <span class="badge badge--success">Verified</span>
-        {% else %}
-        <span class="badge badge--danger">Unverified</span>
-        {% endif %}
+        {{ email_verification_label(email) }}
       </div>
     </td>
     <td class="table__action">
-      {% if not email.verified or user.emails|length > 1 and not email.primary%}
+      {% if not email.verified or not email.primary%}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options
@@ -168,7 +189,7 @@
   {{ form_error_anchor(add_email_form) }}
   <section id="account-emails">
     <h2 class="sub-title">Account emails</h2>
-    <p>You can associate several emails with your account. You can use any <strong>verified</strong> email to recover your account, but only your primary email will receive notifications.</p>
+    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
 
     {# Sort the emails as follows:
       * Primary email
@@ -232,14 +253,14 @@
         <label class="form-group__label" for="name">New password</label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength") }}
+          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength") }}
         </div>
         {{ field_errors(change_password_form.new_password) }}
         {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
       </div>
       <div class="form-group">
         <label class="form-group__label" for="name">Confirm new password</label>
-        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
+        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch") }}
         {{ field_errors(change_password_form.password_confirm) }}
       </div>
       <div class="form-group">

@@ -22,9 +22,9 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
     IPasswordBreachedService,
+    ITokenService,
+    IUserService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -77,17 +77,17 @@ class TestUserProfile:
 
 class TestLogin:
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
-    def test_get_returns_form(self, pyramid_request, next_url):
+    def test_get_returns_form(self, pyramid_request, pyramid_services, next_url):
         user_service = pretend.stub()
         breach_service = pretend.stub()
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context=None: {
-                IUserService: user_service,
-                IPasswordBreachedService: breach_service,
-            }[iface]
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
         )
+
         form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
@@ -98,55 +98,56 @@ class TestLogin:
             "form": form_obj,
             "redirect": {"field": "next", "data": next_url},
         }
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(IPasswordBreachedService, context=None),
-        ]
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                user_service=user_service,
+                breach_service=breach_service,
+                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+            )
         ]
 
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
-    def test_post_invalid_returns_form(self, pyramid_request, next_url):
+    def test_post_invalid_returns_form(
+        self, pyramid_request, pyramid_services, metrics, next_url
+    ):
         user_service = pretend.stub()
         breach_service = pretend.stub()
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context=None: {
-                IUserService: user_service,
-                IPasswordBreachedService: breach_service,
-            }[iface]
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
         )
+
         pyramid_request.method = "POST"
         if next_url is not None:
             pyramid_request.POST["next"] = next_url
         form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call(
-                "warehouse.authentication.start", tags=["auth_method:login_form"]
-            ),
-            pretend.call(
-                "warehouse.authentication.failure", tags=["auth_method:login_form"]
-            ),
-        ]
+        assert metrics.increment.calls == []
 
         assert result == {
             "form": form_obj,
             "redirect": {"field": "next", "data": next_url},
         }
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(IPasswordBreachedService, context=None),
-        ]
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                user_service=user_service,
+                breach_service=breach_service,
+                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+            )
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
     @pytest.mark.parametrize("with_user", [True, False])
-    def test_post_validate_redirects(self, monkeypatch, pyramid_request, with_user):
+    def test_post_validate_redirects(
+        self, monkeypatch, pyramid_request, pyramid_services, metrics, with_user
+    ):
         remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
         monkeypatch.setattr(views, "remember", remember)
 
@@ -158,12 +159,12 @@ class TestLogin:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context=None: {
-                IUserService: user_service,
-                IPasswordBreachedService: breach_service,
-            }[iface]
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
         )
+
         pyramid_request.method = "POST"
         pyramid_request.session = pretend.stub(
             items=lambda: [("a", "b"), ("foo", "bar")],
@@ -182,7 +183,7 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
             password=pretend.stub(data="password"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
@@ -191,14 +192,7 @@ class TestLogin:
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
 
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call(
-                "warehouse.authentication.start", tags=["auth_method:login_form"]
-            ),
-            pretend.call(
-                "warehouse.authentication.complete", tags=["auth_method:login_form"]
-            ),
-        ]
+        assert metrics.increment.calls == []
 
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
@@ -206,7 +200,13 @@ class TestLogin:
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                user_service=user_service,
+                breach_service=breach_service,
+                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+            )
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
@@ -220,11 +220,6 @@ class TestLogin:
 
         assert remember.calls == [pretend.call(pyramid_request, str(user_id))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(IPasswordBreachedService, context=None),
-            pretend.call(IUserService, context=None),
-        ]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
@@ -234,19 +229,19 @@ class TestLogin:
         [("/security/", "/security/"), ("http://example.com", "/the-redirect")],
     )
     def test_post_validate_no_redirects(
-        self, pyramid_request, expected_next_url, observed_next_url
+        self, pyramid_request, pyramid_services, expected_next_url, observed_next_url
     ):
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context=None: {
-                IUserService: user_service,
-                IPasswordBreachedService: breach_service,
-            }[iface]
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
         )
+
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
 
@@ -255,7 +250,7 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
             password=pretend.stub(data="password"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
         result = views.login(pyramid_request, _form_class=form_class)
 
@@ -276,14 +271,17 @@ class TestLogout:
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
 
+        pyramid_request.user = pretend.stub()
+
         assert views.logout(pyramid_request) == {
-            "redirect": {"field": "next", "data": next_url}
+            "redirect": {"field": "next", "data": next_url or "/"}
         }
 
     def test_post_forgets_user(self, monkeypatch, pyramid_request):
         forget = pretend.call_recorder(lambda request: [("foo", "bar")])
         monkeypatch.setattr(views, "forget", forget)
 
+        pyramid_request.user = pretend.stub()
         pyramid_request.method = "POST"
         pyramid_request.session = pretend.stub(
             invalidate=pretend.call_recorder(lambda: None)
@@ -306,9 +304,27 @@ class TestLogout:
     def test_post_redirects_user(
         self, pyramid_request, expected_next_url, observed_next_url
     ):
+        pyramid_request.user = pretend.stub()
         pyramid_request.method = "POST"
-
         pyramid_request.POST["next"] = expected_next_url
+
+        result = views.logout(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == observed_next_url
+
+    @pytest.mark.parametrize(
+        # The set of all possible next URLs. Since this set is infinite, we
+        # test only a finite set of reasonable URLs.
+        ("expected_next_url, observed_next_url"),
+        [("/security/", "/security/"), ("http://example.com", "/")],
+    )
+    def test_get_redirects_anonymous_user(
+        self, pyramid_request, expected_next_url, observed_next_url
+    ):
+        pyramid_request.user = None
+        pyramid_request.method = "GETT"
+        pyramid_request.GET["next"] = expected_next_url
 
         result = views.logout(pyramid_request)
 
@@ -394,7 +410,7 @@ class TestRegister:
             pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
         ]
         assert add_email.calls == [pretend.call(user.id, "foo@bar.com", primary=True)]
-        assert send_email.calls == [pretend.call(db_request, user, email)]
+        assert send_email.calls == [pretend.call(db_request, (user, email))]
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
@@ -490,14 +506,16 @@ class TestRequestPasswordReset:
             pretend.call(pyramid_request.POST, user_service=user_service)
         ]
         assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, stub_user)
+            pretend.call(pyramid_request, (stub_user, None))
         ]
 
     def test_request_password_reset_with_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
 
-        stub_user = pretend.stub(email=pretend.stub())
+        stub_user = pretend.stub(
+            email="foo@example.com", emails=[pretend.stub(email="foo@example.com")]
+        )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
@@ -537,18 +555,24 @@ class TestRequestPasswordReset:
             pretend.call(pyramid_request.POST, user_service=user_service)
         ]
         assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, stub_user)
+            pretend.call(pyramid_request, (stub_user, stub_user.emails[0]))
         ]
 
-    def test_request_password_reset_with_wrong_credentials(
+    def test_request_password_reset_with_non_primary_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
 
-        stub_user = pretend.stub(username=pretend.stub())
+        stub_user = pretend.stub(
+            email="foo@example.com",
+            emails=[
+                pretend.stub(email="foo@example.com"),
+                pretend.stub(email="other@example.com"),
+            ],
+        )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
-        user_service.get_user_by_email = pretend.call_recorder(lambda a: None)
+        user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -556,7 +580,7 @@ class TestRequestPasswordReset:
             }[interface]
         )
         form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=stub_user.username),
+            username_or_email=pretend.stub(data="other@example.com"),
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
@@ -572,10 +596,10 @@ class TestRequestPasswordReset:
 
         assert result == {"n_hours": n_hours}
         assert user_service.get_user_by_username.calls == [
-            pretend.call(stub_user.username)
+            pretend.call("other@example.com")
         ]
         assert user_service.get_user_by_email.calls == [
-            pretend.call(stub_user.username)
+            pretend.call("other@example.com")
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
@@ -585,7 +609,9 @@ class TestRequestPasswordReset:
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, user_service=user_service)
         ]
-        assert send_password_reset_email.calls == [pretend.call(pyramid_request, None)]
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, (stub_user, stub_user.emails[1]))
+        ]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)

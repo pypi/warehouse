@@ -22,14 +22,14 @@ import redis
 from first import first
 
 import warehouse.search.tasks
+
 from warehouse.search.tasks import (
+    SearchLock,
+    _project_docs,
     reindex,
     reindex_project,
     unindex_project,
-    _project_docs,
-    SearchLock,
 )
-
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
@@ -57,7 +57,7 @@ def test_project_docs(db_session):
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
             },
         }
-        for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].id)
     ]
 
 

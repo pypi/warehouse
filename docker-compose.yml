@@ -13,11 +13,20 @@ services:
   redis:
     image: redis:4.0
 
-  rabbitmq:
-    image: rabbitmq:3.7
+  localstack:
+    image: localstack/localstack:0.8.7
+    environment:
+      SERVICES: "sqs"
+      HOSTNAME: "localstack"
+      HOSTNAME_EXTERNAL: "localstack"
+      DEFAULT_REGION: "us-east-2"
+    ports:
+      - "4576:4576"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    environment:
+      - xpack.security.enabled=false
 
   camo:
     image: pypa/warehouse-camo:latest
@@ -59,7 +68,7 @@ services:
     links:
       - db
       - redis
-      - rabbitmq
+      - localstack
       - elasticsearch
       - notdatadog
 
@@ -87,7 +96,7 @@ services:
     links:
       - db
       - redis
-      - rabbitmq
+      - localstack
       - elasticsearch
       - smtp
       - notdatadog

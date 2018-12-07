@@ -17,9 +17,9 @@ Revises: f404a67e0370
 Create Date: 2016-12-17 17:10:31.252165
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "f449e5bff5a5"
 down_revision = "f404a67e0370"

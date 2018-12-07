@@ -14,15 +14,13 @@ import enum
 
 import automat
 
-from sqlalchemy import sql, orm
-from sqlalchemy import Boolean, Column, Enum, ForeignKey, DateTime, Text
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Text, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
-
 
 MAX_TRANSIENT_BOUNCES = 5
 
@@ -230,7 +228,6 @@ class EmailMessage(db.Model):
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         server_default=EmailStatuses.Accepted.value,
-        index=True,
     )
 
     message_id = Column(Text, nullable=False, unique=True, index=True)
@@ -268,6 +265,7 @@ class Event(db.Model):
             "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
         ),
         nullable=False,
+        index=True,
     )
 
     event_id = Column(Text, nullable=False, unique=True, index=True)

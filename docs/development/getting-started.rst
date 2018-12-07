@@ -42,6 +42,18 @@ your local machine:
 
     git clone git@github.com:YOUR-USERNAME/warehouse.git
 
+Add a `remote
+<https://help.github.com/articles/configuring-a-remote-for-a-fork/>`_ and
+regularly `sync <https://help.github.com/articles/syncing-a-fork/>`_ to make sure
+you stay up-to-date with our repository:
+
+.. code-block:: console
+
+    git remote add upstream https://github.com/pypa/warehouse.git
+    git checkout master
+    git fetch master
+    git merge upstream/master
+
 
 Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -127,9 +139,10 @@ Once you have Docker and Docker Compose installed, run:
 
 in the repository root directory.
 
-This will pull down all of the required docker containers, build
-Warehouse and run all of the needed services. The Warehouse repository will be
-mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
+This will pull down all of the required docker containers, build Warehouse and
+run all of the needed services. The Warehouse repository will be mounted inside
+the Docker container at :file:`/opt/warehouse/src/`. After the initial build,
+you should not have to run this command again.
 
 
 .. _running-warehouse-containers:
@@ -167,14 +180,38 @@ application.
    <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/disk-allocator.html>`_.
 
 
-In a terminal run the command:
+Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
     make serve
 
-This command will produce output for a while, and will not exit. While it runs,
-open a second terminal, and run:
+This command starts the containers that run Warehouse on your local machine.
+After the initial build process, you will only need this command each time you
+want to startup Warehouse locally.
+
+``make serve`` will produce output for a while, and will not exit. Eventually
+the output will cease, and you will see a log message indicating that either
+the ``web`` service has started listening:
+
+.. code-block:: console
+
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
+    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
+
+or that the ``static`` container has finished compiling the static assets:
+
+.. code-block:: console
+
+    static_1 | [20:28:37] Starting 'dist:compress'...
+    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
+    static_1 | [20:28:37] Finished 'dist' after 43 s
+    static_1 | [20:28:37] Starting 'watch'...
+    static_1 | [20:28:37] Finished 'watch' after 11 ms
+
+After the docker containers are setup in the previous step, run:
 
 .. code-block:: console
 
@@ -199,28 +236,7 @@ Once the ``make initdb`` command has finished, you are ready to continue.
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Eventually the output of the ``make serve`` command will cease, and you will
-see a log message indicating that either the ``web`` service has started
-listening:
-
-.. code-block:: console
-
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
-    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
-
-or that the ``static`` container has finished compiling the static assets:
-
-.. code-block:: console
-
-    static_1 | [20:28:37] Starting 'dist:compress'...
-    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
-    static_1 | [20:28:37] Finished 'dist' after 43 s
-    static_1 | [20:28:37] Starting 'watch'...
-    static_1 | [20:28:37] Finished 'watch' after 11 ms
-
-This means that all the services are up, and web container is listening on port
+At this point all the services are up, and web container is listening on port
 80. It's accessible at http://localhost:80/.
 
 .. note::
@@ -486,16 +502,6 @@ To run all tests, in the root of the repository:
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
-
-.. tip::
-   Currently, running ``make tests`` from a clean checkout of
-   Warehouse (namely, before trying to compile any static assets) will
-   fail multiple tests because the tests depend on a file
-   (:file:`/app/warehouse/static/dist/manifest.json`) that gets
-   created during deployment. So until we fix `bug 1536
-   <https://github.com/pypa/warehouse/issues/1536>`_, you'll need to
-   install Warehouse in a developer environment and run ``make serve``
-   before running tests; see :ref:`dev-env-install` for instructions.
 
 If you want to run a specific test, you can use the ``T`` variable:
 

@@ -27,9 +27,10 @@ packaging>=15.2
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
+premailer
 psycopg2
 pycurl
-pyramid>=1.9a2
+pyramid>=1.9,<1.11.0
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_multiauth
@@ -38,7 +39,7 @@ pyramid_rpc>=0.7
 pyramid_services>=2.1
 pyramid_tm>=0.12
 raven
-readme_renderer>=0.7.0
+readme_renderer[md]>=0.7.0
 requests
 redis>=2.8.0
 rfc3986
@@ -48,6 +49,7 @@ sqlalchemy-citext
 stdlib-list
 structlog
 transaction
+typeguard
 whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy

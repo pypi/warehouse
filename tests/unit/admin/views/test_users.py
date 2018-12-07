@@ -10,9 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import uuid
+
 import pretend
 import pytest
-import uuid
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from webob.multidict import MultiDict, NoVars
@@ -20,7 +21,7 @@ from webob.multidict import MultiDict, NoVars
 from warehouse.admin.views import users as views
 from warehouse.packaging.models import Project
 
-from ....common.db.accounts import User, UserFactory, EmailFactory
+from ....common.db.accounts import EmailFactory, User, UserFactory
 from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFactory
 
 

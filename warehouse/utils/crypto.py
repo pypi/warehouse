@@ -23,7 +23,6 @@ from itsdangerous import (
     URLSafeTimedSerializer as _URLSafeTimedSerializer,
 )
 
-
 __all__ = [
     "BadData",
     "BadSignature",

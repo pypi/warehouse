@@ -13,7 +13,7 @@
 import datetime
 
 from warehouse.email.ses.models import EmailMessage
-from warehouse.email.ses.tasks import CLEANUP_DELIVERED_AFTER, CLEANUP_AFTER, cleanup
+from warehouse.email.ses.tasks import CLEANUP_AFTER, CLEANUP_DELIVERED_AFTER, cleanup
 
 from ....common.db.ses import EmailMessageFactory
 

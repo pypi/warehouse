@@ -3,6 +3,7 @@ coverage
 factory_boy
 fakeredis
 freezegun
+importlib_metadata
 pretend
 pytest>=3.0.0
 pytest-postgresql

@@ -110,9 +110,13 @@ export default class extends Controller {
 
   _handleHashChange() {
     let contentId = window.location.hash.substr(1);
-    let tab = this._getTabForContentId(contentId);
-    if (tab) {
-      this.toggleTabAndPushState(tab);
+    if (!contentId) {
+      this.toggleTab(this._getTabs()[0]);
+    } else {
+      let tab = this._getTabForContentId(contentId);
+      if (tab) {
+        this.toggleTabAndPushState(tab);
+      }
     }
   }
 }

@@ -13,9 +13,9 @@
 import time
 
 import msgpack
-import redis
 import pretend
 import pytest
+import redis
 
 from pyramid import viewderivers
 

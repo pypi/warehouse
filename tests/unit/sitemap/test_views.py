@@ -14,6 +14,7 @@ import pretend
 import pytest
 
 from warehouse.sitemap import views as sitemap
+
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import ProjectFactory
 

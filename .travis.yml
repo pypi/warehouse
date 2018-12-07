@@ -40,7 +40,6 @@ install:
 script:
   - node -v
   - npm -v
-  - ./node_modules/.bin/gulp dist
   - bin/tests --postgresql-host 127.0.0.1
 
 matrix:
@@ -59,17 +58,3 @@ matrix:
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
-branches:
-  only:
-    - master
-
-notifications:
-  irc:
-    channels:
-      - "irc.freenode.org#pypa-dev"
-    use_notice: true
-    skip_join: true

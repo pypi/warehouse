@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+
 import redis
 
 from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError

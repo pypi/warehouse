@@ -25,6 +25,7 @@
 {% macro publishing() %}How do I package and publish my code for PyPI?{% endmacro %}
 {% macro trove_classifier() %}What's a trove classifier?{% endmacro %}
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
+{% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
 {% macro project_release_notifications() %}How do I get notified when a new version of a project is released?{% endmacro %}
@@ -62,6 +63,7 @@
           <li><a href="#publishing">{{ publishing() }}</a></li>
           <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
           <li><a href="#verified-email">{{ verified_email() }}</a></li>
+          <li><a href="#compromised-password">{{ compromised_password() }}</a></li>
         </ul>
       </section>
 
@@ -110,16 +112,16 @@
 
         <h3 id="packages">{{ packages() }}</h3>
         <p>
-          We use a number of terms to describe software available on PyPI, like <em>project</em>, <em>release</em>, <em>file</em>, and <em>package</em>. Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:
+          We use a number of terms to describe software available on PyPI, like "project", "release", "file", and "package". Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:
         </p>
         <p>
-          A <em>project</em> on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.
+          A "project" on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.
         </p>
         <p>
-          A <em>release</em> on PyPI is a specific version of a project. For example, the <a href="https://pypi.org/project/requests/">requests</a> project has many releases, like <em>requests 2.10</em> and <em>requests 1.2.1</em>. A release consists of one or more <em>files</em>.
+          A "release" on PyPI is a specific version of a project. For example, the <a href="https://pypi.org/project/requests/">requests</a> project has many releases, like "requests 2.10" and "requests 1.2.1". A release consists of one or more "files".
         </p>
         <p>
-          A <em>file</em>, also known as a <em>package</em>, on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="https://pypi.org/project/wheel/#files">wheel</a>.
+          A "file", also known as a "package", on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="https://pypi.org/project/wheel/#files">wheel</a>.
         </p>
 
         <h3 id="installing">{{ installing() }}</h3>
@@ -158,6 +160,27 @@
         <p>
           You can manage your account's email addresses in your <a href="{{ request.route_path('manage.account') }}">Profile</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.
         </p>
+
+
+        <h3 id="compromised-password">{{ compromised_password() }}</h3>
+          <p>
+            PyPI itself has not suffered a breach. This is a protective measure to reduce the risk of <a href="https://www.owasp.org/index.php/Credential_stuffing" target="_blank" rel="noopener">credential stuffing</a> attacks against PyPI and its users.
+          </p>
+          <p>
+            Each time a user supplies a password — while registering, authenticating, or updating their password — PyPI securely checks whether that password has appeared in public data breaches.
+          </p>
+          <p>
+            During each of these processes, PyPI generates a SHA-1 hash of the supplied password and uses the first five (5) characters of the hash to check the <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">Have I Been Pwned API</a> and determine if the password has been previously compromised. The plaintext password is never stored by PyPI or submitted to the Have I Been Pwned API.
+          </p>
+          <p>
+            PyPI will not allow such passwords to be used when setting a password at registration or updating your password.
+          </p>
+          <p>
+            If you receive an error message saying that "This password appears in a breach or has been compromised and cannot be used", you should change it all other places that you use it as soon as possible.
+          </p>
+          <p>
+            If you have received this error while attempting to log in or upload to PyPI, then your password has been reset and you cannot log in to PyPI until you <a href="{{ request.route_url('accounts.request-password-reset') }}">reset your password</a>.
+          </p>
       </section>
 
       <section class="faq-group" id="integrating">
@@ -275,9 +298,10 @@
         <p>
           If you can't upload your project's release to PyPI because you're hitting the upload file size limit, we can sometimes increase your limit. Make sure you've uploaded at least one release for the project that's <i>under</i> the limit (a <a href="https://www.python.org/dev/peps/pep-0440/#developmental-releases">developmental release version number</a> is fine). Then, <a href="https://github.com/pypa/warehouse/issues/new" target="_blank" rel="noopener">file an issue</a> and tell us:</p>
         <ul>
-          <li>The name of the project</li>
+          <li>A link to your project on PyPI (or Test PyPI)</li>
           <li>The size of your release, in megabytes</li>
           <li>Which index/indexes you need the increase for (PyPI, Test PyPI, or both)</li>
+          <li>A brief description of your project, including the reason for the additional size.</li>
         </ul>
         {{ code_of_conduct() }}
 
@@ -313,20 +337,12 @@
 
         <h3 id="feedback">{{ feedback() }}</h3>
         <p>
-          We welcome <em>constructive</em> feedback and bug reports via our <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a> concerning PyPI. Before writing a new issue, first check that a similar issue does not already exist.
+          If you're experiencing an issue with PyPI itself, we welcome <b>constructive</b> feedback and bug reports via our <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. Please note that this tracker is only for issues with the software that runs PyPI. Before writing a new issue, first check that a similar issue does not already exist.
         </p>
         <p>
-          If you <a href="https://github.com/pypa/warehouse/issues/new?template=bug-report.md" target="_blank" rel="noopener">report a bug</a>, provide as much detail as you can. For example:
+          If you are having an issue is with a specific package installed from PyPI, you should reach out to the
+    maintainers of that project directly instead.
         </p>
-        <ul>
-          <li>Your operating system</li>
-          <li>Your browser and browser version</li>
-          <li>Your Python and <tt>pip</tt> version</li>
-          <li>Whether you can reproduce the bug (does it always happen, or just sometimes after certain actions?)</li>
-          <li>Steps to reproduce (if applicable)</li>
-          <li>Warning or error messages (if applicable)</li>
-          <li>What you expected to happen or your suggested fix (if you have one)</li>
-        </ul>
         {{ code_of_conduct() }}
       </section>
 
@@ -363,19 +379,19 @@
           We have a huge amount of work to do to continue to maintain and improve PyPI (also known as <a href="https://warehouse.readthedocs.io/">the Warehouse project</a>).
         </p>
         <p>
-        <em>Financial</em>: We would deeply appreciate <a href="https://donate.pypi.org/">your donations to fund development and maintenance</a>.
+          <b>Financial</b>: We would deeply appreciate <a href="https://donate.pypi.org/">your donations to fund development and maintenance</a>.
         </p>
         <p>
-          <em>Development</em>: Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!
+          <b>Development</b>: Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!
         </p>
         <p>
-          If you have skills in Python, ElasticSearch, HTML, SCSS, or JavaScript, then skim our <a href="https://warehouse.readthedocs.io/development/getting-started/" target="_blank" rel="noopener">"Getting started" guide</a>, then take a look at the <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. We've created a <a href="https://github.com/pypa/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.
+          If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or SQLAlchemy then skim our <a href="https://warehouse.readthedocs.io/development/getting-started/" target="_blank" rel="noopener">"Getting started" guide</a>, then take a look at the <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. We've created a <a href="https://github.com/pypa/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.
         </p>
         <p>
           Issues are grouped into <a href="https://github.com/pypa/warehouse/milestones" target="_blank" rel="noopener">milestones</a>; working on issues in the current milestone is a great way to help push the project forward. If you're interested in working on a particular issue, leave a comment and we can guide you through the contribution process.
         </p>
         <p>
-          <em>Stay updated</em>: You can also follow the ongoing development of the project on the <a href="https://mail.python.org/mailman/listinfo/distutils-sig">distutils-sig mailing list</a> and the <a href="https://groups.google.com/forum/#!forum/pypa-dev" target="_blank" rel="noopener">PyPA Dev message group</a>.
+          <b>Stay updated</b>: You can also follow the ongoing development of the project on the <a href="https://mail.python.org/mailman/listinfo/distutils-sig">distutils-sig mailing list</a> and the <a href="https://groups.google.com/forum/#!forum/pypa-dev" target="_blank" rel="noopener">PyPA Dev message group</a>.
         </p>
         {{ code_of_conduct() }}
 

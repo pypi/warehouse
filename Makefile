@@ -90,7 +90,7 @@ build:
 	touch .state/docker-build
 
 serve: .state/docker-build
-	docker-compose up
+	docker-compose up --remove-orphans
 
 debug: .state/docker-build
 	docker-compose run --rm --service-ports web
@@ -102,15 +102,17 @@ tests:
 
 
 reformat: .state/env/pyvenv.cfg
+	$(BINDIR)/isort -rc warehouse/ tests/
 	$(BINDIR)/black warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
 	$(BINDIR)/black --check warehouse/ tests/
+	$(BINDIR)/isort -rc -c warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
