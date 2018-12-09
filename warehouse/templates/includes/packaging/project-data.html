@@ -89,7 +89,7 @@
   {% endif %}
   {% if release.requires_python %}
   <p>
-    <strong>Requires:</strong> Python {{ release.requires_python }}
+    <strong>Requires:</strong> Python {{ release.requires_python|replace(',', ', ') }}
   </p>
   {% endif %}
 </div>
