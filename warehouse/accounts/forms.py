@@ -163,9 +163,15 @@ class NewEmailMixin:
             )
         domain = field.data.split("@")[-1]
         if domain in disposable_email_domains.blacklist:
+            if self.user_id is not None:
+                base_msg = "You can't add an email address from this domain."
+            else:
+                base_msg = (
+                    "You can't create an account with an email address "
+                    "from this domain."
+                )
             raise wtforms.validators.ValidationError(
-                "You can't create an account with an email address "
-                "from this domain. Use a different email."
+                f"{base_msg} Use a different email."
             )
 
 

@@ -104,6 +104,20 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
+    def test_blacklisted_email_error(self):
+        form = forms.AddEmailForm(
+            data={"email": "foo@bearsarefuzzy.com"},
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop()
+            == "You can't add an email address from this domain. "
+            "Use a different email."
+        )
+
 
 class TestChangePasswordForm:
     def test_creation(self):
