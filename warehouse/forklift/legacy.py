@@ -815,7 +815,6 @@ def file_upload(request):
             )
             .one()
         )
-
     except NoResultFound:
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -923,7 +922,9 @@ def file_upload(request):
             ),
         )
 
-    # Update name if it differs but is still equivalent
+    # Update name if it differs but is still equivalent. We don't need to check if
+    # they are equivalent when normalized because that's already been done when we
+    # queried for the project.
     if project.name != form.name.data:
         project.name = form.name.data
 
