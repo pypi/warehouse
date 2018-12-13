@@ -66,6 +66,6 @@ toml==0.10.0 \
     --hash=sha256:f1db651f9657708513243e61e6cc67d101a39bad662eaa9b5546f789338e07a3
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==40.6.2 \
-    --hash=sha256:86bb4d8e1b0fabad1f4642b64c335b673e53e7a381de03c9a89fe678152c4c64 \
-    --hash=sha256:88ee6bcd5decec9bd902252e02e641851d785c6e5e75677d2744a9d13fed0b0a
+setuptools==40.6.3 \
+    --hash=sha256:3b474dad69c49f0d2d86696b68105f3a6f195f7ab655af12ef9a9c326d2b08f8 \
+    --hash=sha256:e2c1ce9a832f34cf7a31ed010aabcab5008eb65ce8f2aadc04622232c14bdd0b
