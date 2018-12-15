@@ -12,6 +12,7 @@
 
 import datetime
 import functools
+import re
 import xmlrpc.client
 import xmlrpc.server
 
@@ -45,6 +46,47 @@ from warehouse.packaging.models import (
     release_classifiers,
 )
 from warehouse.search.queries import SEARCH_BOOSTS
+
+# From https://stackoverflow.com/a/22273639
+_illegal_ranges = [
+    "\x00-\x08",
+    "\x0b-\x0c",
+    "\x0e-\x1f",
+    "\x7f-\x84",
+    "\x86-\x9f",
+    "\ufdd0-\ufddf",
+    "\ufffe-\uffff",
+    "\U0001fffe-\U0001ffff",
+    "\U0002fffe-\U0002ffff",
+    "\U0003fffe-\U0003ffff",
+    "\U0004fffe-\U0004ffff",
+    "\U0005fffe-\U0005ffff",
+    "\U0006fffe-\U0006ffff",
+    "\U0007fffe-\U0007ffff",
+    "\U0008fffe-\U0008ffff",
+    "\U0009fffe-\U0009ffff",
+    "\U000afffe-\U000affff",
+    "\U000bfffe-\U000bffff",
+    "\U000cfffe-\U000cffff",
+    "\U000dfffe-\U000dffff",
+    "\U000efffe-\U000effff",
+    "\U000ffffe-\U000fffff",
+    "\U0010fffe-\U0010ffff",
+]
+_illegal_xml_chars_RE = re.compile("[%s]" % "".join(_illegal_ranges))
+
+
+def _clean_for_xml(data):
+    """ Sanitize any user-submitted data to ensure that it can be used in XML """
+
+    # If data is None or an empty string, don't bother
+    if data:
+        # This turns a string like "Hello…" into "Hello&#8230;"
+        data = data.encode("ascii", "xmlcharrefreplace").decode("ascii")
+        # However it's still possible that there are invalid characters in the string,
+        # so simply remove any of those characters
+        return _illegal_xml_chars_RE.sub("", data)
+    return data
 
 
 def submit_xmlrpc_metrics(method=None):
@@ -209,7 +251,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
         return [
             {
                 "name": r.name,
-                "summary": getattr(r, "summary", None),
+                "summary": _clean_for_xml(getattr(r, "summary", None)),
                 "version": v,
                 "_pypi_ordering": False,
             }
@@ -220,7 +262,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
     return [
         {
             "name": r.name,
-            "summary": getattr(r, "summary", None),
+            "summary": _clean_for_xml(getattr(r, "summary", None)),
             "version": r.latest_version,
             "_pypi_ordering": False,
         }
@@ -331,18 +373,18 @@ def release_data(request, package_name: str, version: str):
         "release_url": request.route_url(
             "packaging.release", name=release.project.name, version=release.version
         ),
-        "docs_url": release.project.documentation_url,
-        "home_page": release.home_page,
-        "download_url": release.download_url,
-        "project_url": list(release.project_urls),
-        "author": release.author,
-        "author_email": release.author_email,
-        "maintainer": release.maintainer,
-        "maintainer_email": release.maintainer_email,
-        "summary": release.summary,
-        "description": release.description,
-        "license": release.license,
-        "keywords": release.keywords,
+        "docs_url": _clean_for_xml(release.project.documentation_url),
+        "home_page": _clean_for_xml(release.home_page),
+        "download_url": _clean_for_xml(release.download_url),
+        "project_url": [_clean_for_xml(url) for url in release.project_urls],
+        "author": _clean_for_xml(release.author),
+        "author_email": _clean_for_xml(release.author_email),
+        "maintainer": _clean_for_xml(release.maintainer),
+        "maintainer_email": _clean_for_xml(release.maintainer_email),
+        "summary": _clean_for_xml(release.summary),
+        "description": _clean_for_xml(release.description),
+        "license": _clean_for_xml(release.license),
+        "keywords": _clean_for_xml(release.keywords),
         "platform": release.platform,
         "classifiers": list(release.classifiers),
         "requires": list(release.requires),

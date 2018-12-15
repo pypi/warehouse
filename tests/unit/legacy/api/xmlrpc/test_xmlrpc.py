@@ -825,3 +825,11 @@ def test_multicall(pyramid_request):
         "ValueError: MultiCall requests have been deprecated, use individual "
         "requests instead."
     )
+
+
+@pytest.mark.parametrize("string, expected", [
+    ("Hello…", "Hello&#8230;"),
+    ("Stripe\x1b", "Stripe"),
+])
+def test_clean_for_xml(string, expected):
+    assert xmlrpc._clean_for_xml(string) == expected
