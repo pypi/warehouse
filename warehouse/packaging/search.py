@@ -12,7 +12,7 @@
 
 import packaging.version
 
-from elasticsearch_dsl import Date, Document, Keyword, Text, Float, analyzer
+from elasticsearch_dsl import Date, Document, Float, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
 
