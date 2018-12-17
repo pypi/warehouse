@@ -827,9 +827,8 @@ def test_multicall(pyramid_request):
     )
 
 
-@pytest.mark.parametrize("string, expected", [
-    ("Hello…", "Hello&#8230;"),
-    ("Stripe\x1b", "Stripe"),
-])
+@pytest.mark.parametrize(
+    "string, expected", [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
+)
 def test_clean_for_xml(string, expected):
     assert xmlrpc._clean_for_xml(string) == expected
