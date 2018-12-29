@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import urllib.parse
+import datetime
 
 from functools import partial
 
@@ -186,3 +187,17 @@ def test_format_package_type(inp, expected):
 )
 def test_parse_version(inp, expected):
     assert filters.parse_version(inp) == expected
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013),
+            "2018-12-26 13:36:05.789013 UTC"
+        ),
+    ]
+) 
+
+def test_localize_datetime(inp, expected):
+    datetime_format = "%Y-%m-%d %H:%M:%S.%f %Z"
+    assert filters.localize_datetime(inp).strftime(datetime_format) == expected

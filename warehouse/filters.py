@@ -17,6 +17,7 @@ import hmac
 import json
 import re
 import urllib.parse
+import pytz
 
 import html5lib
 import html5lib.serializer
@@ -156,3 +157,6 @@ def parse_version(version_str):
 
 def includeme(config):
     config.add_request_method(_camo_url, name="camo_url")
+
+def localize_datetime(timestamp):
+    return pytz.utc.localize(timestamp)
