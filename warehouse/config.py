@@ -280,6 +280,7 @@ def configure(settings=None):
     filters.setdefault("contains_valid_uris", "warehouse.filters:contains_valid_uris")
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
+    filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
