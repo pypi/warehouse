@@ -7,7 +7,7 @@ env:
     - PGPORT=5433
 
 dist: trusty
-sudo: true
+sudo: required
 
 addons:
   hosts:

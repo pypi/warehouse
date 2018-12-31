@@ -233,7 +233,11 @@
                 <p class="release__version">
                   {{ hversion.version }} {% if hversion.is_prerelease %}<span class="badge badge--warning release__version-badge">pre-release</span>{% endif %}
                 </p>
-                <p class="release__version-date">{{ humanize(hversion.created) }}</p>
+                <p class="release__version-date">
+                  <span class="tooltipped tooltipped-s" aria-label="{{ hversion.created|localize_datetime|format_datetime('yyyy-MM-dd HH:mm z') }}" data-original-label="{{ hversion.created|localize_datetime|format_datetime('yyyy-MM-dd HH:mm z') }}">
+                    {{ humanize(hversion.created) }}
+                  </span>
+                </p>
               </a>
             </div>
             {% endfor %}
