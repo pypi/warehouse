@@ -178,7 +178,7 @@ class DatabaseUserService:
         password,
         is_active=False,
         is_superuser=False,
-        is_moderator=True,
+        is_moderator=False,
     ):
 
         user = User(
