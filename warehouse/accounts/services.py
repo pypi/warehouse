@@ -172,7 +172,7 @@ class DatabaseUserService:
         return False
 
     def create_user(
-        self, username, name, password, is_active=False, is_superuser=False
+        self, username, name, password, is_active=False, is_superuser=False, is_moderator=True,
     ):
 
         user = User(
@@ -181,6 +181,7 @@ class DatabaseUserService:
             password=self.hasher.hash(password),
             is_active=is_active,
             is_superuser=is_superuser,
+            is_moderator=is_moderator,
         )
         self.db.add(user)
         self.db.flush()  # flush the db now so user.id is available
