@@ -55,7 +55,7 @@ class RootFactory:
     __parent__ = None
     __name__ = None
 
-    __acl__ = [(Allow, "group:admins", "admin"), (Allow, Authenticated, "manage:user")]
+    __acl__ = [(Allow, "group:admins", "admin"), (Allow, "group:moderators", "moderator"), (Allow, Authenticated, "manage:user")]
 
     def __init__(self, request):
         pass

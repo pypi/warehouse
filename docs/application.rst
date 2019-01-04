@@ -56,6 +56,9 @@ Warehouse serves three main classes of users:
    Dustin Ingram, and Donald Stufft, who add classifiers, ban
    spam/malware projects, help users with account recovery, and so
    on. There are under ten such admins.
+4. *PyPI application moderators*. These users have a subset of the
+   permissions of *PyPI application administrators* to assist in some
+   routine administration tasks.
 
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible. This is a big reason
