@@ -66,7 +66,14 @@ class IUserService(Interface):
         checking the password.
         """
 
-    def create_user(username, name, password, is_active=False, is_superuser=False, is_moderator=False):
+    def create_user(
+        username,
+        name,
+        password,
+        is_active=False,
+        is_superuser=False,
+        is_moderator=False,
+    ):
         """
         Accepts a user object, and attempts to create a user with those
         attributes.
