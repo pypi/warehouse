@@ -17,9 +17,9 @@ Revises: 2d6390eebe90
 Create Date: 2019-01-06 16:17:43.846366
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "20ee7dfaddc7"
 down_revision = "2d6390eebe90"
