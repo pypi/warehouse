@@ -162,10 +162,11 @@
             {% if term or applied_filters %}
             <input id="search" type="hidden" name="q" value="{{ term }}">
             <label for="order">Order by &nbsp;</label>
-            <select class="-js-form-submit-trigger" id="order" name="o">
-              {{ search_option("Relevance", "") }}
-              {{ search_option("Date last updated", "-created") }}
-              {{ search_option("Trending", "-zscore") }}
+            <select class="-js-form-submit-trigger" id="order" name="mode">
+              {{ search_option("Relevance", "relevance") }}
+              {{ search_option("Popularity", "popularity") }}
+              {{ search_option("Date last updated", "created") }}
+              {{ search_option("Trending", "trending") }}
             </select>
             {% endif %}
           </div>
