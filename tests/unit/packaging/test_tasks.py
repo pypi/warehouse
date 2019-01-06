@@ -31,8 +31,14 @@ class TestComputeTrending:
 
         results = iter(
             [
-                Row((projects[1].normalized_name, 2), {"project": 0, "zscore": 1}),
-                Row((projects[2].normalized_name, -1), {"project": 0, "zscore": 1}),
+                Row(
+                    (projects[1].normalized_name, 2, 3),
+                    {"project": 0, "zscore": 1, "downloads_month_to_date": 2},
+                ),
+                Row(
+                    (projects[2].normalized_name, -1, 6),
+                    {"project": 0, "zscore": 1, "downloads_month_to_date": 2},
+                ),
             ]
         )
         query = pretend.stub(result=pretend.call_recorder(lambda *a, **kw: results))
@@ -59,6 +65,7 @@ class TestComputeTrending:
         assert bigquery.query.calls == [
             pretend.call(
                 """ SELECT project,
+                   SUM(downloads) as downloads_month_to_date,
                    IF(
                         STDDEV(downloads) > 0,
                         (todays_downloads - AVG(downloads))/STDDEV(downloads),
@@ -101,10 +108,15 @@ class TestComputeTrending:
             [pretend.call(["trending"])] if with_purges else []
         )
 
-        results = dict(db_request.db.query(Project.name, Project.zscore).all())
+        results = {
+            name: (zscore, downloads)
+            for name, zscore, downloads in db_request.db.query(
+                Project.name, Project.zscore, Project.downloads_month_to_date
+            )
+        }
 
         assert results == {
-            projects[0].name: None,
-            projects[1].name: 2,
-            projects[2].name: -1,
+            projects[0].name: (None, None),
+            projects[1].name: (2, 3),
+            projects[2].name: (-1, 6),
         }
