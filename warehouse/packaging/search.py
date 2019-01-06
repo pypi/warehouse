@@ -12,7 +12,7 @@
 
 import packaging.version
 
-from elasticsearch_dsl import Date, Document, Float, Keyword, Text, analyzer
+from elasticsearch_dsl import Date, Document, Float, Integer, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
 
@@ -50,6 +50,7 @@ class Project(Document):
     created = Date()
     classifiers = Keyword(multi=True)
     zscore = Float()
+    downloads_month_to_date = Integer()
 
     @classmethod
     def from_db(cls, release):
@@ -73,5 +74,6 @@ class Project(Document):
         obj["created"] = release.created
         obj["classifiers"] = release.classifiers
         obj["zscore"] = release.zscore
+        obj["downloads_month_to_date"] = release.downloads_month_to_date
 
         return obj

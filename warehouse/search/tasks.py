@@ -86,6 +86,7 @@ def _project_docs(db, project_name=None):
             Project.normalized_name,
             Project.name,
             Project.zscore,
+            Project.downloads_month_to_date,
         )
         .select_from(releases_list)
         .join(Release, Release.id == releases_list.c.id)
