@@ -88,7 +88,7 @@ class AddClassifier:
 
 @view_config(
     route_name="admin.classifiers.deprecate",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
