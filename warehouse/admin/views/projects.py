@@ -31,7 +31,8 @@ ONE_MB = 1024 * 1024  # bytes
 @view_config(
     route_name="admin.project.list",
     renderer="admin/projects/list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def project_list(request):
@@ -63,10 +64,21 @@ def project_list(request):
     return {"projects": projects, "query": q}
 
 
+
+@view_config(
+    route_name="admin.project.detail",
+    renderer="admin/projects/detail.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
 @view_config(
     route_name="admin.project.detail",
     renderer="admin/projects/detail.html",
     permission="admin",
+    request_method="POST",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -138,7 +150,8 @@ def project_detail(project, request):
 @view_config(
     route_name="admin.project.releases",
     renderer="admin/projects/releases_list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def releases_list(project, request):
@@ -186,7 +199,8 @@ def releases_list(project, request):
 @view_config(
     route_name="admin.project.release",
     renderer="admin/projects/release_detail.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def release_detail(release, request):
@@ -204,7 +218,8 @@ def release_detail(release, request):
 @view_config(
     route_name="admin.project.journals",
     renderer="admin/projects/journals_list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def journals_list(project, request):
@@ -252,7 +267,7 @@ def journals_list(project, request):
 
 @view_config(
     route_name="admin.project.set_upload_limit",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
