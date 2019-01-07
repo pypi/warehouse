@@ -77,7 +77,7 @@
                   <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
                   <td>{{ role.role_name }}</td>
                   <td>
-                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}">
+                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('admin') }}>
                       <i class="fa fa-trash"></i>
                     </button>
                     <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
@@ -116,10 +116,10 @@
                   <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <td>
-                    <input name="username" class="form-control" placeholder="Username" required>
+                    <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('admin') }}>
                   </td>
                   <td>
-                    <select class="form-control" name="role_name" required>
+                    <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('admin') }}>
                       <option disabled selected>Select a role</option>
                       {% for role_name in ['Maintainer', 'Owner'] %}
                       <option value="{{ role_name }}">
@@ -129,7 +129,7 @@
                     </select>
                   </td>
                   <td>
-                    <button type="submit" class="btn btn-primary btn-sm">
+                    <button type="submit" class="btn btn-primary btn-sm" {{ "disabled" if not request.has_permission('admin') }}>
                       <i class="fa fa-plus"></i>
                     </button>
                   </td>
@@ -248,13 +248,13 @@
       <div class="box-body">
         <div class="form-group col-sm-12">
           <label for="blacklistedComment">Comment</label>
-          <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..."></textarea>
+          <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
         </div>
       </div>
 
       <div class="box-footer">
         <div class="pull-right">
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
         </div>
       </div>
     </form>

@@ -61,7 +61,7 @@
           <form method="POST" action="{{ request.route_path('admin.squats.review') }}">
             <input type="hidden" name="id" value="{{ squat.id }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input type="submit" value="Mark as reviewed">
+            <input type="submit" value="Mark as reviewed" title="{{ "Marking requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
           </form>
         </td>
       </tr>
