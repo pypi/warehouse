@@ -165,6 +165,7 @@
             <select class="-js-form-submit-trigger" id="order" name="o">
               {{ search_option("Relevance", "") }}
               {{ search_option("Date last updated", "-created") }}
+              {{ search_option("Trending", "-zscore") }}
             </select>
             {% endif %}
           </div>
