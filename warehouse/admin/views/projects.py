@@ -64,7 +64,6 @@ def project_list(request):
     return {"projects": projects, "query": q}
 
 
-
 @view_config(
     route_name="admin.project.detail",
     renderer="admin/projects/detail.html",

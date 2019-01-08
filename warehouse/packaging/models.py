@@ -165,7 +165,10 @@ class Project(SitemapMixin, db.Model):
 
     def __acl__(self):
         session = orm.object_session(self)
-        acls = [(Allow, "group:admins", "admin"), (Allow, "group:moderators", "moderator")]
+        acls = [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ]
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
