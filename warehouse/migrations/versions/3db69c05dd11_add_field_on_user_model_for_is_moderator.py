@@ -28,11 +28,21 @@ down_revision = "2d6390eebe90"
 def upgrade():
     op.add_column(
         "users",
-        sa.Column("is_moderator", sa.Boolean(), nullable=False, server_default=sa.sql.expression.false()),
+        sa.Column(
+            "is_moderator",
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.sql.expression.false(),
+        ),
     )
     op.alter_column(
         "users",
-        sa.Column("is_superuser", sa.Boolean(), nullable=False, server_default=sa.sql.expression.false()),
+        sa.Column(
+            "is_superuser",
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.sql.expression.false(),
+        ),
     )
 
 
