@@ -71,8 +71,6 @@ class IUserService(Interface):
         name,
         password,
         is_active=False,
-        is_superuser=False,
-        is_moderator=False,
     ):
         """
         Accepts a user object, and attempts to create a user with those

@@ -212,6 +212,7 @@ class TestAuthenticate:
             (False, False, []),
             (True, False, ["group:admins", "group:moderators"]),
             (False, True, ["group:moderators"]),
+            (True, True, ["group:admins", "group:moderators"]),
         ],
     )
     def test_with_user(self, is_superuser, is_moderator, expected):

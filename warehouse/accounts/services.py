@@ -177,8 +177,6 @@ class DatabaseUserService:
         name,
         password,
         is_active=False,
-        is_superuser=False,
-        is_moderator=False,
     ):
 
         user = User(
@@ -186,8 +184,8 @@ class DatabaseUserService:
             name=name,
             password=self.hasher.hash(password),
             is_active=is_active,
-            is_superuser=is_superuser,
-            is_moderator=is_moderator,
+            is_superuser=False,
+            is_moderator=False,
         )
         self.db.add(user)
         self.db.flush()  # flush the db now so user.id is available
