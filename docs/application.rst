@@ -152,3 +152,4 @@ may be used to from the legacy site, such as:
   longer visible in the web UI)
 
 - `OpenID and Google auth login <https://mail.python.org/pipermail/distutils-sig/2018-January/031855.html>`_
+  are no longer supported.
