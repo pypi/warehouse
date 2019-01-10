@@ -26,7 +26,7 @@
 {% elif name.lower().startswith(("bug", "issue", "tracker", "report")) %}
   {% set icon = "fas fa-bug" %}
 {% elif name.lower().startswith(("funding", "donate", "donation")) %}
-  {% set icon = "fas fa-coins" %}
+  {% set icon = "fas fa-donate" %}
 {% elif parsed.netloc in ["github.com", "github.io"] or parsed.netloc.endswith((".github.com", ".github.io")) %}
   {% set icon = "fab fa-github" %}
 {% elif parsed.netloc == "gitlab.com" or parsed.netloc.endswith(".gitlab.com") %}
