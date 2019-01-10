@@ -29,10 +29,7 @@ def upgrade():
     op.add_column(
         "users",
         sa.Column(
-            "is_moderator",
-            sa.Boolean(),
-            nullable=False,
-            server_default=sa.sql.false(),
+            "is_moderator", sa.Boolean(), nullable=False, server_default=sa.sql.false()
         ),
     )
 
