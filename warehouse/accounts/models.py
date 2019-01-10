@@ -70,8 +70,8 @@ class User(SitemapMixin, db.Model):
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
     password_date = Column(DateTime, nullable=True, server_default=sql.func.now())
-    is_active = Column(Boolean, nullable=False)
-    is_superuser = Column(Boolean, nullable=False)
+    is_active = Column(Boolean, nullable=False, server_default=sql.false())
+    is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
