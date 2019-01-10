@@ -211,6 +211,8 @@ class TestDatabaseUserService:
 
         assert user_from_db.username == user.username
         assert user_from_db.name == user.name
+        assert not user_from_db.is_active
+        assert not user_from_db.is_superuser
 
     def test_add_email_not_primary(self, user_service):
         user = UserFactory.create()
