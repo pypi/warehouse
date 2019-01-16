@@ -164,9 +164,9 @@ datadog==0.26.0 \
 decorator==4.3.0 \
     --hash=sha256:2c51dff8ef3c447388fe5e4453d24a2bf128d3a4c32af3fabef1f01c6851ab82 \
     --hash=sha256:c39efa13fbdeb4506c476c9b3babf6a718da943dab7811c206005a4a956c080c
-disposable-email-domains==0.0.39 \
-    --hash=sha256:abdd54c008b510b4d696e3d2d21b218e578310e910cdb14366d95dee78e26050 \
-    --hash=sha256:cde5811da0a094b751ec9ec98023e9623d085b1c7d13b71555eab3d62df48c43
+disposable-email-domains==0.0.40 \
+    --hash=sha256:6166bb7967d2a5f8f8eaa8ff9cf7389208861e6c0a5ca6930e27677a20b6f359 \
+    --hash=sha256:890cc763ffa3140d27d57309f7a3c7673cc4270324da1fb3df4fdff60ec86e1e
 docutils==0.14 \
     --hash=sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6 \
     --hash=sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274 \
