@@ -334,7 +334,7 @@ def search(request):
     return {
         "page": page,
         "term": querystring,
-        "order": mode.value,  # TODO: rename to `mode`
+        "mode": mode.value,
         "available_filters": process_available_filters(),
         "applied_filters": request.params.getall("c"),
     }

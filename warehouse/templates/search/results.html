@@ -23,7 +23,7 @@
     <h3 class="package-snippet__title">
       <span class="package-snippet__name">{{ item.name }}</span>
       <span class="package-snippet__version">{{ item.latest_version }}</span>
-      {% if order == "-created" %}
+      {% if mode == "created" %}
       <span class="package-snippet__released">{{ humanize(item.created) }}</span>
       {% endif %}
     </h3>
@@ -45,7 +45,7 @@
 
 
 {% macro search_option(text, value) -%}
-<option value="{{ value }}" {{ 'selected' if value == order else ''}}>{{ text }}</option>
+<option value="{{ value }}" {{ 'selected' if value == mode else ''}}>{{ text }}</option>
 {%- endmacro %}
 
 
@@ -96,7 +96,7 @@
         </h2>
         <form id="classifiers">
         <input id="search" type="hidden" name="q" value="{{ term }}">
-        <input type="hidden" name="o" value="{{ order }}">
+        <input type="hidden" name="o" value="{{ mode }}">
 
         {% set applied_filters_str = applied_filters|join(' ') %}
         {% for each_filter in available_filters %}

@@ -57,7 +57,9 @@ class SearchModes(enum.Enum):
 
 
 def get_es_query(es, querystring, mode, classifiers):
-    """Returns an Elasticsearch query from data from the request."""
+    """
+    Returns an Elasticsearch query from data from the request.
+    """
     if not querystring:
         return es.query()
 
@@ -69,28 +71,6 @@ def get_es_query(es, querystring, mode, classifiers):
     # Require match to all specified classifiers
     for classifier in classifiers:
         query = query.query("prefix", classifiers=classifier)
-
-    return query
-
-
-def query_for_mode(query, mode):
-    """Applies transformations on the ES query based on the search mode"""
-    if mode == SearchModes.popularity:
-        functions = [
-            {
-                "field_value_factor": {
-                    "field": "downloads_month_to_date",
-                    "modifier": "sqrt",
-                    "factor": 0.001,
-                    "missing": 0
-                }
-            }
-        ]
-        query.query = Q("function_score", query=query.query, functions=functions)
-    elif mode == SearchModes.created:
-        query.sort({"created": {"order": "desc", "unmapped_type": "long"}})
-    elif mode == SearchModes.trending:
-        query.sort({"zscore": {"order": "desc", "unmapped_type": "long"}})
 
     return query
 
@@ -130,3 +110,27 @@ def form_query(query_type, query):
         for field in SEARCH_FIELDS
     ]
     return Q("multi_match", fields=fields, query=query, type=query_type)
+
+
+def query_for_mode(query, mode):
+    """
+    Applies transformations on the ES query based on the search mode
+    """
+    if mode == SearchModes.popularity:
+        functions = [
+            {
+                "field_value_factor": {
+                    "field": "downloads_month_to_date",
+                    "modifier": "sqrt",
+                    "factor": 0.001,
+                    "missing": 0,
+                }
+            }
+        ]
+        query.query = Q("function_score", query=query.query, functions=functions)
+    elif mode == SearchModes.created:
+        query = query.sort({"created": {"order": "desc", "unmapped_type": "long"}})
+    elif mode == SearchModes.trending:
+        query = query.sort({"zscore": {"order": "desc", "unmapped_type": "long"}})
+
+    return query
