@@ -233,7 +233,7 @@ class TestSearch:
         assert search(db_request) == {
             "page": page_obj,
             "term": params.get("q", ""),
-            "order": "relevance",
+            "mode": "relevance",
             "applied_filters": [],
             "available_filters": [],
         }
@@ -283,7 +283,7 @@ class TestSearch:
         assert search_view == {
             "page": page_obj,
             "term": params.get("q", ""),
-            "order": "relevance",
+            "mode": "relevance",
             "applied_filters": params.getall("c"),
             "available_filters": [
                 {
