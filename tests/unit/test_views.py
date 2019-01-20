@@ -19,8 +19,8 @@ import pytest
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPServiceUnavailable
 from webob.multidict import MultiDict
 
-from warehouse.search import queries
 from warehouse import views
+from warehouse.search import queries
 from warehouse.views import (
     classifiers,
     current_user_indicator,

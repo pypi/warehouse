@@ -11,8 +11,9 @@
 # limitations under the License.
 
 
-from elasticsearch_dsl import Search
 import pytest
+
+from elasticsearch_dsl import Search
 
 from warehouse.search import queries
 

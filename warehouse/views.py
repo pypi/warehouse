@@ -44,7 +44,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailable
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
-from warehouse.search.queries import get_es_query, SearchModes, SEARCH_FILTER_ORDER
+from warehouse.search.queries import SEARCH_FILTER_ORDER, SearchModes, get_es_query
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
 
