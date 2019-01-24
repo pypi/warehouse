@@ -98,6 +98,8 @@ def _authenticate(userid, request):
 
     if user.is_superuser:
         principals.append("group:admins")
+    if user.is_moderator or user.is_superuser:
+        principals.append("group:moderators")
 
     return principals
 

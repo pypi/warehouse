@@ -9,22 +9,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Add field on User model for is_moderator
 
-from pyramid.view import forbidden_view_config, view_config
+Revision ID: 3db69c05dd11
+Revises: 67f52a64a389
+Create Date: 2019-01-04 21:29:45.455607
+"""
 
-from warehouse.views import forbidden as forbidden_view
+import sqlalchemy as sa
+
+from alembic import op
+
+revision = "3db69c05dd11"
+down_revision = "67f52a64a389"
 
 
-@forbidden_view_config(path_info=r"^/admin/")
-def forbidden(exc, request):
-    return forbidden_view(exc, request, redirect_to="admin.login")
+def upgrade():
+    op.add_column(
+        "users",
+        sa.Column(
+            "is_moderator", sa.Boolean(), nullable=False, server_default=sa.sql.false()
+        ),
+    )
 
 
-@view_config(
-    route_name="admin.dashboard",
-    renderer="admin/dashboard.html",
-    permission="moderator",
-    uses_session=True,
-)
-def dashboard(request):
-    return {}
+def downgrade():
+    op.drop_column("users", "is_moderator")

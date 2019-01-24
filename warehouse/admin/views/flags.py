@@ -19,7 +19,8 @@ from warehouse.admin.flags import AdminFlag
 @view_config(
     route_name="admin.flags",
     renderer="admin/flags/index.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def get_flags(request):

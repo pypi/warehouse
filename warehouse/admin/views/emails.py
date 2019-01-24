@@ -25,7 +25,8 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.emails.list",
     renderer="admin/emails/list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def email_list(request):
@@ -62,7 +63,8 @@ def email_list(request):
 @view_config(
     route_name="admin.emails.detail",
     renderer="admin/emails/detail.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def email_detail(request):

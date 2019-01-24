@@ -123,6 +123,7 @@ class TestProject:
 
         assert acls == [
             (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
             (Allow, str(owner1.user.id), ["manage:project", "upload"]),
             (Allow, str(owner2.user.id), ["manage:project", "upload"]),
             (Allow, str(maintainer1.user.id), ["upload"]),
@@ -291,6 +292,7 @@ class TestRelease:
 
         assert acls == [
             (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
             (Allow, str(owner1.user.id), ["manage:project", "upload"]),
             (Allow, str(owner2.user.id), ["manage:project", "upload"]),
             (Allow, str(maintainer1.user.id), ["upload"]),

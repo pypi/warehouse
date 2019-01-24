@@ -25,7 +25,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.journals.list",
     renderer="admin/journals/list.html",
-    permission="admin",
+    permission="moderator",
     uses_session=True,
 )
 def journals_list(request):
