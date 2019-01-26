@@ -150,12 +150,12 @@ class TestQueries:
             {expected_field: {"order": "desc", "unmapped_type": "long"}}
         ]
 
-    def test_popularity_mode(self):
+    def test_download_frequency_mode(self):
         es = Search()
         querystring = "foo bar"
 
         query = queries.get_es_query(
-            es, querystring, queries.SearchModes.popularity, []
+            es, querystring, queries.SearchModes.download_frequency, []
         )
 
         query_dict = query.to_dict()

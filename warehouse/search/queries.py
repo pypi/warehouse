@@ -51,7 +51,7 @@ SEARCH_FILTER_ORDER = (
 
 class SearchModes(enum.Enum):
     relevance = "relevance"
-    popularity = "popularity"
+    download_frequency = "download_frequency"
     created = "created"
     trending = "trending"
 
@@ -116,7 +116,7 @@ def query_for_mode(query, mode):
     """
     Applies transformations on the ES query based on the search mode
     """
-    if mode == SearchModes.popularity:
+    if mode == SearchModes.download_frequency:
         functions = [
             {
                 "field_value_factor": {
