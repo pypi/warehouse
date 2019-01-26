@@ -20,7 +20,7 @@ def compute_trending(request):
     bq = request.find_service(name="gcloud.bigquery")
     query = bq.query(
         """ SELECT project,
-                   SUM(downloads) as downloads_month_to_date,
+                   SUM(downloads) as downloads_last_30_days,
                    IF(
                         STDDEV(downloads) > 0,
                         (todays_downloads - AVG(downloads))/STDDEV(downloads),
@@ -63,7 +63,7 @@ def compute_trending(request):
     zscores = {}
     for row in query.result():
         row = dict(row)
-        zscores[row["project"]] = (row["zscore"], row["downloads_month_to_date"])
+        zscores[row["project"]] = (row["zscore"], row["downloads_last_30_days"])
 
     # We're going to "reset" all of our zscores and downloads to a steady state
     # where they are all equal to ``None``. The next query will then set any
@@ -71,9 +71,9 @@ def compute_trending(request):
     (
         request.db.query(Project)
         .filter(
-            (Project.zscore != None) | (Project.downloads_month_to_date != None)
+            (Project.zscore != None) | (Project.downloads_last_30_days != None)
         )  # noqa
-        .update({Project.zscore: None, Project.downloads_month_to_date: None})
+        .update({Project.zscore: None, Project.downloads_last_30_days: None})
     )
 
     # We need to convert the normalized name that we get out of BigQuery and
@@ -87,7 +87,7 @@ def compute_trending(request):
         {
             "id": id,
             "zscore": zscores[normalized_name][0],
-            "downloads_month_to_date": zscores[normalized_name][1],
+            "downloads_last_30_days": zscores[normalized_name][1],
         }
         for id, normalized_name in query
     ]

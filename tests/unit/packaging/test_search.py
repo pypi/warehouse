@@ -36,7 +36,7 @@ def test_build_search():
         created=datetime.datetime(1956, 1, 31),
         classifiers=["Alpha", "Beta"],
         zscore=None,
-        downloads_month_to_date=None,
+        downloads_last_30_days=None,
     )
     obj = Project.from_db(release)
 
@@ -57,4 +57,4 @@ def test_build_search():
     assert obj["created"] == datetime.datetime(1956, 1, 31)
     assert obj["classifiers"] == ["Alpha", "Beta"]
     assert obj["zscore"] is None
-    assert obj["downloads_month_to_date"] is None
+    assert obj["downloads_last_30_days"] is None

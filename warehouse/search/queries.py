@@ -120,7 +120,7 @@ def query_for_mode(query, mode):
         functions = [
             {
                 "field_value_factor": {
-                    "field": "downloads_month_to_date",
+                    "field": "downloads_last_30_days",
                     "modifier": "sqrt",
                     "factor": 0.001,
                     "missing": 0,

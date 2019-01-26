@@ -33,11 +33,11 @@ class TestComputeTrending:
             [
                 Row(
                     (projects[1].normalized_name, 2, 3),
-                    {"project": 0, "zscore": 1, "downloads_month_to_date": 2},
+                    {"project": 0, "zscore": 1, "downloads_last_30_days": 2},
                 ),
                 Row(
                     (projects[2].normalized_name, -1, 6),
-                    {"project": 0, "zscore": 1, "downloads_month_to_date": 2},
+                    {"project": 0, "zscore": 1, "downloads_last_30_days": 2},
                 ),
             ]
         )
@@ -65,7 +65,7 @@ class TestComputeTrending:
         assert bigquery.query.calls == [
             pretend.call(
                 """ SELECT project,
-                   SUM(downloads) as downloads_month_to_date,
+                   SUM(downloads) as downloads_last_30_days,
                    IF(
                         STDDEV(downloads) > 0,
                         (todays_downloads - AVG(downloads))/STDDEV(downloads),
@@ -111,7 +111,7 @@ class TestComputeTrending:
         results = {
             name: (zscore, downloads)
             for name, zscore, downloads in db_request.db.query(
-                Project.name, Project.zscore, Project.downloads_month_to_date
+                Project.name, Project.zscore, Project.downloads_last_30_days
             )
         }
 

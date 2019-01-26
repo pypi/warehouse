@@ -50,7 +50,7 @@ class Project(Document):
     created = Date()
     classifiers = Keyword(multi=True)
     zscore = Float()
-    downloads_month_to_date = Integer()
+    downloads_last_30_days = Integer()
 
     @classmethod
     def from_db(cls, release):
@@ -74,6 +74,6 @@ class Project(Document):
         obj["created"] = release.created
         obj["classifiers"] = release.classifiers
         obj["zscore"] = release.zscore
-        obj["downloads_month_to_date"] = release.downloads_month_to_date
+        obj["downloads_last_30_days"] = release.downloads_last_30_days
 
         return obj

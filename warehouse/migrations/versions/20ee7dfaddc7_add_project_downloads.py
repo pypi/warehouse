@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Add `downloads_month_to_date` column on project for indexing.
+Add `downloads_last_30_days` column on project for indexing.
 
 Revision ID: 20ee7dfaddc7
 Revises: 67f52a64a389
@@ -36,9 +36,9 @@ down_revision = "67f52a64a389"
 
 def upgrade():
     op.add_column(
-        "projects", sa.Column("downloads_month_to_date", sa.Integer(), nullable=True)
+        "projects", sa.Column("downloads_last_30_days", sa.Integer(), nullable=True)
     )
 
 
 def downgrade():
-    op.drop_column("projects", "downloads_month_to_date")
+    op.drop_column("projects", "downloads_last_30_days")
