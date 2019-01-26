@@ -71,7 +71,7 @@ def compute_trending(request):
     (
         request.db.query(Project)
         .filter(
-            (Project.zscore != None) | (Project.downloads_last_30_days != None)
+            (Project.zscore.isnot(None)) | (Project.downloads_last_30_days.isnot(None))
         )  # noqa
         .update({Project.zscore: None, Project.downloads_last_30_days: None})
     )
