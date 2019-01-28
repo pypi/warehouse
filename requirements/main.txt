@@ -593,6 +593,6 @@ zxcvbn==4.4.27 \
     --hash=sha256:6b09db5a411f927a7effac40b50ab0f9b1eae7b1659134b4a931e78950dd8387
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==40.6.3 \
-    --hash=sha256:3b474dad69c49f0d2d86696b68105f3a6f195f7ab655af12ef9a9c326d2b08f8 \
-    --hash=sha256:e2c1ce9a832f34cf7a31ed010aabcab5008eb65ce8f2aadc04622232c14bdd0b
+setuptools==40.7.0 \
+    --hash=sha256:4380932816f38096e43623a7daca5cf34085683bc009feb5058fa78d09375b9d \
+    --hash=sha256:5d29d6d5ca47f370959a15f39fddad7ae94a02dadaf0ef5e907f17ef8e518de1
