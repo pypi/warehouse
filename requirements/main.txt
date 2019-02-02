@@ -510,8 +510,8 @@ six==1.12.0 \
     --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73
 sqlalchemy-citext==1.3.post0 \
     --hash=sha256:7d7343037a35153d6f94c3c2f6baf391f88a57651c3bde5d6749d216859ae4c5
-sqlalchemy==1.2.16 \
-    --hash=sha256:6af3ca2f7f00844465ab4fa78337d487b39e53f516c51328aed4ed3a719d4264
+sqlalchemy==1.2.17 \
+    --hash=sha256:52a42dbf02d0562d6e90e7af59f177f1cc027e72833cc29c3a821eefa009c71d
 stdlib-list==0.5.0 \
     --hash=sha256:5311a95812ebce3c5ad0b1f6ded798ce6f945d157075d166a5426c2da75a6625 \
     --hash=sha256:fe30e9fc98304de4207f545311c75a6ad7701719bbeb1ac018a0fcf6aa70c0ce
