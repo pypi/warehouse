@@ -515,9 +515,9 @@ sqlalchemy==1.2.17 \
 stdlib-list==0.5.0 \
     --hash=sha256:5311a95812ebce3c5ad0b1f6ded798ce6f945d157075d166a5426c2da75a6625 \
     --hash=sha256:fe30e9fc98304de4207f545311c75a6ad7701719bbeb1ac018a0fcf6aa70c0ce
-structlog==18.2.0 \
-    --hash=sha256:e361edb3b9aeaa85cd38a1bc9ddbb60cda8a991fc29de9db26832f6300e81eb4 \
-    --hash=sha256:e912c03a3cf6876803c3f1b1e4b09dd4b9e4bcd0977586cb59cf538351ba6b1b
+structlog==19.1.0 \
+    --hash=sha256:5feae03167620824d3ae3e8915ea8589fc28d1ad6f3edf3cc90ed7c7cb33fab5 \
+    --hash=sha256:db441b81c65b0f104a7ce5d86c5432be099956b98b8a2c8be0b3fb3a7a0b1536
 tenacity==5.0.3 \
     --hash=sha256:24b7f302a1caa1801e58b39ea557129c095966e64e5b1ddad3c93a6cb033e38b \
     --hash=sha256:a04b97b3bda047f912a75d110dde3e746891b5548b6bec6d157cd100f2d4afac
