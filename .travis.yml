@@ -8,9 +8,6 @@ env:
     - TRAVIS_NODE_VERSION=8.9.4
     - PGPORT=5433
 
-dist: trusty
-sudo: required
-
 addons:
   hosts:
     - warehouse.local
