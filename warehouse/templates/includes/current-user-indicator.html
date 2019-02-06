@@ -23,7 +23,7 @@
         </span>
       </button>
       <ul class="dropdown__content">
-        {% if request.has_permission("admin") %}
+        {% if request.has_permission("moderator") %}
         <li>
           <a href="{{ request.route_path('admin.dashboard') }}" class="dropdown__link">
             <i class="fa fa-wrench" aria-hidden="true"></i>

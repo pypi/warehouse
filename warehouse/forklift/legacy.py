@@ -922,6 +922,12 @@ def file_upload(request):
             ),
         )
 
+    # Update name if it differs but is still equivalent. We don't need to check if
+    # they are equivalent when normalized because that's already been done when we
+    # queried for the project.
+    if project.name != form.name.data:
+        project.name = form.name.data
+
     # Uploading should prevent broken rendered descriptions.
     # Temporarily disabled, see
     # https://github.com/pypa/warehouse/issues/4079

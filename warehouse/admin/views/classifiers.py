@@ -19,7 +19,8 @@ from warehouse.packaging.models import Classifier
 @view_config(
     route_name="admin.classifiers",
     renderer="admin/classifiers/index.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def get_classifiers(request):
@@ -30,7 +31,7 @@ def get_classifiers(request):
 
 @view_defaults(
     route_name="admin.classifiers.add",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -87,7 +88,7 @@ class AddClassifier:
 
 @view_config(
     route_name="admin.classifiers.deprecate",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,

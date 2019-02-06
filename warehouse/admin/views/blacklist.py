@@ -29,7 +29,8 @@ from warehouse.utils.project import remove_project
 @view_config(
     route_name="admin.blacklist.list",
     renderer="admin/blacklist/list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def blacklist(request):
@@ -68,7 +69,7 @@ def blacklist(request):
 @view_config(
     route_name="admin.blacklist.add",
     renderer="admin/blacklist/confirm.html",
-    permission="admin",
+    permission="moderator",
     request_method="GET",
     uses_session=True,
 )

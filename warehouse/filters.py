@@ -23,6 +23,7 @@ import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
 import packaging.version
+import pytz
 
 from pyramid.threadlocal import get_current_request
 
@@ -152,6 +153,10 @@ def contains_valid_uris(items):
 
 def parse_version(version_str):
     return packaging.version.parse(version_str)
+
+
+def localize_datetime(timestamp):
+    return pytz.utc.localize(timestamp)
 
 
 def includeme(config):

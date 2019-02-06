@@ -30,7 +30,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.user.list",
     renderer="admin/users/list.html",
-    permission="admin",
+    permission="moderator",
     uses_session=True,
 )
 def user_list(request):
@@ -84,6 +84,7 @@ class UserForm(forms.Form):
 
     is_active = wtforms.fields.BooleanField()
     is_superuser = wtforms.fields.BooleanField()
+    is_moderator = wtforms.fields.BooleanField()
 
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailField))
 
@@ -91,7 +92,17 @@ class UserForm(forms.Form):
 @view_config(
     route_name="admin.user.detail",
     renderer="admin/users/detail.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.user.detail",
+    renderer="admin/users/detail.html",
     permission="admin",
+    request_method="POST",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
