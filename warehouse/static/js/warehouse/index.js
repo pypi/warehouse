@@ -46,9 +46,9 @@ import BindModalKeys from "warehouse/utils/bind-modal-keys";
 
 // Do this before anything else, to potentially capture errors down the line
 docReady(() => {
+  /* global Raven */
   let element = document.querySelector("script[data-sentry-frontend-dsn]");
-  if (element) {
-    /* global Raven */
+  if (element && typeof Raven !== "undefined") {
     Raven.config(element.dataset.sentryFrontendDsn).install();
   }
 });
