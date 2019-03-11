@@ -19,6 +19,7 @@ class TooManyFailedLogins(Exception):
 
         return super().__init__(*args, **kwargs)
 
+
 class TokenException(Exception):
     pass
 

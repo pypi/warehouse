@@ -181,8 +181,9 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
     maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
     maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
-    maybe_set(settings, "token.two_factor.max_age", "TOKEN_TWO_FACTOR_MAX_AGE",
-              coercer=int)
+    maybe_set(
+        settings, "token.two_factor.max_age", "TOKEN_TWO_FACTOR_MAX_AGE", coercer=int
+    )
     maybe_set(
         settings,
         "token.default.max_age",
