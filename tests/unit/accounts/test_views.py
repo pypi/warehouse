@@ -293,7 +293,7 @@ class TestLogin:
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(
             lambda a: "/account/two-factor"
         )
@@ -340,14 +340,18 @@ class TestTwoFactor:
         }[interface]
 
         form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
 
         result = views.two_factor(pyramid_request, _form_class=form_class)
 
         assert result == {"form": form_obj}
         assert user_service.send_otp_secret.calls == [pretend.call(1)]
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service)
+            pretend.call(
+                pyramid_request.POST,
+                user_service=user_service,
+                check_password_metrics_tags=["auth_method:two_factor_form"],
+            )
         ]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
@@ -393,7 +397,7 @@ class TestTwoFactor:
             validate=pretend.call_recorder(lambda: True),
             otp_secret=pretend.stub(data="test-otp-secret"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(
             lambda a: "/account/two-factor"
         )
@@ -440,7 +444,7 @@ class TestTwoFactor:
             validate=pretend.call_recorder(lambda: True),
             otp_secret=pretend.stub(data="test-otp-secret"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(
             lambda a: "/account/two-factor"
         )
