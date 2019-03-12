@@ -230,7 +230,8 @@ class DatabaseUserService:
         """
         Returns True if the user has two factor authentication.
         """
-        return True
+        user = self.get_user(user_id)
+        return user.totp_secret is not None
 
     def send_otp_secret(self, user_id):
         """
