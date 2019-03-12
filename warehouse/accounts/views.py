@@ -172,10 +172,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .lower(),
                 )
 
-            request.registry.datadog.increment(
-                "warehouse.authentication.complete", tags=["auth_method:login_form"]
-            )
-
             return resp
 
     return {
@@ -216,13 +212,11 @@ def two_factor(request, _form_class=TwoFactorForm):
     user_service = request.find_service(IUserService, context=None)
     user_service.send_otp_secret(userid)
 
-    form = _form_class(request.POST, user_service=user_service)
+    form = _form_class(request.POST,
+                       user_service=user_service,
+                       check_password_metrics_tags=["auth_method:two_factor_form"])
 
     if request.method == "POST":
-        request.registry.datadog.increment(
-            "warehouse.authentication.two-factor.start",
-            tags=["auth_method:two_factor_form"],
-        )
         if form.validate():
             if not user_service.check_otp_secret(userid, form.otp_secret.data):
                 request.session.flash(
@@ -247,11 +241,6 @@ def two_factor(request, _form_class=TwoFactorForm):
             )
 
             return resp
-        else:
-            request.registry.datadog.increment(
-                "warehouse.authentication.two-factor.failure",
-                tags=["auth_method:two_factor_form"],
-            )
 
     return {"form": form}
 
