@@ -276,6 +276,48 @@
 
   <hr>
 
+  <section>
+    <h2 class="sub-title">Two Factor Authentication</h2>
+    {% if provision_url %}
+      <p>This URL (TODO: QR) will only appear once.</p>
+      <p>{{ provision_url }}</p>
+    {% elif user.totp_secret %}
+    <section id="delete-two-factor">
+      <p>
+        Two factor authentication is currently <strong>enabled</strong>.
+      </p>
+      {{ form_error_anchor(delete_two_factor_form) }}
+      <form method="POST">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        {{ form_errors(delete_two_factor_form) }}
+        <div class="form-group">
+          {{ delete_two_factor_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password")}}
+          {{ field_errors(delete_two_factor_form.password) }}
+        </div>
+        <div>
+          <input value="Delete" type="submit" class="button button--primary">
+        </div>
+      </form>
+    </section>
+    {% else %}
+    <section id="add-two-factor">
+      <p>
+        Two factor authentication is currently <strong>disabled</strong>.
+      </p>
+      {{ form_error_anchor(add_two_factor_form) }}
+      <form method="POST">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        {{ form_errors(add_two_factor_form) }}
+        <div>
+          <input value="Enable" type="submit" class="button button--primary">
+        </div>
+      </form>
+    </section>
+    {% endif %}
+  </section>
+
+  <hr>
+
   <section id="delete-account">
     <h2>Delete account</h2>
     <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
