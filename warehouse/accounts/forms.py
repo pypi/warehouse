@@ -34,7 +34,7 @@ class UsernameMixin:
 
 class OtpSecretMixin:
 
-    otp_secret = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+    otp_value = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
 
 class NewUsernameMixin:

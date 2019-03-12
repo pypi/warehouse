@@ -234,7 +234,7 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         return user.totp_secret is not None
 
-    def check_otp_secret(self, user_id, otp_value):
+    def check_otp_value(self, user_id, otp_value):
         """
         Returns True if the given OTP code is valid.
         """

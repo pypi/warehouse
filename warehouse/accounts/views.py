@@ -217,7 +217,7 @@ def two_factor(request, _form_class=TwoFactorForm):
 
     if request.method == "POST":
         if form.validate():
-            if not user_service.check_otp_secret(userid, form.otp_secret.data):
+            if not user_service.check_otp_value(userid, form.otp_value.data):
                 request.session.flash(
                     "Two-factor authentication failed.", queue="error"
                 )

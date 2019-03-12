@@ -324,7 +324,6 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
-            send_otp_secret=pretend.call_recorder(lambda userid: None),
         )
 
         token_data = {"userid": 1}
@@ -345,7 +344,6 @@ class TestTwoFactor:
         result = views.two_factor(pyramid_request, _form_class=form_class)
 
         assert result == {"form": form_obj}
-        assert user_service.send_otp_secret.calls == [pretend.call(1)]
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
@@ -363,8 +361,7 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
-            send_otp_secret=lambda userid: None,
-            check_otp_secret=lambda userid, otp_token: True,
+            check_otp_value=lambda userid, otp_token: True,
         )
 
         new_session = {}
@@ -395,7 +392,7 @@ class TestTwoFactor:
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            otp_secret=pretend.stub(data="test-otp-secret"),
+            otp_value=pretend.stub(data="test-otp-secret"),
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(
@@ -422,8 +419,7 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
-            send_otp_secret=lambda userid: None,
-            check_otp_secret=lambda userid, otp_token: False,
+            check_otp_value=lambda userid, otp_token: False,
         )
 
         token_data = {"userid": str(1)}
@@ -442,7 +438,7 @@ class TestTwoFactor:
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            otp_secret=pretend.stub(data="test-otp-secret"),
+            otp_value=pretend.stub(data="test-otp-secret"),
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(

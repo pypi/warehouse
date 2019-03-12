@@ -563,11 +563,11 @@ class TestTwoFactorForm:
         assert form.user_service is user_service
 
     def test_opt_secret_exists(self):
-        form = forms.TwoFactorForm(data={"otp_secret": ""}, user_service=pretend.stub())
+        form = forms.TwoFactorForm(data={"otp_value": ""}, user_service=pretend.stub())
         assert not form.validate()
-        assert form.otp_secret.errors.pop() == "This field is required."
+        assert form.otp_value.errors.pop() == "This field is required."
 
         form = forms.TwoFactorForm(
-            data={"otp_secret": "otp_code"}, user_service=pretend.stub()
+            data={"otp_value": "otp_code"}, user_service=pretend.stub()
         )
         assert form.validate()

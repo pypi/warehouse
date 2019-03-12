@@ -261,7 +261,9 @@ class ManageAccountViews:
         self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
 
         provision_url = generate_totp_provisioning_uri(
-            totp_secret, self.request.user.username
+            totp_secret,
+            self.request.user.username,
+            issuer_name="PyPI"
         )
 
         return {**self.default_response, "provision_url": provision_url}
