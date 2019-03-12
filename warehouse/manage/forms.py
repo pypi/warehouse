@@ -73,3 +73,16 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+
+
+class AddTwoFactorForm(forms.Form):
+    pass
+
+
+class DeleteTwoFactorForm(UsernameMixin, PasswordMixin, forms.Form):
+
+    __params__ = ["password"]
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service

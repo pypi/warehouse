@@ -38,6 +38,7 @@ from warehouse.accounts.models import Email, User
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
+from warehouse.utils.otp import verify_totp
 
 logger = logging.getLogger(__name__)
 
@@ -233,17 +234,19 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         return user.totp_secret is not None
 
-    def send_otp_secret(self, user_id):
-        """
-        Sends two factor authentication OTP code to user
-        """
-        pass
-
-    def check_otp_secret(self, user_id, otp_secret):
+    def check_otp_secret(self, user_id, otp_value):
         """
         Returns True if the given OTP code is valid.
         """
-        return True
+        user = self.get_user(user_id)
+
+        # TODO: This should only be called in contexts where we've
+        # confirmed that the user has a TOTP secret, so do we need
+        # this check?
+        if user.totp_secret is None:
+            return False
+
+        return verify_totp(user.totp_secret, otp_value)
 
 
 @implementer(ITokenService)

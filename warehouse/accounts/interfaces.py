@@ -106,12 +106,7 @@ class IUserService(Interface):
         Returns True if the user has two factor authentication.
         """
 
-    def send_otp_secret(user_id):
-        """
-        Sends two factor authentication OTP code to user
-        """
-
-    def check_otp_secret(user_id, otp_secret):
+    def check_otp_secret(user_id, otp_value):
         """
         Returns True if the given OTP code is valid.
         """

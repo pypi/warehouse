@@ -199,7 +199,7 @@ def two_factor(request, _form_class=TwoFactorForm):
         token_data = token_service.loads(request.cookies.get(TWO_FACTOR_COOKIE_KEY))
     except TokenException:
         request.session.flash(
-            "Authentication code expire: Try login again.", queue="error"
+            "Authentication code expired: Try logging in again.", queue="error"
         )
         return HTTPSeeOther(request.route_path("accounts.login"))
 
@@ -210,7 +210,6 @@ def two_factor(request, _form_class=TwoFactorForm):
     redirect_to = token_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
-    user_service.send_otp_secret(userid)
 
     form = _form_class(request.POST,
                        user_service=user_service,
