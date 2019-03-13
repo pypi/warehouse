@@ -280,9 +280,13 @@ class TestLogin:
         token_service = pretend.stub(
             dumps=pretend.call_recorder(lambda token_data: "test-secure-token")
         )
+
+        breach_service = pretend.stub(check_password=lambda pw: False)
+
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: user_service,
             ITokenService: token_service,
+            IPasswordBreachedService: breach_service,
         }[interface]
 
         pyramid_request.method = "POST"
