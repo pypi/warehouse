@@ -262,9 +262,7 @@ class ManageAccountViews:
         self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
 
         provision_url = generate_totp_provisioning_uri(
-            totp_secret,
-            self.request.user.username,
-            issuer_name="PyPI"
+            totp_secret, self.request.user.username, issuer_name="PyPI"
         )
 
         return {**self.default_response, "provision_url": provision_url}
@@ -278,7 +276,7 @@ class ManageAccountViews:
         form = DeleteTwoFactorForm(
             **self.request.POST,
             username=self.request.user.username,
-            user_service=self.user_service
+            user_service=self.user_service,
         )
 
         if form.validate():
