@@ -256,6 +256,7 @@ class ManageAccountViews:
                 f"Could not add a second factor - delete the current 2FA first.",
                 queue="error",
             )
+            return self.default_response
 
         totp_secret = generate_totp_secret()
         self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
@@ -272,6 +273,7 @@ class ManageAccountViews:
     def delete_two_factor(self):
         if not self.user_service.has_two_factor(self.request.user.id):
             self.request.session.flash(f"No 2FA secret to delete.", queue="error")
+            return self.default_response
 
         form = DeleteTwoFactorForm(
             **self.request.POST,
