@@ -10,7 +10,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pyotp
+import os
+import time
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.twofactor import InvalidToken
+from cryptography.hazmat.primitives.twofactor.totp import TOTP
+from cryptography.hazmat.primitives.hashes import SHA1
+
+
+def _get_totp(secret):
+    """
+    Returns a TOTP object for device provisioning and OTP validation.
+
+    The TOTP object is instantiated with the default OTP parameters,
+    per RFC6238:
+        * SHA1 digest
+        * 6-digit code
+        * 30-second interval
+    """
+    return TOTP(secret, 6, SHA1(), 30, backend=default_backend())
 
 
 def generate_totp_secret():
@@ -19,28 +37,27 @@ def generate_totp_secret():
 
     The default secret length is 160 bits, as per RFC4226:
     https://tools.ietf.org/html/rfc4226#section-4
-
-    Given the base32 encoding, it is represented as a 32-character string, i.e.:
-    5 bits per character * 32 characters = 160 bits.
-
-    TODO:
-    consider using os.urandom(); this, however, is likely to cause
-    compatibility issues unless base32 vocabulary is used.
     """
-    return pyotp.random_base32(length=32)
+    return os.urandom(20)
 
 
-def generate_totp_provisioning_uri(secret, username, issuer_name=None):
+def generate_totp_provisioning_uri(secret, username, issuer_name="PyPI"):
     """
     Generates a URL to be presented as a QR-code for time-based OTP.
-
-    This function doesn't accept any custom TOTP parameters, since these are
-    not supported by many OTP applications. Defaults are as per RFC6238:
-        * SHA1 digest
-        * 6-digit code
-        * 30-second interval
     """
-    return pyotp.TOTP(secret).provisioning_uri(username, issuer_name=issuer_name)
+    totp = _get_totp(secret)
+    return totp.get_provisioning_uri(username, issuer_name)
+
+
+def _verify_totp_time(totp, value, time):
+    """
+    Verifies an OTP value and time against the given TOTP object.
+    """
+    try:
+        totp.verify(value, time)
+        return True
+    except InvalidToken:
+        return False
 
 
 def verify_totp(secret, value, valid_window=1):
@@ -49,11 +66,17 @@ def verify_totp(secret, value, valid_window=1):
 
     The *valid_window* argument value is intentionally chosen to be non-zero
     (while the library defaults to 0). This provides a better UX, working around
-    a range issues:
+    range issues:
         * typing a code too close to an interval end;
         * user device clock synchronization issues;
         * poor network connection quality.
     This is also an accessibility feature that accounts for cases when typing
     speed may be limited.
     """
-    return pyotp.TOTP(secret).verify(value, valid_window=valid_window)
+    totp = _get_totp(secret)
+    now = time.time()
+    return (
+        _verify_totp_time(totp, value, now)
+        or _verify_totp_time(totp, value, now - valid_window)
+        or _verify_totp_time(totp, value, now + valid_window)
+    )

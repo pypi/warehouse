@@ -211,13 +211,16 @@ def two_factor(request, _form_class=TwoFactorForm):
 
     user_service = request.find_service(IUserService, context=None)
 
-    form = _form_class(request.POST,
-                       user_service=user_service,
-                       check_password_metrics_tags=["auth_method:two_factor_form"])
+    form = _form_class(
+        request.POST,
+        user_service=user_service,
+        check_password_metrics_tags=["auth_method:two_factor_form"],
+    )
 
     if request.method == "POST":
         if form.validate():
-            if not user_service.check_otp_value(userid, form.otp_value.data):
+            otp_value = form.otp_value.data.encode("ascii")
+            if not user_service.check_otp_value(userid, otp_value):
                 request.session.flash(
                     "Two-factor authentication failed.", queue="error"
                 )

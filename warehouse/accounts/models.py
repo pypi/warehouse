@@ -15,6 +15,7 @@ import enum
 from citext import CIText
 from sqlalchemy import (
     Boolean,
+    Binary,
     CheckConstraint,
     Column,
     DateTime,
@@ -80,7 +81,7 @@ class User(SitemapMixin, db.Model):
         nullable=True,
     )
 
-    totp_secret = Column(String(length=32), nullable=True)
+    totp_secret = Column(Binary(length=20), nullable=True)
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
