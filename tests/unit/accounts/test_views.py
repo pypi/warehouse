@@ -221,9 +221,6 @@ class TestLogin:
 
         assert remember.calls == [pretend.call(pyramid_request, str(user_id))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
-        ]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
