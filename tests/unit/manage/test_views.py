@@ -63,6 +63,16 @@ class TestManageAccount:
         change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
         monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
 
+        add_two_factor_obj = pretend.stub()
+        add_two_factor_cls = pretend.call_recorder(lambda **kw: add_two_factor_obj)
+        monkeypatch.setattr(views, "AddTwoFactorForm", add_two_factor_cls)
+
+        delete_two_factor_obj = pretend.stub()
+        delete_two_factor_cls = pretend.call_recorder(
+            lambda **kw: delete_two_factor_obj
+        )
+        monkeypatch.setattr(views, "DeleteTwoFactorForm", delete_two_factor_cls)
+
         view = views.ManageAccountViews(request)
 
         monkeypatch.setattr(views.ManageAccountViews, "active_projects", pretend.stub())
@@ -71,6 +81,8 @@ class TestManageAccount:
             "save_account_form": save_account_obj,
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
+            "add_two_factor_form": add_two_factor_obj,
+            "delete_two_factor_form": delete_two_factor_obj,
             "active_projects": view.active_projects,
         }
         assert view.request == request
@@ -574,6 +586,22 @@ class TestManageAccount:
         assert request.session.flash.calls == []
         assert send_email.calls == []
         assert user_service.update_user.calls == []
+
+    def test_add_two_factor(self, monkeypatch, db_request):
+        # TODO(ww): Add tests.
+        assert True is False
+
+    def test_add_two_factor_already_added(self, monkeypatch, db_request):
+        # TODO(ww): Add tests.
+        assert True is False
+
+    def test_delete_two_factor(self, monkeypatch, db_request):
+        # TODO(ww): Add tests.
+        assert True is False
+
+    def test_delete_two_factor_no_two_factor(self, monkeypatch, db_request):
+        # TODO(ww): Add tests.
+        assert True is False
 
     def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()
