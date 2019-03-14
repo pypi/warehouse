@@ -232,11 +232,13 @@ class DatabaseUserService:
         Returns True if the user has two factor authentication.
         """
         user = self.get_user(user_id)
-        return user.totp_secret is not None
+        # TODO: This is where user.u2f_provisioned et al.
+        # will also go.
+        return user.totp_provisioned
 
-    def check_otp_value(self, user_id, otp_value):
+    def check_totp_value(self, user_id, totp_value):
         """
-        Returns True if the given OTP code is valid.
+        Returns True if the given TOTP code is valid.
         """
         user = self.get_user(user_id)
 
@@ -246,7 +248,7 @@ class DatabaseUserService:
         if user.totp_secret is None:
             return False
 
-        return verify_totp(user.totp_secret, otp_value)
+        return verify_totp(user.totp_secret, totp_value)
 
 
 @implementer(ITokenService)

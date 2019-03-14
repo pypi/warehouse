@@ -37,12 +37,17 @@ from warehouse.manage.forms import (
     ChangeRoleForm,
     CreateRoleForm,
     DeleteTwoFactorForm,
+    ProvisionTOTPForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
-from warehouse.utils.otp import generate_totp_secret, generate_totp_provisioning_uri
+from warehouse.utils.otp import (
+    generate_totp_secret,
+    generate_totp_provisioning_uri,
+    verify_totp,
+)
 
 
 def user_projects(request):
@@ -258,14 +263,7 @@ class ManageAccountViews:
             )
             return self.default_response
 
-        totp_secret = generate_totp_secret()
-        self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
-
-        provision_url = generate_totp_provisioning_uri(
-            totp_secret, self.request.user.username, issuer_name="PyPI"
-        )
-
-        return {**self.default_response, "provision_url": provision_url}
+        return HTTPSeeOther(self.request.route_path("manage.account.totp-provision"))
 
     @view_config(request_method="POST", request_param=DeleteTwoFactorForm.__params__)
     def delete_two_factor(self):
@@ -280,7 +278,9 @@ class ManageAccountViews:
         )
 
         if form.validate():
-            self.user_service.update_user(self.request.user.id, totp_secret=None)
+            self.user_service.update_user(
+                self.request.user.id, totp_secret=None, totp_provisioned=False
+            )
             self.request.session.flash(f"2FA secret deleted.", queue="success")
 
         return self.default_response
@@ -329,6 +329,72 @@ class ManageAccountViews:
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+
+@view_defaults(
+    route_name="manage.account.totp-provision",
+    renderer="manage/account/totp-provision.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+)
+class ProvisionTOTPViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        # self.totp_secret = generate_totp_secret()
+        # self.totp_url = generate_totp_provisioning_uri(
+        #     self.totp_secret,
+        #     self.request.user.username,
+        # )
+
+    @property
+    def default_response(self):
+        return {
+            "provision_totp_form": ProvisionTOTPForm(user_service=self.user_service),
+            "provision_totp_url": self.totp_url,
+        }
+
+    @view_config(request_method="GET")
+    def totp_provision(self):
+        if self.user_service.has_two_factor(self.request.user.id):
+            # TODO flash
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        totp_secret = self.request.user.totp_secret
+        if totp_secret is None:
+            totp_secret = generate_totp_secret()
+            self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
+
+        totp_url = generate_totp_provisioning_uri(
+            totp_secret, self.request.user.username
+        )
+
+        return {
+            "provision_totp_form": ProvisionTOTPForm(user_service=self.user_service),
+            "provision_totp_url": totp_url,
+        }
+
+    @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
+    def validate_totp_provision(self):
+        form = ProvisionTOTPForm(**self.request.POST, user_service=self.user_service)
+
+        if form.validate():
+            totp_value = form.totp_value.data.encode("ascii")
+            if not self.user_service.check_totp_value(self.request.user.id, totp_value):
+                self.request.session.flash(
+                    "Invalid TOTP code. Try again?", queue="error"
+                )
+
+                totp_url = generate_totp_provisioning_uri(
+                    self.request.user.totp_secret, self.request.user.username
+                )
+
+                return {"provision_totp_form": form, "provision_totp_url": totp_url}
+
+            self.user_service.update_user(self.request.user.id, totp_provisioned=True)
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
 
 @view_config(

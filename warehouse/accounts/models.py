@@ -82,6 +82,7 @@ class User(SitemapMixin, db.Model):
     )
 
     totp_secret = Column(Binary(length=20), nullable=True)
+    totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False

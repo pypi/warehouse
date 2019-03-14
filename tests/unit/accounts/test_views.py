@@ -362,7 +362,7 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
-            check_otp_value=lambda userid, otp_token: True,
+            check_totp_value=lambda userid, totp_value: True,
         )
 
         new_session = {}
@@ -393,7 +393,7 @@ class TestTwoFactor:
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            otp_value=pretend.stub(data="test-otp-secret"),
+            totp_value=pretend.stub(data="test-otp-secret"),
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(
@@ -420,7 +420,7 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
-            check_otp_value=lambda userid, otp_token: False,
+            check_totp_value=lambda userid, totp_value: False,
         )
 
         token_data = {"userid": str(1)}
@@ -439,7 +439,7 @@ class TestTwoFactor:
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            otp_value=pretend.stub(data="test-otp-secret"),
+            totp_value=pretend.stub(data="test-otp-secret"),
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(

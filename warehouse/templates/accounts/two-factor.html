@@ -38,11 +38,11 @@
       {% endif %}
 
       <div class="form-group">
-        <label for="otp_value" class="form-group__label">Authentication code</label>
-        {{ form.otp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
-        {% if form.otp_value.errors %}
+        <label for="totp_value" class="form-group__label">Authentication code</label>
+        {{ form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+        {% if form.totp_value.errors %}
         <ul class="form-errors">
-          {% for error in form.otp_value.errors %}
+          {% for error in form.totp_value.errors %}
           <li>{{ error }}</li>
           {% endfor %}
         </ul>

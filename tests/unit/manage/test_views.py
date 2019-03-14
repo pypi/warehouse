@@ -588,14 +588,68 @@ class TestManageAccount:
         assert user_service.update_user.calls == []
 
     def test_add_two_factor(self, monkeypatch, db_request):
-        # TODO(ww): Add tests.
         assert True is False
+        # user_service = pretend.stub(
+        #     update_user=pretend.call_recorder(lambda *a, **kw: None),
+        #     has_two_factor=pretend.call_recorder(lambda id: False)
+        # )
+        # request = pretend.stub(
+        #     POST={},
+        #     session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        #     find_service=lambda *a, **kw: user_service,
+        #     user=pretend.stub(
+        #         id=pretend.stub(),
+        #         username=pretend.stub(),
+        #         email=pretend.stub(),
+        #         name=pretend.stub(),
+        #     ),
+        # )
+
+        # add_two_factor_obj = pretend.stub(
+        #     validate=lambda: True,
+        # )
+        # add_two_factor_cls = pretend.call_recorder(lambda *a, **kw: add_two_factor_obj)
+        # monkeypatch.setattr(views, "AddTwoFactorForm", add_two_factor_cls)
+
+        # view = views.ManageAccountViews(request)
+        # result = view.add_two_factor()
+
+        # assert isinstance(result, HTTPSeeOther)
 
     def test_add_two_factor_already_added(self, monkeypatch, db_request):
+        assert True is False
+        # user_service = pretend.stub(
+        #     update_user=pretend.call_recorder(lambda *a, **kw: None),
+        #     has_two_factor=pretend.call_recorder(lambda id: True)
+        # )
+        # request = pretend.stub(
+        #     POST={},
+        #     session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        #     find_service=lambda *a, **kw: user_service,
+        #     user=pretend.stub(
+        #         id=pretend.stub(),
+        #         username=pretend.stub(),
+        #         email=pretend.stub(),
+        #         name=pretend.stub(),
+        #     ),
+        # )
+
+        # add_two_factor_obj = pretend.stub(
+        #     validate=lambda: True,
+        # )
+        # add_two_factor_cls = pretend.call_recorder(lambda *a, **kw: add_two_factor_obj)
+        # monkeypatch.setattr(views, "AddTwoFactorForm", add_two_factor_cls)
+
+        # view = views.ManageAccountViews(request)
+        # result = view.add_two_factor()
+
+        # assert not isinstance(result, HTTPSeeOther)
+
+    def test_delete_two_factor(self, monkeypatch, db_request):
         # TODO(ww): Add tests.
         assert True is False
 
-    def test_delete_two_factor(self, monkeypatch, db_request):
+    def test_delete_two_factor_bad_password(self, monkeypatch, db_request):
         # TODO(ww): Add tests.
         assert True is False
 

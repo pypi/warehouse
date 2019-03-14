@@ -86,3 +86,14 @@ class DeleteTwoFactorForm(UsernameMixin, PasswordMixin, forms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+
+
+class ProvisionTOTPForm(forms.Form):
+
+    __params__ = ["totp_value"]
+
+    totp_value = wtforms.StringField()
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service

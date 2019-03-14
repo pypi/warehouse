@@ -1,0 +1,63 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage/manage_base.html" %}
+
+{% set user = request.user %}
+{% set title = "Provision your TOTP device" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{# Hide mobile search on manager pages #}
+{% block mobile_search %}{% endblock %}
+
+{% block main %}
+<h1 class="page-title">{{ title }}</h1>
+<section>
+  <h2>Provision your device</h2>
+  <div class="callout-block callout-block--danger">
+    <p>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      This provisioning code will only be shown on this page.
+    </p>
+  </div>
+  <div>
+    <p>
+    {{ provision_totp_url }}
+    </p>
+  </div>
+  <div>
+  <form method="POST">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="form-group">
+      <label for="totp_value" class="form-group__label">Authentication code</label>
+      {{ provision_totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+      {% if provision_totp_form.totp_value.errors %}
+      <ul class="form-errors">
+        {% for error in provision_totp_form.totp_value.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      <div class="split-layout split-layout--table">
+        <div>
+          <input type="submit" value="Verify" class="button button--primary" tabindex="3">
+        </div>
+      </div>
+    </div>
+  </form>
+  </div>
+</section>
+{% endblock %}
