@@ -32,22 +32,18 @@ from warehouse.email import (
 )
 from warehouse.manage.forms import (
     AddEmailForm,
-    AddTwoFactorForm,
+    AddTOTPForm,
     ChangePasswordForm,
     ChangeRoleForm,
     CreateRoleForm,
-    DeleteTwoFactorForm,
+    DeleteTOTPForm,
     ProvisionTOTPForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
-from warehouse.utils.otp import (
-    generate_totp_secret,
-    generate_totp_provisioning_uri,
-    verify_totp,
-)
+from warehouse.utils.otp import generate_totp_secret
 
 
 def user_projects(request):
@@ -109,10 +105,8 @@ class ManageAccountViews:
             "change_password_form": ChangePasswordForm(
                 user_service=self.user_service, breach_service=self.breach_service
             ),
-            "add_two_factor_form": AddTwoFactorForm(user_service=self.user_service),
-            "delete_two_factor_form": DeleteTwoFactorForm(
-                user_service=self.user_service
-            ),
+            "add_totp_form": AddTOTPForm(user_service=self.user_service),
+            "delete_totp_form": DeleteTOTPForm(user_service=self.user_service),
             "active_projects": self.active_projects,
         }
 
@@ -255,23 +249,22 @@ class ManageAccountViews:
         return {**self.default_response, "change_password_form": form}
 
     @view_config(request_method="POST")
-    def add_two_factor(self):
-        if self.user_service.has_two_factor(self.request.user.id):
+    def add_totp(self):
+        if self.request.user.totp_provisioned:
             self.request.session.flash(
-                f"Could not add a second factor - delete the current 2FA first.",
-                queue="error",
+                f"Cannot add more than one TOTP secret.", queue="error"
             )
             return self.default_response
 
         return HTTPSeeOther(self.request.route_path("manage.account.totp-provision"))
 
-    @view_config(request_method="POST", request_param=DeleteTwoFactorForm.__params__)
-    def delete_two_factor(self):
-        if not self.user_service.has_two_factor(self.request.user.id):
-            self.request.session.flash(f"No 2FA secret to delete.", queue="error")
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    def delete_totp(self):
+        if not self.request.user.totp_provisioned:
+            self.request.session.flash(f"No TOTP secret to delete.", queue="error")
             return self.default_response
 
-        form = DeleteTwoFactorForm(
+        form = DeleteTOTPForm(
             **self.request.POST,
             username=self.request.user.username,
             user_service=self.user_service,
@@ -281,7 +274,7 @@ class ManageAccountViews:
             self.user_service.update_user(
                 self.request.user.id, totp_secret=None, totp_provisioned=False
             )
-            self.request.session.flash(f"2FA secret deleted.", queue="success")
+            self.request.session.flash(f"TOTP secret deleted.", queue="success")
 
         return self.default_response
 
@@ -348,13 +341,13 @@ class ProvisionTOTPViews:
     def default_response(self):
         return {
             "provision_totp_form": ProvisionTOTPForm(user_service=self.user_service),
-            "provision_totp_url": self.totp_url,
+            "provision_totp_uri": self.totp_uri,
         }
 
     @view_config(request_method="GET")
     def totp_provision(self):
-        if self.user_service.has_two_factor(self.request.user.id):
-            # TODO flash
+        if self.user_service.totp_provisioned(self.request.user.id):
+            self.request.session.flash("TOTP already provisioned.", queue="error")
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         totp_secret = self.request.user.totp_secret
@@ -362,13 +355,11 @@ class ProvisionTOTPViews:
             totp_secret = generate_totp_secret()
             self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
 
-        totp_url = generate_totp_provisioning_uri(
-            totp_secret, self.request.user.username
-        )
+        totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
 
         return {
             "provision_totp_form": ProvisionTOTPForm(user_service=self.user_service),
-            "provision_totp_url": totp_url,
+            "provision_totp_uri": totp_uri,
         }
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
@@ -382,11 +373,9 @@ class ProvisionTOTPViews:
                     "Invalid TOTP code. Try again?", queue="error"
                 )
 
-                totp_url = generate_totp_provisioning_uri(
-                    self.request.user.totp_secret, self.request.user.username
-                )
+                totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
 
-                return {"provision_totp_form": form, "provision_totp_url": totp_url}
+                return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
 
             self.user_service.update_user(self.request.user.id, totp_provisioned=True)
             return HTTPSeeOther(self.request.route_path("manage.account"))

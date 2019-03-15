@@ -80,11 +80,11 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
         self.user_service = user_service
 
 
-class AddTwoFactorForm(forms.Form):
+class AddTOTPForm(forms.Form):
     pass
 
 
-class DeleteTwoFactorForm(UsernameMixin, PasswordMixin, forms.Form):
+class DeleteTOTPForm(UsernameMixin, PasswordMixin, forms.Form):
 
     __params__ = ["password"]
 

@@ -283,13 +283,13 @@
       <p>
         TOTP is currently <strong>enabled</strong>.
       </p>
-      {{ form_error_anchor(delete_two_factor_form) }}
+      {{ form_error_anchor(delete_totp_form) }}
       <form method="POST">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {{ form_errors(delete_two_factor_form) }}
+        {{ form_errors(delete_totp_form) }}
         <div class="form-group">
-          {{ delete_two_factor_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password")}}
-          {{ field_errors(delete_two_factor_form.password) }}
+          {{ delete_totp_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password")}}
+          {{ field_errors(delete_totp_form.password) }}
         </div>
         <div>
           <input value="Disable" type="submit" class="button button--primary">
@@ -301,10 +301,10 @@
       <p>
         TOTP is currently <strong>disabled</strong>.
       </p>
-      {{ form_error_anchor(add_two_factor_form) }}
+      {{ form_error_anchor(add_totp_form) }}
       <form method="POST">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {{ form_errors(add_two_factor_form) }}
+        {{ form_errors(add_totp_form) }}
         <div>
           <input value="Enable" type="submit" class="button button--primary">
         </div>

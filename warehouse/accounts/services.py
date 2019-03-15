@@ -38,7 +38,7 @@ from warehouse.accounts.models import Email, User
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
-from warehouse.utils.otp import verify_totp
+from warehouse.utils.otp import generate_totp_provisioning_uri, verify_totp
 
 logger = logging.getLogger(__name__)
 
@@ -229,7 +229,8 @@ class DatabaseUserService:
 
     def has_two_factor(self, user_id):
         """
-        Returns True if the user has two factor authentication.
+        Returns True if the user has any form of two factor
+        authentication.
         """
         user = self.get_user(user_id)
         # TODO: This is where user.u2f_provisioned et al.
@@ -238,7 +239,8 @@ class DatabaseUserService:
 
     def check_totp_value(self, user_id, totp_value):
         """
-        Returns True if the given TOTP code is valid.
+        Returns True if the given TOTP is valid against the user's
+        secret.
         """
         user = self.get_user(user_id)
 
@@ -249,6 +251,18 @@ class DatabaseUserService:
             return False
 
         return verify_totp(user.totp_secret, totp_value)
+
+    def totp_provisioning_uri(self, user_id):
+        """
+        Returns a URI suitable for provisioning a TOTP device or application,
+        or None if the user already has a TOTP device.
+        """
+        user = self.get_user(user_id)
+
+        if user.totp_provisioned:
+            return None
+
+        return generate_totp_provisioning_uri(user.totp_secret, user.username)
 
 
 @implementer(ITokenService)

@@ -64,9 +64,12 @@ def verify_totp(secret, value, valid_window=1):
     """
     Verifies a given TOTP-secret and value.
 
-    The *valid_window* argument value is intentionally chosen to be non-zero
-    (while the library defaults to 0). This provides a better UX, working around
-    range issues:
+    *valid_window* is the window (in seconds) around the
+    issuance and expiry times, during which a pre-issued or
+    just-expired TOTP value will be considered valid.
+
+    The *valid_window* argument value is intentionally chosen to be non-zero.
+    This provides a better UX, working around range issues:
         * typing a code too close to an interval end;
         * user device clock synchronization issues;
         * poor network connection quality.
