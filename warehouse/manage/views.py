@@ -346,7 +346,7 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="GET")
     def totp_provision(self):
-        if self.user_service.totp_provisioned(self.request.user.id):
+        if self.request.user.totp_provisioned:
             self.request.session.flash("TOTP already provisioned.", queue="error")
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
