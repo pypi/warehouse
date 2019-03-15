@@ -13,7 +13,12 @@
 import wtforms
 
 from warehouse import forms
-from warehouse.accounts.forms import NewEmailMixin, NewPasswordMixin, PasswordMixin
+from warehouse.accounts.forms import (
+    NewEmailMixin,
+    NewPasswordMixin,
+    PasswordMixin,
+    TOTPValueMixin,
+)
 
 
 class RoleNameMixin:
@@ -88,11 +93,9 @@ class DeleteTwoFactorForm(UsernameMixin, PasswordMixin, forms.Form):
         self.user_service = user_service
 
 
-class ProvisionTOTPForm(forms.Form):
+class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
 
     __params__ = ["totp_value"]
-
-    totp_value = wtforms.StringField()
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)

@@ -343,11 +343,6 @@ class ProvisionTOTPViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
-        # self.totp_secret = generate_totp_secret()
-        # self.totp_url = generate_totp_provisioning_uri(
-        #     self.totp_secret,
-        #     self.request.user.username,
-        # )
 
     @property
     def default_response(self):

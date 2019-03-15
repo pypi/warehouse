@@ -278,13 +278,10 @@
 
   <section>
     <h2 class="sub-title">Two Factor Authentication</h2>
-    {% if provision_url %}
-      <p>This URL (TODO: QR) will only appear once.</p>
-      <p>{{ provision_url }}</p>
-    {% elif user.totp_secret %}
+    {% if user.totp_provisioned %}
     <section id="delete-two-factor">
       <p>
-        Two factor authentication is currently <strong>enabled</strong>.
+        TOTP is currently <strong>enabled</strong>.
       </p>
       {{ form_error_anchor(delete_two_factor_form) }}
       <form method="POST">
@@ -302,7 +299,7 @@
     {% else %}
     <section id="add-two-factor">
       <p>
-        Two factor authentication is currently <strong>disabled</strong>.
+        TOTP is currently <strong>disabled</strong>.
       </p>
       {{ form_error_anchor(add_two_factor_form) }}
       <form method="POST">

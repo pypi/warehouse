@@ -32,9 +32,17 @@ class UsernameMixin:
             raise wtforms.validators.ValidationError("No user found with that username")
 
 
-class OtpSecretMixin:
+class TOTPValueMixin:
 
-    totp_value = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+    totp_value = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                r"^[0-9]{6}$",
+                message="TOTP code must be 6 digits.",
+            ),
+        ]
+    )
 
 
 class NewUsernameMixin:
@@ -224,7 +232,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 )
 
 
-class TwoFactorForm(OtpSecretMixin, forms.Form):
+class TwoFactorForm(TOTPValueMixin, forms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
