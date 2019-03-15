@@ -650,15 +650,77 @@ class TestManageAccount:
             pretend.call("Cannot add more than one TOTP secret.", queue="error")
         ]
 
-    @pytest.mark.skip(reason="TODO")
     def test_delete_totp(self, monkeypatch, db_request):
-        # TODO(ww): Add tests.
-        assert True is False
+        password = "p4assw0rd"
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                "password": password,
+            },
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
 
-    @pytest.mark.skip(reason="TODO")
+        delete_totp_obj = pretend.stub(validate=lambda: True, password=password)
+        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
+        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
+        monkeypatch.setattr(
+            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+        )
+
+        view = views.ManageAccountViews(request)
+        result = view.delete_totp()
+
+        assert result == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call("TOTP secret deleted.", queue="success")
+        ]
+
     def test_delete_totp_bad_password(self, monkeypatch, db_request):
-        # TODO(ww): Add tests.
-        assert True is False
+        password = "p4assw0rd"
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                "password": password,
+            },
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        delete_totp_obj = pretend.stub(validate=lambda: False, password=password)
+        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
+        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
+        monkeypatch.setattr(
+            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+        )
+
+        view = views.ManageAccountViews(request)
+        result = view.delete_totp()
+
+        assert result == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials.", queue="error")
+        ]
 
     @pytest.mark.skip(reason="TODO")
     def test_delete_totp_not_provisioned(self, monkeypatch, db_request):
