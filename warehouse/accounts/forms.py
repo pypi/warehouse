@@ -19,6 +19,7 @@ from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
 from warehouse.email import send_password_compromised_email
+from warehouse.utils.otp import TOTP_LENGTH
 
 
 class UsernameMixin:
@@ -38,7 +39,7 @@ class TOTPValueMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                r"^[0-9]{6}$",
+                rf"^[0-9]{TOTP_LENGTH}$",
                 message="TOTP code must be 6 digits.",
             ),
         ]
