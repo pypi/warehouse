@@ -17,6 +17,9 @@ from cryptography.hazmat.primitives.twofactor import InvalidToken
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
 from cryptography.hazmat.primitives.hashes import SHA1
 
+TOTP_LENGTH = 6
+TOTP_INTERVAL = 30
+
 
 def _get_totp(secret):
     """
@@ -28,7 +31,7 @@ def _get_totp(secret):
         * 6-digit code
         * 30-second interval
     """
-    return TOTP(secret, 6, SHA1(), 30, backend=default_backend())
+    return TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
 
 
 def generate_totp_secret():
@@ -60,26 +63,19 @@ def _verify_totp_time(totp, value, time):
         return False
 
 
-def verify_totp(secret, value, valid_window=1):
+def verify_totp(secret, value):
     """
-    Verifies a given TOTP-secret and value.
+    Verifies a given TOTP-secret and value for the
+    current time +/- 1 counter interval.
 
-    *valid_window* is the window (in seconds) around the
-    issuance and expiry times, during which a pre-issued or
-    just-expired TOTP value will be considered valid.
-
-    The *valid_window* argument value is intentionally chosen to be non-zero.
-    This provides a better UX, working around range issues:
-        * typing a code too close to an interval end;
-        * user device clock synchronization issues;
-        * poor network connection quality.
-    This is also an accessibility feature that accounts for cases when typing
-    speed may be limited.
+    This minimizes issues caused by clock differences and latency,
+    provides a better UX, and also improves accessibility
+    in cases where typing speed is limited.
     """
     totp = _get_totp(secret)
     now = time.time()
     return (
         _verify_totp_time(totp, value, now)
-        or _verify_totp_time(totp, value, now - valid_window)
-        or _verify_totp_time(totp, value, now + valid_window)
+        or _verify_totp_time(totp, value, now - TOTP_INTERVAL)
+        or _verify_totp_time(totp, value, now + TOTP_INTERVAL)
     )

@@ -19,6 +19,8 @@ from cryptography.hazmat.primitives.twofactor.totp import TOTP
 from cryptography.hazmat.primitives.hashes import SHA1
 
 from warehouse.utils.otp import (
+    TOTP_LENGTH,
+    TOTP_INTERVAL,
     generate_totp_secret,
     generate_totp_provisioning_uri,
     verify_totp,
@@ -58,14 +60,27 @@ def test_generate_totp_provisioning_uri():
 
 def test_verify_totp_success():
     secret = generate_totp_secret()
-    totp = TOTP(secret, 6, SHA1(), 30, backend=default_backend())
+    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
     value = totp.generate(time.time())
+    assert verify_totp(secret, value)
+
+
+def test_verify_totp_success_negative_skew():
+    secret = generate_totp_secret()
+    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
+    value = totp.generate(time.time() - 20)
+    assert verify_totp(secret, value)
+
+
+def test_verify_totp_success_positive_skew():
+    secret = generate_totp_secret()
+    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
+    value = totp.generate(time.time() + 20)
     assert verify_totp(secret, value)
 
 
 def test_verify_totp_failure():
     secret = generate_totp_secret()
-    totp = TOTP(secret, 6, SHA1(), 30, backend=default_backend())
-    value = totp.generate(time.time())
-    value_plus_one = str((int(value) + 1) % (999_999 + 1)).encode("ascii").zfill(6)
-    assert not verify_totp(secret, value_plus_one, valid_window=0)
+    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
+    value = totp.generate(time.time() + 60)
+    assert not verify_totp(secret, value)
