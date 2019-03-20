@@ -27,6 +27,7 @@ from warehouse.manage import views
 from warehouse.packaging.models import File, JournalEntry, Project, Role, User
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
+import warehouse.utils.otp as otp
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
@@ -854,16 +855,174 @@ class TestManageAccount:
 
 class TestProvisionTOTP:
     def test_totp_provision(self, monkeypatch):
-        pass
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            totp_provisioning_uri=pretend.call_recorder(lambda uid: "foobar"),
+        )
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=False,
+                totp_secret=None,
+            ),
+        )
+
+        provision_totp_obj = pretend.stub(validate=lambda: True)
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        generate_totp_secret = pretend.call_recorder(lambda: b"not_a_real_secret")
+        monkeypatch.setattr(otp, "generate_totp_secret", generate_totp_secret)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert user_service.update_user.calls == [
+            pretend.call(request.user.id, totp_secret=b"not_a_real_secret")
+        ]
+        assert user_service.totp_provisioning_uri.calls == [
+            pretend.call(request.user.id)
+        ]
+        assert result == {
+            "provision_totp_form": provision_totp_obj,
+            "provision_totp_uri": "foobar",
+        }
+
+    def test_totp_provision_already_has_secret(self, monkeypatch):
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            totp_provisioning_uri=pretend.call_recorder(lambda uid: "foobar"),
+        )
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=False,
+                totp_secret=b"secret",
+            ),
+        )
+
+        provision_totp_obj = pretend.stub(validate=lambda: True)
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert user_service.update_user.calls == []
+        assert user_service.totp_provisioning_uri.calls == [
+            pretend.call(request.user.id)
+        ]
+        assert result == {
+            "provision_totp_form": provision_totp_obj,
+            "provision_totp_uri": "foobar",
+        }
 
     def test_totp_provision_already_provisioned(self, monkeypatch):
-        pass
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert request.session.flash.calls == [
+            pretend.call("TOTP already provisioned.", queue="error")
+        ]
 
     def test_validate_totp_provision(self, monkeypatch):
-        pass
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            check_totp_value=pretend.call_recorder(lambda *a: True),
+        )
+        request = pretend.stub(
+            POST={"totp_value": "123456"},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=False,
+                totp_secret=b"secret",
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert user_service.update_user.calls == [
+            pretend.call(request.user.id, totp_provisioned=True)
+        ]
+        assert user_service.check_totp_value.calls == [
+            pretend.call(request.user.id, b"123456")
+        ]
 
     def test_validate_totp_provision_bad_totp_value(self, monkeypatch):
-        pass
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            check_totp_value=pretend.call_recorder(lambda *a: False),
+            totp_provisioning_uri=pretend.call_recorder(lambda uid: "foobar"),
+        )
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=False,
+                totp_secret=b"secret",
+            ),
+        )
+
+        provision_totp_obj = pretend.stub(
+            validate=lambda: True, totp_value=pretend.stub(data="123456")
+        )
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert user_service.update_user.calls == []
+        assert user_service.check_totp_value.calls == [
+            pretend.call(request.user.id, b"123456")
+        ]
+        assert user_service.totp_provisioning_uri.calls == [
+            pretend.call(request.user.id)
+        ]
+        assert result == {
+            "provision_totp_form": provision_totp_obj,
+            "provision_totp_uri": "foobar",
+        }
 
 
 class TestManageProjects:
