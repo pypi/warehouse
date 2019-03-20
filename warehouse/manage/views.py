@@ -43,7 +43,7 @@ from warehouse.manage.forms import (
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
-from warehouse.utils.otp import generate_totp_secret
+import warehouse.utils.otp as otp
 
 
 def user_projects(request):
@@ -339,13 +339,6 @@ class ProvisionTOTPViews:
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
 
-    @property
-    def default_response(self):
-        return {
-            "provision_totp_form": ProvisionTOTPForm(user_service=self.user_service),
-            "provision_totp_uri": self.totp_uri,
-        }
-
     @view_config(request_method="GET")
     def totp_provision(self):
         if self.request.user.totp_provisioned:
@@ -354,7 +347,7 @@ class ProvisionTOTPViews:
 
         totp_secret = self.request.user.totp_secret
         if totp_secret is None:
-            totp_secret = generate_totp_secret()
+            totp_secret = otp.generate_totp_secret()
             self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
 
         totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
