@@ -38,7 +38,7 @@ from warehouse.accounts.models import Email, User
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
-from warehouse.utils.otp import generate_totp_provisioning_uri, verify_totp
+import warehouse.utils.otp as otp
 
 logger = logging.getLogger(__name__)
 
@@ -239,30 +239,31 @@ class DatabaseUserService:
 
     def check_totp_value(self, user_id, totp_value):
         """
-        Returns True if the given TOTP is valid against the user's
-        secret.
+        Returns True if the given TOTP is valid against the user's secret.
+
+        If the user doesn't have a TOTP secret or hasn't provisioned
+        a device with their secret, returns False.
         """
         user = self.get_user(user_id)
 
-        # TODO: This should only be called in contexts where we've
-        # confirmed that the user has a TOTP secret, so do we need
-        # this check?
-        if user.totp_secret is None:
+        if user.totp_secret is None or not user.totp_provisioned:
             return False
 
-        return verify_totp(user.totp_secret, totp_value)
+        return otp.verify_totp(user.totp_secret, totp_value)
 
     def totp_provisioning_uri(self, user_id):
         """
-        Returns a URI suitable for provisioning a TOTP device or application,
-        or None if the user already has a TOTP device.
+        Returns a URI suitable for provisioning a TOTP device or application.
+
+        If the user doesn't have a TOTP secret or has already provisioned a
+        TOTP device, returns None.
         """
         user = self.get_user(user_id)
 
-        if user.totp_provisioned:
+        if not user.totp_secret or user.totp_provisioned:
             return None
 
-        return generate_totp_provisioning_uri(user.totp_secret, user.username)
+        return otp.generate_totp_provisioning_uri(user.totp_secret, user.username)
 
 
 @implementer(ITokenService)

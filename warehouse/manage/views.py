@@ -360,6 +360,7 @@ class ProvisionTOTPViews:
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
         form = ProvisionTOTPForm(**self.request.POST, user_service=self.user_service)
+        totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
 
         if form.validate():
             totp_value = form.totp_value.data.encode("ascii")
@@ -368,12 +369,12 @@ class ProvisionTOTPViews:
                     "Invalid TOTP code. Try again?", queue="error"
                 )
 
-                totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
-
                 return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
 
             self.user_service.update_user(self.request.user.id, totp_provisioned=True)
             return HTTPSeeOther(self.request.route_path("manage.account"))
+        else:
+            return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
 
 
 @view_config(
