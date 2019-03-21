@@ -617,7 +617,6 @@ class TestManageAccount:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
 
-    @pytest.mark.skip(reason="TODO")
     def test_add_totp_already_provisioned(self, monkeypatch, db_request):
         user_service = pretend.stub(
             update_user=pretend.call_recorder(lambda *a, **kw: None)
@@ -955,6 +954,7 @@ class TestProvisionTOTP:
         user_service = pretend.stub(
             update_user=pretend.call_recorder(lambda *a, **kw: None),
             check_totp_value=pretend.call_recorder(lambda *a: True),
+            totp_provisioning_uri=pretend.call_recorder(lambda uid: "foobar"),
         )
         request = pretend.stub(
             POST={"totp_value": "123456"},
@@ -982,6 +982,49 @@ class TestProvisionTOTP:
         assert user_service.check_totp_value.calls == [
             pretend.call(request.user.id, b"123456")
         ]
+        assert user_service.totp_provisioning_uri.calls == [
+            pretend.call(request.user.id)
+        ]
+
+    def test_validate_totp_provision_invalid_form(self, monkeypatch):
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            check_totp_value=pretend.call_recorder(lambda *a: False),
+            totp_provisioning_uri=pretend.call_recorder(lambda uid: "foobar"),
+        )
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_provisioned=False,
+                totp_secret=b"secret",
+            ),
+        )
+
+        provision_totp_obj = pretend.stub(
+            validate=lambda: False, totp_value=pretend.stub(data="123456")
+        )
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert user_service.update_user.calls == []
+        assert user_service.check_totp_value.calls == []
+        assert user_service.totp_provisioning_uri.calls == [
+            pretend.call(request.user.id)
+        ]
+
+        assert result == {
+            "provision_totp_form": provision_totp_obj,
+            "provision_totp_uri": "foobar",
+        }
 
     def test_validate_totp_provision_bad_totp_value(self, monkeypatch):
         user_service = pretend.stub(
@@ -1018,6 +1061,9 @@ class TestProvisionTOTP:
         ]
         assert user_service.totp_provisioning_uri.calls == [
             pretend.call(request.user.id)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Invalid TOTP code. Try again?", queue="error")
         ]
         assert result == {
             "provision_totp_form": provision_totp_obj,

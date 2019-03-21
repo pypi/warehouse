@@ -85,3 +85,11 @@ class TestChangePasswordForm:
 
         assert form.user_service is user_service
         assert form._breach_service is breach_service
+
+
+class TestDeleteTOTPForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.DeleteTOTPForm(user_service=user_service)
+
+        assert form.user_service is user_service

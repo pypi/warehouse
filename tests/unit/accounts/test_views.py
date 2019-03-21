@@ -455,6 +455,84 @@ class TestTwoFactor:
 
         assert isinstance(result, HTTPSeeOther)
 
+    def test_two_factor_auth_already_authed(self):
+        request = pretend.stub(
+            authenticated_userid="not_none",
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+        )
+        result = views.two_factor(request)
+
+        assert request.route_path.calls == [pretend.call("manage.projects")]
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "redirect_to"
+
+    def test_two_factor_auth_token_expired(self):
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(pretend.raiser(TokenExpired))
+        )
+        request = pretend.stub(
+            find_service=lambda *a, **kw: token_service,
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            cookies=pretend.stub(get=pretend.call_recorder(lambda k: "cookie")),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+        )
+        result = views.two_factor(request)
+
+        assert request.route_path.calls == [pretend.call("accounts.login")]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Authentication code expired: Try logging in again.", queue="error"
+            )
+        ]
+        assert request.cookies.get.calls == [pretend.call(views.TWO_FACTOR_COOKIE_KEY)]
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "redirect_to"
+
+    def test_two_factor_auth_token_without_userid(self):
+        token_data = pretend.stub(get=pretend.call_recorder(lambda k: None))
+        token_service = pretend.stub(loads=pretend.call_recorder(lambda k: token_data))
+        request = pretend.stub(
+            find_service=lambda *a, **kw: token_service,
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            cookies=pretend.stub(get=pretend.call_recorder(lambda k: "cookie")),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+        )
+        result = views.two_factor(request)
+
+        assert request.route_path.calls == [pretend.call("accounts.login")]
+        assert request.session.flash.calls == []
+        assert request.cookies.get.calls == [pretend.call(views.TWO_FACTOR_COOKIE_KEY)]
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "redirect_to"
+
+    def test_two_factor_auth_form_invalid(self):
+        token_data = pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub()))
+        token_service = pretend.stub(loads=pretend.call_recorder(lambda k: token_data))
+        request = pretend.stub(
+            POST={},
+            method="POST",
+            find_service=lambda *a, **kw: token_service,
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            cookies=pretend.stub(get=pretend.call_recorder(lambda k: "cookie")),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+        )
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+            totp_value=pretend.stub(data="test-otp-secret"),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
+
+        result = views.two_factor(request, _form_class=form_class)
+
+        assert result == {"form": form_obj}
+
 
 class TestLogout:
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])

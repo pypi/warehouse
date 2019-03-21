@@ -34,6 +34,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import DisableReason
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
+import warehouse.utils.otp as otp
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
@@ -341,6 +342,69 @@ class TestDatabaseUserService:
         )
         user_service.update_user(user.id, password="foo")
         assert user_service.is_disabled(user.id) == (False, None)
+
+    def test_has_two_factor(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.has_two_factor(user.id)
+        user_service.update_user(user.id, totp_secret=b"foobar")
+        assert not user_service.has_two_factor(user.id)
+        user_service.update_user(user.id, totp_provisioned=True)
+        assert user_service.has_two_factor(user.id)
+
+    def test_check_totp_value(self, user_service, monkeypatch):
+        verify_totp = pretend.call_recorder(lambda *a: True)
+        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+
+        user = UserFactory.create()
+        user_service.update_user(user.id, totp_secret=b"foobar", totp_provisioned=True)
+        assert user_service.check_totp_value(user.id, b"123456")
+
+    def test_check_totp_value_not_provisioned(self, user_service, monkeypatch):
+        verify_totp = pretend.call_recorder(lambda *a: True)
+        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+
+        user = UserFactory.create()
+        assert not user_service.check_totp_value(user.id, b"123456")
+        user_service.update_user(user.id, totp_secret=b"foobar")
+        assert not user_service.check_totp_value(user.id, b"123456")
+        assert verify_totp.calls == []
+
+    def test_totp_provisioning_uri(self, user_service, monkeypatch):
+        generate_totp_provisioning_uri = pretend.call_recorder(lambda *a: "not_real")
+        monkeypatch.setattr(
+            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
+        )
+
+        user = UserFactory.create()
+        user_service.update_user(user.id, totp_secret=b"foobar")
+
+        assert user_service.totp_provisioning_uri(user.id) == "not_real"
+        assert generate_totp_provisioning_uri.calls == [
+            pretend.call(user.totp_secret, user.username)
+        ]
+
+    def test_totp_provisioning_uri_no_secret(self, user_service, monkeypatch):
+        generate_totp_provisioning_uri = pretend.call_recorder(lambda *a: "not_real")
+        monkeypatch.setattr(
+            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
+        )
+
+        user = UserFactory.create()
+
+        assert user_service.totp_provisioning_uri(user.id) is None
+        assert generate_totp_provisioning_uri.calls == []
+
+    def test_totp_provisioning_uri_already_provisioned(self, user_service, monkeypatch):
+        generate_totp_provisioning_uri = pretend.call_recorder(lambda *a: "not_real")
+        monkeypatch.setattr(
+            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
+        )
+
+        user = UserFactory.create()
+        user_service.update_user(user.id, totp_secret=b"foobar", totp_provisioned=True)
+
+        assert user_service.totp_provisioning_uri(user.id) is None
+        assert generate_totp_provisioning_uri.calls == []
 
 
 class TestTokenService:
