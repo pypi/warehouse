@@ -111,6 +111,12 @@ class IUserService(Interface):
         Returns True if the given TOTP code is valid.
         """
 
+    def totp_provisioning_uri(user_id, otp_value):
+        """
+        Returns a URI suitable for provisioning a user's
+        TOTP device or application.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
