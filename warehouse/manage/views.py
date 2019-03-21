@@ -359,6 +359,10 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
+        if self.request.user.totp_provisioned:
+            self.request.session.flash("TOTP already provisioned.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         form = ProvisionTOTPForm(**self.request.POST, user_service=self.user_service)
         totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
 

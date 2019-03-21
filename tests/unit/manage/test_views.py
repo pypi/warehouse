@@ -986,6 +986,24 @@ class TestProvisionTOTP:
             pretend.call(request.user.id)
         ]
 
+    def test_validate_totp_provision_already_provisioned(self, monkeypatch):
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: pretend.stub(),
+            user=pretend.stub(totp_provisioned=True),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar"),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert request.session.flash.calls == [
+            pretend.call("TOTP already provisioned.", queue="error")
+        ]
+
     def test_validate_totp_provision_invalid_form(self, monkeypatch):
         user_service = pretend.stub(
             update_user=pretend.call_recorder(lambda *a, **kw: None),
