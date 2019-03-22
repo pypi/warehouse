@@ -365,9 +365,11 @@ class TestDatabaseUserService:
 
         user = UserFactory.create()
         assert not user_service.check_totp_value(user.id, b"123456")
-        user_service.update_user(user.id, totp_secret=b"foobar")
-        assert not user_service.check_totp_value(user.id, b"123456")
         assert verify_totp.calls == []
+
+        user_service.update_user(user.id, totp_secret=b"foobar")
+        assert user_service.check_totp_value(user.id, b"123456")
+        assert verify_totp.calls == [pretend.call(b"foobar", b"123456")]
 
     def test_totp_provisioning_uri(self, user_service, monkeypatch):
         generate_totp_provisioning_uri = pretend.call_recorder(lambda *a: "not_real")

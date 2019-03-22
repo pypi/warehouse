@@ -80,13 +80,9 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
         self.user_service = user_service
 
 
-class AddTOTPForm(forms.Form):
-    pass
+class DeleteTOTPForm(UsernameMixin, forms.Form):
 
-
-class DeleteTOTPForm(UsernameMixin, PasswordMixin, forms.Form):
-
-    __params__ = ["password"]
+    __params__ = ["confirm_username"]
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)

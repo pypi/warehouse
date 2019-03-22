@@ -241,12 +241,11 @@ class DatabaseUserService:
         """
         Returns True if the given TOTP is valid against the user's secret.
 
-        If the user doesn't have a TOTP secret or hasn't provisioned
-        a device with their secret, returns False.
+        If the user doesn't have a TOTP secret, returns False.
         """
         user = self.get_user(user_id)
 
-        if user.totp_secret is None or not user.totp_provisioned:
+        if user.totp_secret is None:
             return False
 
         return otp.verify_totp(user.totp_secret, totp_value)

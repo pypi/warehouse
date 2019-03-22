@@ -32,7 +32,6 @@ from warehouse.email import (
 )
 from warehouse.manage.forms import (
     AddEmailForm,
-    AddTOTPForm,
     ChangePasswordForm,
     ChangeRoleForm,
     CreateRoleForm,
@@ -105,8 +104,6 @@ class ManageAccountViews:
             "change_password_form": ChangePasswordForm(
                 user_service=self.user_service, breach_service=self.breach_service
             ),
-            "add_totp_form": AddTOTPForm(user_service=self.user_service),
-            "delete_totp_form": DeleteTOTPForm(user_service=self.user_service),
             "active_projects": self.active_projects,
         }
 
@@ -248,38 +245,6 @@ class ManageAccountViews:
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST")
-    def add_totp(self):
-        if self.request.user.totp_provisioned:
-            self.request.session.flash(
-                f"Cannot add more than one TOTP secret.", queue="error"
-            )
-            return self.default_response
-
-        return HTTPSeeOther(self.request.route_path("manage.account.totp-provision"))
-
-    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
-    def delete_totp(self):
-        if not self.request.user.totp_provisioned:
-            self.request.session.flash("No TOTP secret to delete.", queue="error")
-            return self.default_response
-
-        form = DeleteTOTPForm(
-            **self.request.POST,
-            username=self.request.user.username,
-            user_service=self.user_service,
-        )
-
-        if form.validate():
-            self.user_service.update_user(
-                self.request.user.id, totp_secret=None, totp_provisioned=False
-            )
-            self.request.session.flash("TOTP secret deleted.", queue="success")
-        else:
-            self.request.session.flash("Invalid credentials.", queue="error")
-
-        return self.default_response
-
     @view_config(request_method="POST", request_param=["confirm_username"])
     def delete_account(self):
         username = self.request.params.get("confirm_username")
@@ -339,11 +304,15 @@ class ProvisionTOTPViews:
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
 
+    @property
+    def default_response(self):
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
     @view_config(request_method="GET")
     def totp_provision(self):
         if self.request.user.totp_provisioned:
             self.request.session.flash("TOTP already provisioned.", queue="error")
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return self.default_response
 
         totp_secret = self.request.user.totp_secret
         if totp_secret is None:
@@ -361,7 +330,7 @@ class ProvisionTOTPViews:
     def validate_totp_provision(self):
         if self.request.user.totp_provisioned:
             self.request.session.flash("TOTP already provisioned.", queue="error")
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return self.default_response
 
         form = ProvisionTOTPForm(**self.request.POST, user_service=self.user_service)
         totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
@@ -376,9 +345,31 @@ class ProvisionTOTPViews:
                 return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
 
             self.user_service.update_user(self.request.user.id, totp_provisioned=True)
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return self.default_response
         else:
             return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
+
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    def delete_totp(self):
+        if not self.request.user.totp_provisioned:
+            self.request.session.flash("No TOTP secret to delete.", queue="error")
+            return self.default_response
+
+        form = DeleteTOTPForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            self.user_service.update_user(
+                self.request.user.id, totp_secret=None, totp_provisioned=False
+            )
+            self.request.session.flash("TOTP secret deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return self.default_response
 
 
 @view_config(
