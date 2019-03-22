@@ -367,7 +367,7 @@ class ProvisionTOTPViews:
         totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
 
         if form.validate():
-            totp_value = form.totp_value.data.encode("ascii")
+            totp_value = form.totp_value.data.encode()
             if not self.user_service.check_totp_value(self.request.user.id, totp_value):
                 self.request.session.flash(
                     "Invalid TOTP code. Try again?", queue="error"

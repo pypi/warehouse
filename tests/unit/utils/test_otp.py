@@ -52,7 +52,7 @@ def test_generate_totp_provisioning_uri():
     query = parse_qsl(parsed.query)
 
     assert ("digits", "6") in query
-    assert ("secret", b32encode(secret).decode("ascii")) in query
+    assert ("secret", b32encode(secret).decode()) in query
     assert ("algorithm", "SHA1") in query
     assert ("issuer", issuer_name) in query
     assert ("period", "30") in query

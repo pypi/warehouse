@@ -166,7 +166,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 resp.set_cookie(
                     USER_ID_INSECURE_COOKIE,
                     hashlib.blake2b(
-                        str(userid).encode("ascii"), person=b"warehouse.userid"
+                        str(userid).encode(), person=b"warehouse.userid"
                     )
                     .hexdigest()
                     .lower(),
@@ -219,7 +219,7 @@ def two_factor(request, _form_class=TwoFactorForm):
 
     if request.method == "POST":
         if form.validate():
-            totp_value = form.totp_value.data.encode("ascii")
+            totp_value = form.totp_value.data.encode()
             if not user_service.check_totp_value(userid, totp_value):
                 request.session.flash(
                     "Two-factor authentication failed.", queue="error"
@@ -237,7 +237,7 @@ def two_factor(request, _form_class=TwoFactorForm):
             resp.delete_cookie(TWO_FACTOR_COOKIE_KEY)
             resp.set_cookie(
                 USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
+                hashlib.blake2b(str(userid).encode(), person=b"warehouse.userid")
                 .hexdigest()
                 .lower(),
             )
