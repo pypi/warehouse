@@ -24,7 +24,7 @@
 
 <section class="horizontal-section">
   <div class="site-container">
-  <h1 class="page-title">Two-factor authentication</h1>
+  <h1 class="page-title">Two-factor authentication - authenticate with app</h1>
 
     <form method="POST" action="{{ request.current_route_path() }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -50,14 +50,13 @@
       </div>
 
       <div class="form-group">
-        <div class="split-layout split-layout--table">
-          <div>
-            <input type="submit" value="Verify" class="button button--primary" tabindex="3">
-          </div>
-        <span></span>
-        </div>
+        <input type="submit" value="Verify" class="button button--primary">
       </div>
     </form>
+
+    <p>Generate an authentication code using the application of your choice.<br/>Enter this code in the form above to verify your identity.</p>
+    <p>Not working? <a href="/help/#2fa">Get help</a>.</p>
+
   </div>
 </section>
 {% endblock %}
