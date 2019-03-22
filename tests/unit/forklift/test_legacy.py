@@ -68,14 +68,16 @@ def _get_tar_testdata(compression_type=""):
 _TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
 _TAR_GZ_PKG_MD5 = hashlib.md5(_TAR_GZ_PKG_TESTDATA).hexdigest()
 _TAR_GZ_PKG_SHA256 = hashlib.sha256(_TAR_GZ_PKG_TESTDATA).hexdigest()
-_TAR_GZ_PKG_STORAGE_HASH = hashlib.blake2b(_TAR_GZ_PKG_TESTDATA,
-                                           digest_size=256 // 8).hexdigest()
+_TAR_GZ_PKG_STORAGE_HASH = hashlib.blake2b(
+    _TAR_GZ_PKG_TESTDATA, digest_size=256 // 8
+).hexdigest()
 
 _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
-_TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(_TAR_BZ2_PKG_TESTDATA,
-                                            digest_size=256 // 8).hexdigest()
+_TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(
+    _TAR_BZ2_PKG_TESTDATA, digest_size=256 // 8
+).hexdigest()
 
 
 def test_exc_with_message():
@@ -453,8 +455,15 @@ class TestFileValidation:
 
     @pytest.mark.parametrize(
         "filename",
-        ["test.tar", "test.tar.gz", "test.tgz",
-         "test.tar.xz", "test.txz", "test.tar.bz2", "test.tbz2"],
+        [
+            "test.tar",
+            "test.tar.gz",
+            "test.tgz",
+            "test.tar.xz",
+            "test.txz",
+            "test.tar.bz2",
+            "test.tbz2",
+        ],
     )
     def test_bails_with_invalid_tarfile(self, tmpdir, filename):
         fake_tar = str(tmpdir.join(filename))
@@ -476,8 +485,9 @@ class TestFileValidation:
         with tarfile.open(tar_fn, "w:" + compression) as tar:
             tar.add(data_file, arcname="package/module.py")
 
-        assert not legacy._is_valid_dist_file(tar_fn, "sdist"), (
-            "no PKG-INFO; should fail")
+        assert not legacy._is_valid_dist_file(
+            tar_fn, "sdist"
+        ), "no PKG-INFO; should fail"
 
         os.unlink(tar_fn)
         with tarfile.open(tar_fn, "w:" + compression) as tar:
@@ -1214,26 +1224,16 @@ class TestFileUpload:
         ("has_signature", "digests"),
         [
             (True, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (
-                True, {"sha256_digest": _TAR_GZ_PKG_SHA256},
-            ),
+            (True, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
             (False, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (
-                False, {"sha256_digest": _TAR_GZ_PKG_SHA256},
-            ),
+            (False, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
             (
                 True,
-                {
-                    "md5_digest": _TAR_GZ_PKG_MD5,
-                    "sha256_digest": _TAR_GZ_PKG_SHA256,
-                },
+                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
             ),
             (
                 False,
-                {
-                    "md5_digest": _TAR_GZ_PKG_MD5,
-                    "sha256_digest": _TAR_GZ_PKG_SHA256,
-                },
+                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
             ),
         ],
     )
@@ -1824,7 +1824,7 @@ class TestFileUpload:
                 "content": pretend.stub(
                     filename=filename,
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar"
+                    type="application/tar",
                 ),
                 "gpg_signature": pretend.stub(
                     filename=filename + ".asc",
