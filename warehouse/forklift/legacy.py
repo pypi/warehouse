@@ -571,9 +571,6 @@ def _is_valid_dist_file(filename, filetype):
                     zipfile.ZIP_DEFLATED,
                 }:
                     return False
-        is_zipfile = True
-    else:
-        is_zipfile = False
 
     tar_fn_match = _tar_filenames_re.search(filename)
     if tar_fn_match:

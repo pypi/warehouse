@@ -60,21 +60,22 @@ from ...common.db.packaging import (
 
 def _get_tar_testdata(compression_type=""):
     temp_f = io.BytesIO()
-    with tarfile.open(fileobj=temp_f, mode="w:"+compression_type) as tar:
+    with tarfile.open(fileobj=temp_f, mode="w:" + compression_type) as tar:
         tar.add("/dev/null", arcname="fake_package/PKG-INFO")
     return temp_f.getvalue()
+
 
 _TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
 _TAR_GZ_PKG_MD5 = hashlib.md5(_TAR_GZ_PKG_TESTDATA).hexdigest()
 _TAR_GZ_PKG_SHA256 = hashlib.sha256(_TAR_GZ_PKG_TESTDATA).hexdigest()
 _TAR_GZ_PKG_STORAGE_HASH = hashlib.blake2b(_TAR_GZ_PKG_TESTDATA,
-                                           digest_size=256//8).hexdigest()
+                                           digest_size=256 // 8).hexdigest()
 
 _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(_TAR_BZ2_PKG_TESTDATA,
-                                            digest_size=256//8).hexdigest()
+                                            digest_size=256 // 8).hexdigest()
 
 
 def test_exc_with_message():
@@ -472,13 +473,14 @@ class TestFileValidation:
         with open(data_file, "wb") as fp:
             fp.write(b"Dummy data file.")
 
-        with tarfile.open(tar_fn, "w:"+compression) as tar:
+        with tarfile.open(tar_fn, "w:" + compression) as tar:
             tar.add(data_file, arcname="package/module.py")
 
-        assert not legacy._is_valid_dist_file(tar_fn, "sdist"), "no PKG-INFO; should fail"
+        assert not legacy._is_valid_dist_file(tar_fn, "sdist"), (
+            "no PKG-INFO; should fail")
 
         os.unlink(tar_fn)
-        with tarfile.open(tar_fn, "w:"+compression) as tar:
+        with tarfile.open(tar_fn, "w:" + compression) as tar:
             tar.add(data_file, arcname="package/module.py")
             tar.add(data_file, arcname="package/PKG-INFO")
             tar.add(data_file, arcname="package/data_file.txt")
