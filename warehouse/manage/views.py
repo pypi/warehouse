@@ -345,6 +345,9 @@ class ProvisionTOTPViews:
                 return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
 
             self.user_service.update_user(self.request.user.id, totp_provisioned=True)
+            self.request.session.flash(
+                "TOTP application successfully provisioned.", queue="success"
+            )
             return self.default_response
         else:
             return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
@@ -352,7 +355,7 @@ class ProvisionTOTPViews:
     @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_totp(self):
         if not self.request.user.totp_provisioned:
-            self.request.session.flash("No TOTP secret to delete.", queue="error")
+            self.request.session.flash("No TOTP application to delete.", queue="error")
             return self.default_response
 
         form = DeleteTOTPForm(
@@ -365,7 +368,7 @@ class ProvisionTOTPViews:
             self.user_service.update_user(
                 self.request.user.id, totp_secret=None, totp_provisioned=False
             )
-            self.request.session.flash("TOTP secret deleted.", queue="success")
+            self.request.session.flash("TOTP application deleted.", queue="success")
         else:
             self.request.session.flash("Invalid credentials.", queue="error")
 

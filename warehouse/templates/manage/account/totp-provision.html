@@ -42,7 +42,7 @@
   <p><strong>Scan the QRcode with your application of choice to provision the application:</strong></p>
 
   <br/>
-  <p>{{ provision_totp_uri }}</p>
+  <canvas id="totp-qr-code" aria-label="{{ provision_totp_uri }}" role="img"></canvas>
   <br/>
 
   <form method="POST">
