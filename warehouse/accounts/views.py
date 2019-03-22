@@ -165,9 +165,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 # IDs here, even though it really shouldn't matter.
                 resp.set_cookie(
                     USER_ID_INSECURE_COOKIE,
-                    hashlib.blake2b(
-                        str(userid).encode(), person=b"warehouse.userid"
-                    )
+                    hashlib.blake2b(str(userid).encode(), person=b"warehouse.userid")
                     .hexdigest()
                     .lower(),
                 )
