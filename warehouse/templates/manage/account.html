@@ -189,7 +189,7 @@
   {{ form_error_anchor(add_email_form) }}
   <section id="account-emails">
     <h2 class="sub-title">Account emails</h2>
-    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
+    <p>You can associate several emails with your account. You can use any <strong>verified</strong> email to recover your account, but only your <strong>primary</strong> email will receive notifications.</p>
 
     {# Sort the emails as follows:
       * Primary email
@@ -276,41 +276,46 @@
 
   <hr>
 
-  <section>
+  <section id="two-factor">
     <h2 class="sub-title">Two Factor Authentication</h2>
-    {% if user.totp_provisioned %}
-    <section id="delete-two-factor">
-      <p>
-        TOTP is currently <strong>enabled</strong>.
-      </p>
-      {{ form_error_anchor(delete_totp_form) }}
-      <form method="POST">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {{ form_errors(delete_totp_form) }}
-        <div class="form-group">
-          {{ delete_totp_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password")}}
-          {{ field_errors(delete_totp_form.password) }}
-        </div>
-        <div>
-          <input value="Disable" type="submit" class="button button--primary">
-        </div>
-      </form>
-    </section>
-    {% else %}
-    <section id="add-two-factor">
-      <p>
-        TOTP is currently <strong>disabled</strong>.
-      </p>
-      {{ form_error_anchor(add_totp_form) }}
-      <form method="POST">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {{ form_errors(add_totp_form) }}
-        <div>
-          <input value="Enable" type="submit" class="button button--primary">
-        </div>
-      </form>
-    </section>
-    {% endif %}
+    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#2fa">Learn more</a></p>
+
+    <table class="table table--light table--2fa">
+      <thead>
+        <tr>
+          <th>Two factor method</th>
+          <th colspan="2">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Authentication app (TOTP)</td>
+          <td>{% if user.totp_provisioned %}
+              <span class="badge badge--success">Enabled</span>
+              {% else %}
+              <span class="badge badge--danger">Disabled</span>
+              {% endif %}
+          </td>
+          <td class="table__action">
+            {% if user.totp_provisioned %}
+            <a href="#disable-totp" class="button button--primary">Disable</a>
+            {{ confirm_modal(
+                title="Disable 2FA by TOTP application",
+                confirm_name="Username",
+                confirm_string=user.username,
+                confirm_button_label="Disable TOTP application",
+                slug="disable-totp",
+                action=None,
+                warning=False,
+                confirm_string_in_title=False)
+            }}
+          {% else %}
+            <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Enable</a>
+          {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 
   <hr>
