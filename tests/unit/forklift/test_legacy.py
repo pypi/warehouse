@@ -12,7 +12,9 @@
 
 import hashlib
 import io
+import os
 import re
+import tarfile
 import tempfile
 import zipfile
 
@@ -54,6 +56,25 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+
+
+def _get_tar_testdata(compression_type=""):
+    temp_f = io.BytesIO()
+    with tarfile.open(fileobj=temp_f, mode="w:"+compression_type) as tar:
+        tar.add("/dev/null", arcname="fake_package/PKG-INFO")
+    return temp_f.getvalue()
+
+_TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
+_TAR_GZ_PKG_MD5 = hashlib.md5(_TAR_GZ_PKG_TESTDATA).hexdigest()
+_TAR_GZ_PKG_SHA256 = hashlib.sha256(_TAR_GZ_PKG_TESTDATA).hexdigest()
+_TAR_GZ_PKG_STORAGE_HASH = hashlib.blake2b(_TAR_GZ_PKG_TESTDATA,
+                                           digest_size=256//8).hexdigest()
+
+_TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
+_TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
+_TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
+_TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(_TAR_BZ2_PKG_TESTDATA,
+                                            digest_size=256//8).hexdigest()
 
 
 def test_exc_with_message():
@@ -429,6 +450,41 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(f, filetype)
 
+    @pytest.mark.parametrize(
+        "filename",
+        ["test.tar", "test.tar.gz", "test.tgz",
+         "test.tar.xz", "test.txz", "test.tar.bz2", "test.tbz2"],
+    )
+    def test_bails_with_invalid_tarfile(self, tmpdir, filename):
+        fake_tar = str(tmpdir.join(filename))
+
+        with open(fake_tar, "wb") as fp:
+            fp.write(b"Definitely not a valid tar file.")
+
+        assert not legacy._is_valid_dist_file(fake_tar, "sdist")
+
+    @pytest.mark.parametrize("compression", ("", "gz", "bz2", "xz"))
+    def test_tarfile_validation(self, tmpdir, compression):
+        file_extension = f".{compression}" if compression else ""
+        tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
+        data_file = str(tmpdir.join("dummy_data"))
+
+        with open(data_file, "wb") as fp:
+            fp.write(b"Dummy data file.")
+
+        with tarfile.open(tar_fn, "w:"+compression) as tar:
+            tar.add(data_file, arcname="package/module.py")
+
+        assert not legacy._is_valid_dist_file(tar_fn, "sdist"), "no PKG-INFO; should fail"
+
+        os.unlink(tar_fn)
+        with tarfile.open(tar_fn, "w:"+compression) as tar:
+            tar.add(data_file, arcname="package/module.py")
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/data_file.txt")
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist")
+
     def test_wininst_unsafe_filename(self, tmpdir):
         f = str(tmpdir.join("test.exe"))
 
@@ -545,7 +601,7 @@ class TestIsDuplicateFile:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -579,7 +635,7 @@ class TestIsDuplicateFile:
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
         requested_file_name = "{}-{}-1.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -618,7 +674,7 @@ class TestIsDuplicateFile:
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
         requested_file_name = "{}-{}-1.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -654,7 +710,7 @@ class TestIsDuplicateFile:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -897,7 +953,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -957,7 +1013,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename="example-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
                 "description_content_type": description_content_type,
@@ -1020,7 +1076,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1066,7 +1122,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1155,44 +1211,26 @@ class TestFileUpload:
     @pytest.mark.parametrize(
         ("has_signature", "digests"),
         [
-            (True, {"md5_digest": "335c476dc930b959dda9ec82bd65ef19"}),
+            (True, {"md5_digest": _TAR_GZ_PKG_MD5}),
             (
-                True,
-                {
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    )
-                },
+                True, {"sha256_digest": _TAR_GZ_PKG_SHA256},
             ),
-            (False, {"md5_digest": "335c476dc930b959dda9ec82bd65ef19"}),
+            (False, {"md5_digest": _TAR_GZ_PKG_MD5}),
             (
-                False,
-                {
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    )
-                },
+                False, {"sha256_digest": _TAR_GZ_PKG_SHA256},
             ),
             (
                 True,
                 {
-                    "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    ),
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
                 },
             ),
             (
                 False,
                 {
-                    "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    ),
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
                 },
             ),
         ],
@@ -1219,7 +1257,7 @@ class TestFileUpload:
 
         content = FieldStorage()
         content.filename = filename
-        content.file = io.BytesIO(b"A fake file.")
+        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         content.type = "application/tar"
 
         db_request.POST = MultiDict(
@@ -1252,7 +1290,7 @@ class TestFileUpload:
                     b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
                 )
             else:
-                expected = b"A fake file."
+                expected = _TAR_GZ_PKG_TESTDATA
 
             with open(file_path, "rb") as fp:
                 assert fp.read() == expected
@@ -1270,9 +1308,9 @@ class TestFileUpload:
         assert storage_service.store.calls[0] == pretend.call(
             "/".join(
                 [
-                    "4e",
-                    "6e",
-                    "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d45a5916e",
+                    _TAR_GZ_PKG_STORAGE_HASH[:2],
+                    _TAR_GZ_PKG_STORAGE_HASH[2:4],
+                    _TAR_GZ_PKG_STORAGE_HASH[4:],
                     filename,
                 ]
             ),
@@ -1289,12 +1327,9 @@ class TestFileUpload:
             assert storage_service.store.calls[1] == pretend.call(
                 "/".join(
                     [
-                        "4e",
-                        "6e",
-                        (
-                            "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d"
-                            "45a5916e"
-                        ),
+                        _TAR_GZ_PKG_STORAGE_HASH[:2],
+                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
+                        _TAR_GZ_PKG_STORAGE_HASH[4:],
                         filename + ".asc",
                     ]
                 ),
@@ -1364,10 +1399,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "pyversion": "source",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type=content_type,
                 ),
             }
@@ -1401,10 +1436,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_dumb",
                 "pyversion": "2.7",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1436,10 +1471,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_BZ2_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_BZ2_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1515,10 +1550,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
                 "gpg_signature": pretend.stub(
@@ -1553,10 +1588,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1594,10 +1629,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1635,7 +1670,7 @@ class TestFileUpload:
                 ),
             },
             {
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "sha256_digest": (
                     "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbad"
                     "badbadb"
@@ -1672,7 +1707,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1783,9 +1818,11 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
-                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar"
                 ),
                 "gpg_signature": pretend.stub(
                     filename=filename + ".asc",
@@ -1815,7 +1852,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -1859,7 +1896,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -1906,7 +1943,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -1958,7 +1995,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -2203,10 +2240,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2215,7 +2252,7 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                assert fp.read() == _TAR_GZ_PKG_TESTDATA
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
@@ -2232,12 +2269,9 @@ class TestFileUpload:
             pretend.call(
                 "/".join(
                     [
-                        "4e",
-                        "6e",
-                        (
-                            "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d4"
-                            "5a5916e"
-                        ),
+                        _TAR_GZ_PKG_STORAGE_HASH[:2],
+                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
+                        _TAR_GZ_PKG_STORAGE_HASH[4:],
                         filename,
                     ]
                 ),
@@ -2340,10 +2374,7 @@ class TestFileUpload:
                     [
                         "4e",
                         "6e",
-                        (
-                            "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d4"
-                            "5a5916e"
-                        ),
+                        "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d45a5916e",
                         filename,
                     ]
                 ),
@@ -2410,10 +2441,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "pyversion": "source",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_BZ2_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_BZ2_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2421,7 +2452,7 @@ class TestFileUpload:
 
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                assert fp.read() == _TAR_BZ2_PKG_TESTDATA
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = lambda svc, name=None: storage_service
@@ -2457,10 +2488,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_dumb",
                 "pyversion": "3.5",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2468,7 +2499,7 @@ class TestFileUpload:
 
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                assert fp.read() == _TAR_GZ_PKG_TESTDATA
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = lambda svc, name=None: storage_service
@@ -2543,10 +2574,10 @@ class TestFileUpload:
                 "version": "1.1",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2598,10 +2629,10 @@ class TestFileUpload:
                 "version": "1.0",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2696,10 +2727,10 @@ class TestFileUpload:
                 "version": "1.0.0",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2742,10 +2773,10 @@ class TestFileUpload:
                 "version": "1.0.0",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2774,10 +2805,10 @@ class TestFileUpload:
                 "name": "example",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2865,10 +2896,10 @@ class TestFileUpload:
                 "name": "exmaple",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2923,10 +2954,10 @@ class TestFileUpload:
                 "name": "example",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2974,10 +3005,10 @@ class TestFileUpload:
                 "name": "example",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
