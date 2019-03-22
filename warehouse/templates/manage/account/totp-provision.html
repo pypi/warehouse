@@ -14,7 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Provision your TOTP device" %}
+{% set title = "Set up two factor authentication using an application (TOTP)" %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -24,24 +24,33 @@
 {% block main %}
 <h1 class="page-title">{{ title }}</h1>
 <section>
-  <h2>Provision your device</h2>
-  <div class="callout-block callout-block--danger">
-    <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-      This provisioning code will only be shown on this page.
-    </p>
-  </div>
-  <div>
-    <p>
-    {{ provision_totp_uri }}
-    </p>
-  </div>
-  <div>
+  <h2>How 2FA with TOTP works</h2>
+
+  <ol>
+    <li>When you sign into PyPI, you will be asked to provide your username and password, as usual</li>
+    <li>You will then see a screen asking for an additional authentication code</li>
+    <li>Use the application of your choice (provisioned below) to generate a code</li>
+    <li>Enter the code to access your PyPI account</li>
+  </ol>
+
+  <h2>Provisioning your application</h2>
+
+  <p>You can provision any compatible TOTP application to generate two factor authentication codes for PyPI. We recommend <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en_GB">Google Authenticator for Android</a> or <a href="https://itunes.apple.com/gb/app/google-authenticator/id388497605?mt=8">iPhone</a>, <a href="https://support.1password.com/one-time-passwords/">1Password</a>, <a href="https://authy.com/">Authy</a> or <a href="https://lastpass.com/auth/">LastPass Authenticator</a>.</p>
+
+  <p>For security reasons, you should only provision one device/application at a time.</p>
+
+  <p><strong>Scan the QRcode with your application of choice to provision the application:</strong></p>
+
+  <br/>
+  <p>{{ provision_totp_uri }}</p>
+  <br/>
+
   <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="form-group">
-      <label for="totp_value" class="form-group__label">Authentication code</label>
-      {{ provision_totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+      <label for="totp_value" class="form-group__label">Verify application</label>
+      {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+      <p class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
       {% if provision_totp_form.totp_value.errors %}
       <ul class="form-errors">
         {% for error in provision_totp_form.totp_value.errors %}
@@ -50,14 +59,9 @@
       </ul>
       {% endif %}
     </div>
-    <div class="form-group">
-      <div class="split-layout split-layout--table">
-        <div>
-          <input type="submit" value="Verify" class="button button--primary" tabindex="3">
-        </div>
-      </div>
+    <div>
+      <input type="submit" value="Provision application" class="button button--primary">
     </div>
   </form>
-  </div>
 </section>
 {% endblock %}
