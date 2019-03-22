@@ -809,6 +809,9 @@ class TestProvisionTOTP:
         assert user_service.totp_provisioning_uri.calls == [
             pretend.call(request.user.id)
         ]
+        assert request.session.flash.calls == [
+            pretend.call("TOTP application successfully provisioned.", queue="success")
+        ]
 
     def test_validate_totp_provision_already_provisioned(self, monkeypatch):
         request = pretend.stub(
@@ -942,7 +945,7 @@ class TestProvisionTOTP:
 
         assert result == view.default_response
         assert request.session.flash.calls == [
-            pretend.call("TOTP secret deleted.", queue="success")
+            pretend.call("TOTP application deleted.", queue="success")
         ]
 
     def test_delete_totp_bad_password(self, monkeypatch, db_request):
@@ -1008,7 +1011,7 @@ class TestProvisionTOTP:
 
         assert result == view.default_response
         assert request.session.flash.calls == [
-            pretend.call("No TOTP secret to delete.", queue="error")
+            pretend.call("No TOTP application to delete.", queue="error")
         ]
 
 
