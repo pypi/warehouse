@@ -551,8 +551,8 @@ class MetadataForm(forms.Form):
 
 
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
-# .tar uncompressed, .tar.gz .tgz, .tar.xz .txz, .tar.bz2 .tbz2
-_tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|xz|bz2)$)")
+# .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
+_tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
 
 
 def _is_valid_dist_file(filename, filetype):

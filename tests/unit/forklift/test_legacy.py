@@ -459,8 +459,6 @@ class TestFileValidation:
             "test.tar",
             "test.tar.gz",
             "test.tgz",
-            "test.tar.xz",
-            "test.txz",
             "test.tar.bz2",
             "test.tbz2",
         ],
@@ -473,7 +471,7 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
-    @pytest.mark.parametrize("compression", ("", "gz", "bz2", "xz"))
+    @pytest.mark.parametrize("compression", ("", "gz", "bz2"))
     def test_tarfile_validation(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
