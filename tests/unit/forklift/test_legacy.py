@@ -454,14 +454,7 @@ class TestFileValidation:
         assert not legacy._is_valid_dist_file(f, filetype)
 
     @pytest.mark.parametrize(
-        "filename",
-        [
-            "test.tar",
-            "test.tar.gz",
-            "test.tgz",
-            "test.tar.bz2",
-            "test.tbz2",
-        ],
+        "filename", ["test.tar", "test.tar.gz", "test.tgz", "test.tar.bz2", "test.tbz2"]
     )
     def test_bails_with_invalid_tarfile(self, tmpdir, filename):
         fake_tar = str(tmpdir.join(filename))
