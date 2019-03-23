@@ -13,7 +13,7 @@
 Add `downloads_last_30_days` column on project for indexing.
 
 Revision ID: 20ee7dfaddc7
-Revises: 3db69c05dd11
+Revises: c4a1ee483bb3
 Create Date: 2019-01-06 16:17:43.846366
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "20ee7dfaddc7"
-down_revision = "3db69c05dd11"
+down_revision = "c4a1ee483bb3"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
