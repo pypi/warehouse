@@ -14,9 +14,9 @@ from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
 
 from warehouse import db
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
-from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 

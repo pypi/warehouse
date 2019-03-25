@@ -13,6 +13,7 @@
 import collections
 import functools
 import operator
+
 from itertools import chain
 
 from sqlalchemy.orm.session import Session

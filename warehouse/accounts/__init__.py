@@ -15,26 +15,25 @@ import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
-    IPasswordBreachedService,
+from warehouse.accounts.auth_policy import (
+    BasicAuthAuthenticationPolicy,
+    SessionAuthenticationPolicy,
 )
+from warehouse.accounts.interfaces import (
+    IPasswordBreachedService,
+    ITokenService,
+    IUserService,
+)
+from warehouse.accounts.models import DisableReason
 from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.accounts.models import DisableReason
-from warehouse.accounts.auth_policy import (
-    BasicAuthAuthenticationPolicy,
-    SessionAuthenticationPolicy,
-)
-from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.email import send_password_compromised_email
-from warehouse.rate_limiting import RateLimit, IRateLimiter
-
+from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
 
