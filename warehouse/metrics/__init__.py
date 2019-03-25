@@ -15,9 +15,8 @@ from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import event_handlers
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.metrics.services import NullMetrics, DataDogMetrics
+from warehouse.metrics.services import DataDogMetrics, NullMetrics
 from warehouse.metrics.views import timing_view
-
 
 __all__ = ["IMetricsService", "NullMetrics", "DataDogMetrics", "includeme"]
 

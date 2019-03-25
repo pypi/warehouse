@@ -12,5 +12,4 @@
 
 from warehouse.utils.db.windowed_query import windowed_query
 
-
 __all__ = ["windowed_query"]
