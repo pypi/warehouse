@@ -586,7 +586,6 @@ def _is_valid_dist_file(filename, filetype):
                     parts = os.path.split(member.name)
                     if len(parts) == 2 and parts[1] == "PKG-INFO":
                         bad_tar = False
-                        break
                     member = tar.next()
                 if bad_tar:
                     return False
