@@ -224,7 +224,10 @@ def _validate_legacy_non_dist_req(requirement):
             "Can't direct dependency: {!r}".format(requirement)
         )
 
-    if not req.name.isalnum() or req.name[0].isdigit():
+    if any(
+        not identifier.isalnum() or identifier[0].isdigit()
+        for identifier in req.name.split(".")
+    ):
         raise wtforms.validators.ValidationError("Use a valid Python identifier.")
 
 
