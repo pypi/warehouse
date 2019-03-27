@@ -299,16 +299,10 @@
           <td class="table__action">
             {% if user.totp_provisioned %}
             <a href="#disable-totp" class="button button--primary">Disable</a>
-            {{ confirm_modal(
-                title="Disable 2FA by TOTP application",
-                confirm_name="Username",
-                confirm_string=user.username,
-                confirm_button_label="Disable TOTP application",
-                slug="disable-totp",
-                action="/manage/account/totp-provision",
-                warning=False,
-                confirm_string_in_title=False)
-            }}
+            {% set title="Disable 2FA by TOTP application" %}
+            {% set confirm_button_label="Disable TOTP application" %}
+            {% set action="/manage/account/totp-provision" %}
+            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
           {% else %}
             <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Enable</a>
           {% endif %}
