@@ -41,9 +41,9 @@
 
   <p><strong>Scan the QRcode with your application of choice to provision the application:</strong></p>
 
-  <br/>
+  <br>
   <canvas id="totp-qr-code" aria-label="{{ provision_totp_uri }}" role="img"></canvas>
-  <br/>
+  <br>
 
   <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
