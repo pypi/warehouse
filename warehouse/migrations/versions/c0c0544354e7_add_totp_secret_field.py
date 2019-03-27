@@ -17,9 +17,9 @@ Revises: c4a1ee483bb3
 Create Date: 2019-03-12 14:36:48.791870
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "c0c0544354e7"
 down_revision = "c4a1ee483bb3"

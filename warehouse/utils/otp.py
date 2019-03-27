@@ -12,10 +12,11 @@
 
 import os
 import time
+
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.twofactor import InvalidToken
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
-from cryptography.hazmat.primitives.hashes import SHA1
 
 TOTP_LENGTH = 6
 TOTP_INTERVAL = 30

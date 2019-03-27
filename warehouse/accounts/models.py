@@ -14,8 +14,8 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
-    Boolean,
     Binary,
+    Boolean,
     CheckConstraint,
     Column,
     DateTime,

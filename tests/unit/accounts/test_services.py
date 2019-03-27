@@ -21,6 +21,8 @@ import requests
 
 from zope.interface.verify import verifyClass
 
+import warehouse.utils.otp as otp
+
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -34,7 +36,6 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import DisableReason
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
-import warehouse.utils.otp as otp
 
 from ...common.db.accounts import EmailFactory, UserFactory
 

@@ -25,6 +25,8 @@ from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
+import warehouse.utils.otp as otp
+
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -38,7 +40,6 @@ from warehouse.accounts.models import Email, User
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
-import warehouse.utils.otp as otp
 
 logger = logging.getLogger(__name__)
 

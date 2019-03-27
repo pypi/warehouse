@@ -22,12 +22,13 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
+import warehouse.utils.otp as otp
+
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.manage import views
 from warehouse.packaging.models import File, JournalEntry, Project, Role, User
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
-import warehouse.utils.otp as otp
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (

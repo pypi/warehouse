@@ -19,6 +19,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
+import warehouse.utils.otp as otp
+
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
@@ -42,7 +44,6 @@ from warehouse.manage.forms import (
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
-import warehouse.utils.otp as otp
 
 
 def user_projects(request):

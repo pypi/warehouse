@@ -11,18 +11,19 @@
 # limitations under the License.
 
 import time
+
 from base64 import b32encode
 from urllib.parse import parse_qsl, urlparse
 
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.twofactor.totp import TOTP
 from cryptography.hazmat.primitives.hashes import SHA1
+from cryptography.hazmat.primitives.twofactor.totp import TOTP
 
 from warehouse.utils.otp import (
-    TOTP_LENGTH,
     TOTP_INTERVAL,
-    generate_totp_secret,
+    TOTP_LENGTH,
     generate_totp_provisioning_uri,
+    generate_totp_secret,
     verify_totp,
 )
 
