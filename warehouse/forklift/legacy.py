@@ -578,8 +578,8 @@ def _is_valid_dist_file(filename, filetype):
         z_type = tar_fn_match.group("z_type") or ""
         try:
             with tarfile.open(filename, f"r:{z_type}") as tar:
-                # This decompresses the entire stream until we find the tar
-                # file member we want.  Easy to DoS attack our CPU. :(
+                # This decompresses the entire stream to validate it and the
+                # tar within.  Easy CPU DoS attack. :/
                 bad_tar = True
                 member = tar.next()
                 while member:
