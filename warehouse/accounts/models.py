@@ -81,8 +81,12 @@ class User(SitemapMixin, db.Model):
         nullable=True,
     )
 
-    totp_secret = Column(Binary(length=20), nullable=True)
-    totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
+    # totp_secret = Column(Binary(length=20), nullable=True)
+    # totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
+
+    otp_info = orm.relationship(
+        "OtpInfo", backref="user", cascade="all, delete-orphan", lazy=False
+    )
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
@@ -113,6 +117,21 @@ class UnverifyReasons(enum.Enum):
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
+
+class OtpInfo(db.ModelBase):
+    __tablename__ = "otp_info"
+    __table_args__ = (
+        Index("otp_info_user_id", "user_id"),
+    )
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    totp_secret = Column(Binary(length=20), nullable=True)
+    totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
 
 
 class Email(db.ModelBase):
