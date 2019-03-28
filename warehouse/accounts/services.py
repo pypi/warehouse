@@ -36,7 +36,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, User, OtpInfo
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -236,7 +236,12 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         # TODO: This is where user.u2f_provisioned et al.
         # will also go.
-        return user.totp_provisioned
+
+
+        if user.otp_info is None:
+            return False
+        return user.otp_info.totp_provisioned
+        # return user.totp_provisioned
 
     def check_totp_value(self, user_id, totp_value):
         """

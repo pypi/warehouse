@@ -85,7 +85,7 @@ class User(SitemapMixin, db.Model):
     # totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
 
     otp_info = orm.relationship(
-        "OtpInfo", backref="user", cascade="all, delete-orphan", lazy=False
+        "OtpInfo", backref="user", uselist=False, cascade="all, delete-orphan", lazy=False
     )
 
     emails = orm.relationship(
@@ -121,6 +121,7 @@ class UnverifyReasons(enum.Enum):
 class OtpInfo(db.ModelBase):
     __tablename__ = "otp_info"
     __table_args__ = (
+        UniqueConstraint("user_id", name="otp_info_user_key"),
         Index("otp_info_user_id", "user_id"),
     )
 
