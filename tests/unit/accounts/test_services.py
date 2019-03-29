@@ -357,7 +357,9 @@ class TestDatabaseUserService:
         monkeypatch.setattr(otp, "verify_totp", verify_totp)
 
         user = UserFactory.create()
-        user_service.update_user(user.id, totp_secret=b"foobar", totp_provisioned=True)
+        user_service.set_totp_secret(user.id, b"foobar")
+        user_service.set_totp_provisioned(user.id, True)
+
         assert user_service.check_totp_value(user.id, b"123456")
 
     def test_check_totp_value_not_provisioned(self, user_service, monkeypatch):
@@ -368,7 +370,7 @@ class TestDatabaseUserService:
         assert not user_service.check_totp_value(user.id, b"123456")
         assert verify_totp.calls == []
 
-        user_service.update_user(user.id, totp_secret=b"foobar")
+        user_service.set_totp_secret(user.id, b"foobar")
         assert user_service.check_totp_value(user.id, b"123456")
         assert verify_totp.calls == [pretend.call(b"foobar", b"123456")]
 
@@ -379,11 +381,11 @@ class TestDatabaseUserService:
         )
 
         user = UserFactory.create()
-        user_service.update_user(user.id, totp_secret=b"foobar")
+        user_service.set_totp_secret(user.id, b"foobar")
 
         assert user_service.totp_provisioning_uri(user.id) == "not_real"
         assert generate_totp_provisioning_uri.calls == [
-            pretend.call(user.totp_secret, user.username)
+            pretend.call(user.otp_info.totp_secret, user.username)
         ]
 
     def test_totp_provisioning_uri_no_secret(self, user_service, monkeypatch):
@@ -404,7 +406,8 @@ class TestDatabaseUserService:
         )
 
         user = UserFactory.create()
-        user_service.update_user(user.id, totp_secret=b"foobar", totp_provisioned=True)
+        user_service.set_totp_secret(user.id, b"foobar")
+        user_service.set_totp_provisioned(user.id, True)
 
         assert user_service.totp_provisioning_uri(user.id) is None
         assert generate_totp_provisioning_uri.calls == []
