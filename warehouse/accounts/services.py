@@ -180,6 +180,23 @@ class DatabaseUserService:
 
         return user
 
+    def set_totp_provisioned(self, user_id, status):
+        user = self.get_user(user_id)
+
+        if user.otp_info is None:
+            # TODO: use better exception
+            raise Exception('otp_info should have already existed')
+        else:
+            user.otp_info.totp_provisioned = status
+
+    def set_totp_secret(self, user_id, secret):
+        user = self.get_user(user_id)
+
+        if user.otp_info is None:
+            user.otp_info = OtpInfo(user=user, totp_secret=secret)
+        else:
+            user.otp_info.totp_secret = secret
+
     def add_email(self, user_id, email_address, primary=None, verified=False):
         user = self.get_user(user_id)
 
@@ -241,7 +258,6 @@ class DatabaseUserService:
         if user.otp_info is None:
             return False
         return user.otp_info.totp_provisioned
-        # return user.totp_provisioned
 
     def check_totp_value(self, user_id, totp_value):
         """
@@ -251,10 +267,15 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
 
-        if user.totp_secret is None:
+        if user.otp_info is None:
             return False
 
-        return otp.verify_totp(user.totp_secret, totp_value)
+        totp_secret = user.otp_info.totp_secret
+
+        if totp_secret is None:
+            return False
+
+        return otp.verify_totp(totp_secret, totp_value)
 
     def totp_provisioning_uri(self, user_id):
         """
@@ -264,11 +285,14 @@ class DatabaseUserService:
         TOTP device, returns None.
         """
         user = self.get_user(user_id)
+        otp_info = user.otp_info
 
-        if not user.totp_secret or user.totp_provisioned:
+        if otp_info is None:
+            return None
+        if not otp_info.totp_secret or otp_info.totp_provisioned:
             return None
 
-        return otp.generate_totp_provisioning_uri(user.totp_secret, user.username)
+        return otp.generate_totp_provisioning_uri(otp_info.totp_secret, user.username)
 
 
 @implementer(ITokenService)

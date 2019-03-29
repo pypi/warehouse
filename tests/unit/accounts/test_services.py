@@ -347,9 +347,9 @@ class TestDatabaseUserService:
     def test_has_two_factor(self, user_service):
         user = UserFactory.create()
         assert not user_service.has_two_factor(user.id)
-        user_service.update_user(user.id, totp_secret=b"foobar")
+        user_service.set_totp_secret(user.id, b"foobar")
         assert not user_service.has_two_factor(user.id)
-        user_service.update_user(user.id, totp_provisioned=True)
+        user_service.set_totp_provisioned(user.id, True)
         assert user_service.has_two_factor(user.id)
 
     def test_check_totp_value(self, user_service, monkeypatch):
