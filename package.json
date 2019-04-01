@@ -2,7 +2,7 @@
   "repository": "pypa/warehouse",
   "license": "Apache-2.0",
   "engines": {
-    "node": "8.9.4"
+    "node": "8.15.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.1.1",
