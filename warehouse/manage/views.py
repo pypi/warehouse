@@ -311,14 +311,13 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="GET")
     def totp_provision(self):
-        if self.request.user.totp_provisioned:
+        two_factor = self.user_service.get_two_factor(self.request.user.id)
+        if two_factor.totp_provisioned:
             self.request.session.flash("TOTP already provisioned.", queue="error")
             return self.default_response
 
-        totp_secret = self.request.user.totp_secret
-        if totp_secret is None:
-            totp_secret = otp.generate_totp_secret()
-            self.user_service.update_user(self.request.user.id, totp_secret=totp_secret)
+        if two_factor.totp_secret is None:
+            two_factor.totp_secret = otp.generate_totp_secret()
 
         totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
 
@@ -329,7 +328,8 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
-        if self.request.user.totp_provisioned:
+        two_factor = self.user_service.get_two_factor(self.request.user.id)
+        if two_factor.totp_provisioned:
             self.request.session.flash("TOTP already provisioned.", queue="error")
             return self.default_response
 
@@ -345,7 +345,7 @@ class ProvisionTOTPViews:
 
                 return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
 
-            self.user_service.update_user(self.request.user.id, totp_provisioned=True)
+            two_factor.totp_provisioned = True
             self.request.session.flash(
                 "TOTP application successfully provisioned.", queue="success"
             )
@@ -355,7 +355,8 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_totp(self):
-        if not self.request.user.totp_provisioned:
+        two_factor = self.user_service.get_two_factor(self.request.user.id)
+        if not two_factor.totp_provisioned:
             self.request.session.flash("No TOTP application to delete.", queue="error")
             return self.default_response
 
@@ -366,9 +367,8 @@ class ProvisionTOTPViews:
         )
 
         if form.validate():
-            self.user_service.update_user(
-                self.request.user.id, totp_secret=None, totp_provisioned=False
-            )
+            two_factor.totp_secret = None
+            two_factor.totp_provisioned = False
             self.request.session.flash("TOTP application deleted.", queue="success")
         else:
             self.request.session.flash("Invalid credentials.", queue="error")

@@ -36,7 +36,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, User, OtpInfo
+from warehouse.accounts.models import Email, User, TwoFactor
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -78,6 +78,18 @@ class DatabaseUserService:
         #       object here.
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
+
+    def get_two_factor(self, user_id):
+        result = self.db.query(TwoFactor).filter(TwoFactor.user_id == user_id).first()
+
+        if result:
+            return result
+        else:
+            user = self.get_user(user_id)
+            two_factor = TwoFactor(user=user)
+            self.db.add(two_factor)
+            self.db.flush()
+            return two_factor
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
@@ -180,23 +192,6 @@ class DatabaseUserService:
 
         return user
 
-    def set_totp_provisioned(self, user_id, status):
-        user = self.get_user(user_id)
-
-        if user.otp_info is None:
-            # TODO: use better exception
-            raise Exception('otp_info should have already existed')
-        else:
-            user.otp_info.totp_provisioned = status
-
-    def set_totp_secret(self, user_id, secret):
-        user = self.get_user(user_id)
-
-        if user.otp_info is None:
-            user.otp_info = OtpInfo(user=user, totp_secret=secret)
-        else:
-            user.otp_info.totp_secret = secret
-
     def add_email(self, user_id, email_address, primary=None, verified=False):
         user = self.get_user(user_id)
 
@@ -230,6 +225,14 @@ class DatabaseUserService:
 
         return user
 
+    def update_two_factor(self, user_id, **changes):
+        two_factor = self.get_two_factor(user_id)
+
+        for attr, value in changes.items():
+            setattr(two_factor, attr, value)
+
+        return two_factor
+
     def disable_password(self, user_id, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
@@ -250,14 +253,14 @@ class DatabaseUserService:
         Returns True if the user has any form of two factor
         authentication.
         """
-        user = self.get_user(user_id)
+        two_factor = self.get_two_factor(user_id)
+
         # TODO: This is where user.u2f_provisioned et al.
         # will also go.
+        return two_factor.totp_provisioned
 
-
-        if user.otp_info is None:
-            return False
-        return user.otp_info.totp_provisioned
+    def set_totp_secret(self, user_id, secret):
+        self.update_two_factor(user_id, totp_secret=secret)
 
     def check_totp_value(self, user_id, totp_value):
         """
@@ -265,17 +268,12 @@ class DatabaseUserService:
 
         If the user doesn't have a TOTP secret, returns False.
         """
-        user = self.get_user(user_id)
+        two_factor = self.get_two_factor(user_id)
 
-        if user.otp_info is None:
+        if two_factor.totp_secret is None:
             return False
 
-        totp_secret = user.otp_info.totp_secret
-
-        if totp_secret is None:
-            return False
-
-        return otp.verify_totp(totp_secret, totp_value)
+        return otp.verify_totp(two_factor.totp_secret, totp_value)
 
     def totp_provisioning_uri(self, user_id):
         """
@@ -285,14 +283,13 @@ class DatabaseUserService:
         TOTP device, returns None.
         """
         user = self.get_user(user_id)
-        otp_info = user.otp_info
 
-        if otp_info is None:
+        if user.two_factor is None:
             return None
-        if not otp_info.totp_secret or otp_info.totp_provisioned:
+        if not user.two_factor.totp_secret or user.two_factor.totp_provisioned:
             return None
 
-        return otp.generate_totp_provisioning_uri(otp_info.totp_secret, user.username)
+        return otp.generate_totp_provisioning_uri(user.two_factor.totp_secret, user.username)
 
 
 @implementer(ITokenService)

@@ -290,14 +290,14 @@
       <tbody>
         <tr>
           <td>Authentication app (TOTP)</td>
-          <td>{% if user.totp_provisioned %}
+          <td>{% if user.two_factor.totp_provisioned %}
             <span class="badge badge--success">Enabled</span>
               {% else %}
             <span class="badge badge--danger">Disabled</span>
               {% endif %}
           </td>
           <td class="table__action">
-            {% if user.totp_provisioned %}
+            {% if user.two_factor.totp_provisioned %}
             <a href="#disable-totp" class="button button--primary">Disable</a>
             {% set title="Disable 2FA by TOTP application" %}
             {% set confirm_button_label="Disable TOTP application" %}

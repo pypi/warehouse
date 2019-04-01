@@ -84,8 +84,12 @@ class User(SitemapMixin, db.Model):
     # totp_secret = Column(Binary(length=20), nullable=True)
     # totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
 
-    otp_info = orm.relationship(
-        "OtpInfo", backref="user", uselist=False, cascade="all, delete-orphan", lazy=False
+    two_factor = orm.relationship(
+        "TwoFactor",
+        backref="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+        lazy=False,
     )
 
     emails = orm.relationship(
@@ -118,16 +122,17 @@ class UnverifyReasons(enum.Enum):
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
 
-class OtpInfo(db.ModelBase):
-    __tablename__ = "otp_info"
+
+class TwoFactor(db.ModelBase):
+    __tablename__ = "two_factor"
     __table_args__ = (
-        UniqueConstraint("user_id", name="otp_info_user_key"),
-        Index("otp_info_user_id", "user_id"),
+        UniqueConstraint("user_id", name="two_factor_user_key"),
+        Index("two_factor_user_id", "user_id"),
     )
 
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(
-        UUID(as_uuid=True),
+        Integer,
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
