@@ -492,7 +492,7 @@ def changelog_since_serial(request, serial: int):
             e.name,
             e.version,
             int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
-            e.action,
+            _clean_for_xml(e.action),
             e.id,
         )
         for e in entries
