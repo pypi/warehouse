@@ -135,7 +135,7 @@ POST request with the following fields:
   with no padding
 - ``filetype`` set to the type of the artifact, i.e. ``bdist_wheel``
   or ``sdist``
-- When used with ``bdist_wheel`` for ``filetype`, ``pyversion`` must be set to
+- When used with ``bdist_wheel`` for ``filetype``, ``pyversion`` must be set to
   a specific release, i.e. ``cp36``, when used with ``sdist`` it must be set to
   ``source``
 - ``metadata_version``, ``name`` and ``version`` set according to the
