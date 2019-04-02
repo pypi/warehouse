@@ -295,6 +295,11 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
         ),
         pretend.call(
+            TokenServiceFactory(name="totp_provision"),
+            ITokenService,
+            name="totp_provision",
+        ),
+        pretend.call(
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,
         ),
