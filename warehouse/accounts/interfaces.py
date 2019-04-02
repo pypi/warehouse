@@ -43,6 +43,12 @@ class IUserService(Interface):
         there is no user for that ID.
         """
 
+    def get_two_factor(user_id):
+        """
+        Return the two factor object for the given user_id, or None if
+        there is no user for that ID.
+        """
+
     def get_user_by_username(username):
         """
         Return the user object corresponding with the given username, or None
@@ -86,6 +92,11 @@ class IUserService(Interface):
     def update_user(user_id, **changes):
         """
         Updates the user object
+        """
+
+    def update_two_factor(user_id, **changes):
+        """
+        Updates the two factor object
         """
 
     def disable_password(user_id, reason=None):

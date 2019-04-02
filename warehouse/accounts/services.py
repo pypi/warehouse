@@ -86,6 +86,8 @@ class DatabaseUserService:
             return result
         else:
             user = self.get_user(user_id)
+            if not user:
+                return None
             two_factor = TwoFactor(user=user)
             self.db.add(two_factor)
             self.db.flush()
