@@ -36,7 +36,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, User, TwoFactor
+from warehouse.accounts.models import Email, TwoFactor, User
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
