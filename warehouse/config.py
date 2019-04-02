@@ -178,11 +178,19 @@ def configure(settings=None):
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
+    maybe_set(settings, "token.totp_provision.secret", "TOKEN_TOTP_PROVISION_SECRET")
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
     maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
     maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
     maybe_set(
         settings, "token.two_factor.max_age", "TOKEN_TWO_FACTOR_MAX_AGE", coercer=int
+    )
+    maybe_set(
+        settings,
+        "token.totp_provision.max_age",
+        "TOKEN_TOTP_PROVISION_MAX_AGE",
+        coercer=int,
+        default=300,  # 5 minutes
     )
     maybe_set(
         settings,

@@ -81,9 +81,6 @@ class User(SitemapMixin, db.Model):
         nullable=True,
     )
 
-    # totp_secret = Column(Binary(length=20), nullable=True)
-    # totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
-
     two_factor = orm.relationship(
         "TwoFactor",
         backref="user",
@@ -137,7 +134,6 @@ class TwoFactor(db.ModelBase):
         nullable=False,
     )
     totp_secret = Column(Binary(length=20), nullable=True)
-    totp_provisioned = Column(Boolean, nullable=False, server_default=sql.false())
 
 
 class Email(db.ModelBase):

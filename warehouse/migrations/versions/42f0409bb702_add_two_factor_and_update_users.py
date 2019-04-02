@@ -42,12 +42,6 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("totp_secret", sa.Binary(), nullable=True),
-        sa.Column(
-            "totp_provisioned",
-            sa.Boolean(),
-            server_default=sa.text("false"),
-            nullable=False,
-        ),
         sa.ForeignKeyConstraint(
             ["user_id"], ["users.id"], initially="DEFERRED", deferrable=True
         ),

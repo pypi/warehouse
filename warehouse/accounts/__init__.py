@@ -127,6 +127,9 @@ def includeme(config):
     config.register_service_factory(
         TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
     )
+    config.register_service_factory(
+        TokenServiceFactory(name="totp_provision"), ITokenService, name="totp_provision"
+    )
 
     # Register our password breach detection service.
     breached_pw_class = config.maybe_dotted(

@@ -259,7 +259,7 @@ class DatabaseUserService:
 
         # TODO: This is where user.u2f_provisioned et al.
         # will also go.
-        return two_factor.totp_provisioned
+        return two_factor.totp_secret is not None
 
     def check_totp_value(self, user_id, totp_value):
         """
@@ -273,24 +273,6 @@ class DatabaseUserService:
             return False
 
         return otp.verify_totp(two_factor.totp_secret, totp_value)
-
-    def totp_provisioning_uri(self, user_id):
-        """
-        Returns a URI suitable for provisioning a TOTP device or application.
-
-        If the user doesn't have a TOTP secret or has already provisioned a
-        TOTP device, returns None.
-        """
-        user = self.get_user(user_id)
-
-        if user.two_factor is None:
-            return None
-        if not user.two_factor.totp_secret or user.two_factor.totp_provisioned:
-            return None
-
-        return otp.generate_totp_provisioning_uri(
-            user.two_factor.totp_secret, user.username
-        )
 
 
 @implementer(ITokenService)
