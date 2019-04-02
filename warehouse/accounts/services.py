@@ -259,9 +259,6 @@ class DatabaseUserService:
         # will also go.
         return two_factor.totp_provisioned
 
-    def set_totp_secret(self, user_id, secret):
-        self.update_two_factor(user_id, totp_secret=secret)
-
     def check_totp_value(self, user_id, totp_value):
         """
         Returns True if the given TOTP is valid against the user's secret.
@@ -289,7 +286,9 @@ class DatabaseUserService:
         if not user.two_factor.totp_secret or user.two_factor.totp_provisioned:
             return None
 
-        return otp.generate_totp_provisioning_uri(user.two_factor.totp_secret, user.username)
+        return otp.generate_totp_provisioning_uri(
+            user.two_factor.totp_secret, user.username
+        )
 
 
 @implementer(ITokenService)

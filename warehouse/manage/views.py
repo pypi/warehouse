@@ -317,7 +317,9 @@ class ProvisionTOTPViews:
             return self.default_response
 
         if two_factor.totp_secret is None:
-            two_factor.totp_secret = otp.generate_totp_secret()
+            self.user_service.update_two_factor(
+                self.request.user.id, totp_secret=otp.generate_totp_secret()
+            )
 
         totp_uri = self.user_service.totp_provisioning_uri(self.request.user.id)
 
@@ -345,7 +347,10 @@ class ProvisionTOTPViews:
 
                 return {"provision_totp_form": form, "provision_totp_uri": totp_uri}
 
-            two_factor.totp_provisioned = True
+            self.user_service.update_two_factor(
+                self.request.user.id, totp_provisioned=True
+            )
+
             self.request.session.flash(
                 "TOTP application successfully provisioned.", queue="success"
             )
@@ -367,8 +372,9 @@ class ProvisionTOTPViews:
         )
 
         if form.validate():
-            two_factor.totp_secret = None
-            two_factor.totp_provisioned = False
+            self.user_service.update_two_factor(
+                self.request.user.id, totp_secret=None, totp_provisioned=False
+            )
             self.request.session.flash("TOTP application deleted.", queue="success")
         else:
             self.request.session.flash("Invalid credentials.", queue="error")
