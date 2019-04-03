@@ -382,12 +382,14 @@ class ProvisionTOTPViews:
         self.user_service.update_two_factor(
             self.request.user.id, totp_secret=totp_secret
         )
-        self.request.response.delete_cookie(TWO_FACTOR_TOTP_PROVISION_COOKIE)
 
         self.request.session.flash(
             "TOTP application successfully provisioned.", queue="success"
         )
-        return self.default_response
+
+        resp = self.default_response
+        resp.delete_cookie(TWO_FACTOR_TOTP_PROVISION_COOKIE)
+        return resp
 
     @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_totp(self):
