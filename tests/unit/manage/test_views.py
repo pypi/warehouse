@@ -872,9 +872,7 @@ class TestProvisionTOTP:
 
     def test_validate_totp_provision_invalid_form(self, monkeypatch):
         two_factor = pretend.stub(totp_secret=None)
-        user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-        )
+        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
         request = pretend.stub(
             POST={},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -903,12 +901,8 @@ class TestProvisionTOTP:
 
     def test_validate_totp_provision_bad_cookie(self, monkeypatch):
         two_factor = pretend.stub(totp_secret=None)
-        token_service = pretend.stub(
-            loads=pretend.raiser(TokenException),
-        )
-        user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-        )
+        token_service = pretend.stub(loads=pretend.raiser(TokenException))
+        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
         request = pretend.stub(
             POST={},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
