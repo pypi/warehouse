@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from base64 import urlsafe_b64encode, urlsafe_b64decode
+from base64 import urlsafe_b64decode, urlsafe_b64encode
 from collections import defaultdict
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -24,8 +24,8 @@ import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
-    IUserService,
     ITokenService,
+    IUserService,
     TokenException,
 )
 from warehouse.accounts.models import Email, User
