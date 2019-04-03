@@ -366,6 +366,10 @@ class TestDatabaseUserService:
 
         assert user_service.check_totp_value(user.id, b"123456")
 
+    def test_check_totp_value_no_secret(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.check_totp_value(user.id, b"123456")
+
 
 class TestTokenService:
     def test_verify_service(self):

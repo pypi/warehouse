@@ -26,8 +26,8 @@ import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
-    IUserService,
     ITokenService,
+    IUserService,
     TokenException,
 )
 from warehouse.manage import views
@@ -871,10 +871,9 @@ class TestProvisionTOTP:
         assert result.headers["Location"] == "/foo/bar"
 
     def test_validate_totp_provision_invalid_form(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=b"secret")
+        two_factor = pretend.stub(totp_secret=None)
         user_service = pretend.stub(
             get_two_factor=lambda id: two_factor,
-            update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={},
@@ -898,12 +897,49 @@ class TestProvisionTOTP:
         view = views.ProvisionTOTPViews(request)
         result = view.validate_totp_provision()
 
-        assert user_service.update_two_factor.calls == []
+        assert request.session.flash.calls == []
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
 
     def test_validate_totp_provision_bad_cookie(self, monkeypatch):
-        pass
+        two_factor = pretend.stub(totp_secret=None)
+        token_service = pretend.stub(
+            loads=pretend.raiser(TokenException),
+        )
+        user_service = pretend.stub(
+            get_two_factor=lambda id: two_factor,
+        )
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }[interface],
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+            ),
+            cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        provision_totp_obj = pretend.stub(
+            validate=lambda: True, totp_value=pretend.stub(data="123456")
+        )
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired TOTP cookie.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
 
     def test_validate_totp_provision_bad_totp_value(self, monkeypatch):
         two_factor = pretend.stub(totp_secret=None)
