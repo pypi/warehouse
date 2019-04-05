@@ -339,7 +339,9 @@ class ProvisionTOTPViews:
 
         totp_secret = urlsafe_b64decode(token_data["totp_secret"])
         totp_uri = otp.generate_totp_provisioning_uri(
-            totp_secret, self.request.user.username
+            totp_secret,
+            self.request.user.username,
+            issuer_name=self.request.registry.settings["site.name"],
         )
 
         return {
