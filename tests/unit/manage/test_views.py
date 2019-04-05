@@ -703,6 +703,7 @@ class TestProvisionTOTP:
             ),
             cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
             response=pretend.stub(set_cookie=lambda *a: None),
+            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
 
         provision_totp_obj = pretend.stub(validate=lambda: True)
@@ -710,7 +711,7 @@ class TestProvisionTOTP:
         monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
 
         generate_totp_provisioning_uri = pretend.call_recorder(
-            lambda a, b: "not_a_real_uri"
+            lambda a, b, **k: "not_a_real_uri"
         )
         monkeypatch.setattr(
             otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
@@ -748,6 +749,7 @@ class TestProvisionTOTP:
             ),
             cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
             response=pretend.stub(set_cookie=lambda *a: None),
+            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
 
         provision_totp_obj = pretend.stub(validate=lambda: True)
@@ -755,7 +757,7 @@ class TestProvisionTOTP:
         monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
 
         generate_totp_provisioning_uri = pretend.call_recorder(
-            lambda a, b: "not_a_real_uri"
+            lambda a, b, **k: "not_a_real_uri"
         )
         monkeypatch.setattr(
             otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
