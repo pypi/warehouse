@@ -685,24 +685,21 @@ class TestManageAccount:
 class TestProvisionTOTP:
     def test_totp_provision(self, monkeypatch):
         two_factor = pretend.stub(totp_secret=None, totp_provisioned=False)
-        token_service = pretend.stub(
-            loads=pretend.raiser(TokenException), dumps=lambda x: None
-        )
         user_service = pretend.stub(get_two_factor=lambda id: two_factor)
         request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }[interface],
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: b"secret",
+            ),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
             user=pretend.stub(
                 id=pretend.stub(),
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
             ),
-            cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
-            response=pretend.stub(set_cookie=lambda *a: None),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
 
@@ -720,56 +717,7 @@ class TestProvisionTOTP:
         view = views.ProvisionTOTPViews(request)
         result = view.totp_provision()
 
-        assert request.cookies.get.calls == [
-            pretend.call(views.TWO_FACTOR_TOTP_PROVISION_COOKIE)
-        ]
-        assert result == {
-            "provision_totp_form": provision_totp_obj,
-            "provision_totp_uri": "not_a_real_uri",
-        }
-
-    def test_totp_provision_active_cookie(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None, totp_provisioned=False)
-        token_service = pretend.stub(
-            loads=lambda x: {"totp_secret": b"c2VjcmV0"},  # b"secret"
-            dumps=pretend.call_recorder(lambda x: None),
-        )
-        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }[interface],
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-            ),
-            cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
-            response=pretend.stub(set_cookie=lambda *a: None),
-            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
-        )
-
-        provision_totp_obj = pretend.stub(validate=lambda: True)
-        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
-        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
-
-        generate_totp_provisioning_uri = pretend.call_recorder(
-            lambda a, b, **k: "not_a_real_uri"
-        )
-        monkeypatch.setattr(
-            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
-        )
-
-        view = views.ProvisionTOTPViews(request)
-        result = view.totp_provision()
-
-        assert token_service.dumps.calls == []
-        assert request.cookies.get.calls == [
-            pretend.call(views.TWO_FACTOR_TOTP_PROVISION_COOKIE)
-        ]
+        assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
         assert result == {
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
@@ -779,7 +727,10 @@ class TestProvisionTOTP:
         two_factor = pretend.stub(totp_secret=b"foobar")
         user_service = pretend.stub(get_two_factor=lambda id: two_factor)
         request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: pretend.stub(),
+            ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
                 id=pretend.stub(),
@@ -801,33 +752,32 @@ class TestProvisionTOTP:
 
     def test_validate_totp_provision(self, monkeypatch):
         two_factor = pretend.stub(totp_secret=None)
-        token_service = pretend.stub(
-            loads=lambda x: {"totp_secret": b"c2VjcmV0"}  # b"secret"
-        )
         user_service = pretend.stub(
             get_two_factor=lambda id: two_factor,
             update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"totp_value": "123456"},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }[interface],
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: b"secret",
+                clear_totp_secret=lambda: None,
+            ),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
             user=pretend.stub(
                 id=pretend.stub(),
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
             ),
-            cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
-            response=pretend.stub(delete_cookie=pretend.call_recorder(lambda *a: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
-        verify_totp = pretend.call_recorder(lambda s, u: True)
-        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+        provision_totp_obj = pretend.stub(validate=lambda: True)
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
 
         view = views.ProvisionTOTPViews(request)
         result = view.validate_totp_provision()
@@ -837,7 +787,6 @@ class TestProvisionTOTP:
         assert user_service.update_two_factor.calls == [
             pretend.call(request.user.id, totp_secret=b"secret")
         ]
-        assert verify_totp.calls == [pretend.call(b"secret", b"123456")]
         assert request.session.flash.calls == [
             pretend.call("TOTP application successfully provisioned.", queue="success")
         ]
@@ -849,7 +798,10 @@ class TestProvisionTOTP:
             update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: pretend.stub(),
+            ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
                 id=pretend.stub(),
@@ -877,7 +829,10 @@ class TestProvisionTOTP:
         user_service = pretend.stub(get_two_factor=lambda id: two_factor)
         request = pretend.stub(
             POST={},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: pretend.stub(),
+            ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
                 id=pretend.stub(),
@@ -885,7 +840,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
             ),
-            route_path=lambda *a, **kw: "/foo/bar/",
+            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
 
         provision_totp_obj = pretend.stub(
@@ -894,93 +849,21 @@ class TestProvisionTOTP:
         provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
         monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
 
+        generate_totp_provisioning_uri = pretend.call_recorder(
+            lambda a, b, **k: "not_a_real_uri"
+        )
+        monkeypatch.setattr(
+            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
+        )
+
         view = views.ProvisionTOTPViews(request)
         result = view.validate_totp_provision()
 
         assert request.session.flash.calls == []
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
-
-    def test_validate_totp_provision_bad_cookie(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None)
-        token_service = pretend.stub(loads=pretend.raiser(TokenException))
-        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
-        request = pretend.stub(
-            POST={},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }[interface],
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-            ),
-            cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
-
-        provision_totp_obj = pretend.stub(
-            validate=lambda: True, totp_value=pretend.stub(data="123456")
-        )
-        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
-        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
-
-        view = views.ProvisionTOTPViews(request)
-        result = view.validate_totp_provision()
-
-        assert request.session.flash.calls == [
-            pretend.call("Invalid or expired TOTP cookie.", queue="error")
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
-
-    def test_validate_totp_provision_bad_totp_value(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None)
-        token_service = pretend.stub(
-            loads=lambda x: {"totp_secret": b"c2VjcmV0"}  # b"secret"
-        )
-        user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-            update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        request = pretend.stub(
-            POST={},
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda interface, **kw: {
-                ITokenService: token_service,
-                IUserService: user_service,
-            }[interface],
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-            ),
-            cookies=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
-
-        provision_totp_obj = pretend.stub(
-            validate=lambda: True, totp_value=pretend.stub(data="123456")
-        )
-        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
-        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
-
-        verify_totp = pretend.call_recorder(lambda s, u: False)
-        monkeypatch.setattr(otp, "verify_totp", verify_totp)
-
-        view = views.ProvisionTOTPViews(request)
-        result = view.validate_totp_provision()
-
-        assert user_service.update_two_factor.calls == []
-        assert request.session.flash.calls == [
-            pretend.call("Invalid TOTP code. Try again?", queue="error")
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar/"
+        assert result == {
+            "provision_totp_form": provision_totp_obj,
+            "provision_totp_uri": "not_a_real_uri",
+        }
 
     def test_delete_totp(self, monkeypatch, db_request):
         two_factor = pretend.stub(totp_secret=b"secret")
@@ -1005,9 +888,6 @@ class TestProvisionTOTP:
         delete_totp_obj = pretend.stub(validate=lambda: True)
         delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
         monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
-        monkeypatch.setattr(
-            views.ProvisionTOTPViews, "default_response", {"_": pretend.stub()}
-        )
 
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
@@ -1018,7 +898,8 @@ class TestProvisionTOTP:
         assert request.session.flash.calls == [
             pretend.call("TOTP application deleted.", queue="success")
         ]
-        assert result == view.default_response
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
 
     def test_delete_totp_bad_username(self, monkeypatch, db_request):
         two_factor = pretend.stub(totp_secret=b"secret")
@@ -1042,9 +923,6 @@ class TestProvisionTOTP:
         delete_totp_obj = pretend.stub(validate=lambda: False)
         delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
         monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
-        monkeypatch.setattr(
-            views.ProvisionTOTPViews, "default_response", {"_": pretend.stub()}
-        )
 
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
@@ -1053,7 +931,8 @@ class TestProvisionTOTP:
         assert request.session.flash.calls == [
             pretend.call("Invalid credentials.", queue="error")
         ]
-        assert result == view.default_response
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
 
     def test_delete_totp_not_provisioned(self, monkeypatch, db_request):
         two_factor = pretend.stub(totp_secret=None)
@@ -1077,9 +956,6 @@ class TestProvisionTOTP:
         delete_totp_obj = pretend.stub(validate=lambda: True)
         delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
         monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
-        monkeypatch.setattr(
-            views.ProvisionTOTPViews, "default_response", {"_": pretend.stub()}
-        )
 
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
@@ -1088,7 +964,8 @@ class TestProvisionTOTP:
         assert request.session.flash.calls == [
             pretend.call("No TOTP application to delete.", queue="error")
         ]
-        assert result == view.default_response
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
 
 
 class TestManageProjects:
