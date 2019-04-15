@@ -304,14 +304,14 @@ class ProvisionTOTPViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
-        self.totp_secret = request.session.get_totp_secret()
 
     @property
     def default_response(self):
+        totp_secret = self.request.session.get_totp_secret()
         return {
-            "provision_totp_form": ProvisionTOTPForm(totp_secret=self.totp_secret),
+            "provision_totp_form": ProvisionTOTPForm(totp_secret=totp_secret),
             "provision_totp_uri": otp.generate_totp_provisioning_uri(
-                self.totp_secret,
+                totp_secret,
                 self.request.user.username,
                 issuer_name=self.request.registry.settings["site.name"],
             ),
@@ -333,11 +333,13 @@ class ProvisionTOTPViews:
             self.request.session.flash("TOTP already provisioned.", queue="error")
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        form = ProvisionTOTPForm(**self.request.POST, totp_secret=self.totp_secret)
+        form = ProvisionTOTPForm(
+            **self.request.POST, totp_secret=self.request.session.get_totp_secret()
+        )
 
         if form.validate():
             self.user_service.update_two_factor(
-                self.request.user.id, totp_secret=self.totp_secret
+                self.request.user.id, totp_secret=self.request.session.get_totp_secret()
             )
 
             self.request.session.clear_totp_secret()
