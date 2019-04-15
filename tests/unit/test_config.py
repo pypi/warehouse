@@ -226,7 +226,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.env": environment,
         "warehouse.commit": "null",
         "site.name": "Warehouse",
-        "token.totp_provision.max_age": 300,
         "token.default.max_age": 21600,
     }
 
