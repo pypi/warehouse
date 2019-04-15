@@ -36,7 +36,6 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
-    TokenException,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -49,8 +48,6 @@ from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
-
-TWO_FACTOR_COOKIE_KEY = "two_factor_token"
 
 
 @view_config(context=TooManyFailedLogins)
@@ -128,16 +125,14 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
             # If the user has enabled two factor authentication.
             if user_service.has_two_factor(userid):
-                # Create encoding token contains userid and redirect_to url eventually.
-                token_service = request.find_service(ITokenService, name="two_factor")
-                token_data = {"userid": userid}
+                two_factor_data = {"userid": userid}
                 if redirect_to:
-                    token_data["redirect_to"] = redirect_to
-                token = token_service.dumps(token_data)
+                    two_factor_data["redirect_to"] = redirect_to
 
                 # Save token to cookies and redirect to two-factor page.
-                resp = HTTPSeeOther(request.route_path("accounts.two-factor"))
-                resp.set_cookie(TWO_FACTOR_COOKIE_KEY, token)
+                resp = HTTPSeeOther(
+                    request.route_path("accounts.two-factor", _query=two_factor_data)
+                )
 
                 return resp
             else:
@@ -189,23 +184,11 @@ def two_factor(request, _form_class=TwoFactorForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
-    token_service = request.find_service(ITokenService, name="two_factor")
-
-    # Load token data from cookies or
-    # redirect the user to login page again if any token doesn't exist.
-    try:
-        token_data = token_service.loads(request.cookies.get(TWO_FACTOR_COOKIE_KEY))
-    except TokenException:
-        request.session.flash(
-            "Authentication code expired: Try logging in again.", queue="error"
-        )
-        return HTTPSeeOther(request.route_path("accounts.login"))
-
-    userid = token_data.get("userid")
+    userid = request.params.get("userid")
     if not userid:
         return HTTPSeeOther(request.route_path("accounts.login"))
 
-    redirect_to = token_data.get("redirect_to")
+    redirect_to = request.params.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
 
@@ -232,7 +215,6 @@ def two_factor(request, _form_class=TwoFactorForm):
             _login_user(request, user_service, userid)
 
             resp = HTTPSeeOther(redirect_to)
-            resp.delete_cookie(TWO_FACTOR_COOKIE_KEY)
             resp.set_cookie(
                 USER_ID_INSECURE_COOKIE,
                 hashlib.blake2b(str(userid).encode(), person=b"warehouse.userid")

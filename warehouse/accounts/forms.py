@@ -237,6 +237,11 @@ class TwoFactorForm(TOTPValueMixin, forms.Form):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
 
+    def validate_totp_value(self, field):
+        totp_value = field.data.encode()
+        pass
+        # if user_service.check_totp_value
+
 
 class RequestPasswordResetForm(forms.Form):
     username_or_email = wtforms.StringField(
