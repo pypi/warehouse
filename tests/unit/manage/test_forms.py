@@ -17,6 +17,7 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.manage import forms
+import warehouse.utils.otp as otp
 
 
 class TestCreateRoleForm:
@@ -85,6 +86,24 @@ class TestChangePasswordForm:
 
         assert form.user_service is user_service
         assert form._breach_service is breach_service
+
+
+class TestProvisionTOTPForm:
+    def test_creation(self):
+        totp_secret = pretend.stub()
+        form = forms.ProvisionTOTPForm(totp_secret=totp_secret)
+
+        assert form.totp_secret is totp_secret
+
+    def test_verify_totp_failure(self, monkeypatch):
+        verify_totp = pretend.call_recorder(lambda *a: False)
+        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+
+        form = forms.ProvisionTOTPForm(
+            data={"totp_value": "123456"}, totp_secret=pretend.stub()
+        )
+        assert not form.validate()
+        assert form.totp_value.errors.pop() == "Invalid TOTP code. Try again?"
 
 
 class TestDeleteTOTPForm:
