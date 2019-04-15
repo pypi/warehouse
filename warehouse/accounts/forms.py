@@ -233,14 +233,15 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
 
 
 class TwoFactorForm(TOTPValueMixin, forms.Form):
-    def __init__(self, *args, user_service, **kwargs):
+    def __init__(self, *args, user_id, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_id = user_id
         self.user_service = user_service
 
     def validate_totp_value(self, field):
         totp_value = field.data.encode()
-        pass
-        # if user_service.check_totp_value
+        if not self.user_service.check_totp_value(self.user_id, totp_value):
+            raise wtforms.validators.ValidationError("Invalid TOTP code.")
 
 
 class RequestPasswordResetForm(forms.Form):

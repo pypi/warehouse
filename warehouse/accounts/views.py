@@ -194,19 +194,13 @@ def two_factor(request, _form_class=TwoFactorForm):
 
     form = _form_class(
         request.POST,
+        user_id=userid,
         user_service=user_service,
         check_password_metrics_tags=["auth_method:two_factor_form"],
     )
 
     if request.method == "POST":
         if form.validate():
-            totp_value = form.totp_value.data.encode()
-            if not user_service.check_totp_value(userid, totp_value):
-                request.session.flash(
-                    "Two-factor authentication failed.", queue="error"
-                )
-                return HTTPSeeOther(request.route_path("accounts.two-factor"))
-
             # If the user-originating redirection url is not safe, then
             # redirect to the index instead.
             if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
