@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from base64 import urlsafe_b64decode, urlsafe_b64encode
 from collections import defaultdict
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -22,12 +21,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
 
-from warehouse.accounts.interfaces import (
-    IPasswordBreachedService,
-    ITokenService,
-    IUserService,
-    TokenException,
-)
+from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.email import (
@@ -50,8 +44,6 @@ from warehouse.manage.forms import (
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
-
-TWO_FACTOR_TOTP_PROVISION_COOKIE = "two_factor_totp_secret"
 
 
 def user_projects(request):
@@ -312,93 +304,57 @@ class ProvisionTOTPViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
-        self.token_service = request.find_service(ITokenService, name="totp_provision")
+        self.totp_secret = request.session.get_totp_secret()
 
     @property
     def default_response(self):
-        return HTTPSeeOther(self.request.route_path("manage.account"))
+        return {
+            "provision_totp_form": ProvisionTOTPForm(totp_secret=self.totp_secret),
+            "provision_totp_uri": otp.generate_totp_provisioning_uri(
+                self.totp_secret,
+                self.request.user.username,
+                issuer_name=self.request.registry.settings["site.name"],
+            ),
+        }
 
     @view_config(request_method="GET")
     def totp_provision(self):
         two_factor = self.user_service.get_two_factor(self.request.user.id)
         if two_factor.totp_secret:
             self.request.session.flash("TOTP already provisioned.", queue="error")
-            return self.default_response
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        try:
-            token_data = self.token_service.loads(
-                self.request.cookies.get(TWO_FACTOR_TOTP_PROVISION_COOKIE)
-            )
-        except TokenException:
-            token_data = {
-                "totp_secret": urlsafe_b64encode(otp.generate_totp_secret()).decode()
-            }
-            self.request.response.set_cookie(
-                TWO_FACTOR_TOTP_PROVISION_COOKIE, self.token_service.dumps(token_data)
-            )
-
-        totp_secret = urlsafe_b64decode(token_data["totp_secret"])
-        totp_uri = otp.generate_totp_provisioning_uri(
-            totp_secret,
-            self.request.user.username,
-            issuer_name=self.request.registry.settings["site.name"],
-        )
-
-        return {
-            "provision_totp_form": ProvisionTOTPForm(user_service=self.user_service),
-            "provision_totp_uri": totp_uri,
-        }
+        return self.default_response
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
         two_factor = self.user_service.get_two_factor(self.request.user.id)
         if two_factor.totp_secret:
             self.request.session.flash("TOTP already provisioned.", queue="error")
-            return self.default_response
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        form = ProvisionTOTPForm(**self.request.POST, user_service=self.user_service)
+        form = ProvisionTOTPForm(**self.request.POST, totp_secret=self.totp_secret)
 
-        if not form.validate():
-            return HTTPSeeOther(
-                self.request.route_path("manage.account.totp-provision")
+        if form.validate():
+            self.user_service.update_two_factor(
+                self.request.user.id, totp_secret=self.totp_secret
             )
 
-        try:
-            token_data = self.token_service.loads(
-                self.request.cookies.get(TWO_FACTOR_TOTP_PROVISION_COOKIE)
-            )
-        except TokenException:
-            self.request.session.flash("Invalid or expired TOTP cookie.", queue="error")
-            return self.default_response
-
-        totp_secret = urlsafe_b64decode(token_data["totp_secret"])
-        totp_value = form.totp_value.data.encode()
-
-        if not otp.verify_totp(totp_secret, totp_value):
-            self.request.session.flash("Invalid TOTP code. Try again?", queue="error")
-
-            return HTTPSeeOther(
-                self.request.route_path("manage.account.totp-provision")
+            self.request.session.clear_totp_secret()
+            self.request.session.flash(
+                "TOTP application successfully provisioned.", queue="success"
             )
 
-        self.user_service.update_two_factor(
-            self.request.user.id, totp_secret=totp_secret
-        )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        self.request.session.flash(
-            "TOTP application successfully provisioned.", queue="success"
-        )
-
-        resp = self.default_response
-        resp.delete_cookie(TWO_FACTOR_TOTP_PROVISION_COOKIE)
-        return resp
+        return {**self.default_response, "provision_totp_form": form}
 
     @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_totp(self):
         two_factor = self.user_service.get_two_factor(self.request.user.id)
         if not two_factor.totp_secret:
             self.request.session.flash("No TOTP application to delete.", queue="error")
-            return self.default_response
+            return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
             **self.request.POST,
@@ -412,7 +368,7 @@ class ProvisionTOTPViews:
         else:
             self.request.session.flash("Invalid credentials.", queue="error")
 
-        return self.default_response
+        return HTTPSeeOther(self.request.route_path("manage.account"))
 
 
 @view_config(

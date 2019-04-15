@@ -19,6 +19,7 @@ from warehouse.accounts.forms import (
     PasswordMixin,
     TOTPValueMixin,
 )
+import warehouse.utils.otp as otp
 
 
 class RoleNameMixin:
@@ -93,6 +94,11 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
 
     __params__ = ["totp_value"]
 
-    def __init__(self, *args, user_service, **kwargs):
+    def __init__(self, *args, totp_secret, **kwargs):
         super().__init__(*args, **kwargs)
-        self.user_service = user_service
+        self.totp_secret = totp_secret
+
+    def validate_totp_value(self, field):
+        totp_value = field.data.encode()
+        if not otp.verify_totp(self.totp_secret, totp_value):
+            raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")

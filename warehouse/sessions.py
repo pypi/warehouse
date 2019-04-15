@@ -23,6 +23,7 @@ from zope.interface import implementer
 
 from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
+import warehouse.utils.otp as otp
 
 
 def _invalid_method(method):
@@ -81,6 +82,7 @@ class Session(dict):
 
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
+    _totp_secret_key = "_totp_secret"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -167,6 +169,15 @@ class Session(dict):
         if token is None:
             token = self.new_csrf_token()
         return token
+
+    def get_totp_secret(self):
+        totp_secret = self.get(self._totp_secret_key)
+        if totp_secret is None:
+            totp_secret = self[self._totp_secret_key] = otp.generate_totp_secret()
+        return totp_secret
+
+    def clear_totp_secret(self):
+        self[self._totp_secret_key] = None
 
 
 @implementer(ISessionFactory)
