@@ -30,10 +30,7 @@ from ....common.db.packaging import (
 
 def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Allow-Origin"] == "*"
-    assert headers["Access-Control-Allow-Headers"] == (
-        "Content-Type, If-Match, If-Modified-Since, If-None-Match, "
-        "If-Unmodified-Since"
-    )
+    assert headers["Access-Control-Allow-Headers"] == "*"
     assert headers["Access-Control-Allow-Methods"] == "GET"
     assert headers["Access-Control-Max-Age"] == "86400"
     assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"

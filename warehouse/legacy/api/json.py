@@ -26,15 +26,7 @@ from warehouse.packaging.models import File, Project, Release
 # with these endpoints via XHR/Fetch APIs in the browser.
 _CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": ", ".join(
-        [
-            "Content-Type",
-            "If-Match",
-            "If-Modified-Since",
-            "If-None-Match",
-            "If-Unmodified-Since",
-        ]
-    ),
+    "Access-Control-Allow-Headers": "*",
     "Access-Control-Allow-Methods": "GET",
     "Access-Control-Max-Age": "86400",  # 1 day.
     "Access-Control-Expose-Headers": ", ".join(["X-PyPI-Last-Serial"]),
