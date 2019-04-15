@@ -35,6 +35,5 @@ STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
 
 TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
-TOKEN_TOTP_PROVISION_SECRET="an insecure TOTP provisioning secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
