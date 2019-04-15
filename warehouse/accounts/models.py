@@ -120,14 +120,10 @@ class UnverifyReasons(enum.Enum):
     SoftBounce = "soft bounce"
 
 
-class TwoFactor(db.ModelBase):
+class TwoFactor(db.Model):
     __tablename__ = "two_factor"
-    __table_args__ = (
-        UniqueConstraint("user_id", name="two_factor_user_key"),
-        Index("two_factor_user_id", "user_id"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", name="two_factor_user_key"),)
 
-    id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(
         Integer,
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),

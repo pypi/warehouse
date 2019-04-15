@@ -90,7 +90,6 @@ class DatabaseUserService:
                 return None
             two_factor = TwoFactor(user=user)
             self.db.add(two_factor)
-            self.db.flush()
             return two_factor
 
     @functools.lru_cache()
