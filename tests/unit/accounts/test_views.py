@@ -345,7 +345,7 @@ class TestTwoFactor:
                 pyramid_request.POST,
                 user_id=1,
                 user_service=user_service,
-                check_password_metrics_tags=["auth_method:two_factor_form"],
+                check_password_metrics_tags=["method:auth", "auth_method:login_form"],
             )
         ]
 

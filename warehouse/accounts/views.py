@@ -196,7 +196,7 @@ def two_factor(request, _form_class=TwoFactorForm):
         request.POST,
         user_id=userid,
         user_service=user_service,
-        check_password_metrics_tags=["auth_method:two_factor_form"],
+        check_password_metrics_tags=["method:auth", "auth_method:login_form"],
     )
 
     if request.method == "POST":
