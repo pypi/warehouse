@@ -28,6 +28,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    NoUserForTwoFactor,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -347,9 +348,9 @@ class TestDatabaseUserService:
     def test_get_two_factor_bad_user_id(self, user_service, monkeypatch):
         monkeypatch.setattr(user_service, "get_user", lambda *a: None)
         user = UserFactory.create()
-        two_factor = user_service.get_two_factor(user.id)
 
-        assert two_factor is None
+        with pytest.raises(NoUserForTwoFactor):
+            user_service.get_two_factor(user.id)
 
     def test_has_two_factor(self, user_service):
         user = UserFactory.create()

@@ -31,6 +31,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    NoUserForTwoFactor,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -87,7 +88,7 @@ class DatabaseUserService:
         else:
             user = self.get_user(user_id)
             if not user:
-                return None
+                raise NoUserForTwoFactor
             two_factor = TwoFactor(user=user)
             self.db.add(two_factor)
             return two_factor
