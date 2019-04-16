@@ -20,6 +20,7 @@ import redis
 from pyramid import viewderivers
 
 import warehouse.sessions
+import warehouse.utils.otp as otp
 
 from warehouse.sessions import (
     InvalidSession,
@@ -29,7 +30,6 @@ from warehouse.sessions import (
     session_view,
 )
 from warehouse.utils import crypto
-import warehouse.utils.otp as otp
 
 
 class TestInvalidSession:

@@ -12,6 +12,8 @@
 
 import wtforms
 
+import warehouse.utils.otp as otp
+
 from warehouse import forms
 from warehouse.accounts.forms import (
     NewEmailMixin,
@@ -19,7 +21,6 @@ from warehouse.accounts.forms import (
     PasswordMixin,
     TOTPValueMixin,
 )
-import warehouse.utils.otp as otp
 
 
 class RoleNameMixin:

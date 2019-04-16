@@ -16,8 +16,9 @@ import wtforms
 
 from webob.multidict import MultiDict
 
-from warehouse.manage import forms
 import warehouse.utils.otp as otp
+
+from warehouse.manage import forms
 
 
 class TestCreateRoleForm:

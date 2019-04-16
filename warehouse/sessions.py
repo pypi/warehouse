@@ -21,9 +21,10 @@ from pyramid import viewderivers
 from pyramid.interfaces import ISession, ISessionFactory
 from zope.interface import implementer
 
+import warehouse.utils.otp as otp
+
 from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
-import warehouse.utils.otp as otp
 
 
 def _invalid_method(method):
