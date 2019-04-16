@@ -299,6 +299,7 @@ class ManageAccountViews:
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
+    http_cache=0,
 )
 class ProvisionTOTPViews:
     def __init__(self, request):
