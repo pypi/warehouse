@@ -95,7 +95,7 @@ class TestProvisionTOTPForm:
 
         assert form.totp_secret is totp_secret
 
-    def test_verify_totp_failure(self, monkeypatch):
+    def test_verify_totp_invalid(self, monkeypatch):
         verify_totp = pretend.call_recorder(lambda *a: False)
         monkeypatch.setattr(otp, "verify_totp", verify_totp)
 
@@ -104,6 +104,15 @@ class TestProvisionTOTPForm:
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "Invalid TOTP code. Try again?"
+
+    def test_verify_totp_valid(self, monkeypatch):
+        verify_totp = pretend.call_recorder(lambda *a: True)
+        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+
+        form = forms.ProvisionTOTPForm(
+            data={"totp_value": "123456"}, totp_secret=pretend.stub()
+        )
+        assert form.validate()
 
 
 class TestDeleteTOTPForm:

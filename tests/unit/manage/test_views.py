@@ -24,12 +24,7 @@ from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
-from warehouse.accounts.interfaces import (
-    IPasswordBreachedService,
-    ITokenService,
-    IUserService,
-    TokenException,
-)
+from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.manage import views
 from warehouse.packaging.models import File, JournalEntry, Project, Role, User
 from warehouse.utils.paginate import paginate_url_factory
