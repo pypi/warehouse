@@ -10,10 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
+
 from collections import defaultdict
+
+import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
@@ -317,6 +322,18 @@ class ProvisionTOTPViews:
                 issuer_name=self.request.registry.settings["site.name"],
             ),
         }
+
+    @view_config(route_name="manage.account.totp-provision.image", request_method="GET")
+    def generate_totp_qr(self):
+        two_factor = self.user_service.get_two_factor(self.request.user.id)
+        if two_factor.totp_secret:
+            return Response(status=403)
+
+        totp_qr = pyqrcode.create(self.default_response["provision_totp_uri"])
+        qr_buffer = io.BytesIO()
+        totp_qr.svg(qr_buffer, scale=5)
+
+        return Response(content_type="image/svg+xml", body=qr_buffer.getvalue())
 
     @view_config(request_method="GET")
     def totp_provision(self):

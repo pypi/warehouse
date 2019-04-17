@@ -42,12 +42,7 @@
   <p><strong>Scan the QR code with your application of choice to provision the application:</strong></p>
 
   <br>
-  <canvas id="totp-qr-code" aria-label="{{ provision_totp_uri }}" role="img"></canvas>
-  <noscript>
-    <p>Your browser either doesn't support or isn't permitting Javascript.</p>
-    <p>Use the URI below with a QR code generator to provision your TOTP application:</p>
-    <p>{{ provision_totp_uri }}</p>
-  </noscript>
+  <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
   <br>
 
   <form method="POST">

@@ -120,6 +120,11 @@ def includeme(config):
         "/manage/account/totp-provision",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.account.totp-provision.image",
+        "/manage/account/totp-provision/image",
+        domain=warehouse,
+    )
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

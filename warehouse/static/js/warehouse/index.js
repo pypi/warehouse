@@ -43,7 +43,6 @@ import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
-import ShowQR from "warehouse/utils/show-qr";
 
 // Do this before anything else, to potentially capture errors down the line
 docReady(() => {
@@ -220,9 +219,6 @@ docReady(bindDropdowns);
 
 // Get modal keypress event listeners ready
 docReady(BindModalKeys);
-
-// Get TOTP QR code renderer ready
-docReady(ShowQR);
 
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)
