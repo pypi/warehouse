@@ -143,6 +143,11 @@ def test_routes(warehouse):
             "/manage/account/totp-provision",
             domain=warehouse,
         ),
+        pretend.call(
+            "manage.account.totp-provision.image",
+            "/manage/account/totp-provision/image",
+            domain=warehouse,
+        ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",

@@ -18,6 +18,7 @@ import pytest
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.response import Response
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
@@ -678,8 +679,53 @@ class TestManageAccount:
 
 
 class TestProvisionTOTP:
+    def test_generate_totp_qr(self, monkeypatch):
+        two_factor = pretend.stub(totp_secret=None)
+        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
+        request = pretend.stub(
+            session=pretend.stub(get_totp_secret=otp.generate_totp_secret),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="foobar",
+                email=pretend.stub(),
+                name=pretend.stub(),
+            ),
+            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+
+        assert isinstance(result, Response)
+        assert result.content_type == "image/svg+xml"
+
+    def test_generate_totp_qr_already_provisioned(self, monkeypatch):
+        two_factor = pretend.stub(totp_secret=b"secret")
+        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
+        request = pretend.stub(
+            session=pretend.stub(),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="foobar",
+                email=pretend.stub(),
+                name=pretend.stub(),
+            ),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+
     def test_totp_provision(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None, totp_provisioned=False)
+        two_factor = pretend.stub(totp_secret=None)
         user_service = pretend.stub(get_two_factor=lambda id: two_factor)
         request = pretend.stub(
             session=pretend.stub(
