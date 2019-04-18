@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import time
+import pytest
 
 from base64 import b32encode
 from urllib.parse import parse_qsl, urlparse
@@ -59,29 +60,17 @@ def test_generate_totp_provisioning_uri():
     assert ("period", "30") in query
 
 
-def test_verify_totp_success():
+@pytest.mark.parametrize("skew", [0, -20, 20])
+def test_verify_totp_success(skew):
     secret = generate_totp_secret()
     totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
-    value = totp.generate(time.time())
+    value = totp.generate(time.time() + skew)
     assert verify_totp(secret, value)
 
 
-def test_verify_totp_success_negative_skew():
+@pytest.mark.parametrize("skew", [-60, 60])
+def test_verify_totp_failure(skew):
     secret = generate_totp_secret()
     totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
-    value = totp.generate(time.time() - 20)
-    assert verify_totp(secret, value)
-
-
-def test_verify_totp_success_positive_skew():
-    secret = generate_totp_secret()
-    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
-    value = totp.generate(time.time() + 20)
-    assert verify_totp(secret, value)
-
-
-def test_verify_totp_failure():
-    secret = generate_totp_secret()
-    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
-    value = totp.generate(time.time() + 60)
+    value = totp.generate(time.time() + skew)
     assert not verify_totp(secret, value)
