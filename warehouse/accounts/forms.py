@@ -39,7 +39,8 @@ class TOTPValueMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                rf"^[0-9]{{{TOTP_LENGTH}}}$", message="TOTP code must be 6 digits."
+                rf"^[0-9]{{{TOTP_LENGTH}}}$",
+                message=f"TOTP code must be {TOTP_LENGTH} digits.",
             ),
         ]
     )
