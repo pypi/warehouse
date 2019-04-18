@@ -11,10 +11,11 @@
 # limitations under the License.
 
 import time
-import pytest
 
 from base64 import b32encode
 from urllib.parse import parse_qsl, urlparse
+
+import pytest
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.hashes import SHA1
