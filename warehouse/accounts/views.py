@@ -36,6 +36,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    TokenException,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -129,9 +130,12 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 if redirect_to:
                     two_factor_data["redirect_to"] = redirect_to
 
-                # Save token to cookies and redirect to two-factor page.
+                token_service = request.find_service(ITokenService, name="two_factor")
+                token = token_service.dumps(two_factor_data)
+
+                # Stuff our token in the query and redirect to two-factor page.
                 resp = HTTPSeeOther(
-                    request.route_path("accounts.two-factor", _query=two_factor_data)
+                    request.route_path("accounts.two-factor", _query=token)
                 )
 
                 return resp
@@ -184,11 +188,19 @@ def two_factor(request, _form_class=TwoFactorForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
-    userid = request.params.get("userid")
+    token_service = request.find_service(ITokenService, name="two_factor")
+
+    try:
+        two_factor_data = token_service.loads(request.query_string)
+    except TokenException:
+        request.session.flash("Invalid or expired two factor login.", queue="error")
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    userid = two_factor_data.get("userid")
     if not userid:
         return HTTPSeeOther(request.route_path("accounts.login"))
 
-    redirect_to = request.params.get("redirect_to")
+    redirect_to = two_factor_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
 
