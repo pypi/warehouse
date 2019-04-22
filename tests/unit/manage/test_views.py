@@ -680,8 +680,7 @@ class TestManageAccount:
 
 class TestProvisionTOTP:
     def test_generate_totp_qr(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None)
-        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
+        user_service = pretend.stub(get_totp_secret=lambda id: None)
         request = pretend.stub(
             session=pretend.stub(get_totp_secret=otp.generate_totp_secret),
             find_service=lambda interface, **kw: {IUserService: user_service}[
@@ -703,8 +702,7 @@ class TestProvisionTOTP:
         assert result.content_type == "image/svg+xml"
 
     def test_generate_totp_qr_already_provisioned(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=b"secret")
-        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
+        user_service = pretend.stub(get_totp_secret=lambda id: b"secret")
         request = pretend.stub(
             session=pretend.stub(),
             find_service=lambda interface, **kw: {IUserService: user_service}[
@@ -725,8 +723,7 @@ class TestProvisionTOTP:
         assert result.status_code == 403
 
     def test_totp_provision(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None)
-        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
+        user_service = pretend.stub(get_totp_secret=lambda id: None)
         request = pretend.stub(
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
@@ -765,8 +762,7 @@ class TestProvisionTOTP:
         }
 
     def test_totp_provision_already_provisioned(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=b"foobar")
-        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
+        user_service = pretend.stub(get_totp_secret=lambda id: b"foobar")
         request = pretend.stub(
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
@@ -792,10 +788,9 @@ class TestProvisionTOTP:
         ]
 
     def test_validate_totp_provision(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None)
         user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-            update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
+            get_totp_secret=lambda id: None,
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"totp_value": "123456"},
@@ -825,7 +820,7 @@ class TestProvisionTOTP:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
-        assert user_service.update_two_factor.calls == [
+        assert user_service.update_user.calls == [
             pretend.call(request.user.id, totp_secret=b"secret")
         ]
         assert request.session.flash.calls == [
@@ -833,10 +828,9 @@ class TestProvisionTOTP:
         ]
 
     def test_validate_totp_provision_already_provisioned(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=b"secret")
         user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-            update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
+            get_totp_secret=lambda id: b"secret",
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             session=pretend.stub(
@@ -856,7 +850,7 @@ class TestProvisionTOTP:
         view = views.ProvisionTOTPViews(request)
         result = view.validate_totp_provision()
 
-        assert user_service.update_two_factor.calls == []
+        assert user_service.update_user.calls == []
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert request.session.flash.calls == [
             pretend.call("TOTP already provisioned.", queue="error")
@@ -866,8 +860,7 @@ class TestProvisionTOTP:
         assert result.headers["Location"] == "/foo/bar"
 
     def test_validate_totp_provision_invalid_form(self, monkeypatch):
-        two_factor = pretend.stub(totp_secret=None)
-        user_service = pretend.stub(get_two_factor=lambda id: two_factor)
+        user_service = pretend.stub(get_totp_secret=lambda id: None)
         request = pretend.stub(
             POST={},
             session=pretend.stub(
@@ -907,10 +900,9 @@ class TestProvisionTOTP:
         }
 
     def test_delete_totp(self, monkeypatch, db_request):
-        two_factor = pretend.stub(totp_secret=b"secret")
         user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-            update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
+            get_totp_secret=lambda id: b"secret",
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"confirm_username": pretend.stub()},
@@ -933,7 +925,7 @@ class TestProvisionTOTP:
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
 
-        assert user_service.update_two_factor.calls == [
+        assert user_service.update_user.calls == [
             pretend.call(request.user.id, totp_secret=None)
         ]
         assert request.session.flash.calls == [
@@ -943,10 +935,9 @@ class TestProvisionTOTP:
         assert result.headers["Location"] == "/foo/bar/"
 
     def test_delete_totp_bad_username(self, monkeypatch, db_request):
-        two_factor = pretend.stub(totp_secret=b"secret")
         user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-            update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
+            get_totp_secret=lambda id: b"secret",
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"confirm_username": pretend.stub()},
@@ -968,7 +959,7 @@ class TestProvisionTOTP:
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
 
-        assert user_service.update_two_factor.calls == []
+        assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
             pretend.call("Invalid credentials.", queue="error")
         ]
@@ -976,10 +967,9 @@ class TestProvisionTOTP:
         assert result.headers["Location"] == "/foo/bar/"
 
     def test_delete_totp_not_provisioned(self, monkeypatch, db_request):
-        two_factor = pretend.stub(totp_secret=None)
         user_service = pretend.stub(
-            get_two_factor=lambda id: two_factor,
-            update_two_factor=pretend.call_recorder(lambda *a, **kw: None),
+            get_totp_secret=lambda id: None,
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"confirm_username": pretend.stub()},
@@ -1001,7 +991,7 @@ class TestProvisionTOTP:
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
 
-        assert user_service.update_two_factor.calls == []
+        assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
             pretend.call("No TOTP application to delete.", queue="error")
         ]

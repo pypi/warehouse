@@ -345,17 +345,10 @@ class TestDatabaseUserService:
         user_service.update_user(user.id, password="foo")
         assert user_service.is_disabled(user.id) == (False, None)
 
-    def test_get_two_factor_bad_user_id(self, user_service, monkeypatch):
-        monkeypatch.setattr(user_service, "get_user", lambda *a: None)
-        user = UserFactory.create()
-
-        with pytest.raises(NoUserForTwoFactor):
-            user_service.get_two_factor(user.id)
-
     def test_has_two_factor(self, user_service):
         user = UserFactory.create()
         assert not user_service.has_two_factor(user.id)
-        user_service.update_two_factor(user.id, totp_secret=b"foobar")
+        user_service.update_user(user.id, totp_secret=b"foobar")
         assert user_service.has_two_factor(user.id)
 
     def test_check_totp_value(self, user_service, monkeypatch):
@@ -363,7 +356,7 @@ class TestDatabaseUserService:
         monkeypatch.setattr(otp, "verify_totp", verify_totp)
 
         user = UserFactory.create()
-        user_service.update_two_factor(user.id, totp_secret=b"foobar")
+        user_service.update_user(user.id, totp_secret=b"foobar")
 
         assert user_service.check_totp_value(user.id, b"123456")
 
