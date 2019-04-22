@@ -25,6 +25,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    TokenException,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -268,6 +269,8 @@ class TestLogin:
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
     def test_two_factor_auth(self, pyramid_request, redirect_url, token_service):
+        token_service.dumps = lambda d: "fake_token"
+
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
@@ -277,6 +280,7 @@ class TestLogin:
         breach_service = pretend.stub(check_password=lambda pw: False)
 
         pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
             IUserService: user_service,
             IPasswordBreachedService: breach_service,
         }[interface]
@@ -313,32 +317,32 @@ class TestLogin:
 class TestTwoFactor:
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_form(self, pyramid_request, redirect_url):
+        query_params = {"userid": 1}
+        if redirect_url:
+            query_params["redirect_to"] = redirect_url
+
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda s: query_params)
+        )
+
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
         )
 
-        query_params = {"userid": 1}
-        if redirect_url:
-            query_params["redirect_to"] = redirect_url
-
         pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: user_service
+            ITokenService: token_service,
+            IUserService: user_service,
         }[interface]
 
-        pyramid_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        pyramid_request.query_string = pretend.stub()
 
         form_obj = pretend.stub()
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
 
         result = views.two_factor(pyramid_request, _form_class=form_class)
 
-        assert pyramid_request.params.get.calls == [
-            pretend.call("userid"),
-            pretend.call("redirect_to"),
-        ]
+        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
         assert result == {"form": form_obj}
         assert form_class.calls == [
             pretend.call(
@@ -353,6 +357,15 @@ class TestTwoFactor:
     def test_two_factor_auth(self, monkeypatch, pyramid_request, redirect_url):
         remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
         monkeypatch.setattr(views, "remember", remember)
+
+        query_params = {"userid": str(1)}
+        if redirect_url:
+            query_params["redirect_to"] = redirect_url
+
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda s: query_params)
+        )
+
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
@@ -361,12 +374,9 @@ class TestTwoFactor:
 
         new_session = {}
 
-        query_params = {"userid": str(1)}
-        if redirect_url:
-            query_params["redirect_to"] = redirect_url
-
         pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: user_service
+            ITokenService: token_service,
+            IUserService: user_service,
         }[interface]
 
         pyramid_request.method = "POST"
@@ -406,18 +416,23 @@ class TestTwoFactor:
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
     def test_two_factor_auth_invalid(self, pyramid_request, redirect_url):
+        query_params = {"userid": str(1)}
+        if redirect_url:
+            query_params["redirect_to"] = redirect_url
+
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda s: query_params)
+        )
+
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
             check_totp_value=lambda userid, totp_value: False,
         )
 
-        query_params = {"userid": str(1)}
-        if redirect_url:
-            query_params["redirect_to"] = redirect_url
-
         pyramid_request.find_service = lambda interface, **kwargs: {
-            IUserService: user_service
+            ITokenService: token_service,
+            IUserService: user_service,
         }[interface]
 
         pyramid_request.method = "POST"
@@ -454,15 +469,20 @@ class TestTwoFactor:
         assert result.headers["Location"] == "redirect_to"
 
     def test_two_factor_missing_userid(self):
+        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: {}))
+
         request = pretend.stub(
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            cookies=pretend.stub(get=pretend.call_recorder(lambda k: "cookie")),
             authenticated_userid=None,
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            params=pretend.stub(get=pretend.call_recorder(lambda k: {})),
+            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
+                interface
+            ],
+            query_string=pretend.stub(),
         )
         result = views.two_factor(request)
 
+        assert token_service.loads.calls == [pretend.call(request.query_string)]
         assert request.route_path.calls == [pretend.call("accounts.login")]
         assert request.session.flash.calls == []
 
@@ -470,26 +490,52 @@ class TestTwoFactor:
         assert result.headers["Location"] == "redirect_to"
 
     def test_two_factor_auth_form_invalid(self):
+        token_data = {"userid": 1}
+        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: token_data))
+
         request = pretend.stub(
             POST={},
             method="POST",
-            find_service=lambda k, **kw: pretend.stub(),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            cookies=pretend.stub(get=pretend.call_recorder(lambda k: "cookie")),
             authenticated_userid=None,
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            params=pretend.stub(get=pretend.call_recorder(lambda k: pretend.stub())),
+            find_service=lambda interface, **kwargs: {
+                ITokenService: token_service,
+                IUserService: pretend.stub(),
+            }[interface],
+            query_string=pretend.stub(),
         )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: False),
             totp_value=pretend.stub(data="test-otp-secret"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
         result = views.two_factor(request, _form_class=form_class)
 
+        assert token_service.loads.calls == [pretend.call(request.query_string)]
         assert result == {"form": form_obj}
+
+    def test_two_factor_auth_token_invalid(self):
+        token_service = pretend.stub(loads=pretend.raiser(TokenException))
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
+                interface
+            ],
+            query_string=pretend.stub(),
+        )
+
+        result = views.two_factor(request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "redirect_to"
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
 
 
 class TestLogout:
