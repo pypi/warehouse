@@ -36,10 +36,6 @@ class TokenMissing(TokenException):
     pass
 
 
-class NoUserForTwoFactor(Exception):
-    pass
-
-
 class IUserService(Interface):
     def get_user(user_id):
         """

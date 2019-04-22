@@ -28,7 +28,6 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
-    NoUserForTwoFactor,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
