@@ -80,14 +80,7 @@ class User(SitemapMixin, db.Model):
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
-
-    two_factor = orm.relationship(
-        "TwoFactor",
-        backref="user",
-        uselist=False,
-        cascade="all, delete-orphan",
-        lazy=False,
-    )
+    totp_secret = Column(Binary(length=20), nullable=True)
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
@@ -118,18 +111,6 @@ class UnverifyReasons(enum.Enum):
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
-
-
-class TwoFactor(db.Model):
-    __tablename__ = "two_factor"
-    __table_args__ = (UniqueConstraint("user_id", name="two_factor_user_key"),)
-
-    user_id = Column(
-        Integer,
-        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
-        nullable=False,
-    )
-    totp_secret = Column(Binary(length=20), nullable=True)
 
 
 class Email(db.ModelBase):

@@ -37,7 +37,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, TwoFactor, User
+from warehouse.accounts.models import Email, User
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -79,19 +79,6 @@ class DatabaseUserService:
         #       object here.
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
-
-    def get_two_factor(self, user_id):
-        result = self.db.query(TwoFactor).filter(TwoFactor.user_id == user_id).first()
-
-        if result:
-            return result
-        else:
-            user = self.get_user(user_id)
-            if not user:
-                raise NoUserForTwoFactor
-            two_factor = TwoFactor(user=user)
-            self.db.add(two_factor)
-            return two_factor
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
@@ -227,14 +214,6 @@ class DatabaseUserService:
 
         return user
 
-    def update_two_factor(self, user_id, **changes):
-        two_factor = self.get_two_factor(user_id)
-
-        for attr, value in changes.items():
-            setattr(two_factor, attr, value)
-
-        return two_factor
-
     def disable_password(self, user_id, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
@@ -255,11 +234,20 @@ class DatabaseUserService:
         Returns True if the user has any form of two factor
         authentication.
         """
-        two_factor = self.get_two_factor(user_id)
+        totp_secret = self.get_totp_secret(user_id)
 
         # TODO: This is where user.u2f_provisioned et al.
         # will also go.
-        return two_factor.totp_secret is not None
+        return totp_secret is not None
+
+    def get_totp_secret(self, user_id):
+        """
+        Returns the user's TOTP secret as bytes.
+
+        If the user doesn't have a TOTP secret, returns None.
+        """
+        user = self.get_user(user_id)
+        return user.totp_secret
 
     def check_totp_value(self, user_id, totp_value):
         """
@@ -267,12 +255,12 @@ class DatabaseUserService:
 
         If the user doesn't have a TOTP secret, returns False.
         """
-        two_factor = self.get_two_factor(user_id)
+        totp_secret = self.get_totp_secret(user_id)
 
-        if two_factor.totp_secret is None:
+        if totp_secret is None:
             return False
 
-        return otp.verify_totp(two_factor.totp_secret, totp_value)
+        return otp.verify_totp(totp_secret, totp_value)
 
 
 @implementer(ITokenService)

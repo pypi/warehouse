@@ -47,12 +47,6 @@ class IUserService(Interface):
         there is no user for that ID.
         """
 
-    def get_two_factor(user_id):
-        """
-        Return the two factor object for the given user_id, or None if
-        there is no user for that ID.
-        """
-
     def get_user_by_username(username):
         """
         Return the user object corresponding with the given username, or None
@@ -98,11 +92,6 @@ class IUserService(Interface):
         Updates the user object
         """
 
-    def update_two_factor(user_id, **changes):
-        """
-        Updates the two factor object
-        """
-
     def disable_password(user_id, reason=None):
         """
         Disables the given user's password, preventing further login until the user
@@ -119,6 +108,13 @@ class IUserService(Interface):
     def has_two_factor(user_id):
         """
         Returns True if the user has two factor authentication.
+        """
+
+    def get_totp_secret(user_id):
+        """
+        Returns the user's TOTP secret as bytes.
+
+        If the user doesn't have a TOTP secret, returns None.
         """
 
     def check_totp_value(user_id, otp_value):
