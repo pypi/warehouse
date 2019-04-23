@@ -350,14 +350,15 @@ class TestDatabaseUserService:
         user_service.update_user(user.id, totp_secret=b"foobar")
         assert user_service.has_two_factor(user.id)
 
-    def test_check_totp_value(self, user_service, monkeypatch):
-        verify_totp = pretend.call_recorder(lambda *a: True)
+    @pytest.mark.parametrize("valid", [True, False])
+    def test_check_totp_value(self, user_service, monkeypatch, valid):
+        verify_totp = pretend.call_recorder(lambda *a: valid)
         monkeypatch.setattr(otp, "verify_totp", verify_totp)
 
         user = UserFactory.create()
         user_service.update_user(user.id, totp_secret=b"foobar")
 
-        assert user_service.check_totp_value(user.id, b"123456")
+        assert user_service.check_totp_value(user.id, b"123456") == valid
 
     def test_check_totp_value_no_secret(self, user_service):
         user = UserFactory.create()
