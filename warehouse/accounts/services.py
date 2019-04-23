@@ -248,7 +248,10 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         return user.totp_secret
 
-    def check_totp_value(self, user_id, totp_value):
+    def check_totp_value(self, user_id, totp_value, *, tags=None):
+        tags = tags if tags is not None else []
+
+        self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
         """
         Returns True if the given TOTP is valid against the user's secret.
 
@@ -257,9 +260,23 @@ class DatabaseUserService:
         totp_secret = self.get_totp_secret(user_id)
 
         if totp_secret is None:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:no_totp"],
+            )
             return False
 
-        return otp.verify_totp(totp_secret, totp_value)
+        valid = otp.verify_totp(totp_secret, totp_value)
+
+        if valid:
+            self._metrics.increment("warehouse.authentication.two_factor.ok", tags=tags)
+        else:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:invalid_totp"],
+            )
+
+        return valid
 
 
 @implementer(ITokenService)

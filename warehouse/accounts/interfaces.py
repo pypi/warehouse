@@ -113,7 +113,7 @@ class IUserService(Interface):
         If the user doesn't have a TOTP secret, returns None.
         """
 
-    def check_totp_value(user_id, otp_value):
+    def check_totp_value(user_id, totp_value, *, tags=None):
         """
         Returns True if the given TOTP code is valid.
         """
