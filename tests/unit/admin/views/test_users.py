@@ -145,6 +145,54 @@ class TestUserDetail:
         assert user.name == "Jane Doe"
 
 
+class TestUserAddEmail:
+    def test_add_email(self, db_request):
+        user = UserFactory.create(emails=[])
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.method = "POST"
+        db_request.POST["email"] = "foo@bar.com"
+        db_request.POST["primary"] = True
+        db_request.POST["verified"] = True
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+        )
+
+        resp = views.user_add_email(db_request)
+
+        db_request.db.flush()
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert len(user.emails) == 1
+
+        email = user.emails[0]
+
+        assert email.email == "foo@bar.com"
+        assert email.primary
+        assert email.verified
+
+    def test_add_invalid(self, db_request):
+        user = UserFactory.create(emails=[])
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.method = "POST"
+        db_request.POST["email"] = ""
+        db_request.POST["primary"] = True
+        db_request.POST["verified"] = True
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+        )
+
+        resp = views.user_add_email(db_request)
+
+        db_request.db.flush()
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert user.emails == []
+
+
 class TestUserDelete:
     def test_deletes_user(self, db_request, monkeypatch):
         user = UserFactory.create()

@@ -26,6 +26,9 @@ def includeme(config):
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
     config.add_route("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse)
     config.add_route(
+        "admin.user.add_email", "/admin/users/{user_id}/add_email/", domain=warehouse
+    )
+    config.add_route(
         "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
     )
 
