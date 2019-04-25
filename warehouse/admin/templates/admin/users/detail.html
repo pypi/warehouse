@@ -182,6 +182,31 @@
       </div>
       <div class="box">
         <div class="box-header with-border">
+          <h3 class="box-title">Add a new email</h3>
+        </div>
+        <div class="box-body">
+          <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', user_id=user.id) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+            {% if add_email_form.errors.__all__ %}
+              {% for error in add_email_form.errors.__all__ %}
+              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+              {% endfor %}
+            {% endif %}
+
+            {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email")}}
+            {{ render_field("Primary", add_email_form.primary, "email-primary")}}
+            {{ render_field("Verified", add_email_form.verified, "email-verified") }}
+            <div class="form-group">
+              <div class="col-sm-offset-10 col-sm-2">
+                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-header with-border">
           <h3 class="box-title">Projects</h3>
         </div>
         <div class="box-body">
