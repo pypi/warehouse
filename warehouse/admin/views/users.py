@@ -67,7 +67,7 @@ def user_list(request):
     return {"users": users, "query": q}
 
 
-class EmailField(forms.Form):
+class EmailForm(forms.Form):
 
     email = wtforms.fields.html5.EmailField(
         validators=[wtforms.validators.DataRequired()]
@@ -86,7 +86,7 @@ class UserForm(forms.Form):
     is_superuser = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
 
-    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailField))
+    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
 
 
 @view_config(
