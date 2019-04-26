@@ -67,7 +67,7 @@ def user_list(request):
     return {"users": users, "query": q}
 
 
-class EmailField(forms.Form):
+class EmailForm(forms.Form):
 
     email = wtforms.fields.html5.EmailField(
         validators=[wtforms.validators.DataRequired()]
@@ -86,7 +86,7 @@ class UserForm(forms.Form):
     is_superuser = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
 
-    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailField))
+    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
 
 
 @view_config(
@@ -129,7 +129,33 @@ def user_detail(request):
         form.populate_obj(user)
         return HTTPSeeOther(location=request.current_route_path())
 
-    return {"user": user, "form": form, "roles": roles}
+    return {"user": user, "form": form, "roles": roles, "add_email_form": EmailForm()}
+
+
+@view_config(
+    route_name="admin.user.add_email",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def user_add_email(request):
+    user = request.db.query(User).get(request.matchdict["user_id"])
+    form = EmailForm(request.POST)
+
+    if form.validate():
+        email = Email(
+            email=form.email.data,
+            user=user,
+            primary=form.primary.data,
+            verified=form.verified.data,
+        )
+        request.db.add(email)
+        request.session.flash(
+            f"Added email for user {user.username!r}", queue="success"
+        )
+
+    return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
 
 @view_config(

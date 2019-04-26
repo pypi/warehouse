@@ -390,8 +390,7 @@ def stats(request):
     total_size_query = request.db.query(func.sum(File.size)).all()
     top_100_packages = (
         request.db.query(Project.name, func.sum(File.size))
-        .join(Release)
-        .join(File)
+        .join(File, Release.files)
         .group_by(Project.name)
         .order_by(func.sum(File.size).desc())
         .limit(100)
