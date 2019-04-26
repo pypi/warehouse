@@ -233,11 +233,15 @@ class DatabaseUserService:
         Returns True if the user has any form of two factor
         authentication.
         """
-        totp_secret = self.get_totp_secret(user_id)
+        user = self.get_user(user_id)
+
+        # TODO: Remove once all users are allowed to enroll in two-factor.
+        if not user.two_factor_allowed:  # pragma: no cover
+            return False
 
         # TODO: This is where user.u2f_provisioned et al.
         # will also go.
-        return totp_secret is not None
+        return user.totp_secret is not None
 
     def get_totp_secret(self, user_id):
         """
@@ -246,6 +250,11 @@ class DatabaseUserService:
         If the user doesn't have a TOTP secret, returns None.
         """
         user = self.get_user(user_id)
+
+        # TODO: Remove once all users are allowed to enroll in two-factor.
+        if not user.two_factor_allowed:  # pragma: no cover
+            return None
+
         return user.totp_secret
 
     def check_totp_value(self, user_id, totp_value, *, tags=None):

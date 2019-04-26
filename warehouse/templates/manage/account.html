@@ -274,6 +274,7 @@
     </form>
   </section>
 
+  {% if user.two_factor_allowed %}
   <hr>
 
   <section id="two-factor">
@@ -311,6 +312,8 @@
       </tbody>
     </table>
   </section>
+
+  {% endif %}
 
   <hr>
 

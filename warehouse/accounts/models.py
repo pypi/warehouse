@@ -80,6 +80,7 @@ class User(SitemapMixin, db.Model):
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
+    two_factor_allowed = Column(Boolean, nullable=False, server_default=sql.false())
     totp_secret = Column(Binary(length=20), nullable=True)
 
     emails = orm.relationship(
