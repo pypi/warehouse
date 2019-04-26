@@ -82,6 +82,8 @@ class UserForm(forms.Form):
         validators=[wtforms.validators.Optional(), wtforms.validators.Length(max=100)]
     )
 
+    two_factor_allowed = wtforms.fields.BooleanField()
+
     is_active = wtforms.fields.BooleanField()
     is_superuser = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
