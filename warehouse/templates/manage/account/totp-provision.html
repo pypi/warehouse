@@ -35,11 +35,9 @@
 
   <h2>Provisioning your application</h2>
 
-  <p>You can provision any compatible TOTP application to generate two factor authentication codes for PyPI. We recommend <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en_GB">Google Authenticator for Android</a> or <a href="https://itunes.apple.com/gb/app/google-authenticator/id388497605?mt=8">iPhone</a>, <a href="https://support.1password.com/one-time-passwords/">1Password</a>, <a href="https://authy.com/">Authy</a> or <a href="https://lastpass.com/auth/">LastPass Authenticator</a>.</p>
-
   <p>For security reasons, you should only provision one device/application at a time.</p>
 
-  <p><strong>Scan the QR code with your application of choice to provision the application:</strong></p>
+  <p><strong>Scan the QR code with your application of choice:</strong></p>
 
   <br>
   <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
