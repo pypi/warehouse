@@ -1002,6 +1002,7 @@ class TestResetPassword:
             pretend.call(IUserService, context=None),
             pretend.call(IPasswordBreachedService, context=None),
             pretend.call(ITokenService, name="password"),
+            pretend.call(IUserService, context=None),
         ]
 
     @pytest.mark.parametrize(

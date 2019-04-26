@@ -148,7 +148,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     redirect_to = request.route_path("manage.projects")
 
                 # Actually perform the login routine for our user.
-                headers = _login_user(request, user_service, userid)
+                headers = _login_user(request, userid)
 
                 # Now that we're logged in we'll want to redirect the user to
                 # either where they were trying to go originally, or to the default
@@ -218,7 +218,7 @@ def two_factor(request, _form_class=TwoFactorForm):
             if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
                 redirect_to = request.route_path("manage.projects")
 
-            _login_user(request, user_service, userid)
+            _login_user(request, userid)
 
             resp = HTTPSeeOther(redirect_to)
             resp.set_cookie(
@@ -329,7 +329,7 @@ def register(request, _form_class=RegistrationForm):
 
         return HTTPSeeOther(
             request.route_path("index"),
-            headers=dict(_login_user(request, user_service, user.id)),
+            headers=dict(_login_user(request, user.id)),
         )
 
     return {"form": form}
@@ -439,7 +439,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # Perform login just after reset password and redirect to default view.
         return HTTPSeeOther(
             request.route_path("index"),
-            headers=dict(_login_user(request, user_service, user.id)),
+            headers=dict(_login_user(request, user.id)),
         )
 
     return {"form": form}
@@ -498,7 +498,7 @@ def verify_email(request):
     return HTTPSeeOther(request.route_path("manage.account"))
 
 
-def _login_user(request, user_service, userid):
+def _login_user(request, userid):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -535,6 +535,7 @@ def _login_user(request, user_service, userid):
 
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
+    user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
 
     return headers
