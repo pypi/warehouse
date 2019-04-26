@@ -328,8 +328,7 @@ def register(request, _form_class=RegistrationForm):
         send_email_verification_email(request, (user, email))
 
         return HTTPSeeOther(
-            request.route_path("index"),
-            headers=dict(_login_user(request, user.id)),
+            request.route_path("index"), headers=dict(_login_user(request, user.id))
         )
 
     return {"form": form}
@@ -438,8 +437,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
         # Perform login just after reset password and redirect to default view.
         return HTTPSeeOther(
-            request.route_path("index"),
-            headers=dict(_login_user(request, user.id)),
+            request.route_path("index"), headers=dict(_login_user(request, user.id))
         )
 
     return {"form": form}
