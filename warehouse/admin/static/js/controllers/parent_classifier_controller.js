@@ -23,8 +23,8 @@ export default class extends Controller {
     this.previewTarget.innerHTML = this.inputTarget.value;
 
     // Classifier is made up of words which can contain a-z, A-Z, 0-9,
-    // underscore, hyphen, period or parentheses
-    var word_sub = "[\\w.\\(\\)-]";
+    // underscore, hyphen, period, octothorp, plus, or parentheses
+    var word_sub = "[\\w.\\(\\)\\+#-]";
 
     // Words can be repeated one or more times, separated by a space
     var words_sub = `${word_sub}+(\\s${word_sub}*)*`;
