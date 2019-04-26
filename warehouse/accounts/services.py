@@ -235,13 +235,7 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
 
-        # TODO: Remove once all users are allowed to enroll in two-factor.
-        if not user.two_factor_allowed:  # pragma: no cover
-            return False
-
-        # TODO: This is where user.u2f_provisioned et al.
-        # will also go.
-        return user.totp_secret is not None
+        return user.has_two_factor
 
     def get_totp_secret(self, user_id):
         """

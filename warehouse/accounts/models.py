@@ -106,6 +106,12 @@ class User(SitemapMixin, db.Model):
             .as_scalar()
         )
 
+    @property
+    def has_two_factor(self):
+        # TODO: This is where user.u2f_provisioned et al.
+        # will also go.
+        return self.two_factor_allowed and self.totp_secret is not None
+
 
 class UnverifyReasons(enum.Enum):
 

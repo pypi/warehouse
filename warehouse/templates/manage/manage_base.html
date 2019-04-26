@@ -35,7 +35,17 @@
   </div>
   {% endif %}
 
-  <!-- TODO: Missing two factor warning -->
+  {% if request.user.two_factor_allowed and not request.user.has_two_factor %}
+  <div class="notification-bar notification-bar--danger">
+    <span class="notification-bar__message">
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      Two factor authentication is disabled.
+      <a href="{{ request.route_path('manage.account', _anchor="two-factor") }}">
+        Add a second factor.
+      </a>
+    </span>
+  </div>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
