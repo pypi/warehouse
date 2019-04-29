@@ -56,6 +56,11 @@ def includeme(config):
         "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
     )
     config.add_route(
+        "includes.session-notifications",
+        "/_includes/session-notifications/",
+        domain=warehouse,
+    )
+    config.add_route(
         "includes.current-user-profile-callout",
         "/_includes/current-user-profile-callout/{username}",
         factory="warehouse.accounts.models:UserFactory",

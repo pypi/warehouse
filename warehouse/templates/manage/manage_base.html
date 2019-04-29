@@ -18,36 +18,6 @@
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
 
-{% block session_notifications %}
-  {% if not request.user.primary_email.verified %}
-  <div class="notification-bar notification-bar--danger">
-    <span class="notification-bar__message">
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-      {% if request.user.primary_email %}
-      Your primary email address ({{ request.user.primary_email.email }}) is unverified.
-      {% else %}
-      You do not have a primary email address.
-      {% endif %}
-      <a href="{{ request.route_path('manage.account', _anchor="account-emails") }}">
-        Verify your email or add a new address.
-      </a>
-    </span>
-  </div>
-  {% endif %}
-
-  {% if request.user.two_factor_allowed and not request.user.has_two_factor %}
-  <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
-    <span class="notification-bar__message">
-      Two factor authentication is available,
-      <a href="{{ request.route_path('manage.account', _anchor="two-factor") }}">
-        enable it now for your account.
-      </a>
-    </span>
-    <button type="button" title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
-  </div>
-  {% endif %}
-{% endblock %}
-
 {% block content %}
   <div class="tabs-container">
     <div class="vertical-tabs">
