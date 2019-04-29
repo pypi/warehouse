@@ -225,7 +225,7 @@ def two_factor(request, _form_class=TwoFactorForm):
             resp = HTTPSeeOther(redirect_to)
             resp.set_cookie(
                 USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode(), person=b"warehouse.userid")
+                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
                 .hexdigest()
                 .lower(),
             )

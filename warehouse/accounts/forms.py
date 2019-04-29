@@ -240,7 +240,7 @@ class TwoFactorForm(TOTPValueMixin, forms.Form):
         self.user_service = user_service
 
     def validate_totp_value(self, field):
-        totp_value = field.data.encode()
+        totp_value = field.data.encode("utf8")
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code.")
 

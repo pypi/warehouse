@@ -100,6 +100,6 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
         self.totp_secret = totp_secret
 
     def validate_totp_value(self, field):
-        totp_value = field.data.encode()
+        totp_value = field.data.encode("utf8")
         if not otp.verify_totp(self.totp_secret, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
