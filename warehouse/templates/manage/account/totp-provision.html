@@ -37,7 +37,13 @@
 
   <p>For security reasons, you should only provision one device/application at a time.</p>
 
-  <p><strong>Scan the QR code with your application of choice:</strong></p>
+  <p>
+    <strong>
+      Scan the QR code with your application of choice. The
+      <a href="{{ request.route_path('help', _anchor='totp') }}" target="_blank">help page</a>
+      has some of our recommendations.
+    </strong>
+  </p>
 
   <br>
   <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
