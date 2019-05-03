@@ -35,7 +35,6 @@ from warehouse.views import (
     search,
     service_unavailable,
     session_notifications,
-    stats,
 )
 
 from ..common.db.accounts import UserFactory
