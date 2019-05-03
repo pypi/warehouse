@@ -12,7 +12,9 @@ about them with us, please `contact us`_.
 OTF grant work
 ~~~~~~~~~~~~~~
 
-The current priority: `security, accessibility, and localization work funded by the Open Technology Fund`_, starting with `two-factor authentication for PyPI`_.
+The current priority: `security, accessibility, and localization work funded by
+the Open Technology Fund`_, starting with `two-factor authentication for
+PyPI`_.
 
 
 Post legacy shutdown
