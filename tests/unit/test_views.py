@@ -584,24 +584,6 @@ def test_classifiers(db_request):
     }
 
 
-def test_stats(db_request):
-
-    project = ProjectFactory.create()
-    release1 = ReleaseFactory.create(project=project)
-    release1.created = datetime.date(2011, 1, 1)
-    FileFactory.create(
-        release=release1,
-        filename="{}-{}.tar.gz".format(project.name, release1.version),
-        python_version="source",
-        size=69,
-    )
-
-    assert stats(db_request) == {
-        "total_packages_size": 69,
-        "top_packages": {project.name: {"size": 69}},
-    }
-
-
 def test_health():
     request = pretend.stub(
         db=pretend.stub(execute=pretend.call_recorder(lambda q: None))
