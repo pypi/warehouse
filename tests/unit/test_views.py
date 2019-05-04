@@ -34,6 +34,7 @@ from warehouse.views import (
     robotstxt,
     search,
     service_unavailable,
+    session_notifications,
 )
 
 from ..common.db.accounts import UserFactory
@@ -205,6 +206,10 @@ def test_esi_current_user_indicator():
 
 def test_esi_flash_messages():
     assert flash_messages(pretend.stub()) == {}
+
+
+def test_esi_session_notifiactions():
+    assert session_notifications(pretend.stub()) == {}
 
 
 class TestSearch:

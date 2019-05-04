@@ -179,7 +179,10 @@
     </div>
     {% endfor %}
 
-    {% block session_notifications %}{% endblock %}
+    {% block session_notifications %}
+      {% csi request.route_path("includes.session-notifications") %}
+      {% endcsi %}
+    {% endblock %}
 
     <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
       <div class="site-container">
