@@ -25,6 +25,8 @@ from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
+import warehouse.utils.otp as otp
+
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -225,6 +227,59 @@ class DatabaseUserService:
         # User is disabled.
         else:
             return (True, user.disabled_for)
+
+    def has_two_factor(self, user_id):
+        """
+        Returns True if the user has any form of two factor
+        authentication.
+        """
+        user = self.get_user(user_id)
+
+        return user.has_two_factor
+
+    def get_totp_secret(self, user_id):
+        """
+        Returns the user's TOTP secret as bytes.
+
+        If the user doesn't have a TOTP secret, returns None.
+        """
+        user = self.get_user(user_id)
+
+        # TODO: Remove once all users are allowed to enroll in two-factor.
+        if not user.two_factor_allowed:  # pragma: no cover
+            return None
+
+        return user.totp_secret
+
+    def check_totp_value(self, user_id, totp_value, *, tags=None):
+        """
+        Returns True if the given TOTP is valid against the user's secret.
+
+        If the user doesn't have a TOTP secret, returns False.
+        """
+        tags = tags if tags is not None else []
+        self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
+
+        totp_secret = self.get_totp_secret(user_id)
+
+        if totp_secret is None:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:no_totp"],
+            )
+            return False
+
+        valid = otp.verify_totp(totp_secret, totp_value)
+
+        if valid:
+            self._metrics.increment("warehouse.authentication.two_factor.ok", tags=tags)
+        else:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:invalid_totp"],
+            )
+
+        return valid
 
 
 @implementer(ITokenService)

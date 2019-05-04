@@ -34,7 +34,7 @@ from warehouse.views import (
     robotstxt,
     search,
     service_unavailable,
-    stats,
+    session_notifications,
 )
 
 from ..common.db.accounts import UserFactory
@@ -206,6 +206,10 @@ def test_esi_current_user_indicator():
 
 def test_esi_flash_messages():
     assert flash_messages(pretend.stub()) == {}
+
+
+def test_esi_session_notifiactions():
+    assert session_notifications(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -576,24 +580,6 @@ def test_classifiers(db_request):
 
     assert classifiers(db_request) == {
         "classifiers": [(classifier_a.classifier,), (classifier_b.classifier,)]
-    }
-
-
-def test_stats(db_request):
-
-    project = ProjectFactory.create()
-    release1 = ReleaseFactory.create(project=project)
-    release1.created = datetime.date(2011, 1, 1)
-    FileFactory.create(
-        release=release1,
-        filename="{}-{}.tar.gz".format(project.name, release1.version),
-        python_version="source",
-        size=69,
-    )
-
-    assert stats(db_request) == {
-        "total_packages_size": 69,
-        "top_packages": {project.name: {"size": 69}},
     }
 
 
