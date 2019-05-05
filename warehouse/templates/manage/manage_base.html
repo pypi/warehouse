@@ -82,7 +82,7 @@
           <span class="sr-only">close</span>
         </a>
         <div class="modal__body">
-          <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %}{{ confirm_string }}{% endif %}?</h3>
+          <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
           {% if warning %}
           <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
             <p>
