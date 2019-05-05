@@ -553,4 +553,20 @@
       }
     }
   }
+
+  &--2fa {
+    margin: 0 0 $spacing-unit;
+
+    tr td {
+      padding-right: 20px;
+
+      &:last-of-type {
+        padding-right: 0;
+      }
+    }
+
+    .table__action {
+      width: 100px;
+    }
+  }
 }

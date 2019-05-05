@@ -89,6 +89,11 @@ def test_routes(warehouse):
             "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
         ),
         pretend.call(
+            "includes.session-notifications",
+            "/_includes/session-notifications/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "includes.current-user-profile-callout",
             "/_includes/current-user-profile-callout/{username}",
             factory="warehouse.accounts.models:UserFactory",
@@ -119,6 +124,7 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("accounts.login", "/account/login/", domain=warehouse),
+        pretend.call("accounts.two-factor", "/account/two-factor/", domain=warehouse),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call("accounts.register", "/account/register/", domain=warehouse),
         pretend.call(
@@ -133,6 +139,16 @@ def test_routes(warehouse):
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
+        pretend.call(
+            "manage.account.totp-provision",
+            "/manage/account/totp-provision",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.totp-provision.image",
+            "/manage/account/totp-provision/image",
+            domain=warehouse,
+        ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",

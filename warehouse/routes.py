@@ -56,6 +56,11 @@ def includeme(config):
         "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
     )
     config.add_route(
+        "includes.session-notifications",
+        "/_includes/session-notifications/",
+        domain=warehouse,
+    )
+    config.add_route(
         "includes.current-user-profile-callout",
         "/_includes/current-user-profile-callout/{username}",
         factory="warehouse.accounts.models:UserFactory",
@@ -92,6 +97,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("accounts.login", "/account/login/", domain=warehouse)
+    config.add_route("accounts.two-factor", "/account/two-factor/", domain=warehouse)
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route("accounts.register", "/account/register/", domain=warehouse)
     config.add_route(
@@ -108,6 +114,16 @@ def includeme(config):
 
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
+    config.add_route(
+        "manage.account.totp-provision",
+        "/manage/account/totp-provision",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.totp-provision.image",
+        "/manage/account/totp-provision/image",
+        domain=warehouse,
+    )
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",
