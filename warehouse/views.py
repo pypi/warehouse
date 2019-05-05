@@ -377,6 +377,15 @@ def flash_messages(request):
     return {}
 
 
+@view_config(
+    route_name="includes.session-notifications",
+    renderer="includes/session-notifications.html",
+    uses_session=True,
+)
+def session_notifications(request):
+    return {}
+
+
 @view_config(route_name="health", renderer="string")
 def health(request):
     # This will ensure that we can access the database and run queries against
