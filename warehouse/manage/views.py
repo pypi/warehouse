@@ -10,14 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
+
 from collections import defaultdict
+
+import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+
+import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import Email, User
@@ -35,6 +42,8 @@ from warehouse.manage.forms import (
     ChangePasswordForm,
     ChangeRoleForm,
     CreateRoleForm,
+    DeleteTOTPForm,
+    ProvisionTOTPForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
@@ -286,6 +295,100 @@ class ManageAccountViews:
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+
+@view_defaults(
+    route_name="manage.account.totp-provision",
+    renderer="manage/account/totp-provision.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    http_cache=0,
+)
+class ProvisionTOTPViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @property
+    def default_response(self):
+        totp_secret = self.request.session.get_totp_secret()
+        return {
+            "provision_totp_form": ProvisionTOTPForm(totp_secret=totp_secret),
+            "provision_totp_uri": otp.generate_totp_provisioning_uri(
+                totp_secret,
+                self.request.user.username,
+                issuer_name=self.request.registry.settings["site.name"],
+            ),
+        }
+
+    @view_config(route_name="manage.account.totp-provision.image", request_method="GET")
+    def generate_totp_qr(self):
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            return Response(status=403)
+
+        totp_qr = pyqrcode.create(self.default_response["provision_totp_uri"])
+        qr_buffer = io.BytesIO()
+        totp_qr.svg(qr_buffer, scale=5)
+
+        return Response(content_type="image/svg+xml", body=qr_buffer.getvalue())
+
+    @view_config(request_method="GET")
+    def totp_provision(self):
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            self.request.session.flash("TOTP already provisioned.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
+    def validate_totp_provision(self):
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            self.request.session.flash("TOTP already provisioned.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = ProvisionTOTPForm(
+            **self.request.POST, totp_secret=self.request.session.get_totp_secret()
+        )
+
+        if form.validate():
+            self.user_service.update_user(
+                self.request.user.id, totp_secret=self.request.session.get_totp_secret()
+            )
+
+            self.request.session.clear_totp_secret()
+            self.request.session.flash(
+                "TOTP application successfully provisioned.", queue="success"
+            )
+
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        return {**self.default_response, "provision_totp_form": form}
+
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    def delete_totp(self):
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if not totp_secret:
+            self.request.session.flash("No TOTP application to delete.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = DeleteTOTPForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            self.user_service.update_user(self.request.user.id, totp_secret=None)
+            self.request.session.flash("TOTP application deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
 
 
 @view_config(

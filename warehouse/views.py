@@ -40,7 +40,7 @@ from sqlalchemy.sql import exists
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
-from warehouse.cache.http import add_vary, cache_control
+from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailable
@@ -360,51 +360,6 @@ def search(request):
 
 
 @view_config(
-    route_name="stats",
-    renderer="pages/stats.html",
-    decorator=[
-        add_vary("Accept"),
-        cache_control(1 * 24 * 60 * 60),  # 1 day
-        origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
-        ),
-    ],
-)
-@view_config(
-    route_name="stats.json",
-    renderer="json",
-    decorator=[
-        add_vary("Accept"),
-        cache_control(1 * 24 * 60 * 60),  # 1 day
-        origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
-        ),
-    ],
-    accept="application/json",
-)
-def stats(request):
-    total_size_query = request.db.query(func.sum(File.size)).all()
-    top_100_packages = (
-        request.db.query(Project.name, func.sum(File.size))
-        .join(File, Release.files)
-        .group_by(Project.name)
-        .order_by(func.sum(File.size).desc())
-        .limit(100)
-        .all()
-    )
-    # Move top packages into a dict to make JSON more self describing
-    top_packages = {
-        pkg_name: {"size": pkg_bytes} for pkg_name, pkg_bytes in top_100_packages
-    }
-
-    return {"total_packages_size": total_size_query[0][0], "top_packages": top_packages}
-
-
-@view_config(
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
     uses_session=True,
@@ -419,6 +374,15 @@ def current_user_indicator(request):
     uses_session=True,
 )
 def flash_messages(request):
+    return {}
+
+
+@view_config(
+    route_name="includes.session-notifications",
+    renderer="includes/session-notifications.html",
+    uses_session=True,
+)
+def session_notifications(request):
     return {}
 
 

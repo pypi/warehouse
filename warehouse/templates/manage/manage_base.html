@@ -18,24 +18,6 @@
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
 
-{% block session_notifications %}
-  {% if not request.user.primary_email.verified %}
-  <div class="notification-bar notification-bar--danger">
-    <span class="notification-bar__message">
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-      {% if request.user.primary_email %}
-      Your primary email address ({{ request.user.primary_email.email }}) is unverified.
-      {% else %}
-      You do not have a primary email address.
-      {% endif %}
-      <a href="{{ request.route_path('manage.account', _anchor="account-emails") }}">
-        Verify your email or add a new address.
-      </a>
-    </span>
-  </div>
-  {% endif %}
-{% endblock %}
-
 {% block content %}
   <div class="tabs-container">
     <div class="vertical-tabs">
@@ -76,7 +58,20 @@
 {% macro modal_slug(title, index) %}
 {% endmacro %}
 
-{% macro confirm_modal(title, confirm_name, confirm_string, slug, context, confirm_button_label=None, index=None, extra_fields=None, extra_description=None, action=None) %}
+{% macro confirm_modal(
+  title,
+  confirm_name,
+  confirm_string,
+  slug,
+  context,
+  confirm_button_label=None,
+  index=None,
+  extra_fields=None,
+  extra_description=None,
+  action=None,
+  warning=True,
+  confirm_string_in_title="True")
+%}
   <div id="{{ slug }}" class="modal" data-controller="confirm">
     <div class="modal__content" role="dialog">
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
@@ -87,23 +82,25 @@
           <span class="sr-only">close</span>
         </a>
         <div class="modal__body">
-          <h3 class="modal__title">{{ title }} {{ confirm_string }}?</h3>
-        <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-          <p>
-            <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-            This action cannot be undone!
-            {% if confirm_name == "Version" %}
-            You will not be able to re-upload a new distribution of the same type with the same version number.
-            Consider making a new release or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases">post release</a> instead.
-            {% endif %}
-          </p>
-        </div>
-        {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}
-        {{ extra_description if extra_description else '' }}
-        <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
-        {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
-        <label for="{{ name }}">{{ confirm_name }}</label>
-        <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
+          {% if warning %}
+          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+            <p>
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>warning
+              This action cannot be undone!
+              {% if confirm_name == "Version" %}
+              You will not be able to re-upload a new distribution of the same type with the same version number.
+              Consider making a new release or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases">post release</a> instead.
+              {% endif %}
+            </p>
+          </div>
+          {% endif %}
+          {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}
+          {{ extra_description if extra_description else '' }}
+          <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
+          {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
+          <label for="{{ name }}">{{ confirm_name }}</label>
+          <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">Cancel</button>
@@ -116,7 +113,14 @@
   </div>
 {% endmacro %}
 
-{% macro confirm_button(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None) %}
+{% macro confirm_button(
+  title,
+  confirm_name,
+  confirm_string,
+  index=None,
+  extra_fields=None,
+  action=None)
+%}
   {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
   <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
