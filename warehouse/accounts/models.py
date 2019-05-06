@@ -135,14 +135,6 @@ class Webauthn(db.Model):
     public_key = Column(String(65), unique=True, nullable=True)
     sign_count = Column(Integer, default=0)
 
-    @property
-    def display_name(self):
-        return self.user.name
-
-    @property
-    def username(self):
-        return self.user.username
-
 
 class UnverifyReasons(enum.Enum):
 
