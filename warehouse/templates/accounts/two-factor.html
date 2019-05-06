@@ -24,14 +24,18 @@
 
 <section class="horizontal-section">
   <div class="site-container">
-  <h1 class="page-title">Two-factor authentication - authenticate with app</h1>
+  <h1 class="page-title">Two-factor authentication</h1>
 
+    {% if totp_form %}
     <form method="POST" action="{{ request.current_route_path() }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <h2>Authenticate with an app</h2>
 
-      {% if form.errors.__all__ %}
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <input name="method" type="hidden" value="totp">
+
+      {% if totp_form.errors.__all__ %}
       <ul class="form-errors">
-        {% for error in form.errors.__all__ %}
+        {% for error in totp_form.errors.__all__ %}
         <li>{{ error }}</li>
         {% endfor %}
       </ul>
@@ -39,23 +43,48 @@
 
       <div class="form-group">
         <label for="totp_value" class="form-group__label">Authentication code</label>
-        {{ form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
-        {% if form.totp_value.errors %}
+        {{ totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
+        {% if totp_form.totp_value.errors %}
         <ul class="form-errors">
-          {% for error in form.totp_value.errors %}
+          {% for error in totp_form.totp_value.errors %}
           <li>{{ error }}</li>
           {% endfor %}
         </ul>
         {% endif %}
       </div>
+      <div class="form-group">
+        <input type="submit" value="Verify" class="button button--primary">
+      </div>
 
+      <p>Generate an authentication code using the application of your choice.<br>Enter this code in the form above to verify your identity.</p>
+      <p>Not working? <a href="/help/#2fa">Get help</a>.</p>
+    </form>
+    {% endif %}
+
+    {% if webauthn_form %}
+    <form method="POST" action="{{ request.current_route_path() }}">
+      <h2>Authenticate with a security key</h2>
+
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <input name="method" type="hidden" value="totp">
+
+      {% if webauthn_form.errors.__all__ %}
+      <ul class="form-errors">
+        {% for error in webauthn_form.errors.__all__ %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="totp_value" class="form-group__label">Authentication code</label>
+        {{ webauthn_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+      </div>
       <div class="form-group">
         <input type="submit" value="Verify" class="button button--primary">
       </div>
     </form>
-
-    <p>Generate an authentication code using the application of your choice.<br>Enter this code in the form above to verify your identity.</p>
-    <p>Not working? <a href="/help/#2fa">Get help</a>.</p>
+    {% endif %}
 
   </div>
 </section>

@@ -237,6 +237,22 @@ class DatabaseUserService:
 
         return user.has_two_factor
 
+    def has_totp(self, user_id):
+        """
+        Returns True if the user has a TOTP device provisioned.
+        """
+        user = self.get_user(user_id)
+
+        return user.totp_secret is not None
+
+    def has_webauthn(self, user_id):
+        """
+        Returns True if the user has a security key provisioned.
+        """
+        user = self.get_user(user_id)
+
+        return user.webauthn is not None
+
     def get_totp_secret(self, user_id):
         """
         Returns the user's TOTP secret as bytes.

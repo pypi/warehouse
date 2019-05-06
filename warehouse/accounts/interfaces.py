@@ -107,6 +107,16 @@ class IUserService(Interface):
         authentication and is allowed to use it.
         """
 
+    def has_totp(user_id):
+        """
+        Returns True if the user has a TOTP device provisioned.
+        """
+
+    def has_webauthn(user_id):
+        """
+        Returns True if the user has a security key provisioned.
+        """
+
     def get_totp_secret(user_id):
         """
         Returns the user's TOTP secret as bytes.

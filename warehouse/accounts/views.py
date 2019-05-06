@@ -30,7 +30,8 @@ from warehouse.accounts.forms import (
     RegistrationForm,
     RequestPasswordResetForm,
     ResetPasswordForm,
-    TwoFactorForm,
+    TOTPAuthenticationForm,
+    WebAuthnAuthenticationForm,
 )
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -186,7 +187,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     require_csrf=True,
     require_methods=False,
 )
-def two_factor(request, _form_class=TwoFactorForm):
+def two_factor(request, _form_class=TOTPAuthenticationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
@@ -206,14 +207,28 @@ def two_factor(request, _form_class=TwoFactorForm):
 
     user_service = request.find_service(IUserService, context=None)
 
-    form = _form_class(
-        request.POST,
-        user_id=userid,
-        user_service=user_service,
-        check_password_metrics_tags=["method:auth", "auth_method:login_form"],
-    )
+    two_factor_forms = {}
+    if user_service.has_totp(userid):
+        two_factor_forms["totp_form"] = TOTPAuthenticationForm(
+            request.POST,
+            user_id=userid,
+            user_service=user_service,
+            check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+        )
+    if user_service.has_webauthn(userid):
+        two_factor_forms["webauthn_form"] = WebAuthnAuthenticationForm(
+            request.POST,
+            user_id=userid,
+            user_service=user_service,
+            check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+        )
 
     if request.method == "POST":
+        if request.POST.get("method", "totp") == "totp":
+            form = two_factor_forms["totp_form"]
+        else:
+            form = two_factor_forms["webauthn_form"]
+
         if form.validate():
             # If the user-originating redirection url is not safe, then
             # redirect to the index instead.
@@ -232,7 +247,7 @@ def two_factor(request, _form_class=TwoFactorForm):
 
             return resp
 
-    return {"form": form}
+    return two_factor_forms
 
 
 @view_config(

@@ -82,7 +82,12 @@ class User(SitemapMixin, db.Model):
     )
     totp_secret = Column(Binary(length=20), nullable=True)
 
-    webauthn = orm.relationship("Webauthn", backref="user", lazy=False)
+    webauthn = orm.relationship(
+        "Webauthn",
+        backref="user",
+        uselist=False,
+        lazy=False,
+    )
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
@@ -129,9 +134,6 @@ class Webauthn(db.Model):
         nullable=False,
     )
     credential_id = Column(String(250), unique=True, nullable=False)
-    display_name = Column(
-        String(160), ForeignKey("users.name", deferrable=True, initially="DEFERRED")
-    )
     public_key = Column(String(65), unique=True, nullable=True)
     sign_count = Column(Integer, default=0)
 

@@ -302,7 +302,7 @@
               {% endif %}
           </td>
           <td class="table__action">
-            {% if user.totp_secret %}
+          {% if user.totp_secret %}
             <a href="#disable-totp" class="button button--primary">Disable</a>
             {% set title="Disable 2FA by TOTP application" %}
             {% set confirm_button_label="Disable TOTP application" %}
@@ -310,6 +310,26 @@
             {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
           {% else %}
             <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Enable</a>
+          {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>WebAuthn (Security Key)</td>
+          <td>{% if user.webauthn %}
+            <span class="badge badge--success">Enabled</span>
+              {% else %}
+            <span class="badge badge--danger">Disabled</span>
+              {% endif %}
+          </td>
+          <td class="table__action">
+          {% if user.webauthn %}
+            <a href="#disable-totp" class="button button--primary">Disable</a>
+            {% set title="Disable 2FA by WebAuthn" %}
+            {% set confirm_button_label="Disable WebAuthn" %}
+            {% set action="/manage/account/webauthn-provision" %}
+            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-webauthn", action=action, warning=False, confirm_string_in_title=False) }}
+          {% else %}
+            <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary">Enable</a>
           {% endif %}
           </td>
         </tr>
