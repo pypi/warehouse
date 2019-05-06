@@ -82,6 +82,8 @@ class User(SitemapMixin, db.Model):
     )
     totp_secret = Column(Binary(length=20), nullable=True)
 
+    webauthn = orm.relationship("Webauthn", backref="user", lazy=False)
+
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
     )
@@ -107,13 +109,39 @@ class User(SitemapMixin, db.Model):
 
     @property
     def has_two_factor(self):
-        # TODO: This is where user.u2f_provisioned et al.
-        # will also go.
-        return self.totp_secret is not None
+        return (
+            self.two_factor_allowed
+            and self.totp_secret is not None
+            and self.webauthn is not None
+        )
 
     @property
     def two_factor_provisioning_allowed(self):
         return self.primary_email is not None and self.primary_email.verified
+
+
+class Webauthn(db.Model):
+    __tablename__ = "user_security_keys"
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    credential_id = Column(String(250), unique=True, nullable=False)
+    display_name = Column(
+        String(160), ForeignKey("users.name", deferrable=True, initially="DEFERRED")
+    )
+    public_key = Column(String(65), unique=True, nullable=True)
+    sign_count = Column(Integer, default=0)
+
+    @property
+    def display_name(self):
+        return self.user.name
+
+    @property
+    def username(self):
+        return self.user.username
 
 
 class UnverifyReasons(enum.Enum):
