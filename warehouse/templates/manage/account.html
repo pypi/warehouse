@@ -168,7 +168,6 @@
     <div class="form-group">
       <span class="form-group__label">Username</span>
       <p class="form-group__text">{{ user.username }}</p>
-
       {% if user.date_joined %}
       <span class="form-group__label">Date Joined</span>
       <p class="form-group__text"> {{ user.date_joined|format_date() }}</p>
