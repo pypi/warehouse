@@ -133,9 +133,9 @@ text-unidecode==1.2 \
 urllib3==1.24.3 \
     --hash=sha256:2393a695cd12afedd0dcb26fe5d50d0cf248e5a66f75dbd89a3d4eb333a61af4 \
     --hash=sha256:a637e5fae88995b256e3409dc4d52c2e2e0ba32c42a6365fee8bbd2238de3cfb
-waitress==1.2.1 \
-    --hash=sha256:c369e238bd81ef7d61f04825f06f107c42094de60d13d8de8e71952c7c683dfe \
-    --hash=sha256:de0dbd36dec695d90ac8e7464998f28c7e968a2dde3c37b06bb0a714df4dad62
+waitress==1.3.0 \
+    --hash=sha256:4e2a6e6fca56d6d3c279f68a2b2cc9b4798d834ea3c3a9db3e2b76b6d66f4526 \
+    --hash=sha256:90fe750cd40b282fae877d3c866255d485de18e8a232e93de42ebd9fb750eebb
 webob==1.8.5 \
     --hash=sha256:05aaab7975e0ee8af2026325d656e5ce14a71f1883c52276181821d6d5bf7086 \
     --hash=sha256:36db8203c67023d68c1b00208a7bf55e3b10de2aa317555740add29c619de12b
