@@ -45,22 +45,18 @@ def upgrade():
             ELSIF TG_OP = 'DELETE' THEN
                 _release_id := OLD.release_id;
             END IF;
-            
-            _project_id := (SELECT project_id 
-                            FROM releases 
+            _project_id := (SELECT project_id
+                            FROM releases
                             WHERE releases.id=_release_id);
-            
             UPDATE projects
             SET total_size=t.project_total_size
             FROM (
-            SELECT SUM(release_files.size) AS project_total_size 
-            FROM release_files WHERE release_id IN 
+            SELECT SUM(release_files.size) AS project_total_size
+            FROM release_files WHERE release_id IN
                 (SELECT id FROM releases WHERE releases.project_id = _project_id)
             ) AS t
             WHERE id=_project_id;
-            
             RETURN NULL;
-            
         END;
         $$ LANGUAGE plpgsql;
         """
