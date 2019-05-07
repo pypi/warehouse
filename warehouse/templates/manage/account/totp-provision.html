@@ -53,7 +53,7 @@
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="form-group">
       <label for="totp_value" class="form-group__label">Verify application</label>
-      {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+      {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
       <p class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
       {% if provision_totp_form.totp_value.errors %}
       <ul class="form-errors">
