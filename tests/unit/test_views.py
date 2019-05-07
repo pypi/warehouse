@@ -35,7 +35,8 @@ from warehouse.views import (
     search,
     service_unavailable,
     session_notifications,
-    stats)
+    stats,
+)
 
 from ..common.db.accounts import UserFactory
 from ..common.db.classifiers import ClassifierFactory
@@ -593,7 +594,6 @@ def test_stats(db_request):
         python_version="source",
         size=69,
     )
-
     assert stats(db_request) == {
         "total_packages_size": 69,
         "top_packages": {project.name: {"size": 69}},

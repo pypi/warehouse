@@ -21,54 +21,60 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import sql
 
-revision = 'b2df6f40ba4c'
-down_revision = '42f0409bb702'
+revision = "b2df6f40ba4c"
+down_revision = "42f0409bb702"
 
 
 def upgrade():
-    op.add_column('projects', sa.Column('total_size',
-                                        sa.BigInteger(),
-                                        server_default=sql.text("0")))
+    op.add_column(
+        "projects",
+        sa.Column("total_size", sa.BigInteger(), server_default=sql.text("0")),
+    )
     op.execute(
         """CREATE OR REPLACE FUNCTION projects_total_size()
         RETURNS TRIGGER AS $$
         DECLARE
-        _project_id uuid;
+            _release_id uuid;
+            _project_id uuid;
 
         BEGIN
             IF TG_OP = 'INSERT' THEN
-                _project_id := NEW.project_id;
+                _release_id := NEW.release_id;
             ELSEIF TG_OP = 'UPDATE' THEN
-                _project_id := NEW.project_id;
+                _release_id := NEW.release_id;
             ELSIF TG_OP = 'DELETE' THEN
-                _project_id := OLD.project_id;
+                _release_id := OLD.release_id;
             END IF;
-
+            
+            _project_id := (SELECT project_id 
+                            FROM releases 
+                            WHERE releases.id=_release_id);
+            
             UPDATE projects
             SET total_size=t.project_total_size
             FROM (
-                SELECT SUM(release_files.size) AS project_total_size
-                FROM release_files
-                WHERE release_id IN
+            SELECT SUM(release_files.size) AS project_total_size 
+            FROM release_files WHERE release_id IN 
                 (SELECT id FROM releases WHERE releases.project_id = _project_id)
-                ) as t
+            ) AS t
             WHERE id=_project_id;
-
+            
             RETURN NULL;
+            
         END;
-    $$ LANGUAGE plpgsql;
+        $$ LANGUAGE plpgsql;
         """
     )
 
     op.execute(
         """CREATE TRIGGER update_project_total_size
-            AFTER INSERT OR UPDATE OR DELETE ON releases
+            AFTER INSERT OR UPDATE OR DELETE ON release_files
             FOR EACH ROW EXECUTE PROCEDURE projects_total_size();
         """
     )
 
 
 def downgrade():
-    op.execute("DROP TRIGGER update_project_total_size ON releases;")
+    op.execute("DROP TRIGGER update_project_total_size ON release_files;")
     op.execute("DROP FUNCTION projects_total_size;")
-    op.drop_column('projects', 'total_size')
+    op.drop_column("projects", "total_size")
