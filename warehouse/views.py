@@ -389,7 +389,8 @@ def search(request):
 def stats(request):
     total_size_query = request.db.query(func.sum(Project.total_size)).all()
     top_100_packages = (
-        request.db.query([Project.name, Project.total_size])
+        request.db.query(Project)
+        .with_entities(Project.name, Project.total_size)
         .order_by(Project.total_size.desc())
         .limit(100)
         .all()

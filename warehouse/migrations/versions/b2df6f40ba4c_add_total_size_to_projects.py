@@ -19,14 +19,16 @@ Create Date: 2019-05-07 15:07:25.696339
 
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy import sql
 
 revision = 'b2df6f40ba4c'
 down_revision = '42f0409bb702'
 
 
 def upgrade():
-    op.add_column('projects', sa.Column('total_size', sa.BigInteger(), nullable=True))
+    op.add_column('projects', sa.Column('total_size',
+                                        sa.BigInteger(),
+                                        server_default=sql.text("0")))
     op.execute(
         """CREATE OR REPLACE FUNCTION projects_total_size()
         RETURNS TRIGGER AS $$
@@ -45,9 +47,9 @@ def upgrade():
             UPDATE projects
             SET total_size=t.project_total_size
             FROM (
-                SELECT SUM(release_files.size) AS project_total_size 
-                FROM release_files 
-                WHERE release_id IN 
+                SELECT SUM(release_files.size) AS project_total_size
+                FROM release_files
+                WHERE release_id IN
                 (SELECT id FROM releases WHERE releases.project_id = _project_id)
                 ) as t
             WHERE id=_project_id;
