@@ -17,8 +17,9 @@ Revises: 42f0409bb702
 Create Date: 2019-05-07 15:07:25.696339
 """
 
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 from sqlalchemy import sql
 
 revision = "b2df6f40ba4c"

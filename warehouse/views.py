@@ -40,7 +40,7 @@ from sqlalchemy.sql import exists
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
-from warehouse.cache.http import cache_control, add_vary
+from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailable

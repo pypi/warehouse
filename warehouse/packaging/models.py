@@ -21,8 +21,8 @@ from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
-    Boolean,
     BigInteger,
+    Boolean,
     CheckConstraint,
     Column,
     DateTime,
