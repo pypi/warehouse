@@ -39,7 +39,7 @@
 
       <div class="form-group">
         <label for="totp_value" class="form-group__label">Authentication code</label>
-        {{ form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+        {{ form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
         {% if form.totp_value.errors %}
         <ul class="form-errors">
           {% for error in form.totp_value.errors %}
