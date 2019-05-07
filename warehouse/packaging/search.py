@@ -75,3 +75,8 @@ class Project(Document):
         obj["zscore"] = release.zscore
 
         return obj
+
+    class Index:
+        # make sure this class can match any index so it will always be used to
+        # deserialize data coming from elasticsearch.
+        name = "*"
