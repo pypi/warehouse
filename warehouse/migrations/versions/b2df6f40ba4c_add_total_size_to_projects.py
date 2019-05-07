@@ -13,7 +13,7 @@
 add_total_size_to_projects
 
 Revision ID: b2df6f40ba4c
-Revises: 7905a48bb254
+Revises: 42f0409bb702
 Create Date: 2019-05-07 15:07:25.696339
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 
 
 revision = 'b2df6f40ba4c'
-down_revision = '7905a48bb254'
+down_revision = '42f0409bb702'
 
 
 def upgrade():
@@ -47,7 +47,8 @@ def upgrade():
             FROM (
                 SELECT SUM(release_files.size) AS project_total_size 
                 FROM release_files 
-                WHERE release_id IN (SELECT id FROM releases WHERE releases.project_id = _project_id)
+                WHERE release_id IN 
+                (SELECT id FROM releases WHERE releases.project_id = _project_id)
                 ) as t
             WHERE id=_project_id;
 
