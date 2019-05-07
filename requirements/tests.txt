@@ -76,9 +76,9 @@ mirakuru==1.1.0 \
 more-itertools==7.0.0 \
     --hash=sha256:2112d2ca570bb7c3e53ea1a35cd5df42bb0fd10c45f0fb97178679c3c03d64c7 \
     --hash=sha256:c3e4748ba1aad8dba30a4886b0b1a2004f9a863837b8654e7059eebf727afa5a
-pluggy==0.9.0 \
-    --hash=sha256:19ecf9ce9db2fce065a7a0586e07cfb4ac8614fe96edf628a264b1c70116cf8f \
-    --hash=sha256:84d306a647cc805219916e62aab89caa97a33a1dd8c342e87a37f91073cd4746
+pluggy==0.10.0 \
+    --hash=sha256:1c0b297d4d41bc9bdfbdc17991b35f9e1d2cfe8eaa4d7c118e86d705870d34c8 \
+    --hash=sha256:fb2f776b7ec85038ef95860f4e83bfb6ab171a9d0b70b69d7ca4d04130644c2b
 port-for==0.4 \
     --hash=sha256:247b4db1901aa3d9906258308e40dfbadf65275b27ca77faa0b9a876b7284970 \
     --hash=sha256:47b5cb48f8e036497cd73b96de305cecb4070e9ecbc908724afcbd2224edccde
