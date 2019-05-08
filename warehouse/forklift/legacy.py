@@ -45,6 +45,7 @@ from warehouse.packaging.models import (
     BlacklistedProject,
     Dependency,
     DependencyKind,
+    Description,
     File,
     Filename,
     JournalEntry,
@@ -1004,8 +1005,12 @@ def file_upload(request):
                 )
             ),
             canonical_version=canonical_version,
-            description_html=rendered,
-            description_html_rendered_by=readme.renderer_version(),
+            description=Description(
+                content_type=form.description_content_type.data,
+                raw=form.description.data or "",
+                html=rendered or "",
+                rendered_by=readme.renderer_version(),
+            ),
             **{
                 k: getattr(form, k).data
                 for k in {
@@ -1013,8 +1018,6 @@ def file_upload(request):
                     # should pull off and insert into our new release.
                     "version",
                     "summary",
-                    "description",
-                    "description_content_type",
                     "license",
                     "author",
                     "author_email",

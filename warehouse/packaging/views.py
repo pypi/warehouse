@@ -81,11 +81,11 @@ def release_detail(release, request):
     # it inline.
     # TODO: Remove the fallback to rendering inline and only support displaying the
     #       already rendered content.
-    if release.description_html:
-        description = release.description_html
+    if release.description.html:
+        description = release.description.html
     else:
         description = readme.render(
-            release.description, release.description_content_type
+            release.description.raw, release.description.content_type
         )
 
     # Get all of the maintainers for this project.

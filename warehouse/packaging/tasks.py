@@ -10,11 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import orm
-
 from warehouse import tasks
 from warehouse.cache.origin import IOriginCache
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import Description, Project
 from warehouse.utils import readme
 
 
@@ -102,18 +100,19 @@ def compute_trending(request):
 @tasks.task(ignore_result=True, acks_late=True)
 def update_description_html(request):
     renderer_version = readme.renderer_version()
-    releases = (
-        request.db.query(Release)
-        .options(orm.undefer(Release.description))
-        .filter(
-            (Release.description_html_rendered_by != renderer_version)
-            | (Release.description_html_rendered_by == None)
-        )
+
+    descriptions = (
+        request.db.query(Description)
+        .filter(Description.rendered_by != renderer_version)
+        .yield_per(100)
         .limit(5000)
     )
 
-    for release in releases:
-        release.description_html = readme.render(
-            release.description, release.description_content_type
-        )
-        release.escription_html_rendered_by = renderer_version
+    for description in descriptions:
+        rendered = readme.render(description.raw, description.content_type)
+
+        if rendered is None:
+            rendered = ""
+
+        description.html = rendered
+        description.rendered_by = renderer_version
