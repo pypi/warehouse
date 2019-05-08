@@ -16,7 +16,7 @@ import os
 import webauthn as pywebauthn
 
 
-def _generate_challenge():
+def generate_challenge():
     """
     Returns a random challenge suitable for use within
     Webauthn's credential and configuration option objects.
@@ -28,56 +28,47 @@ def _generate_challenge():
     return base64.b64encode(os.urandom(32)).decode()
 
 
-def _get_webauthn_user(user):
+def _get_webauthn_user(user, *, icon_url, rp_id):
     """
     Returns a webauthn.WebAuthnUser instance corresponding
     to the given user model, with properties suitable for
     usage within the webauthn API.
     """
     return pywebauthn.WebAuthnUser(
-        user.id,
+        str(user.id),
         user.username,
         user.name,
-        None,  # TODO(ww): icon_url
+        icon_url,
         user.webauthn.credential_id,
         user.webauthn.public_key,
         user.webauthn.sign_count,
-        None,  # TODO(ww): rp_id
+        rp_id,
     )
 
 
-def get_credential_options(user):
+def get_credential_options(user, *, challenge, rp_name, rp_id, icon_url):
     """
     Returns a dictionary of options for credential creation
     on the client side.
     """
     options = pywebauthn.WebAuthnMakeCredentialOptions(
-        _generate_challenge(),
-        None,  # TODO(ww): rp_name
-        None,  # TODO(ww): rp_id
-        user.id,
-        user.username,
-        user.name,
-        None,  # TODO(ww): icon_url
+        challenge, rp_name, rp_id, str(user.id), user.username, user.name, icon_url
     )
 
-    return options.registration_dict()
+    return options.registration_dict
 
 
-def get_assertion_options(user):
+def get_assertion_options(user, *, challenge):
     """
     Returns a dictionary of options for assertion retrieval
     on the client side.
     """
-    options = pywebauthn.WebAuthnAssertionOptions(
-        _get_webauthn_user(user),
-        _generate_challenge(),
-    )
+    options = pywebauthn.WebAuthnAssertionOptions(_get_webauthn_user(user), challenge)
 
-    return options.assertion_dict()
+    return options.assertion_dict
 
 
-def verify_registration_response(response, challenge):
+def verify_registration_response(response, challenge, *, rp_id, origin):
     """
     Validates the challenge and attestation information
     sent from the client during device registration.
@@ -86,16 +77,13 @@ def verify_registration_response(response, challenge):
     Raises webauthn.RegistrationRejectedException on failire.
     """
     response = pywebauthn.WebAuthnRegistrationResponse(
-        None,  # TODO(ww): rp_id
-        None,  # TODO(ww): origin
-        response,
-        challenge,
+        rp_id, origin, response, challenge
     )
 
     return response.verify()
 
 
-def verify_assertion_response(response, challenge, user):
+def verify_assertion_response(response, challenge, user, *, origin):
     """
     Validates the challenge and assertion information
     sent from the client during authentication.
@@ -104,10 +92,7 @@ def verify_assertion_response(response, challenge, user):
     Raises webauthn.AuthenticationRejectedException on failure.
     """
     response = pywebauthn.WebAuthnAssertionResponse(
-        _get_webauthn_user(user),
-        response,
-        challenge,
-        None,  # TODO(ww): origin
+        _get_webauthn_user(user), response, challenge, origin
     )
 
     return response.verify()

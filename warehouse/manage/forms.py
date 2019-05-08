@@ -13,6 +13,7 @@
 import wtforms
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
 from warehouse.accounts.forms import (
@@ -104,3 +105,29 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
         totp_value = field.data.encode("utf8")
         if not otp.verify_totp(self.totp_secret, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
+
+
+class DeleteWebAuthnForm(UsernameMixin, forms.Form):
+    __params__ = ["confirm_username"]
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+
+
+class ProvisionWebAuthnForm(forms.Form):
+    __params__ = ["credential"]
+
+    credential = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+
+    def __init__(self, *args, user_service, challenge, rp_id, origin, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.challenge = challenge
+        self.rp_id = rp_id
+        self.origin = origin
+
+    def validate_credential(self, field):
+        # TODO(ww): webauthn.verify_registration_response
+        # TODO(ww): Check whether another user has this credential's credentialId.
+        pass

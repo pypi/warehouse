@@ -130,6 +130,13 @@ class IUserService(Interface):
         Returns True if the given TOTP code is valid.
         """
 
+    def add_webauthn(user_id, **kwargs):
+        """
+        Adds a WebAuthn credential to the given user.
+
+        Returns None if the user already has this credential.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):

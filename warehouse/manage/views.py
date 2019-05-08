@@ -13,6 +13,7 @@
 import io
 
 from collections import defaultdict
+import json
 
 import pyqrcode
 
@@ -25,6 +26,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import Email, User
@@ -43,7 +45,9 @@ from warehouse.manage.forms import (
     ChangeRoleForm,
     CreateRoleForm,
     DeleteTOTPForm,
+    DeleteWebAuthnForm,
     ProvisionTOTPForm,
+    ProvisionWebAuthnForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
@@ -419,6 +423,79 @@ class ProvisionTOTPViews:
             self.request.session.flash("Invalid credentials.", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    route_name="manage.account.webauthn-provision",
+    renderer="manage/account/webauthn-provision.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    http_cache=0,
+)
+class ProvisionWebAuthnViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision.options",
+        renderer="json",
+    )
+    def generate_webauthn_credential_options(self):
+        credential_options = webauthn.get_credential_options(
+            self.request.user,
+            challenge=self.request.session.get_webauthn_challenge(),
+            rp_name=self.request.registry.settings["site.name"],
+            rp_id=self.request.domain,
+            icon_url=self.request.registry.settings.get(
+                "warehouse.domain", self.request.domain
+            ),
+        )
+
+        return credential_options
+
+    @view_config(request_method="GET")
+    def webauthn_provision(self):
+        return {}
+
+    @view_config(
+        request_method="POST",
+        request_param=ProvisionWebAuthnForm.__params__,
+        renderer="json",
+    )
+    def validate_webauthn_provision(self):
+        # TODO(ww): Replace with check against N security keys
+        if self.request.user.webauthn:
+            return {"fail": "User already has a security key"}
+
+        form = ProvisionWebAuthnForm(
+            **self.request.POST,
+            user_service=self.user_service,
+            challenge=self.request.session.get_webauthn_challenge(),
+        )
+
+        self.request.session.clear_webauthn_challenge()
+
+        if form.validate():
+            # TODO(ww): Fill model in with WebAuthnCredential fields
+            # from validated form.
+            self.user_service.add_webauthn(
+                self.request.user.id,
+                credential_id="foo",
+                public_key="foo",
+                sign_count="foo",
+            )
+            return {}
+
+        # TODO(ww): Retrieve specific error.
+        return {"fail": "Invalid WebAuthn credential payload"}
+
+    @view_config(request_method="POST", request_param=DeleteWebAuthnForm.__params__)
+    def delete_webauthn(self):
+        pass
 
 
 @view_config(

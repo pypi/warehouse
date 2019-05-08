@@ -36,7 +36,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, User, Webauthn
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -315,6 +315,25 @@ class DatabaseUserService:
             )
 
         return valid
+
+    def add_webauthn(self, user_id, **kwargs):
+        """
+        Adds a WebAuthn credential to the given user.
+
+        Returns None if the user already has this credential.
+        """
+        user = self.get_user(user_id)
+
+        # TODO(ww): Change to check for credentialId once multiple
+        # security keys are supported.
+        if user.webauthn:
+            return
+
+        webauthn = Webauthn(user=user, **kwargs)
+        self.db.add(webauthn)
+        self.db.flush()  # flush the db now so webauthn.id is available
+
+        return webauthn
 
 
 @implementer(ITokenService)

@@ -129,6 +129,11 @@ def includeme(config):
         "/manage/account/webauthn-provision",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.account.webauthn-provision.options",
+        "/manage/account/webauthn-provision/options",
+        domain=warehouse,
+    )
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

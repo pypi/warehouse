@@ -1,0 +1,108 @@
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+const transformCredentialOptions = (credentialOptions) => {
+    let {challenge, user} = credentialOptions;
+    user.id = Uint8Array.from(credentialOptions.user.id, c => c.charCodeAt(0));
+
+    challenge = Uint8Array.from(atob(credentialOptions.challenge), c => c.charCodeAt(0));
+
+    const transformedOptions = Object.assign({}, credentialOptions, {challenge, user});
+
+    return transformedOptions;
+}
+
+const transformCredential = (credential) => {
+    const attObj = new Uint8Array(credential.response.attestationObject);
+    const clientDataJSON = new Uint8Array(credential.response.clientDataJSON);
+    const rawId = new Uint8Array(credential.rawId);
+
+    const registrationClientExtensions = credential.getClientExtensionResults();
+
+    return {
+        id: credential.id,
+        rawId: b64enc(rawId),
+        type: credential.type,
+        attObj: b64enc(attObj),
+        clientData: b64enc(clientDataJSON),
+        registrationClientExtensions: JSON.stringify(registrationClientExtensions)
+    };
+}
+
+const postCredential = async (credential) => {
+    const formData = new FormData();
+    Object.entries(credential).forEach(([key, value]) => {
+        formData.set(key, value);
+    });
+
+    const resp = await fetch(
+        "/manage/account/webauthn-provision", {
+            method: "POST",
+            cache: "no-cache",
+            body: formData,
+        }
+    );
+
+    const status = await resp.json();
+
+    if (status.fail) {
+        // TODO(ww): Splash.
+        throw status.fail;
+    }
+
+    return status;
+}
+
+export default () => {
+    const webAuthnButton = document.getElementById("webauthn-begin");
+
+    if (webAuthnButton === null) {
+        return;
+    }
+
+    webAuthnButton.disabled = false;
+
+    if (!window.PublicKeyCredential) {
+        // TODO(ww): Warn user that their browser doesn't support WebAuthn.
+        webAuthnButton.disabled = true;
+    }
+
+    webAuthnButton.addEventListener("click", async function() {
+        // TODO(ww): Should probably find a way to use the route string here,
+        // not the actual endpoint.
+        const resp = await fetch(
+            "/manage/account/webauthn-provision/options", {
+                cache: "no-cache",
+            }
+        );
+
+        const credentialOptions = await resp.json();
+        if (credentialOptions.fail) {
+            // TODO(ww): Splash.
+            throw credentialOptions.fail;
+        }
+
+        console.log(credentialOptions);
+
+        const transformedOptions = transformCredentialOptions(credentialOptions);
+
+        const credential = await navigator.credentials.create({
+            publicKey: transformedOptions
+        });
+
+        const transformedCredential = transformCredential(credential);
+
+        const status = await postCredential(transformCredential);
+    });
+};

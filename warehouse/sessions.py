@@ -22,6 +22,7 @@ from pyramid.interfaces import ISession, ISessionFactory
 from zope.interface import implementer
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
@@ -84,6 +85,7 @@ class Session(dict):
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
     _totp_secret_key = "_totp_secret"
+    _webauthn_challenge_key = "_webauthn_challenge"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -179,6 +181,16 @@ class Session(dict):
 
     def clear_totp_secret(self):
         self[self._totp_secret_key] = None
+
+    def get_webauthn_challenge(self):
+        webauthn_challenge = self.get(self._webauthn_challenge_key)
+        if webauthn_challenge is None:
+            self[self._webauthn_challenge_key] = webauthn.generate_webauthn_challenge()
+            webauthn_challenge = self[self._webauthn_challenge_key]
+        return webauthn_challenge
+
+    def clear_webauthn_challenge(self):
+        self[self._webauthn_challenge_key] = None
 
 
 @implementer(ISessionFactory)
