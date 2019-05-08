@@ -288,6 +288,7 @@ class Release(db.Model):
     license = Column(Text)
     summary = Column(Text)
     description_content_type = Column(Text)
+    description_html_rendered_by = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
@@ -297,14 +298,15 @@ class Release(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
 
-    # We defer this column because it is a very large column (it can be MB in
-    # size) and we very rarely actually want to access it. Typically we only
-    # need it when rendering the page for a single project, but many of our
+    # We defer these columns because they are very large columns (they can be MB in
+    # size) and we very rarely actually want to access them. Typically we only
+    # need them when rendering the page for a single project, but many of our
     # queries only need to access a few of the attributes of a Release. Instead
     # of playing whack-a-mole and using load_only() or defer() on each of
-    # those queries, deferring this here makes the default case more
+    # those queries, deferring them here makes the default case more
     # performant.
     description = orm.deferred(Column(Text))
+    description_html = orm.deferred(Column(Text))
 
     _classifiers = orm.relationship(
         Classifier,
