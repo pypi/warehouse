@@ -46,6 +46,7 @@
 {% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro collaborator_roles() %}What collaborator roles are available for a project on PyPI?{% endmacro %}
 {% macro request_ownership() %}How do I become a owner/maintainer of a project on PyPI?{% endmacro %}
 {% macro description_content_type() %}How can I upload a project description in a different format?{% endmacro %}
 {% macro new_classifier() %}How do I request a new trove classifier?{% endmacro %}
@@ -100,6 +101,7 @@
           <li><a href="#private-indices">{{ private_indices() }}</a></li>
           <li><a href="#project-name">{{ project_name() }}</a></li>
           <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
+          <li><a href="#collaborator-roles">{{ collaborator_roles() }}</a></li>
           <li><a href="#request-ownership">{{ request_ownership() }}</a></li>
           <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
@@ -222,6 +224,11 @@
         <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
         <p>There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development per <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a>.</p>
         <p>PEP 541 has been accepted, and PyPI is <a href="https://github.com/pypa/warehouse/issues/1506">creating a workflow</a> which will be documented here.</p>
+
+        <h3 id="collaborator-roles">{{ collaborator_roles() }}</h3>
+        <p>There are two possible roles for collaborators:</p>
+        <p><strong>Maintainer</strong>: Can upload releases for a package. Cannot add collaborators. Cannot delete files, releases, or the project.</p>
+        <p><strong>Owner</strong>: Can upload releases. Can add other collaborators. Can delete files, releases, or the entire project.</p>
 
         <h3 id="request-ownership">{{ request_ownership() }}</h3>
         <p>Only the current owners of a project have the ability to add new owners or maintainers. If you need to request ownership, you should contact the current owner(s) of the project directly. Many project owners provide their contact details in the 'Author' field of the 'Meta' details on the project page.</p>
