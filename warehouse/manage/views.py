@@ -426,8 +426,6 @@ class ProvisionTOTPViews:
 
 
 @view_defaults(
-    route_name="manage.account.webauthn-provision",
-    renderer="manage/account/webauthn-provision.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -438,6 +436,14 @@ class ProvisionWebAuthnViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision",
+        renderer="manage/account/webauthn-provision.html",
+    )
+    def webauthn_provision(self):
+        return {}
 
     @view_config(
         request_method="GET",
@@ -457,13 +463,10 @@ class ProvisionWebAuthnViews:
 
         return credential_options
 
-    @view_config(request_method="GET")
-    def webauthn_provision(self):
-        return {}
-
     @view_config(
         request_method="POST",
         request_param=ProvisionWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.validate",
         renderer="json",
     )
     def validate_webauthn_provision(self):
@@ -475,27 +478,47 @@ class ProvisionWebAuthnViews:
             **self.request.POST,
             user_service=self.user_service,
             challenge=self.request.session.get_webauthn_challenge(),
+            rp_id=self.request.domain,
+            origin=self.request.host_url,
         )
 
         self.request.session.clear_webauthn_challenge()
 
         if form.validate():
-            # TODO(ww): Fill model in with WebAuthnCredential fields
-            # from validated form.
             self.user_service.add_webauthn(
                 self.request.user.id,
-                credential_id="foo",
-                public_key="foo",
-                sign_count="foo",
+                credential_id=form.validated_credential.credential_id,
+                public_key=form.validated_credential.public_key,
+                sign_count=form.validated_credential.sign_count,
             )
-            return {}
+            return {"success": "WebAuthn successfully provisioned"}
 
         # TODO(ww): Retrieve specific error.
-        return {"fail": "Invalid WebAuthn credential payload"}
+        return {"fail": f"Invalid WebAuthn credential payload: {form.errors}"}
 
-    @view_config(request_method="POST", request_param=DeleteWebAuthnForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=DeleteWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.delete",
+    )
     def delete_webauthn(self):
-        pass
+        if self.request.user.webauthn is None:
+            self.request.session.flash("No WebAuthhn device to delete.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = DeleteWebAuthnForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            self.request.user.webauthn = None
+            self.request.session.flash("WebAuthn device deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
 
 
 @view_config(

@@ -13,19 +13,22 @@
 import base64
 import os
 
+from webauthn.webauthn import (
+    AuthenticationRejectedException as _AuthenticationRejectedException,
+    RegistrationRejectedException as _RegistrationRejectedException,
+)
 import webauthn as pywebauthn
 
 
-def generate_challenge():
-    """
-    Returns a random challenge suitable for use within
-    Webauthn's credential and configuration option objects.
+class AuthenticationRejectedException(Exception):
+    pass
 
-    See: https://w3c.github.io/webauthn/#cryptographic-challenges
-    """
-    # NOTE: Webauthn recommends at least 16 bytes of entropy,
-    # we go with 32 because it doesn't cost us anything.
-    return base64.b64encode(os.urandom(32)).decode()
+
+class RegistrationRejectedException(Exception):
+    pass
+
+
+WebAuthnCredential = pywebauthn.WebAuthnCredential
 
 
 def _get_webauthn_user(user, *, icon_url, rp_id):
@@ -44,6 +47,27 @@ def _get_webauthn_user(user, *, icon_url, rp_id):
         user.webauthn.sign_count,
         rp_id,
     )
+
+
+def _webauthn_b64decode(encoded):
+    padding = "=" * (len(encoded) % 4)
+    return base64.urlsafe_b64decode(encoded + padding)
+
+
+def _webauthn_b64encode(source):
+    return base64.urlsafe_b64encode(source).rstrip(b"=")
+
+
+def generate_webauthn_challenge():
+    """
+    Returns a random challenge suitable for use within
+    Webauthn's credential and configuration option objects.
+
+    See: https://w3c.github.io/webauthn/#cryptographic-challenges
+    """
+    # NOTE: Webauthn recommends at least 16 bytes of entropy,
+    # we go with 32 because it doesn't cost us anything.
+    return _webauthn_b64encode(os.urandom(32)).decode()
 
 
 def get_credential_options(user, *, challenge, rp_name, rp_id, icon_url):
@@ -73,14 +97,20 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     Validates the challenge and attestation information
     sent from the client during device registration.
 
-    Returns a webauthn.WebAuthnCredential on success.
-    Raises webauthn.RegistrationRejectedException on failire.
+    Returns a WebAuthnCredential on success.
+    Raises RegistrationRejectedException on failire.
     """
+    # NOTE: We re-encode the challenge below, because our
+    # response's clientData.challenge is encoded twice:
+    # first for the entire clientData payload, and then again
+    # for the individual challenge.
     response = pywebauthn.WebAuthnRegistrationResponse(
-        rp_id, origin, response, challenge
+        rp_id, origin, response, _webauthn_b64encode(challenge.encode()).decode()
     )
-
-    return response.verify()
+    try:
+        return response.verify()
+    except _RegistrationRejectedException as e:
+        raise RegistrationRejectedException(str(e))
 
 
 def verify_assertion_response(response, challenge, user, *, origin):
@@ -89,10 +119,12 @@ def verify_assertion_response(response, challenge, user, *, origin):
     sent from the client during authentication.
 
     Returns an updated signage count on success.
-    Raises webauthn.AuthenticationRejectedException on failure.
+    Raises AuthenticationRejectedException on failure.
     """
     response = pywebauthn.WebAuthnAssertionResponse(
         _get_webauthn_user(user), response, challenge, origin
     )
-
-    return response.verify()
+    try:
+        return response.verify()
+    except _AuthenticationRejectedException as e:
+        raise AuthenticationRejectedException(str(e))

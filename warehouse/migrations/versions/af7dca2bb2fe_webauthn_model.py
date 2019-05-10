@@ -35,9 +35,9 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column("credential_id", sa.String(length=250), nullable=False),
-        sa.Column("public_key", sa.String(length=65), nullable=True),
-        sa.Column("sign_count", sa.Integer(), nullable=True),
+        sa.Column("credential_id", sa.String, nullable=False),
+        sa.Column("public_key", sa.String, nullable=True),
+        sa.Column("sign_count", sa.Integer, nullable=True),
         sa.ForeignKeyConstraint(
             ["user_id"], ["users.id"], initially="DEFERRED", deferrable=True
         ),

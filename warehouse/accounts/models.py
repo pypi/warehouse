@@ -85,6 +85,7 @@ class User(SitemapMixin, db.Model):
     webauthn = orm.relationship(
         "Webauthn",
         backref="user",
+        cascade="all, delete-orphan",
         uselist=False,
         lazy=False,
     )
@@ -114,10 +115,8 @@ class User(SitemapMixin, db.Model):
 
     @property
     def has_two_factor(self):
-        return (
-            self.two_factor_allowed
-            and self.totp_secret is not None
-            and self.webauthn is not None
+        return self.two_factor_allowed and (
+            self.totp_secret is not None or self.webauthn is not None
         )
 
     @property
@@ -133,8 +132,8 @@ class Webauthn(db.Model):
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
-    credential_id = Column(String(250), unique=True, nullable=False)
-    public_key = Column(String(65), unique=True, nullable=True)
+    credential_id = Column(String, unique=True, nullable=False)
+    public_key = Column(String, unique=True, nullable=True)
     sign_count = Column(Integer, default=0)
 
 

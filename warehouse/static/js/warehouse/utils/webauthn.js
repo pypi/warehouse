@@ -11,12 +11,14 @@
  * limitations under the License.
  */
 
+const webAuthnBtoA = (encoded) => {
+    return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
 
 const transformCredentialOptions = (credentialOptions) => {
     let {challenge, user} = credentialOptions;
     user.id = Uint8Array.from(credentialOptions.user.id, c => c.charCodeAt(0));
-
-    challenge = Uint8Array.from(atob(credentialOptions.challenge), c => c.charCodeAt(0));
+    challenge = Uint8Array.from(credentialOptions.challenge, c => c.charCodeAt(0));
 
     const transformedOptions = Object.assign({}, credentialOptions, {challenge, user});
 
@@ -32,22 +34,21 @@ const transformCredential = (credential) => {
 
     return {
         id: credential.id,
-        rawId: b64enc(rawId),
+        rawId: webAuthnBtoA(rawId),
         type: credential.type,
-        attObj: b64enc(attObj),
-        clientData: b64enc(clientDataJSON),
-        registrationClientExtensions: JSON.stringify(registrationClientExtensions)
+        attObj: webAuthnBtoA(String.fromCharCode(...attObj)),
+        clientData: webAuthnBtoA(String.fromCharCode(...clientDataJSON)),
+        registrationClientExtensions: JSON.stringify(registrationClientExtensions),
     };
 }
 
-const postCredential = async (credential) => {
+const postCredential = async (credential, token) => {
     const formData = new FormData();
-    Object.entries(credential).forEach(([key, value]) => {
-        formData.set(key, value);
-    });
+    formData.set("credential", JSON.stringify(credential));
+    formData.set("csrf_token", token);
 
     const resp = await fetch(
-        "/manage/account/webauthn-provision", {
+        "/manage/account/webauthn-provision/validate", {
             method: "POST",
             cache: "no-cache",
             body: formData,
@@ -66,18 +67,21 @@ const postCredential = async (credential) => {
 
 export default () => {
     const webAuthnButton = document.getElementById("webauthn-begin");
-
     if (webAuthnButton === null) {
         return;
     }
 
-    webAuthnButton.disabled = false;
+    const csrfToken = webAuthnButton.getAttribute("csrf-token");
+    if (csrfToken === null) {
+        return null;
+    }
 
     if (!window.PublicKeyCredential) {
         // TODO(ww): Warn user that their browser doesn't support WebAuthn.
-        webAuthnButton.disabled = true;
+        return;
     }
 
+    webAuthnButton.disabled = false;
     webAuthnButton.addEventListener("click", async function() {
         // TODO(ww): Should probably find a way to use the route string here,
         // not the actual endpoint.
@@ -103,6 +107,8 @@ export default () => {
 
         const transformedCredential = transformCredential(credential);
 
-        const status = await postCredential(transformCredential);
+        console.log(transformedCredential);
+
+        const status = await postCredential(transformedCredential, csrfToken);
     });
 };

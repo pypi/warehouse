@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import wtforms
 
 import warehouse.utils.otp as otp
@@ -128,6 +129,18 @@ class ProvisionWebAuthnForm(forms.Form):
         self.origin = origin
 
     def validate_credential(self, field):
-        # TODO(ww): webauthn.verify_registration_response
-        # TODO(ww): Check whether another user has this credential's credentialId.
-        pass
+        try:
+            credential_dict = json.loads(field.data.encode("utf8"))
+        except json.JSONDecodeError:
+            raise wtforms.validators.ValidationError(
+                f"Invalid WebAuthn credential: Bad payload: {field.data}"
+            )
+
+        try:
+            self.validated_credential = webauthn.verify_registration_response(
+                credential_dict, self.challenge, rp_id=self.rp_id, origin=self.origin
+            )
+        except webauthn.RegistrationRejectedException as e:
+            raise wtforms.validators.ValidationError(
+                f"Invalid WebAuthn credential: {str(e)}"
+            )
