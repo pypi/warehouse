@@ -46,6 +46,11 @@ class TOTPValueMixin:
     )
 
 
+class WebAuthnCredentialMixin:
+
+    credential = wtforms.StringField(wtforms.validators.DataRequired())
+
+
 class NewUsernameMixin:
 
     username = wtforms.StringField(
@@ -256,8 +261,11 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
             raise wtforms.validators.ValidationError("Invalid TOTP code.")
 
 
-class WebAuthnAuthenticationForm(_TwoFactorAuthenticationForm):
-    pass
+class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticationForm):
+    __params__ = ["credential"]
+
+    def validate_credential(self, field):
+        pass
 
 
 class RequestPasswordResetForm(forms.Form):

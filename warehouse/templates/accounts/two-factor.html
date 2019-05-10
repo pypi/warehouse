@@ -26,6 +26,7 @@
   <div class="site-container">
   <h1 class="page-title">Two-factor authentication</h1>
 
+    <!-- TODO: Tabbed view for TOTP/WebAuthn -->
     {% if totp_form %}
     <form method="POST" action="{{ request.current_route_path() }}">
       <h2>Authenticate with an app</h2>
@@ -62,28 +63,22 @@
     {% endif %}
 
     {% if webauthn_form %}
-    <form method="POST" action="{{ request.current_route_path() }}">
-      <h2>Authenticate with a security key</h2>
+    <h2>Authenticate with a security key</h2>
 
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <input name="method" type="hidden" value="totp">
+    <p>When ready, click below:</p>
 
-      {% if webauthn_form.errors.__all__ %}
-      <ul class="form-errors">
-        {% for error in webauthn_form.errors.__all__ %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+    <noscript>
+      <p>WebAuthn cannot be used without JavaScript.</p>
+    </noscript>
 
-      <div class="form-group">
-        <label for="totp_value" class="form-group__label">Authentication code</label>
-        {{ webauthn_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
-      </div>
-      <div class="form-group">
-        <input type="submit" value="Verify" class="button button--primary">
-      </div>
-    </form>
+    <button
+      id="webauthn-auth-begin"
+      class="button button--primary"
+      csrf-token="{{ request.session.get_csrf_token() }}"
+      disabled>I'm ready!
+    </button>
+    <ul id="webauthn-errors" class="form-errors">
+    </ul>
     {% endif %}
 
   </div>

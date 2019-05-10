@@ -22,6 +22,7 @@ from warehouse.accounts.forms import (
     NewPasswordMixin,
     PasswordMixin,
     TOTPValueMixin,
+    WebAuthnCredentialMixin,
 )
 
 
@@ -116,10 +117,8 @@ class DeleteWebAuthnForm(UsernameMixin, forms.Form):
         self.user_service = user_service
 
 
-class ProvisionWebAuthnForm(forms.Form):
+class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
     __params__ = ["credential"]
-
-    credential = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
     def __init__(self, *args, user_service, challenge, rp_id, origin, **kwargs):
         super().__init__(*args, **kwargs)

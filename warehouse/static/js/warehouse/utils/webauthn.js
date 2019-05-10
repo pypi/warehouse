@@ -11,6 +11,7 @@
  * limitations under the License.
  */
 
+
 const populateWebAuthnErrorList = (errors) => {
     const errorList = document.getElementById("webauthn-errors");
     if (errorList === null) {
@@ -22,6 +23,26 @@ const populateWebAuthnErrorList = (errors) => {
         errorItem.appendChild(document.createTextNode(error));
         errorList.appendChild(errorItem);
     });
+}
+
+const doWebAuthn = (buttonId, func) => {
+    const webAuthnButton = document.getElementById(buttonId);
+    if (webAuthnButton === null) {
+        return null;
+    }
+
+    const csrfToken = webAuthnButton.getAttribute("csrf-token");
+    if (csrfToken === null) {
+        return;
+    }
+
+    if (!window.PublicKeyCredential) {
+        populateWebAuthnErrorList(["Your browser doesn't support WebAuthn."]);
+        return;
+    }
+
+    webAuthnButton.disabled = false;
+    webAuthnButton.addEventListener("click", async () => { func(csrfToken); });
 }
 
 const webAuthnBtoA = (encoded) => {
@@ -71,24 +92,8 @@ const postCredential = async (credential, token) => {
     return await resp.json();
 }
 
-export default () => {
-    const webAuthnButton = document.getElementById("webauthn-begin");
-    if (webAuthnButton === null) {
-        return;
-    }
-
-    const csrfToken = webAuthnButton.getAttribute("csrf-token");
-    if (csrfToken === null) {
-        return null;
-    }
-
-    if (!window.PublicKeyCredential) {
-        populateWebAuthnErrorList(["Your browser doesn't support WebAuthn."]);
-        return;
-    }
-
-    webAuthnButton.disabled = false;
-    webAuthnButton.addEventListener("click", async function() {
+export const ProvisionWebAuthn = () => {
+    doWebAuthn("webauthn-provision-begin", async (csrfToken) => {
         // TODO(ww): Should probably find a way to use the route string here,
         // not the actual endpoint.
         const resp = await fetch(
@@ -111,5 +116,11 @@ export default () => {
         }
 
         window.location.replace("/manage/account");
+    });
+};
+
+export const AuthenticateWebAuthn = () => {
+    doWebAuthn("webauthn-auth-begin", async (csrfToken) => {
+        return;
     });
 };
