@@ -491,10 +491,17 @@ class ProvisionWebAuthnViews:
                 public_key=form.validated_credential.public_key,
                 sign_count=form.validated_credential.sign_count,
             )
+            self.request.session.flash(
+                "WebAuthn successfully provisioned.", queue="success"
+            )
             return {"success": "WebAuthn successfully provisioned"}
 
-        # TODO(ww): Retrieve specific error.
-        return {"fail": f"Invalid WebAuthn credential payload: {form.errors}"}
+        errors = [str(error) for error in form.credential.errors]
+        return {
+            "fail": {
+                "errors": errors,
+            }
+        }
 
     @view_config(
         request_method="POST",

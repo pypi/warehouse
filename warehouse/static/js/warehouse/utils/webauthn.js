@@ -11,6 +11,19 @@
  * limitations under the License.
  */
 
+const populateWebAuthnErrorList = (errors) => {
+    const errorList = document.getElementById("webauthn-errors");
+    if (errorList === null) {
+        return;
+    }
+
+    errors.forEach(function(error) {
+        const errorItem = document.createElement("li");
+        errorItem.appendChild(document.createTextNode(error));
+        errorList.appendChild(errorItem);
+    });
+}
+
 const webAuthnBtoA = (encoded) => {
     return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
@@ -55,14 +68,7 @@ const postCredential = async (credential, token) => {
         }
     );
 
-    const status = await resp.json();
-
-    if (status.fail) {
-        // TODO(ww): Splash.
-        throw status.fail;
-    }
-
-    return status;
+    return await resp.json();
 }
 
 export default () => {
@@ -77,7 +83,7 @@ export default () => {
     }
 
     if (!window.PublicKeyCredential) {
-        // TODO(ww): Warn user that their browser doesn't support WebAuthn.
+        populateWebAuthnErrorList(["Your browser doesn't support WebAuthn."]);
         return;
     }
 
@@ -92,23 +98,18 @@ export default () => {
         );
 
         const credentialOptions = await resp.json();
-        if (credentialOptions.fail) {
-            // TODO(ww): Splash.
-            throw credentialOptions.fail;
-        }
-
-        console.log(credentialOptions);
-
         const transformedOptions = transformCredentialOptions(credentialOptions);
-
         const credential = await navigator.credentials.create({
             publicKey: transformedOptions
         });
 
         const transformedCredential = transformCredential(credential);
-
-        console.log(transformedCredential);
-
         const status = await postCredential(transformedCredential, csrfToken);
+        if (status.fail) {
+            populateWebAuthnErrorList(status.fail.errors);
+            return;
+        }
+
+        window.location.replace("/manage/account");
     });
 };

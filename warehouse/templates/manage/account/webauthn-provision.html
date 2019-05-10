@@ -44,7 +44,7 @@
     csrf-token="{{ request.session.get_csrf_token() }}"
     disabled>I'm ready!
   </button>
-  <ul class="form-errors">
+  <ul id="webauthn-errors" class="form-errors">
   </ul>
 </section>
 {% endblock %}
