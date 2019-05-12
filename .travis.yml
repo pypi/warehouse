@@ -17,6 +17,7 @@ addons:
     - postgresql-10
     - postgresql-client-10
     - nasm
+    - libgnutls28-dev
 
 services:
   - postgresql
