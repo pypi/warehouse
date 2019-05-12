@@ -605,7 +605,7 @@ def test_release_data(db_request):
         "maintainer": release.maintainer,
         "maintainer_email": release.maintainer_email,
         "summary": release.summary,
-        "description": release.description,
+        "description": release.description.raw,
         "license": release.license,
         "keywords": release.keywords,
         "platform": release.platform,

@@ -22,12 +22,14 @@ from warehouse.packaging.models import (
     BlacklistedProject,
     Dependency,
     DependencyKind,
+    Description,
     File,
     JournalEntry,
     Project,
     Release,
     Role,
 )
+from warehouse.utils import readme
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
@@ -39,6 +41,16 @@ class ProjectFactory(WarehouseFactory):
 
     id = factory.LazyFunction(uuid.uuid4)
     name = factory.fuzzy.FuzzyText(length=12)
+
+
+class DescriptionFactory(WarehouseFactory):
+    class Meta:
+        model = Description
+
+    id = factory.LazyFunction(uuid.uuid4)
+    raw = factory.fuzzy.FuzzyText(length=100)
+    html = factory.LazyAttribute(lambda o: readme.render(o.raw))
+    rendered_by = factory.LazyAttribute(lambda o: readme.renderer_version())
 
 
 class ReleaseFactory(WarehouseFactory):
@@ -54,6 +66,7 @@ class ReleaseFactory(WarehouseFactory):
     _pypi_ordering = factory.Sequence(lambda n: n)
 
     uploader = factory.SubFactory(UserFactory)
+    description = factory.SubFactory(DescriptionFactory)
 
 
 class FileFactory(WarehouseFactory):
