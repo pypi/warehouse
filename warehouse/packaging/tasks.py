@@ -109,10 +109,5 @@ def update_description_html(request):
     )
 
     for description in descriptions:
-        rendered = readme.render(description.raw, description.content_type)
-
-        if rendered is None:
-            rendered = ""
-
-        description.html = rendered
+        description.html = readme.render(description.raw, description.content_type)
         description.rendered_by = renderer_version
