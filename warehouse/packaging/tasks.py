@@ -105,7 +105,7 @@ def update_description_html(request):
         request.db.query(Description)
         .filter(Description.rendered_by != renderer_version)
         .yield_per(100)
-        .limit(5000)
+        .limit(500)
     )
 
     for description in descriptions:
