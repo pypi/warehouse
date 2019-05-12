@@ -349,6 +349,11 @@ class Release(db.Model):
         ),
     )
 
+    # Record information about whether a release is yanked, and if it is why?
+    # Note: A Null value indicates this release has not been yanked, and any other value
+    #           indicates that it has been yanked.
+    yanked = Column(Text)
+
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
@@ -446,6 +451,10 @@ class Release(db.Model):
                 self.requires_python,
             ]
         )
+
+    @property
+    def is_yanked(self):
+        return self.yanked is not None
 
 
 class File(db.Model):
