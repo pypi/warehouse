@@ -13,24 +13,25 @@
  */
 
 
-import brotli from "gulp-brotli";
-import composer from "gulp-uglify/composer";
+import cssnano from "cssnano";
 import debounce from "debounce";
 import del from "del";
 import gulp from "gulp";
-import gulpCSSNano from "gulp-cssnano";
-import gulpImage from "gulp-image";
-import gulpSass from "gulp-sass";
-import gulpWebpack  from "webpack-stream";
+import brotli from "gulp-brotli";
 import gulpConcat from "gulp-concat";
 import gzip from "gulp-gzip";
+import gulpImage from "gulp-image";
+import postcss from "gulp-postcss";
 import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
-import named from "vinyl-named";
-import path from "path";
+import gulpSass from "gulp-sass";
 import sourcemaps from "gulp-sourcemaps";
+import composer from "gulp-uglify/composer";
+import path from "path";
 import uglifyjs from "uglify-js";
+import named from "vinyl-named";
 import webpack from "webpack";
+import gulpWebpack from "webpack-stream";
 
 
 // Configure where our files come from, where they get saved too, and what path
@@ -45,6 +46,11 @@ let publicPath = "/static/";
 // more complicated, however it means that we have explicit
 // control over the exact version of uglify-js used.
 var uglify = composer(uglifyjs, console);
+
+// Configure what plugins are used for postcss
+var postCSSPlugins = [
+  cssnano(),
+];
 
 // Configure webpack so that it compiles all of our javascript into a bundle.
 let webpackConfig = {
@@ -80,7 +86,7 @@ let webpackConfig = {
     chunkFilename: "chunks/[chunkhash].js",
   },
   resolve: {
-    modules: [ path.resolve(staticPrefix, "js"), "node_modules" ],
+    modules: [path.resolve(staticPrefix, "js"), "node_modules"],
     alias: {
       "clipboard": "clipboard/dist/clipboard",
     },
@@ -126,10 +132,7 @@ gulp.task("dist:noscript", () => {
     .pipe(
       gulpSass({ includePaths: [sassPath] })
         .on("error", gulpSass.logError))
-    .pipe(gulpCSSNano({
-      safe: true,
-      discardComments: {removeAll: true},
-    }))
+    .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
 });
@@ -197,7 +200,7 @@ gulp.task("dist:admin:compress:br:generic", () => {
   ];
 
   return gulp.src(paths, { base: "warehouse/admin/static/dist" })
-    .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
+    .pipe(brotli.compress({ skipLarger: true, mode: 0, quality: 11 }))
     .pipe(gulp.dest("warehouse/admin/static/dist"));
 });
 
@@ -212,7 +215,7 @@ gulp.task("dist:admin:compress:br:text", () => {
   ];
 
   return gulp.src(paths, { base: "warehouse/admin/static/dist" })
-    .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
+    .pipe(brotli.compress({ skipLarger: true, mode: 1, quality: 11 }))
     .pipe(gulp.dest("warehouse/admin/static/dist"));
 });
 
@@ -282,10 +285,7 @@ gulp.task("dist:css", () => {
     .pipe(
       gulpSass({ includePaths: [sassPath] })
         .on("error", gulpSass.logError))
-    .pipe(gulpCSSNano({
-      safe: true,
-      discardComments: {removeAll: true},
-    }))
+    .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
 });
@@ -297,10 +297,7 @@ gulp.task("dist:fontawesome:css", () => {
 
   return gulp.src(fACSSPath)
     .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(gulpCSSNano({
-      safe: true,
-      discardComments: {removeAll: true},
-    }))
+    .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
 });
@@ -404,7 +401,7 @@ gulp.task("dist:compress:br:generic", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-    .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
+    .pipe(brotli.compress({ skipLarger: true, mode: 0, quality: 11 }))
     .pipe(gulp.dest(distPath));
 });
 
@@ -419,7 +416,7 @@ gulp.task("dist:compress:br:text", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-    .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
+    .pipe(brotli.compress({ skipLarger: true, mode: 1, quality: 11 }))
     .pipe(gulp.dest(distPath));
 });
 
@@ -478,7 +475,7 @@ gulp.task("watch", gulp.series(
       "!warehouse/admin/static/dist/**/*",
     ];
 
-    gulp.watch( watchPaths, debounce(gulp.series("dist"), 200) );
+    gulp.watch(watchPaths, debounce(gulp.series("dist"), 200));
   },
 ));
 
