@@ -21,6 +21,7 @@ from warehouse.utils import readme
 from ...common.db.accounts import UserFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
+    DescriptionFactory,
     FileFactory,
     ProjectFactory,
     ReleaseFactory,
@@ -152,8 +153,9 @@ class TestReleaseDetail:
             ReleaseFactory.create(
                 project=project,
                 version=v,
-                description="unrendered description",
-                description_content_type="text/plain",
+                description=DescriptionFactory.create(
+                    raw="unrendered description", html="", content_type="text/plain"
+                ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
         ]

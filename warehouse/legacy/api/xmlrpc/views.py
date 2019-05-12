@@ -38,6 +38,7 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
+    Description,
     File,
     JournalEntry,
     Project,
@@ -359,7 +360,7 @@ def release_data(request, package_name: str, version: str):
     try:
         release = (
             request.db.query(Release)
-            .options(orm.undefer("description"))
+            .options(orm.joinedload(Release.description))
             .join(Project)
             .filter(
                 (Project.normalized_name == func.normalize_pep426_name(package_name))
@@ -390,7 +391,7 @@ def release_data(request, package_name: str, version: str):
         "maintainer": _clean_for_xml(release.maintainer),
         "maintainer_email": _clean_for_xml(release.maintainer_email),
         "summary": _clean_for_xml(release.summary),
-        "description": _clean_for_xml(release.description),
+        "description": _clean_for_xml(release.description.raw),
         "license": _clean_for_xml(release.license),
         "keywords": _clean_for_xml(release.keywords),
         "platform": release.platform,
