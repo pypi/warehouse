@@ -121,6 +121,15 @@
 
   <h3>{% trans %}Release settings{% endtrans %}</h3>
 
+  <div class="callout-block callout-block--warning">
+    <h3>Yank release</h3>
+    <p>
+      Yanking will mark this release{% if files %}, and {{ files|length() }} {% trans count=files|length %}file{% pluralize %}files{% endtrans %}{% endif %}
+      to be ignored when installing in most common scenarios, except when being
+      installed as a pinned release.
+    </p>
+  </div>
+
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Delete release{% endtrans %}</h3>
     <p>
@@ -136,7 +145,7 @@
     {% endif %}
       {% trans trimmed href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}
         You will not be able to re-upload a new distribution of the same type with the same version number.
-        Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.
+        Consider yanking this release, making a new release, or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases">post release</a> instead.
       {% endtrans %}
     </p>
     {{ confirm_button(gettext("Delete release"), gettext("Version"), "version", release.version) }}
