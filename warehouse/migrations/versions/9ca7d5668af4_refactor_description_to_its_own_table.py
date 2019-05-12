@@ -61,7 +61,8 @@ def upgrade():
         """ WITH inserted_descriptions AS (
                 INSERT INTO release_descriptions
                         (content_type, raw, html, rendered_by, release_id)
-                    SELECT description_content_type, COALESCE(description, ''), '', '', id
+                    SELECT
+                        description_content_type, COALESCE(description, ''), '', '', id
                     FROM releases
                     RETURNING release_id, id AS description_id
             )

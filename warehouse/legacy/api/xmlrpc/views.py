@@ -38,7 +38,6 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
-    Description,
     File,
     JournalEntry,
     Project,
