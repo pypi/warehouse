@@ -55,6 +55,9 @@ def test_project_docs(db_session):
                 "normalized_name": p.normalized_name,
                 "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
+                "description": first(
+                    prs, key=lambda r: not r.is_prerelease
+                ).description.raw,
             },
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].id)
@@ -82,6 +85,9 @@ def test_single_project_doc(db_session):
                 "normalized_name": p.normalized_name,
                 "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
+                "description": first(
+                    prs, key=lambda r: not r.is_prerelease
+                ).description.raw,
             },
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
