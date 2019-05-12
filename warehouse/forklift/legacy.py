@@ -45,6 +45,7 @@ from warehouse.packaging.models import (
     BlacklistedProject,
     Dependency,
     DependencyKind,
+    Description,
     File,
     Filename,
     JournalEntry,
@@ -52,7 +53,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
-from warehouse.utils import http
+from warehouse.utils import http, readme
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024  # 8K
@@ -928,35 +929,38 @@ def file_upload(request):
     if project.name != form.name.data:
         project.name = form.name.data
 
-    # Uploading should prevent broken rendered descriptions.
-    # Temporarily disabled, see
-    # https://github.com/pypa/warehouse/issues/4079
-    # if form.description.data:
-    #     description_content_type = form.description_content_type.data
-    #     if not description_content_type:
-    #         description_content_type = "text/x-rst"
-    #     rendered = readme.render(
-    #         form.description.data, description_content_type, use_fallback=False
-    #     )
+    # Render our description so we can save from having to render this data every time
+    # we load a project description page.
+    rendered = None
+    if form.description.data:
+        description_content_type = form.description_content_type.data
+        # if not description_content_type:
+        #     description_content_type = "text/x-rst"
+        rendered = readme.render(
+            form.description.data, description_content_type  # use_fallback=False
+        )
 
-    #     if rendered is None:
-    #         if form.description_content_type.data:
-    #             message = (
-    #                 "The description failed to render "
-    #                 "for '{description_content_type}'."
-    #             ).format(description_content_type=description_content_type)
-    #         else:
-    #             message = (
-    #                 "The description failed to render "
-    #                 "in the default format of reStructuredText."
-    #             )
-    #         raise _exc_with_message(
-    #             HTTPBadRequest,
-    #             "{message} See {projecthelp} for more information.".format(
-    #                 message=message,
-    #                 projecthelp=request.help_url(_anchor="description-content-type"),
-    #             ),
-    #         ) from None
+        # Uploading should prevent broken rendered descriptions.
+        # Temporarily disabled, see
+        # https://github.com/pypa/warehouse/issues/4079
+        # if rendered is None:
+        #     if form.description_content_type.data:
+        #         message = (
+        #             "The description failed to render "
+        #             "for '{description_content_type}'."
+        #         ).format(description_content_type=description_content_type)
+        #     else:
+        #         message = (
+        #             "The description failed to render "
+        #             "in the default format of reStructuredText."
+        #         )
+        #     raise _exc_with_message(
+        #         HTTPBadRequest,
+        #         "{message} See {projecthelp} for more information.".format(
+        #             message=message,
+        #             projecthelp=request.help_url(_anchor="description-content-type"),
+        #         ),
+        #     ) from None
 
     try:
         canonical_version = packaging.utils.canonicalize_version(form.version.data)
@@ -1001,6 +1005,12 @@ def file_upload(request):
                 )
             ),
             canonical_version=canonical_version,
+            description=Description(
+                content_type=form.description_content_type.data,
+                raw=form.description.data or "",
+                html=rendered or "",
+                rendered_by=readme.renderer_version(),
+            ),
             **{
                 k: getattr(form, k).data
                 for k in {
@@ -1008,8 +1018,6 @@ def file_upload(request):
                     # should pull off and insert into our new release.
                     "version",
                     "summary",
-                    "description",
-                    "description_content_type",
                     "license",
                     "author",
                     "author_email",
