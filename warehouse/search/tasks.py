@@ -24,7 +24,13 @@ from sqlalchemy import func
 from sqlalchemy.orm import aliased
 
 from warehouse import tasks
-from warehouse.packaging.models import Classifier, Project, Release, release_classifiers
+from warehouse.packaging.models import (
+    Classifier,
+    Description,
+    Project,
+    Release,
+    release_classifiers,
+)
 from warehouse.packaging.search import Project as ProjectDocument
 from warehouse.search.utils import get_index
 from warehouse.utils.db import windowed_query
@@ -69,7 +75,7 @@ def _project_docs(db, project_name=None):
 
     release_data = (
         db.query(
-            Release.description,
+            Description.raw.label("description"),
             Release.version.label("latest_version"),
             all_versions,
             Release.author,
@@ -89,6 +95,7 @@ def _project_docs(db, project_name=None):
         )
         .select_from(releases_list)
         .join(Release, Release.id == releases_list.c.id)
+        .join(Description)
         .outerjoin(Release.project)
     )
 

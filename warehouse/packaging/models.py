@@ -257,6 +257,16 @@ def _dependency_relation(kind):
     )
 
 
+class Description(db.Model):
+
+    __tablename__ = "release_descriptions"
+
+    content_type = Column(Text)
+    raw = Column(Text, nullable=False)
+    html = Column(Text, nullable=False)
+    rendered_by = Column(Text, nullable=False)
+
+
 class Release(db.Model):
 
     __tablename__ = "releases"
@@ -287,7 +297,6 @@ class Release(db.Model):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    description_content_type = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
@@ -297,14 +306,21 @@ class Release(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
 
-    # We defer this column because it is a very large column (it can be MB in
-    # size) and we very rarely actually want to access it. Typically we only
-    # need it when rendering the page for a single project, but many of our
-    # queries only need to access a few of the attributes of a Release. Instead
-    # of playing whack-a-mole and using load_only() or defer() on each of
-    # those queries, deferring this here makes the default case more
-    # performant.
-    description = orm.deferred(Column(Text))
+    description_id = Column(
+        ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    description = orm.relationship(
+        "Description",
+        backref=orm.backref(
+            "release",
+            cascade="all, delete-orphan",
+            passive_deletes=True,
+            passive_updates=True,
+            single_parent=True,
+            uselist=False,
+        ),
+    )
 
     _classifiers = orm.relationship(
         Classifier,
