@@ -31,8 +31,6 @@ install:
   - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm install
-  - sudo cp /etc/postgresql/{9.6,10}/main/pg_hba.conf
-  - sudo service postgresql restart
 
 script:
   - node -v
