@@ -132,14 +132,17 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
             credential_dict = json.loads(field.data.encode("utf8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
-                f"Invalid WebAuthn credential: Bad payload: {field.data}"
+                f"Invalid WebAuthn credential: Bad payload"
             )
 
         try:
-            self.validated_credential = webauthn.verify_registration_response(
-                credential_dict, self.challenge, rp_id=self.rp_id, origin=self.origin
+            validated_credential = self.user_service.verify_webauthn_credential(
+                credential_dict,
+                challenge=self.challenge,
+                rp_id=self.rp_id,
+                origin=self.origin,
             )
         except webauthn.RegistrationRejectedException as e:
-            raise wtforms.validators.ValidationError(
-                f"Invalid WebAuthn credential: {str(e)}"
-            )
+            raise wtforms.validators.ValidationError(str(e))
+
+        self.validated_credential = validated_credential

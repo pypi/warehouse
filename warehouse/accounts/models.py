@@ -80,10 +80,11 @@ class User(SitemapMixin, db.Model):
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
+
     totp_secret = Column(Binary(length=20), nullable=True)
 
     webauthn = orm.relationship(
-        "Webauthn",
+        "WebAuthn",
         backref="user",
         cascade="all, delete-orphan",
         uselist=False,
@@ -124,7 +125,7 @@ class User(SitemapMixin, db.Model):
         return self.primary_email is not None and self.primary_email.verified
 
 
-class Webauthn(db.Model):
+class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
 
     user_id = Column(

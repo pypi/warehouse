@@ -14,12 +14,14 @@ import disposable_email_domains
 import jinja2
 import wtforms
 import wtforms.fields.html5
+import json
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.utils.otp import TOTP_LENGTH
+import warehouse.utils.webauthn as webauthn
 
 
 class UsernameMixin:
@@ -265,7 +267,26 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
     __params__ = ["credential"]
 
     def validate_credential(self, field):
-        pass
+        try:
+            assertion_dict = json.loads(field.data.encode("utf8"))
+        except json.JSONDecodeError:
+            raise wtforms.validators.ValidationError(
+                f"Invalid WebAuthn assertion: Bad payload"
+            )
+
+        try:
+            validated_assertion = self.user_service.verify_webauthn_assertion(
+                self.user_id,
+                assertion_dict,
+                challenge=self.challenge,
+                origin=self.origin,
+                icon_url=self.icon_url,
+                rp_id=self.rp_id,
+            )
+        except webauthn.AuthenticationRejectedException as e:
+            raise wtforms.validators.ValidationError(str(e))
+
+        self.validated_assertion = validated_assertion
 
 
 class RequestPasswordResetForm(forms.Form):

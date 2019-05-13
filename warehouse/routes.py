@@ -98,6 +98,16 @@ def includeme(config):
     )
     config.add_route("accounts.login", "/account/login/", domain=warehouse)
     config.add_route("accounts.two-factor", "/account/two-factor/", domain=warehouse)
+    config.add_route(
+        "accounts.webauthn-authenticate.options",
+        "/accounts/webauthn-authenticate/options",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.webauthn-authenticate.validate",
+        "/accounts/webauthn-authenticate/validate",
+        domain=warehouse,
+    )
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route("accounts.register", "/account/register/", domain=warehouse)
     config.add_route(

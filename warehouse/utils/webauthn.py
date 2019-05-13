@@ -82,12 +82,15 @@ def get_credential_options(user, *, challenge, rp_name, rp_id, icon_url):
     return options.registration_dict
 
 
-def get_assertion_options(user, *, challenge):
+def get_assertion_options(user, *, challenge, icon_url, rp_id):
     """
     Returns a dictionary of options for assertion retrieval
     on the client side.
     """
-    options = pywebauthn.WebAuthnAssertionOptions(_get_webauthn_user(user), challenge)
+    options = pywebauthn.WebAuthnAssertionOptions(
+        _get_webauthn_user(user, icon_url=icon_url, rp_id=rp_id),
+        challenge
+    )
 
     return options.assertion_dict
 
@@ -113,7 +116,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
         raise RegistrationRejectedException(str(e))
 
 
-def verify_assertion_response(response, challenge, user, *, origin):
+def verify_assertion_response(response, *, challenge, user, origin, icon_url, rp_id):
     """
     Validates the challenge and assertion information
     sent from the client during authentication.
@@ -122,7 +125,10 @@ def verify_assertion_response(response, challenge, user, *, origin):
     Raises AuthenticationRejectedException on failure.
     """
     response = pywebauthn.WebAuthnAssertionResponse(
-        _get_webauthn_user(user), response, challenge, origin
+        _get_webauthn_user(user, icon_url=icon_url, rp_id=rp_id),
+        response,
+        challenge,
+        origin,
     )
     try:
         return response.verify()

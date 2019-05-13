@@ -13,7 +13,6 @@
 import io
 
 from collections import defaultdict
-import json
 
 import pyqrcode
 
@@ -26,7 +25,6 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import Email, User
@@ -450,9 +448,9 @@ class ProvisionWebAuthnViews:
         route_name="manage.account.webauthn-provision.options",
         renderer="json",
     )
-    def generate_webauthn_credential_options(self):
-        credential_options = webauthn.get_credential_options(
-            self.request.user,
+    def webauthn_provision_options(self):
+        return self.user_service.get_webauthn_credential_options(
+            self.request.user.id,
             challenge=self.request.session.get_webauthn_challenge(),
             rp_name=self.request.registry.settings["site.name"],
             rp_id=self.request.domain,
@@ -460,8 +458,6 @@ class ProvisionWebAuthnViews:
                 "warehouse.domain", self.request.domain
             ),
         )
-
-        return credential_options
 
     @view_config(
         request_method="POST",

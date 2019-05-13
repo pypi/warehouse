@@ -48,6 +48,7 @@ from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email_verification_email, send_password_reset_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
+import warehouse.utils.webauthn as webauthn
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
@@ -200,7 +201,7 @@ def two_factor(request):
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
-    if not userid:
+    if userid is None:
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     redirect_to = two_factor_data.get("redirect_to")
@@ -248,6 +249,48 @@ def two_factor(request):
             return resp
 
     return two_factor_forms
+
+
+@view_config(
+    uses_session=True,
+    request_method="GET",
+    route_name="accounts.webauthn-authenticate.options",
+    renderer="json",
+)
+def webauthn_authentication_options(request):
+    token_service = request.find_service(ITokenService, name="two_factor")
+
+    try:
+        two_factor_data = token_service.loads(request.query_string)
+    except TokenException:
+        request.session.flash("Invalid or expired two factor login.", queue="error")
+        return {"fail": {"errors": ["Invalid two factor token"]}}
+
+    userid = two_factor_data.get("userid")
+    if userid is None:
+        request.session.flash("Invalid two factor login.", queue="error")
+        return {"fail": {"errors": ["Invalid two factor token"]}}
+
+    user_service = request.find_service(IUserService, context=None)
+    return user_service.get_webauthn_assertion_options(
+        userid,
+        challenge=request.session.get_webauthn_challenge(),
+        icon_url=request.registry.settings.get(
+            "warehouse.domain", request.domain
+        ),
+        rp_id=request.domain,
+    )
+
+
+@view_config(
+    uses_session=True,
+    request_method="POST",
+    route_name="accounts.webauthn-authenticate.validate",
+    renderer="json"
+)
+def webauthn_authentication_validate(request):
+
+    return {}
 
 
 @view_config(

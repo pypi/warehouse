@@ -49,6 +49,10 @@ const webAuthnBtoA = (encoded) => {
     return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
+const transformAssertion = (assertion) => {
+
+}
+
 const transformCredentialOptions = (credentialOptions) => {
     let {challenge, user} = credentialOptions;
     user.id = Uint8Array.from(credentialOptions.user.id, c => c.charCodeAt(0));
@@ -92,6 +96,22 @@ const postCredential = async (credential, token) => {
     return await resp.json();
 }
 
+const postAssertion = async (assertion, token) => {
+    const formData = new FormData();
+    formData.set("credential", JSON.stringify(assertion));
+    formData.set("csrf_token", token);
+
+    const resp = await fetch(
+        "/accounts/webauthn-authenticate/validate" + window.location.search, {
+            method: "POST",
+            cache: "no-cache",
+            body: formData,
+        }
+    );
+
+    return await resp.json();
+}
+
 export const ProvisionWebAuthn = () => {
     doWebAuthn("webauthn-provision-begin", async (csrfToken) => {
         // TODO(ww): Should probably find a way to use the route string here,
@@ -105,7 +125,7 @@ export const ProvisionWebAuthn = () => {
         const credentialOptions = await resp.json();
         const transformedOptions = transformCredentialOptions(credentialOptions);
         const credential = await navigator.credentials.create({
-            publicKey: transformedOptions
+            publicKey: transformedOptions,
         });
 
         const transformedCredential = transformCredential(credential);
@@ -121,6 +141,30 @@ export const ProvisionWebAuthn = () => {
 
 export const AuthenticateWebAuthn = () => {
     doWebAuthn("webauthn-auth-begin", async (csrfToken) => {
-        return;
+        const resp = await fetch(
+            "/accounts/webauthn-authenticate/options" + window.location.search, {
+                cache: "no-cache",
+            }
+        );
+
+        const assertionOptions = await resp.json();
+        if (assertionOptions.fail) {
+            window.location.replace("/accounts/login");
+            return;
+        }
+
+        const assertion = await navigator.credentials.get({
+            publicKey: assertionOptions,
+        });
+        const transformedAssertion = transformAssertion(assertion);
+
+        const status = await postAssertion(transformAssertion, csrfToken);
+        if (status.fail) {
+            populateWebAuthnErrorList(status.fail.errors);
+            return;
+        }
+
+        // TODO(ww): Respect redirect_to.
+        window.location.replace("/");
     });
 };
