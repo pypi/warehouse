@@ -508,15 +508,15 @@ class TestPasswordCompromisedEmail:
             primary_email=pretend.stub(email="email@example.com", verified=verified),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/password-compromised/subject.txt"
+            "email/password-compromised-hibp/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/password-compromised/body.txt"
+            "email/password-compromised-hibp/body.txt"
         )
         body_renderer.string_response = "Email Body"
         html_renderer = pyramid_config.testing_add_renderer(
-            "email/password-compromised/body.html"
+            "email/password-compromised-hibp/body.html"
         )
         html_renderer.string_response = "Email HTML Body"
 
@@ -526,7 +526,7 @@ class TestPasswordCompromisedEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_password_compromised_email(pyramid_request, stub_user)
+        result = email.send_password_compromised_email_hibp(pyramid_request, stub_user)
 
         assert result == {}
         assert pyramid_request.task.calls == [pretend.call(send_email)]
