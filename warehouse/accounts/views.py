@@ -48,7 +48,6 @@ from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email_verification_email, send_password_reset_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
-import warehouse.utils.webauthn as webauthn
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
@@ -192,18 +191,13 @@ def two_factor(request):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
-    token_service = request.find_service(ITokenService, name="two_factor")
-
     try:
-        two_factor_data = token_service.loads(request.query_string)
+        two_factor_data = _get_two_factor_data(request)
     except TokenException:
         request.session.flash("Invalid or expired two factor login.", queue="error")
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
-    if userid is None:
-        return HTTPSeeOther(request.route_path("accounts.login"))
-
     redirect_to = two_factor_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
@@ -222,11 +216,6 @@ def two_factor(request):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            # If the user-originating redirection url is not safe, then
-            # redirect to the index instead.
-            if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
-                redirect_to = request.route_path("manage.projects")
-
             _login_user(request, userid)
 
             resp = HTTPSeeOther(redirect_to)
@@ -252,18 +241,13 @@ def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
         return {"fail": {"errors": ["Already authenticated"]}}
 
-    token_service = request.find_service(ITokenService, name="two_factor")
     try:
-        two_factor_data = token_service.loads(request.query_string)
+        two_factor_data = _get_two_factor_data(request)
     except TokenException:
         request.session.flash("Invalid or expired two factor login.", queue="error")
         return {"fail": {"errors": ["Invalid two factor token"]}}
 
     userid = two_factor_data.get("userid")
-    if userid is None:
-        request.session.flash("Invalid two factor login.", queue="error")
-        return {"fail": {"errors": ["Invalid two factor token"]}}
-
     user_service = request.find_service(IUserService, context=None)
     return user_service.get_webauthn_assertion_options(
         userid,
@@ -288,18 +272,14 @@ def webauthn_authentication_validate(request):
     if request.authenticated_userid is not None:
         return {"fail": {"errors": ["Already authenticated"]}}
 
-    token_service = request.find_service(ITokenService, name="two_factor")
     try:
-        two_factor_data = token_service.loads(request.query_string)
+        two_factor_data = _get_two_factor_data(request)
     except TokenException:
         request.session.flash("Invalid or expired two factor login.", queue="error")
         return {"fail": {"errors": ["Invalid two factor token"]}}
 
     redirect_to = two_factor_data.get("redirect_to")
     userid = two_factor_data.get("userid")
-    if userid is None:
-        request.session.flash("Invalid two factor login.", queue="error")
-        return {"fail": {"errors": ["Invalid two factor token"]}}
 
     user_service = request.find_service(IUserService, context=None)
     form = WebAuthnAuthenticationForm(
@@ -320,10 +300,16 @@ def webauthn_authentication_validate(request):
         user = user_service.get_user(userid)
         user.webauthn.sign_count = form.sign_count
 
-        if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
-            redirect_to = request.route_path("manage.projects")
-
         _login_user(request, userid)
+
+        request.response.set_cookie(
+            USER_ID_INSECURE_COOKIE,
+            hashlib.blake2b(
+                str(userid).encode("ascii"), person=b"warehouse.userid"
+            )
+            .hexdigest()
+            .lower(),
+        )
         return {
             "success": "Successful WebAuthn assertion.",
             "redirect_to": redirect_to,
@@ -596,6 +582,22 @@ def verify_email(request):
         f"Email address {email.email} verified. {confirm_message}.", queue="success"
     )
     return HTTPSeeOther(request.route_path("manage.account"))
+
+
+def _get_two_factor_data(request, _redirect_to="index"):
+    token_service = request.find_service(ITokenService, name="two_factor")
+    two_factor_data = token_service.loads(request.query_string)
+
+    if two_factor_data.get("userid") is None:
+        raise TokenInvalid
+
+    # If the user-originating redirection url is not safe, then
+    # redirect to the index instead.
+    redirect_to = two_factor_data.get("redirect_to")
+    if redirect_to is None or not is_safe_url(url=redirect_to, host=request.host):
+        two_factor_data["redirect_to"] = _redirect_to
+
+    return two_factor_data
 
 
 def _login_user(request, userid):
