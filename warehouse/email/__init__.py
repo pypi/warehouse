@@ -159,6 +159,11 @@ def send_password_change_email(request, user):
     return {"username": user.username}
 
 
+@_email("password-compromised", allow_unverified=True)
+def send_password_compromised_email(request, user):
+    return {}
+
+
 @_email("password-compromised-hibp", allow_unverified=True)
 def send_password_compromised_email_hibp(request, user):
     return {}
