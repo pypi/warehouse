@@ -13,7 +13,7 @@
 webauthn model
 
 Revision ID: af7dca2bb2fe
-Revises: 42f0409bb702
+Revises: 9ca7d5668af4
 Create Date: 2019-05-06 15:58:35.922060
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = "af7dca2bb2fe"
-down_revision = "42f0409bb702"
+down_revision = "9ca7d5668af4"
 
 
 def upgrade():
