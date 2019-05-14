@@ -220,11 +220,7 @@ def two_factor(request):
         two_factor_state["has_webauthn"] = True
 
     if request.method == "POST":
-        if request.POST.get("method", "totp") == "totp":
-            form = two_factor_state["totp_form"]
-        else:
-            form = two_factor_state["webauthn_form"]
-
+        form = two_factor_state["totp_form"]
         if form.validate():
             # If the user-originating redirection url is not safe, then
             # redirect to the index instead.
@@ -299,6 +295,7 @@ def webauthn_authentication_validate(request):
         request.session.flash("Invalid or expired two factor login.", queue="error")
         return {"fail": {"errors": ["Invalid two factor token"]}}
 
+    redirect_to = two_factor_data.get("redirect_to")
     userid = two_factor_data.get("userid")
     if userid is None:
         request.session.flash("Invalid two factor login.", queue="error")
@@ -322,8 +319,15 @@ def webauthn_authentication_validate(request):
     if form.validate():
         user = user_service.get_user(userid)
         user.webauthn.sign_count = form.sign_count
+
+        if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
+            redirect_to = request.route_path("manage.projects")
+
         _login_user(request, userid)
-        return {"success": "Successful WebAuthn assertion."}
+        return {
+            "success": "Successful WebAuthn assertion.",
+            "redirect_to": redirect_to,
+        }
 
     errors = [str(error) for error in form.credential.errors]
     return {

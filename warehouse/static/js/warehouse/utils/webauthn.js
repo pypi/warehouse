@@ -207,7 +207,6 @@ export const AuthenticateWebAuthn = () => {
             return;
         }
 
-        // TODO(ww): Respect redirect_to.
-        window.location.replace("/");
+        window.location.replace(status.redirect_to);
     });
 };
