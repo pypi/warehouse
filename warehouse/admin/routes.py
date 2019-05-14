@@ -32,7 +32,9 @@ def includeme(config):
         "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
     )
     config.add_route(
-        "admin.user.reset_password", "/admin/users/{user_id}/reset_password/", domain=warehouse
+        "admin.user.reset_password",
+        "/admin/users/{user_id}/reset_password/",
+        domain=warehouse,
     )
 
     # Project related Admin pages
