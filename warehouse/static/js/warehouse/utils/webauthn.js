@@ -45,12 +45,55 @@ const doWebAuthn = (buttonId, func) => {
     webAuthnButton.addEventListener("click", async () => { func(csrfToken); });
 }
 
+const hexEncode = (buf) => {
+    return Array.from(buf).map((x) => {
+        return ("0" + x.toString(16)).substr(-2);
+    }).join("");
+}
+
 const webAuthnBtoA = (encoded) => {
     return btoa(encoded).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
-const transformAssertion = (assertion) => {
+const webAuthnBase64Normalize = (encoded) => {
+    return encoded.replace(/\_/g, "/").replace(/\-/g, "+");
+}
 
+const transformAssertionOptions = (assertionOptions) => {
+    let {challenge, allowCredentials} = assertionOptions;
+
+    challenge = Uint8Array.from(challenge, c => c.charCodeAt(0));
+    allowCredentials = allowCredentials.map(credentialDescriptor => {
+        let {id} = credentialDescriptor;
+        id = webAuthnBase64Normalize(id);
+        id = Uint8Array.from(atob(id), c => c.charCodeAt(0));
+        return Object.assign({}, credentialDescriptor, {id});
+    });
+
+    const transformedOptions = Object.assign(
+        {},
+        assertionOptions,
+        {challenge, allowCredentials});
+
+    return transformedOptions;
+}
+
+const transformAssertion = (assertion) => {
+    const authData = new Uint8Array(assertion.response.authenticatorData);
+    const clientDataJSON = new Uint8Array(assertion.response.clientDataJSON);
+    const rawId = new Uint8Array(assertion.rawId);
+    const sig = new Uint8Array(assertion.response.signature);
+    const assertionClientExtensions = assertion.getClientExtensionResults();
+
+    return {
+        id: assertion.id,
+        rawId: webAuthnBtoA(rawId),
+        type: assertion.type,
+        authData: webAuthnBtoA(String.fromCharCode(...authData)),
+        clientData: webAuthnBtoA(String.fromCharCode(...clientDataJSON)),
+        signature: hexEncode(sig),
+        assertionClientExtensions: JSON.stringify(assertionClientExtensions),
+    };
 }
 
 const transformCredentialOptions = (credentialOptions) => {
@@ -67,7 +110,6 @@ const transformCredential = (credential) => {
     const attObj = new Uint8Array(credential.response.attestationObject);
     const clientDataJSON = new Uint8Array(credential.response.clientDataJSON);
     const rawId = new Uint8Array(credential.rawId);
-
     const registrationClientExtensions = credential.getClientExtensionResults();
 
     return {
@@ -127,8 +169,8 @@ export const ProvisionWebAuthn = () => {
         const credential = await navigator.credentials.create({
             publicKey: transformedOptions,
         });
-
         const transformedCredential = transformCredential(credential);
+
         const status = await postCredential(transformedCredential, csrfToken);
         if (status.fail) {
             populateWebAuthnErrorList(status.fail.errors);
@@ -153,12 +195,13 @@ export const AuthenticateWebAuthn = () => {
             return;
         }
 
+        const transformedOptions = transformAssertionOptions(assertionOptions);
         const assertion = await navigator.credentials.get({
-            publicKey: assertionOptions,
+            publicKey: transformedOptions,
         });
         const transformedAssertion = transformAssertion(assertion);
 
-        const status = await postAssertion(transformAssertion, csrfToken);
+        const status = await postAssertion(transformedAssertion, csrfToken);
         if (status.fail) {
             populateWebAuthnErrorList(status.fail.errors);
             return;

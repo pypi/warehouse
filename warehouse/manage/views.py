@@ -483,8 +483,8 @@ class ProvisionWebAuthnViews:
         if form.validate():
             self.user_service.add_webauthn(
                 self.request.user.id,
-                credential_id=form.validated_credential.credential_id,
-                public_key=form.validated_credential.public_key,
+                credential_id=form.validated_credential.credential_id.decode(),
+                public_key=form.validated_credential.public_key.decode(),
                 sign_count=form.validated_credential.sign_count,
             )
             self.request.session.flash(

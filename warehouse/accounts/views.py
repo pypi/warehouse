@@ -208,27 +208,22 @@ def two_factor(request):
 
     user_service = request.find_service(IUserService, context=None)
 
-    two_factor_forms = {}
+    two_factor_state = {}
     if user_service.has_totp(userid):
-        two_factor_forms["totp_form"] = TOTPAuthenticationForm(
+        two_factor_state["totp_form"] = TOTPAuthenticationForm(
             request.POST,
             user_id=userid,
             user_service=user_service,
             check_password_metrics_tags=["method:auth", "auth_method:login_form"],
         )
     if user_service.has_webauthn(userid):
-        two_factor_forms["webauthn_form"] = WebAuthnAuthenticationForm(
-            request.POST,
-            user_id=userid,
-            user_service=user_service,
-            check_password_metrics_tags=["method:auth", "auth_method:login_form"],
-        )
+        two_factor_state["has_webauthn"] = True
 
     if request.method == "POST":
         if request.POST.get("method", "totp") == "totp":
-            form = two_factor_forms["totp_form"]
+            form = two_factor_state["totp_form"]
         else:
-            form = two_factor_forms["webauthn_form"]
+            form = two_factor_state["webauthn_form"]
 
         if form.validate():
             # If the user-originating redirection url is not safe, then
@@ -248,7 +243,7 @@ def two_factor(request):
 
             return resp
 
-    return two_factor_forms
+    return two_factor_state
 
 
 @view_config(
@@ -258,8 +253,10 @@ def two_factor(request):
     renderer="json",
 )
 def webauthn_authentication_options(request):
-    token_service = request.find_service(ITokenService, name="two_factor")
+    if request.authenticated_userid is not None:
+        return {"fail": {"errors": ["Already authenticated"]}}
 
+    token_service = request.find_service(ITokenService, name="two_factor")
     try:
         two_factor_data = token_service.loads(request.query_string)
     except TokenException:
@@ -283,14 +280,57 @@ def webauthn_authentication_options(request):
 
 
 @view_config(
+    require_csrf=True,
+    require_methods=False,
     uses_session=True,
     request_method="POST",
+    request_param=WebAuthnAuthenticationForm.__params__,
     route_name="accounts.webauthn-authenticate.validate",
     renderer="json"
 )
 def webauthn_authentication_validate(request):
+    if request.authenticated_userid is not None:
+        return {"fail": {"errors": ["Already authenticated"]}}
 
-    return {}
+    token_service = request.find_service(ITokenService, name="two_factor")
+    try:
+        two_factor_data = token_service.loads(request.query_string)
+    except TokenException:
+        request.session.flash("Invalid or expired two factor login.", queue="error")
+        return {"fail": {"errors": ["Invalid two factor token"]}}
+
+    userid = two_factor_data.get("userid")
+    if userid is None:
+        request.session.flash("Invalid two factor login.", queue="error")
+        return {"fail": {"errors": ["Invalid two factor token"]}}
+
+    user_service = request.find_service(IUserService, context=None)
+    form = WebAuthnAuthenticationForm(
+        **request.POST,
+        user_id=userid,
+        user_service=user_service,
+        challenge=request.session.get_webauthn_challenge(),
+        origin=request.host_url,
+        icon_url=request.registry.settings.get(
+            "warehouse.domain", request.domain
+        ),
+        rp_id=request.domain,
+    )
+
+    request.session.clear_webauthn_challenge()
+
+    if form.validate():
+        user = user_service.get_user(userid)
+        user.webauthn.sign_count = form.sign_count
+        _login_user(request, userid)
+        return {"success": "Successful WebAuthn assertion."}
+
+    errors = [str(error) for error in form.credential.errors]
+    return {
+        "fail": {
+            "errors": errors,
+        }
+    }
 
 
 @view_config(

@@ -127,7 +127,7 @@ def verify_assertion_response(response, *, challenge, user, origin, icon_url, rp
     response = pywebauthn.WebAuthnAssertionResponse(
         _get_webauthn_user(user, icon_url=icon_url, rp_id=rp_id),
         response,
-        challenge,
+        _webauthn_b64encode(challenge.encode()).decode(),
         origin,
     )
     try:

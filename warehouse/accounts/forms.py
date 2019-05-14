@@ -266,6 +266,13 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
 class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticationForm):
     __params__ = ["credential"]
 
+    def __init__(self, *args, challenge, origin, icon_url, rp_id, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.challenge = challenge
+        self.origin = origin
+        self.icon_url = icon_url
+        self.rp_id = rp_id
+
     def validate_credential(self, field):
         try:
             assertion_dict = json.loads(field.data.encode("utf8"))
@@ -275,7 +282,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             )
 
         try:
-            validated_assertion = self.user_service.verify_webauthn_assertion(
+            sign_count = self.user_service.verify_webauthn_assertion(
                 self.user_id,
                 assertion_dict,
                 challenge=self.challenge,
@@ -286,7 +293,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         except webauthn.AuthenticationRejectedException as e:
             raise wtforms.validators.ValidationError(str(e))
 
-        self.validated_assertion = validated_assertion
+        self.sign_count = sign_count
 
 
 class RequestPasswordResetForm(forms.Form):
