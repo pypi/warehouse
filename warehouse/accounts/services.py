@@ -342,17 +342,21 @@ class DatabaseUserService:
         )
 
     def verify_webauthn_credential(self, credential, *, challenge, rp_id, origin):
+        """
+        Checks whether the given credential is valid, i.e. suitable for generating
+        assertions during authentication.
+
+        Returns the validated credential on success, raises
+        webauthn.RegistrationRejectedException on failure.
+        """
         validated_credential = webauthn.verify_registration_response(
-            credential,
-            challenge=challenge,
-            rp_id=rp_id,
-            origin=origin,
+            credential, challenge=challenge, rp_id=rp_id, origin=origin
         )
 
         webauthn_cred = (
-            self.db.query(WebAuthn).filter_by(
-                credential_id=validated_credential.credential_id.decode()
-            ).first()
+            self.db.query(WebAuthn)
+            .filter_by(credential_id=validated_credential.credential_id.decode())
+            .first()
         )
 
         if webauthn_cred is not None:
@@ -360,7 +364,16 @@ class DatabaseUserService:
 
         return validated_credential
 
-    def verify_webauthn_assertion(self, user_id, assertion, *, challenge, origin, icon_url, rp_id):
+    def verify_webauthn_assertion(
+        self, user_id, assertion, *, challenge, origin, icon_url, rp_id
+    ):
+        """
+        Checks whether the given assertion was produced by the given user's WebAuthn
+        device.
+
+        Returns the updated signage count on success, raises
+        webauthn.AuthenticationRejectedException on failure.
+        """
         user = self.get_user(user_id)
 
         return webauthn.verify_assertion_response(

@@ -137,6 +137,40 @@ class IUserService(Interface):
         Returns None if the user already has this credential.
         """
 
+    def get_webauthn_credential_options(
+        user_id, *, challenge, rp_name, rp_id, icon_url
+    ):
+        """
+        Returns a dictionary of credential options suitable for beginning the WebAuthn
+        provisioning process for the given user.
+        """
+
+    def get_webauthn_assertion_options(user_id, *, challenge, icon_url, rp_id):
+        """
+        Returns a dictionary of assertion options suitable for beginning the WebAuthn
+        authentication process for the given user.
+        """
+
+    def verify_webauthn_credential(credential, *, challenge, rp_id, origin):
+        """
+        Checks whether the given credential is valid, i.e. suitable for generating
+        assertions during authentication.
+
+        Returns the validated credential on success, raises
+        webauthn.RegistrationRejectedException on failure.
+        """
+
+    def verify_webauthn_assertion(
+        user_id, assertion, *, challenge, origin, icon_url, rp_id
+    ):
+        """
+        Checks whether the given assertion was produced by the given user's WebAuthn
+        device.
+
+        Returns the updated signage count on success, raises
+        webauthn.AuthenticationRejectedException on failure.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
