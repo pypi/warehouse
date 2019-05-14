@@ -51,11 +51,18 @@ from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
+    send_collaborator_added_email,
     send_email_verification_email,
     send_password_change_email,
     send_password_reset_email,
 )
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import (
+    JournalEntry,
+    Project,
+    Release,
+    Role,
+    RoleInvitationStatus,
+)
 from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.http import is_safe_url
 
@@ -735,6 +742,78 @@ def _get_two_factor_data(request, _redirect_to="/"):
         two_factor_data["redirect_to"] = _redirect_to
 
     return two_factor_data
+
+
+@view_config(
+    route_name="accounts.verify-project-role",
+    uses_session=True,
+    permission="manage:user",
+)
+def verify_project_role(request):
+    token_service = request.find_service(ITokenService, name="email")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.account"))
+
+    try:
+        token = request.params.get("token")
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token: request a new project role invite")
+    except TokenInvalid:
+        return _error("Invalid token: request a new project role invite")
+    except TokenMissing:
+        return _error("Invalid token: no token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get("action") != "email-project-role-verify":
+        return _error("Invalid token: not an email verification token")
+
+    current_user = request.user
+    try:
+        # role_id is filtered for uniqueness
+        # user_id is filtered for index
+        role = (
+            request.db.query(Role)
+            .filter(Role.user_id == current_user.id, Role.id == data["role_id"])
+            .one()
+        )
+    except NoResultFound:
+        return _error("Role not found")
+
+    if role.invitation_status != RoleInvitationStatus.Pending.value:
+        return _error("Role already assigned")
+
+    role.invitation_status = RoleInvitationStatus.Accepted.value
+
+    request.db.add(
+        JournalEntry(
+            name=role.project.name,
+            action=f"approved {current_user.name}",
+            submitted_by=current_user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    owner_roles = request.db.query(Role).filter(
+        Role.role_name == "Owner",
+        Role.project == role.project,
+        Role.user != current_user,
+    )
+    owner_users = {owner.user for owner in owner_roles}
+
+    send_collaborator_added_email(
+        request,
+        owner_users,
+        user=current_user,
+        submitter=current_user,
+        project_name=role.project.name,
+        role=role.role_name,
+    )
+
+    request.session.flash(f"Role successfully added.", queue="success")
+    return HTTPSeeOther(request.route_path("manage.projects"))
 
 
 def _login_user(request, userid, two_factor_method=None):

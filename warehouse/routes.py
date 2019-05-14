@@ -158,6 +158,11 @@ def includeme(config):
     config.add_route(
         "accounts.verify-email", "/account/verify-email/", domain=warehouse
     )
+    config.add_route(
+        "accounts.verify-project-role",
+        "/account/verify-project-role/",
+        domain=warehouse,
+    )
 
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)

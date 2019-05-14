@@ -3420,14 +3420,13 @@ class TestManageProjectRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        send_collaborator_added_email = pretend.call_recorder(lambda r, u, **k: None)
-        monkeypatch.setattr(
-            views, "send_collaborator_added_email", send_collaborator_added_email
+        send_project_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
         )
-
-        send_added_as_collaborator_email = pretend.call_recorder(lambda r, u, **k: None)
         monkeypatch.setattr(
-            views, "send_added_as_collaborator_email", send_added_as_collaborator_email
+            views,
+            "send_project_role_verification_email",
+            send_project_role_verification_email,
         )
 
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
@@ -3441,28 +3440,7 @@ class TestManageProjectRoles:
             pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Added collaborator 'new_user'", queue="success")
-        ]
-
-        assert send_collaborator_added_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_2},
-                user=new_user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=form_obj.role_name.data,
-            )
-        ]
-
-        assert send_added_as_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                new_user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=form_obj.role_name.data,
-            )
+            pretend.call("Invitation sent", queue="success")
         ]
 
         # Only one role is created
@@ -3474,14 +3452,16 @@ class TestManageProjectRoles:
             "form": form_obj,
         }
 
-        entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
-        )
-
-        assert entry.name == project.name
-        assert entry.action == "add Owner new_user"
-        assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert send_project_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=owner_2_role.role_name,
+                initiator_username=db_request.user.username,
+                project_name=project.name,
+                role_id=role.id,
+            )
+        ]
 
     def test_post_duplicate_role(self, db_request):
         project = ProjectFactory.create(name="foobar")

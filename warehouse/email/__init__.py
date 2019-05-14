@@ -219,6 +219,30 @@ def send_collaborator_added_email(
     }
 
 
+@_email("verify-project-role", allow_unverified=True)
+def send_project_role_verification_email(
+    request, user, desired_role, initiator_username, project_name, role_id
+):
+    token_service = request.find_service(ITokenService, name="email")
+    token = token_service.dumps(
+        {
+            "action": "email-project-role-verify",
+            "desired_role": desired_role,
+            "email.id": user.id,
+            "role_id": role_id,
+        }
+    )
+
+    return {
+        "desired_role": desired_role,
+        "email_address": user.email,
+        "initiator_username": initiator_username,
+        "n_hours": token_service.max_age // 60 // 60,
+        "project_name": project_name,
+        "token": token,
+    }
+
+
 @_email("added-as-collaborator")
 def send_added_as_collaborator_email(request, user, *, submitter, project_name, role):
     return {"project": project_name, "submitter": submitter.username, "role": role}

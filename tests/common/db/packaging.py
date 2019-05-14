@@ -29,6 +29,7 @@ from warehouse.packaging.models import (
     ProjectEvent,
     Release,
     Role,
+    RoleInvitationStatus,
 )
 from warehouse.utils import readme
 
@@ -113,6 +114,7 @@ class RoleFactory(WarehouseFactory):
     role_name = "Owner"
     user = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
+    invitation_status = RoleInvitationStatus.Accepted.value
 
 
 class DependencyFactory(WarehouseFactory):

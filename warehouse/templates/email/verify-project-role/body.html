@@ -1,0 +1,24 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.html" %}
+
+{% block content %}
+<p>{{ initiator_username }} has invited you (<code>{{ email_address }}</code>) to join their PyPI project "{{ project_name }}".</p>
+
+<p>If you wish to accept this invitation, <a href="{{ request.route_url('accounts.verify-project-role', _query={'token': token}) }}">click this link</a></p>
+
+<p>Otherwise, you can safely ignore this email.</p>
+
+<p>This link will expire in {{ n_hours }} hours.</p>
+{% endblock %}

@@ -166,6 +166,11 @@ def test_routes(warehouse):
         pretend.call(
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
+        pretend.call(
+            "accounts.verify-project-role",
+            "/account/verify-project-role/",
+            domain=warehouse,
+        ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
             "manage.account.totp-provision",

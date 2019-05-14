@@ -96,12 +96,45 @@
                 title="{% trans user=role.user.username %}Remove {{ user }} from this project{% endtrans %}"
               {% endif %}
             >
-              {% trans %}Remove{% endtrans %}
+            {% if role.invitation_status == RoleInvitationStatus.Pending.value %}
+              Revoke invitation
+            {% else %}
+              Remove
+            {% endif %}
             </button>
           </form>
         </td>
       </tr>
     {% endfor %}
+      <form method="POST">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <tr>
+          <td class="table__user">
+            <label for="username" class="sr-only">User's username</label>
+            {{ form.username(placeholder="User's username") }}
+          </td>
+          <td class="table__role">
+            <label for="role_name" class="sr-only">Role name</label>
+            {{ form.role_name }}
+          </td>
+          <td class="table__action">
+            <input type="submit" value="Invite" class="button button--primary">
+          </td>
+        </tr>
+        {% if form.errors %}
+          <tr class="formset-table__errors">
+            <td colspan="3">
+              <ul class="form-errors form-errors--full-width">
+              {% for field, errors in form.errors|dictsort if errors %}
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        {% endif %}
+      </form>
     </tbody>
   </table>
 
