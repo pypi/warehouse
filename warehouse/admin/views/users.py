@@ -22,7 +22,9 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import DisableReason, Email, User
+from warehouse.email import send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -207,3 +209,25 @@ def user_delete(request):
     )
     request.session.flash(f"Nuked user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.list"))
+
+
+@view_config(
+    route_name="admin.user.reset_password",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def user_reset_password(request):
+    user = request.db.query(User).get(request.matchdict["user_id"])
+
+    if user.username != request.params.get("username"):
+        request.session.flash(f"Wrong confirmation input", queue="error")
+        return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+
+    login_service = request.find_service(IUserService, context=None)
+    send_password_compromised_email(request, user)
+    login_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
+
+    request.session.flash(f"Reset password for {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))

@@ -18,7 +18,7 @@ import wtforms.fields.html5
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
-from warehouse.email import send_password_compromised_email
+from warehouse.email import send_password_compromised_email_hibp
 from warehouse.utils.otp import TOTP_LENGTH
 
 
@@ -224,7 +224,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 field.data, tags=["method:auth", "auth_method:login_form"]
             ):
                 user = self.user_service.get_user(userid)
-                send_password_compromised_email(self.request, user)
+                send_password_compromised_email_hibp(self.request, user)
                 self.user_service.disable_password(
                     user.id, reason=DisableReason.CompromisedPassword
                 )
