@@ -113,6 +113,40 @@
                 </div>
               </div>
             </li>
+            <li>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
+                <i class="icon fa fa-bomb"></i> Reset password
+              </button>
+              <div class="modal fade" id="pwresetModal" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.user.reset_password', user_id=user.id) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLabel">Reset password for {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will permanently remove user's current password and cannot be undone.
+                        </p>
+                        <hr>
+                        <p>
+                          Type the username '{{ user.username }}' to confirm:
+                        </p>
+                        <input type="text" name="username" placeholder="{{ user.username }}">
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Reset password</button>
+                        </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </li>
           </ul>
         </div>
       </div>
