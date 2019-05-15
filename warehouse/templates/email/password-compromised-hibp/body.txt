@@ -1,0 +1,47 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.txt" %}
+
+
+{% block content %}
+# What?
+
+During your recent attempt to log in or upload to PyPI, we noticed your password appears
+in public data breaches. To protect you and other users, we have preemptively reset your
+password and you will no longer be able to log in or upload to PyPI with your existing
+password.
+
+PyPI itself has not suffered a breach. This is a protective measure to reduce the risk
+of credential stuffing (https://www.owasp.org/index.php/Credential_stuffing) attacks
+against PyPI and its users.
+
+
+# What should I do?
+
+To regain access to your account, reset your password on PyPI
+({{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}). We also recommend that you go to
+HaveIBeenPwned (https://haveibeenpwned.com/) and check your other passwords and get
+yourself familiar with good password practices.
+
+
+# How do you know this?
+
+We use a free security service from HaveIBeenPwned. When registering, authenticating, or
+updating your password, we generate a SHA1 hash of your password and use the first 5
+characters of the hash to decide if the password is compromised. The plaintext password
+is never stored by PyPI or sent to HaveIBeenPwned.
+
+For more information, see {{ request.help_url(_anchor='compromised-password') }}. For
+help, you can email admin@pypi.org to communicate with the PyPI administrators.
+{% endblock %}
