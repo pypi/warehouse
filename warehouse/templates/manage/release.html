@@ -122,9 +122,9 @@
     {% if files %}
       Deleting will irreversibly delete this release along with {{ files|length() }}
       {% trans count=files|length %}
-        file
+        file.
       {% pluralize %}
-        files
+        files.
       {% endtrans %}
     {% else %}
       Deleting will irreversibly delete this release.
