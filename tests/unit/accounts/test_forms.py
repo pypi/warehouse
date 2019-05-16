@@ -555,22 +555,22 @@ class TestResetPasswordForm:
         )
 
 
-class TestTwoFactorForm:
+class TestTOTPAuthenticationForm:
     def test_creation(self):
         user_id = pretend.stub()
         user_service = pretend.stub()
-        form = forms.TwoFactorForm(user_id=user_id, user_service=user_service)
+        form = forms.TOTPAuthenticationForm(user_id=user_id, user_service=user_service)
 
         assert form.user_service is user_service
 
     def test_totp_secret_exists(self):
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": ""}, user_id=pretend.stub(), user_service=pretend.stub()
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "This field is required."
 
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": "not_a_real_value"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -578,7 +578,7 @@ class TestTwoFactorForm:
         assert not form.validate()
         assert form.totp_value.errors.pop() == "TOTP code must be 6 digits."
 
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: False),
@@ -586,7 +586,7 @@ class TestTwoFactorForm:
         assert not form.validate()
         assert form.totp_value.errors.pop() == "Invalid TOTP code."
 
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
