@@ -31,7 +31,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.email import send_password_compromised_email
+from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
@@ -72,7 +72,7 @@ def _basic_auth_login(username, password, request):
             if breach_service.check_password(
                 password, tags=["method:auth", "auth_method:basic"]
             ):
-                send_password_compromised_email(request, user)
+                send_password_compromised_email_hibp(request, user)
                 login_service.disable_password(
                     user.id, reason=DisableReason.CompromisedPassword
                 )

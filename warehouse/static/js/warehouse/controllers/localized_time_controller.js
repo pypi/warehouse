@@ -32,10 +32,17 @@ export default class extends Controller {
     let startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
     if (this.data.get("relative") == "true" && localTime > startOfDay) {
-      this.element.innerHTML = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
+      this.element.innerText = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
     } else {
       const options = { month: "short", day: "numeric", year: "numeric" };
-      this.element.innerHTML = localTime.toLocaleDateString("en-US", options);
+      this.element.innerText = localTime.toLocaleDateString("en-US", options);
     }
+
+    if(this.element.classList.contains("tooltipped")) {
+      const options = { hour12: false, timeZoneName: "short", second: "2-digit", minute: "2-digit", hour: "2-digit", month: "short", day: "numeric", year: "numeric" };
+      this.element.setAttribute("aria-label", localTime.toLocaleDateString("en-US", options));
+      this.element.setAttribute("data-original-label", localTime.toLocaleDateString("en-US", options));
+    }
+
   }
 }

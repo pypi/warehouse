@@ -164,7 +164,9 @@ class TestLogin:
         self, monkeypatch, pyramid_request, pyramid_services
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(accounts, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(
+            accounts, "send_password_compromised_email_hibp", send_email
+        )
 
         user = pretend.stub(id=2)
         service = pretend.stub(

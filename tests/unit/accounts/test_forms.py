@@ -200,7 +200,7 @@ class TestLoginForm:
 
     def test_password_breached(self, monkeypatch):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(forms, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(forms, "send_password_compromised_email_hibp", send_email)
 
         user = pretend.stub(id=1)
         request = pretend.stub()

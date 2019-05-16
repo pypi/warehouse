@@ -12,7 +12,8 @@
 
 from warehouse import tasks
 from warehouse.cache.origin import IOriginCache
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import Description, Project
+from warehouse.utils import readme
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -94,3 +95,19 @@ def compute_trending(request):
         pass
     else:
         cacher.purge(["trending"])
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def update_description_html(request):
+    renderer_version = readme.renderer_version()
+
+    descriptions = (
+        request.db.query(Description)
+        .filter(Description.rendered_by != renderer_version)
+        .yield_per(100)
+        .limit(500)
+    )
+
+    for description in descriptions:
+        description.html = readme.render(description.raw, description.content_type)
+        description.rendered_by = renderer_version
