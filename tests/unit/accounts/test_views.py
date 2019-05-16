@@ -690,18 +690,12 @@ class TestWebAuthn:
         )
         monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
 
-        _login_user = pretend.call_recorder(
-            lambda req, uid: pretend.stub(),
-        )
+        _login_user = pretend.call_recorder(lambda req, uid: pretend.stub())
         monkeypatch.setattr(views, "_login_user", _login_user)
 
-        user = pretend.stub(
-            webauthn=pretend.stub(sign_count=pretend.stub()),
-        )
+        user = pretend.stub(webauthn=pretend.stub(sign_count=pretend.stub()))
 
-        user_service = pretend.stub(
-            get_user=pretend.call_recorder(lambda uid: user),
-        )
+        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
 
         request = pretend.stub(
             authenticated_userid=None,
@@ -716,7 +710,7 @@ class TestWebAuthn:
             rp_id=pretend.stub(),
             domain=pretend.stub(),
             response=pretend.stub(
-                set_cookie=pretend.call_recorder(lambda *a: pretend.stub()),
+                set_cookie=pretend.call_recorder(lambda *a: pretend.stub())
             ),
         )
 
