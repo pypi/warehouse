@@ -127,12 +127,12 @@ def test_routes(warehouse):
         pretend.call("accounts.two-factor", "/account/two-factor/", domain=warehouse),
         pretend.call(
             "accounts.webauthn-authenticate.options",
-            "/account/webauthn-authenticate/options",
+            "/accounts/webauthn-authenticate/options",
             domain=warehouse,
         ),
         pretend.call(
             "accounts.webauthn-authenticate.validate",
-            "/account/webauthn-authenticate/validate",
+            "/accounts/webauthn-authenticate/validate",
             domain=warehouse,
         ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
