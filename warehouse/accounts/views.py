@@ -252,9 +252,7 @@ def webauthn_authentication_options(request):
     return user_service.get_webauthn_assertion_options(
         userid,
         challenge=request.session.get_webauthn_challenge(),
-        icon_url=request.registry.settings.get(
-            "warehouse.domain", request.domain
-        ),
+        icon_url=request.registry.settings.get("warehouse.domain", request.domain),
         rp_id=request.domain,
     )
 
@@ -266,7 +264,7 @@ def webauthn_authentication_options(request):
     request_method="POST",
     request_param=WebAuthnAuthenticationForm.__params__,
     route_name="accounts.webauthn-authenticate.validate",
-    renderer="json"
+    renderer="json",
 )
 def webauthn_authentication_validate(request):
     if request.authenticated_userid is not None:
@@ -288,9 +286,7 @@ def webauthn_authentication_validate(request):
         user_service=user_service,
         challenge=request.session.get_webauthn_challenge(),
         origin=request.host_url,
-        icon_url=request.registry.settings.get(
-            "warehouse.domain", request.domain
-        ),
+        icon_url=request.registry.settings.get("warehouse.domain", request.domain),
         rp_id=request.domain,
     )
 
@@ -304,23 +300,14 @@ def webauthn_authentication_validate(request):
 
         request.response.set_cookie(
             USER_ID_INSECURE_COOKIE,
-            hashlib.blake2b(
-                str(userid).encode("ascii"), person=b"warehouse.userid"
-            )
+            hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
             .hexdigest()
             .lower(),
         )
-        return {
-            "success": "Successful WebAuthn assertion.",
-            "redirect_to": redirect_to,
-        }
+        return {"success": "Successful WebAuthn assertion.", "redirect_to": redirect_to}
 
     errors = [str(error) for error in form.credential.errors]
-    return {
-        "fail": {
-            "errors": errors,
-        }
-    }
+    return {"fail": {"errors": errors}}
 
 
 @view_config(
@@ -595,7 +582,7 @@ def _get_two_factor_data(request, _redirect_to="index"):
     # redirect to the index instead.
     redirect_to = two_factor_data.get("redirect_to")
     if redirect_to is None or not is_safe_url(url=redirect_to, host=request.host):
-        two_factor_data["redirect_to"] = _redirect_to
+        two_factor_data["redirect_to"] = request.route_path(_redirect_to)
 
     return two_factor_data
 

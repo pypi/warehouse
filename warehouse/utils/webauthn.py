@@ -88,8 +88,7 @@ def get_assertion_options(user, *, challenge, icon_url, rp_id):
     on the client side.
     """
     options = pywebauthn.WebAuthnAssertionOptions(
-        _get_webauthn_user(user, icon_url=icon_url, rp_id=rp_id),
-        challenge
+        _get_webauthn_user(user, icon_url=icon_url, rp_id=rp_id), challenge
     )
 
     return options.assertion_dict

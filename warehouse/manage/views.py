@@ -493,11 +493,7 @@ class ProvisionWebAuthnViews:
             return {"success": "WebAuthn successfully provisioned"}
 
         errors = [str(error) for error in form.credential.errors]
-        return {
-            "fail": {
-                "errors": errors,
-            }
-        }
+        return {"fail": {"errors": errors}}
 
     @view_config(
         request_method="POST",
