@@ -26,6 +26,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -40,7 +41,6 @@ from warehouse.accounts.models import Email, User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
-import warehouse.utils.webauthn as webauthn
 
 logger = logging.getLogger(__name__)
 

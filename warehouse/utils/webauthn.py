@@ -13,11 +13,12 @@
 import base64
 import os
 
+import webauthn as pywebauthn
+
 from webauthn.webauthn import (
     AuthenticationRejectedException as _AuthenticationRejectedException,
     RegistrationRejectedException as _RegistrationRejectedException,
 )
-import webauthn as pywebauthn
 
 
 class AuthenticationRejectedException(Exception):

@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+
 import wtforms
 
 import warehouse.utils.otp as otp

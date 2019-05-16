@@ -10,18 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import disposable_email_domains
 import jinja2
 import wtforms
 import wtforms.fields.html5
-import json
+
+import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.utils.otp import TOTP_LENGTH
-import warehouse.utils.webauthn as webauthn
 
 
 class UsernameMixin:
