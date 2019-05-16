@@ -316,7 +316,7 @@ class TestLogin:
 
 class TestTwoFactor:
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
-    def test_get_returns_form(self, pyramid_request, redirect_url):
+    def test_get_returns_totp_form(self, pyramid_request, redirect_url):
         query_params = {"userid": 1}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
@@ -355,8 +355,36 @@ class TestTwoFactor:
             )
         ]
 
+    @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
+    def test_get_returns_webauthn(self, pyramid_request, redirect_url):
+        query_params = {"userid": 1}
+        if redirect_url:
+            query_params["redirect_to"] = redirect_url
+
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda s: query_params)
+        )
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 1),
+            update_user=lambda *a, **k: None,
+            has_totp=lambda uid: False,
+            has_webauthn=lambda uid: True,
+        )
+
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+
+        pyramid_request.query_string = pretend.stub()
+        result = views.two_factor(pyramid_request, _form_class=pretend.stub())
+
+        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
+        assert result == {"has_webauthn": True}
+
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
-    def test_two_factor_auth(self, monkeypatch, pyramid_request, redirect_url):
+    def test_totp_auth(self, monkeypatch, pyramid_request, redirect_url):
         remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
         monkeypatch.setattr(views, "remember", remember)
 
@@ -419,7 +447,7 @@ class TestTwoFactor:
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
-    def test_two_factor_auth_invalid(self, pyramid_request, redirect_url):
+    def test_totp_auth_invalid(self, pyramid_request, redirect_url):
         query_params = {"userid": str(1)}
         if redirect_url:
             query_params["redirect_to"] = redirect_url
@@ -462,7 +490,7 @@ class TestTwoFactor:
 
         assert isinstance(result, HTTPSeeOther)
 
-    def test_two_factor_auth_already_authed(self):
+    def test_totp_auth_already_authed(self):
         request = pretend.stub(
             authenticated_userid="not_none",
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
@@ -474,30 +502,7 @@ class TestTwoFactor:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
 
-    def test_two_factor_missing_userid(self):
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: {}))
-
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
-                interface
-            ],
-            query_string=pretend.stub(),
-        )
-        result = views.two_factor(request)
-
-        assert token_service.loads.calls == [pretend.call(request.query_string)]
-        assert request.route_path.calls == [pretend.call("accounts.login")]
-        assert request.session.flash.calls == [
-            pretend.call("Invalid or expired two factor login.", queue="error")
-        ]
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "redirect_to"
-
-    def test_two_factor_auth_form_invalid(self):
+    def test_totp_form_invalid(self):
         token_data = {"userid": 1}
         token_service = pretend.stub(loads=pretend.call_recorder(lambda s: token_data))
 
@@ -531,7 +536,30 @@ class TestTwoFactor:
         assert token_service.loads.calls == [pretend.call(request.query_string)]
         assert result == {"totp_form": form_obj}
 
-    def test_two_factor_auth_token_invalid(self):
+    def test_two_factor_token_missing_userid(self):
+        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: {}))
+
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
+                interface
+            ],
+            query_string=pretend.stub(),
+        )
+        result = views.two_factor(request)
+
+        assert token_service.loads.calls == [pretend.call(request.query_string)]
+        assert request.route_path.calls == [pretend.call("accounts.login")]
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "redirect_to"
+
+    def test_two_factor_token_invalid(self):
         token_service = pretend.stub(loads=pretend.raiser(TokenException))
         request = pretend.stub(
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -550,6 +578,167 @@ class TestTwoFactor:
         assert request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
+
+
+class TestWebAuthn:
+    def test_webauthn_get_options_already_authenticated(self):
+        request = pretend.stub(authenticated_userid=pretend.stub())
+        result = views.webauthn_authentication_options(request)
+
+        assert result == {"fail": {"errors": ["Already authenticated"]}}
+
+    def test_webauthn_get_options_invalid_token(self, monkeypatch):
+        _get_two_factor_data = pretend.raiser(TokenException)
+        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
+
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            authenticated_userid=None,
+        )
+        result = views.webauthn_authentication_options(request)
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
+        assert result == {"fail": {"errors": ["Invalid two factor token"]}}
+
+    def test_webauthn_get_options(self, monkeypatch):
+        _get_two_factor_data = pretend.call_recorder(
+            lambda r: {"redirect_to": "foobar", "userid": 1}
+        )
+        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
+
+        user_service = pretend.stub(
+            get_webauthn_assertion_options=lambda *a, **kw: {"not": "real"}
+        )
+
+        request = pretend.stub(
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
+            ),
+            registry=pretend.stub(settings=pretend.stub(get=lambda *a: pretend.stub())),
+            domain=pretend.stub(),
+            authenticated_userid=None,
+            find_service=lambda interface, **kwargs: user_service,
+        )
+
+        result = views.webauthn_authentication_options(request)
+
+        assert _get_two_factor_data.calls == [pretend.call(request)]
+        assert result == {"not": "real"}
+
+    def test_webauthn_validate_already_authenticated(self):
+        request = pretend.stub(authenticated_userid=pretend.stub())
+        result = views.webauthn_authentication_validate(request)
+
+        assert result == {"fail": {"errors": ["Already authenticated"]}}
+
+    def test_webauthn_validate_invalid_token(self, monkeypatch):
+        _get_two_factor_data = pretend.raiser(TokenException)
+        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
+
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            authenticated_userid=None,
+        )
+        result = views.webauthn_authentication_validate(request)
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
+        assert result == {"fail": {"errors": ["Invalid two factor token"]}}
+
+    def test_webauthn_validate_invalid_form(self, monkeypatch):
+        _get_two_factor_data = pretend.call_recorder(
+            lambda r: {"redirect_to": "foobar", "userid": 1}
+        )
+        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
+
+        request = pretend.stub(
+            authenticated_userid=None,
+            POST={},
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
+                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            host_url=pretend.stub(),
+            registry=pretend.stub(settings=pretend.stub(get=lambda *a: pretend.stub())),
+            rp_id=pretend.stub(),
+            domain=pretend.stub(),
+        )
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+            credential=pretend.stub(errors=["Fake validation failure"]),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)
+
+        result = views.webauthn_authentication_validate(request)
+
+        assert _get_two_factor_data.calls == [pretend.call(request)]
+        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
+        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
+
+        assert result == {"fail": {"errors": ["Fake validation failure"]}}
+
+    def test_webauthn_validate(self, monkeypatch):
+        _get_two_factor_data = pretend.call_recorder(
+            lambda r: {"redirect_to": "foobar", "userid": 1}
+        )
+        monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
+
+        _login_user = pretend.call_recorder(
+            lambda req, uid: pretend.stub(),
+        )
+        monkeypatch.setattr(views, "_login_user", _login_user)
+
+        user = pretend.stub(
+            webauthn=pretend.stub(sign_count=pretend.stub()),
+        )
+
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda uid: user),
+        )
+
+        request = pretend.stub(
+            authenticated_userid=None,
+            POST={},
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
+                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            host_url=pretend.stub(),
+            registry=pretend.stub(settings=pretend.stub(get=lambda *a: pretend.stub())),
+            rp_id=pretend.stub(),
+            domain=pretend.stub(),
+            response=pretend.stub(
+                set_cookie=pretend.call_recorder(lambda *a: pretend.stub()),
+            ),
+        )
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            credential=pretend.stub(errors=["Fake validation failure"]),
+            sign_count=pretend.stub(),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)
+
+        result = views.webauthn_authentication_validate(request)
+
+        assert _get_two_factor_data.calls == [pretend.call(request)]
+        assert _login_user.calls == [pretend.call(request, 1)]
+        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
+        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
+
+        assert result == {
+            "success": "Successful WebAuthn assertion",
+            "redirect_to": "foobar",
+        }
 
 
 class TestLogout:
