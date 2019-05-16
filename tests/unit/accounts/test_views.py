@@ -328,6 +328,8 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
+            has_totp=lambda uid: True,
+            has_webauthn=lambda uid: False,
         )
 
         pyramid_request.find_service = lambda interface, **kwargs: {
@@ -343,7 +345,7 @@ class TestTwoFactor:
         result = views.two_factor(pyramid_request, _form_class=form_class)
 
         assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
-        assert result == {"form": form_obj}
+        assert result == {"totp_form": form_obj}
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
@@ -369,6 +371,8 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
+            has_totp=lambda userid: True,
+            has_webauthn=lambda userid: False,
             check_totp_value=lambda userid, totp_value: True,
         )
 
@@ -427,6 +431,8 @@ class TestTwoFactor:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
+            has_totp=lambda userid: True,
+            has_webauthn=lambda userid: False,
             check_totp_value=lambda userid, totp_value: False,
         )
 
@@ -484,7 +490,9 @@ class TestTwoFactor:
 
         assert token_service.loads.calls == [pretend.call(request.query_string)]
         assert request.route_path.calls == [pretend.call("accounts.login")]
-        assert request.session.flash.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
@@ -492,6 +500,12 @@ class TestTwoFactor:
     def test_two_factor_auth_form_invalid(self):
         token_data = {"userid": 1}
         token_service = pretend.stub(loads=pretend.call_recorder(lambda s: token_data))
+
+        user_service = pretend.stub(
+            has_totp=lambda userid: True,
+            has_webauthn=lambda userid: False,
+            check_totp_value=lambda userid, totp_value: False,
+        )
 
         request = pretend.stub(
             POST={},
@@ -501,7 +515,7 @@ class TestTwoFactor:
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
             find_service=lambda interface, **kwargs: {
                 ITokenService: token_service,
-                IUserService: pretend.stub(),
+                IUserService: user_service,
             }[interface],
             query_string=pretend.stub(),
         )
@@ -515,7 +529,7 @@ class TestTwoFactor:
         result = views.two_factor(request, _form_class=form_class)
 
         assert token_service.loads.calls == [pretend.call(request.query_string)]
-        assert result == {"form": form_obj}
+        assert result == {"totp_form": form_obj}
 
     def test_two_factor_auth_token_invalid(self):
         token_service = pretend.stub(loads=pretend.raiser(TokenException))

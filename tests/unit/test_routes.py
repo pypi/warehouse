@@ -159,6 +159,26 @@ def test_routes(warehouse):
             "/manage/account/totp-provision/image",
             domain=warehouse,
         ),
+        pretend.call(
+            "manage.account.webauthn-provision",
+            "/manage/account/webauthn-provision",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.options",
+            "/manage/account/webauthn-provision/options",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.validate",
+            "/manage/account/webauthn-provision/validate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.delete",
+            "/manage/account/webauthn-provision/delete",
+            domain=warehouse,
+        ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",
