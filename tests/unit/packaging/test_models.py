@@ -270,6 +270,7 @@ class TestRelease:
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
 
+    @pytest.mark.xfail(strict=False)
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
         owner1 = DBRoleFactory.create(project=project)

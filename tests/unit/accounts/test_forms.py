@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import pretend
 import pytest
 import wtforms
@@ -592,3 +594,37 @@ class TestTOTPAuthenticationForm:
             user_service=pretend.stub(check_totp_value=lambda *a: True),
         )
         assert form.validate()
+
+
+class TestWebAuthnAuthenticationForm:
+    def test_creation(self):
+        user_id = (pretend.stub(),)
+        user_service = (pretend.stub(),)
+        challenge = (pretend.stub(),)
+        origin = (pretend.stub(),)
+        icon_url = (pretend.stub(),)
+        rp_id = (pretend.stub(),)
+
+        form = forms.WebAuthnAuthenticationForm(
+            user_id=user_id,
+            user_service=user_service,
+            challenge=challenge,
+            origin=origin,
+            icon_url=icon_url,
+            rp_id=rp_id,
+        )
+
+        assert form.challenge is challenge
+
+    # def test_credential_exists(self, monkeypatch):
+    #     form = forms.WebAuthnAuthenticationForm(
+    #         credential=json.dumps({}),
+    #         user_id=pretend.stub(),
+    #         user_service=pretend.stub(),
+    #         challenge=pretend.stub(),
+    #         origin=pretend.stub(),
+    #         icon_url=pretend.stub(),
+    #         rp_id=pretend.stub(),
+    #     )
+    #     assert not form.validate()
+    #     assert form.credential.errors.pop() == "This field is required."
