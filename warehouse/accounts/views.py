@@ -187,7 +187,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     require_csrf=True,
     require_methods=False,
 )
-def two_factor(request):
+def two_factor(request, _form_class=TOTPAuthenticationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
@@ -204,7 +204,7 @@ def two_factor(request):
 
     two_factor_state = {}
     if user_service.has_totp(userid):
-        two_factor_state["totp_form"] = TOTPAuthenticationForm(
+        two_factor_state["totp_form"] = _form_class(
             request.POST,
             user_id=userid,
             user_service=user_service,
@@ -571,7 +571,7 @@ def verify_email(request):
     return HTTPSeeOther(request.route_path("manage.account"))
 
 
-def _get_two_factor_data(request, _redirect_to="index"):
+def _get_two_factor_data(request, _redirect_to="/"):
     token_service = request.find_service(ITokenService, name="two_factor")
     two_factor_data = token_service.loads(request.query_string)
 
@@ -582,7 +582,7 @@ def _get_two_factor_data(request, _redirect_to="index"):
     # redirect to the index instead.
     redirect_to = two_factor_data.get("redirect_to")
     if redirect_to is None or not is_safe_url(url=redirect_to, host=request.host):
-        two_factor_data["redirect_to"] = request.route_path(_redirect_to)
+        two_factor_data["redirect_to"] = _redirect_to
 
     return two_factor_data
 
