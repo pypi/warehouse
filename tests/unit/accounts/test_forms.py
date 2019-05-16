@@ -19,6 +19,7 @@ import wtforms
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
+from warehouse.utils.webauthn import AuthenticationRejectedException
 
 
 class TestLoginForm:
@@ -598,12 +599,12 @@ class TestTOTPAuthenticationForm:
 
 class TestWebAuthnAuthenticationForm:
     def test_creation(self):
-        user_id = (pretend.stub(),)
-        user_service = (pretend.stub(),)
-        challenge = (pretend.stub(),)
-        origin = (pretend.stub(),)
-        icon_url = (pretend.stub(),)
-        rp_id = (pretend.stub(),)
+        user_id = pretend.stub()
+        user_service = pretend.stub()
+        challenge = pretend.stub()
+        origin = pretend.stub()
+        icon_url = pretend.stub()
+        rp_id = pretend.stub()
 
         form = forms.WebAuthnAuthenticationForm(
             user_id=user_id,
@@ -616,15 +617,47 @@ class TestWebAuthnAuthenticationForm:
 
         assert form.challenge is challenge
 
-    # def test_credential_exists(self, monkeypatch):
-    #     form = forms.WebAuthnAuthenticationForm(
-    #         credential=json.dumps({}),
-    #         user_id=pretend.stub(),
-    #         user_service=pretend.stub(),
-    #         challenge=pretend.stub(),
-    #         origin=pretend.stub(),
-    #         icon_url=pretend.stub(),
-    #         rp_id=pretend.stub(),
-    #     )
-    #     assert not form.validate()
-    #     assert form.credential.errors.pop() == "This field is required."
+    def test_credential_bad_payload(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential="not valid json",
+            user_id=pretend.stub(),
+            user_service=pretend.stub(),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert not form.validate()
+        assert form.credential.errors.pop() == "Invalid WebAuthn assertion: Bad payload"
+
+    def test_credential_invalid(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential=json.dumps({}),
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                verify_webauthn_assertion=pretend.raiser(
+                    AuthenticationRejectedException("foo")
+                )
+            ),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert not form.validate()
+        assert form.credential.errors.pop() == "foo"
+
+    def test_credential_valid(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential=json.dumps({}),
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                verify_webauthn_assertion=pretend.call_recorder(lambda *a, **kw: 123456)
+            ),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert form.validate()
+        assert form.sign_count == 123456
