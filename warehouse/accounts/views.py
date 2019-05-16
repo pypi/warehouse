@@ -304,7 +304,7 @@ def webauthn_authentication_validate(request):
             .hexdigest()
             .lower(),
         )
-        return {"success": "Successful WebAuthn assertion.", "redirect_to": redirect_to}
+        return {"success": "Successful WebAuthn assertion", "redirect_to": redirect_to}
 
     errors = [str(error) for error in form.credential.errors]
     return {"fail": {"errors": errors}}
