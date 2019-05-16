@@ -351,6 +351,20 @@ class TestDatabaseUserService:
         user_service.update_user(user.id, totp_secret=b"foobar")
         assert user_service.has_two_factor(user.id)
 
+    def test_has_totp(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.has_totp(user.id)
+        user_service.update_user(user.id, totp_secret=b"foobar")
+        assert user_service.has_totp(user.id)
+
+    def test_has_webauthn(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.has_webauthn(user.id)
+        user_service.add_webauthn(
+            user.id, credential_id="foo", public_key="bar", sign_count=1
+        )
+        assert user_service.has_webauthn(user.id)
+
     @pytest.mark.parametrize("valid", [True, False])
     def test_check_totp_value(self, user_service, monkeypatch, valid):
         verify_totp = pretend.call_recorder(lambda *a: valid)
@@ -405,6 +419,63 @@ class TestDatabaseUserService:
                 tags=["ratelimiter:user"],
             ),
         ]
+
+    @pytest.mark.parametrize(
+        ("challenge", "rp_name", "rp_id", "icon_url"),
+        (
+            ["fake_challenge", "fake_rp_name", "fake_rp_id", "fake_icon_url"],
+            [None, None, None, None],
+        ),
+    )
+    def test_get_webauthn_credential_options(
+        self, user_service, challenge, rp_name, rp_id, icon_url
+    ):
+        user = UserFactory.create()
+        options = user_service.get_webauthn_credential_options(
+            user.id,
+            challenge=challenge,
+            rp_name=rp_name,
+            rp_id=rp_id,
+            icon_url=icon_url,
+        )
+
+        assert options["user"]["id"] == str(user.id)
+        assert options["user"]["name"] == user.username
+        assert options["user"]["displayName"] == user.name
+        assert options["challenge"] == challenge
+        assert options["rp"]["name"] == rp_name
+        assert options["rp"]["id"] == rp_id
+
+        if icon_url:
+            assert options["user"]["icon"] == icon_url
+        else:
+            assert "icon" not in options["user"]
+
+    def test_get_webauthn_assertion_options(self, user_service):
+        user = UserFactory.create()
+        user_service.add_webauthn(
+            user.id, credential_id="foo", public_key="bar", sign_count=1
+        )
+
+        options = user_service.get_webauthn_assertion_options(
+            user.id,
+            challenge="fake_challenge",
+            icon_url="fake_icon_url",
+            rp_id="fake_rp_id",
+        )
+
+        assert options["challenge"] == "fake_challenge"
+        assert options["rpId"] == "fake_rp_id"
+        assert options["allowCredentials"][0]["id"] == user.webauthn.credential_id
+
+    def test_verify_webauthn_credential(self, user_service):
+        pass
+
+    def test_verify_webauthn_assertion(self, user_service):
+        pass
+
+    def test_add_webauthn(self, user_service):
+        pass
 
 
 class TestTokenService:
