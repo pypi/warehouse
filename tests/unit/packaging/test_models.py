@@ -102,7 +102,6 @@ class TestProject:
             pretend.call("legacy.docs", project=project.name)
         ]
 
-    @pytest.mark.xfail(strict=False)
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
         owner1 = DBRoleFactory.create(project=project)
@@ -125,11 +124,13 @@ class TestProject:
         assert acls == [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
+        ] + sorted([
             (Allow, str(owner1.user.id), ["manage:project", "upload"]),
             (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+        ], key=lambda x: x[1]) + sorted([
             (Allow, str(maintainer1.user.id), ["upload"]),
             (Allow, str(maintainer2.user.id), ["upload"]),
-        ]
+        ], key=lambda x: x[1])
 
 
 class TestRelease:
@@ -271,7 +272,6 @@ class TestRelease:
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
 
-    @pytest.mark.xfail(strict=False)
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
         owner1 = DBRoleFactory.create(project=project)
@@ -295,11 +295,13 @@ class TestRelease:
         assert acls == [
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
+        ] + sorted([
             (Allow, str(owner1.user.id), ["manage:project", "upload"]),
             (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+        ], key=lambda x: x[1]) + sorted([
             (Allow, str(maintainer1.user.id), ["upload"]),
             (Allow, str(maintainer2.user.id), ["upload"]),
-        ]
+        ], key=lambda x: x[1])
 
     @pytest.mark.parametrize(
         ("home_page", "expected"),
