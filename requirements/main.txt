@@ -194,12 +194,12 @@ google-api-core==1.11.0 \
 google-auth==1.6.3 \
     --hash=sha256:0f7c6a64927d34c1a474da92cfc59e552a5d3b940d3266606c6a28b72888b9e4 \
     --hash=sha256:20705f6803fd2c4d1cc2dcb0df09d4dfcb9a7d51fd59e94a3a28231fd93119ed
-google-cloud-bigquery==1.11.2 \
-    --hash=sha256:43b0ac02a16a8ad72e8b2e2fa4005ff93bba38c102ffc78842bec1d664053e8b \
-    --hash=sha256:9fa6a60d54e5f9931271fa7017aa0b126646c33280d9071d468979e96cc52693
-google-cloud-core==0.29.1 \
-    --hash=sha256:9bee63e0991be9801a4baf0b7841cf54f86c6e7fec922f45ea74cd4032ed4ee4 \
-    --hash=sha256:d85b1aaaf3bad9415ad1d8ee5eadce96d7007a82f13ce0a0629a003a11e83f29
+google-cloud-bigquery==1.12.0 \
+    --hash=sha256:63e89f2ce3e349cfba0836fab9c9a7a91ba15a4e13c8c5d420281f20f74501d9 \
+    --hash=sha256:88e63ee8405952b0e3a64d1cf3be2eabff2de770486929c9a0656a8dbffe4a44
+google-cloud-core==1.0.0 \
+    --hash=sha256:5cf75936e3265cbfec028599ad013bccf10b855c79348b81488f7890ca3a3534 \
+    --hash=sha256:a5d643a172d2e7ba1a77ea9fa874898a413a15cbc61bd7f1986a1bd38eb6b2b5
 google-resumable-media==0.3.2 \
     --hash=sha256:2dae98ee716efe799db3578a7b902fbf5592fc5c77d3c0906fc4ef9b1b930861 \
     --hash=sha256:3e38923493ca0d7de0ad91c31acfefc393c78586db89364e91cb4f11990e51ba
