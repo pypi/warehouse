@@ -39,33 +39,34 @@
 
   <p>
     <strong>
-      Scan the QR code with your application of choice. The
+      Scan the QR code with your application of choice. See our
       <a href="{{ request.route_path('help', _anchor='totp') }}" target="_blank">help page</a>
-      has some of our recommendations.
+      for a list of popular applications.
     </strong>
   </p>
 
-  <br>
-  <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
-  <br>
-
-  <form method="POST">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    <div class="form-group">
-      <label for="totp_value" class="form-group__label">Verify application</label>
-      {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
-      <p class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
-      {% if provision_totp_form.totp_value.errors %}
-      <ul class="form-errors">
-        {% for error in provision_totp_form.totp_value.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+  <div class="totp-form">
+    <div class="totp-form__qr">
+      <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
     </div>
-    <div>
-      <input type="submit" value="Provision application" class="button button--primary">
-    </div>
-  </form>
+    <form method="POST" class="totp-form__form">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <div class="form-group">
+        <label for="totp_value" class="form-group__label">Verify application</label>
+        {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
+        <p class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
+        {% if provision_totp_form.totp_value.errors %}
+        <ul class="form-errors">
+          {% for error in provision_totp_form.totp_value.errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div>
+        <input type="submit" value="Provision application" class="button button--primary">
+      </div>
+    </form>
+  </div>
 </section>
 {% endblock %}
