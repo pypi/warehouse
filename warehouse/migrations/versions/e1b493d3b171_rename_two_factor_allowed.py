@@ -17,9 +17,9 @@ Revises: 9ca7d5668af4
 Create Date: 2019-05-20 20:39:28.616037
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "e1b493d3b171"
 down_revision = "9ca7d5668af4"
