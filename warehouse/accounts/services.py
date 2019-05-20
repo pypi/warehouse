@@ -235,7 +235,7 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
 
-        return user.has_two_factor and user.two_factor_allowed
+        return user.has_two_factor
 
     def get_totp_secret(self, user_id):
         """
