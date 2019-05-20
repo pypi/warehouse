@@ -103,14 +103,16 @@ class IUserService(Interface):
 
     def has_two_factor(user_id):
         """
-        Returns True if the user has two factor authentication.
+        Returns True if the user has any form of two factor
+        authentication and is allowed to use it.
         """
 
     def get_totp_secret(user_id):
         """
         Returns the user's TOTP secret as bytes.
 
-        If the user doesn't have a TOTP secret, returns None.
+        If the user doesn't have a TOTP secret or is not
+        allowed to use a second factor, returns None.
         """
 
     def check_totp_value(user_id, totp_value, *, tags=None):
