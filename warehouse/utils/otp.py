@@ -45,7 +45,7 @@ def generate_totp_secret():
     return os.urandom(20)
 
 
-def generate_totp_provisioning_uri(secret, username, issuer_name="PyPI"):
+def generate_totp_provisioning_uri(secret, username, issuer_name):
     """
     Generates a URL to be presented as a QR-code for time-based OTP.
     """
