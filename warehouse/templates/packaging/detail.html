@@ -39,7 +39,7 @@
   {% set icon = "fab fa-bitbucket" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
   {% set icon = "fab fa-reddit-alien" %}
-{% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
+{% elif name.lower().startswith("slack") or parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
   {% set icon = "fab fa-slack" %}
 {% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "fab fa-twitter" %}
