@@ -30,7 +30,7 @@
           <h3 class="package-snippet__title">{{ project.name }}
             {% if project.name in projects_sole_owned %}
             <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}">
-              <span class="badge package-snippet__sole-owner-badge">Sole owner</span>
+              <span class="badge badge--warning package-snippet__sole-owner-badge">Sole owner</span>
             </a>
             {% endif %}
           </h3>
