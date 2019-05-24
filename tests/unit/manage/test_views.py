@@ -727,6 +727,7 @@ class TestProvisionTOTP:
     def test_generate_totp_qr_two_factor_not_allowed(self):
         user_service = pretend.stub()
         request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
@@ -738,6 +739,9 @@ class TestProvisionTOTP:
 
         assert isinstance(result, Response)
         assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
 
     def test_totp_provision(self, monkeypatch):
         user_service = pretend.stub(get_totp_secret=lambda id: None)
@@ -809,6 +813,7 @@ class TestProvisionTOTP:
     def test_totp_provision_two_factor_not_allowed(self):
         user_service = pretend.stub()
         request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
@@ -820,6 +825,9 @@ class TestProvisionTOTP:
 
         assert isinstance(result, Response)
         assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
 
     def test_validate_totp_provision(self, monkeypatch):
         user_service = pretend.stub(
@@ -939,6 +947,7 @@ class TestProvisionTOTP:
     def test_validate_totp_provision_two_factor_not_allowed(self):
         user_service = pretend.stub()
         request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
@@ -950,6 +959,9 @@ class TestProvisionTOTP:
 
         assert isinstance(result, Response)
         assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
 
     def test_delete_totp(self, monkeypatch, db_request):
         user_service = pretend.stub(
@@ -1056,6 +1068,7 @@ class TestProvisionTOTP:
     def test_delete_totp_two_factor_not_allowed(self):
         user_service = pretend.stub()
         request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
@@ -1067,6 +1080,9 @@ class TestProvisionTOTP:
 
         assert isinstance(result, Response)
         assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
 
 
 class TestManageProjects:
