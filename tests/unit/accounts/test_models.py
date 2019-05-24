@@ -12,7 +12,7 @@
 
 import pytest
 
-from warehouse.accounts.models import User, UserFactory
+from warehouse.accounts.models import Email, User, UserFactory
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
@@ -36,6 +36,28 @@ class TestUserFactory:
 
         with pytest.raises(KeyError):
             root[user.username + "invalid"]
+
+    @pytest.mark.parametrize(
+        ("prohibited", "email", "verified", "allowed"),
+        [
+            (False, "foo@bar.com", True, True),
+            (True, "foo@bar.com", True, False),
+            (False, None, False, False),
+            (False, "foo@bar.com", False, False),
+        ],
+    )
+    def test_two_factor_provisioning_allowed(
+        self, db_session, prohibited, email, verified, allowed
+    ):
+        user = DBUserFactory.create()
+        user.two_factor_prohibited = prohibited
+
+        if email:
+            e = Email(email=email, user=user, primary=True, verified=verified)
+            db_session.add(e)
+            db_session.flush()
+
+        assert user.two_factor_provisioning_allowed == allowed
 
 
 class TestUser:

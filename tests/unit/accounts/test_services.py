@@ -349,13 +349,10 @@ class TestDatabaseUserService:
         assert not user_service.has_two_factor(user.id)
 
         user_service.update_user(user.id, totp_secret=b"foobar")
-        assert not user_service.has_two_factor(user.id)
-
-        user_service.add_email(user.id, "foo@bar.com", primary=False, verified=True)
-        assert not user_service.has_two_factor(user.id)
-
-        user_service.add_email(user.id, "foo@baz.com", primary=True, verified=True)
         assert user_service.has_two_factor(user.id)
+
+        user_service.update_user(user.id, two_factor_prohibited=True)
+        assert not user_service.has_two_factor(user.id)
 
     @pytest.mark.parametrize("valid", [True, False])
     def test_check_totp_value(self, user_service, monkeypatch, valid):
