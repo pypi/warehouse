@@ -347,7 +347,14 @@ class TestDatabaseUserService:
     def test_has_two_factor(self, user_service):
         user = UserFactory.create()
         assert not user_service.has_two_factor(user.id)
+
         user_service.update_user(user.id, totp_secret=b"foobar")
+        assert not user_service.has_two_factor(user.id)
+
+        user_service.add_email(user.id, "foo@bar.com", primary=False, verified=True)
+        assert not user_service.has_two_factor(user.id)
+
+        user_service.add_email(user.id, "foo@baz.com", primary=True, verified=True)
         assert user_service.has_two_factor(user.id)
 
     @pytest.mark.parametrize("valid", [True, False])
@@ -357,6 +364,7 @@ class TestDatabaseUserService:
 
         user = UserFactory.create()
         user_service.update_user(user.id, totp_secret=b"foobar")
+        user_service.add_email(user.id, "foo@bar.com", primary=True, verified=True)
 
         assert user_service.check_totp_value(user.id, b"123456") == valid
 

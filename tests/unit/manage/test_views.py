@@ -691,6 +691,7 @@ class TestProvisionTOTP:
                 username="foobar",
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -713,6 +714,7 @@ class TestProvisionTOTP:
                 username="foobar",
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
         )
 
@@ -737,6 +739,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -774,6 +777,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -807,6 +811,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -843,6 +848,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar"),
         )
@@ -873,6 +879,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -914,6 +921,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 totp_secret=b"secret",
+                two_factor_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -948,6 +956,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -980,6 +989,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
