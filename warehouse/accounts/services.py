@@ -255,7 +255,8 @@ class DatabaseUserService:
         """
         Returns True if the given TOTP is valid against the user's secret.
 
-        If the user doesn't have a TOTP secret, returns False.
+        If the user doesn't have a TOTP secret or isn't allowed
+        to use second factor methods, returns False.
         """
         tags = tags if tags is not None else []
         self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
