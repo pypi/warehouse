@@ -724,6 +724,21 @@ class TestProvisionTOTP:
         assert isinstance(result, Response)
         assert result.status_code == 403
 
+    def test_generate_totp_qr_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+
     def test_totp_provision(self, monkeypatch):
         user_service = pretend.stub(get_totp_secret=lambda id: None)
         request = pretend.stub(
@@ -790,6 +805,21 @@ class TestProvisionTOTP:
         assert request.session.flash.calls == [
             pretend.call("TOTP already provisioned.", queue="error")
         ]
+
+    def test_totp_provision_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
 
     def test_validate_totp_provision(self, monkeypatch):
         user_service = pretend.stub(
@@ -906,6 +936,21 @@ class TestProvisionTOTP:
             "provision_totp_uri": "not_a_real_uri",
         }
 
+    def test_validate_totp_provision_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+
     def test_delete_totp(self, monkeypatch, db_request):
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
@@ -1007,6 +1052,21 @@ class TestProvisionTOTP:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
+
+    def test_delete_totp_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.delete_totp()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
 
 
 class TestManageProjects:
