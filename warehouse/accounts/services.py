@@ -241,13 +241,9 @@ class DatabaseUserService:
         """
         Returns the user's TOTP secret as bytes.
 
-        If the user doesn't have a TOTP secret or is not
-        allowed to use a second factor, returns None.
+        If the user doesn't have a TOTP, returns None.
         """
         user = self.get_user(user_id)
-
-        if not user.two_factor_allowed:  # pragma: no cover
-            return None
 
         return user.totp_secret
 

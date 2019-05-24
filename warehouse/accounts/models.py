@@ -110,10 +110,10 @@ class User(SitemapMixin, db.Model):
     def has_two_factor(self):
         # TODO: This is where user.u2f_provisioned et al.
         # will also go.
-        return self.two_factor_allowed and self.totp_secret is not None
+        return not self.two_factor_prohibited and self.totp_secret is not None
 
     @property
-    def two_factor_allowed(self):
+    def two_factor_provisioning_allowed(self):
         return (
             not self.two_factor_prohibited
             and self.primary_email is not None
