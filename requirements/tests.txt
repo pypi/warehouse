@@ -64,7 +64,7 @@ freezegun==0.3.11 \
 idna==2.8 \
     --hash=sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407 \
     --hash=sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c
-importlib_metadata==0.13 \
+importlib-metadata==0.13 \
     --hash=sha256:0e375a4c177090292988d1c2f997c7c2467d908c1adbed3e08fb511486c85457 \
     --hash=sha256:440815529340fb7fdd6a83ebf4258cc2860fb3770d37b52875e37c6f509a4cd6
 lazy==1.4 \
@@ -76,9 +76,9 @@ mirakuru==1.1.0 \
 more-itertools==7.0.0 \
     --hash=sha256:2112d2ca570bb7c3e53ea1a35cd5df42bb0fd10c45f0fb97178679c3c03d64c7 \
     --hash=sha256:c3e4748ba1aad8dba30a4886b0b1a2004f9a863837b8654e7059eebf727afa5a
-pluggy==0.11.0 \
-    --hash=sha256:25a1bc1d148c9a640211872b4ff859878d422bccb59c9965e04eed468a0aa180 \
-    --hash=sha256:964cedd2b27c492fbf0b7f58b3284a09cf7f99b0f715941fb24a439b3af1bd1a
+pluggy==0.12.0 \
+    --hash=sha256:0825a152ac059776623854c1543d65a4ad408eb3d33ee114dff91e57ec6ae6fc \
+    --hash=sha256:b9817417e95936bf75d85d3f8767f7df6cdde751fc40aed3bb3074cbcb77757c
 port-for==0.4 \
     --hash=sha256:247b4db1901aa3d9906258308e40dfbadf65275b27ca77faa0b9a876b7284970 \
     --hash=sha256:47b5cb48f8e036497cd73b96de305cecb4070e9ecbc908724afcbd2224edccde
