@@ -38,19 +38,17 @@ class TestUserFactory:
             root[user.username + "invalid"]
 
     @pytest.mark.parametrize(
-        ("prohibited", "email", "verified", "allowed"),
+        ("email", "verified", "allowed"),
         [
-            (False, "foo@bar.com", True, True),
-            (True, "foo@bar.com", True, False),
-            (False, None, False, False),
-            (False, "foo@bar.com", False, False),
+            ("foo@bar.com", True, True),
+            (None, False, False),
+            ("foo@bar.com", False, False),
         ],
     )
     def test_two_factor_provisioning_allowed(
-        self, db_session, prohibited, email, verified, allowed
+        self, db_session, email, verified, allowed
     ):
         user = DBUserFactory.create()
-        user.two_factor_prohibited = prohibited
 
         if email:
             e = Email(email=email, user=user, primary=True, verified=verified)
