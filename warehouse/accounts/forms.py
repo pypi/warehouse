@@ -154,16 +154,24 @@ class NewEmailMixin:
     )
 
     def validate_email(self, field):
-        if self.user_service.find_userid_by_email(field.data) is not None:
+        userid = self.user_service.find_userid_by_email(field.data)
+
+        if userid and userid == self.user_id:
             raise wtforms.validators.ValidationError(
-                "This email address is already being used by another account. "
-                "Use a different email."
+                f"This email address is already being used by this account. "
+                f"Use a different email."
             )
+        if userid:
+            raise wtforms.validators.ValidationError(
+                f"This email address is already being used by another account. "
+                f"Use a different email."
+            )
+
         domain = field.data.split("@")[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "You can't create an account with an email address "
-                "from this domain. Use a different email."
+                "You can't use an email address from this domain. Use a "
+                "different email."
             )
 
 
@@ -193,6 +201,7 @@ class RegistrationForm(
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.user_id = None
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):

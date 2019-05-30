@@ -106,7 +106,9 @@ class ManageAccountViews:
     def default_response(self):
         return {
             "save_account_form": SaveAccountForm(name=self.request.user.name),
-            "add_email_form": AddEmailForm(user_service=self.user_service),
+            "add_email_form": AddEmailForm(
+                user_service=self.user_service, user_id=self.request.user.id
+            ),
             "change_password_form": ChangePasswordForm(
                 user_service=self.user_service, breach_service=self.breach_service
             ),
@@ -129,7 +131,11 @@ class ManageAccountViews:
 
     @view_config(request_method="POST", request_param=AddEmailForm.__params__)
     def add_email(self):
-        form = AddEmailForm(self.request.POST, user_service=self.user_service)
+        form = AddEmailForm(
+            self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
 
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)

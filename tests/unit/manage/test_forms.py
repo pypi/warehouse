@@ -71,9 +71,52 @@ class TestCreateRoleForm:
 class TestAddEmailForm:
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.AddEmailForm(user_service=user_service)
+        form = forms.AddEmailForm(user_service=user_service, user_id=pretend.stub())
 
         assert form.user_service is user_service
+
+    def test_email_exists_error(self):
+        user_id = pretend.stub()
+        form = forms.AddEmailForm(
+            data={"email": "foo@bar.com"},
+            user_id=user_id,
+            user_service=pretend.stub(find_userid_by_email=lambda _: user_id),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop()
+            == "This email address is already being used by this account. "
+            "Use a different email."
+        )
+
+    def test_email_exists_other_account_error(self):
+        form = forms.AddEmailForm(
+            data={"email": "foo@bar.com"},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(find_userid_by_email=lambda _: pretend.stub()),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop()
+            == "This email address is already being used by another account. "
+            "Use a different email."
+        )
+
+    def test_blacklisted_email_error(self):
+        form = forms.AddEmailForm(
+            data={"email": "foo@bearsarefuzzy.com"},
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop()
+            == "You can't use an email address from this domain. "
+            "Use a different email."
+        )
 
 
 class TestChangePasswordForm:

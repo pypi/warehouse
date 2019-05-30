@@ -47,12 +47,13 @@ class TestManageAccount:
         breach_service = pretend.stub()
         user_service = pretend.stub()
         name = pretend.stub()
+        user_id = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, id=user_id),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -79,7 +80,9 @@ class TestManageAccount:
         assert view.request == request
         assert view.user_service == user_service
         assert save_account_cls.calls == [pretend.call(name=name)]
-        assert add_email_cls.calls == [pretend.call(user_service=user_service)]
+        assert add_email_cls.calls == [
+            pretend.call(user_id=user_id, user_service=user_service)
+        ]
         assert change_pass_cls.calls == [
             pretend.call(user_service=user_service, breach_service=breach_service)
         ]
@@ -229,7 +232,7 @@ class TestManageAccount:
             db=pretend.stub(flush=lambda: None),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda a, **kw: pretend.stub(),
-            user=pretend.stub(emails=[], name=pretend.stub()),
+            user=pretend.stub(emails=[], name=pretend.stub(), id=pretend.stub()),
         )
         add_email_obj = pretend.stub(
             validate=lambda: False, email=pretend.stub(data=email_address)
