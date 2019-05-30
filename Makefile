@@ -52,9 +52,9 @@ default:
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.6 virtual environment
+	# Create our Python 3.7 virtual environment
 	rm -rf .state/env
-	python3.6 -m venv .state/env
+	python3.7 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel

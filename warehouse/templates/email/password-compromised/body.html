@@ -17,15 +17,14 @@
 {% block content %}
 <h3>What?</h3>
 <p>
-  During your recent attempt to log in or upload to PyPI, we noticed your password appears
-  in public data breaches. To protect you and other users, we have preemptively reset your
-  password and you will no longer be able to log in or upload to PyPI with your existing
+  PyPI administrators have determined that your password is compromised. To
+  protect you and other users, we have preemptively reset your password and you
+  will no longer be able to log in or upload to PyPI with your existing
   password.
 </p>
 <p>
   PyPI itself has not suffered a breach. This is a protective measure to reduce the
-  risk of <a href="https://www.owasp.org/index.php/Credential_stuffing">credential stuffing</a>
-  attacks against PyPI and its users.
+  risk for PyPI and its users.
 </p>
 
 
@@ -33,24 +32,13 @@
 <p>
   To regain access to your account,
   <a href="{{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}">reset your password</a>
-  on PyPI. We also recommend that you go to
-  <a href="https://haveibeenpwned.com/">HaveIBeenPwned</a> and check your other
-  passwords and get yourself familiar with good password practices.
+  on PyPI.
 </p>
 
 
-<h3>How do you know this?</h3>
+<h3>How can I contact you?</h3>
 <p>
-  We use a free security service from
-  <a href="https://haveibeenpwned.com/">HaveIBeenPwned</a>. When registering,
-  authenticating, or updating your password, we generate a SHA1 hash of your password
-  and use the first 5 characters of the hash to decide if the password is compromised.
-  The plaintext password is never stored by PyPI or sent to HaveIBeenPwned.
-</p>
-<p>
-  For more information, see our
-  <a href="{{ request.help_url(_anchor='compromised-password') }}">FAQ</a>. For help,
-  you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with
+  For more information, you can email admin@pypi.org to communicate with
   the PyPI administrators.
 </p>
 {% endblock %}

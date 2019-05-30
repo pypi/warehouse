@@ -19,7 +19,7 @@
 {%- endmacro %}
 
 {% macro localize(timestamp) -%}
-<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time">
+<time class="tooltipped tooltipped-s -js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time">
   {{ timestamp|format_date()}}
 </time>
 {%- endmacro %}
@@ -168,6 +168,13 @@
       </noscript>
     </section>
 
+    <div class="notification-bar">
+      <span class="notification-bar__message">
+        Donate to the Python Software Foundation or Purchase a PyCharm License to Benefit the PSF!
+        <a href="https://www.python.org/psf/donations/2019-q2-drive/" target="_blank" title="Donate to the Python Software Foundation">Donate Now</a>
+      </span>
+    </div>
+
     {% block flash_messages %}
       {% csi request.route_path("includes.flash-messages") %}
       {% endcsi %}
@@ -179,7 +186,10 @@
     </div>
     {% endfor %}
 
-    {% block session_notifications %}{% endblock %}
+    {% block session_notifications %}
+      {% csi request.route_path("includes.session-notifications") %}
+      {% endcsi %}
+    {% endblock %}
 
     <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
       <div class="site-container">
@@ -246,7 +256,7 @@
             <h2>Help</h2>
           </li>
           <li><a href="https://packaging.python.org/installing/">Installing packages</a></li>
-          <li><a href="https://packaging.python.org/distributing/">Uploading packages</a></li>
+          <li><a href="https://packaging.python.org/tutorials/packaging-projects/">Uploading packages</a></li>
           <li><a href="https://packaging.python.org/">User guide</a></li>
           <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
         </ul>

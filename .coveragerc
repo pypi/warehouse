@@ -22,5 +22,5 @@ omit =
 
 [report]
 exclude_lines =
-    # pragma: no cover
+    pragma: no cover
     class \w+\(Interface\):

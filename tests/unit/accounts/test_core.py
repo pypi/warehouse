@@ -164,7 +164,9 @@ class TestLogin:
         self, monkeypatch, pyramid_request, pyramid_services
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(accounts, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(
+            accounts, "send_password_compromised_email_hibp", send_email
+        )
 
         user = pretend.stub(id=2)
         service = pretend.stub(
@@ -291,6 +293,9 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="password"), ITokenService, name="password"
         ),
         pretend.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
+        pretend.call(
+            TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
+        ),
         pretend.call(
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,

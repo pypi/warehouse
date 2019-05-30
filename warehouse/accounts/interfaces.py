@@ -20,15 +20,19 @@ class TooManyFailedLogins(Exception):
         return super().__init__(*args, **kwargs)
 
 
-class TokenExpired(Exception):
+class TokenException(Exception):
     pass
 
 
-class TokenInvalid(Exception):
+class TokenExpired(TokenException):
     pass
 
 
-class TokenMissing(Exception):
+class TokenInvalid(TokenException):
+    pass
+
+
+class TokenMissing(TokenException):
     pass
 
 
@@ -95,6 +99,25 @@ class IUserService(Interface):
         """
         Checks if a user has been disabled, and returns a tuple of
         (IsDisabled: bool, Reason: Optional[DisableReason])
+        """
+
+    def has_two_factor(user_id):
+        """
+        Returns True if the user has any form of two factor
+        authentication and is allowed to use it.
+        """
+
+    def get_totp_secret(user_id):
+        """
+        Returns the user's TOTP secret as bytes.
+
+        If the user doesn't have a TOTP secret or is not
+        allowed to use a second factor, returns None.
+        """
+
+    def check_totp_value(user_id, totp_value, *, tags=None):
+        """
+        Returns True if the given TOTP code is valid.
         """
 
 

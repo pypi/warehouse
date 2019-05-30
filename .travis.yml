@@ -1,13 +1,11 @@
 language: python
-python: 3.6.6
+python: 3.7.3
 
 env:
   global:
     - TRAVIS_NODE_VERSION=8.9.4
-    - PGPORT=5433
 
-dist: trusty
-sudo: required
+dist: xenial
 
 addons:
   hosts:
@@ -18,6 +16,7 @@ addons:
     - postgresql-10
     - postgresql-client-10
     - nasm
+    - libgnutls28-dev
 
 services:
   - postgresql
@@ -32,8 +31,6 @@ install:
   - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm install
-  - sudo cp /etc/postgresql/{9.6,10}/main/pg_hba.conf
-  - sudo service postgresql restart
 
 script:
   - node -v

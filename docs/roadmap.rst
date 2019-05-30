@@ -9,6 +9,14 @@ Roadmap
 As we develop Warehouse, here are our plans along the way. To talk
 about them with us, please `contact us`_.
 
+OTF grant work
+~~~~~~~~~~~~~~
+
+The current priority: `security, accessibility, and localization work funded by
+the Open Technology Fund`_, starting with `two-factor authentication for
+PyPI`_.
+
+
 Post legacy shutdown
 ~~~~~~~~~~~~~~~~~~~~
 Issues that are unblocked now that legacy is dead (RIP).
@@ -56,6 +64,8 @@ Sprint planners should consider the following checklist for organising events:
 - Where possible, pair people to work on issues together. This is particularly
   useful for large issues, or for newer developers.
 
+.. _`security, accessibility, and localization work funded by the Open Technology Fund`: https://pyfound.blogspot.com/2019/03/commencing-security-accessibility-and.html
+.. _`two-factor authentication for PyPI`: https://github.com/pypa/warehouse/issues/996
 .. _`issues marked with the post-legacy shutdown milestone`: https://github.com/pypa/warehouse/milestone/12
 .. _`issues marked with the cool-but-not-urgent milestone`: https://github.com/pypa/warehouse/milestone/11
 .. _`contact us`: https://github.com/pypa/warehouse/blob/master/README.rst#discussion

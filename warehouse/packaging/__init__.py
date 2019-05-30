@@ -14,11 +14,11 @@ from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
 
 from warehouse import db
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
-from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import compute_trending
+from warehouse.packaging.tasks import compute_trending, update_description_html
 
 
 @db.listens_for(User.name, "set")
@@ -88,6 +88,8 @@ def includeme(config):
             key_factory("project/{itr.normalized_name}", iterate_on="user.projects"),
         ],
     )
+
+    config.add_periodic_task(crontab(minute="*/5"), update_description_html)
 
     # Add a periodic task to compute trending once a day, assuming we have
     # been configured to be able to access BigQuery.

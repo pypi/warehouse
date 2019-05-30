@@ -24,12 +24,17 @@
 {% macro installing() %}How do I install a file (package) from PyPI?{% endmacro %}
 {% macro publishing() %}How do I package and publish my code for PyPI?{% endmacro %}
 {% macro trove_classifier() %}What's a trove classifier?{% endmacro %}
+
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
+{% macro twoFA() %}How do I access my PyPI account using two factor authentication?{% endmacro %}
+{% macro totp() %}How do I generate a code through a TOTP application?{% endmacro %}
+
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
 {% macro project_release_notifications() %}How do I get notified when a new version of a project is released?{% endmacro %}
 {% macro statistics() %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endmacro %}
+
 {% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
 {% macro tls_deprecation() %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endmacro %}
 {% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
@@ -37,20 +42,23 @@
 {% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 {% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
 {% macro file_size_limit() %}How do I get a file size limit exemption or increase for my project?{% endmacro %}
+
 {% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro collaborator_roles() %}What collaborator roles are available for a project on PyPI?{% endmacro %}
 {% macro request_ownership() %}How do I become a owner/maintainer of a project on PyPI?{% endmacro %}
 {% macro description_content_type() %}How can I upload a project description in a different format?{% endmacro %}
 {% macro new_classifier() %}How do I request a new trove classifier?{% endmacro %}
 {% macro feedback() %}Where can I report a bug or provide feedback about PyPI?{% endmacro %}
+
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
 {% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
 {% macro contributing() %}How can I contribute to PyPI?{% endmacro %}
 {% macro upcoming_changes() %}How do I keep up with upcoming changes to PyPI?{% endmacro %}
-{% block title %}Help{% endblock %}
 
+{% block title %}Help{% endblock %}
 
 {% block content %}
   <section class="horizontal-section">
@@ -64,8 +72,16 @@
           <li><a href="#installing">{{ installing() }}</a></li>
           <li><a href="#publishing">{{ publishing() }}</a></li>
           <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
+        </ul>
+      </section>
+
+      <section class="faq-group faq-group--list">
+        <h2><a href="#my-account">My Account</a></h2>
+        <ul>
           <li><a href="#verified-email">{{ verified_email() }}</a></li>
           <li><a href="#compromised-password">{{ compromised_password() }}</a></li>
+          <li><a href="#2fa">{{ twoFA() }}</a></li>
+          <li><a href="#totp">{{ totp() }}</a></li>
         </ul>
       </section>
 
@@ -85,6 +101,7 @@
           <li><a href="#private-indices">{{ private_indices() }}</a></li>
           <li><a href="#project-name">{{ project_name() }}</a></li>
           <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
+          <li><a href="#collaborator-roles">{{ collaborator_roles() }}</a></li>
           <li><a href="#request-ownership">{{ request_ownership() }}</a></li>
           <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
@@ -133,6 +150,10 @@
 
         <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
         <p>Classifiers are used to categorize projects on PyPI. See <a href="{{ request.route_path('classifiers') }}"> {{ request.route_url('classifiers') }}</a> for more information, as well as a list of valid classifiers.</p>
+      </section>
+
+      <section class="faq-group" id="my-account">
+        <h2>My account</h2>
 
         <h3 id="verified-email">{{ verified_email() }}</h3>
         <p>Currently, PyPI requires a verified email address to perform the following operations:</p>
@@ -145,12 +166,27 @@
         <p>You can manage your account's email addresses in your <a href="{{ request.route_path('manage.account') }}">Profile</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.</p>
 
         <h3 id="compromised-password">{{ compromised_password() }}</h3>
-          <p>PyPI itself has not suffered a breach. This is a protective measure to reduce the risk of <a href="https://www.owasp.org/index.php/Credential_stuffing" target="_blank" rel="noopener">credential stuffing</a> attacks against PyPI and its users.</p>
-          <p>Each time a user supplies a password — while registering, authenticating, or updating their password — PyPI securely checks whether that password has appeared in public data breaches.</p>
-          <p>During each of these processes, PyPI generates a SHA-1 hash of the supplied password and uses the first five (5) characters of the hash to check the <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">Have I Been Pwned API</a> and determine if the password has been previously compromised. The plaintext password is never stored by PyPI or submitted to the Have I Been Pwned API.</p>
-          <p>PyPI will not allow such passwords to be used when setting a password at registration or updating your password.</p>
-          <p>If you receive an error message saying that "This password appears in a breach or has been compromised and cannot be used", you should change it all other places that you use it as soon as possible.</p>
-          <p>If you have received this error while attempting to log in or upload to PyPI, then your password has been reset and you cannot log in to PyPI until you <a href="{{ request.route_url('accounts.request-password-reset') }}">reset your password</a>.</p>
+        <p>PyPI itself has not suffered a breach. This is a protective measure to reduce the risk of <a href="https://www.owasp.org/index.php/Credential_stuffing" target="_blank" rel="noopener">credential stuffing</a> attacks against PyPI and its users.</p>
+        <p>Each time a user supplies a password — while registering, authenticating, or updating their password — PyPI securely checks whether that password has appeared in public data breaches.</p>
+        <p>During each of these processes, PyPI generates a SHA-1 hash of the supplied password and uses the first five (5) characters of the hash to check the <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">Have I Been Pwned API</a> and determine if the password has been previously compromised. The plaintext password is never stored by PyPI or submitted to the Have I Been Pwned API.</p>
+        <p>PyPI will not allow such passwords to be used when setting a password at registration or updating your password.</p>
+        <p>If you receive an error message saying that "This password appears in a breach or has been compromised and cannot be used", you should change it all other places that you use it as soon as possible.</p>
+        <p>If you have received this error while attempting to log in or upload to PyPI, then your password has been reset and you cannot log in to PyPI until you <a href="{{ request.route_url('accounts.request-password-reset') }}">reset your password</a>.</p>
+
+        <h3 id="2fa">{{ twoFA() }}</h3>
+        <p>Users who have chosen to set up two factor authentication (2FA) on their PyPI account must provide a second method of identity verification (other than their username and password) to log in.</p>
+        <p>PyPI currently supports a single 2FA method: <a href="#totp">Generating a code through a TOTP application</a>.
+
+        <h3 id="totp">{{ totp() }}</h3>
+        <p>When enabling two factor authentication (2FA) via <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm">TOTP</a> in your account admin, you were asked to provision an application (usually a mobile phone app) in order to generate authentication codes. Popular applications include:</p>
+        <ul>
+          <li><a href="https://freeotp.github.io/">FreeOTP</a> (open source)</li>
+          <li><a href="https://play.google.com/store/apps/details?id=org.liberty.android.freeotpplus">FreeOTP+</a> (open source)</li>
+          <li>Google Authenticator for <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Android</a> or <a href="https://itunes.apple.com/app/google-authenticator/id388497605">iPhone</a> (proprietary)</li>
+          <li><a href="https://authy.com/">Authy</a> (proprietary)</li>
+          <li>Duo Mobile for <a href="https://play.google.com/store/apps/details?id=com.duosecurity.duomobile">Android</a> and <a href="https://itunes.apple.com/app/duo-mobile/id422663827">iPhone</a> (proprietary)</li>
+        </ul>
+        <p>Open the application of your choice to generate a code.</p>
       </section>
 
       <section class="faq-group" id="integrating">
@@ -188,6 +224,11 @@
         <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
         <p>There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development per <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a>.</p>
         <p>PEP 541 has been accepted, and PyPI is <a href="https://github.com/pypa/warehouse/issues/1506">creating a workflow</a> which will be documented here.</p>
+
+        <h3 id="collaborator-roles">{{ collaborator_roles() }}</h3>
+        <p>There are two possible roles for collaborators:</p>
+        <p><strong>Maintainer</strong>: Can upload releases for a package. Cannot add collaborators. Cannot delete files, releases, or the project.</p>
+        <p><strong>Owner</strong>: Can upload releases. Can add other collaborators. Can delete files, releases, or the entire project.</p>
 
         <h3 id="request-ownership">{{ request_ownership() }}</h3>
         <p>Only the current owners of a project have the ability to add new owners or maintainers. If you need to request ownership, you should contact the current owner(s) of the project directly. Many project owners provide their contact details in the 'Author' field of the 'Meta' details on the project page.</p>
@@ -269,7 +310,7 @@
         <h3 id="maintainers">{{ maintainers() }}</h3>
         <p>PyPI is powered by the Warehouse project; <a href="https://warehouse.readthedocs.io/">Warehouse</a> is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).</p>
         <p>The <a href="https://www.pypa.io/en/latest/">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.</p>
-        <p>The <a href="https://wiki.python.org/psf/PackagingWG">PackagingWG</a> is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging. Most recently it <a href="https://pyfound.blogspot.com/2017/11/the-psf-awarded-moss-grant-pypi.html" target="_blank" rel="noopener">secured an award from Mozilla</a> whose funding enabled maintainers to improve Warehouse and launch the current version of PyPI.</p>
+        <p>The <a href="https://wiki.python.org/psf/PackagingWG">PackagingWG</a> is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging. Most recently it <a href="https://pyfound.blogspot.com/2019/03/commencing-security-accessibility-and.html" target="_blank" rel="noopener">secured an award from the Open Technology Fund</a> whose funding is enabling developers to improve Warehouse's security and accessibility.</p>
 
         <h3 id="sponsors">{{ sponsors() }}</h3>
         <p>PyPI is powered by <a href="https://warehouse.readthedocs.io/">Warehouse</a> and by a variety of tools and services provided by our <a href="{{ request.route_path('sponsors') }}">generous sponsors</a>.</p>

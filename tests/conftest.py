@@ -126,6 +126,10 @@ def database(request):
     pg_db = config.get("db", "tests")
     pg_version = config.get("version", 10.1)
 
+    # In case the database already exists, possibly due to an aborted test run,
+    # attempt to drop it before creating
+    drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_version)
+
     # Create our Database.
     init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
 
