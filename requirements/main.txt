@@ -585,8 +585,8 @@ zope.interface==4.6.0 \
     --hash=sha256:f99451f3a579e73b5dd58b1b08d1179791d49084371d9a47baad3b22417f0317
 zope.sqlalchemy==1.0 \
     --hash=sha256:9316a1a8bb9e4f9f59332acf1ad2cc8b664f19a4bde5f68be7f61f3e11f80514
-zxcvbn==4.4.27 \
-    --hash=sha256:6b09db5a411f927a7effac40b50ab0f9b1eae7b1659134b4a931e78950dd8387
+zxcvbn==4.4.28 \
+    --hash=sha256:151bd816817e645e9064c354b13544f85137ea3320ca3be1fb6873ea75ef7dc1
 
 # The following packages are considered to be unsafe in a requirements file:
 setuptools==41.0.1 \
