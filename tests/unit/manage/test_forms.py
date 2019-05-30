@@ -114,7 +114,7 @@ class TestAddEmailForm:
         assert not form.validate()
         assert (
             form.email.errors.pop()
-            == "You can't add an email address from this domain. "
+            == "You can't use an email address from this domain. "
             "Use a different email."
         )
 

@@ -336,8 +336,8 @@ class TestRegistrationForm:
         assert not form.validate()
         assert (
             form.email.errors.pop()
-            == "You can't create an account with an email address from "
-            "this domain. Use a different email."
+            == "You can't use an email address from this domain. Use a "
+            "different email."
         )
 
     def test_username_exists(self):
