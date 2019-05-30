@@ -231,7 +231,7 @@ class DatabaseUserService:
     def has_two_factor(self, user_id):
         """
         Returns True if the user has any form of two factor
-        authentication.
+        authentication and is allowed to use it.
         """
         user = self.get_user(user_id)
 
@@ -241,13 +241,9 @@ class DatabaseUserService:
         """
         Returns the user's TOTP secret as bytes.
 
-        If the user doesn't have a TOTP secret, returns None.
+        If the user doesn't have a TOTP, returns None.
         """
         user = self.get_user(user_id)
-
-        # TODO: Remove once all users are allowed to enroll in two-factor.
-        if not user.two_factor_allowed:  # pragma: no cover
-            return None
 
         return user.totp_secret
 
@@ -255,7 +251,8 @@ class DatabaseUserService:
         """
         Returns True if the given TOTP is valid against the user's secret.
 
-        If the user doesn't have a TOTP secret, returns False.
+        If the user doesn't have a TOTP secret or isn't allowed
+        to use second factor methods, returns False.
         """
         tags = tags if tags is not None else []
         self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)

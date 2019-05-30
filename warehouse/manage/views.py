@@ -325,6 +325,12 @@ class ProvisionTOTPViews:
 
     @view_config(route_name="manage.account.totp-provision.image", request_method="GET")
     def generate_totp_qr(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
             return Response(status=403)
@@ -337,6 +343,12 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="GET")
     def totp_provision(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
             self.request.session.flash("TOTP already provisioned.", queue="error")
@@ -346,6 +358,12 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
             self.request.session.flash("TOTP already provisioned.", queue="error")
@@ -371,6 +389,12 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_totp(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if not totp_secret:
             self.request.session.flash("No TOTP application to delete.", queue="error")
