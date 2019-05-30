@@ -20,6 +20,7 @@ import redis
 from pyramid import viewderivers
 
 import warehouse.sessions
+import warehouse.utils.otp as otp
 
 from warehouse.sessions import (
     InvalidSession,
@@ -248,6 +249,27 @@ class TestSession:
 
         assert session.get_csrf_token() == "123456"
         assert session.new_csrf_token.calls == [pretend.call()]
+
+    def test_get_totp_secret(self, monkeypatch):
+        session = Session()
+        session[session._totp_secret_key] = b"foobar"
+
+        assert session.get_totp_secret() == b"foobar"
+
+    def test_get_totp_secret_empty(self, monkeypatch):
+        generate_totp_secret = pretend.call_recorder(lambda: b"foobar")
+        monkeypatch.setattr(otp, "generate_totp_secret", generate_totp_secret)
+
+        session = Session()
+        assert session.get_totp_secret() == b"foobar"
+        assert session._totp_secret_key in session
+
+    def test_clear_totp_secret(self):
+        session = Session()
+        session[session._totp_secret_key] = b"foobar"
+
+        session.clear_totp_secret()
+        assert not session[session._totp_secret_key]
 
 
 class TestSessionFactory:

@@ -22,7 +22,9 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import DisableReason, Email, User
+from warehouse.email import send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -67,7 +69,7 @@ def user_list(request):
     return {"users": users, "query": q}
 
 
-class EmailField(forms.Form):
+class EmailForm(forms.Form):
 
     email = wtforms.fields.html5.EmailField(
         validators=[wtforms.validators.DataRequired()]
@@ -86,7 +88,7 @@ class UserForm(forms.Form):
     is_superuser = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
 
-    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailField))
+    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
 
 
 @view_config(
@@ -129,7 +131,33 @@ def user_detail(request):
         form.populate_obj(user)
         return HTTPSeeOther(location=request.current_route_path())
 
-    return {"user": user, "form": form, "roles": roles}
+    return {"user": user, "form": form, "roles": roles, "add_email_form": EmailForm()}
+
+
+@view_config(
+    route_name="admin.user.add_email",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def user_add_email(request):
+    user = request.db.query(User).get(request.matchdict["user_id"])
+    form = EmailForm(request.POST)
+
+    if form.validate():
+        email = Email(
+            email=form.email.data,
+            user=user,
+            primary=form.primary.data,
+            verified=form.verified.data,
+        )
+        request.db.add(email)
+        request.session.flash(
+            f"Added email for user {user.username!r}", queue="success"
+        )
+
+    return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
 
 @view_config(
@@ -179,3 +207,25 @@ def user_delete(request):
     )
     request.session.flash(f"Nuked user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.list"))
+
+
+@view_config(
+    route_name="admin.user.reset_password",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def user_reset_password(request):
+    user = request.db.query(User).get(request.matchdict["user_id"])
+
+    if user.username != request.params.get("username"):
+        request.session.flash(f"Wrong confirmation input", queue="error")
+        return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
+
+    login_service = request.find_service(IUserService, context=None)
+    send_password_compromised_email(request, user)
+    login_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
+
+    request.session.flash(f"Reset password for {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))

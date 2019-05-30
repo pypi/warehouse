@@ -18,7 +18,8 @@ import wtforms.fields.html5
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
-from warehouse.email import send_password_compromised_email
+from warehouse.email import send_password_compromised_email_hibp
+from warehouse.utils.otp import TOTP_LENGTH
 
 
 class UsernameMixin:
@@ -30,6 +31,19 @@ class UsernameMixin:
 
         if userid is None:
             raise wtforms.validators.ValidationError("No user found with that username")
+
+
+class TOTPValueMixin:
+
+    totp_value = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                rf"^[0-9]{{{TOTP_LENGTH}}}$",
+                message=f"TOTP code must be {TOTP_LENGTH} digits.",
+            ),
+        ]
+    )
 
 
 class NewUsernameMixin:
@@ -210,13 +224,25 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 field.data, tags=["method:auth", "auth_method:login_form"]
             ):
                 user = self.user_service.get_user(userid)
-                send_password_compromised_email(self.request, user)
+                send_password_compromised_email_hibp(self.request, user)
                 self.user_service.disable_password(
                     user.id, reason=DisableReason.CompromisedPassword
                 )
                 raise wtforms.validators.ValidationError(
                     jinja2.Markup(self.breach_service.failure_message)
                 )
+
+
+class TwoFactorForm(TOTPValueMixin, forms.Form):
+    def __init__(self, *args, user_id, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.user_service = user_service
+
+    def validate_totp_value(self, field):
+        totp_value = field.data.encode("utf8")
+        if not self.user_service.check_totp_value(self.user_id, totp_value):
+            raise wtforms.validators.ValidationError("Invalid TOTP code.")
 
 
 class RequestPasswordResetForm(forms.Form):

@@ -14,6 +14,7 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
+    Binary,
     Boolean,
     CheckConstraint,
     Column,
@@ -79,6 +80,7 @@ class User(SitemapMixin, db.Model):
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
+    totp_secret = Column(Binary(length=20), nullable=True)
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
@@ -102,6 +104,16 @@ class User(SitemapMixin, db.Model):
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .as_scalar()
         )
+
+    @property
+    def has_two_factor(self):
+        # TODO: This is where user.u2f_provisioned et al.
+        # will also go.
+        return self.totp_secret is not None
+
+    @property
+    def two_factor_provisioning_allowed(self):
+        return self.primary_email is not None and self.primary_email.verified
 
 
 class UnverifyReasons(enum.Enum):
