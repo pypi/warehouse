@@ -203,8 +203,8 @@ google-cloud-core==1.0.1 \
 google-resumable-media==0.3.2 \
     --hash=sha256:2dae98ee716efe799db3578a7b902fbf5592fc5c77d3c0906fc4ef9b1b930861 \
     --hash=sha256:3e38923493ca0d7de0ad91c31acfefc393c78586db89364e91cb4f11990e51ba
-googleapis-common-protos==1.5.10 \
-    --hash=sha256:d564872083af40bbcc7091340f17db778a316525c7c76497d58d11b98ca2aa74
+googleapis-common-protos==1.6.0 \
+    --hash=sha256:e61b8ed5e36b976b487c6e7b15f31bb10c7a0ca7bd5c0e837f4afab64b53a0c6
 hiredis==1.0.0 \
     --hash=sha256:0124911115f2cb7deb4f8e221e109a53d3d718174b238a2c5e2162175a3929a5 \
     --hash=sha256:0656658d0448c2c82c4890ae933c2c2e51196101d3d06fc19cc92e062410c2fd \
