@@ -992,7 +992,7 @@ class TestResetPassword:
         assert db_request.route_path.calls == [pretend.call("accounts.login")]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
         assert user_service.update_user.calls == [
-            pretend.call(user.id, password=form_obj.new_password.data),
+            pretend.call(user.id, password=form_obj.new_password.data)
         ]
         assert db_request.session.flash.calls == [
             pretend.call("You have reset your password", queue="success")
