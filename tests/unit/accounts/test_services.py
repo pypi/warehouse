@@ -366,6 +366,46 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         assert not user_service.check_totp_value(user.id, b"123456")
 
+    def test_check_totp_global_rate_limited(self, user_service, metrics):
+        resets = pretend.stub()
+        limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
+        user_service.ratelimiters["global"] = limiter
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_totp_value(uuid.uuid4(), b"123456", tags=["foo"])
+
+        assert excinfo.value.resets_in is resets
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.two_factor.start", tags=["foo"]),
+            pretend.call(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=["foo", "ratelimiter:global"],
+            ),
+        ]
+
+    def test_check_totp_value_user_rate_limited(self, user_service, metrics):
+        user = UserFactory.create()
+        resets = pretend.stub()
+        limiter = pretend.stub(
+            test=pretend.call_recorder(lambda uid: False),
+            resets_in=pretend.call_recorder(lambda uid: resets),
+        )
+        user_service.ratelimiters["user"] = limiter
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_totp_value(user.id, b"123456")
+
+        assert excinfo.value.resets_in is resets
+        assert limiter.test.calls == [pretend.call(user.id)]
+        assert limiter.resets_in.calls == [pretend.call(user.id)]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.two_factor.start", tags=[]),
+            pretend.call(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=["ratelimiter:user"],
+            ),
+        ]
+
 
 class TestTokenService:
     def test_verify_service(self):
