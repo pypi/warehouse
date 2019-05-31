@@ -952,7 +952,7 @@ class TestResetPassword:
 
         breach_service = pretend.stub(check_password=lambda pw: False)
 
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "password-reset",
@@ -977,7 +977,7 @@ class TestResetPassword:
             result = views.reset_password(db_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/"
+        assert result.headers["Location"] == "/account/login"
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(
@@ -989,11 +989,10 @@ class TestResetPassword:
                 breach_service=breach_service,
             )
         ]
-        assert db_request.route_path.calls == [pretend.call("index")]
+        assert db_request.route_path.calls == [pretend.call("accounts.login")]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
         assert user_service.update_user.calls == [
             pretend.call(user.id, password=form_obj.new_password.data),
-            pretend.call(user.id, last_login=now),
         ]
         assert db_request.session.flash.calls == [
             pretend.call("You have reset your password", queue="success")
@@ -1002,7 +1001,6 @@ class TestResetPassword:
             pretend.call(IUserService, context=None),
             pretend.call(IPasswordBreachedService, context=None),
             pretend.call(ITokenService, name="password"),
-            pretend.call(IUserService, context=None),
         ]
 
     @pytest.mark.parametrize(
