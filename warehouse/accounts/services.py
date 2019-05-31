@@ -268,8 +268,6 @@ class DatabaseUserService:
             )
             raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
 
-        totp_secret = self.get_totp_secret(user_id)
-
         # Now, check to make sure that we haven't hitten a rate limit on a
         # per user basis.
         if not self.ratelimiters["user"].test(user_id):
@@ -280,6 +278,8 @@ class DatabaseUserService:
             raise TooManyFailedLogins(
                 resets_in=self.ratelimiters["user"].resets_in(user_id)
             )
+
+        totp_secret = self.get_totp_secret(user_id)
 
         if totp_secret is None:
             self._metrics.increment(
