@@ -257,6 +257,28 @@ class DatabaseUserService:
         tags = tags if tags is not None else []
         self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
 
+        # The very first thing we want to do is check to see if we've hit our
+        # global rate limit or not, assuming that we've been configured with a
+        # global rate limiter anyways.
+        if not self.ratelimiters["global"].test():
+            logger.warning("Global failed login threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=tags + ["ratelimiter:global"],
+            )
+            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+
+        # Now, check to make sure that we haven't hitten a rate limit on a
+        # per user basis.
+        if not self.ratelimiters["user"].test(user_id):
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=tags + ["ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["user"].resets_in(user_id)
+            )
+
         totp_secret = self.get_totp_secret(user_id)
 
         if totp_secret is None:
