@@ -116,9 +116,7 @@ class User(SitemapMixin, db.Model):
 
     @property
     def has_two_factor(self):
-        return self.two_factor_allowed and (
-            self.totp_secret is not None or self.webauthn is not None
-        )
+        self.totp_secret is not None or self.webauthn is not None
 
     @property
     def two_factor_provisioning_allowed(self):
