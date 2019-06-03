@@ -12,8 +12,8 @@
 
 import pretend
 import pytest
-
 import webauthn as pywebauthn
+
 import warehouse.utils.webauthn as webauthn
 
 
@@ -98,4 +98,21 @@ def test_verify_assertion_response(monkeypatch):
 
 
 def test_verify_assertion_response_failure(monkeypatch):
-    pass
+    assertion_obj = pretend.stub(
+        verify=pretend.raiser(pywebauthn.webauthn.AuthenticationRejectedException)
+    )
+    assertion_cls = pretend.call_recorder(lambda *a, **kw: assertion_obj)
+    monkeypatch.setattr(pywebauthn, "WebAuthnAssertionResponse", assertion_cls)
+
+    get_webauthn_user = pretend.call_recorder(lambda *a, **kw: pretend.stub())
+    monkeypatch.setattr(webauthn, "_get_webauthn_user", get_webauthn_user)
+
+    with pytest.raises(webauthn.AuthenticationRejectedException):
+        webauthn.verify_assertion_response(
+            pretend.stub(),
+            challenge="not_a_real_challenge",
+            user=pretend.stub(),
+            origin="fake_origin",
+            icon_url="fake_icon_url",
+            rp_id="fake_rp_id",
+        )
