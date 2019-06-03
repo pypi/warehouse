@@ -37,7 +37,7 @@ ensure that a given dependency:
 - Doesn't introduce a large amount of sub-dependencies.
 
 All top-level dependencies are included in one or more ``.in`` files, which are
-then compiled into ``.txt`` files with precise versions and artifact hashses.
+then compiled into ``.txt`` files with precise versions and artifact hashes.
 
 When adding a new dependency, it's important to add it to the correct ``.in``
 file:
