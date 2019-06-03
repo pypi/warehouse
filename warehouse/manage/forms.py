@@ -133,7 +133,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
             credential_dict = json.loads(field.data.encode("utf8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
-                f"Invalid WebAuthn credential: Bad payload"
+                "Invalid WebAuthn credential: Bad payload"
             )
 
         try:
