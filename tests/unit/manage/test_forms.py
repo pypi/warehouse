@@ -214,6 +214,22 @@ class TestProvisionWebAuthnForm:
         assert not form.validate()
         assert form.credential.errors.pop() == "Fake exception"
 
+    def test_creates_validated_credential(self):
+        fake_validated_credential = object()
+        user_service = pretend.stub(
+            verify_webauthn_credential=lambda *a, **kw: fake_validated_credential
+        )
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "{}"},
+            user_service=user_service,
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert form.validate()
+        assert form.validated_credential is fake_validated_credential
+
 
 class TestDeleteWebAuthnForm:
     def test_creation(self):
