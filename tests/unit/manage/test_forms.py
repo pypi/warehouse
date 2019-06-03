@@ -17,6 +17,7 @@ import wtforms
 from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.manage import forms
 
@@ -163,5 +164,60 @@ class TestDeleteTOTPForm:
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.DeleteTOTPForm(user_service=user_service)
+
+        assert form.user_service is user_service
+
+
+class TestProvisionWebAuthnForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        challenge = pretend.stub()
+        rp_id = pretend.stub()
+        origin = pretend.stub()
+        form = forms.ProvisionWebAuthnForm(
+            user_service=user_service, challenge=challenge, rp_id=rp_id, origin=origin
+        )
+
+        assert form.user_service is user_service
+        assert form.challenge is challenge
+        assert form.rp_id is rp_id
+        assert form.origin is origin
+
+    def test_verify_assertion_invalid_json(self):
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "invalid json"},
+            user_service=pretend.stub(),
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            form.credential.errors.pop() == "Invalid WebAuthn credential: Bad payload"
+        )
+
+    def test_verify_assertion_invalid(self):
+        user_service = pretend.stub(
+            verify_webauthn_credential=pretend.raiser(
+                webauthn.RegistrationRejectedException("Fake exception")
+            )
+        )
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "{}"},
+            user_service=user_service,
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.credential.errors.pop() == "Fake exception"
+
+
+class TestDeleteWebAuthnForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.DeleteWebAuthnForm(user_service=user_service)
 
         assert form.user_service is user_service
