@@ -1089,6 +1089,15 @@ class TestProvisionTOTP:
 
 
 class TestProvisionWebAuthn:
+    def test_get_webauthn_view(self):
+        user_service = pretend.stub()
+        request = pretend.stub(find_service=lambda *a, **kw: user_service)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.webauthn_provision()
+
+        assert result == {}
+
     def test_get_webauthn_options(self):
         user_service = pretend.stub(
             get_webauthn_credential_options=pretend.call_recorder(

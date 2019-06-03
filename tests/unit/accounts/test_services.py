@@ -22,6 +22,7 @@ import requests
 from zope.interface.verify import verifyClass
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
@@ -468,14 +469,84 @@ class TestDatabaseUserService:
         assert options["rpId"] == "fake_rp_id"
         assert options["allowCredentials"][0]["id"] == user.webauthn.credential_id
 
-    def test_verify_webauthn_credential(self, user_service):
-        pass
+    def test_verify_webauthn_credential(self, user_service, monkeypatch):
+        user = UserFactory.create()
+        user_service.add_webauthn(
+            user.id, credential_id="foo", public_key="bar", sign_count=1
+        )
 
-    def test_verify_webauthn_assertion(self, user_service):
-        pass
+        fake_validated_credential = pretend.stub(credential_id=b"bar")
+        verify_registration_response = pretend.call_recorder(
+            lambda *a, **kw: fake_validated_credential
+        )
+        monkeypatch.setattr(
+            webauthn, "verify_registration_response", verify_registration_response
+        )
 
-    def test_add_webauthn(self, user_service):
-        pass
+        validated_credential = user_service.verify_webauthn_credential(
+            pretend.stub(),
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert validated_credential is fake_validated_credential
+
+    def test_verify_webauthn_credential_already_in_use(self, user_service, monkeypatch):
+        user = UserFactory.create()
+        user_service.add_webauthn(
+            user.id, credential_id="foo", public_key="bar", sign_count=1
+        )
+
+        fake_validated_credential = pretend.stub(credential_id=b"foo")
+        verify_registration_response = pretend.call_recorder(
+            lambda *a, **kw: fake_validated_credential
+        )
+        monkeypatch.setattr(
+            webauthn, "verify_registration_response", verify_registration_response
+        )
+
+        with pytest.raises(webauthn.RegistrationRejectedException):
+            user_service.verify_webauthn_credential(
+                pretend.stub(),
+                challenge=pretend.stub(),
+                rp_id=pretend.stub(),
+                origin=pretend.stub(),
+            )
+
+    def test_verify_webauthn_assertion(self, user_service, monkeypatch):
+        user = UserFactory.create()
+        user_service.add_webauthn(
+            user.id, credential_id="foo", public_key="bar", sign_count=1
+        )
+
+        verify_assertion_response = pretend.call_recorder(lambda *a, **kw: 2)
+        monkeypatch.setattr(
+            webauthn, "verify_assertion_response", verify_assertion_response
+        )
+
+        updated_sign_count = user_service.verify_webauthn_assertion(
+            user.id,
+            pretend.stub(),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert updated_sign_count == 2
+
+    def test_add_webauthn_already_added(self, user_service):
+        user = UserFactory.create()
+        user_service.add_webauthn(
+            user.id, credential_id="foo", public_key="bar", sign_count=1
+        )
+
+        assert (
+            user_service.add_webauthn(
+                user.id, credential_id="baz", public_key="quux", sign_count=1337
+            )
+            is None
+        )
 
 
 class TestTokenService:
