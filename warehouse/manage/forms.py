@@ -68,9 +68,10 @@ class AddEmailForm(NewEmailMixin, forms.Form):
 
     __params__ = ["email"]
 
-    def __init__(self, *args, user_service, **kwargs):
+    def __init__(self, *args, user_service, user_id, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.user_id = user_id
 
 
 class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):

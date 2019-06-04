@@ -231,7 +231,7 @@ class DatabaseUserService:
     def has_two_factor(self, user_id):
         """
         Returns True if the user has any form of two factor
-        authentication.
+        authentication and is allowed to use it.
         """
         user = self.get_user(user_id)
 
@@ -241,13 +241,9 @@ class DatabaseUserService:
         """
         Returns the user's TOTP secret as bytes.
 
-        If the user doesn't have a TOTP secret, returns None.
+        If the user doesn't have a TOTP, returns None.
         """
         user = self.get_user(user_id)
-
-        # TODO: Remove once all users are allowed to enroll in two-factor.
-        if not user.two_factor_allowed:  # pragma: no cover
-            return None
 
         return user.totp_secret
 
@@ -255,10 +251,33 @@ class DatabaseUserService:
         """
         Returns True if the given TOTP is valid against the user's secret.
 
-        If the user doesn't have a TOTP secret, returns False.
+        If the user doesn't have a TOTP secret or isn't allowed
+        to use second factor methods, returns False.
         """
         tags = tags if tags is not None else []
         self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
+
+        # The very first thing we want to do is check to see if we've hit our
+        # global rate limit or not, assuming that we've been configured with a
+        # global rate limiter anyways.
+        if not self.ratelimiters["global"].test():
+            logger.warning("Global failed login threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=tags + ["ratelimiter:global"],
+            )
+            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+
+        # Now, check to make sure that we haven't hitten a rate limit on a
+        # per user basis.
+        if not self.ratelimiters["user"].test(user_id):
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=tags + ["ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["user"].resets_in(user_id)
+            )
 
         totp_secret = self.get_totp_secret(user_id)
 
