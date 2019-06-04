@@ -60,7 +60,7 @@ from ...common.db.packaging import (
 
 def _get_tar_testdata(compression_type=""):
     temp_f = io.BytesIO()
-    with tarfile.open(fileobj=temp_f, mode="w:" + compression_type) as tar:
+    with tarfile.open(fileobj=temp_f, mode=f"w:{compression_type}") as tar:
         tar.add("/dev/null", arcname="fake_package/PKG-INFO")
     return temp_f.getvalue()
 
@@ -465,7 +465,7 @@ class TestFileValidation:
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
     @pytest.mark.parametrize("compression", ("", "gz", "bz2"))
-    def test_tarfile_validation(self, tmpdir, compression):
+    def test_tarfile_validation_invalid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
         data_file = str(tmpdir.join("dummy_data"))
@@ -473,15 +473,23 @@ class TestFileValidation:
         with open(data_file, "wb") as fp:
             fp.write(b"Dummy data file.")
 
-        with tarfile.open(tar_fn, "w:" + compression) as tar:
+        with tarfile.open(tar_fn, f"w:{compression}") as tar:
             tar.add(data_file, arcname="package/module.py")
 
         assert not legacy._is_valid_dist_file(
             tar_fn, "sdist"
         ), "no PKG-INFO; should fail"
 
-        os.unlink(tar_fn)
-        with tarfile.open(tar_fn, "w:" + compression) as tar:
+    @pytest.mark.parametrize("compression", ("", "gz", "bz2"))
+    def test_tarfile_validation_valid(self, tmpdir, compression):
+        file_extension = f".{compression}" if compression else ""
+        tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
+        data_file = str(tmpdir.join("dummy_data"))
+
+        with open(data_file, "wb") as fp:
+            fp.write(b"Dummy data file.")
+
+        with tarfile.open(tar_fn, f"w:{compression}") as tar:
             tar.add(data_file, arcname="package/module.py")
             tar.add(data_file, arcname="package/PKG-INFO")
             tar.add(data_file, arcname="package/data_file.txt")
