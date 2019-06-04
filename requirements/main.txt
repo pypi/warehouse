@@ -31,9 +31,9 @@ attrs==19.1.0 \
 automat==0.7.0 \
     --hash=sha256:cbd78b83fa2d81fe2a4d23d258e1661dd7493c9a50ee2f1a5b2cac61c1793b0e \
     --hash=sha256:fdccab66b68498af9ecfa1fa43693abe546014dd25cf28543cbe9d1334916a58
-babel==2.6.0 \
-    --hash=sha256:6778d85147d5d85345c14a26aada5e478ab04e39b078b0745ee6870c2b5cf669 \
-    --hash=sha256:8cba50f48c529ca3fa18cf81fa9403be176d374ac4d60738b839122dfaaa3d23
+babel==2.7.0 \
+    --hash=sha256:af92e6106cb7c55286b25b38ad7695f8b4efb36a90ba483d7f7a6628c46158ab \
+    --hash=sha256:e86135ae101e31e2c8ec20a4e0c5220f4eed12487d5cf3f78be7e98d3a57fc28
 bcrypt==3.1.6 \
     --hash=sha256:0ba875eb67b011add6d8c5b76afbd92166e98b1f1efab9433d5dc0fafc76e203 \
     --hash=sha256:21ed446054c93e209434148ef0b362432bb82bbdaf7beef70a32c221f3e33d1c \
