@@ -437,10 +437,8 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # Flash a success message
         request.session.flash("You have reset your password", queue="success")
 
-        # Perform login just after reset password and redirect to default view.
-        return HTTPSeeOther(
-            request.route_path("index"), headers=dict(_login_user(request, user.id))
-        )
+        # Redirect to account login.
+        return HTTPSeeOther(request.route_path("accounts.login"))
 
     return {"form": form}
 
