@@ -29,7 +29,7 @@
 {% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
 {% macro twoFA() %}How do I access my PyPI account using two factor authentication?{% endmacro %}
 {% macro totp() %}How do I generate a code through a TOTP application?{% endmacro %}
-{% macro utfkey() %}How do I login with a U2F key?{% endmacro %}
+{% macro utfkey() %}How do I login with a security key?{% endmacro %}
 
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
@@ -191,7 +191,7 @@
         <p>Open the application of your choice to generate a code.</p>
 
         <h3 id="utfkey">{{ utfkey() }}</h3>
-        <p>A universal second factor (U2F) key is hardware device that communicates via USB, NFC, or Bluetooth. Popular keys include Yubikey, Google Titan and Thetis. PyPI supports any <a href="https://fidoalliance.org/specifications/download/">FIDO U2F compatible key</a> and follows the <a href="https://www.w3.org/TR/webauthn/">WebAuthn standard</a>.</p>
+        <p>A security key (also known as a universal second factor, or U2F key) is hardware device that communicates via USB, NFC, or Bluetooth. Popular keys include Yubikey, Google Titan and Thetis. PyPI supports any <a href="https://fidoalliance.org/specifications/download/">FIDO U2F compatible key</a> and follows the <a href="https://www.w3.org/TR/webauthn/">WebAuthn standard</a>.</p>
         <p>Users who have set up this second factor will be prompted to use their key (usually by inserting it into a USB port and pressing a button) when logging in.</p>
       </section>
 
