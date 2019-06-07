@@ -28,9 +28,9 @@
     display: flex;
   }
 
-  &__method {
+  &__method:first-of-type {
     @media only screen and (min-width: $tablet) {
-      width: 50%;
+      flex-shrink: 0;
     }
   }
 
