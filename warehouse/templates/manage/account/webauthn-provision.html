@@ -14,7 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Set up two factor authentication using a security key (WebAuthn)" %}
+{% set title = "Set up 2FA using a security key (WebAuthn)" %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -24,27 +24,30 @@
 {% block main %}
 <h1 class="page-title">{{ title }}</h1>
 <section>
-  <h2>How 2FA with WebAuthn works</h2>
+  <h2>How two factor authentication with WebAuthn works</h2>
 
   <ol>
-    <li>Instructions here</li>
+    <li>When you sign into PyPI, you will be asked to provide your username and password, as usual</li>
+    <li>You will then see a screen asking for a secondary login method</li>
+    <li>Insert and activate your key (provisioned below), to access your PyPI account</li>
   </ol>
 
-  <h2>Provisioning your security key</h2>
-
-  <p>When ready, click below:</p>
+  <br>
 
   <noscript>
     <p>WebAuthn cannot be used without JavaScript.</p>
   </noscript>
 
-  <button
-    id="webauthn-provision-begin"
-    class="button button--primary"
-    csrf-token="{{ request.session.get_csrf_token() }}"
-    disabled>I'm ready!
-  </button>
-  <ul id="webauthn-errors" class="form-errors">
-  </ul>
+  <div class="form-group">
+    <button
+      type="button"
+      id="webauthn-provision-begin"
+      class="button button--primary"
+      csrf-token="{{ request.session.get_csrf_token() }}"
+      disabled>Provision key
+    </button>
+    <ul id="webauthn-errors" class="form-errors">
+    </ul>
+  </div>
 </section>
 {% endblock %}

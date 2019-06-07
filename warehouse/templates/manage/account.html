@@ -324,8 +324,8 @@
           <td class="table__action">
           {% if user.webauthn %}
             <a href="#disable-webauthn" class="button button--primary">Disable</a>
-            {% set title="Disable 2FA by WebAuthn" %}
-            {% set confirm_button_label="Disable WebAuthn" %}
+            {% set title="Disable 2FA with key" %}
+            {% set confirm_button_label="Disable key" %}
             {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
             {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-webauthn", action=action, warning=False, confirm_string_in_title=False) }}
           {% else %}
