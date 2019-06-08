@@ -89,6 +89,8 @@ build:
 	mkdir -p .state
 	touch .state/docker-build
 
+	docker system prune -f
+
 serve: .state/docker-build
 	docker-compose up --remove-orphans
 
