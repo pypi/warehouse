@@ -313,7 +313,10 @@
         {% endif %}
         {% for credential in user.webauthn %}
         <tr>
-          <td><strong>"{{ credential.label }}"</strong> - Security key (WebAuthn)</td>
+          <td>
+              <strong>"{{ credential.label }}"</strong> - Security key (WebAuthn)
+              <span class="badge badge--warning">Beta</span>
+          </td>
           <td class="table__action">
             <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
             {% set title="Remove 2FA key - " + credential.label %}
