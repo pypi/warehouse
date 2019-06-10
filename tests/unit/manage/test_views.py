@@ -1157,6 +1157,7 @@ class TestProvisionWebAuthn:
                 public_key=b"fake_public_key",
                 sign_count=1,
             ),
+            label=pretend.stub(data="fake_label"),
         )
         provision_webauthn_cls = pretend.call_recorder(
             lambda *a, **kw: provision_webauthn_obj
@@ -1171,6 +1172,7 @@ class TestProvisionWebAuthn:
         assert user_service.add_webauthn.calls == [
             pretend.call(
                 1234,
+                label="fake_label",
                 credential_id="fake_credential_id",
                 public_key="fake_public_key",
                 sign_count=1,
@@ -1180,17 +1182,6 @@ class TestProvisionWebAuthn:
             pretend.call("WebAuthn successfully provisioned.", queue="success")
         ]
         assert result == {"success": "WebAuthn successfully provisioned"}
-
-    def test_validate_webauthn_provision_already_provisioned(self):
-        request = pretend.stub(
-            user=pretend.stub(webauthn=pretend.stub()),
-            find_service=lambda *a, **kw: pretend.stub(),
-        )
-
-        view = views.ProvisionWebAuthnViews(request)
-        result = view.validate_webauthn_provision()
-
-        assert result == {"fail": "User already has a security key"}
 
     def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
         user_service = pretend.stub(
@@ -1210,7 +1201,10 @@ class TestProvisionWebAuthn:
         )
 
         provision_webauthn_obj = pretend.stub(
-            validate=lambda: False, credential=pretend.stub(errors=["Not a real error"])
+            validate=lambda: False,
+            errors=pretend.stub(
+                values=pretend.call_recorder(lambda: [["Not a real error"]])
+            ),
         )
         provision_webauthn_cls = pretend.call_recorder(
             lambda *a, **kw: provision_webauthn_obj
@@ -1228,13 +1222,23 @@ class TestProvisionWebAuthn:
     def test_delete_webauthn(self, monkeypatch):
         request = pretend.stub(
             POST={},
-            user=pretend.stub(username=pretend.stub(), webauthn=pretend.stub()),
+            user=pretend.stub(
+                id=1234,
+                username=pretend.stub(),
+                webauthn=pretend.stub(
+                    __get__=pretend.call_recorder(lambda *a: [pretend.stub]),
+                    __len__=pretend.call_recorder(lambda *a: 1),
+                    remove=pretend.call_recorder(lambda *a: pretend.stub()),
+                ),
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
             find_service=lambda *a, **kw: pretend.stub(),
         )
 
-        delete_webauthn_obj = pretend.stub(validate=lambda: True)
+        delete_webauthn_obj = pretend.stub(
+            validate=lambda: True, webauthn=pretend.stub()
+        )
         delete_webauthn_cls = pretend.call_recorder(
             lambda *a, **kw: delete_webauthn_obj
         )
@@ -1252,7 +1256,7 @@ class TestProvisionWebAuthn:
 
     def test_delete_webauthn_not_provisioned(self):
         request = pretend.stub(
-            user=pretend.stub(webauthn=None),
+            user=pretend.stub(id=1234, webauthn=[]),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
             find_service=lambda *a, **kw: pretend.stub(),
@@ -1271,7 +1275,9 @@ class TestProvisionWebAuthn:
     def test_delete_webauthn_invalid_form(self, monkeypatch):
         request = pretend.stub(
             POST={},
-            user=pretend.stub(username=pretend.stub(), webauthn=pretend.stub()),
+            user=pretend.stub(
+                id=1234, username=pretend.stub(), webauthn=[pretend.stub()]
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
             find_service=lambda *a, **kw: pretend.stub(),
