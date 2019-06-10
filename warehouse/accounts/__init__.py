@@ -15,26 +15,25 @@ import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
-    IPasswordBreachedService,
+from warehouse.accounts.auth_policy import (
+    BasicAuthAuthenticationPolicy,
+    SessionAuthenticationPolicy,
 )
+from warehouse.accounts.interfaces import (
+    IPasswordBreachedService,
+    ITokenService,
+    IUserService,
+)
+from warehouse.accounts.models import DisableReason
 from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.accounts.models import DisableReason
-from warehouse.accounts.auth_policy import (
-    BasicAuthAuthenticationPolicy,
-    SessionAuthenticationPolicy,
-)
+from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import BasicAuthBreachedPassword
-from warehouse.email import send_password_compromised_email
-from warehouse.rate_limiting import RateLimit, IRateLimiter
-
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
 
@@ -73,7 +72,7 @@ def _basic_auth_login(username, password, request):
             if breach_service.check_password(
                 password, tags=["method:auth", "auth_method:basic"]
             ):
-                send_password_compromised_email(request, user)
+                send_password_compromised_email_hibp(request, user)
                 login_service.disable_password(
                     user.id, reason=DisableReason.CompromisedPassword
                 )
@@ -124,6 +123,9 @@ def includeme(config):
     )
     config.register_service_factory(
         TokenServiceFactory(name="email"), ITokenService, name="email"
+    )
+    config.register_service_factory(
+        TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
     )
 
     # Register our password breach detection service.

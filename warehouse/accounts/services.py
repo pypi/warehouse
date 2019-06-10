@@ -25,6 +25,8 @@ from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
+import warehouse.utils.otp as otp
+
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -225,6 +227,78 @@ class DatabaseUserService:
         # User is disabled.
         else:
             return (True, user.disabled_for)
+
+    def has_two_factor(self, user_id):
+        """
+        Returns True if the user has any form of two factor
+        authentication and is allowed to use it.
+        """
+        user = self.get_user(user_id)
+
+        return user.has_two_factor
+
+    def get_totp_secret(self, user_id):
+        """
+        Returns the user's TOTP secret as bytes.
+
+        If the user doesn't have a TOTP, returns None.
+        """
+        user = self.get_user(user_id)
+
+        return user.totp_secret
+
+    def check_totp_value(self, user_id, totp_value, *, tags=None):
+        """
+        Returns True if the given TOTP is valid against the user's secret.
+
+        If the user doesn't have a TOTP secret or isn't allowed
+        to use second factor methods, returns False.
+        """
+        tags = tags if tags is not None else []
+        self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
+
+        # The very first thing we want to do is check to see if we've hit our
+        # global rate limit or not, assuming that we've been configured with a
+        # global rate limiter anyways.
+        if not self.ratelimiters["global"].test():
+            logger.warning("Global failed login threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=tags + ["ratelimiter:global"],
+            )
+            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+
+        # Now, check to make sure that we haven't hitten a rate limit on a
+        # per user basis.
+        if not self.ratelimiters["user"].test(user_id):
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=tags + ["ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["user"].resets_in(user_id)
+            )
+
+        totp_secret = self.get_totp_secret(user_id)
+
+        if totp_secret is None:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:no_totp"],
+            )
+            return False
+
+        valid = otp.verify_totp(totp_secret, totp_value)
+
+        if valid:
+            self._metrics.increment("warehouse.authentication.two_factor.ok", tags=tags)
+        else:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:invalid_totp"],
+            )
+
+        return valid
 
 
 @implementer(ITokenService)

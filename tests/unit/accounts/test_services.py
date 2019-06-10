@@ -21,6 +21,8 @@ import requests
 
 from zope.interface.verify import verifyClass
 
+import warehouse.utils.otp as otp
+
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -341,6 +343,68 @@ class TestDatabaseUserService:
         )
         user_service.update_user(user.id, password="foo")
         assert user_service.is_disabled(user.id) == (False, None)
+
+    def test_has_two_factor(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.has_two_factor(user.id)
+
+        user_service.update_user(user.id, totp_secret=b"foobar")
+        assert user_service.has_two_factor(user.id)
+
+    @pytest.mark.parametrize("valid", [True, False])
+    def test_check_totp_value(self, user_service, monkeypatch, valid):
+        verify_totp = pretend.call_recorder(lambda *a: valid)
+        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+
+        user = UserFactory.create()
+        user_service.update_user(user.id, totp_secret=b"foobar")
+        user_service.add_email(user.id, "foo@bar.com", primary=True, verified=True)
+
+        assert user_service.check_totp_value(user.id, b"123456") == valid
+
+    def test_check_totp_value_no_secret(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.check_totp_value(user.id, b"123456")
+
+    def test_check_totp_global_rate_limited(self, user_service, metrics):
+        resets = pretend.stub()
+        limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
+        user_service.ratelimiters["global"] = limiter
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_totp_value(uuid.uuid4(), b"123456", tags=["foo"])
+
+        assert excinfo.value.resets_in is resets
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.two_factor.start", tags=["foo"]),
+            pretend.call(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=["foo", "ratelimiter:global"],
+            ),
+        ]
+
+    def test_check_totp_value_user_rate_limited(self, user_service, metrics):
+        user = UserFactory.create()
+        resets = pretend.stub()
+        limiter = pretend.stub(
+            test=pretend.call_recorder(lambda uid: False),
+            resets_in=pretend.call_recorder(lambda uid: resets),
+        )
+        user_service.ratelimiters["user"] = limiter
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_totp_value(user.id, b"123456")
+
+        assert excinfo.value.resets_in is resets
+        assert limiter.test.calls == [pretend.call(user.id)]
+        assert limiter.resets_in.calls == [pretend.call(user.id)]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.two_factor.start", tags=[]),
+            pretend.call(
+                "warehouse.authentication.two_factor.ratelimited",
+                tags=["ratelimiter:user"],
+            ),
+        ]
 
 
 class TestTokenService:

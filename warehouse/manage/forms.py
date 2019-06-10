@@ -12,8 +12,15 @@
 
 import wtforms
 
+import warehouse.utils.otp as otp
+
 from warehouse import forms
-from warehouse.accounts.forms import NewEmailMixin, NewPasswordMixin, PasswordMixin
+from warehouse.accounts.forms import (
+    NewEmailMixin,
+    NewPasswordMixin,
+    PasswordMixin,
+    TOTPValueMixin,
+)
 
 
 class RoleNameMixin:
@@ -61,9 +68,10 @@ class AddEmailForm(NewEmailMixin, forms.Form):
 
     __params__ = ["email"]
 
-    def __init__(self, *args, user_service, **kwargs):
+    def __init__(self, *args, user_service, user_id, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.user_id = user_id
 
 
 class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
@@ -73,3 +81,26 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+
+
+class DeleteTOTPForm(UsernameMixin, forms.Form):
+
+    __params__ = ["confirm_username"]
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+
+
+class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
+
+    __params__ = ["totp_value"]
+
+    def __init__(self, *args, totp_secret, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.totp_secret = totp_secret
+
+    def validate_totp_value(self, field):
+        totp_value = field.data.encode("utf8")
+        if not otp.verify_totp(self.totp_secret, totp_value):
+            raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")

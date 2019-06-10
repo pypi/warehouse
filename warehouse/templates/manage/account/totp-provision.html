@@ -1,0 +1,72 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage/manage_base.html" %}
+
+{% set user = request.user %}
+{% set title = "Set up two factor authentication using an application (TOTP)" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{# Hide mobile search on manager pages #}
+{% block mobile_search %}{% endblock %}
+
+{% block main %}
+<h1 class="page-title">{{ title }}</h1>
+<section>
+  <h2>How 2FA with TOTP works</h2>
+
+  <ol>
+    <li>When you sign into PyPI, you will be asked to provide your username and password, as usual</li>
+    <li>You will then see a screen asking for an additional authentication code</li>
+    <li>Use the application of your choice (provisioned below) to generate a code</li>
+    <li>Enter the code to access your PyPI account</li>
+  </ol>
+
+  <h2>Provisioning your application</h2>
+
+  <p>For security reasons, you should only provision one device/application at a time.</p>
+
+  <p>
+    <strong>
+      Scan the QR code with your application of choice. See our
+      <a href="{{ request.route_path('help', _anchor='totp') }}" target="_blank">help page</a>
+      for a list of popular applications.
+    </strong>
+  </p>
+
+  <div class="totp-form">
+    <div class="totp-form__qr">
+      <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
+    </div>
+    <form method="POST" class="totp-form__form">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <div class="form-group">
+        <label for="totp_value" class="form-group__label">Verify application</label>
+        {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
+        <p class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
+        {% if provision_totp_form.totp_value.errors %}
+        <ul class="form-errors">
+          {% for error in provision_totp_form.totp_value.errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <div>
+        <input type="submit" value="Provision application" class="button button--primary">
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

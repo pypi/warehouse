@@ -39,7 +39,7 @@
   {% set icon = "fab fa-bitbucket" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
   {% set icon = "fab fa-reddit-alien" %}
-{% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
+{% elif name.lower().startswith("slack") or parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
   {% set icon = "fab fa-slack" %}
 {% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "fab fa-twitter" %}
@@ -238,9 +238,7 @@
                   {{ hversion.version }} {% if hversion.is_prerelease %}<span class="badge badge--warning release__version-badge">pre-release</span>{% endif %}
                 </p>
                 <p class="release__version-date">
-                  <span class="tooltipped tooltipped-s" aria-label="{{ hversion.created|localize_datetime|format_datetime('yyyy-MM-dd HH:mm z') }}" data-original-label="{{ hversion.created|localize_datetime|format_datetime('yyyy-MM-dd HH:mm z') }}">
-                    {{ humanize(hversion.created) }}
-                  </span>
+                  {{ localize(hversion.created) }}
                 </p>
               </a>
             </div>

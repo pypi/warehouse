@@ -18,7 +18,8 @@ import wtforms.fields.html5
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
-from warehouse.email import send_password_compromised_email
+from warehouse.email import send_password_compromised_email_hibp
+from warehouse.utils.otp import TOTP_LENGTH
 
 
 class UsernameMixin:
@@ -30,6 +31,19 @@ class UsernameMixin:
 
         if userid is None:
             raise wtforms.validators.ValidationError("No user found with that username")
+
+
+class TOTPValueMixin:
+
+    totp_value = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                rf"^[0-9]{{{TOTP_LENGTH}}}$",
+                message=f"TOTP code must be {TOTP_LENGTH} digits.",
+            ),
+        ]
+    )
 
 
 class NewUsernameMixin:
@@ -140,16 +154,24 @@ class NewEmailMixin:
     )
 
     def validate_email(self, field):
-        if self.user_service.find_userid_by_email(field.data) is not None:
+        userid = self.user_service.find_userid_by_email(field.data)
+
+        if userid and userid == self.user_id:
             raise wtforms.validators.ValidationError(
-                "This email address is already being used by another account. "
-                "Use a different email."
+                f"This email address is already being used by this account. "
+                f"Use a different email."
             )
+        if userid:
+            raise wtforms.validators.ValidationError(
+                f"This email address is already being used by another account. "
+                f"Use a different email."
+            )
+
         domain = field.data.split("@")[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "You can't create an account with an email address "
-                "from this domain. Use a different email."
+                "You can't use an email address from this domain. Use a "
+                "different email."
             )
 
 
@@ -179,6 +201,7 @@ class RegistrationForm(
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.user_id = None
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
@@ -210,13 +233,25 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 field.data, tags=["method:auth", "auth_method:login_form"]
             ):
                 user = self.user_service.get_user(userid)
-                send_password_compromised_email(self.request, user)
+                send_password_compromised_email_hibp(self.request, user)
                 self.user_service.disable_password(
                     user.id, reason=DisableReason.CompromisedPassword
                 )
                 raise wtforms.validators.ValidationError(
                     jinja2.Markup(self.breach_service.failure_message)
                 )
+
+
+class TwoFactorForm(TOTPValueMixin, forms.Form):
+    def __init__(self, *args, user_id, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.user_service = user_service
+
+    def validate_totp_value(self, field):
+        totp_value = field.data.encode("utf8")
+        if not self.user_service.check_totp_value(self.user_id, totp_value):
+            raise wtforms.validators.ValidationError("Invalid TOTP code.")
 
 
 class RequestPasswordResetForm(forms.Form):

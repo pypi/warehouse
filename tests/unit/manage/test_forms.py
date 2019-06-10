@@ -16,6 +16,8 @@ import wtforms
 
 from webob.multidict import MultiDict
 
+import warehouse.utils.otp as otp
+
 from warehouse.manage import forms
 
 
@@ -69,9 +71,52 @@ class TestCreateRoleForm:
 class TestAddEmailForm:
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.AddEmailForm(user_service=user_service)
+        form = forms.AddEmailForm(user_service=user_service, user_id=pretend.stub())
 
         assert form.user_service is user_service
+
+    def test_email_exists_error(self):
+        user_id = pretend.stub()
+        form = forms.AddEmailForm(
+            data={"email": "foo@bar.com"},
+            user_id=user_id,
+            user_service=pretend.stub(find_userid_by_email=lambda _: user_id),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop()
+            == "This email address is already being used by this account. "
+            "Use a different email."
+        )
+
+    def test_email_exists_other_account_error(self):
+        form = forms.AddEmailForm(
+            data={"email": "foo@bar.com"},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(find_userid_by_email=lambda _: pretend.stub()),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop()
+            == "This email address is already being used by another account. "
+            "Use a different email."
+        )
+
+    def test_blacklisted_email_error(self):
+        form = forms.AddEmailForm(
+            data={"email": "foo@bearsarefuzzy.com"},
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop()
+            == "You can't use an email address from this domain. "
+            "Use a different email."
+        )
 
 
 class TestChangePasswordForm:
@@ -85,3 +130,38 @@ class TestChangePasswordForm:
 
         assert form.user_service is user_service
         assert form._breach_service is breach_service
+
+
+class TestProvisionTOTPForm:
+    def test_creation(self):
+        totp_secret = pretend.stub()
+        form = forms.ProvisionTOTPForm(totp_secret=totp_secret)
+
+        assert form.totp_secret is totp_secret
+
+    def test_verify_totp_invalid(self, monkeypatch):
+        verify_totp = pretend.call_recorder(lambda *a: False)
+        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+
+        form = forms.ProvisionTOTPForm(
+            data={"totp_value": "123456"}, totp_secret=pretend.stub()
+        )
+        assert not form.validate()
+        assert form.totp_value.errors.pop() == "Invalid TOTP code. Try again?"
+
+    def test_verify_totp_valid(self, monkeypatch):
+        verify_totp = pretend.call_recorder(lambda *a: True)
+        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+
+        form = forms.ProvisionTOTPForm(
+            data={"totp_value": "123456"}, totp_secret=pretend.stub()
+        )
+        assert form.validate()
+
+
+class TestDeleteTOTPForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.DeleteTOTPForm(user_service=user_service)
+
+        assert form.user_service is user_service

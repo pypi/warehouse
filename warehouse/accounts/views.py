@@ -30,11 +30,13 @@ from warehouse.accounts.forms import (
     RegistrationForm,
     RequestPasswordResetForm,
     ResetPasswordForm,
+    TwoFactorForm,
 )
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    TokenException,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -122,38 +124,117 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
             username = form.username.data
             userid = user_service.find_userid(username)
 
-            # If the user-originating redirection url is not safe, then
-            # redirect to the index instead.
-            if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
-                redirect_to = request.route_path("manage.projects")
+            # If the user has enabled two factor authentication.
+            if user_service.has_two_factor(userid):
+                two_factor_data = {"userid": userid}
+                if redirect_to:
+                    two_factor_data["redirect_to"] = redirect_to
 
-            # Actually perform the login routine for our user.
-            headers = _login_user(request, userid)
+                token_service = request.find_service(ITokenService, name="two_factor")
+                token = token_service.dumps(two_factor_data)
 
-            # Now that we're logged in we'll want to redirect the user to
-            # either where they were trying to go originally, or to the default
-            # view.
-            resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+                # Stuff our token in the query and redirect to two-factor page.
+                resp = HTTPSeeOther(
+                    request.route_path("accounts.two-factor", _query=token)
+                )
 
-            # We'll use this cookie so that client side javascript can
-            # Determine the actual user ID (not username, user ID). This is
-            # *not* a security sensitive context and it *MUST* not be used
-            # where security matters.
-            #
-            # We'll also hash this value just to avoid leaking the actual User
-            # IDs here, even though it really shouldn't matter.
-            resp.set_cookie(
-                USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-                .hexdigest()
-                .lower(),
-            )
+                return resp
+            else:
+                # If the user-originating redirection url is not safe, then
+                # redirect to the index instead.
+                if not redirect_to or not is_safe_url(
+                    url=redirect_to, host=request.host
+                ):
+                    redirect_to = request.route_path("manage.projects")
+
+                # Actually perform the login routine for our user.
+                headers = _login_user(request, userid)
+
+                # Now that we're logged in we'll want to redirect the user to
+                # either where they were trying to go originally, or to the default
+                # view.
+                resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+
+                # We'll use this cookie so that client side javascript can
+                # Determine the actual user ID (not username, user ID). This is
+                # *not* a security sensitive context and it *MUST* not be used
+                # where security matters.
+                #
+                # We'll also hash this value just to avoid leaking the actual User
+                # IDs here, even though it really shouldn't matter.
+                resp.set_cookie(
+                    USER_ID_INSECURE_COOKIE,
+                    hashlib.blake2b(
+                        str(userid).encode("ascii"), person=b"warehouse.userid"
+                    )
+                    .hexdigest()
+                    .lower(),
+                )
+
             return resp
 
     return {
         "form": form,
         "redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to},
     }
+
+
+@view_config(
+    route_name="accounts.two-factor",
+    renderer="accounts/two-factor.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def two_factor(request, _form_class=TwoFactorForm):
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path("manage.projects"))
+
+    token_service = request.find_service(ITokenService, name="two_factor")
+
+    try:
+        two_factor_data = token_service.loads(request.query_string)
+    except TokenException:
+        request.session.flash("Invalid or expired two factor login.", queue="error")
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    userid = two_factor_data.get("userid")
+    if not userid:
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    redirect_to = two_factor_data.get("redirect_to")
+
+    user_service = request.find_service(IUserService, context=None)
+
+    form = _form_class(
+        request.POST,
+        user_id=userid,
+        user_service=user_service,
+        check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+    )
+
+    if request.method == "POST":
+        if form.validate():
+            # If the user-originating redirection url is not safe, then
+            # redirect to the index instead.
+            if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
+                redirect_to = request.route_path("manage.projects")
+
+            _login_user(request, userid)
+
+            resp = HTTPSeeOther(redirect_to)
+            resp.set_cookie(
+                USER_ID_INSECURE_COOKIE,
+                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
+                .hexdigest()
+                .lower(),
+            )
+
+            return resp
+        else:
+            form.totp_value.data = ""
+
+    return {"form": form}
 
 
 @view_config(
@@ -358,10 +439,8 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # Flash a success message
         request.session.flash("You have reset your password", queue="success")
 
-        # Perform login just after reset password and redirect to default view.
-        return HTTPSeeOther(
-            request.route_path("index"), headers=dict(_login_user(request, user.id))
-        )
+        # Redirect to account login.
+        return HTTPSeeOther(request.route_path("accounts.login"))
 
     return {"form": form}
 
