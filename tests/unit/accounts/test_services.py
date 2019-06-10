@@ -362,7 +362,11 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         assert not user_service.has_webauthn(user.id)
         user_service.add_webauthn(
-            user.id, credential_id="foo", public_key="bar", sign_count=1
+            user.id,
+            label="test_label",
+            credential_id="foo",
+            public_key="bar",
+            sign_count=1,
         )
         assert user_service.has_webauthn(user.id)
 
@@ -455,7 +459,11 @@ class TestDatabaseUserService:
     def test_get_webauthn_assertion_options(self, user_service):
         user = UserFactory.create()
         user_service.add_webauthn(
-            user.id, credential_id="foo", public_key="bar", sign_count=1
+            user.id,
+            label="test_label",
+            credential_id="foo",
+            public_key="bar",
+            sign_count=1,
         )
 
         options = user_service.get_webauthn_assertion_options(
@@ -467,12 +475,16 @@ class TestDatabaseUserService:
 
         assert options["challenge"] == "fake_challenge"
         assert options["rpId"] == "fake_rp_id"
-        assert options["allowCredentials"][0]["id"] == user.webauthn.credential_id
+        assert options["allowCredentials"][0]["id"] == user.webauthn[0].credential_id
 
     def test_verify_webauthn_credential(self, user_service, monkeypatch):
         user = UserFactory.create()
         user_service.add_webauthn(
-            user.id, credential_id="foo", public_key="bar", sign_count=1
+            user.id,
+            label="test_label",
+            credential_id="foo",
+            public_key="bar",
+            sign_count=1,
         )
 
         fake_validated_credential = pretend.stub(credential_id=b"bar")
@@ -495,7 +507,11 @@ class TestDatabaseUserService:
     def test_verify_webauthn_credential_already_in_use(self, user_service, monkeypatch):
         user = UserFactory.create()
         user_service.add_webauthn(
-            user.id, credential_id="foo", public_key="bar", sign_count=1
+            user.id,
+            label="test_label",
+            credential_id="foo",
+            public_key="bar",
+            sign_count=1,
         )
 
         fake_validated_credential = pretend.stub(credential_id=b"foo")
@@ -517,7 +533,11 @@ class TestDatabaseUserService:
     def test_verify_webauthn_assertion(self, user_service, monkeypatch):
         user = UserFactory.create()
         user_service.add_webauthn(
-            user.id, credential_id="foo", public_key="bar", sign_count=1
+            user.id,
+            label="test_label",
+            credential_id="foo",
+            public_key="bar",
+            sign_count=1,
         )
 
         verify_assertion_response = pretend.call_recorder(lambda *a, **kw: 2)
@@ -534,19 +554,6 @@ class TestDatabaseUserService:
             rp_id=pretend.stub(),
         )
         assert updated_sign_count == 2
-
-    def test_add_webauthn_already_added(self, user_service):
-        user = UserFactory.create()
-        user_service.add_webauthn(
-            user.id, credential_id="foo", public_key="bar", sign_count=1
-        )
-
-        assert (
-            user_service.add_webauthn(
-                user.id, credential_id="baz", public_key="quux", sign_count=1337
-            )
-            is None
-        )
 
 
 class TestTokenService:
