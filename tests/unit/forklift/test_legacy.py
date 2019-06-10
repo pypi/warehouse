@@ -97,7 +97,9 @@ class TestValidation:
         with pytest.raises(ValidationError):
             legacy._validate_pep440_specifier(specifier)
 
-    @pytest.mark.parametrize("requirement", ["foo (>=1.0)", "foo", "_foo", "foo2"])
+    @pytest.mark.parametrize(
+        "requirement", ["foo (>=1.0)", "foo", "_foo", "foo2", "foo.bar"]
+    )
     def test_validates_legacy_non_dist_req_valid(self, requirement):
         legacy._validate_legacy_non_dist_req(requirement)
 
@@ -111,6 +113,7 @@ class TestValidation:
             "☃ (>=1.0)",
             "☃",
             "name @ https://github.com/pypa",
+            "foo.2bar",
         ],
     )
     def test_validates_legacy_non_dist_req_invalid(self, requirement):

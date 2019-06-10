@@ -19,6 +19,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
@@ -83,8 +84,6 @@ class UserForm(forms.Form):
     name = wtforms.StringField(
         validators=[wtforms.validators.Optional(), wtforms.validators.Length(max=100)]
     )
-
-    two_factor_allowed = wtforms.fields.BooleanField()
 
     is_active = wtforms.fields.BooleanField()
     is_superuser = wtforms.fields.BooleanField()
@@ -191,7 +190,10 @@ def user_delete(request):
     deleted_user = request.db.query(User).filter(User.username == "deleted-user").one()
 
     journals = (
-        request.db.query(JournalEntry).filter(JournalEntry.submitted_by == user).all()
+        request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
+        .filter(JournalEntry.submitted_by == user)
+        .all()
     )
 
     for journal in journals:

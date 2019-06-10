@@ -47,12 +47,13 @@ class TestManageAccount:
         breach_service = pretend.stub()
         user_service = pretend.stub()
         name = pretend.stub()
+        user_id = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, id=user_id),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -79,7 +80,9 @@ class TestManageAccount:
         assert view.request == request
         assert view.user_service == user_service
         assert save_account_cls.calls == [pretend.call(name=name)]
-        assert add_email_cls.calls == [pretend.call(user_service=user_service)]
+        assert add_email_cls.calls == [
+            pretend.call(user_id=user_id, user_service=user_service)
+        ]
         assert change_pass_cls.calls == [
             pretend.call(user_service=user_service, breach_service=breach_service)
         ]
@@ -229,7 +232,7 @@ class TestManageAccount:
             db=pretend.stub(flush=lambda: None),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda a, **kw: pretend.stub(),
-            user=pretend.stub(emails=[], name=pretend.stub()),
+            user=pretend.stub(emails=[], name=pretend.stub(), id=pretend.stub()),
         )
         add_email_obj = pretend.stub(
             validate=lambda: False, email=pretend.stub(data=email_address)
@@ -691,6 +694,7 @@ class TestProvisionTOTP:
                 username="foobar",
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -713,6 +717,7 @@ class TestProvisionTOTP:
                 username="foobar",
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
         )
 
@@ -721,6 +726,25 @@ class TestProvisionTOTP:
 
         assert isinstance(result, Response)
         assert result.status_code == 403
+
+    def test_generate_totp_qr_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
 
     def test_totp_provision(self, monkeypatch):
         user_service = pretend.stub(get_totp_secret=lambda id: None)
@@ -737,6 +761,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -774,6 +799,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -785,6 +811,25 @@ class TestProvisionTOTP:
         assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == [
             pretend.call("TOTP already provisioned.", queue="error")
+        ]
+
+    def test_totp_provision_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
         ]
 
     def test_validate_totp_provision(self, monkeypatch):
@@ -807,6 +852,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -843,6 +889,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar"),
         )
@@ -873,6 +920,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -899,6 +947,25 @@ class TestProvisionTOTP:
             "provision_totp_uri": "not_a_real_uri",
         }
 
+    def test_validate_totp_provision_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
+
     def test_delete_totp(self, monkeypatch, db_request):
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
@@ -914,6 +981,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 totp_secret=b"secret",
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -948,6 +1016,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -980,6 +1049,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -997,6 +1067,25 @@ class TestProvisionTOTP:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
+
+    def test_delete_totp_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.delete_totp()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
 
 
 class TestManageProjects:
