@@ -114,7 +114,12 @@ class DeleteWebAuthnForm(forms.Form):
     __params__ = ["confirm_webauthn_credential_label"]
 
     label = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify a label")]
+        validators=[
+            wtforms.validators.DataRequired(message="Specify a label"),
+            wtforms.validators.Length(
+                max=64, message=("Label must be 64 characters or less")
+            ),
+        ]
     )
 
     def __init__(self, *args, user_service, user_id, **kwargs):
@@ -135,7 +140,12 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
     __params__ = ["label", "credential"]
 
     label = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify a label")]
+        validators=[
+            wtforms.validators.DataRequired(message="Specify a label"),
+            wtforms.validators.Length(
+                max=64, message=("Label must be 64 characters or less")
+            ),
+        ]
     )
 
     def __init__(
