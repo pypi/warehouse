@@ -71,18 +71,18 @@ endif
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
-	docker-compose build worker
-	docker-compose build static
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
+	docker-compose build --force-rm worker
+	docker-compose build --force-rm static
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
 	touch .state/docker-build
 
 build:
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
-	docker-compose build worker
-	docker-compose build static
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
+	docker-compose build --force-rm worker
+	docker-compose build --force-rm static
 
 	# Mark this state so that the other target will known it's recently been
 	# rebuilt.
