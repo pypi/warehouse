@@ -110,8 +110,8 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
 
 
-class DeleteWebAuthnForm(UsernameMixin, forms.Form):
-    __params__ = ["confirm_username", "label"]
+class DeleteWebAuthnForm(forms.Form):
+    __params__ = ["confirm_webauthn_credential_label"]
 
     label = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Specify a label")]

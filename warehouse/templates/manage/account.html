@@ -320,14 +320,15 @@
             <span class="badge badge--success">Enabled</span>
           </td>
           <td class="table__action">
-            <a href="#disable-webauthn" class="button button--primary">Disable {{ credential.label }}</a>
-            {% set title="Disable 2FA with key" %}
+            <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Disable {{ credential.label }}</a>
+            {% set title="Disable Webauthn Credential " + credential.label %}
             {% set confirm_button_label="Disable key" %}
             {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
+            {% set slug="disable-webauthn-" + credential.id | string %}
             {% set extra_fields %}
-              <input type="text" name="label" value="{{ credential.label }}" hidden="true">
+              <input type="text" name="label" value="{{ credential.label }}" hidden>
             {% endset %}
-            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-webauthn", extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+            {{ confirm_modal(title=title, confirm_name="Webauthn Credential Label", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
           </td>
         </tr>
         {% endfor %}
