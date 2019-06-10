@@ -231,6 +231,8 @@ def two_factor(request, _form_class=TwoFactorForm):
             )
 
             return resp
+        else:
+            form.totp_value.data = ""
 
     return {"form": form}
 
