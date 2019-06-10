@@ -227,6 +227,8 @@ def two_factor(request, _form_class=TOTPAuthenticationForm):
             )
 
             return resp
+        else:
+            form.totp_value.data = ""
 
     return two_factor_state
 
