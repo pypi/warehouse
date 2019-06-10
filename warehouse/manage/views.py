@@ -27,7 +27,7 @@ from sqlalchemy.orm.exc import NoResultFound
 import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, User, WebAuthn
 from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email,
@@ -466,13 +466,10 @@ class ProvisionWebAuthnViews:
         renderer="json",
     )
     def validate_webauthn_provision(self):
-        # TODO(ww): Replace with check against N security keys
-        if self.request.user.webauthn:
-            return {"fail": "User already has a security key"}
-
         form = ProvisionWebAuthnForm(
             **self.request.POST,
             user_service=self.user_service,
+            user_id=self.request.user.id,
             challenge=self.request.session.get_webauthn_challenge(),
             rp_id=self.request.domain,
             origin=self.request.host_url,
@@ -483,6 +480,7 @@ class ProvisionWebAuthnViews:
         if form.validate():
             self.user_service.add_webauthn(
                 self.request.user.id,
+                label=form.label.data,
                 credential_id=form.validated_credential.credential_id.decode(),
                 public_key=form.validated_credential.public_key.decode(),
                 sign_count=form.validated_credential.sign_count,
@@ -492,7 +490,9 @@ class ProvisionWebAuthnViews:
             )
             return {"success": "WebAuthn successfully provisioned"}
 
-        errors = [str(error) for error in form.credential.errors]
+        errors = [
+            str(error) for error_list in form.errors.values() for error in error_list
+        ]
         return {"fail": {"errors": errors}}
 
     @view_config(
@@ -501,7 +501,7 @@ class ProvisionWebAuthnViews:
         route_name="manage.account.webauthn-provision.delete",
     )
     def delete_webauthn(self):
-        if self.request.user.webauthn is None:
+        if len(self.request.user.webauthn) == 0:
             self.request.session.flash("No WebAuthhn device to delete.", queue="error")
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -509,10 +509,11 @@ class ProvisionWebAuthnViews:
             **self.request.POST,
             username=self.request.user.username,
             user_service=self.user_service,
+            user_id=self.request.user.id,
         )
 
         if form.validate():
-            self.request.user.webauthn = None
+            self.request.user.webauthn.remove(form.webauthn)
             self.request.session.flash("WebAuthn device deleted.", queue="success")
         else:
             self.request.session.flash("Invalid credentials.", queue="error")

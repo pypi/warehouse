@@ -313,24 +313,31 @@
           {% endif %}
           </td>
         </tr>
+        {% for credential in user.webauthn %}
         <tr>
           <td>Security Key (WebAuthn)</td>
-          <td>{% if user.webauthn %}
+          <td>
             <span class="badge badge--success">Enabled</span>
-              {% else %}
-            <span class="badge badge--danger">Disabled</span>
-              {% endif %}
           </td>
           <td class="table__action">
-          {% if user.webauthn %}
-            <a href="#disable-webauthn" class="button button--primary">Disable</a>
+            <a href="#disable-webauthn" class="button button--primary">Disable {{ credential.label }}</a>
             {% set title="Disable 2FA with key" %}
             {% set confirm_button_label="Disable key" %}
             {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
-            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-webauthn", action=action, warning=False, confirm_string_in_title=False) }}
-          {% else %}
+            {% set extra_fields %}
+              <input type="text" name="label" value="{{ credential.label }}" hidden="true">
+            {% endset %}
+            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-webauthn", extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+          </td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td>Security Key (WebAuthn)</td>
+          <td>
+            <span class="badge badge--danger">Add another</span>
+          </td>
+          <td class="table__action">
             <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary">Enable</a>
-          {% endif %}
           </td>
         </tr>
       </tbody>

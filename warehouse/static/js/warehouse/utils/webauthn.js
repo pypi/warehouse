@@ -18,6 +18,8 @@ const populateWebAuthnErrorList = (errors) => {
     return;
   }
 
+  errorList.innerHTML = "";
+
   errors.forEach((error) => {
     const errorItem = document.createElement("li");
     errorItem.appendChild(document.createTextNode(error));
@@ -122,8 +124,9 @@ const transformCredential = (credential) => {
   };
 };
 
-const postCredential = async (credential, token) => {
+const postCredential = async (label, credential, token) => {
   const formData = new FormData();
+  formData.set("label", label);
   formData.set("credential", JSON.stringify(credential));
   formData.set("csrf_token", token);
 
@@ -156,6 +159,8 @@ const postAssertion = async (assertion, token) => {
 
 export const ProvisionWebAuthn = () => {
   doWebAuthn("webauthn-provision-begin", async (csrfToken) => {
+    const label = document.getElementById("webauthn-provision-label").value;
+
     // TODO(ww): Should probably find a way to use the route string here,
     // not the actual endpoint.
     const resp = await fetch(
@@ -171,7 +176,7 @@ export const ProvisionWebAuthn = () => {
     });
     const transformedCredential = transformCredential(credential);
 
-    const status = await postCredential(transformedCredential, csrfToken);
+    const status = await postCredential(label, transformedCredential, csrfToken);
     if (status.fail) {
       populateWebAuthnErrorList(status.fail.errors);
       return;

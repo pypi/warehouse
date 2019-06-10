@@ -252,7 +252,7 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
 
-        return user.webauthn is not None
+        return len(user.webauthn) > 0
 
     def get_totp_secret(self, user_id):
         """
@@ -393,16 +393,23 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
 
-        # TODO(ww): Change to check for credentialId once multiple
-        # security keys are supported.
-        if user.webauthn:
-            return
-
         webauthn = WebAuthn(user=user, **kwargs)
         self.db.add(webauthn)
         self.db.flush()  # flush the db now so webauthn.id is available
 
         return webauthn
+
+    def get_webauthn_by_label(self, user_id, label):
+        """
+        Returns a WebAuthn credential for the given user by its label,
+        or None if no credential for the user has this label.
+        """
+        user = self.get_user(user_id)
+
+        return next(
+            (credential for credential in user.webauthn if credential.label == label),
+            None,
+        )
 
 
 @implementer(ITokenService)

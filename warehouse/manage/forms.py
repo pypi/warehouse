@@ -111,19 +111,39 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
 
 
 class DeleteWebAuthnForm(UsernameMixin, forms.Form):
-    __params__ = ["confirm_username"]
+    __params__ = ["confirm_username", "label"]
 
-    def __init__(self, *args, user_service, **kwargs):
+    label = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired(message="Specify a label")]
+    )
+
+    def __init__(self, *args, user_service, user_id, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.user_id = user_id
+
+    def validate_label(self, field):
+        label = field.data
+
+        webauthn = self.user_service.get_webauthn_by_label(self.user_id, label)
+        if webauthn is None:
+            raise wtforms.validators.ValidationError("No WebAuthn key with given label")
+        self.webauthn = webauthn
 
 
 class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
-    __params__ = ["credential"]
+    __params__ = ["label", "credential"]
 
-    def __init__(self, *args, user_service, challenge, rp_id, origin, **kwargs):
+    label = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired(message="Specify a label")]
+    )
+
+    def __init__(
+        self, *args, user_service, user_id, challenge, rp_id, origin, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.user_id = user_id
         self.challenge = challenge
         self.rp_id = rp_id
         self.origin = origin
@@ -147,3 +167,9 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential
+
+    def validate_label(self, field):
+        label = field.data
+
+        if self.user_service.get_webauthn_by_label(self.user_id, label) is not None:
+            raise wtforms.validators.ValidationError(f"Label '{label}' already in use")

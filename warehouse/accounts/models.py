@@ -84,11 +84,7 @@ class User(SitemapMixin, db.Model):
     totp_secret = Column(Binary(length=20), nullable=True)
 
     webauthn = orm.relationship(
-        "WebAuthn",
-        backref="user",
-        cascade="all, delete-orphan",
-        uselist=False,
-        lazy=False,
+        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=False
     )
 
     emails = orm.relationship(
@@ -116,7 +112,7 @@ class User(SitemapMixin, db.Model):
 
     @property
     def has_two_factor(self):
-        return self.totp_secret is not None or self.webauthn is not None
+        return self.totp_secret is not None or len(self.webauthn) > 0
 
     @property
     def two_factor_provisioning_allowed(self):
@@ -125,12 +121,17 @@ class User(SitemapMixin, db.Model):
 
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
+    __table_args__ = (
+        UniqueConstraint("label", name="user_security_keys_label_key"),
+        Index("user_security_keys_label_key", "user_id"),
+    )
 
     user_id = Column(
         UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
+    label = Column(String, nullable=False)
     credential_id = Column(String, unique=True, nullable=False)
     public_key = Column(String, unique=True, nullable=True)
     sign_count = Column(Integer, default=0)

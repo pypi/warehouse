@@ -32,22 +32,25 @@ class RegistrationRejectedException(Exception):
 WebAuthnCredential = pywebauthn.WebAuthnCredential
 
 
-def _get_webauthn_user(user, *, icon_url, rp_id):
+def _get_webauthn_users(user, *, icon_url, rp_id):
     """
     Returns a webauthn.WebAuthnUser instance corresponding
     to the given user model, with properties suitable for
     usage within the webauthn API.
     """
-    return pywebauthn.WebAuthnUser(
-        str(user.id),
-        user.username,
-        user.name,
-        icon_url,
-        user.webauthn.credential_id,
-        user.webauthn.public_key,
-        user.webauthn.sign_count,
-        rp_id,
-    )
+    return [
+        pywebauthn.WebAuthnUser(
+            str(user.id),
+            user.username,
+            user.name,
+            icon_url,
+            credential.credential_id,
+            credential.public_key,
+            credential.sign_count,
+            rp_id,
+        )
+        for credential in user.webauthn
+    ]
 
 
 def _webauthn_b64decode(encoded):
@@ -89,7 +92,7 @@ def get_assertion_options(user, *, challenge, icon_url, rp_id):
     on the client side.
     """
     options = pywebauthn.WebAuthnAssertionOptions(
-        _get_webauthn_user(user, icon_url=icon_url, rp_id=rp_id), challenge
+        _get_webauthn_users(user, icon_url=icon_url, rp_id=rp_id), challenge
     )
 
     return options.assertion_dict
@@ -116,7 +119,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
         raise RegistrationRejectedException(str(e))
 
 
-def verify_assertion_response(response, *, challenge, user, origin, icon_url, rp_id):
+def verify_assertion_response(assertion, *, challenge, user, origin, icon_url, rp_id):
     """
     Validates the challenge and assertion information
     sent from the client during authentication.
@@ -124,13 +127,20 @@ def verify_assertion_response(response, *, challenge, user, origin, icon_url, rp
     Returns an updated signage count on success.
     Raises AuthenticationRejectedException on failure.
     """
-    response = pywebauthn.WebAuthnAssertionResponse(
-        _get_webauthn_user(user, icon_url=icon_url, rp_id=rp_id),
-        response,
-        _webauthn_b64encode(challenge.encode()).decode(),
-        origin,
-    )
-    try:
-        return response.verify()
-    except _AuthenticationRejectedException as e:
-        raise AuthenticationRejectedException(str(e))
+    webauthn_users = _get_webauthn_users(user, icon_url=icon_url, rp_id=rp_id)
+
+    for webauthn_user in webauthn_users:
+        response = pywebauthn.WebAuthnAssertionResponse(
+            webauthn_user,
+            assertion,
+            _webauthn_b64encode(challenge.encode()).decode(),
+            origin,
+        )
+        try:
+            return response.verify()
+        except _AuthenticationRejectedException as e:
+            pass
+
+    # If we exit the loop, then we've failed to verify the assertion against
+    # any of the user's WebAuthn credentials. Fail.
+    raise AuthenticationRejectedException("Invalid WebAuthn credential")

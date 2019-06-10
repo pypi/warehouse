@@ -171,6 +171,12 @@ class IUserService(Interface):
         webauthn.AuthenticationRejectedException on failure.
         """
 
+    def get_webauthn_by_label(user_id, label):
+        """
+        Returns a WebAuthn credential for the given user by its label,
+        or None if no credential for the user has this label.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
