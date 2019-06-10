@@ -294,3 +294,16 @@ class TestDeleteWebAuthnForm:
 
         assert not form.validate()
         assert form.label.errors.pop() == "Specify a label"
+
+    def test_validate_label_not_in_use(self):
+        user_service = pretend.stub(
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None)
+        )
+        form = forms.DeleteWebAuthnForm(
+            data={"label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.label.errors.pop() == "No WebAuthn key with given label"
