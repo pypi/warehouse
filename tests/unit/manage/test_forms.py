@@ -171,22 +171,33 @@ class TestDeleteTOTPForm:
 class TestProvisionWebAuthnForm:
     def test_creation(self):
         user_service = pretend.stub()
+        user_id = pretend.stub()
         challenge = pretend.stub()
         rp_id = pretend.stub()
         origin = pretend.stub()
         form = forms.ProvisionWebAuthnForm(
-            user_service=user_service, challenge=challenge, rp_id=rp_id, origin=origin
+            user_service=user_service,
+            user_id=user_id,
+            challenge=challenge,
+            rp_id=rp_id,
+            origin=origin,
         )
 
         assert form.user_service is user_service
+        assert form.user_id is user_id
         assert form.challenge is challenge
         assert form.rp_id is rp_id
         assert form.origin is origin
 
     def test_verify_assertion_invalid_json(self):
+        user_service = pretend.stub(
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None)
+        )
+
         form = forms.ProvisionWebAuthnForm(
-            data={"credential": "invalid json"},
-            user_service=pretend.stub(),
+            data={"credential": "invalid json", "label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
             challenge=pretend.stub(),
             rp_id=pretend.stub(),
             origin=pretend.stub(),
@@ -201,11 +212,13 @@ class TestProvisionWebAuthnForm:
         user_service = pretend.stub(
             verify_webauthn_credential=pretend.raiser(
                 webauthn.RegistrationRejectedException("Fake exception")
-            )
+            ),
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
         )
         form = forms.ProvisionWebAuthnForm(
-            data={"credential": "{}"},
+            data={"credential": "{}", "label": "fake label"},
             user_service=user_service,
+            user_id=pretend.stub(),
             challenge=pretend.stub(),
             rp_id=pretend.stub(),
             origin=pretend.stub(),
@@ -217,11 +230,13 @@ class TestProvisionWebAuthnForm:
     def test_creates_validated_credential(self):
         fake_validated_credential = object()
         user_service = pretend.stub(
-            verify_webauthn_credential=lambda *a, **kw: fake_validated_credential
+            verify_webauthn_credential=lambda *a, **kw: fake_validated_credential,
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
         )
         form = forms.ProvisionWebAuthnForm(
-            data={"credential": "{}"},
+            data={"credential": "{}", "label": "fake label"},
             user_service=user_service,
+            user_id=pretend.stub(),
             challenge=pretend.stub(),
             rp_id=pretend.stub(),
             origin=pretend.stub(),
@@ -234,6 +249,7 @@ class TestProvisionWebAuthnForm:
 class TestDeleteWebAuthnForm:
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.DeleteWebAuthnForm(user_service=user_service)
+        user_id = pretend.stub()
+        form = forms.DeleteWebAuthnForm(user_service=user_service, user_id=user_id)
 
         assert form.user_service is user_service
