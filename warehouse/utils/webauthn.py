@@ -138,7 +138,7 @@ def verify_assertion_response(assertion, *, challenge, user, origin, icon_url, r
         )
         try:
             return response.verify()
-        except _AuthenticationRejectedException as e:
+        except _AuthenticationRejectedException:
             pass
 
     # If we exit the loop, then we've failed to verify the assertion against

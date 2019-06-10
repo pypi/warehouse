@@ -27,7 +27,7 @@ from sqlalchemy.orm.exc import NoResultFound
 import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
-from warehouse.accounts.models import Email, User, WebAuthn
+from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email,
