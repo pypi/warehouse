@@ -555,6 +555,27 @@ class TestDatabaseUserService:
         )
         assert updated_sign_count == 2
 
+    def test_get_webauthn_by_label(self, user_service):
+        user = UserFactory.create()
+        user_service.add_webauthn(
+            user.id,
+            label="test_label",
+            credential_id="foo",
+            public_key="bar",
+            sign_count=1,
+        )
+
+        webauthn = user_service.get_webauthn_by_label(user.id, "test_label")
+        assert webauthn is not None
+        assert webauthn.label == "test_label"
+
+        webauthn = user_service.get_webauthn_by_label(user.id, "not_a_real_label")
+        assert webauthn is None
+
+        other_user = UserFactory.create()
+        webauthn = user_service.get_webauthn_by_label(other_user.id, "test_label")
+        assert webauthn is None
+
 
 class TestTokenService:
     def test_verify_service(self):
