@@ -57,6 +57,7 @@
 {% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
 {% macro contributing() %}How can I contribute to PyPI?{% endmacro %}
 {% macro upcoming_changes() %}How do I keep up with upcoming changes to PyPI?{% endmacro %}
+{% macro beta_badge() %}What does the "beta" badge mean? What are Warehouse's current beta features?{% endmacro %}
 
 {% block title %}Help{% endblock %}
 
@@ -130,6 +131,7 @@
           <li><a href="#availability">{{ availability() }}</a></li>
           <li><a href="#contributing">{{ contributing() }}</a></li>
           <li><a href="#upcoming-changes">{{ upcoming_changes() }}</a></li>
+          <li><a href="#beta-badge">{{ beta_badge() }}</a></li>
         </ul>
       </section>
 
@@ -331,6 +333,10 @@
         <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
         <p>Changes to PyPI are generally announced on both the <a href="https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/" target="_blank" rel="noopener">pypi-announce mailing list</a> and the <a href="https://pyfound.blogspot.com/search/label/pypi" target="_blank" rel="noopener">PSF blog</a> under the label "pypi". The PSF blog also has <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi" target="_blank" rel="noopener">Atom</a> and <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.</p>
 
+        <h3 id="beta-badge">{{ beta_badge() }}</h3>
+        <p>When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.</p>
+        <p>Currently, there are no beta features.</p>
+        
       </section>
     </div>
   </section>
