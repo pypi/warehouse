@@ -111,7 +111,7 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
 
 
 class DeleteWebAuthnForm(forms.Form):
-    __params__ = ["confirm_webauthn_credential_label"]
+    __params__ = ["confirm_key_name"]
 
     label = wtforms.StringField(
         validators=[
