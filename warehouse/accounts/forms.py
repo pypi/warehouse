@@ -284,7 +284,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             )
 
         try:
-            sign_count = self.user_service.verify_webauthn_assertion(
+            validated_credential = self.user_service.verify_webauthn_assertion(
                 self.user_id,
                 assertion_dict,
                 challenge=self.challenge,
@@ -292,10 +292,11 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
                 icon_url=self.icon_url,
                 rp_id=self.rp_id,
             )
+
         except webauthn.AuthenticationRejectedException as e:
             raise wtforms.validators.ValidationError(str(e))
 
-        self.sign_count = sign_count
+        self.validated_credential = validated_credential
 
 
 class RequestPasswordResetForm(forms.Form):

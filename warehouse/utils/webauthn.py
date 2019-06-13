@@ -128,6 +128,7 @@ def verify_assertion_response(assertion, *, challenge, user, origin, icon_url, r
     Raises AuthenticationRejectedException on failure.
     """
     webauthn_users = _get_webauthn_users(user, icon_url=icon_url, rp_id=rp_id)
+    cred_ids = [cred.credential_id for cred in webauthn_users]
 
     for webauthn_user in webauthn_users:
         response = pywebauthn.WebAuthnAssertionResponse(
@@ -135,9 +136,10 @@ def verify_assertion_response(assertion, *, challenge, user, origin, icon_url, r
             assertion,
             _webauthn_b64encode(challenge.encode()).decode(),
             origin,
+            allow_credentials=cred_ids,
         )
         try:
-            return response.verify()
+            return (webauthn_user.credential_id, response.verify())
         except _AuthenticationRejectedException:
             pass
 

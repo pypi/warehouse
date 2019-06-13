@@ -411,6 +411,22 @@ class DatabaseUserService:
             None,
         )
 
+    def get_webauthn_by_credential_id(self, user_id, credential_id):
+        """
+        Returns a WebAuthn credential for the given user by its credential ID,
+        or None of the user doesn't have a credential with this ID.
+        """
+        user = self.get_user(user_id)
+
+        return next(
+            (
+                credential
+                for credential in user.webauthn
+                if credential.credential_id == credential_id
+            ),
+            None,
+        )
+
 
 @implementer(ITokenService)
 class TokenService:

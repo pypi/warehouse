@@ -295,8 +295,9 @@ def webauthn_authentication_validate(request):
     request.session.clear_webauthn_challenge()
 
     if form.validate():
-        user = user_service.get_user(userid)
-        user.webauthn.sign_count = form.sign_count
+        credential_id, sign_count = form.validated_credential
+        webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
+        webauthn.sign_count = sign_count
 
         _login_user(request, userid)
 

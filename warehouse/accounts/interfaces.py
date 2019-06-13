@@ -177,6 +177,12 @@ class IUserService(Interface):
         or None if no credential for the user has this label.
         """
 
+    def get_webauthn_by_credential_id(user_id, credential_id):
+        """
+        Returns a WebAuthn credential for the given user by its credential ID,
+        or None of the user doesn't have a credential with this ID.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
