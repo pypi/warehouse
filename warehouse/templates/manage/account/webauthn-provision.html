@@ -39,7 +39,13 @@
   </noscript>
 
   <div class="form-group">
-    <input id="webauthn-provision-label" placeholder="Device label" type="text" name="label">
+    <label for="webauthn-provision-label" class="form-group__label">Key name</label>
+    <input id="webauthn-provision-label" type="text" name="label" class="form-group__input">
+    <p class="form-group__help-text">PyPI supports adding multiple WebAuthn keys.<br>Please give this key a name.</p>
+    <ul id="webauthn-errors" class="form-errors">
+    </ul>
+  </div>
+  <div>
     <button
       type="button"
       id="webauthn-provision-begin"
@@ -47,8 +53,6 @@
       csrf-token="{{ request.session.get_csrf_token() }}"
       disabled>Provision key
     </button>
-    <ul id="webauthn-errors" class="form-errors">
-    </ul>
   </div>
 </section>
 {% endblock %}
