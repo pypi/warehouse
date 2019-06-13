@@ -576,6 +576,33 @@ class TestDatabaseUserService:
         webauthn = user_service.get_webauthn_by_label(other_user.id, "test_label")
         assert webauthn is None
 
+    def test_get_webauthn_by_credential_id(self, user_service):
+        user = UserFactory.create()
+        user_service.add_webauthn(
+            user.id,
+            label="foo",
+            credential_id="test_credential_id",
+            public_key="bar",
+            sign_count=1,
+        )
+
+        webauthn = user_service.get_webauthn_by_credential_id(
+            user.id, "test_credential_id"
+        )
+        assert webauthn is not None
+        assert webauthn.credential_id == "test_credential_id"
+
+        webauthn = user_service.get_webauthn_by_credential_id(
+            user.id, "not_a_real_label"
+        )
+        assert webauthn is None
+
+        other_user = UserFactory.create()
+        webauthn = user_service.get_webauthn_by_credential_id(
+            other_user.id, "test_credential_id"
+        )
+        assert webauthn is None
+
 
 class TestTokenService:
     def test_verify_service(self):

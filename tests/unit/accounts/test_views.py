@@ -695,7 +695,12 @@ class TestWebAuthn:
 
         user = pretend.stub(webauthn=pretend.stub(sign_count=pretend.stub()))
 
-        user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: user))
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda uid: user),
+            get_webauthn_by_credential_id=pretend.call_recorder(
+                lambda *a: pretend.stub()
+            ),
+        )
 
         request = pretend.stub(
             authenticated_userid=None,
@@ -717,7 +722,7 @@ class TestWebAuthn:
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             credential=pretend.stub(errors=["Fake validation failure"]),
-            sign_count=pretend.stub(),
+            validated_credential=(pretend.stub(), pretend.stub()),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
         monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)

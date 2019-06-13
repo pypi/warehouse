@@ -69,7 +69,7 @@ def test_verify_assertion_response(monkeypatch):
     assertion_cls = pretend.call_recorder(lambda *a, **kw: assertion_obj)
     monkeypatch.setattr(pywebauthn, "WebAuthnAssertionResponse", assertion_cls)
 
-    not_a_real_user = object()
+    not_a_real_user = pretend.stub(credential_id="not_a_real_credential")
     get_webauthn_users = pretend.call_recorder(lambda *a, **kw: [not_a_real_user])
     monkeypatch.setattr(webauthn, "_get_webauthn_users", get_webauthn_users)
 
@@ -92,9 +92,10 @@ def test_verify_assertion_response(monkeypatch):
             not_a_real_assertion,
             webauthn._webauthn_b64encode("not_a_real_challenge".encode()).decode(),
             "fake_origin",
+            allow_credentials=["not_a_real_credential"],
         )
     ]
-    assert resp == 1234
+    assert resp == ("not_a_real_credential", 1234)
 
 
 def test_verify_assertion_response_failure(monkeypatch):
@@ -104,7 +105,9 @@ def test_verify_assertion_response_failure(monkeypatch):
     assertion_cls = pretend.call_recorder(lambda *a, **kw: assertion_obj)
     monkeypatch.setattr(pywebauthn, "WebAuthnAssertionResponse", assertion_cls)
 
-    get_webauthn_users = pretend.call_recorder(lambda *a, **kw: [pretend.stub()])
+    get_webauthn_users = pretend.call_recorder(
+        lambda *a, **kw: [pretend.stub(credential_id=pretend.stub())]
+    )
     monkeypatch.setattr(webauthn, "_get_webauthn_users", get_webauthn_users)
 
     with pytest.raises(webauthn.AuthenticationRejectedException):

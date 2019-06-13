@@ -652,7 +652,9 @@ class TestWebAuthnAuthenticationForm:
             credential=json.dumps({}),
             user_id=pretend.stub(),
             user_service=pretend.stub(
-                verify_webauthn_assertion=pretend.call_recorder(lambda *a, **kw: 123456)
+                verify_webauthn_assertion=pretend.call_recorder(
+                    lambda *a, **kw: ("foo", 123456)
+                )
             ),
             challenge=pretend.stub(),
             origin=pretend.stub(),
@@ -660,4 +662,4 @@ class TestWebAuthnAuthenticationForm:
             rp_id=pretend.stub(),
         )
         assert form.validate()
-        assert form.sign_count == 123456
+        assert form.validated_credential == ("foo", 123456)
