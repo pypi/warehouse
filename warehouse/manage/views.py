@@ -483,7 +483,7 @@ class ProvisionWebAuthnViews:
                 label=form.label.data,
                 credential_id=form.validated_credential.credential_id.decode(),
                 public_key=form.validated_credential.public_key.decode(),
-                sign_count=form.validated_credential.sign_count,
+                sign_count=form.validated_credential.sign_count + 1,
             )
             self.request.session.flash(
                 "WebAuthn successfully provisioned.", queue="success"
