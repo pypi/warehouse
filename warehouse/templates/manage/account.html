@@ -282,7 +282,7 @@
   <hr>
   {% macro twofa_buttons() %}
     {% if not user.totp_secret %}
-      <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA by TOTP application</a>
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA by TOTP application</a>
     {% endif %}
     <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary">Add 2FA with security key</a>
   {% endmacro %}
