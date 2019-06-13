@@ -1175,7 +1175,7 @@ class TestProvisionWebAuthn:
                 label="fake_label",
                 credential_id="fake_credential_id",
                 public_key="fake_public_key",
-                sign_count=1,
+                sign_count=2,
             )
         ]
         assert request.session.flash.calls == [
