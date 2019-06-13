@@ -147,8 +147,8 @@ class NewEmailMixin:
     email = wtforms.fields.html5.EmailField(
         validators=[
             wtforms.validators.DataRequired(),
-            wtforms.validators.Email(
-                message=("The email address isn't valid. Try again.")
+            wtforms.validators.Regexp(
+                r".+@.+\..+", message=("The email address isn't valid. Try again.")
             ),
         ]
     )
