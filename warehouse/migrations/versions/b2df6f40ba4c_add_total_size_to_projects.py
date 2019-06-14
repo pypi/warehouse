@@ -13,7 +13,7 @@
 add_total_size_to_projects
 
 Revision ID: b2df6f40ba4c
-Revises: 42f0409bb702
+Revises: e1b493d3b171
 Create Date: 2019-05-07 15:07:25.696339
 """
 
@@ -67,6 +67,25 @@ def upgrade():
         """CREATE TRIGGER update_project_total_size
             AFTER INSERT OR UPDATE OR DELETE ON release_files
             FOR EACH ROW EXECUTE PROCEDURE projects_total_size();
+        """
+    )
+
+    op.execute(
+        """WITH project_totals AS (
+                SELECT
+                    p.id as project_id,
+                    sum(size) as project_total
+                FROM
+                    release_files rf
+                    JOIN releases r on rf.release_id = r.id
+                    JOIN projects p on r.project_id = p.id
+                GROUP BY
+                    p.id
+            )
+            UPDATE projects AS p
+            SET total_size = project_totals.project_total
+            FROM project_totals
+            WHERE project_totals.project_id = p.id;
         """
     )
 
