@@ -12,24 +12,22 @@
 """
 add_total_size_to_projects
 
-Revision ID: b2df6f40ba4c
+Revision ID: a9cbb1025607
 Revises: e1b493d3b171
-Create Date: 2019-05-07 15:07:25.696339
+Create Date: 2019-06-15 09:01:46.641354
 """
 
+from alembic import op
 import sqlalchemy as sa
 
-from alembic import op
-from sqlalchemy import sql
-
-revision = "b2df6f40ba4c"
-down_revision = "42f0409bb702"
+revision = "a9cbb1025607"
+down_revision = "e1b493d3b171"
 
 
 def upgrade():
     op.add_column(
         "projects",
-        sa.Column("total_size", sa.BigInteger(), server_default=sql.text("0")),
+        sa.Column("total_size", sa.BigInteger(), server_default=sa.text("0")),
     )
     op.execute(
         """CREATE OR REPLACE FUNCTION projects_total_size()
@@ -62,7 +60,6 @@ def upgrade():
         $$ LANGUAGE plpgsql;
         """
     )
-
     op.execute(
         """CREATE TRIGGER update_project_total_size
             AFTER INSERT OR UPDATE OR DELETE ON release_files
