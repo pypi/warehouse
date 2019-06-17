@@ -29,7 +29,10 @@
     <div class="twofa-login">
       {% if has_webauthn %}
       <div class="twofa-login__method {% if totp_form %}twofa-login__method--padded{% endif %}">
-        <h2>Authenticate with a security key</h2>
+        <h2>
+          Authenticate with a security key
+          &nbsp;<span class="badge badge--warning">Beta</span>
+        </h2>
 
         <p>Insert your security key and click below.</p>
 
