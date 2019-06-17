@@ -314,8 +314,8 @@
         {% for credential in user.webauthn %}
         <tr>
           <td>
-              <strong>"{{ credential.label }}"</strong> - Security key (WebAuthn)
-              <span class="badge badge--warning">Beta</span>
+            <strong>"{{ credential.label }}"</strong> - Security key (WebAuthn)
+            <span class="badge badge--warning">Beta</span>
           </td>
           <td class="table__action">
             <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
