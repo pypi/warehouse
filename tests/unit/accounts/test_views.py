@@ -342,7 +342,9 @@ class TestTwoFactor:
         form_obj = pretend.stub()
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
 
-        result = views.two_factor_and_totp_validate(pyramid_request, _form_class=form_class)
+        result = views.two_factor_and_totp_validate(
+            pyramid_request, _form_class=form_class
+        )
 
         assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
         assert result == {"totp_form": form_obj}
@@ -378,7 +380,9 @@ class TestTwoFactor:
         }[interface]
 
         pyramid_request.query_string = pretend.stub()
-        result = views.two_factor_and_totp_validate(pyramid_request, _form_class=pretend.stub())
+        result = views.two_factor_and_totp_validate(
+            pyramid_request, _form_class=pretend.stub()
+        )
 
         assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
         assert result == {"has_webauthn": True}
@@ -434,7 +438,9 @@ class TestTwoFactor:
         pyramid_request.params = pretend.stub(
             get=pretend.call_recorder(lambda k: query_params.get(k))
         )
-        result = views.two_factor_and_totp_validate(pyramid_request, _form_class=form_class)
+        result = views.two_factor_and_totp_validate(
+            pyramid_request, _form_class=form_class
+        )
 
         token_expected_data = {"userid": str(1)}
         if redirect_url:
@@ -482,7 +488,9 @@ class TestTwoFactor:
         pyramid_request.params = pretend.stub(
             get=pretend.call_recorder(lambda k: query_params.get(k))
         )
-        result = views.two_factor_and_totp_validate(pyramid_request, _form_class=form_class)
+        result = views.two_factor_and_totp_validate(
+            pyramid_request, _form_class=form_class
+        )
 
         token_expected_data = {"userid": str(1)}
         if redirect_url:
