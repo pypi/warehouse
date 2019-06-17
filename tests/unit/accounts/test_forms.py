@@ -311,6 +311,18 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.email.errors.pop() == "The email address isn't valid. Try again."
 
+    def test_exotic_email_success(self):
+        form = forms.RegistrationForm(
+            data={"email": "foo@n--tree.net"},
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        form.validate()
+        assert len(form.email.errors) == 0
+
     def test_email_exists_error(self):
         form = forms.RegistrationForm(
             data={"email": "foo@bar.com"},
