@@ -147,7 +147,7 @@ const postAssertion = async (assertion, token) => {
   formData.set("csrf_token", token);
 
   const resp = await fetch(
-    "/accounts/webauthn-authenticate/validate" + window.location.search, {
+    "/account/webauthn-authenticate/validate" + window.location.search, {
       method: "POST",
       cache: "no-cache",
       body: formData,
@@ -189,14 +189,14 @@ export const ProvisionWebAuthn = () => {
 export const AuthenticateWebAuthn = () => {
   doWebAuthn("webauthn-auth-begin", async (csrfToken) => {
     const resp = await fetch(
-      "/accounts/webauthn-authenticate/options" + window.location.search, {
+      "/account/webauthn-authenticate/options" + window.location.search, {
         cache: "no-cache",
       }
     );
 
     const assertionOptions = await resp.json();
     if (assertionOptions.fail) {
-      window.location.replace("/accounts/login");
+      window.location.replace("/account/login");
       return;
     }
 
