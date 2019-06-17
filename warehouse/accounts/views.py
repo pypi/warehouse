@@ -187,7 +187,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     require_csrf=True,
     require_methods=False,
 )
-def two_factor(request, _form_class=TOTPAuthenticationForm):
+def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
