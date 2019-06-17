@@ -21,6 +21,7 @@ from pyramid import viewderivers
 
 import warehouse.sessions
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.sessions import (
     InvalidSession,
@@ -250,7 +251,7 @@ class TestSession:
         assert session.get_csrf_token() == "123456"
         assert session.new_csrf_token.calls == [pretend.call()]
 
-    def test_get_totp_secret(self, monkeypatch):
+    def test_get_totp_secret(self):
         session = Session()
         session[session._totp_secret_key] = b"foobar"
 
@@ -270,6 +271,31 @@ class TestSession:
 
         session.clear_totp_secret()
         assert not session[session._totp_secret_key]
+
+    def test_get_webauthn_challenge(self):
+        session = Session()
+        session[session._webauthn_challenge_key] = "not_a_real_challenge"
+
+        assert session.get_webauthn_challenge() == "not_a_real_challenge"
+
+    def test_get_webauthn_challenge_empty(self, monkeypatch):
+        generate_webauthn_challenge = pretend.call_recorder(
+            lambda: "not_a_real_challenge"
+        )
+        monkeypatch.setattr(
+            webauthn, "generate_webauthn_challenge", generate_webauthn_challenge
+        )
+
+        session = Session()
+        assert session.get_webauthn_challenge() == "not_a_real_challenge"
+        assert session._webauthn_challenge_key in session
+
+    def test_clear_webauthn_challenge(self):
+        session = Session()
+        session[session._webauthn_challenge_key] = "not_a_real_challenge"
+
+        session.clear_webauthn_challenge()
+        assert not session[session._webauthn_challenge_key]
 
 
 class TestSessionFactory:

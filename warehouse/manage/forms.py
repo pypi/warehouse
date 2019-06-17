@@ -10,9 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import wtforms
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
 from warehouse.accounts.forms import (
@@ -20,6 +23,7 @@ from warehouse.accounts.forms import (
     NewPasswordMixin,
     PasswordMixin,
     TOTPValueMixin,
+    WebAuthnCredentialMixin,
 )
 
 
@@ -104,3 +108,78 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
         totp_value = field.data.encode("utf8")
         if not otp.verify_totp(self.totp_secret, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
+
+
+class DeleteWebAuthnForm(forms.Form):
+    __params__ = ["confirm_key_name"]
+
+    label = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify a label"),
+            wtforms.validators.Length(
+                max=64, message=("Label must be 64 characters or less")
+            ),
+        ]
+    )
+
+    def __init__(self, *args, user_service, user_id, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.user_id = user_id
+
+    def validate_label(self, field):
+        label = field.data
+
+        webauthn = self.user_service.get_webauthn_by_label(self.user_id, label)
+        if webauthn is None:
+            raise wtforms.validators.ValidationError("No WebAuthn key with given label")
+        self.webauthn = webauthn
+
+
+class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
+    __params__ = ["label", "credential"]
+
+    label = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify a label"),
+            wtforms.validators.Length(
+                max=64, message=("Label must be 64 characters or less")
+            ),
+        ]
+    )
+
+    def __init__(
+        self, *args, user_service, user_id, challenge, rp_id, origin, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.user_id = user_id
+        self.challenge = challenge
+        self.rp_id = rp_id
+        self.origin = origin
+
+    def validate_credential(self, field):
+        try:
+            credential_dict = json.loads(field.data.encode("utf8"))
+        except json.JSONDecodeError:
+            raise wtforms.validators.ValidationError(
+                "Invalid WebAuthn credential: Bad payload"
+            )
+
+        try:
+            validated_credential = self.user_service.verify_webauthn_credential(
+                credential_dict,
+                challenge=self.challenge,
+                rp_id=self.rp_id,
+                origin=self.origin,
+            )
+        except webauthn.RegistrationRejectedException as e:
+            raise wtforms.validators.ValidationError(str(e))
+
+        self.validated_credential = validated_credential
+
+    def validate_label(self, field):
+        label = field.data
+
+        if self.user_service.get_webauthn_by_label(self.user_id, label) is not None:
+            raise wtforms.validators.ValidationError(f"Label '{label}' already in use")

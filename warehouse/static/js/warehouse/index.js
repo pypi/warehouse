@@ -39,6 +39,7 @@ import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
+import {AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
 // Do this before anything else, to potentially capture errors down the line
 docReady(() => {
@@ -215,6 +216,12 @@ docReady(bindDropdowns);
 
 // Get modal keypress event listeners ready
 docReady(BindModalKeys);
+
+// Get WebAuthn provisioning ready
+docReady(ProvisionWebAuthn);
+
+// Get WebAuthn authentication ready
+docReady(AuthenticateWebAuthn);
 
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)

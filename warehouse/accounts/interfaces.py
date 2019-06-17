@@ -107,6 +107,16 @@ class IUserService(Interface):
         authentication and is allowed to use it.
         """
 
+    def has_totp(user_id):
+        """
+        Returns True if the user has a TOTP device provisioned.
+        """
+
+    def has_webauthn(user_id):
+        """
+        Returns True if the user has a security key provisioned.
+        """
+
     def get_totp_secret(user_id):
         """
         Returns the user's TOTP secret as bytes.
@@ -118,6 +128,59 @@ class IUserService(Interface):
     def check_totp_value(user_id, totp_value, *, tags=None):
         """
         Returns True if the given TOTP code is valid.
+        """
+
+    def add_webauthn(user_id, **kwargs):
+        """
+        Adds a WebAuthn credential to the given user.
+
+        Returns None if the user already has this credential.
+        """
+
+    def get_webauthn_credential_options(
+        user_id, *, challenge, rp_name, rp_id, icon_url
+    ):
+        """
+        Returns a dictionary of credential options suitable for beginning the WebAuthn
+        provisioning process for the given user.
+        """
+
+    def get_webauthn_assertion_options(user_id, *, challenge, icon_url, rp_id):
+        """
+        Returns a dictionary of assertion options suitable for beginning the WebAuthn
+        authentication process for the given user.
+        """
+
+    def verify_webauthn_credential(credential, *, challenge, rp_id, origin):
+        """
+        Checks whether the given credential is valid, i.e. suitable for generating
+        assertions during authentication.
+
+        Returns the validated credential on success, raises
+        webauthn.RegistrationRejectedException on failure.
+        """
+
+    def verify_webauthn_assertion(
+        user_id, assertion, *, challenge, origin, icon_url, rp_id
+    ):
+        """
+        Checks whether the given assertion was produced by the given user's WebAuthn
+        device.
+
+        Returns the updated signage count on success, raises
+        webauthn.AuthenticationRejectedException on failure.
+        """
+
+    def get_webauthn_by_label(user_id, label):
+        """
+        Returns a WebAuthn credential for the given user by its label,
+        or None if no credential for the user has this label.
+        """
+
+    def get_webauthn_by_credential_id(user_id, credential_id):
+        """
+        Returns a WebAuthn credential for the given user by its credential ID,
+        or None of the user doesn't have a credential with this ID.
         """
 
 

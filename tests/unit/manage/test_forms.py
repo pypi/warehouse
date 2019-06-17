@@ -17,6 +17,7 @@ import wtforms
 from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.manage import forms
 
@@ -165,3 +166,158 @@ class TestDeleteTOTPForm:
         form = forms.DeleteTOTPForm(user_service=user_service)
 
         assert form.user_service is user_service
+
+
+class TestProvisionWebAuthnForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        user_id = pretend.stub()
+        challenge = pretend.stub()
+        rp_id = pretend.stub()
+        origin = pretend.stub()
+        form = forms.ProvisionWebAuthnForm(
+            user_service=user_service,
+            user_id=user_id,
+            challenge=challenge,
+            rp_id=rp_id,
+            origin=origin,
+        )
+
+        assert form.user_service is user_service
+        assert form.user_id is user_id
+        assert form.challenge is challenge
+        assert form.rp_id is rp_id
+        assert form.origin is origin
+
+    def test_verify_assertion_invalid_json(self):
+        user_service = pretend.stub(
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None)
+        )
+
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "invalid json", "label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            form.credential.errors.pop() == "Invalid WebAuthn credential: Bad payload"
+        )
+
+    def test_verify_assertion_invalid(self):
+        user_service = pretend.stub(
+            verify_webauthn_credential=pretend.raiser(
+                webauthn.RegistrationRejectedException("Fake exception")
+            ),
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
+        )
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "{}", "label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.credential.errors.pop() == "Fake exception"
+
+    def test_verify_label_missing(self):
+        user_service = pretend.stub(
+            verify_webauthn_credential=lambda *a, **kw: pretend.stub()
+        )
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "{}"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.label.errors.pop() == "Specify a label"
+
+    def test_verify_label_already_in_use(self):
+        user_service = pretend.stub(
+            verify_webauthn_credential=lambda *a, **kw: pretend.stub(),
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: pretend.stub()),
+        )
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "{}", "label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.label.errors.pop() == "Label 'fake label' already in use"
+
+    def test_creates_validated_credential(self):
+        fake_validated_credential = object()
+        user_service = pretend.stub(
+            verify_webauthn_credential=lambda *a, **kw: fake_validated_credential,
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
+        )
+        form = forms.ProvisionWebAuthnForm(
+            data={"credential": "{}", "label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+            challenge=pretend.stub(),
+            rp_id=pretend.stub(),
+            origin=pretend.stub(),
+        )
+
+        assert form.validate()
+        assert form.validated_credential is fake_validated_credential
+
+
+class TestDeleteWebAuthnForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        user_id = pretend.stub()
+        form = forms.DeleteWebAuthnForm(user_service=user_service, user_id=user_id)
+
+        assert form.user_service is user_service
+
+    def test_validate_label_missing(self):
+        form = forms.DeleteWebAuthnForm(
+            user_service=pretend.stub(), user_id=pretend.stub()
+        )
+
+        assert not form.validate()
+        assert form.label.errors.pop() == "Specify a label"
+
+    def test_validate_label_not_in_use(self):
+        user_service = pretend.stub(
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: None)
+        )
+        form = forms.DeleteWebAuthnForm(
+            data={"label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.label.errors.pop() == "No WebAuthn key with given label"
+
+    def test_creates_webauthn_attribute(self):
+        fake_webauthn = object()
+        user_service = pretend.stub(
+            get_webauthn_by_label=pretend.call_recorder(lambda *a: fake_webauthn)
+        )
+        form = forms.DeleteWebAuthnForm(
+            data={"label": "fake label"},
+            user_service=user_service,
+            user_id=pretend.stub(),
+        )
+
+        assert form.validate()
+        assert form.webauthn is fake_webauthn

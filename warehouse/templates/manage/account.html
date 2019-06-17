@@ -280,43 +280,63 @@
 
   {% if user.two_factor_provisioning_allowed %}
   <hr>
+  {% macro twofa_buttons() %}
+    {% if not user.totp_secret %}
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA by TOTP application</a>
+    {% endif %}
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary">Add 2FA with security key</a>
+  {% endmacro %}
 
   <section id="two-factor">
     <h2 class="sub-title">Two factor authentication</h2>
-    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#2fa">Learn more</a></p>
+    <p>Two factor authentication (2FA) adds an additional layer of security to your account. <a href="/help#2fa">Learn more</a></p>
 
+    {% if user.totp_secret or user.webauthn %}
     <table class="table table--light table--2fa">
       <thead>
         <tr>
-          <th>Two factor method</th>
-          <th colspan="2">Status</th>
+          <th colspan="2">Two factor method</th>
         </tr>
       </thead>
       <tbody>
+        {% if user.totp_secret %}
         <tr>
           <td>Authentication app (TOTP)</td>
-          <td>{% if user.totp_secret %}
-            <span class="badge badge--success">Enabled</span>
-              {% else %}
-            <span class="badge badge--danger">Disabled</span>
-              {% endif %}
-          </td>
           <td class="table__action">
-            {% if user.totp_secret %}
-            <a href="#disable-totp" class="button button--primary">Disable</a>
-            {% set title="Disable 2FA by TOTP application" %}
-            {% set confirm_button_label="Disable TOTP application" %}
+            <a href="#disable-totp" class="button button--primary">Remove</a>
+            {% set title="Remove 2FA by TOTP application" %}
+            {% set confirm_button_label="Remove TOTP application" %}
             {% set action="/manage/account/totp-provision" %}
             {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
-          {% else %}
-            <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Enable</a>
-          {% endif %}
           </td>
         </tr>
+        {% endif %}
+        {% for credential in user.webauthn %}
+        <tr>
+          <td><strong>"{{ credential.label }}"</strong> - Security key (WebAuthn)</td>
+          <td class="table__action">
+            <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
+            {% set title="Remove 2FA key - " + credential.label %}
+            {% set confirm_button_label="Remove key" %}
+            {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
+            {% set slug="disable-webauthn-" + credential.id | string %}
+            {% set extra_fields %}
+              <input type="text" name="label" value="{{ credential.label }}" hidden>
+            {% endset %}
+            {{ confirm_modal(title=title, confirm_name="Key name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+          </td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
+    {{ twofa_buttons() }}
+    {% else %}
+    <div class="callout-block">
+      <p>You have not enabled two factor authentication on your account.</p>
+      {{ twofa_buttons() }}
+    </div>
+    {% endif %}
   </section>
-
   {% endif %}
 
   <hr>

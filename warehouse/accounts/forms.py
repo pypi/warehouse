@@ -10,10 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import disposable_email_domains
 import jinja2
 import wtforms
 import wtforms.fields.html5
+
+import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
@@ -44,6 +48,11 @@ class TOTPValueMixin:
             ),
         ]
     )
+
+
+class WebAuthnCredentialMixin:
+
+    credential = wtforms.StringField(wtforms.validators.DataRequired())
 
 
 class NewUsernameMixin:
@@ -242,16 +251,52 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 )
 
 
-class TwoFactorForm(TOTPValueMixin, forms.Form):
+class _TwoFactorAuthenticationForm(forms.Form):
     def __init__(self, *args, user_id, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_id = user_id
         self.user_service = user_service
 
+
+class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
         totp_value = field.data.encode("utf8")
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code.")
+
+
+class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticationForm):
+    __params__ = ["credential"]
+
+    def __init__(self, *args, challenge, origin, icon_url, rp_id, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.challenge = challenge
+        self.origin = origin
+        self.icon_url = icon_url
+        self.rp_id = rp_id
+
+    def validate_credential(self, field):
+        try:
+            assertion_dict = json.loads(field.data.encode("utf8"))
+        except json.JSONDecodeError:
+            raise wtforms.validators.ValidationError(
+                f"Invalid WebAuthn assertion: Bad payload"
+            )
+
+        try:
+            validated_credential = self.user_service.verify_webauthn_assertion(
+                self.user_id,
+                assertion_dict,
+                challenge=self.challenge,
+                origin=self.origin,
+                icon_url=self.icon_url,
+                rp_id=self.rp_id,
+            )
+
+        except webauthn.AuthenticationRejectedException as e:
+            raise wtforms.validators.ValidationError(str(e))
+
+        self.validated_credential = validated_credential
 
 
 class RequestPasswordResetForm(forms.Form):
