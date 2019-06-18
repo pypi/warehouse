@@ -178,7 +178,7 @@
         <p>If you have received this error while attempting to log in or upload to PyPI, then your password has been reset and you cannot log in to PyPI until you <a href="{{ request.route_url('accounts.request-password-reset') }}">reset your password</a>.</p>
 
         <h3 id="2fa">{{ twoFA() }}</h3>
-        <p>Users who have chosen to set up two factor authentication (2FA) on their PyPI account must provide a second method of identity verification (other than their username and password) to log in.</p>
+        <p>Users who have chosen to set up two factor authentication (2FA) on their PyPI account must provide a second method of identity verification (other than their username and password) to log in. This only affects login via browser, and not (yet) package uploads (<a href="https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042">details</a>).</p>
         <p>PyPI supports two 2FA methods: <a href="#totp">generating a code through a TOTP application</a>, and <a href="#utfkey">using a U2F security key</a>.</p>
 
         <h3 id="totp">{{ totp() }}</h3>
