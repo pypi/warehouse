@@ -129,6 +129,16 @@ def test_routes(warehouse):
         ),
         pretend.call("accounts.login", "/account/login/", domain=warehouse),
         pretend.call("accounts.two-factor", "/account/two-factor/", domain=warehouse),
+        pretend.call(
+            "accounts.webauthn-authenticate.options",
+            "/account/webauthn-authenticate/options",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.webauthn-authenticate.validate",
+            "/account/webauthn-authenticate/validate",
+            domain=warehouse,
+        ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call("accounts.register", "/account/register/", domain=warehouse),
         pretend.call(
@@ -151,6 +161,26 @@ def test_routes(warehouse):
         pretend.call(
             "manage.account.totp-provision.image",
             "/manage/account/totp-provision/image",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision",
+            "/manage/account/webauthn-provision",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.options",
+            "/manage/account/webauthn-provision/options",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.validate",
+            "/manage/account/webauthn-provision/validate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.delete",
+            "/manage/account/webauthn-provision/delete",
             domain=warehouse,
         ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),

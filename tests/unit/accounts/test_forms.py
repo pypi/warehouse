@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import pretend
 import pytest
 import wtforms
@@ -17,6 +19,7 @@ import wtforms
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
+from warehouse.utils.webauthn import AuthenticationRejectedException
 
 
 class TestLoginForm:
@@ -567,22 +570,22 @@ class TestResetPasswordForm:
         )
 
 
-class TestTwoFactorForm:
+class TestTOTPAuthenticationForm:
     def test_creation(self):
         user_id = pretend.stub()
         user_service = pretend.stub()
-        form = forms.TwoFactorForm(user_id=user_id, user_service=user_service)
+        form = forms.TOTPAuthenticationForm(user_id=user_id, user_service=user_service)
 
         assert form.user_service is user_service
 
     def test_totp_secret_exists(self):
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": ""}, user_id=pretend.stub(), user_service=pretend.stub()
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "This field is required."
 
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": "not_a_real_value"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
@@ -590,7 +593,7 @@ class TestTwoFactorForm:
         assert not form.validate()
         assert form.totp_value.errors.pop() == "TOTP code must be 6 digits."
 
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: False),
@@ -598,9 +601,77 @@ class TestTwoFactorForm:
         assert not form.validate()
         assert form.totp_value.errors.pop() == "Invalid TOTP code."
 
-        form = forms.TwoFactorForm(
+        form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
             user_service=pretend.stub(check_totp_value=lambda *a: True),
         )
         assert form.validate()
+
+
+class TestWebAuthnAuthenticationForm:
+    def test_creation(self):
+        user_id = pretend.stub()
+        user_service = pretend.stub()
+        challenge = pretend.stub()
+        origin = pretend.stub()
+        icon_url = pretend.stub()
+        rp_id = pretend.stub()
+
+        form = forms.WebAuthnAuthenticationForm(
+            user_id=user_id,
+            user_service=user_service,
+            challenge=challenge,
+            origin=origin,
+            icon_url=icon_url,
+            rp_id=rp_id,
+        )
+
+        assert form.challenge is challenge
+
+    def test_credential_bad_payload(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential="not valid json",
+            user_id=pretend.stub(),
+            user_service=pretend.stub(),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert not form.validate()
+        assert form.credential.errors.pop() == "Invalid WebAuthn assertion: Bad payload"
+
+    def test_credential_invalid(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential=json.dumps({}),
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                verify_webauthn_assertion=pretend.raiser(
+                    AuthenticationRejectedException("foo")
+                )
+            ),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert not form.validate()
+        assert form.credential.errors.pop() == "foo"
+
+    def test_credential_valid(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential=json.dumps({}),
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                verify_webauthn_assertion=pretend.call_recorder(
+                    lambda *a, **kw: ("foo", 123456)
+                )
+            ),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert form.validate()
+        assert form.validated_credential == ("foo", 123456)

@@ -177,6 +177,7 @@ class Project(SitemapMixin, db.Model):
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
         query = query.options(orm.joinedload("user").lazyload("emails"))
+        query = query.join(User).order_by(User.id.asc())
         for role in sorted(
             query.all(), key=lambda x: ["Owner", "Maintainer"].index(x.role_name)
         ):

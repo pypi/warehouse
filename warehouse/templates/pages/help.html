@@ -29,6 +29,7 @@
 {% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
 {% macro twoFA() %}How do I access my PyPI account using two factor authentication?{% endmacro %}
 {% macro totp() %}How do I generate a code through a TOTP application?{% endmacro %}
+{% macro utfkey() %}How do I login with a security key? <span class="badge badge--warning">Beta</span>{% endmacro %}
 
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
@@ -83,6 +84,7 @@
           <li><a href="#compromised-password">{{ compromised_password() }}</a></li>
           <li><a href="#2fa">{{ twoFA() }}</a></li>
           <li><a href="#totp">{{ totp() }}</a></li>
+          <li><a href="#utfkey">{{ utfkey() }}</a></li>
         </ul>
       </section>
 
@@ -177,7 +179,7 @@
 
         <h3 id="2fa">{{ twoFA() }}</h3>
         <p>Users who have chosen to set up two factor authentication (2FA) on their PyPI account must provide a second method of identity verification (other than their username and password) to log in.</p>
-        <p>PyPI currently supports a single 2FA method: <a href="#totp">Generating a code through a TOTP application</a>.
+        <p>PyPI supports two 2FA methods: <a href="#totp">generating a code through a TOTP application</a>, and <a href="#utfkey">using a U2F security key</a>.</p>
 
         <h3 id="totp">{{ totp() }}</h3>
         <p>When enabling two factor authentication (2FA) via <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm">TOTP</a> in your account admin, you were asked to provision an application (usually a mobile phone app) in order to generate authentication codes. Popular applications include:</p>
@@ -189,6 +191,11 @@
           <li>Duo Mobile for <a href="https://play.google.com/store/apps/details?id=com.duosecurity.duomobile">Android</a> and <a href="https://itunes.apple.com/app/duo-mobile/id422663827">iPhone</a> (proprietary)</li>
         </ul>
         <p>Open the application of your choice to generate a code.</p>
+
+        <h3 id="utfkey">{{ utfkey() }}</h3>
+        <p>A security key (also known as a universal second factor, or U2F key) is hardware device that communicates via USB, NFC, or Bluetooth. Popular keys include Yubikey, Google Titan and Thetis. PyPI supports any <a href="https://fidoalliance.org/specifications/download/">FIDO U2F compatible key</a> and follows the <a href="https://www.w3.org/TR/webauthn/">WebAuthn standard</a>.</p>
+        <p>Users who have set up this second factor will be prompted to use their key (usually by inserting it into a USB port and pressing a button) when logging in.</p>
+        <p>To use a security key with WebAuthn, you'll need to <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential">use a browser that supports WebAuthn and PublicKeyCredential</a>, and turn on JavaScript.</p>
       </section>
 
       <section class="faq-group" id="integrating">
@@ -335,7 +342,10 @@
 
         <h3 id="beta-badge">{{ beta_badge() }}</h3>
         <p>When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.</p>
-        <p>Currently, there are no beta features.</p>
+        <p>Currently, the following features are in beta.</p>
+        <ul>
+          <li><a href="#utfkey">{{ utfkey() }}</a></li>
+        </ul>
 
       </section>
     </div>
