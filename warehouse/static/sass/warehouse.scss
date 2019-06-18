@@ -152,6 +152,11 @@
   margin-top: $spacing-unit / 4;
 }
 
+// Add larger margin to the top of elements
+.margin-top--large {
+  margin-top: $spacing-unit / 2;
+}
+
 // Make text or icons red to draw attention
 .danger {
   color: $danger-color;

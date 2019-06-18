@@ -195,6 +195,7 @@
         <h3 id="utfkey">{{ utfkey() }}</h3>
         <p>A security key (also known as a universal second factor, or U2F key) is hardware device that communicates via USB, NFC, or Bluetooth. Popular keys include Yubikey, Google Titan and Thetis. PyPI supports any <a href="https://fidoalliance.org/specifications/download/">FIDO U2F compatible key</a> and follows the <a href="https://www.w3.org/TR/webauthn/">WebAuthn standard</a>.</p>
         <p>Users who have set up this second factor will be prompted to use their key (usually by inserting it into a USB port and pressing a button) when logging in.</p>
+        <p>To use a security key with WebAuthn, you'll need to <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential">use a browser that supports WebAuthn and PublicKeyCredential</a>, and turn on JavaScript.</p>
       </section>
 
       <section class="faq-group" id="integrating">
