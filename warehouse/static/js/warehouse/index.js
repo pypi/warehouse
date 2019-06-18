@@ -62,6 +62,21 @@ docReady(() => {
   }
 });
 
+// Hide webauthn option for unsupported browsers, or show errors
+docReady(() => {
+  if (!window.PublicKeyCredential) {
+    let webauthn_button = document.getElementById("webauthn-button");
+    if (webauthn_button) {
+      webauthn_button.style.display = "none"
+    }
+
+    let webauthn_error = document.getElementById("webauthn-browser-support");
+    if (webauthn_error) {
+      webauthn_error.style.display = "block"
+    }
+  }
+});
+
 // Human-readable timestamps for project histories
 docReady(() => {
   timeAgo();

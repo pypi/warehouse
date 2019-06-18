@@ -48,7 +48,10 @@
             csrf-token="{{ request.session.get_csrf_token() }}"
             disabled>Authenticate with key
           </button>
-          <ul id="webauthn-errors" class="form-errors">
+          <ul id="webauthn-errors" class="form-errors margin-top--large">
+            <li id="webauthn-browser-support" class="hidden">
+              Your browser <a href="/help#utfkey">does not support WebAuthn</a>
+            </li>
           </ul>
         </div>
 

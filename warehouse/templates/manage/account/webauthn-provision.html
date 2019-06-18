@@ -42,7 +42,10 @@
     <label for="webauthn-provision-label" class="form-group__label">Key name</label>
     <input id="webauthn-provision-label" type="text" name="label" class="form-group__input">
     <p class="form-group__help-text">PyPI supports adding multiple WebAuthn keys.<br>Please give this key a name.</p>
-    <ul id="webauthn-errors" class="form-errors">
+    <ul id="webauthn-errors" class="form-errors margin-top--large">
+      <li id="webauthn-browser-support" class="hidden">
+        Your browser <a href="/help#utfkey">does not support WebAuthn</a>
+      </li>
     </ul>
   </div>
   <div>
