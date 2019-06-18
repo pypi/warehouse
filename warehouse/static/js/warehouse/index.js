@@ -67,7 +67,7 @@ docReady(() => {
   if (!window.PublicKeyCredential) {
     let webauthn_button = document.getElementById("webauthn-button");
     if (webauthn_button) {
-      webauthn_button.style.display = "none";
+      webauthn_button.className += " button--disabled";
     }
 
     let webauthn_error = document.getElementById("webauthn-browser-support");
