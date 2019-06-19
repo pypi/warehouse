@@ -29,7 +29,7 @@
   <ol>
     <li>When you sign into PyPI, you will be asked to provide your username and password, as usual</li>
     <li>You will then see a screen asking for a secondary login method</li>
-    <li>Insert and activate your key (provisioned below), to access your PyPI account</li>
+    <li>Insert and activate your key (provisioned below) to access your PyPI account</li>
   </ol>
 
   <br>
@@ -41,7 +41,7 @@
   <div class="form-group">
     <label for="webauthn-provision-label" class="form-group__label">Key name</label>
     <input id="webauthn-provision-label" type="text" name="label" class="form-group__input">
-    <p class="form-group__help-text">PyPI supports adding multiple WebAuthn keys.<br>Please give this key a name.</p>
+    <p class="form-group__help-text">PyPI supports adding multiple WebAuthn keys.<br>Please give this key a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
     <ul id="webauthn-errors" class="form-errors margin-top--large">
       <li id="webauthn-browser-support" class="hidden">
         Your browser <a href="/help#utfkey">does not support WebAuthn</a>
