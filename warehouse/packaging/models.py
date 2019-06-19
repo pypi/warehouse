@@ -21,6 +21,7 @@ from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     CheckConstraint,
     Column,
@@ -121,6 +122,8 @@ class Project(SitemapMixin, db.Model):
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
+
+    total_size = Column(BigInteger, server_default=sql.text("0"))
 
     users = orm.relationship(User, secondary=Role.__table__, backref="projects")
 
