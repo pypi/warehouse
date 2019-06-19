@@ -13,7 +13,7 @@
 add_total_size_to_projects
 
 Revision ID: a9cbb1025607
-Revises: e1b493d3b171
+Revises: cdb2915fda5c
 Create Date: 2019-06-15 09:01:46.641354
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "a9cbb1025607"
-down_revision = "e1b493d3b171"
+down_revision = "cdb2915fda5c"
 
 
 def upgrade():
