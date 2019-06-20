@@ -68,6 +68,7 @@
   &__link,
   button.dropdown__link {
     display: block;
+    text-decoration: none;
     padding: 15px 15px 15px 15px;
     border: 0; // Remove default border on buttons
     border-bottom: 1px solid $border-color;
