@@ -303,6 +303,11 @@ class DatabaseUserService:
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:no_totp"],
             )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed totp
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
             return False
 
         valid = otp.verify_totp(totp_secret, totp_value)
@@ -314,6 +319,11 @@ class DatabaseUserService:
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:invalid_totp"],
             )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed totp
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
 
         return valid
 
