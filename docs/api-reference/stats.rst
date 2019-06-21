@@ -4,8 +4,6 @@ Stats API
 PyPI offers a JSON stats endpoint via a ``Content-Type: application/json`` GET
 request. Without the ``Content-Type`` header set, you will be returned a HTML page.
 
-Please note that this endpoint is currently unavailable due to the heavy workload it put on the backend. For more information, see https://github.com/pypa/warehouse/issues/5769/ .
-
 **Example Client**: https://github.com/cooperlees/pypistats
 
 Project
