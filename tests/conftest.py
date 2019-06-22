@@ -280,7 +280,7 @@ class _TestApp(_webtest.TestApp):
 def webtest(app_config):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something
-    #       between test cases to wipe any commited changes.
+    #       between test cases to wipe any committed changes.
 
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)

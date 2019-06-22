@@ -2858,13 +2858,13 @@ class TestFileUpload:
         user = UserFactory.create()
         EmailFactory.create(user=user)
 
-        filename = "{}-{}.tar.gz".format("exmaple", "1.0")
+        filename = "{}-{}.tar.gz".format("example", "1.0")
 
         db_request.user = user
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
-                "name": "exmaple",
+                "name": "example",
                 "version": "1.0",
                 "filetype": "sdist",
                 "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
@@ -2886,7 +2886,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         # Ensure that a Project object has been created.
-        squatter = db_request.db.query(Project).filter(Project.name == "exmaple").one()
+        squatter = db_request.db.query(Project).filter(Project.name == "example").one()
 
         # Ensure that a Squat object has been created.
         squat = db_request.db.query(Squat).one()

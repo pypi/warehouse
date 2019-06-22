@@ -189,7 +189,7 @@ class Project(SitemapMixin, db.Model):
 
     @property
     def documentation_url(self):
-        # TODO: Move this into the database and elimnate the use of the
+        # TODO: Move this into the database and eliminate the use of the
         #       threadlocal here.
         request = get_current_request()
 
