@@ -56,7 +56,7 @@ Please check the Python wiki for a list of upcoming `sprints`_.
 Sprint planners should consider the following checklist for organising events:
 
 - Prior to the sprint, tag issues that you identify as appropriate for the
-  attendees. Ensure you have a mix of short acheivable tickets, and more
+  attendees. Ensure you have a mix of short achievable tickets, and more
   complex issues. Do not tag issues that are still under discussion or require
   specification, unless core team members will be in attendance
 - Prior to the sprint, organise with the Working Group to print stickers and/or
