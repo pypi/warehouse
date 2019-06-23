@@ -70,9 +70,9 @@ importlib-metadata==0.18 \
 lazy==1.4 \
     --hash=sha256:2c6d27a5ab130fb85435320651a47403adcb37ecbcc501b0c6606391f65f5b43 \
     --hash=sha256:9f293fd531546f3eda039da8f919b513b94f219e562764e3ceefc26fa503bf03
-mirakuru==2.0.0 \
-    --hash=sha256:f14f67ecc8549399390581d2048f95654fe49d4787cffe9414da790c0ad46e51 \
-    --hash=sha256:f8097af39806adfb3d40e6cd1282ffdb322afb1ea07b4a8e86e5cd6db4400fc1
+mirakuru==2.0.1 \
+    --hash=sha256:1475e5c733292d42a25ac8e9cc602f09f01ef66b9c86faf56a18aa6af427b03d \
+    --hash=sha256:6c54fee9e72d0a568d4f856b9956e8c4819d84cbfd677d5554ff1e8b8fa34e9c
 more-itertools==7.0.0 \
     --hash=sha256:2112d2ca570bb7c3e53ea1a35cd5df42bb0fd10c45f0fb97178679c3c03d64c7 \
     --hash=sha256:c3e4748ba1aad8dba30a4886b0b1a2004f9a863837b8654e7059eebf727afa5a
