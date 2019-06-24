@@ -83,7 +83,7 @@ class MacaroonAuthorizationPolicy:
         # The Pyramid API doesn't let us access the request here, so we have to pull it
         # out of the thread local instead.
         # TODO: Work with Pyramid devs to figure out if there is a better way to support
-        #       the worklow we are using hereor not.
+        #       the worklow we are using here or not.
         request = get_current_request()
 
         # Our request could possibly be a None, if there isn't an active request, in
