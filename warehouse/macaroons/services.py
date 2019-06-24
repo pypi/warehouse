@@ -16,8 +16,9 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
+from warehouse.accounts.models import User
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.macaroons.models import Macaroon as Macaroon
+from warehouse.macaroons.models import Macaroon
 
 
 class InvalidMacaroon(Exception):
@@ -64,6 +65,16 @@ class DatabaseMacaroonService:
             raise InvalidMacaroon
         else:
             return True
+
+    def create_macaroon(self, location, user_id, description, caveats):
+        user = self.db.query(User).filter(User.id == user_id).one()
+
+        dm = Macaroon(user=user, description=description, caveats=caveats)
+        self.db.add(dm)
+        self.db.flush()
+
+        m = pymacaroons.Macaroon(location="location", identifier=str(dm.id), key=dm.key)
+        return m.serialize()
 
 
 def database_macaroon_factory(context, request):
