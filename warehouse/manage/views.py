@@ -43,7 +43,9 @@ from warehouse.manage.forms import (
     ChangeRoleForm,
     CreateRoleForm,
     DeleteTOTPForm,
+    DeleteWebAuthnForm,
     ProvisionTOTPForm,
+    ProvisionWebAuthnForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
@@ -415,6 +417,104 @@ class ProvisionTOTPViews:
         if form.validate():
             self.user_service.update_user(self.request.user.id, totp_secret=None)
             self.request.session.flash("TOTP application deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    http_cache=0,
+)
+class ProvisionWebAuthnViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision",
+        renderer="manage/account/webauthn-provision.html",
+    )
+    def webauthn_provision(self):
+        return {}
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision.options",
+        renderer="json",
+    )
+    def webauthn_provision_options(self):
+        return self.user_service.get_webauthn_credential_options(
+            self.request.user.id,
+            challenge=self.request.session.get_webauthn_challenge(),
+            rp_name=self.request.registry.settings["site.name"],
+            rp_id=self.request.domain,
+            icon_url=self.request.registry.settings.get(
+                "warehouse.domain", self.request.domain
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=ProvisionWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.validate",
+        renderer="json",
+    )
+    def validate_webauthn_provision(self):
+        form = ProvisionWebAuthnForm(
+            **self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+            challenge=self.request.session.get_webauthn_challenge(),
+            rp_id=self.request.domain,
+            origin=self.request.host_url,
+        )
+
+        self.request.session.clear_webauthn_challenge()
+
+        if form.validate():
+            self.user_service.add_webauthn(
+                self.request.user.id,
+                label=form.label.data,
+                credential_id=form.validated_credential.credential_id.decode(),
+                public_key=form.validated_credential.public_key.decode(),
+                sign_count=form.validated_credential.sign_count,
+            )
+            self.request.session.flash(
+                "WebAuthn successfully provisioned.", queue="success"
+            )
+            return {"success": "WebAuthn successfully provisioned"}
+
+        errors = [
+            str(error) for error_list in form.errors.values() for error in error_list
+        ]
+        return {"fail": {"errors": errors}}
+
+    @view_config(
+        request_method="POST",
+        request_param=DeleteWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.delete",
+    )
+    def delete_webauthn(self):
+        if len(self.request.user.webauthn) == 0:
+            self.request.session.flash("No WebAuthhn device to delete.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = DeleteWebAuthnForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
+
+        if form.validate():
+            self.request.user.webauthn.remove(form.webauthn)
+            self.request.session.flash("WebAuthn device deleted.", queue="success")
         else:
             self.request.session.flash("Invalid credentials.", queue="error")
 

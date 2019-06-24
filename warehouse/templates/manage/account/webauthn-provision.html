@@ -1,0 +1,61 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage/manage_base.html" %}
+
+{% set user = request.user %}
+{% set title = "Set up 2FA using a security key (WebAuthn)" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{# Hide mobile search on manager pages #}
+{% block mobile_search %}{% endblock %}
+
+{% block main %}
+<h1 class="page-title">{{ title }}</h1>
+<section>
+  <h2>How two factor authentication with WebAuthn works</h2>
+
+  <ol>
+    <li>When you sign into PyPI, you will be asked to provide your username and password, as usual</li>
+    <li>You will then see a screen asking for a secondary login method</li>
+    <li>Insert and activate your key (provisioned below) to access your PyPI account</li>
+  </ol>
+
+  <br>
+
+  <noscript>
+    <p>WebAuthn cannot be used without JavaScript.</p>
+  </noscript>
+
+  <div class="form-group">
+    <label for="webauthn-provision-label" class="form-group__label">Key name</label>
+    <input id="webauthn-provision-label" type="text" name="label" class="form-group__input">
+    <p class="form-group__help-text">PyPI supports adding multiple WebAuthn keys.<br>Please give this key a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
+    <ul id="webauthn-errors" class="form-errors margin-top--large">
+      <li id="webauthn-browser-support" class="hidden">
+        Your browser <a href="/help#utfkey">does not support WebAuthn</a>
+      </li>
+    </ul>
+  </div>
+  <div>
+    <button
+      type="button"
+      id="webauthn-provision-begin"
+      class="button button--primary"
+      csrf-token="{{ request.session.get_csrf_token() }}"
+      disabled>Provision key
+    </button>
+  </div>
+</section>
+{% endblock %}

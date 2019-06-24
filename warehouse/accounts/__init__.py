@@ -58,7 +58,7 @@ def _basic_auth_login(username, password, request):
             # This technically violates the contract a little bit, this function is
             # meant to return None if the user cannot log in. However we want to present
             # a different error message than is normal when we're denying the log in
-            # becasue of a compromised password. So to do that, we'll need to raise a
+            # because of a compromised password. So to do that, we'll need to raise a
             # HTTPError that'll ultimately get returned to the client. This is OK to do
             # here because we've already successfully authenticated the credentials, so
             # it won't screw up the fall through to other authentication mechanisms

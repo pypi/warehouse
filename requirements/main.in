@@ -51,6 +51,7 @@ stdlib-list
 structlog
 transaction
 typeguard
+webauthn
 whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy

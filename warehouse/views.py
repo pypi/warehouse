@@ -40,7 +40,7 @@ from sqlalchemy.sql import exists
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
-from warehouse.cache.http import cache_control
+from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailable
@@ -357,6 +357,50 @@ def search(request):
         "available_filters": process_available_filters(),
         "applied_filters": request.params.getall("c"),
     }
+
+
+@view_config(
+    route_name="stats",
+    renderer="pages/stats.html",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+)
+@view_config(
+    route_name="stats.json",
+    renderer="json",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+    accept="application/json",
+)
+def stats(request):
+    total_size_query = request.db.query(func.sum(Project.total_size)).all()
+    top_100_packages = (
+        request.db.query(Project)
+        .with_entities(Project.name, Project.total_size)
+        .order_by(Project.total_size.desc())
+        .limit(100)
+        .all()
+    )
+    # Move top packages into a dict to make JSON more self describing
+    top_packages = {
+        pkg_name: {"size": pkg_bytes} for pkg_name, pkg_bytes in top_100_packages
+    }
+
+    return {"total_packages_size": total_size_query[0][0], "top_packages": top_packages}
 
 
 @view_config(
