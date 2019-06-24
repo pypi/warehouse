@@ -303,6 +303,11 @@ class DatabaseUserService:
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:no_totp"],
             )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed totp
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
             return False
 
         valid = otp.verify_totp(totp_secret, totp_value)
@@ -314,6 +319,11 @@ class DatabaseUserService:
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:invalid_totp"],
             )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed totp
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
 
         return valid
 
@@ -538,7 +548,7 @@ class HaveIBeenPwnedPasswordBreachedService:
         return urllib.parse.urljoin(self._api_base, posixpath.join("/range/", prefix))
 
     def check_password(self, password, *, tags=None):
-        # The HIBP API impements a k-Anonymity scheme, by which you can take a given
+        # The HIBP API implements a k-Anonymity scheme, by which you can take a given
         # password, hash it using sha1, and then send only the first 5 characters of the
         # hex encoded digest. This avoids leaking data to the HIBP API, because without
         # the rest of the hash, the HIBP service cannot even begin to brute force or do
@@ -548,7 +558,7 @@ class HaveIBeenPwnedPasswordBreachedService:
 
         self._metrics_increment("warehouse.compromised_password_check.start", tags=tags)
 
-        # To work with the HIBP API, we need the sha1 of the UTF8 encoded passsword.
+        # To work with the HIBP API, we need the sha1 of the UTF8 encoded password.
         hashed_password = hashlib.sha1(password.encode("utf8")).hexdigest().lower()
 
         # Fetch the passwords from the HIBP data set.

@@ -275,7 +275,7 @@ def set_upload_limit(project, request):
     upload_limit = request.POST.get("upload_limit", "")
 
     # Update the project's upload limit.
-    # If the upload limit is an empty string or othrwise falsy, just set the
+    # If the upload limit is an empty string or otherwise falsy, just set the
     # limit to None, indicating the default limit.
     if not upload_limit:
         upload_limit = None

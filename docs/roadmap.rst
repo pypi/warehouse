@@ -19,13 +19,15 @@ authentication for PyPI`_.
 On GitHub: `Security milestone`_, `accessibility milestone`_,
 `localisation milestone`_.
 
-Facebook-funded work
-~~~~~~~~~~~~~~~~~~~~
+Package signing and detection/verification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We will work on further improving PyPI security with features such as
 cryptographic signing, verifying files uploaded to and installed from
 the index, and automatically detecting malicious uploads. `This work
 is funded by a gift from Facebook.`_
+
+See `package signing & detection/verification milestone`_ on GitHub.
 
 Post legacy shutdown
 ~~~~~~~~~~~~~~~~~~~~
@@ -49,12 +51,12 @@ the PSF wiki.
 Sprints
 -------
 
-Please check the Python Wiki for a list of upcoming `sprints`_.
+Please check the Python wiki for a list of upcoming `sprints`_.
 
 Sprint planners should consider the following checklist for organising events:
 
 - Prior to the sprint, tag issues that you identify as appropriate for the
-  attendees. Ensure you have a mix of short acheivable tickets, and more
+  attendees. Ensure you have a mix of short achievable tickets, and more
   complex issues. Do not tag issues that are still under discussion or require
   specification, unless core team members will be in attendance
 - Prior to the sprint, organise with the Working Group to print stickers and/or
@@ -79,6 +81,7 @@ Sprint planners should consider the following checklist for organising events:
 .. _`Security milestone`: https://github.com/pypa/warehouse/milestone/13
 .. _`accessibility milestone`: https://github.com/pypa/warehouse/milestone/15
 .. _`localisation milestone`: https://github.com/pypa/warehouse/milestone/14
+.. _`package signing & detection/verification milestone`: https://github.com/pypa/warehouse/milestone/16
 .. _`This work is funded by a gift from Facebook.`: https://pyfound.blogspot.com/2018/12/upcoming-pypi-improvements-for-2019.html
 .. _`issues marked with the post-legacy shutdown milestone`: https://github.com/pypa/warehouse/milestone/12
 .. _`issues marked with the cool-but-not-urgent milestone`: https://github.com/pypa/warehouse/milestone/11

@@ -66,7 +66,7 @@ class IUserService(Interface):
         Returns a boolean representing whether the given password is valid for
         the given userid.
 
-        May have an optional list of tags, which allows identifiying the purpose of
+        May have an optional list of tags, which allows identifying the purpose of
         checking the password.
         """
 
@@ -197,9 +197,9 @@ class ITokenService(Interface):
 
 
 class IPasswordBreachedService(Interface):
-    failure_message = Attribute("The message to describe the failure that occured")
+    failure_message = Attribute("The message to describe the failure that occurred")
     failure_message_plain = Attribute(
-        "The message to describe the failure that occured in plain text"
+        "The message to describe the failure that occurred in plain text"
     )
 
     def check_password(password, *, tags=None):
@@ -207,6 +207,6 @@ class IPasswordBreachedService(Interface):
         Returns a boolean indicating if the given password has been involved in a breach
         or is otherwise insecure.
 
-        May have an optional list of tags, which allows identifiying the purpose of
+        May have an optional list of tags, which allows identifying the purpose of
         checking the password.
         """
