@@ -11,21 +11,28 @@
 # limitations under the License.
 
 import binascii
-import urllib
 import os
+import urllib
+
+import certifi
+import elasticsearch
+import redis
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
 from sqlalchemy import func
 from sqlalchemy.orm import aliased
-import certifi
-import elasticsearch
-import redis
 
-from warehouse.packaging.models import Classifier, Project, Release, release_classifiers
+from warehouse import tasks
+from warehouse.packaging.models import (
+    Classifier,
+    Description,
+    Project,
+    Release,
+    release_classifiers,
+)
 from warehouse.packaging.search import Project as ProjectDocument
 from warehouse.search.utils import get_index
-from warehouse import tasks
 from warehouse.utils.db import windowed_query
 
 
@@ -68,7 +75,7 @@ def _project_docs(db, project_name=None):
 
     release_data = (
         db.query(
-            Release.description,
+            Description.raw.label("description"),
             Release.version.label("latest_version"),
             all_versions,
             Release.author,
@@ -84,9 +91,11 @@ def _project_docs(db, project_name=None):
             classifiers,
             Project.normalized_name,
             Project.name,
+            Project.zscore,
         )
         .select_from(releases_list)
         .join(Release, Release.id == releases_list.c.id)
+        .join(Description)
         .outerjoin(Release.project)
     )
 

@@ -15,41 +15,40 @@ import re
 
 import elasticsearch
 
+from elasticsearch_dsl import Q
+from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPException,
-    HTTPSeeOther,
     HTTPMovedPermanently,
     HTTPNotFound,
-    HTTPBadRequest,
+    HTTPSeeOther,
     HTTPServiceUnavailable,
     exception_response,
 )
-from pyramid.exceptions import PredicateMismatch
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.view import (
-    notfound_view_config,
-    forbidden_view_config,
     exception_view_config,
+    forbidden_view_config,
+    notfound_view_config,
     view_config,
 )
-from elasticsearch_dsl import Q
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
 
-from warehouse.db import DatabaseNotAvailable
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
-from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import add_vary, cache_control
+from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
+from warehouse.db import DatabaseNotAvailable
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.models import Project, Release, File, release_classifiers
+from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
-from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
-
+from warehouse.utils.row_counter import RowCount
 
 # 403, 404, 410, 500,
 
@@ -276,7 +275,7 @@ def search(request):
 
     # Require match to all specified classifiers
     for classifier in request.params.getall("c"):
-        query = query.filter("terms", classifiers=[classifier])
+        query = query.query("prefix", classifiers=classifier)
 
     try:
         page_num = int(request.params.get("page", 1))
@@ -388,13 +387,11 @@ def search(request):
     accept="application/json",
 )
 def stats(request):
-    total_size_query = request.db.query(func.sum(File.size)).all()
+    total_size_query = request.db.query(func.sum(Project.total_size)).all()
     top_100_packages = (
-        request.db.query(Project.name, func.sum(File.size))
-        .join(Release)
-        .join(File)
-        .group_by(Project.name)
-        .order_by(func.sum(File.size).desc())
+        request.db.query(Project)
+        .with_entities(Project.name, Project.total_size)
+        .order_by(Project.total_size.desc())
         .limit(100)
         .all()
     )
@@ -421,6 +418,15 @@ def current_user_indicator(request):
     uses_session=True,
 )
 def flash_messages(request):
+    return {}
+
+
+@view_config(
+    route_name="includes.session-notifications",
+    renderer="includes/session-notifications.html",
+    uses_session=True,
+)
+def session_notifications(request):
     return {}
 
 

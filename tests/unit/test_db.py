@@ -28,12 +28,12 @@ from warehouse.db import (
     DEFAULT_ISOLATION,
     DatabaseNotAvailable,
     ModelBase,
-    includeme,
     _configure_alembic,
     _create_engine,
     _create_session,
     _readonly,
     _reset,
+    includeme,
 )
 
 

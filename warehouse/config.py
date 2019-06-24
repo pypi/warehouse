@@ -25,7 +25,7 @@ from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.utils.static import ManifestCacheBuster
-from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
+from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
 class Environment(enum.Enum):
@@ -55,7 +55,11 @@ class RootFactory:
     __parent__ = None
     __name__ = None
 
-    __acl__ = [(Allow, "group:admins", "admin"), (Allow, Authenticated, "manage:user")]
+    __acl__ = [
+        (Allow, "group:admins", "admin"),
+        (Allow, "group:moderators", "moderator"),
+        (Allow, Authenticated, "manage:user"),
+    ]
 
     def __init__(self, request):
         pass
@@ -173,9 +177,17 @@ def configure(settings=None):
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
+    maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
     maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
     maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
+    maybe_set(
+        settings,
+        "token.two_factor.max_age",
+        "TOKEN_TWO_FACTOR_MAX_AGE",
+        coercer=int,
+        default=300,
+    )
     maybe_set(
         settings,
         "token.default.max_age",
@@ -280,6 +292,7 @@ def configure(settings=None):
     filters.setdefault("contains_valid_uris", "warehouse.filters:contains_valid_uris")
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
+    filters.setdefault("localize_datetime", "warehouse.filters:localize_datetime")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -361,7 +374,7 @@ def configure(settings=None):
     config.include(".cache.http")
     config.include(".cache.origin")
 
-    # Register support for sendnging emails
+    # Register support for sending emails
     config.include(".email")
 
     # Register our authentication support.

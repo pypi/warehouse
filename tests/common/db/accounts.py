@@ -15,9 +15,9 @@ import datetime
 import factory
 import factory.fuzzy
 
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import Email, User
 
-from .base import WarehouseFactory, FuzzyEmail
+from .base import FuzzyEmail, WarehouseFactory
 
 
 class UserFactory(WarehouseFactory):
@@ -29,6 +29,7 @@ class UserFactory(WarehouseFactory):
     password = "!"
     is_active = True
     is_superuser = False
+    is_moderator = False
     date_joined = factory.fuzzy.FuzzyNaiveDateTime(
         datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)
     )

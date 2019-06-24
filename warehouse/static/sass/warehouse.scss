@@ -109,6 +109,8 @@
 @import "blocks/statistics-bar";
 @import "blocks/table";
 @import "blocks/tooltip";
+@import "blocks/totp-form";
+@import "blocks/twofa-login";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
 
@@ -149,6 +151,11 @@
 // Add small margin to the top of elements
 .margin-top {
   margin-top: $spacing-unit / 4;
+}
+
+// Add larger margin to the top of elements
+.margin-top--large {
+  margin-top: $spacing-unit / 2;
 }
 
 // Make text or icons red to draw attention

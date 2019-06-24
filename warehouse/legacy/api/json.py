@@ -19,8 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Release, Project
-
+from warehouse.packaging.models import File, Project, Release
 
 # Generate appropriate CORS headers for the JSON endpoint.
 # We want to allow Cross-Origin requests here so that users can interact
@@ -158,8 +157,8 @@ def json_release(release, request):
             "name": project.name,
             "version": release.version,
             "summary": release.summary,
-            "description_content_type": release.description_content_type,
-            "description": release.description,
+            "description_content_type": release.description.content_type,
+            "description": release.description.raw,
             "keywords": release.keywords,
             "license": release.license,
             "classifiers": list(release.classifiers),

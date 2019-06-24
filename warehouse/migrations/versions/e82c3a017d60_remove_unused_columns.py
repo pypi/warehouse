@@ -19,7 +19,6 @@ Create Date: 2018-08-17 16:23:08.775818
 
 from alembic import op
 
-
 revision = "e82c3a017d60"
 down_revision = "62f6becc7653"
 

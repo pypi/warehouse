@@ -12,10 +12,9 @@
 
 import packaging.version
 
-from elasticsearch_dsl import Document, Text, Keyword, analyzer, Date
+from elasticsearch_dsl import Date, Document, Float, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
-
 
 EmailAnalyzer = analyzer(
     "email",
@@ -50,6 +49,7 @@ class Project(Document):
     platform = Keyword()
     created = Date()
     classifiers = Keyword(multi=True)
+    zscore = Float()
 
     @classmethod
     def from_db(cls, release):
@@ -72,5 +72,11 @@ class Project(Document):
         obj["platform"] = release.platform
         obj["created"] = release.created
         obj["classifiers"] = release.classifiers
+        obj["zscore"] = release.zscore
 
         return obj
+
+    class Index:
+        # make sure this class can match any index so it will always be used to
+        # deserialize data coming from elasticsearch.
+        name = "*"

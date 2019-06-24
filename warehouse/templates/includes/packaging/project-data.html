@@ -18,7 +18,6 @@
   {% for name, url in release.urls.items() %}
   {% if is_valid_uri(url) %}
   <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
-    {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
     {{ url_icon(name, url) }}{{ name }}
   </a>
   {% endif %}
@@ -113,7 +112,7 @@
   {% endif %}
   {% if release.requires_python %}
   <p>
-    <strong>Requires:</strong> Python {{ release.requires_python }}
+    <strong>Requires:</strong> Python {{ release.requires_python|replace(',', ', ') }}
   </p>
   {% endif %}
 </div>

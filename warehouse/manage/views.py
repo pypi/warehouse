@@ -10,17 +10,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
+
 from collections import defaultdict
+
+import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
-from warehouse.accounts.models import User, Email
+import warehouse.utils.otp as otp
+
+from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email,
@@ -33,8 +40,12 @@ from warehouse.email import (
 from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
-    CreateRoleForm,
     ChangeRoleForm,
+    CreateRoleForm,
+    DeleteTOTPForm,
+    DeleteWebAuthnForm,
+    ProvisionTOTPForm,
+    ProvisionWebAuthnForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
@@ -97,7 +108,9 @@ class ManageAccountViews:
     def default_response(self):
         return {
             "save_account_form": SaveAccountForm(name=self.request.user.name),
-            "add_email_form": AddEmailForm(user_service=self.user_service),
+            "add_email_form": AddEmailForm(
+                user_service=self.user_service, user_id=self.request.user.id
+            ),
             "change_password_form": ChangePasswordForm(
                 user_service=self.user_service, breach_service=self.breach_service
             ),
@@ -120,7 +133,11 @@ class ManageAccountViews:
 
     @view_config(request_method="POST", request_param=AddEmailForm.__params__)
     def add_email(self):
-        form = AddEmailForm(self.request.POST, user_service=self.user_service)
+        form = AddEmailForm(
+            self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
 
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
@@ -286,6 +303,222 @@ class ManageAccountViews:
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+
+@view_defaults(
+    route_name="manage.account.totp-provision",
+    renderer="manage/account/totp-provision.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    http_cache=0,
+)
+class ProvisionTOTPViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @property
+    def default_response(self):
+        totp_secret = self.request.session.get_totp_secret()
+        return {
+            "provision_totp_form": ProvisionTOTPForm(totp_secret=totp_secret),
+            "provision_totp_uri": otp.generate_totp_provisioning_uri(
+                totp_secret,
+                self.request.user.username,
+                issuer_name=self.request.registry.settings["site.name"],
+            ),
+        }
+
+    @view_config(route_name="manage.account.totp-provision.image", request_method="GET")
+    def generate_totp_qr(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            return Response(status=403)
+
+        totp_qr = pyqrcode.create(self.default_response["provision_totp_uri"])
+        qr_buffer = io.BytesIO()
+        totp_qr.svg(qr_buffer, scale=5)
+
+        return Response(content_type="image/svg+xml", body=qr_buffer.getvalue())
+
+    @view_config(request_method="GET")
+    def totp_provision(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            self.request.session.flash("TOTP already provisioned.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
+    def validate_totp_provision(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            self.request.session.flash("TOTP already provisioned.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = ProvisionTOTPForm(
+            **self.request.POST, totp_secret=self.request.session.get_totp_secret()
+        )
+
+        if form.validate():
+            self.user_service.update_user(
+                self.request.user.id, totp_secret=self.request.session.get_totp_secret()
+            )
+
+            self.request.session.clear_totp_secret()
+            self.request.session.flash(
+                "TOTP application successfully provisioned.", queue="success"
+            )
+
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        return {**self.default_response, "provision_totp_form": form}
+
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    def delete_totp(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if not totp_secret:
+            self.request.session.flash("No TOTP application to delete.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = DeleteTOTPForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            self.user_service.update_user(self.request.user.id, totp_secret=None)
+            self.request.session.flash("TOTP application deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    http_cache=0,
+)
+class ProvisionWebAuthnViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision",
+        renderer="manage/account/webauthn-provision.html",
+    )
+    def webauthn_provision(self):
+        return {}
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision.options",
+        renderer="json",
+    )
+    def webauthn_provision_options(self):
+        return self.user_service.get_webauthn_credential_options(
+            self.request.user.id,
+            challenge=self.request.session.get_webauthn_challenge(),
+            rp_name=self.request.registry.settings["site.name"],
+            rp_id=self.request.domain,
+            icon_url=self.request.registry.settings.get(
+                "warehouse.domain", self.request.domain
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=ProvisionWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.validate",
+        renderer="json",
+    )
+    def validate_webauthn_provision(self):
+        form = ProvisionWebAuthnForm(
+            **self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+            challenge=self.request.session.get_webauthn_challenge(),
+            rp_id=self.request.domain,
+            origin=self.request.host_url,
+        )
+
+        self.request.session.clear_webauthn_challenge()
+
+        if form.validate():
+            self.user_service.add_webauthn(
+                self.request.user.id,
+                label=form.label.data,
+                credential_id=form.validated_credential.credential_id.decode(),
+                public_key=form.validated_credential.public_key.decode(),
+                sign_count=form.validated_credential.sign_count,
+            )
+            self.request.session.flash(
+                "WebAuthn successfully provisioned.", queue="success"
+            )
+            return {"success": "WebAuthn successfully provisioned"}
+
+        errors = [
+            str(error) for error_list in form.errors.values() for error in error_list
+        ]
+        return {"fail": {"errors": errors}}
+
+    @view_config(
+        request_method="POST",
+        request_param=DeleteWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.delete",
+    )
+    def delete_webauthn(self):
+        if len(self.request.user.webauthn) == 0:
+            self.request.session.flash("No WebAuthhn device to delete.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = DeleteWebAuthnForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
+
+        if form.validate():
+            self.request.user.webauthn.remove(form.webauthn)
+            self.request.session.flash("WebAuthn device deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
 
 
 @view_config(

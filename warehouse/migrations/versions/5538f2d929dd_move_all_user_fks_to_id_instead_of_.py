@@ -17,11 +17,10 @@ Revises: ee5b8f66a223
 Create Date: 2018-11-06 08:16:12.099174
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 from sqlalchemy.dialects import postgresql
-
 
 revision = "5538f2d929dd"
 down_revision = "ee5b8f66a223"

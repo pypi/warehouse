@@ -21,25 +21,28 @@ from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
+    BigInteger,
+    Boolean,
     CheckConstraint,
     Column,
+    DateTime,
     Enum,
+    Float,
     ForeignKey,
     Index,
-    Boolean,
-    DateTime,
     Integer,
-    Float,
     Table,
     Text,
+    func,
+    orm,
+    sql,
 )
-from sqlalchemy import func, orm, sql
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import validates
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import validates
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -120,6 +123,8 @@ class Project(SitemapMixin, db.Model):
     allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
 
+    total_size = Column(BigInteger, server_default=sql.text("0"))
+
     users = orm.relationship(User, secondary=Role.__table__, backref="projects")
 
     releases = orm.relationship(
@@ -163,12 +168,16 @@ class Project(SitemapMixin, db.Model):
 
     def __acl__(self):
         session = orm.object_session(self)
-        acls = [(Allow, "group:admins", "admin")]
+        acls = [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ]
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
         query = query.options(orm.joinedload("user").lazyload("emails"))
+        query = query.join(User).order_by(User.id.asc())
         for role in sorted(
             query.all(), key=lambda x: ["Owner", "Maintainer"].index(x.role_name)
         ):
@@ -180,7 +189,7 @@ class Project(SitemapMixin, db.Model):
 
     @property
     def documentation_url(self):
-        # TODO: Move this into the database and elimnate the use of the
+        # TODO: Move this into the database and eliminate the use of the
         #       threadlocal here.
         request = get_current_request()
 
@@ -252,6 +261,16 @@ def _dependency_relation(kind):
     )
 
 
+class Description(db.Model):
+
+    __tablename__ = "release_descriptions"
+
+    content_type = Column(Text)
+    raw = Column(Text, nullable=False)
+    html = Column(Text, nullable=False)
+    rendered_by = Column(Text, nullable=False)
+
+
 class Release(db.Model):
 
     __tablename__ = "releases"
@@ -282,7 +301,6 @@ class Release(db.Model):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    description_content_type = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
@@ -292,14 +310,21 @@ class Release(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
 
-    # We defer this column because it is a very large column (it can be MB in
-    # size) and we very rarely actually want to access it. Typically we only
-    # need it when rendering the page for a single project, but many of our
-    # queries only need to access a few of the attributes of a Release. Instead
-    # of playing whack-a-mole and using load_only() or defer() on each of
-    # those queries, deferring this here makes the default case more
-    # performant.
-    description = orm.deferred(Column(Text))
+    description_id = Column(
+        ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    description = orm.relationship(
+        "Description",
+        backref=orm.backref(
+            "release",
+            cascade="all, delete-orphan",
+            passive_deletes=True,
+            passive_updates=True,
+            single_parent=True,
+            uselist=False,
+        ),
+    )
 
     _classifiers = orm.relationship(
         Classifier,

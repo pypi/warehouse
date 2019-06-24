@@ -7,14 +7,14 @@ Warehouse uses the
 `Postgres <https://www.postgresql.org/docs/>`__ for its database.
 Warehouse's front end uses `Jinja2 <http://jinja.pocoo.org/>`__ templates.
 
-The production deployment for Warehouse is in progress and currently
-does not use any containers, although we may change that in the
-future. In the development environment, we use several `Docker`_  containers, and use `Docker Compose <https://docs.docker.com/compose/overview/>`__ to `manage <https://github.com/pypa/warehouse/blob/master/docker-compose.yml#L3>`__
-running the containers and the connections between them. In the future
-we will probably reduce that number to two containers, one of which
-contains static files for the website, and the other which contains
-the Python web application code running in a virtual environment and
-the database.
+The production deployment for Warehouse is deployed using
+`Cabotage <https://github.com/cabotage/cabotage-app>`__, which manages
+`Docker`_ containers deployed via `Kubernetes <https://kubernetes.io>`__.
+
+In the development environment, we use several `Docker`_  containers
+orchestrated by `Docker Compose <https://docs.docker.com/compose/overview/>`__
+to `manage <https://github.com/pypa/warehouse/blob/master/docker-compose.yml#L3>`__
+running the containers and the connections between them.
 
 Since Warehouse was built on top of an existing database (for legacy
 PyPI) and developers had to fit our ORM to the existing tables, some
@@ -42,7 +42,7 @@ PyPI. People and groups who want to run their own package indexes
 usually use other tools, like `devpi
 <https://pypi.org/project/devpi-server/>`_.
 
-Warehouse serves three main classes of users:
+Warehouse serves four main classes of users:
 
 1. *People who are not logged in.* This accounts for the majority of
    browser traffic and all API download traffic.
@@ -52,8 +52,12 @@ Warehouse serves three main classes of users:
    available to a logged-in user other than to manage projects they
    own/maintain. As of March 2018, PyPI had about 270,000 users, and
    Test PyPI had about 30,000 users.
-3. *PyPI application administrators*, e.g., Ernest W. Durbin III,
-   Dustin Ingram, and Donald Stufft, who add classifiers, ban
+3. *PyPI application moderators*. These users have a subset of the
+   permissions of *PyPI application administrators* to assist in some
+   routine administration tasks such as adding new trove classifiers and
+   adjusting upload limits for distribution packages.
+4. *PyPI application administrators*, e.g., Ernest W. Durbin III,
+   Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
    on. There are under ten such admins.
 
@@ -152,3 +156,4 @@ may be used to from the legacy site, such as:
   longer visible in the web UI)
 
 - `OpenID and Google auth login <https://mail.python.org/pipermail/distutils-sig/2018-January/031855.html>`_
+  are no longer supported.

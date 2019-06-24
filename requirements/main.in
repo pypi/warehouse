@@ -30,6 +30,7 @@ passlib>=1.6.4
 premailer
 psycopg2
 pycurl
+pyqrcode
 pyramid>=1.9,<1.11.0
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
@@ -50,6 +51,7 @@ stdlib-list
 structlog
 transaction
 typeguard
+webauthn
 whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy

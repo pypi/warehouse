@@ -10,14 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import pretend
+import pytest
 
 from zope.interface.verify import verifyClass
 
 from warehouse.metrics import services
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.metrics.services import NullMetrics, DataDogMetrics
+from warehouse.metrics.services import DataDogMetrics, NullMetrics
 
 
 class TestNullMetrics:

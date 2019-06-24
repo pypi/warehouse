@@ -17,9 +17,9 @@ Revises: 56e9e630c748
 Create Date: 2018-11-03 06:05:42.158355
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "eeb23d9b4d00"
 down_revision = "56e9e630c748"

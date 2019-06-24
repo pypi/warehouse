@@ -20,12 +20,12 @@ import pytest
 
 from zope.interface.verify import verifyClass
 
-from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.services import (
-    LocalFileStorage,
-    S3FileStorage,
     LocalDocsStorage,
+    LocalFileStorage,
     S3DocsStorage,
+    S3FileStorage,
 )
 
 

@@ -15,26 +15,25 @@ import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
-    IPasswordBreachedService,
+from warehouse.accounts.auth_policy import (
+    BasicAuthAuthenticationPolicy,
+    SessionAuthenticationPolicy,
 )
+from warehouse.accounts.interfaces import (
+    IPasswordBreachedService,
+    ITokenService,
+    IUserService,
+)
+from warehouse.accounts.models import DisableReason
 from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.accounts.models import DisableReason
-from warehouse.accounts.auth_policy import (
-    BasicAuthAuthenticationPolicy,
-    SessionAuthenticationPolicy,
-)
+from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import BasicAuthBreachedPassword
-from warehouse.email import send_password_compromised_email
-from warehouse.rate_limiting import RateLimit, IRateLimiter
-
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
 
@@ -59,7 +58,7 @@ def _basic_auth_login(username, password, request):
             # This technically violates the contract a little bit, this function is
             # meant to return None if the user cannot log in. However we want to present
             # a different error message than is normal when we're denying the log in
-            # becasue of a compromised password. So to do that, we'll need to raise a
+            # because of a compromised password. So to do that, we'll need to raise a
             # HTTPError that'll ultimately get returned to the client. This is OK to do
             # here because we've already successfully authenticated the credentials, so
             # it won't screw up the fall through to other authentication mechanisms
@@ -73,7 +72,7 @@ def _basic_auth_login(username, password, request):
             if breach_service.check_password(
                 password, tags=["method:auth", "auth_method:basic"]
             ):
-                send_password_compromised_email(request, user)
+                send_password_compromised_email_hibp(request, user)
                 login_service.disable_password(
                     user.id, reason=DisableReason.CompromisedPassword
                 )
@@ -98,6 +97,8 @@ def _authenticate(userid, request):
 
     if user.is_superuser:
         principals.append("group:admins")
+    if user.is_moderator or user.is_superuser:
+        principals.append("group:moderators")
 
     return principals
 
@@ -122,6 +123,9 @@ def includeme(config):
     )
     config.register_service_factory(
         TokenServiceFactory(name="email"), ITokenService, name="email"
+    )
+    config.register_service_factory(
+        TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
     )
 
     # Register our password breach detection service.

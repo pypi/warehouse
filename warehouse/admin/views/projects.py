@@ -15,16 +15,15 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_, func
-
+from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Project, Release, Role, JournalEntry
+from warehouse.forklift.legacy import MAX_FILESIZE
+from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
-from warehouse.forklift.legacy import MAX_FILESIZE
 
 ONE_MB = 1024 * 1024  # bytes
 
@@ -32,7 +31,8 @@ ONE_MB = 1024 * 1024  # bytes
 @view_config(
     route_name="admin.project.list",
     renderer="admin/projects/list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def project_list(request):
@@ -67,7 +67,17 @@ def project_list(request):
 @view_config(
     route_name="admin.project.detail",
     renderer="admin/projects/detail.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.project.detail",
+    renderer="admin/projects/detail.html",
     permission="admin",
+    request_method="POST",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -139,7 +149,8 @@ def project_detail(project, request):
 @view_config(
     route_name="admin.project.releases",
     renderer="admin/projects/releases_list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def releases_list(project, request):
@@ -187,7 +198,8 @@ def releases_list(project, request):
 @view_config(
     route_name="admin.project.release",
     renderer="admin/projects/release_detail.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def release_detail(release, request):
@@ -205,7 +217,8 @@ def release_detail(release, request):
 @view_config(
     route_name="admin.project.journals",
     renderer="admin/projects/journals_list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def journals_list(project, request):
@@ -253,7 +266,7 @@ def journals_list(project, request):
 
 @view_config(
     route_name="admin.project.set_upload_limit",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -262,7 +275,7 @@ def set_upload_limit(project, request):
     upload_limit = request.POST.get("upload_limit", "")
 
     # Update the project's upload limit.
-    # If the upload limit is an empty string or othrwise falsy, just set the
+    # If the upload limit is an empty string or otherwise falsy, just set the
     # limit to None, indicating the default limit.
     if not upload_limit:
         upload_limit = None

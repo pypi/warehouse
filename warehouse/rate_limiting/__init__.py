@@ -19,13 +19,12 @@ import redis
 
 from first import first
 from limits import parse_many
-from limits.strategies import MovingWindowRateLimiter
 from limits.storage import storage_from_string
+from limits.strategies import MovingWindowRateLimiter
 from zope.interface import implementer
 
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting.interfaces import IRateLimiter
-
 
 logger = logging.getLogger(__name__)
 

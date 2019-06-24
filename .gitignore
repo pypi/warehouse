@@ -30,3 +30,5 @@ warehouse/admin/static/dist
 
 tags
 *.sw*
+
+.DS_Store

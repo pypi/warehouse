@@ -20,7 +20,7 @@ from pyramid.tweens import EXCVIEW
 
 from warehouse import config
 from warehouse.errors import BasicAuthBreachedPassword
-from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
+from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
 
 
 class TestRequireHTTPSTween:
@@ -226,6 +226,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.env": environment,
         "warehouse.commit": "null",
         "site.name": "Warehouse",
+        "token.two_factor.max_age": 300,
         "token.default.max_age": 21600,
     }
 

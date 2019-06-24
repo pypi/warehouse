@@ -52,9 +52,9 @@ default:
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.6 virtual environment
+	# Create our Python 3.7 virtual environment
 	rm -rf .state/env
-	python3.6 -m venv .state/env
+	python3.7 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -102,11 +102,13 @@ tests:
 
 
 reformat: .state/env/pyvenv.cfg
+	$(BINDIR)/isort -rc warehouse/ tests/
 	$(BINDIR)/black warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
 	$(BINDIR)/black --check warehouse/ tests/
+	$(BINDIR)/isort -rc -c warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.

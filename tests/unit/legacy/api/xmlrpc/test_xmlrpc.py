@@ -21,11 +21,11 @@ from warehouse.packaging.models import Classifier
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
+    FileFactory,
+    JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
-    JournalEntryFactory,
 )
 
 
@@ -605,7 +605,7 @@ def test_release_data(db_request):
         "maintainer": release.maintainer,
         "maintainer_email": release.maintainer_email,
         "summary": release.summary,
-        "description": release.description,
+        "description": release.description.raw,
         "license": release.license,
         "keywords": release.keywords,
         "platform": release.platform,
@@ -825,3 +825,10 @@ def test_multicall(pyramid_request):
         "ValueError: MultiCall requests have been deprecated, use individual "
         "requests instead."
     )
+
+
+@pytest.mark.parametrize(
+    "string, expected", [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
+)
+def test_clean_for_xml(string, expected):
+    assert xmlrpc._clean_for_xml(string) == expected

@@ -22,9 +22,17 @@ export default class extends Controller {
     // Set the preview
     this.previewTarget.innerHTML = this.inputTarget.value;
 
+    // Classifier is made up of words which can contain a-z, A-Z, 0-9,
+    // underscore, hyphen, period, octothorp, plus, or parentheses
+    var word_sub = "[\\w.\\(\\)\\+#-]";
+
+    // Words can be repeated one or more times, separated by a space
+    var words_sub = `${word_sub}+(\\s${word_sub}*)*`;
+
     // Classifer must have two parts, separated by a ' :: '
-    // Can contain a-z, A-Z, 0-9, underscore, hyphen or period
-    if (this.inputTarget.value.match(/^[\w.-]+(\s[\w.-]*)* :: [\w.-]+(\s[\w.-]*)*$/g)) {
+    var classifier_re = new RegExp(`^${words_sub} :: ${words_sub}$`);
+
+    if (classifier_re.test(this.inputTarget.value)) {
       // Enable the submit button
       this.submitTarget.disabled = false;
     } else {

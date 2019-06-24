@@ -44,6 +44,7 @@
         <th>Name</th>
         <th>Email</th>
         <th>Admin</th>
+        <th>Moderator</th>
         <th>Active</th>
       </tr>
 
@@ -56,6 +57,7 @@
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
         <td>{% if user.is_superuser %}<i class="fa fa-check text-green"></i>{% endif %}</td>
+        <td>{% if user.is_moderator %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if user.is_active %}<i class="fa fa-check text-green"></i>{% endif %}</td>
       </tr>
       {% endfor %}

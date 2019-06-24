@@ -19,7 +19,8 @@ from warehouse.admin.squats import Squat
 @view_config(
     route_name="admin.squats",
     renderer="admin/squats/index.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def get_squats(request):

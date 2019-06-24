@@ -18,22 +18,25 @@ import pytest
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.response import Response
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
+import warehouse.utils.otp as otp
+
+from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.manage import views
-from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
-from warehouse.packaging.models import JournalEntry, Project, File, Role, User
+from warehouse.packaging.models import File, JournalEntry, Project, Role, User
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
+    FileFactory,
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
     UserFactory,
 )
@@ -44,12 +47,13 @@ class TestManageAccount:
         breach_service = pretend.stub()
         user_service = pretend.stub()
         name = pretend.stub()
+        user_id = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, id=user_id),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -76,7 +80,9 @@ class TestManageAccount:
         assert view.request == request
         assert view.user_service == user_service
         assert save_account_cls.calls == [pretend.call(name=name)]
-        assert add_email_cls.calls == [pretend.call(user_service=user_service)]
+        assert add_email_cls.calls == [
+            pretend.call(user_id=user_id, user_service=user_service)
+        ]
         assert change_pass_cls.calls == [
             pretend.call(user_service=user_service, breach_service=breach_service)
         ]
@@ -226,7 +232,7 @@ class TestManageAccount:
             db=pretend.stub(flush=lambda: None),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda a, **kw: pretend.stub(),
-            user=pretend.stub(emails=[], name=pretend.stub()),
+            user=pretend.stub(emails=[], name=pretend.stub(), id=pretend.stub()),
         )
         add_email_obj = pretend.stub(
             validate=lambda: False, email=pretend.stub(data=email_address)
@@ -673,6 +679,625 @@ class TestManageAccount:
                 "Cannot delete account with active project ownerships", queue="error"
             )
         ]
+
+
+class TestProvisionTOTP:
+    def test_generate_totp_qr(self, monkeypatch):
+        user_service = pretend.stub(get_totp_secret=lambda id: None)
+        request = pretend.stub(
+            session=pretend.stub(get_totp_secret=otp.generate_totp_secret),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="foobar",
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+
+        assert isinstance(result, Response)
+        assert result.content_type == "image/svg+xml"
+
+    def test_generate_totp_qr_already_provisioned(self, monkeypatch):
+        user_service = pretend.stub(get_totp_secret=lambda id: b"secret")
+        request = pretend.stub(
+            session=pretend.stub(),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="foobar",
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+
+    def test_generate_totp_qr_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
+
+    def test_totp_provision(self, monkeypatch):
+        user_service = pretend.stub(get_totp_secret=lambda id: None)
+        request = pretend.stub(
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: b"secret",
+            ),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
+        )
+
+        provision_totp_obj = pretend.stub(validate=lambda: True)
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        generate_totp_provisioning_uri = pretend.call_recorder(
+            lambda a, b, **k: "not_a_real_uri"
+        )
+        monkeypatch.setattr(
+            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
+        assert result == {
+            "provision_totp_form": provision_totp_obj,
+            "provision_totp_uri": "not_a_real_uri",
+        }
+
+    def test_totp_provision_already_provisioned(self, monkeypatch):
+        user_service = pretend.stub(get_totp_secret=lambda id: b"foobar")
+        request = pretend.stub(
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: pretend.stub(),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert request.session.flash.calls == [
+            pretend.call("TOTP already provisioned.", queue="error")
+        ]
+
+    def test_totp_provision_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
+
+    def test_validate_totp_provision(self, monkeypatch):
+        user_service = pretend.stub(
+            get_totp_secret=lambda id: None,
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            POST={"totp_value": "123456"},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: b"secret",
+                clear_totp_secret=lambda: None,
+            ),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        provision_totp_obj = pretend.stub(validate=lambda: True)
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+        assert user_service.update_user.calls == [
+            pretend.call(request.user.id, totp_secret=b"secret")
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("TOTP application successfully provisioned.", queue="success")
+        ]
+
+    def test_validate_totp_provision_already_provisioned(self, monkeypatch):
+        user_service = pretend.stub(
+            get_totp_secret=lambda id: b"secret",
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: pretend.stub(),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar"),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert user_service.update_user.calls == []
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert request.session.flash.calls == [
+            pretend.call("TOTP already provisioned.", queue="error")
+        ]
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
+
+    def test_validate_totp_provision_invalid_form(self, monkeypatch):
+        user_service = pretend.stub(get_totp_secret=lambda id: None)
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+                get_totp_secret=lambda: pretend.stub(),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
+        )
+
+        provision_totp_obj = pretend.stub(
+            validate=lambda: False, totp_value=pretend.stub(data="123456")
+        )
+        provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
+        monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
+
+        generate_totp_provisioning_uri = pretend.call_recorder(
+            lambda a, b, **k: "not_a_real_uri"
+        )
+        monkeypatch.setattr(
+            otp, "generate_totp_provisioning_uri", generate_totp_provisioning_uri
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert request.session.flash.calls == []
+        assert result == {
+            "provision_totp_form": provision_totp_obj,
+            "provision_totp_uri": "not_a_real_uri",
+        }
+
+    def test_validate_totp_provision_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
+
+    def test_delete_totp(self, monkeypatch, db_request):
+        user_service = pretend.stub(
+            get_totp_secret=lambda id: b"secret",
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            POST={"confirm_username": pretend.stub()},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                totp_secret=b"secret",
+                two_factor_provisioning_allowed=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        delete_totp_obj = pretend.stub(validate=lambda: True)
+        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
+        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.delete_totp()
+
+        assert user_service.update_user.calls == [
+            pretend.call(request.user.id, totp_secret=None)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("TOTP application deleted.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+
+    def test_delete_totp_bad_username(self, monkeypatch, db_request):
+        user_service = pretend.stub(
+            get_totp_secret=lambda id: b"secret",
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            POST={"confirm_username": pretend.stub()},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        delete_totp_obj = pretend.stub(validate=lambda: False)
+        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
+        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.delete_totp()
+
+        assert user_service.update_user.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+
+    def test_delete_totp_not_provisioned(self, monkeypatch, db_request):
+        user_service = pretend.stub(
+            get_totp_secret=lambda id: None,
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            POST={"confirm_username": pretend.stub()},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                two_factor_provisioning_allowed=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        delete_totp_obj = pretend.stub(validate=lambda: True)
+        delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
+        monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.delete_totp()
+
+        assert user_service.update_user.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("No TOTP application to delete.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
+
+    def test_delete_totp_two_factor_not_allowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(two_factor_provisioning_allowed=False),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.delete_totp()
+
+        assert isinstance(result, Response)
+        assert result.status_code == 403
+        assert request.session.flash.calls == [
+            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+        ]
+
+
+class TestProvisionWebAuthn:
+    def test_get_webauthn_view(self):
+        user_service = pretend.stub()
+        request = pretend.stub(find_service=lambda *a, **kw: user_service)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.webauthn_provision()
+
+        assert result == {}
+
+    def test_get_webauthn_options(self):
+        user_service = pretend.stub(
+            get_webauthn_credential_options=pretend.call_recorder(
+                lambda *a, **kw: {"not_real": "credential_options"}
+            )
+        )
+        request = pretend.stub(
+            user=pretend.stub(id=1234),
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge")
+            ),
+            find_service=lambda *a, **kw: user_service,
+            registry=pretend.stub(
+                settings={
+                    "site.name": "fake_site_name",
+                    "warehouse.domain": "fake_domain",
+                }
+            ),
+            domain="fake_domain",
+        )
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.webauthn_provision_options()
+
+        assert result == {"not_real": "credential_options"}
+        assert user_service.get_webauthn_credential_options.calls == [
+            pretend.call(
+                1234,
+                challenge="fake_challenge",
+                rp_name=request.registry.settings["site.name"],
+                rp_id=request.domain,
+                icon_url=request.registry.settings["warehouse.domain"],
+            )
+        ]
+
+    def test_validate_webauthn_provision(self, monkeypatch):
+        user_service = pretend.stub(
+            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+        )
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(id=1234, webauthn=None),
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
+                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            domain="fake_domain",
+            host_url="fake_host_url",
+        )
+
+        provision_webauthn_obj = pretend.stub(
+            validate=lambda: True,
+            validated_credential=pretend.stub(
+                credential_id=b"fake_credential_id",
+                public_key=b"fake_public_key",
+                sign_count=1,
+            ),
+            label=pretend.stub(data="fake_label"),
+        )
+        provision_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: provision_webauthn_obj
+        )
+        monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.validate_webauthn_provision()
+
+        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
+        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
+        assert user_service.add_webauthn.calls == [
+            pretend.call(
+                1234,
+                label="fake_label",
+                credential_id="fake_credential_id",
+                public_key="fake_public_key",
+                sign_count=1,
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("WebAuthn successfully provisioned.", queue="success")
+        ]
+        assert result == {"success": "WebAuthn successfully provisioned"}
+
+    def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
+        user_service = pretend.stub(
+            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+        )
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(id=1234, webauthn=None),
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
+                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            domain="fake_domain",
+            host_url="fake_host_url",
+        )
+
+        provision_webauthn_obj = pretend.stub(
+            validate=lambda: False,
+            errors=pretend.stub(
+                values=pretend.call_recorder(lambda: [["Not a real error"]])
+            ),
+        )
+        provision_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: provision_webauthn_obj
+        )
+        monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.validate_webauthn_provision()
+
+        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
+        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
+        assert user_service.add_webauthn.calls == []
+        assert result == {"fail": {"errors": ["Not a real error"]}}
+
+    def test_delete_webauthn(self, monkeypatch):
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(
+                id=1234,
+                username=pretend.stub(),
+                webauthn=pretend.stub(
+                    __get__=pretend.call_recorder(lambda *a: [pretend.stub]),
+                    __len__=pretend.call_recorder(lambda *a: 1),
+                    remove=pretend.call_recorder(lambda *a: pretend.stub()),
+                ),
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        delete_webauthn_obj = pretend.stub(
+            validate=lambda: True, webauthn=pretend.stub()
+        )
+        delete_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_webauthn_obj
+        )
+        monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.delete_webauthn()
+
+        assert request.session.flash.calls == [
+            pretend.call("WebAuthn device deleted.", queue="success")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
+
+    def test_delete_webauthn_not_provisioned(self):
+        request = pretend.stub(
+            user=pretend.stub(id=1234, webauthn=[]),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.delete_webauthn()
+
+        assert request.session.flash.calls == [
+            pretend.call("No WebAuthhn device to delete.", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
+
+    def test_delete_webauthn_invalid_form(self, monkeypatch):
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(
+                id=1234, username=pretend.stub(), webauthn=[pretend.stub()]
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        delete_webauthn_obj = pretend.stub(validate=lambda: False)
+        delete_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_webauthn_obj
+        )
+        monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.delete_webauthn()
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials.", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
 
 
 class TestManageProjects:

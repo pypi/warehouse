@@ -15,7 +15,7 @@ import io
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 from pyramid.request import Request
 from pyramid.response import Response
 
