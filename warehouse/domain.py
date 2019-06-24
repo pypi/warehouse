@@ -23,7 +23,7 @@ class DomainPredicate:
     phash = text
 
     def __call__(self, info, request):
-        # Support running under the same instance for local devleopment and for
+        # Support running under the same instance for local development and for
         # test.pypi.io which will continue to host it's own uploader.
         if self.val is None:
             return True

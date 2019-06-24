@@ -374,7 +374,7 @@ def configure(settings=None):
     config.include(".cache.http")
     config.include(".cache.origin")
 
-    # Register support for sendnging emails
+    # Register support for sending emails
     config.include(".email")
 
     # Register our authentication support.
