@@ -33,7 +33,7 @@ class Macaroon(db.Model):
     # All of our Macaroons belong to a specific user, because a caveat-less
     # Macaroon should act the same as their password does, instead of as a
     # global permission to upload files.
-    user_id = Column(UUID(as_uuid=True), ForeignKey("accounts_user.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     user = orm.relationship(User)
 
     # Store some information about the Macaroon to give users some mechanism

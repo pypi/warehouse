@@ -13,7 +13,7 @@
 Add Macaroons
 
 Revision ID: 5ea52744d154
-Revises: f2a453c96ded
+Revises: a9cbb1025607
 Create Date: 2018-07-16 06:45:31.152291
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = "5ea52744d154"
-down_revision = "f2a453c96ded"
+down_revision = "a9cbb1025607"
 
 
 def upgrade():
@@ -49,7 +49,7 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("key", sa.LargeBinary(), nullable=False),
-        sa.ForeignKeyConstraint(["user_id"], ["accounts_user.id"]),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
 
