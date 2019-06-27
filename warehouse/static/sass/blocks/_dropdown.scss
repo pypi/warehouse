@@ -68,7 +68,6 @@
   &__link,
   button.dropdown__link {
     display: block;
-    text-decoration: none;
     padding: 15px 15px 15px 15px;
     border: 0; // Remove default border on buttons
     border-bottom: 1px solid $border-color;
@@ -78,12 +77,12 @@
     cursor: pointer;
     text-align: left;
     position: relative;
+    @include link-without-underline;
 
     &:hover,
     &:focus {
       background-color: mix($white, $primary-color-light, 90%);
       color: $primary-color-dark;
-      text-decoration: none;
     }
 
     &:focus {

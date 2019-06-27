@@ -171,7 +171,7 @@
     <div class="notification-bar">
       <span class="notification-bar__message">
         Donate to the Python Software Foundation or Purchase a PyCharm License to Benefit the PSF!
-        <a href="https://www.python.org/psf/donations/2019-q2-drive/" target="_blank" title="Donate to the Python Software Foundation">Donate Now</a>
+        <a href="https://www.python.org/psf/donations/2019-q2-drive/" title="External link" target="_blank" rel="noopener" title="Donate to the Python Software Foundation">Donate Now</a>
       </span>
     </div>
 
@@ -255,18 +255,18 @@
           <li>
             <h2>Help</h2>
           </li>
-          <li><a href="https://packaging.python.org/installing/">Installing packages</a></li>
-          <li><a href="https://packaging.python.org/tutorials/packaging-projects/">Uploading packages</a></li>
-          <li><a href="https://packaging.python.org/">User guide</a></li>
+          <li><a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Installing packages</a></li>
+          <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Uploading packages</a></li>
+          <li><a href="https://packaging.python.org/" title="External link" target="_blank" rel="noopener">User guide</a></li>
           <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
         </ul>
         <ul class="footer__menu">
           <li>
             <h2>About PyPI</h2>
           </li>
-          <li><a href="https://twitter.com/PyPI">PyPI on Twitter</a></li>
-          <li><a href="https://dtdg.co/pypi">Infrastructure dashboard</a></li>
-          <li><a href="https://www.python.org/dev/peps/pep-0541/">Package index name retention</a></li>
+          <li><a href="https://twitter.com/PyPI" title="External link" target="_blank" rel="noopener">PyPI on Twitter</a></li>
+          <li><a href="https://dtdg.co/pypi" title="External link" target="_blank" rel="noopener">Infrastructure dashboard</a></li>
+          <li><a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">Package index name retention</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
         </ul>
 
@@ -276,16 +276,16 @@
             <h2>Contributing to PyPI</h2>
           </li>
           <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
-          <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
-          <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development credits</a></li>
+          <li><a href="https://github.com/pypa/warehouse" title="External link" target="_blank" rel="noopener">Contribute on GitHub</a></li>
+          <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="External link" target="_blank" rel="noopener">Development credits</a></li>
         </ul>
         <ul class="footer__menu">
           <li>
             <h2>Using PyPI</h2>
           </li>
-          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/">Code of conduct</a></li>
+          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="External link" target="_blank" rel="noopener">Code of conduct</a></li>
           <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
-          <li><a href="https://www.python.org/privacy/">Privacy policy</a></li>
+          <li><a href="https://www.python.org/privacy/" title="External link" target="_blank" rel="noopener">Privacy policy</a></li>
           <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
         </ul>
       </div>
@@ -294,14 +294,16 @@
 
       <div class="footer__text">
         {% if request.registry.settings.get("statuspage.url") %}
-        <p>Status: <a href="https://status.python.org/"><span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a></p>
+        <p>Status: <a href="https://status.python.org/" title="External link" target="_blank" rel="noopener">
+          <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a>
+        </p>
         {% endif %}
         <p>
           Developed and maintained by the Python community, for the Python community.
           <br>
           <a href="https://donate.pypi.org">Donate today!</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/">Python Software Foundation</a></p>
+        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="External link" target="_blank" rel="noopener">Python Software Foundation</a></p>
       </div>
 
       <div class="centered hide-on-desktop">

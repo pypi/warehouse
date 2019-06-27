@@ -59,12 +59,7 @@
       color: $danger-color;
 
       a:not(.button) {
-        color: $danger-color;
-        text-decoration: underline;
-
-        &:hover {
-          color: darken($danger-color, 4);
-        }
+        @include danger-underlined-link;
       }
     }
 
