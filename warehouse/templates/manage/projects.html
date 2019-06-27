@@ -29,9 +29,7 @@
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
             {% if project.name in projects_sole_owned %}
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}">
-              <span class="badge badge--warning package-snippet__sole-owner-badge">Sole owner</span>
-            </a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__sole-owner-badge">Sole owner</a>
             {% endif %}
           </h3>
           {% if release %}
@@ -74,7 +72,7 @@
     {% endfor %}
     {% else %}
       <div class="callout-block no-top-margin">
-        <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/">Python Packaging User Guide</a></p>
+        <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/" target="_blank" rel="noopener">Python Packaging User Guide</a></p>
       </div>
     {% endif %}
   </div>

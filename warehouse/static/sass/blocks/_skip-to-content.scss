@@ -27,6 +27,7 @@
   overflow: hidden;
   color: $white;
   z-index: index($z-index-scale, "skip-to-content");
+  @include link-without-underline;
 
   &:focus {
     top: 7px;
