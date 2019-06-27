@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
+
 from pyramid.authentication import CallbackAuthenticationPolicy
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 from pyramid.security import Denied
@@ -19,6 +21,30 @@ from zope.interface import implementer
 from warehouse.cache.http import add_vary_callback
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroon
+
+
+def _extract_basic_macaroon(auth):
+    """
+    A helper function for extracting a macaroon from a
+    HTTP Basic Authentication-style header.
+
+    Returns ``None`` if the header doesn't contain a structurally
+    valid macaroon, or the candidate (not yet verified) macaroon.
+    """
+    try:
+        authorization = base64.b64decode(auth)
+    except ValueError:
+        return None
+
+    try:
+        auth_method, auth = authorization.split(":", 1)
+    except ValueError:
+        return None
+
+    if auth_method != "macaroon":
+        return None
+
+    return auth
 
 
 def extract_http_macaroon(request):
@@ -36,7 +62,9 @@ def extract_http_macaroon(request):
     except ValueError:
         return None
 
-    if auth_method.lower() != "macaroon":
+    if auth_method == "basic":
+        return _extract_basic_macaroon(auth)
+    elif auth_method.lower() != "macaroon":
         return None
 
     return auth

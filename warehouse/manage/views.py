@@ -38,11 +38,14 @@ from warehouse.email import (
     send_password_change_email,
     send_primary_email_change_email,
 )
+from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
     ChangeRoleForm,
+    CreateMacaroonForm,
     CreateRoleForm,
+    DeleteMacaroonForm,
     DeleteTOTPForm,
     DeleteWebAuthnForm,
     ProvisionTOTPForm,
@@ -537,6 +540,58 @@ class ProvisionWebAuthnViews:
             self.request.session.flash("Invalid credentials", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    renderer="manage/macaroon.html",
+)
+class ProvisionMacaroonViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.macaroon_service = request.find_service(IMacaroonService, context=None)
+
+    @view_config(request_method="GET", route_name="manage.account.macaroon")
+    def manage_macaroons(self):
+        return {}
+
+    @view_config(
+        request_method="POST",
+        request_param=CreateMacaroonForm.__params__,
+        route_name="manage.account.macaroon.create",
+    )
+    def create_macaroon(self):
+        form = CreateMacaroonForm(**self.request.POST)
+
+        if form.validate():
+            serialized_macaroon = self.macaroon_service.create_macaroon(
+                location=self.request.domain,
+                user_id=self.request.user.id,
+                description=form.description.data,
+                caveats={},
+            )
+            return {"serialized_macaroon": serialized_macaroon}
+
+        return HTTPSeeOther(self.request.route_path("manage.account.macaroon"))
+
+    @view_config(
+        request_method="POST",
+        request_param=DeleteMacaroonForm.__params__,
+        route_name="manage.account.macaroon.delete",
+    )
+    def delete_macaroon(self):
+        form = DeleteMacaroonForm(
+            **self.request.POST, macaroon_service=self.macaroon_service
+        )
+
+        if form.validate():
+            self.macaroon_service.delete_macaroon(form.macaroon_id.data)
+            self.request.session.flash("API key deleted.", queue="success")
+        return HTTPSeeOther(self.request.route_path("manage.account.macaroon"))
 
 
 @view_config(

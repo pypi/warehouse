@@ -30,31 +30,38 @@ class DatabaseMacaroonService:
     def __init__(self, db_session):
         self.db = db_session
 
-    def _get_record_from_db(self, macaroon):
-        # TODO: Better handle parsing the identifier here.
-        macaroon_id = macaroon.identifier.split()[1].split(b":")[1].decode("utf8")
+    def find_macaroon(self, macaroon_id):
+        try:
+            version, identifier = macaroon_id.split(".", 1)
+        except ValueError:
+            return None
+
+        if version != "v1":
+            return None
 
         try:
             dm = (
                 self.db.query(Macaroon)
                 .options(joinedload("user"))
-                .filter(Macaroon.id == macaroon_id)
+                .filter(Macaroon.id == identifier)
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return dm
 
     def find_userid(self, macaroon):
+        if macaroon is None:
+            return None
         m = pymacaroons.Macaroon.deserialize(macaroon)
-        dm = self._get_record_from_db(m)
+        dm = self.find_macaroon(m.identifier)
 
         return None if dm is None else dm.user.id
 
     def verify(self, macaroon):
         m = pymacaroons.Macaroon.deserialize(macaroon)
-        dm = self._get_record_from_db(m)
+        dm = self.find_macaroon(m.identifier)
 
         if dm is None:
             raise InvalidMacaroon
@@ -73,8 +80,15 @@ class DatabaseMacaroonService:
         self.db.add(dm)
         self.db.flush()
 
-        m = pymacaroons.Macaroon(location="location", identifier=str(dm.id), key=dm.key)
+        m = pymacaroons.Macaroon(
+            location=location, identifier=dm.identifier, key=dm.key
+        )
         return m.serialize()
+
+    def delete_macaroon(self, macaroon_id):
+        dm = self.find_macaroon(macaroon_id)
+        self.db.delete(dm)
+        self.db.flush()
 
 
 def database_macaroon_factory(context, request):

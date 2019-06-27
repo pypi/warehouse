@@ -12,13 +12,10 @@
 
 import os
 
-import pymacaroons
-
-from sqlalchemy import Column, DateTime, ForeignKey, LargeBinary, String, orm, sql
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, LargeBinary, String, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 from warehouse import db
-from warehouse.accounts.models import User
 
 
 def _generate_key():
@@ -33,13 +30,16 @@ class Macaroon(db.Model):
     # Macaroon should act the same as their password does, instead of as a
     # global permission to upload files.
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    user = orm.relationship(User)
 
     # Store some information about the Macaroon to give users some mechanism
     # to differentiate between them.
     description = Column(String(100), nullable=False, server_default="")
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     last_used = Column(DateTime, nullable=True)
+
+    # The token "generation", which we'll update whenever/if we ever need
+    # to change the caveat format.
+    version = Column(Integer, default=1)
 
     # We'll store the caveats that were added to the Macaroon during generation
     # to allow users to see in their management UI what the total possible
@@ -54,3 +54,7 @@ class Macaroon(db.Model):
     # prefer to just always use usrandom. Thus we'll do this ourselves here
     # in our application.
     key = Column(LargeBinary, nullable=False, default=_generate_key)
+
+    @property
+    def identifier(self):
+        return f"v{self.version}.{self.id}"

@@ -160,6 +160,19 @@ def includeme(config):
         "/manage/account/webauthn-provision/delete",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.account.macaroon", "/manage/account/macaroon/", domain=warehouse
+    )
+    config.add_route(
+        "manage.account.macaroon.create",
+        "/manage/account/macaroon/create/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.macaroon.delete",
+        "/manage/account/macaroon/delete/",
+        domain=warehouse,
+    ),
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

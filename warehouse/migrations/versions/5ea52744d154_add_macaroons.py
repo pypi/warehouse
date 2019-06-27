@@ -43,6 +43,7 @@ def upgrade():
             "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column("last_used", sa.DateTime(), nullable=True),
+        sa.Column("version", sa.Integer(), default=1),
         sa.Column(
             "caveats",
             postgresql.JSONB(astext_type=sa.Text()),

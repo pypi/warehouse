@@ -183,3 +183,33 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
         if self.user_service.get_webauthn_by_label(self.user_id, label) is not None:
             raise wtforms.validators.ValidationError(f"Label '{label}' already in use")
+
+
+class CreateMacaroonForm(forms.Form):
+    __params__ = ["description"]
+
+    description = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify a description"),
+            wtforms.validators.Length(
+                max=100, message="Description must be 100 characters or less"
+            ),
+        ]
+    )
+
+
+class DeleteMacaroonForm(forms.Form):
+    __params__ = ["macaroon_id"]
+
+    macaroon_id = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired(message="Identifier required")]
+    )
+
+    def __init__(self, *args, macaroon_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.macaroon_service = macaroon_service
+
+    def validate_macaroon_id(self, field):
+        macaroon_id = field.data
+        if self.macaroon_service.find_macaroon(macaroon_id) is None:
+            raise wtforms.validators.ValidationError("No such macaroon")
