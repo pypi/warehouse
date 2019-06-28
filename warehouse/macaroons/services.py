@@ -59,7 +59,7 @@ class DatabaseMacaroonService:
 
         return None if dm is None else dm.user.id
 
-    def verify(self, macaroon):
+    def verify(self, macaroon, context, principals, permission):
         m = pymacaroons.Macaroon.deserialize(macaroon)
         dm = self.find_macaroon(m.identifier)
 

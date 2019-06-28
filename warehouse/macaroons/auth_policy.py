@@ -132,7 +132,7 @@ class MacaroonAuthorizationPolicy:
             macaroon_service = request.find_service(IMacaroonService, context=None)
 
             try:
-                macaroon_service.verify(macaroon)
+                macaroon_service.verify(macaroon, context, principals, permission)
             except InvalidMacaroon as exc:
                 return Denied(f"The supplied token was invalid: {str(exc)!r}")
 

@@ -26,9 +26,15 @@
 
   {% if serialized_macaroon %}
   <section id="provisioned-key">
-    <p>
-    {{ serialized_macaroon }}
-    </p>
+    <div class="callout-block callout-block--warning">
+      <p>
+        This token will only appear once. Copy it now.
+      </p>
+      <!-- TODO: This needs to be word-wrapped -->
+      <p>
+        {{ serialized_macaroon }}
+      </p>
+    </div>
   </section>
   {% endif %}
 
