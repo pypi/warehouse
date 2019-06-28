@@ -37,7 +37,7 @@ class Macaroon(db.Model):
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     last_used = Column(DateTime, nullable=True)
 
-    # The token "generation", which we'll update whenever/if we ever need
+    # The token version, which we'll update whenever/if we ever need
     # to change the caveat format.
     version = Column(Integer, default=1)
 
