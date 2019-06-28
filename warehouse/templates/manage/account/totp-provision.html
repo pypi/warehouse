@@ -46,8 +46,13 @@
   </p>
 
   <div class="totp-form">
-    <div class="totp-form__qr">
-      <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
+    <div>
+      <div class="totp-form__qr">
+        <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
+      </div>
+      <div>
+        <p>{{ provision_totp_secret }}</p>
+      </div>
     </div>
     <form method="POST" class="totp-form__form">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
