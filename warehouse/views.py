@@ -12,11 +12,9 @@
 
 
 import collections
-import re
 
 import elasticsearch
 
-from elasticsearch_dsl import Q
 from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -49,7 +47,12 @@ from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
-from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
+from warehouse.search.queries import (
+    SEARCH_BOOSTS,
+    SEARCH_FIELDS,
+    SEARCH_FILTER_ORDER,
+    get_es_query,
+)
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
@@ -281,30 +284,10 @@ def classifiers(request):
 def search(request):
     metrics = request.find_service(IMetricsService, context=None)
 
-    q = request.params.get("q", "")
-    q = q.replace("'", '"')
-
-    if q:
-        bool_query = gather_es_queries(q)
-
-        query = request.es.query(bool_query)
-
-        query = query.suggest("name_suggestion", q, term={"field": "name"})
-    else:
-        query = request.es.query()
-
-    if request.params.get("o"):
-        sort_key = request.params["o"]
-        if sort_key.startswith("-"):
-            sort = {sort_key[1:]: {"order": "desc", "unmapped_type": "long"}}
-        else:
-            sort = {sort_key: {"unmapped_type": "long"}}
-
-        query = query.sort(sort)
-
-    # Require match to all specified classifiers
-    for classifier in request.params.getall("c"):
-        query = query.query("prefix", classifiers=classifier)
+    querystring = request.params.get("q", "").replace("'", '"')
+    order = request.params.get("o", "")
+    classifiers = request.params.getall("c")
+    query = get_es_query(request.es, querystring, order, classifiers)
 
     try:
         page_num = int(request.params.get("page", 1))
@@ -381,8 +364,8 @@ def search(request):
 
     return {
         "page": page,
-        "term": q,
-        "order": request.params.get("o", ""),
+        "term": querystring,
+        "order": order,
         "available_filters": process_available_filters(),
         "applied_filters": request.params.getall("c"),
     }
@@ -481,40 +464,3 @@ def force_status(request):
         raise exception_response(int(request.matchdict["status"]))
     except KeyError:
         raise exception_response(404) from None
-
-
-def filter_query(s):
-    """
-    Filters given query with the below regex
-    and returns lists of quoted and unquoted strings
-    """
-    matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
-    result_quoted = [t[0].strip() for t in matches if t[0]]
-    result_unquoted = [t[1].strip() for t in matches if t[1]]
-    return result_quoted, result_unquoted
-
-
-def form_query(query_type, query):
-    """
-    Returns a multi match query
-    """
-    fields = [
-        field + "^" + str(SEARCH_BOOSTS[field]) if field in SEARCH_BOOSTS else field
-        for field in SEARCH_FIELDS
-    ]
-    return Q("multi_match", fields=fields, query=query, type=query_type)
-
-
-def gather_es_queries(q):
-    quoted_string, unquoted_string = filter_query(q)
-    must = [form_query("phrase", i) for i in quoted_string] + [
-        form_query("best_fields", i) for i in unquoted_string
-    ]
-
-    bool_query = Q("bool", must=must)
-
-    # Allow to optionally match on prefix
-    # if ``q`` is longer than one character.
-    if len(q) > 1:
-        bool_query = bool_query | Q("prefix", normalized_name=q)
-    return bool_query
