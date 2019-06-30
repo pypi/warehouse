@@ -718,7 +718,7 @@ def file_upload(request):
         )
 
     # Ensure that user has a verified, primary email address. This should both
-    # reduce the ease of spam account creation and activty, as well as act as
+    # reduce the ease of spam account creation and activity, as well as act as
     # a forcing function for https://github.com/pypa/warehouse/issues/3632.
     # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
     #       we might consider a different condition, possibly looking at
