@@ -110,7 +110,7 @@ Verifying Docker Compose installation
 Check that Docker Compose is installed: ``docker-compose -v``
 
 
-Verifying the neccessary ports are available
+Verifying the necessary ports are available
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Warehouse needs access to a few local ports in order to run, namely ports

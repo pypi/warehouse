@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import datetime
 import uuid
 
@@ -782,6 +783,7 @@ class TestProvisionTOTP:
 
         assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
         assert result == {
+            "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
         }
@@ -912,7 +914,7 @@ class TestProvisionTOTP:
             POST={},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
-                get_totp_secret=lambda: pretend.stub(),
+                get_totp_secret=lambda: b"secret",
             ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -943,6 +945,7 @@ class TestProvisionTOTP:
 
         assert request.session.flash.calls == []
         assert result == {
+            "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
         }
@@ -1086,6 +1089,218 @@ class TestProvisionTOTP:
         assert request.session.flash.calls == [
             pretend.call("Modifying 2FA requires a verified email.", queue="error")
         ]
+
+
+class TestProvisionWebAuthn:
+    def test_get_webauthn_view(self):
+        user_service = pretend.stub()
+        request = pretend.stub(find_service=lambda *a, **kw: user_service)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.webauthn_provision()
+
+        assert result == {}
+
+    def test_get_webauthn_options(self):
+        user_service = pretend.stub(
+            get_webauthn_credential_options=pretend.call_recorder(
+                lambda *a, **kw: {"not_real": "credential_options"}
+            )
+        )
+        request = pretend.stub(
+            user=pretend.stub(id=1234),
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge")
+            ),
+            find_service=lambda *a, **kw: user_service,
+            registry=pretend.stub(
+                settings={
+                    "site.name": "fake_site_name",
+                    "warehouse.domain": "fake_domain",
+                }
+            ),
+            domain="fake_domain",
+        )
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.webauthn_provision_options()
+
+        assert result == {"not_real": "credential_options"}
+        assert user_service.get_webauthn_credential_options.calls == [
+            pretend.call(
+                1234,
+                challenge="fake_challenge",
+                rp_name=request.registry.settings["site.name"],
+                rp_id=request.domain,
+                icon_url=request.registry.settings["warehouse.domain"],
+            )
+        ]
+
+    def test_validate_webauthn_provision(self, monkeypatch):
+        user_service = pretend.stub(
+            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+        )
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(id=1234, webauthn=None),
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
+                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            domain="fake_domain",
+            host_url="fake_host_url",
+        )
+
+        provision_webauthn_obj = pretend.stub(
+            validate=lambda: True,
+            validated_credential=pretend.stub(
+                credential_id=b"fake_credential_id",
+                public_key=b"fake_public_key",
+                sign_count=1,
+            ),
+            label=pretend.stub(data="fake_label"),
+        )
+        provision_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: provision_webauthn_obj
+        )
+        monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.validate_webauthn_provision()
+
+        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
+        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
+        assert user_service.add_webauthn.calls == [
+            pretend.call(
+                1234,
+                label="fake_label",
+                credential_id="fake_credential_id",
+                public_key="fake_public_key",
+                sign_count=1,
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("WebAuthn successfully provisioned.", queue="success")
+        ]
+        assert result == {"success": "WebAuthn successfully provisioned"}
+
+    def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
+        user_service = pretend.stub(
+            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+        )
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(id=1234, webauthn=None),
+            session=pretend.stub(
+                get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
+                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: user_service,
+            domain="fake_domain",
+            host_url="fake_host_url",
+        )
+
+        provision_webauthn_obj = pretend.stub(
+            validate=lambda: False,
+            errors=pretend.stub(
+                values=pretend.call_recorder(lambda: [["Not a real error"]])
+            ),
+        )
+        provision_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: provision_webauthn_obj
+        )
+        monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.validate_webauthn_provision()
+
+        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
+        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
+        assert user_service.add_webauthn.calls == []
+        assert result == {"fail": {"errors": ["Not a real error"]}}
+
+    def test_delete_webauthn(self, monkeypatch):
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(
+                id=1234,
+                username=pretend.stub(),
+                webauthn=pretend.stub(
+                    __get__=pretend.call_recorder(lambda *a: [pretend.stub]),
+                    __len__=pretend.call_recorder(lambda *a: 1),
+                    remove=pretend.call_recorder(lambda *a: pretend.stub()),
+                ),
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        delete_webauthn_obj = pretend.stub(
+            validate=lambda: True, webauthn=pretend.stub()
+        )
+        delete_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_webauthn_obj
+        )
+        monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.delete_webauthn()
+
+        assert request.session.flash.calls == [
+            pretend.call("WebAuthn device deleted.", queue="success")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
+
+    def test_delete_webauthn_not_provisioned(self):
+        request = pretend.stub(
+            user=pretend.stub(id=1234, webauthn=[]),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.delete_webauthn()
+
+        assert request.session.flash.calls == [
+            pretend.call("No WebAuthhn device to delete.", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
+
+    def test_delete_webauthn_invalid_form(self, monkeypatch):
+        request = pretend.stub(
+            POST={},
+            user=pretend.stub(
+                id=1234, username=pretend.stub(), webauthn=[pretend.stub()]
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        delete_webauthn_obj = pretend.stub(validate=lambda: False)
+        delete_webauthn_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_webauthn_obj
+        )
+        monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.delete_webauthn()
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials.", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
 
 
 class TestManageProjects:

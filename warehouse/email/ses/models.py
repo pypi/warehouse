@@ -160,7 +160,7 @@ class EmailStatus:
         collector=lambda iterable: list(iterable)[-1],
     )
 
-    # This is an OOTO response, it's techincally a bounce, but we don't
+    # This is an OOTO response, it's technically a bounce, but we don't
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
     delivered.upon(soft_bounce, enter=delivered, outputs=[])

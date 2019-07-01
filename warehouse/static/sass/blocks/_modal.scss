@@ -95,9 +95,9 @@
     right: 0;
     text-align: center;
     top: 0;
-    text-decoration: none;
     border-radius: 0 3px 0 4px;
     color: $border-color;
+    @include link-without-underline;
   }
 
   // Styles for inline forms

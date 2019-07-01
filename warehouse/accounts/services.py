@@ -26,6 +26,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -36,7 +37,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -237,6 +238,22 @@ class DatabaseUserService:
 
         return user.has_two_factor
 
+    def has_totp(self, user_id):
+        """
+        Returns True if the user has a TOTP device provisioned.
+        """
+        user = self.get_user(user_id)
+
+        return user.totp_secret is not None
+
+    def has_webauthn(self, user_id):
+        """
+        Returns True if the user has a security key provisioned.
+        """
+        user = self.get_user(user_id)
+
+        return len(user.webauthn) > 0
+
     def get_totp_secret(self, user_id):
         """
         Returns the user's TOTP secret as bytes.
@@ -286,6 +303,11 @@ class DatabaseUserService:
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:no_totp"],
             )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed totp
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
             return False
 
         valid = otp.verify_totp(totp_secret, totp_value)
@@ -297,8 +319,123 @@ class DatabaseUserService:
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:invalid_totp"],
             )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed totp
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
 
         return valid
+
+    def get_webauthn_credential_options(
+        self, user_id, *, challenge, rp_name, rp_id, icon_url
+    ):
+        """
+        Returns a dictionary of credential options suitable for beginning the WebAuthn
+        provisioning process for the given user.
+        """
+        user = self.get_user(user_id)
+
+        return webauthn.get_credential_options(
+            user, challenge=challenge, rp_name=rp_name, rp_id=rp_id, icon_url=icon_url
+        )
+
+    def get_webauthn_assertion_options(self, user_id, *, challenge, icon_url, rp_id):
+        """
+        Returns a dictionary of assertion options suitable for beginning the WebAuthn
+        authentication process for the given user.
+        """
+        user = self.get_user(user_id)
+
+        return webauthn.get_assertion_options(
+            user, challenge=challenge, icon_url=icon_url, rp_id=rp_id
+        )
+
+    def verify_webauthn_credential(self, credential, *, challenge, rp_id, origin):
+        """
+        Checks whether the given credential is valid, i.e. suitable for generating
+        assertions during authentication.
+
+        Returns the validated credential on success, raises
+        webauthn.RegistrationRejectedException on failure.
+        """
+        validated_credential = webauthn.verify_registration_response(
+            credential, challenge=challenge, rp_id=rp_id, origin=origin
+        )
+
+        webauthn_cred = (
+            self.db.query(WebAuthn)
+            .filter_by(credential_id=validated_credential.credential_id.decode())
+            .first()
+        )
+
+        if webauthn_cred is not None:
+            raise webauthn.RegistrationRejectedException("Credential ID already in use")
+
+        return validated_credential
+
+    def verify_webauthn_assertion(
+        self, user_id, assertion, *, challenge, origin, icon_url, rp_id
+    ):
+        """
+        Checks whether the given assertion was produced by the given user's WebAuthn
+        device.
+
+        Returns the updated signage count on success, raises
+        webauthn.AuthenticationRejectedException on failure.
+        """
+        user = self.get_user(user_id)
+
+        return webauthn.verify_assertion_response(
+            assertion,
+            challenge=challenge,
+            user=user,
+            origin=origin,
+            icon_url=icon_url,
+            rp_id=rp_id,
+        )
+
+    def add_webauthn(self, user_id, **kwargs):
+        """
+        Adds a WebAuthn credential to the given user.
+
+        Returns None if the user already has this credential.
+        """
+        user = self.get_user(user_id)
+
+        webauthn = WebAuthn(user=user, **kwargs)
+        self.db.add(webauthn)
+        self.db.flush()  # flush the db now so webauthn.id is available
+
+        return webauthn
+
+    def get_webauthn_by_label(self, user_id, label):
+        """
+        Returns a WebAuthn credential for the given user by its label,
+        or None if no credential for the user has this label.
+        """
+        user = self.get_user(user_id)
+
+        return next(
+            (credential for credential in user.webauthn if credential.label == label),
+            None,
+        )
+
+    def get_webauthn_by_credential_id(self, user_id, credential_id):
+        """
+        Returns a WebAuthn credential for the given user by its credential ID,
+        or None of the user doesn't have a credential with this ID.
+        """
+        user = self.get_user(user_id)
+
+        return next(
+            (
+                credential
+                for credential in user.webauthn
+                if credential.credential_id == credential_id
+            ),
+            None,
+        )
 
 
 @implementer(ITokenService)
@@ -411,7 +548,7 @@ class HaveIBeenPwnedPasswordBreachedService:
         return urllib.parse.urljoin(self._api_base, posixpath.join("/range/", prefix))
 
     def check_password(self, password, *, tags=None):
-        # The HIBP API impements a k-Anonymity scheme, by which you can take a given
+        # The HIBP API implements a k-Anonymity scheme, by which you can take a given
         # password, hash it using sha1, and then send only the first 5 characters of the
         # hex encoded digest. This avoids leaking data to the HIBP API, because without
         # the rest of the hash, the HIBP service cannot even begin to brute force or do
@@ -421,7 +558,7 @@ class HaveIBeenPwnedPasswordBreachedService:
 
         self._metrics_increment("warehouse.compromised_password_check.start", tags=tags)
 
-        # To work with the HIBP API, we need the sha1 of the UTF8 encoded passsword.
+        # To work with the HIBP API, we need the sha1 of the UTF8 encoded password.
         hashed_password = hashlib.sha1(password.encode("utf8")).hexdigest().lower()
 
         # Fetch the passwords from the HIBP data set.

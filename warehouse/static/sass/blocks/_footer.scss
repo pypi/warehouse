@@ -35,7 +35,6 @@
 */
 
 .footer {
-  $footer-link-color: mix($white, $primary-color, 95%);
   background-color: lighten($primary-color, 2);
   color: $white;
   padding: 60px 0;
@@ -73,15 +72,9 @@
       text-align: center;
 
       a {
-        color: $footer-link-color;
-        text-decoration: none;
-
-        &:hover {
-          color: $white;
-          text-decoration: underline;
-        }
-
-        @include link-focus(underline);
+        @include white-underlined-link;
+        background-image: none;
+        @include link-focus;
       }
 
       h2 {
@@ -100,7 +93,7 @@
   }
 
   &__text {
-    color: $footer-link-color;
+    color: transparentize($white, 0.05);
     font-size: $base-font-size * 0.9;
     margin: auto;
     max-width: 600px;
@@ -108,10 +101,8 @@
     padding: 0 20px;
 
     a {
-      color: $white;
-      text-decoration: underline;
-
-      @include link-focus(underline);
+      @include white-underlined-link;
+      @include link-focus;
     }
   }
 }

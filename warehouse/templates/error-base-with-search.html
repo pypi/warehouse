@@ -16,7 +16,7 @@
 {% block title %}{{ super() }}{% endblock %}
 
 {% block error_search %}
-<form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
+<form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
   <label for="search" class="sr-only">Search PyPI</label>
   <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search projects">
   <button type="submit" class="search-form__button">

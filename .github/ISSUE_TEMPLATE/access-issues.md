@@ -1,6 +1,6 @@
 ---
 name: Network Access Issues
-about: Let us know if you're having trouble reaching PyPI 
+about: Let us know if you're having trouble reaching PyPI
 
 ---
 
@@ -119,7 +119,7 @@ traceroute6 files.pythonhosted.org
 <!--
     These provide a more holistic view of what is going on, and the ways that
     PyPI is generally accessed. They can also provide insight into TLS issues
-    that may be occuring.
+    that may be occurring.
 -->
 
 #### IPv4
