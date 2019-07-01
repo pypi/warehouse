@@ -46,8 +46,18 @@
   </p>
 
   <div class="totp-form">
-    <div class="totp-form__qr">
-      <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
+    <div>
+      <div class="totp-form__qr">
+        <img src="{{ request.route_path('manage.account.totp-provision.image') }}" aria-label="{{ provision_totp_uri }}">
+      </div>
+      <div class="totp-form__manual-code">
+        <p><strong>No QR scanner?</strong> Manually enter the code instead:
+          <code>{{ provision_totp_secret }}</code>
+          <button class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ provision_totp_secret }}">
+            Copy
+          </button>
+        </p>
+      </div>
     </div>
     <form method="POST" class="totp-form__form">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

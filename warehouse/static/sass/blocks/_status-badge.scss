@@ -40,6 +40,7 @@
   padding: 0 12px 0 0;
   text-align: left;
   min-height: 40px;
+  @include link-without-underline;
 
   &:hover {
     color: $text-color;

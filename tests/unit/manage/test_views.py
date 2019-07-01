@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import datetime
 import uuid
 
@@ -782,6 +783,7 @@ class TestProvisionTOTP:
 
         assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
         assert result == {
+            "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
         }
@@ -912,7 +914,7 @@ class TestProvisionTOTP:
             POST={},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
-                get_totp_secret=lambda: pretend.stub(),
+                get_totp_secret=lambda: b"secret",
             ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -943,6 +945,7 @@ class TestProvisionTOTP:
 
         assert request.session.flash.calls == []
         assert result == {
+            "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
         }
