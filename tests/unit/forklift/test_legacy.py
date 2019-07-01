@@ -1357,7 +1357,7 @@ class TestFileUpload:
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),
-            pretend.call("warehouse.upload.ok", tags="filetype:sdist"),
+            pretend.call("warehouse.upload.ok", tags=["filetype:sdist"]),
         ]
 
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
@@ -2309,7 +2309,7 @@ class TestFileUpload:
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),
-            pretend.call("warehouse.upload.ok", tags="filetype:bdist_wheel"),
+            pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
 
     def test_upload_succeeds_with_wheel_after_sdist(

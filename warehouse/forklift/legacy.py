@@ -1321,7 +1321,7 @@ def file_upload(request):
             )
 
     # Log a successful upload
-    metrics.increment("warehouse.upload.ok", tags=f"filetype:{form.filetype.data}")
+    metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
 
     return Response()
 
