@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import io
 
 from collections import defaultdict
@@ -323,6 +324,7 @@ class ProvisionTOTPViews:
     def default_response(self):
         totp_secret = self.request.session.get_totp_secret()
         return {
+            "provision_totp_secret": base64.b32encode(totp_secret).decode(),
             "provision_totp_form": ProvisionTOTPForm(totp_secret=totp_secret),
             "provision_totp_uri": otp.generate_totp_provisioning_uri(
                 totp_secret,
