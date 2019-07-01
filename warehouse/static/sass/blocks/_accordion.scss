@@ -31,15 +31,11 @@
   &__link {
     padding: 5px;
     display: block;
-    text-decoration: none;
     cursor: pointer;
     border: 0;
     background-color: transparent;
     color: $primary-color;
-
-    &:hover {
-      text-decoration: none;
-    }
+    @include link-without-underline;
 
     &:before {
       font-family: "Font Awesome 5 Free";
@@ -51,11 +47,10 @@
     @media only screen and (max-width: $desktop) {
       color: $white;
     }
-
   }
 
   &__content {
-    padding: 10px 0;
+    padding: 0 0 5px 0;
 
     a {
       display: block;

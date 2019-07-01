@@ -30,7 +30,6 @@ from sqlalchemy.orm import sessionmaker
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
 
-
 __all__ = ["includeme", "metadata", "ModelBase"]
 
 

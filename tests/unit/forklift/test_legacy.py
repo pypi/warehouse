@@ -25,31 +25,33 @@ import pytest
 import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from warehouse.admin.flags import AdminFlag
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
-    File,
-    Filename,
     Dependency,
     DependencyKind,
-    Release,
-    Project,
-    Role,
+    File,
+    Filename,
     JournalEntry,
+    Project,
+    Release,
+    Role,
 )
-from warehouse.admin.flags import AdminFlag
 
-from ...common.db.accounts import UserFactory, EmailFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
+    FileFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
 )
 
@@ -95,7 +97,9 @@ class TestValidation:
         with pytest.raises(ValidationError):
             legacy._validate_pep440_specifier(specifier)
 
-    @pytest.mark.parametrize("requirement", ["foo (>=1.0)", "foo", "_foo", "foo2"])
+    @pytest.mark.parametrize(
+        "requirement", ["foo (>=1.0)", "foo", "_foo", "foo2", "foo.bar"]
+    )
     def test_validates_legacy_non_dist_req_valid(self, requirement):
         legacy._validate_legacy_non_dist_req(requirement)
 
@@ -109,6 +113,7 @@ class TestValidation:
             "☃ (>=1.0)",
             "☃",
             "name @ https://github.com/pypa",
+            "foo.2bar",
         ],
     )
     def test_validates_legacy_non_dist_req_invalid(self, requirement):
@@ -917,7 +922,6 @@ class TestFileUpload:
             "for more information."
         ).format(name)
 
-    @pytest.mark.xfail(reason="https://github.com/pypa/warehouse/issues/4079")
     @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
         [
@@ -1319,7 +1323,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2256,7 +2263,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2359,7 +2369,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2511,6 +2524,59 @@ class TestFileUpload:
             "400 Binary wheel .* has an unsupported " "platform tag .*", resp.status
         )
 
+    def test_upload_updates_existing_project_name(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="Package-Name")
+        RoleFactory.create(user=user, project=project)
+
+        new_project_name = "package-name"
+        filename = "{}-{}.tar.gz".format(new_project_name, "1.1")
+
+        db_request.user = user
+        db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.1",
+                "name": new_project_name,
+                "version": "1.1",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Project object name has been updated.
+        project = (
+            db_request.db.query(Project).filter(Project.name == new_project_name).one()
+        )
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.1"))
+            .one()
+        )
+
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
     def test_upload_succeeds_creates_release(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
@@ -2589,7 +2655,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2755,7 +2824,10 @@ class TestFileUpload:
 
         # Ensure that all of our journal entries have been created
         journals = (
-            db_request.db.query(JournalEntry).order_by("submitted_date", "id").all()
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
         )
         assert [
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
@@ -2778,6 +2850,50 @@ class TestFileUpload:
                 "10.10.10.10",
             ),
         ]
+
+    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        squattee = ProjectFactory(name="example")
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("exmaple", "1.0")
+
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "exmaple",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Project object has been created.
+        squatter = db_request.db.query(Project).filter(Project.name == "exmaple").one()
+
+        # Ensure that a Squat object has been created.
+        squat = db_request.db.query(Squat).one()
+
+        assert squat.squattee == squattee
+        assert squat.squatter == squatter
+        assert squat.reviewed is False
 
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),

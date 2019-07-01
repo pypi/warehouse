@@ -5,19 +5,12 @@ source =
     warehouse
 
 omit =
-    # It doesn't make sense to try and cover this code in unit tests, the whole
-    # point is this is dead code/tables laying around until we can delete them.
-    warehouse/legacy/tables.py
-
     # We don't want to get coverage information for our migrations.
     warehouse/migrations/*
 
     # We don't want to actually cover our __main__.py file because it is hard
     # to cover and it really just acts as a tiny shim to a function.
     warehouse/__main__.py
-
-    # This bit of code is hard to test, and it shouldn't actually matter.
-    warehouse/__about__.py
 
     # Again, tiny shim code that we don't actually need to test and trying to
     # do so would just get in the way.
@@ -26,11 +19,8 @@ omit =
     # And again, tiny shim code.
     warehouse/celery.py
 
-    # Vendored library
-    warehouse/datadog/pyramid_datadog.py
-
 
 [report]
 exclude_lines =
-    # pragma: no cover
+    pragma: no cover
     class \w+\(Interface\):

@@ -10,15 +10,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
+import io
+
 from collections import defaultdict
 
-from pyramid.httpexceptions import HTTPSeeOther
+import pyqrcode
+
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
+from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
-from warehouse.accounts.models import User, Email
+import warehouse.utils.otp as otp
+
+from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email,
@@ -31,12 +41,48 @@ from warehouse.email import (
 from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
-    CreateRoleForm,
     ChangeRoleForm,
+    CreateRoleForm,
+    DeleteTOTPForm,
+    DeleteWebAuthnForm,
+    ProvisionTOTPForm,
+    ProvisionWebAuthnForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
+
+
+def user_projects(request):
+    """ Return all the projects for which the user is a sole owner """
+    projects_owned = (
+        request.db.query(Project.id)
+        .join(Role.project)
+        .filter(Role.role_name == "Owner", Role.user == request.user)
+        .subquery()
+    )
+
+    with_sole_owner = (
+        request.db.query(Role.project_id)
+        .join(projects_owned)
+        .filter(Role.role_name == "Owner")
+        .group_by(Role.project_id)
+        .having(func.count(Role.project_id) == 1)
+        .subquery()
+    )
+
+    return {
+        "projects_owned": (
+            request.db.query(Project)
+            .join(projects_owned, Project.id == projects_owned.c.id)
+            .order_by(Project.name)
+            .all()
+        ),
+        "projects_sole_owned": (
+            request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
+        ),
+    }
 
 
 @view_defaults(
@@ -57,35 +103,15 @@ class ManageAccountViews:
 
     @property
     def active_projects(self):
-        """ Return all the projects for with the user is a sole owner """
-        projects_owned = (
-            self.request.db.query(Project)
-            .join(Role.project)
-            .filter(Role.role_name == "Owner", Role.user == self.request.user)
-            .subquery()
-        )
-
-        with_sole_owner = (
-            self.request.db.query(Role.package_name)
-            .join(projects_owned)
-            .filter(Role.role_name == "Owner")
-            .group_by(Role.package_name)
-            .having(func.count(Role.package_name) == 1)
-            .subquery()
-        )
-
-        return (
-            self.request.db.query(Project)
-            .join(with_sole_owner)
-            .order_by(Project.name)
-            .all()
-        )
+        return user_projects(request=self.request)["projects_sole_owned"]
 
     @property
     def default_response(self):
         return {
             "save_account_form": SaveAccountForm(name=self.request.user.name),
-            "add_email_form": AddEmailForm(user_service=self.user_service),
+            "add_email_form": AddEmailForm(
+                user_service=self.user_service, user_id=self.request.user.id
+            ),
             "change_password_form": ChangePasswordForm(
                 user_service=self.user_service, breach_service=self.breach_service
             ),
@@ -108,7 +134,11 @@ class ManageAccountViews:
 
     @view_config(request_method="POST", request_param=AddEmailForm.__params__)
     def add_email(self):
-        form = AddEmailForm(self.request.POST, user_service=self.user_service)
+        form = AddEmailForm(
+            self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
 
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
@@ -259,6 +289,7 @@ class ManageAccountViews:
 
         journals = (
             self.request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.submitted_by == self.request.user)
             .all()
         )
@@ -275,6 +306,223 @@ class ManageAccountViews:
         return logout(self.request)
 
 
+@view_defaults(
+    route_name="manage.account.totp-provision",
+    renderer="manage/account/totp-provision.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    http_cache=0,
+)
+class ProvisionTOTPViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @property
+    def default_response(self):
+        totp_secret = self.request.session.get_totp_secret()
+        return {
+            "provision_totp_secret": base64.b32encode(totp_secret).decode(),
+            "provision_totp_form": ProvisionTOTPForm(totp_secret=totp_secret),
+            "provision_totp_uri": otp.generate_totp_provisioning_uri(
+                totp_secret,
+                self.request.user.username,
+                issuer_name=self.request.registry.settings["site.name"],
+            ),
+        }
+
+    @view_config(route_name="manage.account.totp-provision.image", request_method="GET")
+    def generate_totp_qr(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            return Response(status=403)
+
+        totp_qr = pyqrcode.create(self.default_response["provision_totp_uri"])
+        qr_buffer = io.BytesIO()
+        totp_qr.svg(qr_buffer, scale=5)
+
+        return Response(content_type="image/svg+xml", body=qr_buffer.getvalue())
+
+    @view_config(request_method="GET")
+    def totp_provision(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            self.request.session.flash("TOTP already provisioned.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        return self.default_response
+
+    @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
+    def validate_totp_provision(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if totp_secret:
+            self.request.session.flash("TOTP already provisioned.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = ProvisionTOTPForm(
+            **self.request.POST, totp_secret=self.request.session.get_totp_secret()
+        )
+
+        if form.validate():
+            self.user_service.update_user(
+                self.request.user.id, totp_secret=self.request.session.get_totp_secret()
+            )
+
+            self.request.session.clear_totp_secret()
+            self.request.session.flash(
+                "TOTP application successfully provisioned.", queue="success"
+            )
+
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        return {**self.default_response, "provision_totp_form": form}
+
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    def delete_totp(self):
+        if not self.request.user.two_factor_provisioning_allowed:
+            self.request.session.flash(
+                "Modifying 2FA requires a verified email.", queue="error"
+            )
+            return Response(status=403)
+
+        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
+        if not totp_secret:
+            self.request.session.flash("No TOTP application to delete.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = DeleteTOTPForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            self.user_service.update_user(self.request.user.id, totp_secret=None)
+            self.request.session.flash("TOTP application deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+    http_cache=0,
+)
+class ProvisionWebAuthnViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision",
+        renderer="manage/account/webauthn-provision.html",
+    )
+    def webauthn_provision(self):
+        return {}
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.webauthn-provision.options",
+        renderer="json",
+    )
+    def webauthn_provision_options(self):
+        return self.user_service.get_webauthn_credential_options(
+            self.request.user.id,
+            challenge=self.request.session.get_webauthn_challenge(),
+            rp_name=self.request.registry.settings["site.name"],
+            rp_id=self.request.domain,
+            icon_url=self.request.registry.settings.get(
+                "warehouse.domain", self.request.domain
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=ProvisionWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.validate",
+        renderer="json",
+    )
+    def validate_webauthn_provision(self):
+        form = ProvisionWebAuthnForm(
+            **self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+            challenge=self.request.session.get_webauthn_challenge(),
+            rp_id=self.request.domain,
+            origin=self.request.host_url,
+        )
+
+        self.request.session.clear_webauthn_challenge()
+
+        if form.validate():
+            self.user_service.add_webauthn(
+                self.request.user.id,
+                label=form.label.data,
+                credential_id=form.validated_credential.credential_id.decode(),
+                public_key=form.validated_credential.public_key.decode(),
+                sign_count=form.validated_credential.sign_count,
+            )
+            self.request.session.flash(
+                "WebAuthn successfully provisioned.", queue="success"
+            )
+            return {"success": "WebAuthn successfully provisioned"}
+
+        errors = [
+            str(error) for error_list in form.errors.values() for error in error_list
+        ]
+        return {"fail": {"errors": errors}}
+
+    @view_config(
+        request_method="POST",
+        request_param=DeleteWebAuthnForm.__params__,
+        route_name="manage.account.webauthn-provision.delete",
+    )
+    def delete_webauthn(self):
+        if len(self.request.user.webauthn) == 0:
+            self.request.session.flash("No WebAuthhn device to delete.", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = DeleteWebAuthnForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
+
+        if form.validate():
+            self.request.user.webauthn.remove(form.webauthn)
+            self.request.session.flash("WebAuthn device deleted.", queue="success")
+        else:
+            self.request.session.flash("Invalid credentials.", queue="error")
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
 @view_config(
     route_name="manage.projects",
     renderer="manage/projects.html",
@@ -287,19 +535,18 @@ def manage_projects(request):
             return project.releases[0].created
         return project.created
 
+    all_user_projects = user_projects(request)
     projects_owned = set(
-        project.name
-        for project in (
-            request.db.query(Project.name)
-            .join(Role.project)
-            .filter(Role.role_name == "Owner", Role.user == request.user)
-            .all()
-        )
+        project.name for project in all_user_projects["projects_owned"]
+    )
+    projects_sole_owned = set(
+        project.name for project in all_user_projects["projects_sole_owned"]
     )
 
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
+        "projects_sole_owned": projects_sole_owned,
     }
 
 
@@ -451,7 +698,7 @@ class ManageProjectRelease:
             release_file = (
                 self.request.db.query(File)
                 .filter(
-                    File.name == self.release.project.name,
+                    File.release == self.release,
                     File.id == self.request.POST.get("file_id"),
                 )
                 .one()
@@ -607,6 +854,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             # TODO: This branch should be removed when fixing GH-2745.
             roles = (
                 request.db.query(Role)
+                .join(User)
                 .filter(
                     Role.id.in_(role_ids),
                     Role.project == project,
@@ -626,7 +874,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     request.db.add(
                         JournalEntry(
                             name=project.name,
-                            action=f"remove {role.role_name} {role.user_name}",
+                            action=f"remove {role.role_name} {role.user.username}",
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
                         )
@@ -637,6 +885,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             try:
                 role = (
                     request.db.query(Role)
+                    .join(User)
                     .filter(
                         Role.id == request.POST.get("role_id"), Role.project == project
                     )
@@ -651,7 +900,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         JournalEntry(
                             name=project.name,
                             action="change {} {} to {}".format(
-                                role.role_name, role.user_name, form.role_name.data
+                                role.role_name, role.user.username, form.role_name.data
                             ),
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
@@ -680,6 +929,7 @@ def delete_project_role(project, request):
 
     roles = (
         request.db.query(Role)
+        .join(User)
         .filter(Role.id.in_(request.POST.getall("role_id")), Role.project == project)
         .all()
     )
@@ -697,7 +947,7 @@ def delete_project_role(project, request):
             request.db.add(
                 JournalEntry(
                     name=project.name,
-                    action=f"remove {role.role_name} {role.user_name}",
+                    action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
@@ -717,12 +967,28 @@ def delete_project_role(project, request):
     permission="manage:project",
 )
 def manage_project_history(project, request):
-    journals = (
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    journals_query = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-        .all()
     )
+
+    journals = SQLAlchemyORMPage(
+        journals_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if journals.page_count and page_num > journals.page_count:
+        raise HTTPNotFound
+
     return {"project": project, "journals": journals}
 
 

@@ -23,7 +23,7 @@ def forbidden(exc, request):
 @view_config(
     route_name="admin.dashboard",
     renderer="admin/dashboard.html",
-    permission="admin",
+    permission="moderator",
     uses_session=True,
 )
 def dashboard(request):

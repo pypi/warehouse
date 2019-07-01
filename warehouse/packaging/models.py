@@ -21,26 +21,28 @@ from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
+    BigInteger,
+    Boolean,
     CheckConstraint,
     Column,
-    Enum,
-    ForeignKey,
-    ForeignKeyConstraint,
-    Index,
-    Boolean,
     DateTime,
-    Integer,
+    Enum,
     Float,
+    ForeignKey,
+    Index,
+    Integer,
     Table,
     Text,
+    func,
+    orm,
+    sql,
 )
-from sqlalchemy import func, orm, sql
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import validates
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import validates
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -53,20 +55,17 @@ from warehouse.utils.attrs import make_repr
 class Role(db.Model):
 
     __tablename__ = "roles"
-    __table_args__ = (
-        Index("roles_pack_name_idx", "package_name"),
-        Index("roles_user_name_idx", "user_name"),
-    )
+    __table_args__ = (Index("roles_user_id_idx", "user_id"),)
 
     __repr__ = make_repr("role_name", "user_name", "package_name")
 
     role_name = Column(Text)
-    user_name = Column(
-        CIText,
-        ForeignKey("accounts_user.username", onupdate="CASCADE", ondelete="CASCADE"),
+    user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    package_name = Column(
-        Text, ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE")
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
     )
 
     user = orm.relationship(User, lazy=False)
@@ -98,28 +97,33 @@ class ProjectFactory:
             raise KeyError from None
 
 
-class Project(SitemapMixin, db.ModelBase):
+class Project(SitemapMixin, db.Model):
 
-    __tablename__ = "packages"
+    __tablename__ = "projects"
     __table_args__ = (
         CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="packages_valid_name",
+            name="projects_valid_name",
         ),
     )
 
     __repr__ = make_repr("name")
 
-    name = Column(Text, primary_key=True, nullable=False)
+    name = Column(Text, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
     created = Column(
-        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+        index=True,
     )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
+
+    total_size = Column(BigInteger, server_default=sql.text("0"))
 
     users = orm.relationship(User, secondary=Role.__table__, backref="projects")
 
@@ -164,12 +168,16 @@ class Project(SitemapMixin, db.ModelBase):
 
     def __acl__(self):
         session = orm.object_session(self)
-        acls = [(Allow, "group:admins", "admin")]
+        acls = [
+            (Allow, "group:admins", "admin"),
+            (Allow, "group:moderators", "moderator"),
+        ]
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
         query = query.options(orm.lazyload("project"))
         query = query.options(orm.joinedload("user").lazyload("emails"))
+        query = query.join(User).order_by(User.id.asc())
         for role in sorted(
             query.all(), key=lambda x: ["Owner", "Maintainer"].index(x.role_name)
         ):
@@ -181,7 +189,7 @@ class Project(SitemapMixin, db.ModelBase):
 
     @property
     def documentation_url(self):
-        # TODO: Move this into the database and elimnate the use of the
+        # TODO: Move this into the database and eliminate the use of the
         #       threadlocal here.
         request = get_current_request()
 
@@ -231,18 +239,14 @@ class Dependency(db.Model):
 
     __tablename__ = "release_dependencies"
     __table_args__ = (
-        Index("rel_dep_name_version_kind_idx", "name", "version", "kind"),
-        ForeignKeyConstraint(
-            ["name", "version"],
-            ["releases.name", "releases.version"],
-            onupdate="CASCADE",
-            ondelete="CASCADE",
-        ),
+        Index("release_dependencies_release_kind_idx", "release_id", "kind"),
     )
     __repr__ = make_repr("name", "version", "kind", "specifier")
 
-    name = Column(Text)
-    version = Column(Text)
+    release_id = Column(
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
     kind = Column(Integer)
     specifier = Column(Text)
 
@@ -251,15 +255,23 @@ def _dependency_relation(kind):
     return orm.relationship(
         "Dependency",
         primaryjoin=lambda: sql.and_(
-            Release.name == Dependency.name,
-            Release.version == Dependency.version,
-            Dependency.kind == kind.value,
+            Release.id == Dependency.release_id, Dependency.kind == kind.value
         ),
         viewonly=True,
     )
 
 
-class Release(db.ModelBase):
+class Description(db.Model):
+
+    __tablename__ = "release_descriptions"
+
+    content_type = Column(Text)
+    raw = Column(Text, nullable=False)
+    html = Column(Text, nullable=False)
+    rendered_by = Column(Text, nullable=False)
+
+
+class Release(db.Model):
 
     __tablename__ = "releases"
 
@@ -267,20 +279,19 @@ class Release(db.ModelBase):
     def __table_args__(cls):  # noqa
         return (
             Index("release_created_idx", cls.created.desc()),
-            Index("release_name_created_idx", cls.name, cls.created.desc()),
+            Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
         )
 
-    __repr__ = make_repr("name", "version")
+    __repr__ = make_repr("project", "version")
     __parent__ = dotted_navigator("project")
     __name__ = dotted_navigator("version")
 
-    name = Column(
-        Text,
-        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
-        primary_key=True,
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
     )
-    version = Column(Text, primary_key=True)
+    version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
     author = Column(Text)
@@ -290,7 +301,6 @@ class Release(db.ModelBase):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    description_content_type = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
@@ -300,14 +310,21 @@ class Release(db.ModelBase):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
 
-    # We defer this column because it is a very large column (it can be MB in
-    # size) and we very rarely actually want to access it. Typically we only
-    # need it when rendering the page for a single project, but many of our
-    # queries only need to access a few of the attributes of a Release. Instead
-    # of playing whack-a-mole and using load_only() or defer() on each of
-    # those queries, deferring this here makes the default case more
-    # performant.
-    description = orm.deferred(Column(Text))
+    description_id = Column(
+        ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    description = orm.relationship(
+        "Description",
+        backref=orm.backref(
+            "release",
+            cascade="all, delete-orphan",
+            passive_deletes=True,
+            passive_updates=True,
+            single_parent=True,
+            uselist=False,
+        ),
+    )
 
     _classifiers = orm.relationship(
         Classifier,
@@ -327,7 +344,12 @@ class Release(db.ModelBase):
         passive_deletes=True,
     )
 
-    dependencies = orm.relationship("Dependency")
+    dependencies = orm.relationship(
+        "Dependency",
+        backref="release",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     _requires = _dependency_relation(DependencyKind.requires)
     requires = association_proxy("_requires", "specifier")
@@ -353,27 +375,12 @@ class Release(db.ModelBase):
     _project_urls = _dependency_relation(DependencyKind.project_url)
     project_urls = association_proxy("_project_urls", "specifier")
 
-    uploader = orm.relationship(
-        "User",
-        secondary=lambda: JournalEntry.__table__,
-        primaryjoin=lambda: (
-            (JournalEntry.name == orm.foreign(Release.name))
-            & (JournalEntry.version == orm.foreign(Release.version))
-            & (JournalEntry.action == "new release")
-        ),
-        secondaryjoin=lambda: (
-            (User.username == orm.foreign(JournalEntry._submitted_by))
-        ),
-        order_by=lambda: JournalEntry.id.desc(),
-        # TODO: We have uselist=False here which raises a warning because
-        # multiple items were returned. This should only be temporary because
-        # we should add a nullable FK to JournalEntry so we don't need to rely
-        # on ordering and implicitly selecting the first object to make this
-        # happen,
-        uselist=False,
-        viewonly=True,
+    uploader_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
-
+    uploader = orm.relationship(User)
     uploaded_via = Column(Text)
 
     @property
@@ -424,20 +431,11 @@ class File(db.Model):
     @declared_attr
     def __table_args__(cls):  # noqa
         return (
-            ForeignKeyConstraint(
-                ["name", "version"],
-                ["releases.name", "releases.version"],
-                onupdate="CASCADE",
-                ondelete="CASCADE",
-            ),
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
-            Index("release_files_name_version_idx", "name", "version"),
-            Index("release_files_version_idx", "version"),
             Index(
                 "release_files_single_sdist",
-                "name",
-                "version",
+                "release_id",
                 "packagetype",
                 unique=True,
                 postgresql_where=(
@@ -445,10 +443,13 @@ class File(db.Model):
                     & (cls.allow_multiple_sdist == False)  # noqa
                 ),
             ),
+            Index("release_files_release_id_idx", "release_id"),
         )
 
-    name = Column(Text)
-    version = Column(Text)
+    release_id = Column(
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
     python_version = Column(Text)
     requires_python = Column(Text)
     packagetype = Column(
@@ -503,18 +504,14 @@ class Filename(db.ModelBase):
 release_classifiers = Table(
     "release_classifiers",
     db.metadata,
-    Column("name", Text()),
-    Column("version", Text()),
-    Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
-    ForeignKeyConstraint(
-        ["name", "version"],
-        ["releases.name", "releases.version"],
-        onupdate="CASCADE",
-        ondelete="CASCADE",
+    Column(
+        "release_id",
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
     ),
-    Index("rel_class_name_version_idx", "name", "version"),
+    Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
     Index("rel_class_trove_id_idx", "trove_id"),
-    Index("rel_class_version_id_idx", "version"),
+    Index("rel_class_release_id_idx", "release_id"),
 )
 
 
@@ -529,6 +526,7 @@ class JournalEntry(db.ModelBase):
             Index("journals_name_idx", "name"),
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
+            Index("journals_submitted_date_id_idx", cls.submitted_date, cls.id),
         )
 
     id = Column(Integer, primary_key=True, nullable=False)
@@ -539,9 +537,9 @@ class JournalEntry(db.ModelBase):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     _submitted_by = Column(
-        "submitted_by", CIText, ForeignKey("accounts_user.username", onupdate="CASCADE")
+        "submitted_by", CIText, ForeignKey("users.username", onupdate="CASCADE")
     )
-    submitted_by = orm.relationship(User)
+    submitted_by = orm.relationship(User, lazy="raise_on_sql")
     submitted_from = Column(Text)
 
 
@@ -562,7 +560,7 @@ class BlacklistedProject(db.Model):
     )
     name = Column(Text, unique=True, nullable=False)
     _blacklisted_by = Column(
-        "blacklisted_by", UUID(as_uuid=True), ForeignKey("accounts_user.id"), index=True
+        "blacklisted_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
     )
     blacklisted_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")

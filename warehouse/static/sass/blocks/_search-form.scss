@@ -31,10 +31,12 @@
 
 .search-form {
   position: relative;
+  max-width: 100%;
 
-  &__search {
+  input[type="text"].search-form__search {
     display: inline;
     padding-right: 28px;
+    min-width: auto;
   }
 
   &__button {
@@ -56,7 +58,7 @@
       display: none;
     }
 
-    .search-form__search {
+    input[type="text"].search-form__search {
       width: 400px;
 
       @media screen and (max-width: $desktop) {
@@ -66,25 +68,32 @@
   }
 
   &--large {
-    padding: 0 20px;
     width: 650px;
-    max-width: 100%;
     margin: 0 auto;
+    padding: 0 20px;
 
-    .search-form__search {
+    @media screen and (max-width: $mobile) {
+      padding: 0 5px;
+    }
+
+    input[type="text"].search-form__search {
       padding-right: 50px;
     }
 
     .search-form__button {
       height: 50px;
       width: 50px;
-      right: 20px;
       font-size: 20px;
+      right: 20px;
+
+      @media screen and (max-width: $mobile) {
+        right: 5px;
+      }
     }
   }
 
   &--fullwidth {
-    .search-form__search {
+    input[type="text"].search-form__search {
       width: 100%;
     }
   }

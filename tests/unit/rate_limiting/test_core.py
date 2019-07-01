@@ -12,13 +12,13 @@
 
 import datetime
 
-import redis
 import pretend
+import redis
 
 from limits import storage
 
 from warehouse import rate_limiting
-from warehouse.rate_limiting import RateLimiter, DummyRateLimiter, RateLimit
+from warehouse.rate_limiting import DummyRateLimiter, RateLimit, RateLimiter
 
 
 class TestRateLimiter:

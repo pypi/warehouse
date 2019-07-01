@@ -13,9 +13,9 @@
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
-from warehouse.tasks import task
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import JournalEntry
+from warehouse.tasks import task
 
 
 @task(bind=True, ignore_result=True, acks_late=True)

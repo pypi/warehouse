@@ -15,14 +15,15 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import func, or_
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Project, Release, Role, JournalEntry
+from warehouse.forklift.legacy import MAX_FILESIZE
+from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
-from warehouse.forklift.legacy import MAX_FILESIZE
 
 ONE_MB = 1024 * 1024  # bytes
 
@@ -30,7 +31,8 @@ ONE_MB = 1024 * 1024  # bytes
 @view_config(
     route_name="admin.project.list",
     renderer="admin/projects/list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def project_list(request):
@@ -41,7 +43,7 @@ def project_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    projects_query = request.db.query(Project).order_by(Project.name)
+    projects_query = request.db.query(Project).order_by(Project.normalized_name)
 
     if q:
         terms = shlex.split(q)
@@ -65,7 +67,17 @@ def project_list(request):
 @view_config(
     route_name="admin.project.detail",
     renderer="admin/projects/detail.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.project.detail",
+    renderer="admin/projects/detail.html",
     permission="admin",
+    request_method="POST",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -101,17 +113,34 @@ def project_detail(project, request):
         entry
         for entry in (
             request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
             .limit(30)
         )
     ]
 
+    squattees = (
+        request.db.query(Project)
+        .filter(Project.created < project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
+
+    squatters = (
+        request.db.query(Project)
+        .filter(Project.created > project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
+
     return {
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "squatters": squatters,
+        "squattees": squattees,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
     }
@@ -120,7 +149,8 @@ def project_detail(project, request):
 @view_config(
     route_name="admin.project.releases",
     renderer="admin/projects/releases_list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def releases_list(project, request):
@@ -168,13 +198,15 @@ def releases_list(project, request):
 @view_config(
     route_name="admin.project.release",
     renderer="admin/projects/release_detail.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def release_detail(release, request):
     journals = (
         request.db.query(JournalEntry)
-        .filter(JournalEntry.name == release.name)
+        .options(joinedload("submitted_by"))
+        .filter(JournalEntry.name == release.project.name)
         .filter(JournalEntry.version == release.version)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
@@ -185,7 +217,8 @@ def release_detail(release, request):
 @view_config(
     route_name="admin.project.journals",
     renderer="admin/projects/journals_list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def journals_list(project, request):
@@ -204,6 +237,7 @@ def journals_list(project, request):
 
     journals_query = (
         request.db.query(JournalEntry)
+        .options(joinedload("submitted_by"))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
     )
@@ -232,7 +266,7 @@ def journals_list(project, request):
 
 @view_config(
     route_name="admin.project.set_upload_limit",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -241,7 +275,7 @@ def set_upload_limit(project, request):
     upload_limit = request.POST.get("upload_limit", "")
 
     # Update the project's upload limit.
-    # If the upload limit is an empty string or othrwise falsy, just set the
+    # If the upload limit is an empty string or otherwise falsy, just set the
     # limit to None, indicating the default limit.
     if not upload_limit:
         upload_limit = None
@@ -363,7 +397,7 @@ def delete_role(project, request):
             )
         )
 
-    if not confirm or confirm != role.user_name:
+    if not confirm or confirm != role.user.username:
         request.session.flash("Confirm the request", queue="error")
         raise HTTPSeeOther(
             request.route_path(
@@ -372,13 +406,13 @@ def delete_role(project, request):
         )
 
     request.session.flash(
-        f"Removed '{role.user_name}' as '{role.role_name}' on '{project.name}'",
+        f"Removed '{role.user.username}' as '{role.role_name}' on '{project.name}'",
         queue="success",
     )
     request.db.add(
         JournalEntry(
             name=project.name,
-            action=f"remove {role.role_name} {role.user_name}",
+            action=f"remove {role.role_name} {role.user.username}",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )

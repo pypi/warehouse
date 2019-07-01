@@ -14,21 +14,24 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
+    Binary,
+    Boolean,
     CheckConstraint,
     Column,
+    DateTime,
     Enum,
     ForeignKey,
     Index,
-    UniqueConstraint,
-    Boolean,
-    DateTime,
     Integer,
     String,
+    UniqueConstraint,
+    orm,
+    select,
+    sql,
 )
-from sqlalchemy import orm, select, sql
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import db
 from warehouse.sitemap.models import SitemapMixin
@@ -53,12 +56,12 @@ class DisableReason(enum.Enum):
 
 class User(SitemapMixin, db.Model):
 
-    __tablename__ = "accounts_user"
+    __tablename__ = "users"
     __table_args__ = (
-        CheckConstraint("length(username) <= 50", name="packages_valid_name"),
+        CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
         CheckConstraint(
             "username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
-            name="accounts_user_valid_username",
+            name="users_valid_username",
         ),
     )
 
@@ -68,13 +71,20 @@ class User(SitemapMixin, db.Model):
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
     password_date = Column(DateTime, nullable=True, server_default=sql.func.now())
-    is_active = Column(Boolean, nullable=False)
-    is_superuser = Column(Boolean, nullable=False)
+    is_active = Column(Boolean, nullable=False, server_default=sql.false())
+    is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
+    is_moderator = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
+    )
+
+    totp_secret = Column(Binary(length=20), nullable=True)
+
+    webauthn = orm.relationship(
+        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=False
     )
 
     emails = orm.relationship(
@@ -100,6 +110,32 @@ class User(SitemapMixin, db.Model):
             .as_scalar()
         )
 
+    @property
+    def has_two_factor(self):
+        return self.totp_secret is not None or len(self.webauthn) > 0
+
+    @property
+    def two_factor_provisioning_allowed(self):
+        return self.primary_email is not None and self.primary_email.verified
+
+
+class WebAuthn(db.Model):
+    __tablename__ = "user_security_keys"
+    __table_args__ = (
+        UniqueConstraint("label", name="user_security_keys_label_key"),
+        Index("user_security_keys_label_key", "user_id"),
+    )
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    label = Column(String, nullable=False)
+    credential_id = Column(String, unique=True, nullable=False)
+    public_key = Column(String, unique=True, nullable=True)
+    sign_count = Column(Integer, default=0)
+
 
 class UnverifyReasons(enum.Enum):
 
@@ -110,16 +146,16 @@ class UnverifyReasons(enum.Enum):
 
 class Email(db.ModelBase):
 
-    __tablename__ = "accounts_email"
+    __tablename__ = "user_emails"
     __table_args__ = (
-        UniqueConstraint("email", name="accounts_email_email_key"),
-        Index("accounts_email_user_id", "user_id"),
+        UniqueConstraint("email", name="user_emails_email_key"),
+        Index("user_emails_user_id", "user_id"),
     )
 
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
     email = Column(String(length=254), nullable=False)

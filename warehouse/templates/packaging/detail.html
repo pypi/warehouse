@@ -18,7 +18,15 @@
 {% set parsed = url|urlparse %}
 
 {% if name|lower == "download" %}
-   {% set icon = "fa fa-cloud-download-alt" %}
+   {% set icon = "fas fa-cloud-download-alt" %}
+{% elif name|lower in ["home", "homepage", "home page"] %}
+  {% set icon = "fas fa-home" %}
+{% elif name.lower().startswith(("docs", "documentation")) or parsed.netloc in ["readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org"] or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")) or parsed.netloc.startswith(("docs.", "documentation.")) %}
+  {% set icon = "fas fa-book" %}
+{% elif name.lower().startswith(("bug", "issue", "tracker", "report")) %}
+  {% set icon = "fas fa-bug" %}
+{% elif name.lower().startswith(("funding", "donate", "donation")) %}
+  {% set icon = "fas fa-donate" %}
 {% elif parsed.netloc in ["github.com", "github.io"] or parsed.netloc.endswith((".github.com", ".github.io")) %}
   {% set icon = "fab fa-github" %}
 {% elif parsed.netloc == "gitlab.com" or parsed.netloc.endswith(".gitlab.com") %}
@@ -29,11 +37,9 @@
   {% set icon = "fab fa-google" %}
 {% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
   {% set icon = "fab fa-bitbucket" %}
-{% elif parsed.netloc in ["readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org"] or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")) %}
-  {% set icon = "fas fa-book" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
   {% set icon = "fab fa-reddit-alien" %}
-{% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
+{% elif name.lower().startswith("slack") or parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
   {% set icon = "fab fa-slack" %}
 {% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "fab fa-twitter" %}
@@ -43,10 +49,8 @@
   {% set icon = "fas fa-cube" %}
 {% elif parsed.netloc == "python.org" or parsed.netloc.endswith(".python.org") %}
   {% set icon = "fab fa-python" %}
-{% elif name|lower == "home" or name|lower == "homepage" or name|lower == "home page" %}
-  {% set icon = "fa fa-home" %}
 {% else %}
-  {% set icon = "fa fa-external-link-square-alt" %}
+  {% set icon = "fas fa-external-link-square-alt" %}
 {% endif %}
 
 <i class="{{ icon }}" aria-hidden="true"></i>
@@ -64,6 +68,19 @@
 </a>
 {%- endmacro %}
 
+
+{%- macro pip_command(release, request_route, test_environment) -%}
+  {%- if test_environment -%}
+    {% set index_url = " -i https://test.pypi.org/simple/" %}
+  {%- endif -%}
+
+  {%- if request_route == "packaging.release" -%}
+    {% set project_version = "==" + release.version %}
+  {%- endif -%}
+
+  pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+{%- endmacro -%}
+
 {% block title %}{{ release.project.name }}{% endblock %}
 
 {% block description %}{{ release.summary }}{% endblock %}
@@ -79,13 +96,8 @@
       </h1>
 
       {% if files %}
-        {% if request.matched_route.name == "packaging.release" %}
-          {% set pip_command = "pip install {release.project.name}=={release.version}".format(release=release) %}
-        {% else %}
-          {% set pip_command = "pip install {release.project.name}".format(release=release) %}
-        {% endif %}
       <p class="package-header__pip-instructions">
-        <span id="pip-command">{{ pip_command }}</span>
+        <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
         <button class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
           <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">Copy PIP instructions<span>
@@ -225,7 +237,9 @@
                 <p class="release__version">
                   {{ hversion.version }} {% if hversion.is_prerelease %}<span class="badge badge--warning release__version-badge">pre-release</span>{% endif %}
                 </p>
-                <p class="release__version-date">{{ humanize(hversion.created) }}</p>
+                <p class="release__version-date">
+                  {{ localize(hversion.created) }}
+                </p>
               </a>
             </div>
             {% endfor %}
@@ -236,14 +250,14 @@
           {# Tab: Downloads #}
           <div id="files" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab">
             <h2 class="page-title">Download files</h2>
-            <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/">installing packages</a>.</p>
+            <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">installing packages</a>.</p>
 
             <table class="table table--downloads">
               <thead>
                 <tr>
                   <th class="table__filename">
                     Filename, size &amp; hash
-                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?" target="_blank">
+                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" target="_blank" rel="noopener" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>
                       <span class="sr-only">SHA256 hash help</span>
                     </a>
@@ -277,7 +291,7 @@
                       None
                     {% endif %}
                   </td>
-                  <td>{{ file.upload_time|format_date() }}</td>
+                  <td>{{ localize(file.upload_time) }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

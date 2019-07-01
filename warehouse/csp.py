@@ -13,7 +13,6 @@
 import collections
 import copy
 
-
 SELF = "'self'"
 NONE = "'none'"
 

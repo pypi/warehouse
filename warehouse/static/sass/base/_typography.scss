@@ -106,18 +106,62 @@ strong {
 }
 
 a {
-  color: $primary-color;
   text-decoration: none;
+  background-position: 0 1.15em;
+  background-repeat: repeat-x;
+  background-size: 100% 1.5px;
+  @include primary-underlined-link;
+  @include link-focus;
 
-  &:hover {
-    color: darken($primary-color, 10);
-    text-decoration: underline;
+  // Add 'external link' icon to most external links
+  &[target="_blank"]:not(.tooltipped):not(.sponsors__sponsor) {
+    &::after {
+      white-space: nowrap;
+      font-size: 80%;
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      content: "\f35d";
+      margin: 0 0 0 4px;
+      color: inherit;
+      position: relative;
+      top: -1px;
+    }
   }
 
-  @include link-focus(underline);
+  // Add 'email' icon to email links
+  &[href^="mailto:"] {
+    &::after {
+      font-size: 90%;
+      font-family: "Font Awesome 5 Free";
+      font-weight: 400;
+      content: "\f0e0";
+      color: inherit;
+      margin: 0 0 0 4px;
+      position: relative;
+      top: 0.5px;
+    }
+  }
+
+  // Handle badges and code in links nicely
+  .badge {
+    position: relative;
+    top: -1px;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp,
+  tt {
+    font-size: 70%;
+    position: relative;
+    top: -2px;
+    padding: 0 2px;
+  }
 }
 
 button {
+  @include link-without-underline;
   @include link-focus;
 }
 

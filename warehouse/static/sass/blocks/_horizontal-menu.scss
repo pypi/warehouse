@@ -29,6 +29,7 @@
     text-decoration: none;
     display: inline-block;
     padding: 8px 10px;
+    @include link-without-underline;
 
     &--with-icon {
       .fa {
@@ -51,7 +52,7 @@
         text-decoration-color: $transparent-white;
       }
 
-      @include link-focus(underline);
+      @include link-focus;
     }
   }
 

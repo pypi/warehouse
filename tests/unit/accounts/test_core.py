@@ -18,18 +18,18 @@ import pytest
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
-    IUserService,
-    ITokenService,
     IPasswordBreachedService,
-)
-from warehouse.accounts.services import (
-    TokenServiceFactory,
-    HaveIBeenPwnedPasswordBreachedService,
-    database_login_factory,
+    ITokenService,
+    IUserService,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.services import (
+    HaveIBeenPwnedPasswordBreachedService,
+    TokenServiceFactory,
+    database_login_factory,
+)
 from warehouse.errors import BasicAuthBreachedPassword
-from warehouse.rate_limiting import RateLimit, IRateLimiter
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 class TestLogin:
@@ -164,7 +164,9 @@ class TestLogin:
         self, monkeypatch, pyramid_request, pyramid_services
     ):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(accounts, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(
+            accounts, "send_password_compromised_email_hibp", send_email
+        )
 
         user = pretend.stub(id=2)
         service = pretend.stub(
@@ -207,10 +209,16 @@ class TestLogin:
 
 class TestAuthenticate:
     @pytest.mark.parametrize(
-        ("is_superuser", "expected"), [(False, []), (True, ["group:admins"])]
+        ("is_superuser", "is_moderator", "expected"),
+        [
+            (False, False, []),
+            (True, False, ["group:admins", "group:moderators"]),
+            (False, True, ["group:moderators"]),
+            (True, True, ["group:admins", "group:moderators"]),
+        ],
     )
-    def test_with_user(self, is_superuser, expected):
-        user = pretend.stub(is_superuser=is_superuser)
+    def test_with_user(self, is_superuser, is_moderator, expected):
+        user = pretend.stub(is_superuser=is_superuser, is_moderator=is_moderator)
         service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
         request = pretend.stub(find_service=lambda iface, context: service)
 
@@ -285,6 +293,9 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="password"), ITokenService, name="password"
         ),
         pretend.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
+        pretend.call(
+            TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
+        ),
         pretend.call(
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,

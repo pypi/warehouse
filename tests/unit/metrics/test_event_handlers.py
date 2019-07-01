@@ -17,13 +17,13 @@ import pretend
 import pytest
 
 from warehouse.metrics.event_handlers import (
-    time_ms,
-    on_new_request,
+    on_before_render,
+    on_before_retry,
     on_before_traversal,
     on_context_found,
-    on_before_render,
+    on_new_request,
     on_new_response,
-    on_before_retry,
+    time_ms,
 )
 
 

@@ -40,6 +40,10 @@
       margin-right: 5px;
       color: $danger-color;
     }
+
+    a {
+      @include danger-underlined-link;
+    }
   }
 
   &--full-width {

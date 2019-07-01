@@ -31,16 +31,14 @@
   display: block;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;
-  // Use png fallback
-  background: $white url("../images/white-cube.png") no-repeat 0 50%;
-  // Or svg if the browser supports it
-  background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
-  background-position: 20px;
 
-  @media screen and (max-width: $mobile) {
-    margin: 5px 0 ($spacing-unit / 2);
-    padding: 10px;
-    background-image: none;
+  &,
+  &:hover {
+    // Use png fallback
+    background: $white url("../images/white-cube.png") no-repeat 0 50%;
+    // Or svg if the browser supports it
+    background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
+    background-position: 20px;
   }
 
   &__title {
@@ -63,20 +61,36 @@
   }
 
   &__version {
-    color: $text-color;
     font-weight: $bold-font-weight;
+  }
+
+  &__released {
+    font-size: 1rem;
+    font-weight: $base-font-weight;
+    float: right;
+    color: $text-color;
+
+    @media only screen and (max-width: $tablet) {
+      float: none;
+      display: block;
+    }
   }
 
   &__description {
     @include add-ellipsis;
     clear: both;
-    color: $text-color;
     font-size: 1rem;
-    font-style: italic;
+    color: $text-color;
+  }
+
+  &__sole-owner-badge {
+    margin-left: 4px;
+    position: relative;
+    top: -1px;
   }
 
   &__buttons {
-    width: 165px;
+    width: 170px;
 
     .button {
       display: inline-block;

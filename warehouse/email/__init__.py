@@ -164,6 +164,11 @@ def send_password_compromised_email(request, user):
     return {}
 
 
+@_email("password-compromised-hibp", allow_unverified=True)
+def send_password_compromised_email_hibp(request, user):
+    return {}
+
+
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}

@@ -52,9 +52,9 @@ default:
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.6 virtual environment
+	# Create our Python 3.7 virtual environment
 	rm -rf .state/env
-	python3.6 -m venv .state/env
+	python3.7 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -71,23 +71,25 @@ endif
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
-	docker-compose build worker
-	docker-compose build static
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
+	docker-compose build --force-rm worker
+	docker-compose build --force-rm static
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
 	touch .state/docker-build
 
 build:
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
-	docker-compose build worker
-	docker-compose build static
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
+	docker-compose build --force-rm worker
+	docker-compose build --force-rm static
 
 	# Mark this state so that the other target will known it's recently been
 	# rebuilt.
 	mkdir -p .state
 	touch .state/docker-build
+
+	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
 serve: .state/docker-build
 	docker-compose up --remove-orphans
@@ -102,11 +104,13 @@ tests:
 
 
 reformat: .state/env/pyvenv.cfg
+	$(BINDIR)/isort -rc warehouse/ tests/
 	$(BINDIR)/black warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
 	$(BINDIR)/black --check warehouse/ tests/
+	$(BINDIR)/isort -rc -c warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.

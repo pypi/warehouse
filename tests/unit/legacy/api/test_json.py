@@ -21,10 +21,11 @@ from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    ProjectFactory,
-    ReleaseFactory,
+    DescriptionFactory,
     FileFactory,
     JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
 )
 
 
@@ -187,15 +188,16 @@ class TestJSONRelease:
             ReleaseFactory.create(
                 project=project,
                 version="3.0",
-                description_content_type=description_content_type,
+                description=DescriptionFactory.create(
+                    content_type=description_content_type
+                ),
             )
         ]
 
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=releases[3].project.name,
-                    version="3.0",
+                    release=releases[3],
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )
@@ -240,7 +242,7 @@ class TestJSONRelease:
                 "bugtrack_url": None,
                 "classifiers": [],
                 "description_content_type": description_content_type,
-                "description": None,
+                "description": releases[-1].description.raw,
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
                 "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
@@ -385,8 +387,8 @@ class TestJSONRelease:
                 "author_email": None,
                 "bugtrack_url": None,
                 "classifiers": [],
-                "description_content_type": None,
-                "description": None,
+                "description_content_type": release.description.content_type,
+                "description": release.description.raw,
                 "docs_url": None,
                 "download_url": None,
                 "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
@@ -460,7 +462,9 @@ class TestJSONReleaseSlash:
         assert isinstance(resp, HTTPMovedPermanently)
         assert db_request.route_path.calls == [
             pretend.call(
-                "legacy.api.json.release", name=release.name, version=release.version
+                "legacy.api.json.release",
+                name=release.project.name,
+                version=release.version,
             )
         ]
         assert resp.headers["Location"] == "/project/the-redirect"

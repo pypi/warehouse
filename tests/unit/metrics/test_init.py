@@ -12,15 +12,16 @@
 
 import pretend
 
-from pyramid import events
+from pyramid import events, viewderivers
 from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import (
-    includeme,
-    NullMetrics,
     DataDogMetrics,
     IMetricsService,
+    NullMetrics,
     event_handlers,
+    includeme,
+    views,
 )
 
 
@@ -30,6 +31,7 @@ def test_include_defaults_to_null():
         maybe_dotted=lambda i: i,
         register_service_factory=pretend.call_recorder(lambda factory, iface: None),
         add_subscriber=pretend.call_recorder(lambda handler, event: None),
+        add_view_deriver=pretend.call_recorder(lambda deriver, under: None),
     )
     includeme(config)
 
@@ -44,6 +46,9 @@ def test_include_defaults_to_null():
         pretend.call(event_handlers.on_new_response, events.NewResponse),
         pretend.call(event_handlers.on_before_retry, IBeforeRetry),
     ]
+    assert config.add_view_deriver.calls == [
+        pretend.call(views.timing_view, under=viewderivers.INGRESS)
+    ]
 
 
 def test_include_sets_class():
@@ -56,6 +61,7 @@ def test_include_sets_class():
         ],
         register_service_factory=pretend.call_recorder(lambda factory, iface: None),
         add_subscriber=pretend.call_recorder(lambda handler, event: None),
+        add_view_deriver=pretend.call_recorder(lambda deriver, under: None),
     )
     includeme(config)
 
@@ -69,4 +75,7 @@ def test_include_sets_class():
         pretend.call(event_handlers.on_before_render, events.BeforeRender),
         pretend.call(event_handlers.on_new_response, events.NewResponse),
         pretend.call(event_handlers.on_before_retry, IBeforeRetry),
+    ]
+    assert config.add_view_deriver.calls == [
+        pretend.call(views.timing_view, under=viewderivers.INGRESS)
     ]

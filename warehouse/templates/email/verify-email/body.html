@@ -19,7 +19,7 @@
 
 <p>If you wish to proceed with this request, <a href="{{ request.route_url('accounts.verify-email', _query={'token': token}) }}">click this link to verify your email address</a></p>
 
-<p>This link will expire in <em>{{ n_hours }}</em> hours.</p>
+<p>This link will expire in {{ n_hours }} hours.</p>
 
 <p>If you did not make this request, you can safely ignore this email.</p>
 {% endblock %}

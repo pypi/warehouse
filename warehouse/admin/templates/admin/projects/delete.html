@@ -35,13 +35,13 @@
         <label for="confirm_project_name">
           Are you sure you want to delete <strong>{{ project_name }}</strong>?
         </label>
-        <input name="confirm_project_name" class="form-control" type="text" placeholder="Enter project name to confirm" autocomplete="off" autocorrect="off" autocapitalize="off">
+        <input name="confirm_project_name" class="form-control" type="text" placeholder="Enter project name to confirm" {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off">
       </div>
 
     </div>
     <div class="box-footer">
       <div class="pull-right">
-        <button type="submit" class="btn btn-primary">Confirm</button>
+        <button type="submit" class="btn btn-primary" title="{{ "Deleting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Confirm</button>
       </div>
     </div>
   </div>

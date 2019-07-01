@@ -18,7 +18,7 @@ import botocore.exceptions
 
 from zope.interface import implementer
 
-from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 
 
 class InsecureStorageWarning(UserWarning):
