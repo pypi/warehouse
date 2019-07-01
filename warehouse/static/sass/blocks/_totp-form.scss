@@ -16,12 +16,17 @@
   TOTP qr code and form, found on the TOTP provisioning page:
 
   <div class="totp-form">
-    <div class="totp-form__qr">
-      // QR code here
+    <div>
+      <div class="totp-form__qr">
+        // QR code here
+      </div>
+      <div class="totp-form__manual-code">
+        // code for manual entry here
+      </div>
     </div>
-    <div class="totp-form__form">
+    <form class="totp-form__form">
       // form here
-    </div>
+    </form>
   </div>
 */
 
@@ -31,6 +36,18 @@
 
   &__qr {
     border: 1px solid $border-color;
+    margin-bottom: $spacing-unit;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  &__manual-code {
+    code {
+      display: inline-block;
+      margin: 0 5px 5px 0;
+    }
   }
 
   &__form {

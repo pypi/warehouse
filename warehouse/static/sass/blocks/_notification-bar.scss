@@ -82,10 +82,8 @@
     @include h3;
 
     a {
-      color: $white;
-      text-decoration: underline;
-
-      @include link-focus(underline);
+      @include white-underlined-link;
+      @include link-focus;
     }
   }
 
@@ -118,7 +116,7 @@
     border-color: darken($primary-color, 10);
 
     a {
-      color: $warn-text;
+      @include colored-link($warn-text);
     }
   }
 

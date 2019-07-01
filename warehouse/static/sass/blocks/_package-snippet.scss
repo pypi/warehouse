@@ -31,11 +31,15 @@
   display: block;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;
-  // Use png fallback
-  background: $white url("../images/white-cube.png") no-repeat 0 50%;
-  // Or svg if the browser supports it
-  background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
-  background-position: 20px;
+
+  &,
+  &:hover {
+    // Use png fallback
+    background: $white url("../images/white-cube.png") no-repeat 0 50%;
+    // Or svg if the browser supports it
+    background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
+    background-position: 20px;
+  }
 
   &__title {
     @include add-ellipsis;
