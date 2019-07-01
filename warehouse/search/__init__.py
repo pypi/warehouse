@@ -19,8 +19,8 @@ from celery.schedules import crontab
 from elasticsearch_dsl import serializer
 
 from warehouse import db
-from warehouse.search.utils import get_index
 from warehouse.packaging.models import Project, Release
+from warehouse.search.utils import get_index
 
 
 @db.listens_for(db.Session, "after_flush")

@@ -16,31 +16,31 @@ import elasticsearch
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPServiceUnavailable
 from webob.multidict import MultiDict
-
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServiceUnavailable
 
 from warehouse import views
 from warehouse.views import (
     classifiers,
     current_user_indicator,
+    flash_messages,
     forbidden,
+    forbidden_include,
+    force_status,
     health,
     httpexception_view,
     index,
-    robotstxt,
     opensearchxml,
+    robotstxt,
     search,
-    stats,
-    force_status,
-    flash_messages,
-    forbidden_include,
     service_unavailable,
+    session_notifications,
+    stats,
 )
 
 from ..common.db.accounts import UserFactory
 from ..common.db.classifiers import ClassifierFactory
-from ..common.db.packaging import ProjectFactory, ReleaseFactory, FileFactory
+from ..common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 class TestHTTPExceptionView:
@@ -207,6 +207,10 @@ def test_esi_current_user_indicator():
 
 def test_esi_flash_messages():
     assert flash_messages(pretend.stub()) == {}
+
+
+def test_esi_session_notifiactions():
+    assert session_notifications(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -410,6 +414,7 @@ class TestSearch:
         es_query = pretend.stub(
             suggest=pretend.call_recorder(lambda *a, **kw: es_query),
             filter=pretend.call_recorder(lambda *a, **kw: es_query),
+            query=pretend.call_recorder(lambda *a, **kw: es_query),
             sort=pretend.call_recorder(lambda *a, **kw: es_query),
         )
         db_request.es = pretend.stub(
@@ -441,7 +446,12 @@ class TestSearch:
             "order": params.get("o", ""),
             "applied_filters": params.getall("c"),
             "available_filters": [
-                ("foo", [classifier1.classifier, classifier2.classifier])
+                {
+                    "foo": {
+                        classifier1.classifier.split(" :: ")[1]: {},
+                        classifier2.classifier.split(" :: ")[1]: {},
+                    }
+                }
             ],
         }
         assert ("fiz", [classifier3.classifier]) not in search_view["available_filters"]
@@ -455,9 +465,9 @@ class TestSearch:
         assert es_query.suggest.calls == [
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
-        assert es_query.filter.calls == [
-            pretend.call("terms", classifiers=["foo :: bar"]),
-            pretend.call("terms", classifiers=["fiz :: buz"]),
+        assert es_query.query.calls == [
+            pretend.call("prefix", classifiers="foo :: bar"),
+            pretend.call("prefix", classifiers="fiz :: buz"),
         ]
         assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
@@ -575,7 +585,6 @@ def test_classifiers(db_request):
 
 
 def test_stats(db_request):
-
     project = ProjectFactory.create()
     release1 = ReleaseFactory.create(project=project)
     release1.created = datetime.date(2011, 1, 1)
@@ -585,7 +594,6 @@ def test_stats(db_request):
         python_version="source",
         size=69,
     )
-
     assert stats(db_request) == {
         "total_packages_size": 69,
         "top_packages": {project.name: {"size": 69}},

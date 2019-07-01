@@ -10,13 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid import events
+from pyramid import events, viewderivers
 from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import event_handlers
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.metrics.services import NullMetrics, DataDogMetrics
-
+from warehouse.metrics.services import DataDogMetrics, NullMetrics
+from warehouse.metrics.views import timing_view
 
 __all__ = ["IMetricsService", "NullMetrics", "DataDogMetrics", "includeme"]
 
@@ -35,3 +35,6 @@ def includeme(config):
     config.add_subscriber(event_handlers.on_before_render, events.BeforeRender)
     config.add_subscriber(event_handlers.on_new_response, events.NewResponse)
     config.add_subscriber(event_handlers.on_before_retry, IBeforeRetry)
+
+    # Register our view deriver that ensures we get our view timed.
+    config.add_view_deriver(timing_view, under=viewderivers.INGRESS)

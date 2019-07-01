@@ -21,11 +21,11 @@ from warehouse.packaging.models import Classifier
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
+    FileFactory,
+    JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
-    JournalEntryFactory,
 )
 
 
@@ -605,7 +605,7 @@ def test_release_data(db_request):
         "maintainer": release.maintainer,
         "maintainer_email": release.maintainer_email,
         "summary": release.summary,
-        "description": release.description,
+        "description": release.description.raw,
         "license": release.license,
         "keywords": release.keywords,
         "platform": release.platform,
@@ -785,7 +785,7 @@ def test_browse(db_request):
     expected_release._classifiers = classifiers
 
     assert set(xmlrpc.browse(db_request, ["Environment :: Other Environment"])) == {
-        (r.name, r.version) for r in releases
+        (r.project.name, r.version) for r in releases
     }
     assert set(
         xmlrpc.browse(
@@ -795,7 +795,7 @@ def test_browse(db_request):
                 "Development Status :: 5 - Production/Stable",
             ],
         )
-    ) == {(expected_release.name, expected_release.version)}
+    ) == {(expected_release.project.name, expected_release.version)}
     assert set(
         xmlrpc.browse(
             db_request,
@@ -805,7 +805,7 @@ def test_browse(db_request):
                 "Programming Language :: Python",
             ],
         )
-    ) == {(expected_release.name, expected_release.version)}
+    ) == {(expected_release.project.name, expected_release.version)}
     assert set(
         xmlrpc.browse(
             db_request,
@@ -814,7 +814,7 @@ def test_browse(db_request):
                 "Programming Language :: Python",
             ],
         )
-    ) == {(expected_release.name, expected_release.version)}
+    ) == {(expected_release.project.name, expected_release.version)}
 
 
 def test_multicall(pyramid_request):
@@ -825,3 +825,10 @@ def test_multicall(pyramid_request):
         "ValueError: MultiCall requests have been deprecated, use individual "
         "requests instead."
     )
+
+
+@pytest.mark.parametrize(
+    "string, expected", [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
+)
+def test_clean_for_xml(string, expected):
+    assert xmlrpc._clean_for_xml(string) == expected

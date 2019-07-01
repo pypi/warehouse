@@ -17,13 +17,12 @@ import os.path
 import re
 import tempfile
 import zipfile
-from cgi import parse_header
 
-from cgi import FieldStorage
+from cgi import FieldStorage, parse_header
 from itertools import chain
 
-import packaging.specifiers
 import packaging.requirements
+import packaging.specifiers
 import packaging.utils
 import packaging.version
 import pkg_resources
@@ -39,21 +38,22 @@ from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
-    Project,
-    Release,
+    BlacklistedProject,
     Dependency,
     DependencyKind,
-    Role,
+    Description,
     File,
     Filename,
     JournalEntry,
-    BlacklistedProject,
+    Project,
+    Release,
+    Role,
 )
-from warehouse.utils import http
-
+from warehouse.utils import http, readme
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024  # 8K
@@ -104,7 +104,7 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_10_(\d+)+_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
@@ -225,7 +225,10 @@ def _validate_legacy_non_dist_req(requirement):
             "Can't direct dependency: {!r}".format(requirement)
         )
 
-    if not req.name.isalnum() or req.name[0].isdigit():
+    if any(
+        not identifier.isalnum() or identifier[0].isdigit()
+        for identifier in req.name.split(".")
+    ):
         raise wtforms.validators.ValidationError("Use a valid Python identifier.")
 
 
@@ -715,7 +718,7 @@ def file_upload(request):
         )
 
     # Ensure that user has a verified, primary email address. This should both
-    # reduce the ease of spam account creation and activty, as well as act as
+    # reduce the ease of spam account creation and activity, as well as act as
     # a forcing function for https://github.com/pypa/warehouse/issues/3632.
     # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
     #       we might consider a different condition, possibly looking at
@@ -863,10 +866,29 @@ def file_upload(request):
                 ),
             ) from None
 
-        # The project doesn't exist in our database, so we'll add it along with
-        # a role setting the current user as the "Owner" of the project.
+        # The project doesn't exist in our database, so first we'll check for
+        # projects with a similar name
+        squattees = (
+            request.db.query(Project)
+            .filter(
+                func.levenshtein(
+                    Project.normalized_name, func.normalize_pep426_name(form.name.data)
+                )
+                <= 2
+            )
+            .all()
+        )
+
+        # Next we'll create the project
         project = Project(name=form.name.data)
         request.db.add(project)
+
+        # Now that the project exists, add any squats which it is the squatter for
+        for squattee in squattees:
+            request.db.add(Squat(squatter=project, squattee=squattee))
+
+        # Then we'll add a role setting the current user as the "Owner" of the
+        # project.
         request.db.add(Role(user=request.user, project=project, role_name="Owner"))
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -904,35 +926,43 @@ def file_upload(request):
             ),
         )
 
-    # Uploading should prevent broken rendered descriptions.
-    # Temporarily disabled, see
-    # https://github.com/pypa/warehouse/issues/4079
-    # if form.description.data:
-    #     description_content_type = form.description_content_type.data
-    #     if not description_content_type:
-    #         description_content_type = "text/x-rst"
-    #     rendered = readme.render(
-    #         form.description.data, description_content_type, use_fallback=False
-    #     )
+    # Update name if it differs but is still equivalent. We don't need to check if
+    # they are equivalent when normalized because that's already been done when we
+    # queried for the project.
+    if project.name != form.name.data:
+        project.name = form.name.data
 
-    #     if rendered is None:
-    #         if form.description_content_type.data:
-    #             message = (
-    #                 "The description failed to render "
-    #                 "for '{description_content_type}'."
-    #             ).format(description_content_type=description_content_type)
-    #         else:
-    #             message = (
-    #                 "The description failed to render "
-    #                 "in the default format of reStructuredText."
-    #             )
-    #         raise _exc_with_message(
-    #             HTTPBadRequest,
-    #             "{message} See {projecthelp} for more information.".format(
-    #                 message=message,
-    #                 projecthelp=request.help_url(_anchor="description-content-type"),
-    #             ),
-    #         ) from None
+    # Render our description so we can save from having to render this data every time
+    # we load a project description page.
+    rendered = None
+    if form.description.data:
+        description_content_type = form.description_content_type.data
+        if not description_content_type:
+            description_content_type = "text/x-rst"
+
+        rendered = readme.render(
+            form.description.data, description_content_type, use_fallback=False
+        )
+
+        # Uploading should prevent broken rendered descriptions.
+        if rendered is None:
+            if form.description_content_type.data:
+                message = (
+                    "The description failed to render "
+                    "for '{description_content_type}'."
+                ).format(description_content_type=description_content_type)
+            else:
+                message = (
+                    "The description failed to render "
+                    "in the default format of reStructuredText."
+                )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "{message} See {projecthelp} for more information.".format(
+                    message=message,
+                    projecthelp=request.help_url(_anchor="description-content-type"),
+                ),
+            ) from None
 
     try:
         canonical_version = packaging.utils.canonicalize_version(form.version.data)
@@ -977,6 +1007,12 @@ def file_upload(request):
                 )
             ),
             canonical_version=canonical_version,
+            description=Description(
+                content_type=form.description_content_type.data,
+                raw=form.description.data or "",
+                html=rendered or "",
+                rendered_by=readme.renderer_version(),
+            ),
             **{
                 k: getattr(form, k).data
                 for k in {
@@ -984,8 +1020,6 @@ def file_upload(request):
                     # should pull off and insert into our new release.
                     "version",
                     "summary",
-                    "description",
-                    "description_content_type",
                     "license",
                     "author",
                     "author_email",
@@ -998,6 +1032,7 @@ def file_upload(request):
                     "requires_python",
                 }
             },
+            uploader=request.user,
             uploaded_via=request.user_agent,
         )
         request.db.add(release)

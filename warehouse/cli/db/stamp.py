@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import db, alembic_lock
+from warehouse.cli.db import alembic_lock, db
 
 
 @db.command()

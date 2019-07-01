@@ -10,15 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import disposable_email_domains
+import jinja2
 import wtforms
 import wtforms.fields.html5
-import jinja2
+
+import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
-from warehouse.email import send_password_compromised_email
+from warehouse.email import send_password_compromised_email_hibp
+from warehouse.utils.otp import TOTP_LENGTH
 
 
 class UsernameMixin:
@@ -30,6 +35,24 @@ class UsernameMixin:
 
         if userid is None:
             raise wtforms.validators.ValidationError("No user found with that username")
+
+
+class TOTPValueMixin:
+
+    totp_value = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                rf"^[0-9]{{{TOTP_LENGTH}}}$",
+                message=f"TOTP code must be {TOTP_LENGTH} digits.",
+            ),
+        ]
+    )
+
+
+class WebAuthnCredentialMixin:
+
+    credential = wtforms.StringField(wtforms.validators.DataRequired())
 
 
 class NewUsernameMixin:
@@ -133,23 +156,31 @@ class NewEmailMixin:
     email = wtforms.fields.html5.EmailField(
         validators=[
             wtforms.validators.DataRequired(),
-            wtforms.validators.Email(
-                message=("The email address isn't valid. Try again.")
+            wtforms.validators.Regexp(
+                r".+@.+\..+", message=("The email address isn't valid. Try again.")
             ),
         ]
     )
 
     def validate_email(self, field):
-        if self.user_service.find_userid_by_email(field.data) is not None:
+        userid = self.user_service.find_userid_by_email(field.data)
+
+        if userid and userid == self.user_id:
             raise wtforms.validators.ValidationError(
-                "This email address is already being used by another account. "
-                "Use a different email."
+                f"This email address is already being used by this account. "
+                f"Use a different email."
             )
+        if userid:
+            raise wtforms.validators.ValidationError(
+                f"This email address is already being used by another account. "
+                f"Use a different email."
+            )
+
         domain = field.data.split("@")[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "You can't create an account with an email address "
-                "from this domain. Use a different email."
+                "You can't use an email address from this domain. Use a "
+                "different email."
             )
 
 
@@ -179,6 +210,7 @@ class RegistrationForm(
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.user_id = None
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
@@ -210,13 +242,61 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 field.data, tags=["method:auth", "auth_method:login_form"]
             ):
                 user = self.user_service.get_user(userid)
-                send_password_compromised_email(self.request, user)
+                send_password_compromised_email_hibp(self.request, user)
                 self.user_service.disable_password(
                     user.id, reason=DisableReason.CompromisedPassword
                 )
                 raise wtforms.validators.ValidationError(
                     jinja2.Markup(self.breach_service.failure_message)
                 )
+
+
+class _TwoFactorAuthenticationForm(forms.Form):
+    def __init__(self, *args, user_id, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.user_service = user_service
+
+
+class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
+    def validate_totp_value(self, field):
+        totp_value = field.data.encode("utf8")
+        if not self.user_service.check_totp_value(self.user_id, totp_value):
+            raise wtforms.validators.ValidationError("Invalid TOTP code.")
+
+
+class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticationForm):
+    __params__ = ["credential"]
+
+    def __init__(self, *args, challenge, origin, icon_url, rp_id, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.challenge = challenge
+        self.origin = origin
+        self.icon_url = icon_url
+        self.rp_id = rp_id
+
+    def validate_credential(self, field):
+        try:
+            assertion_dict = json.loads(field.data.encode("utf8"))
+        except json.JSONDecodeError:
+            raise wtforms.validators.ValidationError(
+                f"Invalid WebAuthn assertion: Bad payload"
+            )
+
+        try:
+            validated_credential = self.user_service.verify_webauthn_assertion(
+                self.user_id,
+                assertion_dict,
+                challenge=self.challenge,
+                origin=self.origin,
+                icon_url=self.icon_url,
+                rp_id=self.rp_id,
+            )
+
+        except webauthn.AuthenticationRejectedException as e:
+            raise wtforms.validators.ValidationError(str(e))
+
+        self.validated_credential = validated_credential
 
 
 class RequestPasswordResetForm(forms.Form):

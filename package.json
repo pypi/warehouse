@@ -2,10 +2,11 @@
   "repository": "pypa/warehouse",
   "license": "Apache-2.0",
   "engines": {
-    "node": "8.9.4"
+    "node": "8.15.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.1.1",
+    "@stimulus/polyfills": "1.1.1",
     "babel-core": "6.26.0",
     "babel-loader": "7.1.2",
     "babel-plugin-transform-class-properties": "6.24.1",
@@ -14,38 +15,38 @@
     "babel-register": "6.26.0",
     "clipboard": "1.7.1",
     "cookie": "0.3.1",
+    "cssnano": "^4.1.10",
+    "date-fns": "^1.29.0",
     "debounce": "^1.1.0",
     "del": "3.0.0",
-    "element-closest": "^2.0.2",
     "enter-view": "0.1.0",
     "exports-loader": "0.6.4",
     "gulp": "^4.0.0",
     "gulp-brotli": "1.2.1",
     "gulp-concat": "2.6.1",
-    "gulp-cssnano": "2.1.2",
     "gulp-gzip": "1.4.0",
-    "gulp-image": "^4.3.0",
+    "gulp-image": "^4.4.1",
+    "gulp-postcss": "^8.0.0",
     "gulp-rev-all": "^0.9.8",
     "gulp-rev-napkin": "0.1.0",
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "2.6.1",
     "gulp-uglify": "3.0.0",
     "imports-loader": "0.7.1",
-    "jquery": "^3.3.1",
-    "mutation-observer-inner-html-shim": "^1.0.0",
-    "stimulus": "1.0.1",
+    "jquery": ">=3.4.0",
+    "stimulus": "1.1.1",
     "uglify-js": "3.2.1",
     "vinyl-named": "1.1.0",
     "webpack": "3.10.0",
     "webpack-stream": "4.0.0",
     "whatwg-fetch": "2.0.3",
     "youtube-iframe": "1.0.3",
-    "zopflipng-bin": "^4.1.0"
+    "zopflipng-bin": "^5.0.0"
   },
   "devDependencies": {
     "babel-eslint": "8.2.2",
-    "eslint": "4.12.1",
-    "sass-lint": "1.12.1"
+    "eslint": "4.18.2",
+    "sass-lint": "^1.13.1"
   },
   "eslintConfig": {
     "env": {

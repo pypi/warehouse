@@ -14,13 +14,13 @@ import shlex
 
 from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, literal, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Project, Release, File, Role, BlacklistedProject
+from warehouse.packaging.models import BlacklistedProject, File, Project, Release, Role
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_project
@@ -29,7 +29,8 @@ from warehouse.utils.project import remove_project
 @view_config(
     route_name="admin.blacklist.list",
     renderer="admin/blacklist/list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def blacklist(request):
@@ -68,7 +69,7 @@ def blacklist(request):
 @view_config(
     route_name="admin.blacklist.add",
     renderer="admin/blacklist/confirm.html",
-    permission="admin",
+    permission="moderator",
     request_method="GET",
     uses_session=True,
 )
@@ -88,11 +89,23 @@ def confirm_blacklist(request):
         .first()
     )
     if project is not None:
-        releases = request.db.query(Release).filter(Release.name == project.name).all()
-        files = request.db.query(File).filter(File.name == project.name).all()
+        releases = (
+            request.db.query(Release)
+            .join(Project)
+            .filter(Release.project == project)
+            .all()
+        )
+        files = (
+            request.db.query(File)
+            .join(Release)
+            .join(Project)
+            .filter(Release.project == project)
+            .all()
+        )
         roles = (
             request.db.query(Role)
             .join(User)
+            .join(Project)
             .filter(Role.project == project)
             .distinct(User.username)
             .order_by(User.username)

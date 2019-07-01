@@ -41,7 +41,7 @@
       <tr>
         <th>Name</th>
         <th>Blacklisted by</th>
-        <th>Blackisted on</th>
+        <th>Blacklisted on</th>
         <th>Comment</th>
         <th>Actions</th>
       </tr>
@@ -63,7 +63,7 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="blacklist_id" type="hidden" value="{{ blacklisted.id }}">
             <input name="next" type="hidden" value="{{ request.current_route_path() }}">
-            <button type="submit" class="btn btn-link">
+            <button type="submit" class="btn btn-link" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="fa fa-times"></i>
             </button>
           </form>
@@ -96,19 +96,19 @@
     <div class="box-body">
       <div class="form-group col-sm-4">
         <label for="blacklistedProject">Project name</label>
-        <input name="project" class="form-control" id="blacklistedProject" placeholder="Enter project to blacklist" autocomplete="off" autocorrect="off" autocapitalize="off">
+        <input name="project" class="form-control" id="blacklistedProject" placeholder="Enter project to blacklist" {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off">
       </div>
 
       <div class="form-group col-sm-8">
         <label for="blacklistedComment">Comment</label>
-        <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..."></textarea>
+        <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
       </div>
     </div>
 
 
     <div class="box-footer">
       <div class="pull-right">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
       </div>
     </div>
   </form>

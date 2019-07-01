@@ -39,12 +39,6 @@
 
   button {
     color: $white;
-    text-decoration: underline;
-    text-decoration-color: $transparent-white;
-
-    &:hover {
-      text-decoration-color: $white;
-    }
 
     @include link-focus
   }
@@ -132,7 +126,6 @@
   }
 
   &__date {
-    font-style: italic;
     margin-top: 20px;
     padding-bottom: 5px;
   }

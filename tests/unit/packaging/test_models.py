@@ -18,12 +18,12 @@ import pytest
 from pyramid.location import lineage
 from pyramid.security import Allow
 
-from warehouse.packaging.models import ProjectFactory, Dependency, DependencyKind, File
+from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
 
 from ...common.db.packaging import (
+    FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
-    FileFactory as DBFileFactory,
     RoleFactory as DBRoleFactory,
 )
 
@@ -123,11 +123,20 @@ class TestProject:
 
         assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
-            (Allow, str(maintainer1.user.id), ["upload"]),
-            (Allow, str(maintainer2.user.id), ["upload"]),
-        ]
+            (Allow, "group:moderators", "moderator"),
+        ] + sorted(
+            [
+                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, str(maintainer1.user.id), ["upload"]),
+                (Allow, str(maintainer2.user.id), ["upload"]),
+            ],
+            key=lambda x: x[1],
+        )
 
 
 class TestRelease:
@@ -260,8 +269,7 @@ class TestRelease:
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=release.project.name,
-                    version=release.version,
+                    release=release,
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )
@@ -292,11 +300,20 @@ class TestRelease:
 
         assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
-            (Allow, str(maintainer1.user.id), ["upload"]),
-            (Allow, str(maintainer2.user.id), ["upload"]),
-        ]
+            (Allow, "group:moderators", "moderator"),
+        ] + sorted(
+            [
+                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, str(maintainer1.user.id), ["upload"]),
+                (Allow, str(maintainer2.user.id), ["upload"]),
+            ],
+            key=lambda x: x[1],
+        )
 
     @pytest.mark.parametrize(
         ("home_page", "expected"),

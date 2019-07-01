@@ -29,7 +29,7 @@ def run_migrations_offline():
     script output.
     """
     url = context.config.get_main_option("sqlalchemy.url")
-    context.configure(url=url)
+    context.configure(url=url, compare_server_default=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -50,7 +50,11 @@ def run_migrations_online():
         connectable = create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=db.metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=db.metadata,
+            compare_server_default=True,
+        )
         with context.begin_transaction():
             context.run_migrations()
 

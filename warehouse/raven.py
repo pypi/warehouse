@@ -73,7 +73,7 @@ def includeme(config):
             # will ignore them.
             # We have to list these as strings, and list all of them because we don't
             # want to import Gunicorn in our application, and when using strings Raven
-            # doesn't handle inheritence.
+            # doesn't handle inheritance.
             "gunicorn.http.errors.ParseException",
             "gunicorn.http.errors.NoMoreData",
             "gunicorn.http.errors.InvalidRequestLine",

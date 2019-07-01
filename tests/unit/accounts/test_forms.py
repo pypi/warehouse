@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import pretend
 import pytest
 import wtforms
@@ -17,6 +19,7 @@ import wtforms
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
+from warehouse.utils.webauthn import AuthenticationRejectedException
 
 
 class TestLoginForm:
@@ -99,7 +102,7 @@ class TestLoginForm:
         )
         field = pretend.stub(data="pw")
 
-        with pytest.raises(wtforms.validators.ValidationError, match="Bad Password\!"):
+        with pytest.raises(wtforms.validators.ValidationError, match=r"Bad Password\!"):
             form.validate_password(field)
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
@@ -200,7 +203,7 @@ class TestLoginForm:
 
     def test_password_breached(self, monkeypatch):
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(forms, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(forms, "send_password_compromised_email_hibp", send_email)
 
         user = pretend.stub(id=1)
         request = pretend.stub()
@@ -308,6 +311,18 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.email.errors.pop() == "The email address isn't valid. Try again."
 
+    def test_exotic_email_success(self):
+        form = forms.RegistrationForm(
+            data={"email": "foo@n--tree.net"},
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        form.validate()
+        assert len(form.email.errors) == 0
+
     def test_email_exists_error(self):
         form = forms.RegistrationForm(
             data={"email": "foo@bar.com"},
@@ -336,8 +351,8 @@ class TestRegistrationForm:
         assert not form.validate()
         assert (
             form.email.errors.pop()
-            == "You can't create an account with an email address from "
-            "this domain. Use a different email."
+            == "You can't use an email address from this domain. Use a "
+            "different email."
         )
 
     def test_username_exists(self):
@@ -553,3 +568,110 @@ class TestResetPasswordForm:
             "This password has appeared in a breach or has otherwise been "
             "compromised and cannot be used."
         )
+
+
+class TestTOTPAuthenticationForm:
+    def test_creation(self):
+        user_id = pretend.stub()
+        user_service = pretend.stub()
+        form = forms.TOTPAuthenticationForm(user_id=user_id, user_service=user_service)
+
+        assert form.user_service is user_service
+
+    def test_totp_secret_exists(self):
+        form = forms.TOTPAuthenticationForm(
+            data={"totp_value": ""}, user_id=pretend.stub(), user_service=pretend.stub()
+        )
+        assert not form.validate()
+        assert form.totp_value.errors.pop() == "This field is required."
+
+        form = forms.TOTPAuthenticationForm(
+            data={"totp_value": "not_a_real_value"},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(check_totp_value=lambda *a: True),
+        )
+        assert not form.validate()
+        assert form.totp_value.errors.pop() == "TOTP code must be 6 digits."
+
+        form = forms.TOTPAuthenticationForm(
+            data={"totp_value": "123456"},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(check_totp_value=lambda *a: False),
+        )
+        assert not form.validate()
+        assert form.totp_value.errors.pop() == "Invalid TOTP code."
+
+        form = forms.TOTPAuthenticationForm(
+            data={"totp_value": "123456"},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(check_totp_value=lambda *a: True),
+        )
+        assert form.validate()
+
+
+class TestWebAuthnAuthenticationForm:
+    def test_creation(self):
+        user_id = pretend.stub()
+        user_service = pretend.stub()
+        challenge = pretend.stub()
+        origin = pretend.stub()
+        icon_url = pretend.stub()
+        rp_id = pretend.stub()
+
+        form = forms.WebAuthnAuthenticationForm(
+            user_id=user_id,
+            user_service=user_service,
+            challenge=challenge,
+            origin=origin,
+            icon_url=icon_url,
+            rp_id=rp_id,
+        )
+
+        assert form.challenge is challenge
+
+    def test_credential_bad_payload(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential="not valid json",
+            user_id=pretend.stub(),
+            user_service=pretend.stub(),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert not form.validate()
+        assert form.credential.errors.pop() == "Invalid WebAuthn assertion: Bad payload"
+
+    def test_credential_invalid(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential=json.dumps({}),
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                verify_webauthn_assertion=pretend.raiser(
+                    AuthenticationRejectedException("foo")
+                )
+            ),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert not form.validate()
+        assert form.credential.errors.pop() == "foo"
+
+    def test_credential_valid(self):
+        form = forms.WebAuthnAuthenticationForm(
+            credential=json.dumps({}),
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                verify_webauthn_assertion=pretend.call_recorder(
+                    lambda *a, **kw: ("foo", 123456)
+                )
+            ),
+            challenge=pretend.stub(),
+            origin=pretend.stub(),
+            icon_url=pretend.stub(),
+            rp_id=pretend.stub(),
+        )
+        assert form.validate()
+        assert form.validated_credential == ("foo", 123456)

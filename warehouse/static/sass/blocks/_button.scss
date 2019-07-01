@@ -33,7 +33,6 @@
   font-size: $button-font-size;
   font-weight: $bold-font-weight;
   cursor: pointer;
-  text-decoration: none;
   padding: 0 ($spacing-unit / 2);
   background-color: transparent;
   color: lighten($text-color, 10);
@@ -43,6 +42,7 @@
   border-radius: 3px;
   display: inline-block;
   white-space: nowrap;
+  @include link-without-underline;
 
   i.fa {
     position: relative;
@@ -54,7 +54,6 @@
   &:active {
     border-color: $primary-color;
     color: darken($primary-color, 10);
-    text-decoration: none;
     z-index: index($z-index-scale, "active-button"); // Needed for button groups
     outline: none;
   }

@@ -23,11 +23,11 @@ from warehouse.packaging.models import BlacklistedProject, Project
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
+    BlacklistedProjectFactory,
+    FileFactory,
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
-    FileFactory,
-    BlacklistedProjectFactory,
 )
 
 
@@ -211,9 +211,7 @@ class TestAddBlacklist:
 
         project = ProjectFactory.create(name="foo")
         release = ReleaseFactory.create(project=project)
-        FileFactory.create(
-            name=project.name, version=release.version, filename="who cares"
-        )
+        FileFactory.create(release=release, filename="who cares")
         RoleFactory.create(project=project, user=db_request.user)
 
         views.add_blacklist(db_request)

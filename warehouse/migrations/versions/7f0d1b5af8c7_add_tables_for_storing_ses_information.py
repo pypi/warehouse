@@ -17,8 +17,9 @@ Revises: 6418f7d86a4b
 Create Date: 2018-04-02 15:29:59.499569
 """
 
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "7f0d1b5af8c7"

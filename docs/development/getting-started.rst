@@ -51,6 +51,7 @@ you stay up-to-date with our repository:
 
     git remote add upstream https://github.com/pypa/warehouse.git
     git checkout master
+    git fetch upstream
     git merge upstream/master
 
 
@@ -109,7 +110,7 @@ Verifying Docker Compose installation
 Check that Docker Compose is installed: ``docker-compose -v``
 
 
-Verifying the neccessary ports are available
+Verifying the necessary ports are available
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Warehouse needs access to a few local ports in order to run, namely ports
@@ -502,16 +503,6 @@ To run all tests, in the root of the repository:
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
 
-.. tip::
-   Currently, running ``make tests`` from a clean checkout of
-   Warehouse (namely, before trying to compile any static assets) will
-   fail multiple tests because the tests depend on a file
-   (:file:`/app/warehouse/static/dist/manifest.json`) that gets
-   created during deployment. So until we fix `bug 1536
-   <https://github.com/pypa/warehouse/issues/1536>`_, you'll need to
-   install Warehouse in a developer environment and run ``make serve``
-   before running tests; see :ref:`dev-env-install` for instructions.
-
 If you want to run a specific test, you can use the ``T`` variable:
 
 .. code-block:: console
@@ -548,12 +539,12 @@ Use :command:`make` to build the documentation. For example:
 The HTML documentation index can now be found at
 :file:`docs/_build/html/index.html`.
 
-Building the docs requires Python 3.6. If it is not installed, the
+Building the docs requires Python 3.7. If it is not installed, the
 :command:`make` command will give the following error message:
 
 .. code-block:: console
 
-  make: python3.6: Command not found
+  make: python3.7: Command not found
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 

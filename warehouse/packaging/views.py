@@ -14,10 +14,10 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.utils import readme
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release, Role
+from warehouse.utils import readme
 
 
 @view_config(
@@ -77,8 +77,16 @@ def release_detail(release, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(request.current_route_path(name=project.name))
 
-    # Render the release description.
-    description = readme.render(release.description, release.description_content_type)
+    # Grab the rendered description if it exists, and if it doesn't, then we will render
+    # it inline.
+    # TODO: Remove the fallback to rendering inline and only support displaying the
+    #       already rendered content.
+    if release.description.html:
+        description = release.description.html
+    else:
+        description = readme.render(
+            release.description.raw, release.description.content_type
+        )
 
     # Get all of the maintainers for this project.
     maintainers = [

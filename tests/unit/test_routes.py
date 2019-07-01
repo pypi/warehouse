@@ -74,7 +74,7 @@ def test_routes(warehouse):
 
     assert config.add_route.calls == [
         pretend.call("health", "/_health/"),
-        pretend.call("force-status", "/_force-status/{status:[45]\d\d}/"),
+        pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
@@ -87,6 +87,11 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
+        ),
+        pretend.call(
+            "includes.session-notifications",
+            "/_includes/session-notifications/",
+            domain=warehouse,
         ),
         pretend.call(
             "includes.current-user-profile-callout",
@@ -123,6 +128,17 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("accounts.login", "/account/login/", domain=warehouse),
+        pretend.call("accounts.two-factor", "/account/two-factor/", domain=warehouse),
+        pretend.call(
+            "accounts.webauthn-authenticate.options",
+            "/account/webauthn-authenticate/options",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.webauthn-authenticate.validate",
+            "/account/webauthn-authenticate/validate",
+            domain=warehouse,
+        ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call("accounts.register", "/account/register/", domain=warehouse),
         pretend.call(
@@ -137,6 +153,36 @@ def test_routes(warehouse):
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
+        pretend.call(
+            "manage.account.totp-provision",
+            "/manage/account/totp-provision",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.totp-provision.image",
+            "/manage/account/totp-provision/image",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision",
+            "/manage/account/webauthn-provision",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.options",
+            "/manage/account/webauthn-provision/options",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.validate",
+            "/manage/account/webauthn-provision/validate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.delete",
+            "/manage/account/webauthn-provision/delete",
+            domain=warehouse,
+        ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",
