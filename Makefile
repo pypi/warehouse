@@ -89,7 +89,7 @@ build:
 	mkdir -p .state
 	touch .state/docker-build
 
-	docker system prune -f
+	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
 serve: .state/docker-build
 	docker-compose up --remove-orphans
