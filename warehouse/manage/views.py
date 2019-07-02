@@ -573,7 +573,7 @@ class ProvisionMacaroonViews:
                 user_id=self.request.user.id,
                 description=form.description.data,
                 # TODO(ww): Package-scoped tokens.
-                caveats={"permissions": "user"},
+                caveats={"permissions": "user", "version": 1},
             )
             return {"serialized_macaroon": serialized_macaroon}
 

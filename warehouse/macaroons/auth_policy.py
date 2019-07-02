@@ -62,12 +62,12 @@ def extract_http_macaroon(request):
     except ValueError:
         return None
 
-    if auth_method == "Basic":
+    if auth_method.lower() == "basic":
         return _extract_basic_macaroon(auth)
-    elif auth_method.lower() != "macaroon":
-        return None
+    elif auth_method.lower() == "macaroon":
+        return auth
 
-    return auth
+    return None
 
 
 @implementer(IAuthenticationPolicy)

@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+
 import pymacaroons
 
 from warehouse.packaging.models import Project
@@ -73,6 +74,7 @@ class Verifier:
 
     def verify(self, key):
         self.verifier.satisfy_general(V1Caveat(self))
+
         try:
             return self.verifier.verify(self.macaroon, key)
         except pymacaroons.exceptions.MacaroonInvalidSignatureException:
