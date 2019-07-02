@@ -83,11 +83,13 @@ class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
 
         # We need to extract our Macaroon from the request.
         macaroon = extract_http_macaroon(request)
+        if macaroon is None:
+            return None
 
         # Check to see if our Macaroon exists in the database, and if so
         # fetch the user that is associated with it.
         macaroon_service = request.find_service(IMacaroonService, context=None)
-        return macaroon_service.find_userid(macaroon)
+        return str(macaroon_service.find_userid(macaroon))
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
