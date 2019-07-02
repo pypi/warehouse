@@ -52,7 +52,7 @@
         {% for macaroon in user.macaroons %}
         <tr>
           <td>{{ macaroon.description }}</td>
-          <td>{{ macaroon.identifier }}</td>
+          <td>{{ macaroon.id }}</td>
           <td>{{ humanize(macaroon.created) }}</td>
           <td>{{ humanize(macaroon.last_used) }}</td>
           <td class="table__action">
@@ -61,7 +61,7 @@
             {% set confirm_button_label="Remove API key" %}
             {% set action=request.route_path('manage.account.macaroon.delete') %}
             {% set extra_fields %}
-              <input type="text" name="macaroon_id" value="{{ macaroon.identifier }}" hidden>
+              <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
             {% endset %}
             {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="delete-key", extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
           </td>

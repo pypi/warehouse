@@ -37,10 +37,6 @@ class Macaroon(db.Model):
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     last_used = Column(DateTime, nullable=True)
 
-    # The token version, which we'll update whenever/if we ever need
-    # to change the caveat format.
-    version = Column(Integer, default=1)
-
     # We'll store the caveats that were added to the Macaroon during generation
     # to allow users to see in their management UI what the total possible
     # scope of their macaroon is.
@@ -54,7 +50,3 @@ class Macaroon(db.Model):
     # prefer to just always use usrandom. Thus we'll do this ourselves here
     # in our application.
     key = Column(LargeBinary, nullable=False, default=_generate_key)
-
-    @property
-    def identifier(self):
-        return f"v{self.version}.{self.id}"

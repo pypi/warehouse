@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 import pymacaroons
 
 from sqlalchemy.orm import joinedload
@@ -17,6 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
+from warehouse.macaroons.caveats import Verifier
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
 
@@ -32,18 +35,10 @@ class DatabaseMacaroonService:
 
     def find_macaroon(self, macaroon_id):
         try:
-            version, identifier = macaroon_id.split(".", 1)
-        except ValueError:
-            return None
-
-        if version != "v1":
-            return None
-
-        try:
             dm = (
                 self.db.query(Macaroon)
                 .options(joinedload("user"))
-                .filter(Macaroon.id == identifier)
+                .filter(Macaroon.id == macaroon_id)
                 .one()
             )
         except NoResultFound:
@@ -57,7 +52,10 @@ class DatabaseMacaroonService:
         m = pymacaroons.Macaroon.deserialize(macaroon)
         dm = self.find_macaroon(m.identifier)
 
-        return None if dm is None else dm.user.id
+        if dm is None:
+            return None
+
+        return dm.user.id
 
     def verify(self, macaroon, context, principals, permission):
         m = pymacaroons.Macaroon.deserialize(macaroon)
@@ -66,9 +64,8 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroon
 
-        verifier = pymacaroons.Verifier()
-
-        if not verifier.verify(m, dm.key):
+        verifier = Verifier(m, context, principals, permission)
+        if not verifier.verify(dm.key):
             raise InvalidMacaroon
         else:
             return True
@@ -80,9 +77,8 @@ class DatabaseMacaroonService:
         self.db.add(dm)
         self.db.flush()
 
-        m = pymacaroons.Macaroon(
-            location=location, identifier=dm.identifier, key=dm.key
-        )
+        m = pymacaroons.Macaroon(location=location, identifier=str(dm.id), key=dm.key)
+        m.add_first_party_caveat(json.dumps(caveats))
         return m.serialize()
 
     def delete_macaroon(self, macaroon_id):
