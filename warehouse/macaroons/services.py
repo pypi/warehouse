@@ -79,10 +79,10 @@ class DatabaseMacaroonService:
             raise InvalidMacaroon
 
         verifier = Verifier(m, context, principals, permission)
-        if not verifier.verify(dm.key):
-            raise InvalidMacaroon
-        else:
+        if verifier.verify(dm.key):
             return True
+
+        raise InvalidMacaroon
 
     def create_macaroon(self, location, user_id, description, caveats):
         """
