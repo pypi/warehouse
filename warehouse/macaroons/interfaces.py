@@ -14,12 +14,33 @@ from zope.interface import Interface
 
 
 class IMacaroonService(Interface):
-    def find_userid(macaroon):
+    def find_macaroon(macaroon_id):
         """
-        Return the id of the user associated with the given macaroon.
+        Returns a macaroon model from the DB by its identifier.
+        Returns None if no macaroon has the given ID.
         """
 
-    def verify(macaroon):
+    def find_userid(raw_macaroon):
         """
-        Verify the given macaroon.
+        Returns the id of the user associated with the given raw (serialized)
+        macaroon.
+        """
+
+    def verify(raw_macaroon, context, principals, permission):
+        """
+        Returns True if the given raw (serialized) macaroon is
+        valid for the context, principals, and requested permission.
+
+        Raises InvalidMacaroon if the macaroon is not valid.
+        """
+
+    def create_macaroon(location, user_id, description, caveats):
+        """
+        Returns a new raw (serialized) macaroon. The description provided
+        is not embedded into the macaroon, only stored in the DB model.
+        """
+
+    def delete_macaroon(macaroon_id):
+        """
+        Deletes a macaroon from the DB by its identifier.
         """

@@ -37,11 +37,11 @@ def _extract_basic_macaroon(auth):
         return None
 
     try:
-        auth_method, auth = authorization.split(b":", 1)
+        auth_method, _, auth = authorization.partition(b":")
     except ValueError:
         return None
 
-    if auth_method != b"macaroon":
+    if auth_method != b"@token":
         return None
 
     return auth
@@ -64,7 +64,7 @@ def extract_http_macaroon(request):
 
     if auth_method.lower() == "basic":
         return _extract_basic_macaroon(auth)
-    elif auth_method.lower() == "macaroon":
+    elif auth_method.lower() == "token":
         return auth
 
     return None

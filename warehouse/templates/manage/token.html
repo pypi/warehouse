@@ -14,7 +14,7 @@
 {% extends "manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "API key management" %}
+{% set title = "API token management" %}
 
 {% block account_active %}vertical-tabs__tab--is-active{% endblock %}
 {% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
@@ -39,8 +39,8 @@
   {% endif %}
 
   {% if user.macaroons|length > 0 %}
-  <section id="active-keys">
-    <h2>Active API keys</h2>
+  <section id="active-tokens">
+    <h2>Active API tokens</h2>
     <table class="table table--light">
       <thead>
         <th>Description</th>
@@ -56,14 +56,14 @@
           <td>{{ humanize(macaroon.created) }}</td>
           <td>{{ humanize(macaroon.last_used) }}</td>
           <td class="table__action">
-            <a href="#delete-key" class="button button--primary">Delete</a>
-            {% set title="Remove API key - " + macaroon.description %}
-            {% set confirm_button_label="Remove API key" %}
-            {% set action=request.route_path('manage.account.macaroon.delete') %}
+            <a href="#delete-token" class="button button--primary">Delete</a>
+            {% set title="Remove API token - " + macaroon.description %}
+            {% set confirm_button_label="Remove API token" %}
+            {% set action=request.route_path('manage.account.token.delete') %}
             {% set extra_fields %}
               <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
             {% endset %}
-            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="delete-key", extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="delete-token", extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
           </td>
         </tr>
         {% endfor %}
@@ -72,15 +72,15 @@
   </section>
   {% endif %}
 
-  <section id="add-key">
-    <h2>Create a new API key</h2>
-    <form method="POST" action="{{ request.route_path('manage.account.macaroon.create') }}">
+  <section id="add-token">
+    <h2>Create a new API token</h2>
+    <form method="POST" action="{{ request.route_path('manage.account.token.create') }}">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
         <input type="text" name="description">
       </div>
       <div>
-        <input value="Create key" class="button button--primary" type="submit">
+        <input value="Create token" class="button button--primary" type="submit">
       </div>
     </form>
   </section>

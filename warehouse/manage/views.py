@@ -547,7 +547,7 @@ class ProvisionWebAuthnViews:
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
-    renderer="manage/macaroon.html",
+    renderer="manage/token.html",
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -555,14 +555,14 @@ class ProvisionMacaroonViews:
         self.user_service = request.find_service(IUserService, context=None)
         self.macaroon_service = request.find_service(IMacaroonService, context=None)
 
-    @view_config(request_method="GET", route_name="manage.account.macaroon")
+    @view_config(request_method="GET", route_name="manage.account.token")
     def manage_macaroons(self):
         return {}
 
     @view_config(
         request_method="POST",
         request_param=CreateMacaroonForm.__params__,
-        route_name="manage.account.macaroon.create",
+        route_name="manage.account.token.create",
     )
     def create_macaroon(self):
         form = CreateMacaroonForm(**self.request.POST)
@@ -577,12 +577,12 @@ class ProvisionMacaroonViews:
             )
             return {"serialized_macaroon": serialized_macaroon}
 
-        return HTTPSeeOther(self.request.route_path("manage.account.macaroon"))
+        return HTTPSeeOther(self.request.route_path("manage.account.token"))
 
     @view_config(
         request_method="POST",
         request_param=DeleteMacaroonForm.__params__,
-        route_name="manage.account.macaroon.delete",
+        route_name="manage.account.token.delete",
     )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
@@ -592,7 +592,7 @@ class ProvisionMacaroonViews:
         if form.validate():
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.request.session.flash("API key deleted.", queue="success")
-        return HTTPSeeOther(self.request.route_path("manage.account.macaroon"))
+        return HTTPSeeOther(self.request.route_path("manage.account.token"))
 
 
 @view_config(
