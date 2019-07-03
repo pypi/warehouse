@@ -25,8 +25,7 @@ export default class extends Controller {
   check() {
     if (this.passwordTarget.value.length > 2) {
       this.checkPassword(this.passwordTarget.value).catch(
-        e => {
-          console.error("Error during checking password: " + e);
+        _e => {  // eslint-disable-line no-unused-vars
           this.hideMessage();  // default to hiding the message on errors
         }
       );
@@ -39,7 +38,7 @@ export default class extends Controller {
     let response = await fetch(this.getURL(hex));
     if (response.ok === false) {
       const msg = "Error while validating hashed password, disregard on development";
-      console.error(`${msg}: ${response.status} ${response.statusText}`);
+      console.error(`${msg}: ${response.status} ${response.statusText}`);  // eslint-disable-line no-console
     } else {
       let text = await response.text();
       this.parseResponse(text, hex);
