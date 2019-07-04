@@ -15,6 +15,7 @@ import hashlib
 import hmac
 import os.path
 import re
+import tarfile
 import tempfile
 import zipfile
 
@@ -555,6 +556,8 @@ class MetadataForm(forms.Form):
 
 
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
+# .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
+_tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
 
 
 def _is_valid_dist_file(filename, filetype):
@@ -574,7 +577,26 @@ def _is_valid_dist_file(filename, filetype):
                 }:
                     return False
 
-    if filename.endswith(".exe"):
+    tar_fn_match = _tar_filenames_re.search(filename)
+    if tar_fn_match:
+        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
+        z_type = tar_fn_match.group("z_type") or ""
+        try:
+            with tarfile.open(filename, f"r:{z_type}") as tar:
+                # This decompresses the entire stream to validate it and the
+                # tar within.  Easy CPU DoS attack. :/
+                bad_tar = True
+                member = tar.next()
+                while member:
+                    parts = os.path.split(member.name)
+                    if len(parts) == 2 and parts[1] == "PKG-INFO":
+                        bad_tar = False
+                    member = tar.next()
+                if bad_tar:
+                    return False
+        except tarfile.ReadError:
+            return False
+    elif filename.endswith(".exe"):
         # The only valid filetype for a .exe file is "bdist_wininst".
         if filetype != "bdist_wininst":
             return False
