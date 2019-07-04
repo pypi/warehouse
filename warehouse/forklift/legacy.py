@@ -40,6 +40,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from warehouse import forms
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     BlacklistedProject,
@@ -710,6 +711,10 @@ def file_upload(request):
             HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
         )
 
+    # Log an attempt to upload
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.increment("warehouse.upload.attempt")
+
     # Before we do anything, if there isn't an authenticated user with this
     # request, then we'll go ahead and bomb out.
     if request.authenticated_userid is None:
@@ -1314,6 +1319,9 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+    # Log a successful upload
+    metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
 
     return Response()
 
