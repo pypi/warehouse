@@ -39,6 +39,10 @@ export default class extends Controller {
     // Handle hash change events to update the displayed content
     this._handleHashChange = this._handleHashChange.bind(this);
     window.addEventListener("hashchange", this._handleHashChange, false);
+    // force scrolling after hiding element, only necessary in Firefox
+    if (contentId) {
+      window.location.hash = "#" + contentId;
+    }
   }
 
   onTabClick(event) {
