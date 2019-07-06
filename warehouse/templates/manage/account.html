@@ -29,7 +29,7 @@
 
 {% macro form_errors(form) %}
   {% if form.errors.__all__ %}
-  <ul class="form-errors">
+  <ul class="form-errors" role="alert">
     {% for error in form.errors.__all__ %}
     <li>{{ error }}</li>
     {% endfor %}
@@ -39,7 +39,7 @@
 
 {% macro field_errors(field) %}
   {% if field.errors %}
-  <ul class="form-errors">
+  <ul class="form-errors" role="alert">
     {% for error in field.errors %}
     <li>{{ error }}</li>
     {% endfor %}
@@ -273,7 +273,7 @@
         {{ field_errors(change_password_form.password_confirm) }}
       </div>
       <div class="form-group">
-        <ul class="form-errors">
+        <ul class="form-errors" role="alert">
           <li data-target="password-match.matchMessage" class="hidden"></li>
         </ul>
       </div>

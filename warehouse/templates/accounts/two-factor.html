@@ -13,7 +13,10 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Two-factor authentication{% endblock %}
+{% block title %}
+  {% if totp_form and totp_form.errors %}Error processing form &ndash;{% endif %}
+  Two-factor authentication
+{% endblock %}
 
 {% block content %}
 {% if testPyPI %}
@@ -28,7 +31,7 @@
 
     <div class="twofa-login">
       {% if has_webauthn %}
-      <div class="twofa-login__method {% if totp_form %}twofa-login__method--padded{% endif %}">
+      <div class="twofa-login__method {% if form %}twofa-login__method--padded{% endif %}">
         <h2>
           Authenticate with a security key
           &nbsp;<span class="badge badge--warning">Beta</span>
@@ -44,7 +47,7 @@
           <button
             type="button"
             id="webauthn-auth-begin"
-            class="button button--primary"
+            class="webauthn-button button button--primary"
             csrf-token="{{ request.session.get_csrf_token() }}"
             disabled>Authenticate with key
           </button>
@@ -72,7 +75,7 @@
           <input name="method" type="hidden" value="totp">
 
           {% if totp_form.errors.__all__ %}
-          <ul class="form-errors">
+          <ul class="form-errors" role="alert">
             {% for error in totp_form.errors.__all__ %}
             <li>{{ error }}</li>
             {% endfor %}
@@ -81,9 +84,9 @@
 
           <div class="form-group">
             <label for="totp_value" class="form-group__label">Authentication code</label>
-            {{ totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autocomplete="off") }}
+            {{ totp_form.totp_value(autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{'aria-describedby':"totp-errors"}) }}
             {% if totp_form.totp_value.errors %}
-            <ul class="form-errors">
+            <ul id="totp-errors" class="form-errors" role="alert">
               {% for error in totp_form.totp_value.errors %}
               <li>{{ error }}</li>
               {% endfor %}

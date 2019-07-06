@@ -16,7 +16,10 @@
 {% set user = request.user %}
 {% set title = "Set up two factor authentication using an application (TOTP)" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}
+  {% if provision_totp_form.errors %}Error processing form &ndash;{% endif %}
+  {{ title }}
+{% endblock %}
 
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
@@ -63,10 +66,10 @@
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
         <label for="totp_value" class="form-group__label">Verify application</label>
-        {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true, autocomplete="off") }}
-        <p class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
+        {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{'aria-describedby':"totp-help totp-errors"}) }}
+        <p id="totp-help" class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
         {% if provision_totp_form.totp_value.errors %}
-        <ul class="form-errors">
+        <ul id="totp-errors" class="form-errors" role="alert">
           {% for error in provision_totp_form.totp_value.errors %}
           <li>{{ error }}</li>
           {% endfor %}
