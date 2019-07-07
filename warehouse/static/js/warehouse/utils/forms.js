@@ -68,14 +68,14 @@ const fieldRequiredValidator = (value) => {
 };
 
 const showFormError = (field, message) => {
-  let error = "<ul id='"+ field.name +"-error' class='form-errors' role='alert'><li>" + message + "</li></ul>";
-  field.insertAdjacentHTML('afterend', error);
+  let error = "<ul id='"+ field.name +"-error' class='form-errors field-errors' role='alert'><li>" + message + "</li></ul>";
+  field.insertAdjacentHTML("afterend", error);
   field.setAttribute("aria-describedby", field.name + "-error");
   document.title = "Error processing form – " + document.title;
 };
 
 const removeFormErrors = () => {
-  let errors = passwordFormRoot.querySelectorAll(".form-errors");
+  let errors = passwordFormRoot.querySelectorAll(".field-errors");
   for (let error of errors) {
     error.parentNode.removeChild(error);
   }
