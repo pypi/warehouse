@@ -321,3 +321,93 @@ class TestDeleteWebAuthnForm:
 
         assert form.validate()
         assert form.webauthn is fake_webauthn
+
+
+class TestCreateMacaroonForm:
+    def test_creation(self):
+        project_names = pretend.stub()
+        form = forms.CreateMacaroonForm(project_names=project_names)
+
+        assert form.project_names is project_names
+
+    def test_validate_description_missing(self):
+        form = forms.CreateMacaroonForm(
+            data={"token_scope": "scope:user"}, project_names=pretend.stub()
+        )
+
+        assert not form.validate()
+        assert form.description.errors.pop() == "Specify a description"
+
+    def test_validate_token_scope_missing(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy"}, project_names=pretend.stub()
+        )
+
+        assert not form.validate()
+        assert form.token_scope.errors.pop() == "Specify a token scope"
+
+    @pytest.mark.parametrize(
+        ("scope"), ["not a real scope", "scope:project", "scope:foo:bar"]
+    )
+    def test_validate_token_scope_invalid_format(self, scope):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": scope},
+            project_names=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.token_scope.errors.pop() == f"Unknown token scope: {scope}"
+
+    def test_validate_token_scope_invalid_project(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foo"},
+            project_names=["bar"],
+        )
+
+        assert not form.validate()
+        assert form.token_scope.errors.pop() == "Unknown or invalid project name: foo"
+
+    def test_validate_token_scope_valid_user(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:user"},
+            project_names=pretend.stub(),
+        )
+
+        assert form.validate()
+
+    def test_validate_token_scope_valid_project(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foo"},
+            project_names=["foo"],
+        )
+
+        assert form.validate()
+
+
+class TestDeleteMacaroonForm:
+    def test_creation(self):
+        macaroon_service = pretend.stub()
+        form = forms.DeleteMacaroonForm(macaroon_service=macaroon_service)
+
+        assert form.macaroon_service is macaroon_service
+
+    def test_validate_macaroon_id_invalid(self):
+        macaroon_service = pretend.stub(
+            find_macaroon=pretend.call_recorder(lambda id: None)
+        )
+        form = forms.DeleteMacaroonForm(
+            data={"macaroon_id": pretend.stub()}, macaroon_service=macaroon_service
+        )
+
+        assert not form.validate()
+        assert form.macaroon_id.errors.pop() == "No such macaroon"
+
+    def test_validate_macaroon_id(self):
+        macaroon_service = pretend.stub(
+            find_macaroon=pretend.call_recorder(lambda id: pretend.stub())
+        )
+        form = forms.DeleteMacaroonForm(
+            data={"macaroon_id": pretend.stub()}, macaroon_service=macaroon_service
+        )
+
+        assert form.validate()
