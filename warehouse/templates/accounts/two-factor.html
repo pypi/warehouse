@@ -31,7 +31,7 @@
 
     <div class="twofa-login">
       {% if has_webauthn %}
-      <div class="twofa-login__method {% if form %}twofa-login__method--padded{% endif %}">
+      <div class="twofa-login__method {% if totp_form %}twofa-login__method--padded{% endif %}">
         <h2>
           Authenticate with a security key
           &nbsp;<span class="badge badge--warning">Beta</span>
@@ -47,7 +47,7 @@
           <button
             type="button"
             id="webauthn-auth-begin"
-            class="webauthn-button button button--primary"
+            class="button button--primary"
             csrf-token="{{ request.session.get_csrf_token() }}"
             disabled>Authenticate with key
           </button>
