@@ -53,7 +53,10 @@
     {% set message = "Intermittent delivery problems may lead to verification loss" %}
     <span class="badge badge--warning tooltipped tooltipped-s" data-original-label="{{ message }}" aria-label="{{ message }}"><i class="fa fa-exclamation-triangle"></i> Verified</span>
     {% else %}
-    <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span>
+    <span class="badge badge--success">
+      <i class="fa fa-check" aria-hidden="true"></i>
+      Verified
+    </span>
     {% endif %}
   {% else %}
     {% set icon = 'exclamation-triangle' %}
@@ -68,7 +71,10 @@
       {% set message = "Verification in progress" %}
       {% set icon = 'spinner' %}
     {% endif %}
-    <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}"><i class="fa fa-{{ icon }}"></i> Unverified</span>
+    <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}">
+      <i class="fa fa-{{ icon }}" aria-hidden="true"></i>
+      Unverified
+    </span>
   {% endif %}
 {% endmacro %}
 
@@ -201,10 +207,11 @@
     {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
 
     <table class="table table--light table--emails">
+      <caption>Emails associated with your account</caption>
       <thead>
         <tr>
-          <th>Email address</th>
-          <th>Status</th>
+          <th scope="col">Email address</th>
+          <th scope="col">Status</th>
           <th></th>
         </tr>
       </thead>
