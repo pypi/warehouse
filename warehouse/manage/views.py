@@ -555,9 +555,18 @@ class ProvisionMacaroonViews:
         self.user_service = request.find_service(IUserService, context=None)
         self.macaroon_service = request.find_service(IMacaroonService, context=None)
 
+    @property
+    def project_names(self):
+        projects = user_projects(self.request)["projects_owned"]
+        return [project.name for project in projects]
+
+    @property
+    def default_response(self):
+        return {"project_names": self.project_names}
+
     @view_config(request_method="GET", route_name="manage.account.token")
     def manage_macaroons(self):
-        return {}
+        return self.default_response
 
     @view_config(
         request_method="POST",
@@ -565,17 +574,16 @@ class ProvisionMacaroonViews:
         route_name="manage.account.token.create",
     )
     def create_macaroon(self):
-        form = CreateMacaroonForm(**self.request.POST)
+        form = CreateMacaroonForm(**self.request.POST, project_names=self.project_names)
 
         if form.validate():
             serialized_macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
-                # TODO(ww): Package-scoped tokens.
-                caveats={"permissions": "user", "version": 1},
+                caveats={"permissions": form.validated_scope, "version": 1},
             )
-            return {"serialized_macaroon": serialized_macaroon}
+            return {**self.default_response, "serialized_macaroon": serialized_macaroon}
 
         return HTTPSeeOther(self.request.route_path("manage.account.token"))
 

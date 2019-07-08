@@ -10,7 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import json
+import uuid
 
 import pymacaroons
 
@@ -42,7 +44,7 @@ class DatabaseMacaroonService:
             dm = (
                 self.db.query(Macaroon)
                 .options(joinedload("user"))
-                .filter(Macaroon.id == macaroon_id)
+                .filter(Macaroon.id == uuid.UUID(macaroon_id))
                 .one()
             )
         except NoResultFound:
@@ -58,7 +60,7 @@ class DatabaseMacaroonService:
         if raw_macaroon is None:
             return None
         m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        dm = self.find_macaroon(m.identifier)
+        dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
             return None
@@ -73,13 +75,14 @@ class DatabaseMacaroonService:
         Raises InvalidMacaroon if the macaroon is not valid.
         """
         m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        dm = self.find_macaroon(m.identifier)
+        dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
             raise InvalidMacaroon
 
         verifier = Verifier(m, context, principals, permission)
         if verifier.verify(dm.key):
+            dm.last_used = datetime.datetime.now()
             return True
 
         raise InvalidMacaroon

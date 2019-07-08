@@ -36,7 +36,7 @@ class V1Caveat(Caveat):
             return False
 
         project = self.verifier.context
-        if project.normalized_name in projects:
+        if project.name in projects:
             return True
 
         return False

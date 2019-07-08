@@ -54,7 +54,7 @@
           <td>{{ macaroon.description }}</td>
           <td>{{ macaroon.id }}</td>
           <td>{{ humanize(macaroon.created) }}</td>
-          <td>{{ humanize(macaroon.last_used) }}</td>
+          <td>{{ humanize(macaroon.last_used) if macaroon.last_used else "Never" }}</td>
           <td class="table__action">
             <a href="#delete-token" class="button button--primary">Delete</a>
             {% set title="Remove API token - " + macaroon.description %}
@@ -78,6 +78,15 @@
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
         <input type="text" name="description">
+      </div>
+      <div class="form-group">
+        Scope:
+        <select name="token_scope">
+          <option value="scope:user">User (all projects)</option>
+        {% for project in project_names %}
+          <option value="scope:project:{{ project }}">{{ project }}</option>
+        {% endfor %}
+        </select>
       </div>
       <div>
         <input value="Create token" class="button button--primary" type="submit">

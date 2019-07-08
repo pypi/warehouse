@@ -186,7 +186,11 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description"]
+    __params__ = ["description", "token_scope"]
+
+    def __init__(self, *args, project_names, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project_names = project_names
 
     description = wtforms.StringField(
         validators=[
@@ -196,6 +200,36 @@ class CreateMacaroonForm(forms.Form):
             ),
         ]
     )
+
+    token_scope = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired(message="Specify a token scope")]
+    )
+
+    def validate_token_scope(self, field):
+        scope = field.data
+
+        try:
+            _, scope_kind = scope.split(":", 1)
+        except ValueError:
+            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+
+        if scope_kind == "user":
+            self.validated_scope = scope_kind
+            return
+
+        try:
+            scope_kind, scope_value = scope_kind.split(":", 1)
+        except ValueError:
+            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+
+        if scope_kind != "project":
+            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+        if scope_value not in self.project_names:
+            raise wtforms.ValidationError(
+                f"Unknown or invalid project name: {scope_value}"
+            )
+
+        self.validated_scope = {"projects": [scope_value]}
 
 
 class DeleteMacaroonForm(forms.Form):
