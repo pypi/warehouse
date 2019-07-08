@@ -12,7 +12,7 @@
 
 import os
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, LargeBinary, String, sql
+from sqlalchemy import Column, DateTime, ForeignKey, LargeBinary, String, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 from warehouse import db
