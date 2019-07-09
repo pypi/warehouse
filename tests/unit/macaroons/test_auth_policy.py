@@ -29,6 +29,7 @@ from warehouse.macaroons.services import InvalidMacaroon
     [
         (None, None),
         ("notarealtoken", None),
+        ("maybeafuturemethod foobar", None),
         ("token foobar", "foobar"),
         ("basic QHRva2VuOmZvb2Jhcg==", "foobar"),  # "@token:foobar"
     ],
