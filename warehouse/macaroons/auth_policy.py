@@ -34,10 +34,6 @@ def _extract_basic_macaroon(auth):
     """
     try:
         authorization = base64.b64decode(auth).decode()
-    except ValueError:
-        return None
-
-    try:
         auth_method, _, auth = authorization.partition(":")
     except ValueError:
         return None
@@ -48,7 +44,7 @@ def _extract_basic_macaroon(auth):
     return auth
 
 
-def extract_http_macaroon(request):
+def _extract_http_macaroon(request):
     """
     A helper function for the extraction of HTTP Macaroon from a given request.
     Returns either a None if no macaroon could be found, or the byte string
@@ -83,7 +79,7 @@ class MacaroonAuthenticationPolicy(CallbackAuthenticationPolicy):
         request.add_response_callback(add_vary_callback("Authorization"))
 
         # We need to extract our Macaroon from the request.
-        macaroon = extract_http_macaroon(request)
+        macaroon = _extract_http_macaroon(request)
         if macaroon is None:
             return None
 
@@ -126,7 +122,7 @@ class MacaroonAuthorizationPolicy:
         # Re-extract our Macaroon from the request, it sucks to have to do this work
         # twice, but I believe it is inevitable unless we pass the Macaroon back as
         # a principal-- which doesn't seem to be the right fit for it.
-        macaroon = extract_http_macaroon(request)
+        macaroon = _extract_http_macaroon(request)
 
         # This logic will only happen on requests that are being authenticated with
         # Macaroons. Any other request will just fall back to the standard Authorization
