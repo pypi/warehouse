@@ -29,7 +29,8 @@ def _extract_basic_macaroon(auth):
     HTTP Basic Authentication-style header.
 
     Returns None if the header doesn't contain a structurally
-    valid macaroon, or the candidate (not yet verified) macaroon.
+    valid macaroon, or the candidate (not yet verified) macaroon
+    in a serialized form.
     """
     try:
         authorization = base64.b64decode(auth).decode()
@@ -51,7 +52,7 @@ def extract_http_macaroon(request):
     """
     A helper function for the extraction of HTTP Macaroon from a given request.
     Returns either a None if no macaroon could be found, or the byte string
-    that represents our Macaroon.
+    that represents our serialized macaroon.
     """
     authorization = request.headers.get("Authorization")
     if not authorization:
