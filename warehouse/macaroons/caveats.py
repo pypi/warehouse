@@ -50,11 +50,12 @@ class V1Caveat(Caveat):
         if data.get("version") != 1:
             return False
 
-        permissions = data.get("permissions", {})
-        # User-scoped tokens behave exactly like a user's normal credentials.
-        # The presence of the "user" permission takes precedence over lesser
-        # permissions.
-        if "user" in permissions:
+        permissions = data.get("permissions")
+        if permissions is None:
+            return False
+
+        if permissions == "user":
+            # User-scoped tokens behave exactly like a user's normal credentials.
             return True
 
         projects = permissions.get("projects")
