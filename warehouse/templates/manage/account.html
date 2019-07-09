@@ -80,9 +80,9 @@
 
 {% macro email_row(email) -%}
   <tr>
-    <td class="table__email">
+    <th class="table__email" scope="row">
       {{ email.email }}
-    </td>
+    </th>
     <td class="table__status">
       <div class="table__status-badges">
         {% if email.primary %}
@@ -207,7 +207,7 @@
     {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
 
     <table class="table table--light table--emails">
-      <caption>Emails associated with your account</caption>
+      <caption class="sr-only">Emails associated with your account</caption>
       <thead>
         <tr>
           <th scope="col">Email address</th>
