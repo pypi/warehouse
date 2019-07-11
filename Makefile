@@ -80,14 +80,7 @@ endif
 	touch .state/docker-build
 
 build:
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
-	docker-compose build --force-rm worker
-	docker-compose build --force-rm static
-
-	# Mark this state so that the other target will known it's recently been
-	# rebuilt.
-	mkdir -p .state
-	touch .state/docker-build
+	@$(MAKE) .state/docker-build
 
 	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
