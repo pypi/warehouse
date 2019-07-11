@@ -13,6 +13,7 @@
 import hashlib
 import io
 import re
+import tarfile
 import tempfile
 import zipfile
 
@@ -34,6 +35,7 @@ from warehouse.admin.flags import AdminFlag
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Dependency,
@@ -54,6 +56,28 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+
+
+def _get_tar_testdata(compression_type=""):
+    temp_f = io.BytesIO()
+    with tarfile.open(fileobj=temp_f, mode=f"w:{compression_type}") as tar:
+        tar.add("/dev/null", arcname="fake_package/PKG-INFO")
+    return temp_f.getvalue()
+
+
+_TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
+_TAR_GZ_PKG_MD5 = hashlib.md5(_TAR_GZ_PKG_TESTDATA).hexdigest()
+_TAR_GZ_PKG_SHA256 = hashlib.sha256(_TAR_GZ_PKG_TESTDATA).hexdigest()
+_TAR_GZ_PKG_STORAGE_HASH = hashlib.blake2b(
+    _TAR_GZ_PKG_TESTDATA, digest_size=256 // 8
+).hexdigest()
+
+_TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
+_TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
+_TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
+_TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(
+    _TAR_BZ2_PKG_TESTDATA, digest_size=256 // 8
+).hexdigest()
 
 
 def test_exc_with_message():
@@ -432,6 +456,49 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(f, filetype)
 
+    @pytest.mark.parametrize(
+        "filename", ["test.tar", "test.tar.gz", "test.tgz", "test.tar.bz2", "test.tbz2"]
+    )
+    def test_bails_with_invalid_tarfile(self, tmpdir, filename):
+        fake_tar = str(tmpdir.join(filename))
+
+        with open(fake_tar, "wb") as fp:
+            fp.write(b"Definitely not a valid tar file.")
+
+        assert not legacy._is_valid_dist_file(fake_tar, "sdist")
+
+    @pytest.mark.parametrize("compression", ("", "gz", "bz2"))
+    def test_tarfile_validation_invalid(self, tmpdir, compression):
+        file_extension = f".{compression}" if compression else ""
+        tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
+        data_file = str(tmpdir.join("dummy_data"))
+
+        with open(data_file, "wb") as fp:
+            fp.write(b"Dummy data file.")
+
+        with tarfile.open(tar_fn, f"w:{compression}") as tar:
+            tar.add(data_file, arcname="package/module.py")
+
+        assert not legacy._is_valid_dist_file(
+            tar_fn, "sdist"
+        ), "no PKG-INFO; should fail"
+
+    @pytest.mark.parametrize("compression", ("", "gz", "bz2"))
+    def test_tarfile_validation_valid(self, tmpdir, compression):
+        file_extension = f".{compression}" if compression else ""
+        tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
+        data_file = str(tmpdir.join("dummy_data"))
+
+        with open(data_file, "wb") as fp:
+            fp.write(b"Dummy data file.")
+
+        with tarfile.open(tar_fn, f"w:{compression}") as tar:
+            tar.add(data_file, arcname="package/module.py")
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/data_file.txt")
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist")
+
     def test_wininst_unsafe_filename(self, tmpdir):
         f = str(tmpdir.join("test.exe"))
 
@@ -548,7 +615,7 @@ class TestIsDuplicateFile:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -582,7 +649,7 @@ class TestIsDuplicateFile:
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
         requested_file_name = "{}-{}-1.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -621,7 +688,7 @@ class TestIsDuplicateFile:
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
         requested_file_name = "{}-{}-1.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -657,7 +724,7 @@ class TestIsDuplicateFile:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         file_value = file_content.getvalue()
 
         hashes = {
@@ -900,7 +967,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -959,7 +1026,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename="example-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
                 "description_content_type": description_content_type,
@@ -1022,7 +1089,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1068,7 +1135,7 @@ class TestFileUpload:
                 "md5_digest": "a fake md5 digest",
                 "content": pretend.stub(
                     filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1157,50 +1224,29 @@ class TestFileUpload:
     @pytest.mark.parametrize(
         ("has_signature", "digests"),
         [
-            (True, {"md5_digest": "335c476dc930b959dda9ec82bd65ef19"}),
+            (True, {"md5_digest": _TAR_GZ_PKG_MD5}),
+            (True, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
+            (False, {"md5_digest": _TAR_GZ_PKG_MD5}),
+            (False, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
             (
                 True,
-                {
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    )
-                },
-            ),
-            (False, {"md5_digest": "335c476dc930b959dda9ec82bd65ef19"}),
-            (
-                False,
-                {
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    )
-                },
-            ),
-            (
-                True,
-                {
-                    "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    ),
-                },
+                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
             ),
             (
                 False,
-                {
-                    "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
-                    "sha256_digest": (
-                        "4a8422abcc484a4086bdaa618c65289f749433b07eb433c51c4e3"
-                        "77143ff5fdb"
-                    ),
-                },
+                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
             ),
         ],
     )
     def test_successful_upload(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, has_signature, digests
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        has_signature,
+        digests,
+        metrics,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -1221,7 +1267,7 @@ class TestFileUpload:
 
         content = FieldStorage()
         content.filename = filename
-        content.file = io.BytesIO(b"A fake file.")
+        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
         content.type = "application/tar"
 
         db_request.POST = MultiDict(
@@ -1254,27 +1300,33 @@ class TestFileUpload:
                     b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
                 )
             else:
-                expected = b"A fake file."
+                expected = _TAR_GZ_PKG_TESTDATA
 
             with open(file_path, "rb") as fp:
                 assert fp.read() == expected
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None: storage_service
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
         )
 
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IMetricsService, context=None),
+            pretend.call(IFileStorage),
+        ]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
         assert storage_service.store.calls[0] == pretend.call(
             "/".join(
                 [
-                    "4e",
-                    "6e",
-                    "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d45a5916e",
+                    _TAR_GZ_PKG_STORAGE_HASH[:2],
+                    _TAR_GZ_PKG_STORAGE_HASH[2:4],
+                    _TAR_GZ_PKG_STORAGE_HASH[4:],
                     filename,
                 ]
             ),
@@ -1291,12 +1343,9 @@ class TestFileUpload:
             assert storage_service.store.calls[1] == pretend.call(
                 "/".join(
                     [
-                        "4e",
-                        "6e",
-                        (
-                            "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d"
-                            "45a5916e"
-                        ),
+                        _TAR_GZ_PKG_STORAGE_HASH[:2],
+                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
+                        _TAR_GZ_PKG_STORAGE_HASH[4:],
                         filename + ".asc",
                     ]
                 ),
@@ -1341,6 +1390,11 @@ class TestFileUpload:
             )
         ]
 
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.upload.attempt"),
+            pretend.call("warehouse.upload.ok", tags=["filetype:sdist"]),
+        ]
+
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
     def test_upload_fails_invlaid_content_type(
         self, tmpdir, monkeypatch, pyramid_config, db_request, content_type
@@ -1366,10 +1420,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "pyversion": "source",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type=content_type,
                 ),
             }
@@ -1403,10 +1457,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_dumb",
                 "pyversion": "2.7",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1438,10 +1492,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_BZ2_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_BZ2_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1517,10 +1571,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
                 "gpg_signature": pretend.stub(
@@ -1555,10 +1609,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1596,10 +1650,10 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1637,7 +1691,7 @@ class TestFileUpload:
                 ),
             },
             {
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "sha256_digest": (
                     "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbad"
                     "badbadb"
@@ -1674,7 +1728,7 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -1785,9 +1839,11 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
-                    filename=filename, file=io.BytesIO(b"a"), type="application/tar"
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
                 ),
                 "gpg_signature": pretend.stub(
                     filename=filename + ".asc",
@@ -1817,7 +1873,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -1861,7 +1917,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -1908,7 +1964,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -1960,7 +2016,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"A fake file.")
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -2181,7 +2237,7 @@ class TestFileUpload:
         ],
     )
     def test_upload_succeeds_with_wheel(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, plat
+        self, tmpdir, monkeypatch, pyramid_config, db_request, plat, metrics
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -2205,10 +2261,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2217,11 +2273,15 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                assert fp.read() == _TAR_GZ_PKG_TESTDATA
 
         storage_service = pretend.stub(store=storage_service_store)
+
         db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None: storage_service
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
         )
 
         monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
@@ -2229,17 +2289,17 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IMetricsService, context=None),
+            pretend.call(IFileStorage),
+        ]
         assert storage_service.store.calls == [
             pretend.call(
                 "/".join(
                     [
-                        "4e",
-                        "6e",
-                        (
-                            "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d4"
-                            "5a5916e"
-                        ),
+                        _TAR_GZ_PKG_STORAGE_HASH[:2],
+                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
+                        _TAR_GZ_PKG_STORAGE_HASH[4:],
                         filename,
                     ]
                 ),
@@ -2281,8 +2341,13 @@ class TestFileUpload:
             )
         ]
 
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.upload.attempt"),
+            pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
+        ]
+
     def test_upload_succeeds_with_wheel_after_sdist(
-        self, tmpdir, monkeypatch, pyramid_config, db_request
+        self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -2327,7 +2392,10 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None: storage_service
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
         )
 
         monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
@@ -2335,17 +2403,17 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IMetricsService, context=None),
+            pretend.call(IFileStorage),
+        ]
         assert storage_service.store.calls == [
             pretend.call(
                 "/".join(
                     [
                         "4e",
                         "6e",
-                        (
-                            "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d4"
-                            "5a5916e"
-                        ),
+                        "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d45a5916e",
                         filename,
                     ]
                 ),
@@ -2388,7 +2456,7 @@ class TestFileUpload:
         ]
 
     def test_upload_succeeds_with_legacy_ext(
-        self, tmpdir, monkeypatch, pyramid_config, db_request
+        self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -2412,10 +2480,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "sdist",
                 "pyversion": "source",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_BZ2_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_BZ2_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2423,10 +2491,13 @@ class TestFileUpload:
 
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                assert fp.read() == _TAR_BZ2_PKG_TESTDATA
 
         storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
 
         monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
 
@@ -2435,7 +2506,7 @@ class TestFileUpload:
         assert resp.status_code == 200
 
     def test_upload_succeeds_with_legacy_type(
-        self, tmpdir, monkeypatch, pyramid_config, db_request
+        self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -2459,10 +2530,10 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_dumb",
                 "pyversion": "3.5",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2470,10 +2541,13 @@ class TestFileUpload:
 
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                assert fp.read() == _TAR_GZ_PKG_TESTDATA
 
         storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
 
         monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
 
@@ -2524,7 +2598,9 @@ class TestFileUpload:
             "400 Binary wheel .* has an unsupported " "platform tag .*", resp.status
         )
 
-    def test_upload_updates_existing_project_name(self, pyramid_config, db_request):
+    def test_upload_updates_existing_project_name(
+        self, pyramid_config, db_request, metrics
+    ):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2545,17 +2621,20 @@ class TestFileUpload:
                 "version": "1.1",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
         db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -2577,7 +2656,7 @@ class TestFileUpload:
 
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
-    def test_upload_succeeds_creates_release(self, pyramid_config, db_request):
+    def test_upload_succeeds_creates_release(self, pyramid_config, db_request, metrics):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2600,10 +2679,10 @@ class TestFileUpload:
                 "version": "1.0",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
@@ -2621,7 +2700,10 @@ class TestFileUpload:
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
 
         resp = legacy.file_upload(db_request)
 
@@ -2674,7 +2756,7 @@ class TestFileUpload:
             ),
         ]
 
-    def test_equivalent_version_one_release(self, pyramid_config, db_request):
+    def test_equivalent_version_one_release(self, pyramid_config, db_request, metrics):
         """
         Test that if a release with a version like '1.0' exists, that a future
         upload with an equivalent version like '1.0.0' will not make a second
@@ -2698,17 +2780,20 @@ class TestFileUpload:
                 "version": "1.0.0",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
 
         resp = legacy.file_upload(db_request)
 
@@ -2720,7 +2805,7 @@ class TestFileUpload:
         # Asset that only one release has been created
         assert releases == [release]
 
-    def test_equivalent_canonical_versions(self, pyramid_config, db_request):
+    def test_equivalent_canonical_versions(self, pyramid_config, db_request, metrics):
         """
         Test that if more than one release with equivalent canonical versions
         exists, we use the one that is an exact match
@@ -2744,24 +2829,27 @@ class TestFileUpload:
                 "version": "1.0.0",
                 "summary": "This is my summary!",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
 
         legacy.file_upload(db_request)
 
         assert len(release_a.files.all()) == 0
         assert len(release_b.files.all()) == 1
 
-    def test_upload_succeeds_creates_project(self, pyramid_config, db_request):
+    def test_upload_succeeds_creates_project(self, pyramid_config, db_request, metrics):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2776,17 +2864,20 @@ class TestFileUpload:
                 "name": "example",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
         db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -2851,7 +2942,7 @@ class TestFileUpload:
             ),
         ]
 
-    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request):
+    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request, metrics):
         pyramid_config.testing_securitypolicy(userid=1)
 
         squattee = ProjectFactory(name="example")
@@ -2867,17 +2958,20 @@ class TestFileUpload:
                 "name": "exmaple",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
         db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -2908,7 +3002,7 @@ class TestFileUpload:
         ],
     )
     def test_upload_requires_verified_email(
-        self, pyramid_config, db_request, emails_verified, expected_success
+        self, pyramid_config, db_request, emails_verified, expected_success, metrics
     ):
         pyramid_config.testing_securitypolicy(userid=1)
 
@@ -2925,17 +3019,20 @@ class TestFileUpload:
                 "name": "example",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
         db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -2961,7 +3058,9 @@ class TestFileUpload:
                 ).format(user.username)
             )
 
-    def test_upload_purges_legacy(self, pyramid_config, db_request, monkeypatch):
+    def test_upload_purges_legacy(
+        self, pyramid_config, db_request, monkeypatch, metrics
+    ):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2976,17 +3075,20 @@ class TestFileUpload:
                 "name": "example",
                 "version": "1.0",
                 "filetype": "sdist",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
         )
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
         db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
