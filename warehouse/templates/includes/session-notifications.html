@@ -13,9 +13,12 @@
 -#}
 
 {% if request.user and not request.user.primary_email.verified %}
-<div class="notification-bar notification-bar--danger">
+<div class="notification-bar notification-bar--warning" role="status">
+  <span class="notification-bar__icon">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+    <span class="sr-only">Warning:</span>
+  </span>
   <span class="notification-bar__message">
-    <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
     {% if request.user.primary_email %}
     Your primary email address ({{ request.user.primary_email.email }}) is unverified.
     {% else %}

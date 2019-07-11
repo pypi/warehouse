@@ -139,7 +139,7 @@
     <section id="sticky-notifications" class="stick-to-top js-stick-to-top">
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
-      <div class="notification-bar notification-bar--danger">
+      <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
           <span class="sr-only">Warning:</span>
@@ -148,7 +148,7 @@
       </div>
       <![endif]-->
       {% if testPyPI %}
-      <div class="notification-bar notification-bar--warning">
+      <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
           <span class="sr-only">Warning:</span>
@@ -157,7 +157,7 @@
       </div>
       {% endif %}
       <noscript>
-      <div class="notification-bar notification-bar--danger">
+      <div class="notification-bar notification-bar--warning" role="status">
         {# TODO: This should be removed once GH-3828 is fixed. #}
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
@@ -174,7 +174,7 @@
     {% endblock %}
 
     {% for flag in request.flags.notifications() %}
-    <div class="notification-bar notification-bar--danger">
+    <div class="notification-bar">
       <span class="notification-bar__message">{{ flag.description }}</span>
     </div>
     {% endfor %}
