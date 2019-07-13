@@ -15,6 +15,8 @@ import json
 import pretend
 import pytest
 
+from pymacaroons.exceptions import MacaroonInvalidSignatureException
+
 from warehouse.macaroons.caveats import Caveat, V1Caveat, Verifier
 
 from ...common.db.packaging import ProjectFactory
@@ -61,6 +63,17 @@ class TestV1Caveat:
         predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
         assert not caveat(json.dumps(predicate))
 
+    def test_verify_project_no_projects_object(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+
+        predicate = {
+            "version": 1,
+            "permissions": {"somethingthatisntprojects": ["blah"]},
+        }
+        assert not caveat(json.dumps(predicate))
+
     def test_verify_project(self, db_request):
         project = ProjectFactory.create(name="foobar")
         verifier = pretend.stub(context=project)
@@ -83,5 +96,17 @@ class TestVerifier:
         assert verifier.principals is principals
         assert verifier.permission is permission
 
-    def test_verify(self):
-        pass
+    def test_verify(self, monkeypatch):
+        verify = pretend.call_recorder(
+            pretend.raiser(MacaroonInvalidSignatureException)
+        )
+        macaroon = pretend.stub()
+        context = pretend.stub()
+        principals = pretend.stub()
+        permission = pretend.stub()
+        key = pretend.stub()
+        verifier = Verifier(macaroon, context, principals, permission)
+
+        monkeypatch.setattr(verifier.verifier, "verify", verify)
+        assert not verifier.verify(key)
+        assert verify.calls == [pretend.call(macaroon, key)]
