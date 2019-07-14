@@ -384,15 +384,27 @@
   &--collaborators {
     .table__user {
       padding-right: 20px;
+      font-weight: normal;
     }
 
     .table__user-details {
       display: flex;
       align-items: center;
+      @include link-without-underline;
     }
 
     .table__user-gravatar {
       margin-right: 10px;
+    }
+
+    .table__user-text {
+      > * {
+        display: inline-block;
+        background-position: 0 1.15em;
+        background-repeat: repeat-x;
+        background-size: 100% 1.5px;
+        @include primary-underlined-link;
+      }
     }
 
     .change-role {
@@ -488,6 +500,7 @@
       word-break: break-all;
       font-family: $code-font;
       font-size: 90%;
+      font-weight: normal;
     }
 
     .table__status-badges {
