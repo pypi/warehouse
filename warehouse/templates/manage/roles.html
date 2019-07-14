@@ -31,10 +31,11 @@
     <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
   </div>
   <table class="table table--light table--collaborators">
+    <caption class="sr-only">Users who can manage {{ project.name }}</caption>
     <thead>
-      <th class="table__user">User</th>
-      <th class="table__role">Role</th>
-      <th class="table__action">Action</th>
+      <th class="table__user" scope="col">User</th>
+      <th class="table__role" scope="col">Role</th>
+      <th class="table__action" scope="col">Action</th>
     </thead>
     <tbody>
     {#
@@ -48,20 +49,19 @@
     {% for username, roles in roles_by_user|dictsort %}
       {% set role = roles|max %}
 
-      <td class="table__user">
-        <span class="table__user-details">
-          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-gravatar">
-            {% set alt = "Avatar for {} from gravatar.com".format(role.user.username) %}
-            <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
-          </a>
-          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
+      <th class="table__user" scope="row">
+        <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
+          <span class="table__user-gravatar">
+            <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="">
+          </span>
+          <span class="table__user-text">
             <strong>{{ role.user.username }}</strong>
             {% if role.user.name %}
-              <br>{{ role.user.name }}
+              <br><span>{{ role.user.name }}</span>
             {% endif %}
-          </a>
-        </span>
-      </td>
+          <span>
+        </a>
+      </th>
         <td class="table__role">
         {% if role.user == request.user %}
           {{ role.role_name }}
