@@ -80,9 +80,9 @@
 
 {% macro email_row(email) -%}
   <tr>
-    <td class="table__email">
+    <th class="table__email" scope="row">
       {{ email.email }}
-    </td>
+    </th>
     <td class="table__status">
       <div class="table__status-badges">
         {% if email.primary %}
@@ -207,7 +207,7 @@
     {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
 
     <table class="table table--light table--emails">
-      <caption>Emails associated with your account</caption>
+      <caption class="sr-only">Emails associated with your account</caption>
       <thead>
         <tr>
           <th scope="col">Email address</th>
@@ -287,9 +287,9 @@
   <hr>
   {% macro twofa_buttons() %}
     {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA by TOTP application</a>
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
     {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button">Add 2FA with security key</a>
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button">Add 2FA with physical security key</a>
 
     <ul id="webauthn-errors" class="form-errors margin-top--large">
       <li id="webauthn-browser-support" class="hidden">
