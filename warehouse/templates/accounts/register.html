@@ -93,7 +93,7 @@
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password password-breach.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check") }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password password-breach.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check", **{"aria-describedby":"password-errors password-strength"}) }}
             </div>
             {% if form.new_password.errors %}
             <ul id="password-errors" class="form-errors" role="alert">
