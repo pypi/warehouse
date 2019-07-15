@@ -111,7 +111,11 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     # first for the entire clientData payload, and then again
     # for the individual challenge.
     response = pywebauthn.WebAuthnRegistrationResponse(
-        rp_id, origin, response, _webauthn_b64encode(challenge.encode()).decode()
+        rp_id,
+        origin,
+        response,
+        _webauthn_b64encode(challenge.encode()).decode(),
+        self_attestation_permitted=True,
     )
     try:
         return response.verify()
