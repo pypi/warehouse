@@ -136,7 +136,7 @@ class MacaroonAuthorizationPolicy:
                 return Denied(f"The supplied token was invalid: {str(exc)!r}")
 
         # If our Macaroon is verified, then we'll pass this request to our underlying
-        # Authorization policy, so it can handle it's own authorization logic on
+        # Authorization policy, so it can handle its own authorization logic on
         # the prinicpal.
         return self.policy.permits(context, principals, permission)
 

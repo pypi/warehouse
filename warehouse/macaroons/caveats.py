@@ -17,12 +17,16 @@ import pymacaroons
 from warehouse.packaging.models import Project
 
 
+class InvalidMacaroon(Exception):
+    ...
+
+
 class Caveat:
     def __init__(self, verifier):
         self.verifier = verifier
 
     def verify(self, predicate):
-        return False
+        raise InvalidMacaroon
 
     def __call__(self, predicate):
         return self.verify(predicate)
@@ -33,26 +37,28 @@ class V1Caveat(Caveat):
         # First, ensure that we're actually operating in
         # the context of a package.
         if not isinstance(self.verifier.context, Project):
-            return False
+            raise InvalidMacaroon(
+                "project-scoped token used outside of a project context"
+            )
 
         project = self.verifier.context
         if project.name in projects:
             return True
 
-        return False
+        raise InvalidMacaroon("project-scoped token matches no projects")
 
     def verify(self, predicate):
         try:
             data = json.loads(predicate)
         except ValueError:
-            return False
+            raise InvalidMacaroon("malformatted predicate")
 
         if data.get("version") != 1:
-            return False
+            raise InvalidMacaroon("invalidate version in predicate")
 
         permissions = data.get("permissions")
         if permissions is None:
-            return False
+            raise InvalidMacaroon("invalid permissions in predicate")
 
         if permissions == "user":
             # User-scoped tokens behave exactly like a user's normal credentials.
@@ -60,7 +66,7 @@ class V1Caveat(Caveat):
 
         projects = permissions.get("projects")
         if projects is None:
-            return False
+            raise InvalidMacaroon("invalid projects in predicate")
 
         return self.verify_projects(projects)
 
@@ -79,4 +85,4 @@ class Verifier:
         try:
             return self.verifier.verify(self.macaroon, key)
         except pymacaroons.exceptions.MacaroonInvalidSignatureException:
-            return False
+            raise InvalidMacaroon("invalid macaroon signature")
