@@ -17,7 +17,7 @@ import pytest
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
-from warehouse.macaroons.caveats import Caveat, V1Caveat, Verifier
+from warehouse.macaroons.caveats import Caveat, InvalidMacaroon, V1Caveat, Verifier
 
 from ...common.db.packaging import ProjectFactory
 
@@ -28,8 +28,10 @@ class TestCaveat:
         caveat = Caveat(verifier)
 
         assert caveat.verifier is verifier
-        assert caveat.verify(pretend.stub()) is False
-        assert caveat(pretend.stub()) is False
+        with pytest.raises(InvalidMacaroon):
+            caveat.verify(pretend.stub())
+        with pytest.raises(InvalidMacaroon):
+            caveat(pretend.stub())
 
 
 class TestV1Caveat:
@@ -38,22 +40,30 @@ class TestV1Caveat:
         [
             ("invalid json", False),
             ('{"version": 2}', False),
-            ('{"permissions": "user", "version": 1}', True),
             ('{"permissions": null, "version": 1}', False),
         ],
     )
-    def test_verify(self, predicate, result):
+    def test_verify_invalid_predicates(self, predicate, result):
         verifier = pretend.stub()
         caveat = V1Caveat(verifier)
 
-        assert caveat(predicate) == result
+        with pytest.raises(InvalidMacaroon):
+            caveat(predicate)
+
+    def test_verify_valid_predicate(self):
+        verifier = pretend.stub()
+        caveat = V1Caveat(verifier)
+        predicate = '{"permissions": "user", "version": 1}'
+
+        assert caveat(predicate) is True
 
     def test_verify_project_invalid_context(self):
         verifier = pretend.stub(context=pretend.stub())
         caveat = V1Caveat(verifier)
 
         predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
-        assert not caveat(json.dumps(predicate))
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
 
     def test_verify_project_invalid_project_name(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -61,7 +71,8 @@ class TestV1Caveat:
         caveat = V1Caveat(verifier)
 
         predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
-        assert not caveat(json.dumps(predicate))
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
 
     def test_verify_project_no_projects_object(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -72,7 +83,8 @@ class TestV1Caveat:
             "version": 1,
             "permissions": {"somethingthatisntprojects": ["blah"]},
         }
-        assert not caveat(json.dumps(predicate))
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
 
     def test_verify_project(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -80,7 +92,7 @@ class TestV1Caveat:
         caveat = V1Caveat(verifier)
 
         predicate = {"version": 1, "permissions": {"projects": ["foobar"]}}
-        assert caveat(json.dumps(predicate))
+        assert caveat(json.dumps(predicate)) is True
 
 
 class TestVerifier:
@@ -108,5 +120,6 @@ class TestVerifier:
         verifier = Verifier(macaroon, context, principals, permission)
 
         monkeypatch.setattr(verifier.verifier, "verify", verify)
-        assert not verifier.verify(key)
+        with pytest.raises(InvalidMacaroon):
+            verifier.verify(key)
         assert verify.calls == [pretend.call(macaroon, key)]
