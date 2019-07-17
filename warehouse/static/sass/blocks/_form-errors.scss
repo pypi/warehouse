@@ -42,12 +42,7 @@
     }
 
     a {
-      color: $danger-color;
-      text-decoration: underline;
-
-      &:hover {
-        color: darken($danger-color, 10);
-      }
+      @include danger-underlined-link;
     }
   }
 

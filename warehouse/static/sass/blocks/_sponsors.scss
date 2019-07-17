@@ -51,10 +51,9 @@
     text-align: center;
     padding: ($spacing-unit / 2) 13px 10px 13px;
     opacity: 0.95;
-    text-decoration: none;
+    @include link-without-underline;
 
     &:hover {
-      text-decoration: none;
       opacity: 1;
 
       .sponsors__image {

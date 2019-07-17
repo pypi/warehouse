@@ -43,6 +43,19 @@ input[type="checkbox"]:active {
   outline: none;
 }
 
+input:disabled,
+input:disabled:focus,
+input:disabled:hover,
+input:disabled:active,
+select:disabled,
+select:disabled:focus,
+select:disabled:hover,
+select:disabled:active {
+  cursor: not-allowed;
+  box-shadow: none;
+  background-color: $base-grey;
+}
+
 label {
   vertical-align: middle;
 }
