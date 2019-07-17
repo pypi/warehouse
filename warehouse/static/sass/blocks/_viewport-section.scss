@@ -69,8 +69,7 @@
     color: $white;
 
     a {
-      color: $white;
-      text-decoration: underline;
+      @include white-underlined-link;
     }
   }
 

@@ -16,18 +16,12 @@
   border: 1px solid $border-color;
   box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
   background-color: $white;
-}
+  background-image: none;
 
-@mixin link-focus($underline: "none") {
-  &:focus {
-    outline: 1px solid $primary-color-light;
-    background-color: transparentize($primary-color-light, 0.9);
-    cursor: pointer;
-    @if $underline == "none" {
-      text-decoration: none;
-    } @else {
-      text-decoration: underline;
-    }
+  &:hover,
+  &:active {
+    border-color: $border-color;
+    background-image: none;
   }
 }
 

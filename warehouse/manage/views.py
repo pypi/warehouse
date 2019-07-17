@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import io
 
 from collections import defaultdict
@@ -323,6 +324,7 @@ class ProvisionTOTPViews:
     def default_response(self):
         totp_secret = self.request.session.get_totp_secret()
         return {
+            "provision_totp_secret": base64.b32encode(totp_secret).decode(),
             "provision_totp_form": ProvisionTOTPForm(totp_secret=totp_secret),
             "provision_totp_uri": otp.generate_totp_provisioning_uri(
                 totp_secret,
@@ -335,7 +337,7 @@ class ProvisionTOTPViews:
     def generate_totp_qr(self):
         if not self.request.user.two_factor_provisioning_allowed:
             self.request.session.flash(
-                "Modifying 2FA requires a verified email.", queue="error"
+                "Verify your email to modify two factor authentication", queue="error"
             )
             return Response(status=403)
 
@@ -353,13 +355,17 @@ class ProvisionTOTPViews:
     def totp_provision(self):
         if not self.request.user.two_factor_provisioning_allowed:
             self.request.session.flash(
-                "Modifying 2FA requires a verified email.", queue="error"
+                "Verify your email to modify two factor authentication", queue="error"
             )
             return Response(status=403)
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
-            self.request.session.flash("TOTP already provisioned.", queue="error")
+            self.request.session.flash(
+                "Account cannot be linked to more than one authentication "
+                "application at a time",
+                queue="error",
+            )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         return self.default_response
@@ -368,13 +374,17 @@ class ProvisionTOTPViews:
     def validate_totp_provision(self):
         if not self.request.user.two_factor_provisioning_allowed:
             self.request.session.flash(
-                "Modifying 2FA requires a verified email.", queue="error"
+                "Verify your email to modify two factor authentication", queue="error"
             )
             return Response(status=403)
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
-            self.request.session.flash("TOTP already provisioned.", queue="error")
+            self.request.session.flash(
+                "Account cannot be linked to more than one authentication "
+                "application at a time",
+                queue="error",
+            )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = ProvisionTOTPForm(
@@ -388,7 +398,7 @@ class ProvisionTOTPViews:
 
             self.request.session.clear_totp_secret()
             self.request.session.flash(
-                "TOTP application successfully provisioned.", queue="success"
+                "Authentication application successfully set up", queue="success"
             )
 
             return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -399,13 +409,15 @@ class ProvisionTOTPViews:
     def delete_totp(self):
         if not self.request.user.two_factor_provisioning_allowed:
             self.request.session.flash(
-                "Modifying 2FA requires a verified email.", queue="error"
+                "Verify your email to modify two factor authentication", queue="error"
             )
             return Response(status=403)
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if not totp_secret:
-            self.request.session.flash("No TOTP application to delete.", queue="error")
+            self.request.session.flash(
+                "There is no authentication application to delete", queue="error"
+            )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
@@ -416,9 +428,13 @@ class ProvisionTOTPViews:
 
         if form.validate():
             self.user_service.update_user(self.request.user.id, totp_secret=None)
-            self.request.session.flash("TOTP application deleted.", queue="success")
+            self.request.session.flash(
+                "Authentication application removed from PyPI. "
+                "Remember to remove PyPI from your application.",
+                queue="success",
+            )
         else:
-            self.request.session.flash("Invalid credentials.", queue="error")
+            self.request.session.flash("Invalid credentials", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -486,9 +502,9 @@ class ProvisionWebAuthnViews:
                 sign_count=form.validated_credential.sign_count,
             )
             self.request.session.flash(
-                "WebAuthn successfully provisioned.", queue="success"
+                "Security device successfully set up", queue="success"
             )
-            return {"success": "WebAuthn successfully provisioned"}
+            return {"success": "Security device successfully set up"}
 
         errors = [
             str(error) for error_list in form.errors.values() for error in error_list
@@ -502,7 +518,9 @@ class ProvisionWebAuthnViews:
     )
     def delete_webauthn(self):
         if len(self.request.user.webauthn) == 0:
-            self.request.session.flash("No WebAuthhn device to delete.", queue="error")
+            self.request.session.flash(
+                "There is no security device to delete", queue="error"
+            )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteWebAuthnForm(
@@ -514,9 +532,9 @@ class ProvisionWebAuthnViews:
 
         if form.validate():
             self.request.user.webauthn.remove(form.webauthn)
-            self.request.session.flash("WebAuthn device deleted.", queue="success")
+            self.request.session.flash("Security device removed", queue="success")
         else:
-            self.request.session.flash("Invalid credentials.", queue="error")
+            self.request.session.flash("Invalid credentials", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -767,7 +785,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         elif user.primary_email is None or not user.primary_email.verified:
             request.session.flash(
                 f"User '{username}' does not have a verified primary email "
-                f"address and cannot be added as a {role_name} for project.",
+                f"address and cannot be added as a {role_name} for project",
                 queue="error",
             )
         else:
