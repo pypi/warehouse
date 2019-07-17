@@ -19,7 +19,12 @@
 {% block account_active %}vertical-tabs__tab--is-active{% endblock %}
 {% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}
+  {% if add_email_form.errors or change_password_form.errors %}
+  Error processing form –
+  {% endif %}
+  {{ title }}
+{% endblock %}
 
 {% macro form_error_anchor(form) %}
   {% if form.errors %}
@@ -29,7 +34,7 @@
 
 {% macro form_errors(form) %}
   {% if form.errors.__all__ %}
-  <ul class="form-errors">
+  <ul class="form-errors" role="alert">
     {% for error in form.errors.__all__ %}
     <li>{{ error }}</li>
     {% endfor %}
@@ -39,7 +44,7 @@
 
 {% macro field_errors(field) %}
   {% if field.errors %}
-  <ul class="form-errors">
+  <ul id="{{field.name}}-errors" class="form-errors" role="alert">
     {% for error in field.errors %}
     <li>{{ error }}</li>
     {% endfor %}
@@ -53,7 +58,10 @@
     {% set message = "Intermittent delivery problems may lead to verification loss" %}
     <span class="badge badge--warning tooltipped tooltipped-s" data-original-label="{{ message }}" aria-label="{{ message }}"><i class="fa fa-exclamation-triangle"></i> Verified</span>
     {% else %}
-    <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span>
+    <span class="badge badge--success">
+      <i class="fa fa-check" aria-hidden="true"></i>
+      Verified
+    </span>
     {% endif %}
   {% else %}
     {% set icon = 'exclamation-triangle' %}
@@ -68,15 +76,18 @@
       {% set message = "Verification in progress" %}
       {% set icon = 'spinner' %}
     {% endif %}
-    <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}"><i class="fa fa-{{ icon }}"></i> Unverified</span>
+    <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}">
+      <i class="fa fa-{{ icon }}" aria-hidden="true"></i>
+      Unverified
+    </span>
   {% endif %}
 {% endmacro %}
 
 {% macro email_row(email) -%}
   <tr>
-    <td class="table__email">
+    <th class="table__email" scope="row">
       {{ email.email }}
-    </td>
+    </th>
     <td class="table__status">
       <div class="table__status-badges">
         {% if email.primary %}
@@ -148,12 +159,10 @@
       <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
       <div class="gravatar-form__content">
         <p>
-        We use <a href="https://gravatar.com/">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
+        We use <a href="https://gravatar.com/" title="External link" target="_blank" rel="noopener">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
         </p>
-        <a href="{{ gravatar_profile(user.email) }}" target="_blank" rel="noopener" class="button">
+        <a href="{{ gravatar_profile(user.email) }}" title="External link" target="_blank" rel="noopener" class="button">
           Change image<span class="hide-on-mobile"> on gravatar.com</span>
-          <i class="fa fa-external-link-alt" aria-hidden="true"></i>
-          <span class="sr-only">Opens in new window</span>
         </a>
       </div>
     </div>
@@ -180,7 +189,7 @@
       {{ form_errors(save_account_form) }}
       <div class="form-group">
         <label class="form-group__label" for="name">Full name</label>
-        {{ save_account_form.name(placeholder="No name set", class_="form-group__input") }}
+        {{ save_account_form.name(placeholder="No name set", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
         {{ field_errors(save_account_form.name) }}
         <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a></p>
       </div>
@@ -203,10 +212,11 @@
     {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
 
     <table class="table table--light table--emails">
+      <caption class="sr-only">Emails associated with your account</caption>
       <thead>
         <tr>
-          <th>Email address</th>
-          <th>Status</th>
+          <th scope="col">Email address</th>
+          <th scope="col">Status</th>
           <th></th>
         </tr>
       </thead>
@@ -223,7 +233,7 @@
         <label class="form-group__label" for="email">Add email</label>
         <div class="form-group__horizontal">
           <div class="form-group__horizontal-left">
-            {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
+            {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
             {{ field_errors(add_email_form.email) }}
           </div>
           <div class="form-group__horizontal-right">
@@ -250,25 +260,25 @@
               id="show-password" type="checkbox">&nbsp;Show passwords
           </label>
         </div>
-        {{ change_password_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password")}}
+        {{ change_password_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password", **{"aria-describedby":"password-errors"}) }}
         {{ field_errors(change_password_form.password) }}
       </div>
       <div class="form-group">
         <label class="form-group__label" for="name">New password</label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength") }}
+          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new_password-errors"}) }}
         </div>
         {{ field_errors(change_password_form.new_password) }}
         {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
       </div>
       <div class="form-group">
         <label class="form-group__label" for="name">Confirm new password</label>
-        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch") }}
+        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password_confirm-errors"}) }}
         {{ field_errors(change_password_form.password_confirm) }}
       </div>
       <div class="form-group">
-        <ul class="form-errors">
+        <ul class="form-errors" role="alert">
           <li data-target="password-match.matchMessage" class="hidden"></li>
         </ul>
       </div>
@@ -282,20 +292,24 @@
   <hr>
   {% macro twofa_buttons() %}
     {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA by TOTP application</a>
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
     {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button">Add 2FA with security key</a>
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button">Add 2FA with security device (e.g. USB key)</a>
+
+    <noscript>
+      <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
+    </noscript>
 
     <ul id="webauthn-errors" class="form-errors margin-top--large">
       <li id="webauthn-browser-support" class="hidden">
-        Your browser <a href="/help#utfkey">does not support WebAuthn</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
       </li>
     </ul>
   {% endmacro %}
 
   <section id="two-factor">
-    <h2 class="sub-title">Two factor authentication</h2>
-    <p>Two factor authentication (2FA) adds an additional layer of security to your account. <a href="/help#2fa">Learn more</a></p>
+    <h2 class="sub-title">Two factor authentication (2FA)</h2>
+    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more</a>.</p>
 
     {% if user.totp_secret or user.webauthn %}
     <table class="table table--light table--2fa">
@@ -307,11 +321,11 @@
       <tbody>
         {% if user.totp_secret %}
         <tr>
-          <td>Authentication app (TOTP)</td>
+          <td>Authentication application (TOTP)</td>
           <td class="table__action">
             <a href="#disable-totp" class="button button--primary">Remove</a>
-            {% set title="Remove 2FA by TOTP application" %}
-            {% set confirm_button_label="Remove TOTP application" %}
+            {% set title="Remove authentication application" %}
+            {% set confirm_button_label="Remove application" %}
             {% set action="/manage/account/totp-provision" %}
             {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
           </td>
@@ -320,19 +334,19 @@
         {% for credential in user.webauthn %}
         <tr>
           <td>
-            <strong>"{{ credential.label }}"</strong> - Security key (WebAuthn)
+            <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
             <span class="badge badge--warning">Beta</span>
           </td>
           <td class="table__action">
             <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
-            {% set title="Remove 2FA key - " + credential.label %}
-            {% set confirm_button_label="Remove key" %}
+            {% set title="Remove two factor security device - " + credential.label %}
+            {% set confirm_button_label="Remove device" %}
             {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
             {% set slug="disable-webauthn-" + credential.id | string %}
             {% set extra_fields %}
               <input type="text" name="label" value="{{ credential.label }}" hidden>
             {% endset %}
-            {{ confirm_modal(title=title, confirm_name="Key name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+            {{ confirm_modal(title=title, confirm_name="Device name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
           </td>
         </tr>
         {% endfor %}
@@ -374,13 +388,7 @@
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          <a href="{{ request.route_path('manage.project.roles', project_name=project.name) }}">
-            transfer ownership
-          </a>
-          or
-          <a href="{{ request.route_path('manage.project.settings', project_name=project.name) }}">
-            delete
-          </a>
+          <a href="{{ request.route_path('manage.project.roles', project_name=project.name) }}">transfer ownership</a> or <a href="{{ request.route_path('manage.project.settings', project_name=project.name) }}">delete</a>
         </li>
         {% endfor %}
       </ul>

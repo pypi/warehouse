@@ -25,17 +25,19 @@
 {%- endmacro %}
 
 {% macro password_strength_gauge(data_target=None) -%}
-<p class="form-group__help-text">
-  Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
-</p>
-<p class="form-group__help-text">
-  <strong>Password strength:</strong>
-  <span class="password-strength">
-    <span class="password-strength__gauge"{% if data_target %} data-target="{{ data_target }}"{% endif %}>
-      <span class="sr-only">Password field is empty</span>
+<div id="password-strength">
+  <p class="form-group__help-text">
+    Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
+  </p>
+  <p class="form-group__help-text">
+    <strong>Password strength:</strong>
+    <span class="password-strength">
+      <span class="password-strength__gauge"{% if data_target %} data-target="{{ data_target }}"{% endif %}>
+        <span class="sr-only">Password field is empty</span>
+      </span>
     </span>
-  </span>
-</p>
+  </p>
+</div>
 {%- endmacro %}
 
 {% macro main_navigation_logged_out() -%}
@@ -139,7 +141,7 @@
     <section id="sticky-notifications" class="stick-to-top js-stick-to-top">
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
-      <div class="notification-bar notification-bar--danger">
+      <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
           <span class="sr-only">Warning:</span>
@@ -148,7 +150,7 @@
       </div>
       <![endif]-->
       {% if testPyPI %}
-      <div class="notification-bar notification-bar--warning">
+      <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
           <span class="sr-only">Warning:</span>
@@ -157,7 +159,7 @@
       </div>
       {% endif %}
       <noscript>
-      <div class="notification-bar notification-bar--danger">
+      <div class="notification-bar notification-bar--warning" role="status">
         {# TODO: This should be removed once GH-3828 is fixed. #}
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
@@ -168,20 +170,13 @@
       </noscript>
     </section>
 
-    <div class="notification-bar">
-      <span class="notification-bar__message">
-        Donate to the Python Software Foundation or Purchase a PyCharm License to Benefit the PSF!
-        <a href="https://www.python.org/psf/donations/2019-q2-drive/" target="_blank" title="Donate to the Python Software Foundation">Donate Now</a>
-      </span>
-    </div>
-
     {% block flash_messages %}
       {% csi request.route_path("includes.flash-messages") %}
       {% endcsi %}
     {% endblock %}
 
     {% for flag in request.flags.notifications() %}
-    <div class="notification-bar notification-bar--danger">
+    <div class="notification-bar">
       <span class="notification-bar__message">{{ flag.description }}</span>
     </div>
     {% endfor %}
@@ -202,16 +197,14 @@
               </a>
             </div>
 
-            <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
-              <div role="search">
-                <label for="search" class="sr-only">Search PyPI</label>
-                <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
-                {% block search_form_extra_inputs %}{% endblock %}
-                <button type="submit" class="search-form__button">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                  <span class="sr-only">Search</span>
-                </button>
-              </div>
+            <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
+              <label for="search" class="sr-only">Search PyPI</label>
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+              {% block search_form_extra_inputs %}{% endblock %}
+              <button type="submit" class="search-form__button">
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <span class="sr-only">Search</span>
+              </button>
             </form>
           </div>
           {% endblock %}
@@ -225,17 +218,14 @@
 
     {% block mobile_search %}
     <section class="mobile-search">
-      <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
-        <div role="search">
-          <label for="mobile-search" class="sr-only">Search PyPI</label>
-          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
-          {{ self.search_form_extra_inputs() }}
-          <button type="submit" class="search-form__button">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            <span class="sr-only">Search</span>
-          </button>
-          </button>
-        </div>
+      <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
+        <label for="mobile-search" class="sr-only">Search PyPI</label>
+        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+        {{ self.search_form_extra_inputs() }}
+        <button type="submit" class="search-form__button">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <span class="sr-only">Search</span>
+        </button>
       </form>
     </section>
     {% endblock mobile_search %}
@@ -255,18 +245,18 @@
           <li>
             <h2>Help</h2>
           </li>
-          <li><a href="https://packaging.python.org/installing/">Installing packages</a></li>
-          <li><a href="https://packaging.python.org/tutorials/packaging-projects/">Uploading packages</a></li>
-          <li><a href="https://packaging.python.org/">User guide</a></li>
+          <li><a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Installing packages</a></li>
+          <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Uploading packages</a></li>
+          <li><a href="https://packaging.python.org/" title="External link" target="_blank" rel="noopener">User guide</a></li>
           <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
         </ul>
         <ul class="footer__menu">
           <li>
             <h2>About PyPI</h2>
           </li>
-          <li><a href="https://twitter.com/PyPI">PyPI on Twitter</a></li>
-          <li><a href="https://dtdg.co/pypi">Infrastructure dashboard</a></li>
-          <li><a href="https://www.python.org/dev/peps/pep-0541/">Package index name retention</a></li>
+          <li><a href="https://twitter.com/PyPI" title="External link" target="_blank" rel="noopener">PyPI on Twitter</a></li>
+          <li><a href="https://dtdg.co/pypi" title="External link" target="_blank" rel="noopener">Infrastructure dashboard</a></li>
+          <li><a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">Package index name retention</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
         </ul>
 
@@ -276,16 +266,16 @@
             <h2>Contributing to PyPI</h2>
           </li>
           <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
-          <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
-          <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development credits</a></li>
+          <li><a href="https://github.com/pypa/warehouse" title="External link" target="_blank" rel="noopener">Contribute on GitHub</a></li>
+          <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="External link" target="_blank" rel="noopener">Development credits</a></li>
         </ul>
         <ul class="footer__menu">
           <li>
             <h2>Using PyPI</h2>
           </li>
-          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/">Code of conduct</a></li>
+          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="External link" target="_blank" rel="noopener">Code of conduct</a></li>
           <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
-          <li><a href="https://www.python.org/privacy/">Privacy policy</a></li>
+          <li><a href="https://www.python.org/privacy/" title="External link" target="_blank" rel="noopener">Privacy policy</a></li>
           <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
         </ul>
       </div>
@@ -294,14 +284,16 @@
 
       <div class="footer__text">
         {% if request.registry.settings.get("statuspage.url") %}
-        <p>Status: <a href="https://status.python.org/"><span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a></p>
+        <p>Status: <a href="https://status.python.org/" title="External link" target="_blank" rel="noopener">
+          <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a>
+        </p>
         {% endif %}
         <p>
           Developed and maintained by the Python community, for the Python community.
           <br>
           <a href="https://donate.pypi.org">Donate today!</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/">Python Software Foundation</a></p>
+        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="External link" target="_blank" rel="noopener">Python Software Foundation</a></p>
       </div>
 
       <div class="centered hide-on-desktop">

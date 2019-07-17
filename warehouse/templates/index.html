@@ -50,7 +50,7 @@
   <div class="homepage-banner">
     <h1 class="homepage-banner__title">{{ banner }}</h1>
 
-    <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
+    <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
       <label for="search" class="sr-only">Search PyPI</label>
       <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search projects">
       <button type="submit" class="search-form__button">
@@ -81,11 +81,11 @@
       <p class="lede-paragraph">The Python Package Index (PyPI) is a repository of software for the Python programming language.</p>
       <p>
         PyPI helps you find and install software developed and shared by the Python community.
-        <a href="https://packaging.python.org/installing/">Learn about installing packages</a>.
+        <a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Learn about installing packages</a>.
       </p>
       <p>
         Package authors use PyPI to distribute their software.
-        <a href="https://packaging.python.org/tutorials/packaging-projects/">Learn how to package your Python code for PyPI</a>.
+        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Learn how to package your Python code for PyPI</a>.
       </p>
     </div>
   </div>
@@ -117,9 +117,6 @@
           {{ project_snippet(release) }}
         {% endfor %}
       </ul>
-      {#
-      <a class="button" href="TODO">Show more</a>
-      #}
     </div>
   </div>
 </section>
