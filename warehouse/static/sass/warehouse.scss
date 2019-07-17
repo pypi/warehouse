@@ -168,6 +168,11 @@
   @include h1-title;
 }
 
+// Resolve conflict between .page-title and .heading-wsubtitle
+.page-title--wsubtitle {
+  padding-bottom: 5px;
+}
+
 // Add extra padding to subtitles
 .sub-title {
   padding-bottom: 25px;

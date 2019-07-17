@@ -429,7 +429,7 @@ class ProvisionTOTPViews:
         if form.validate():
             self.user_service.update_user(self.request.user.id, totp_secret=None)
             self.request.session.flash(
-                "Authentication application deleted from PyPI. "
+                "Authentication application removed from PyPI. "
                 "Remember to remove PyPI from your application.",
                 queue="success",
             )
@@ -502,9 +502,9 @@ class ProvisionWebAuthnViews:
                 sign_count=form.validated_credential.sign_count,
             )
             self.request.session.flash(
-                "Physical security key successfully set up", queue="success"
+                "Security device successfully set up", queue="success"
             )
-            return {"success": "Physical security key successfully set up"}
+            return {"success": "Security device successfully set up"}
 
         errors = [
             str(error) for error_list in form.errors.values() for error in error_list
@@ -519,7 +519,7 @@ class ProvisionWebAuthnViews:
     def delete_webauthn(self):
         if len(self.request.user.webauthn) == 0:
             self.request.session.flash(
-                "There is no physical security key to delete", queue="error"
+                "There is no security device to delete", queue="error"
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -532,7 +532,7 @@ class ProvisionWebAuthnViews:
 
         if form.validate():
             self.request.user.webauthn.remove(form.webauthn)
-            self.request.session.flash("Physical security key deleted", queue="success")
+            self.request.session.flash("Security device removed", queue="success")
         else:
             self.request.session.flash("Invalid credentials", queue="error")
 
