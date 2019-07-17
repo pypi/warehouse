@@ -110,8 +110,9 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     # response's clientData.challenge is encoded twice:
     # first for the entire clientData payload, and then again
     # for the individual challenge.
+    encoded_challenge = _webauthn_b64encode(challenge.encode()).decode()
     response = pywebauthn.WebAuthnRegistrationResponse(
-        rp_id, origin, response, _webauthn_b64encode(challenge.encode()).decode()
+        rp_id, origin, response, encoded_challenge, self_attestation_permitted=True
     )
     try:
         return response.verify()
@@ -129,12 +130,13 @@ def verify_assertion_response(assertion, *, challenge, user, origin, icon_url, r
     """
     webauthn_users = _get_webauthn_users(user, icon_url=icon_url, rp_id=rp_id)
     cred_ids = [cred.credential_id for cred in webauthn_users]
+    encoded_challenge = _webauthn_b64encode(challenge.encode()).decode()
 
     for webauthn_user in webauthn_users:
         response = pywebauthn.WebAuthnAssertionResponse(
             webauthn_user,
             assertion,
-            _webauthn_b64encode(challenge.encode()).decode(),
+            encoded_challenge,
             origin,
             allow_credentials=cred_ids,
         )
