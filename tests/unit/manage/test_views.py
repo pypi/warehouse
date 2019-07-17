@@ -1017,7 +1017,7 @@ class TestProvisionTOTP:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Authentication application deleted from PyPI. "
+                "Authentication application removed from PyPI. "
                 "Remember to remove PyPI from your application.",
                 queue="success",
             )
@@ -1206,9 +1206,9 @@ class TestProvisionWebAuthn:
             )
         ]
         assert request.session.flash.calls == [
-            pretend.call("Physical security key successfully set up", queue="success")
+            pretend.call("Security device successfully set up", queue="success")
         ]
-        assert result == {"success": "Physical security key successfully set up"}
+        assert result == {"success": "Security device successfully set up"}
 
     def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
         user_service = pretend.stub(
@@ -1275,7 +1275,7 @@ class TestProvisionWebAuthn:
         result = view.delete_webauthn()
 
         assert request.session.flash.calls == [
-            pretend.call("Physical security key deleted", queue="success")
+            pretend.call("Security device removed", queue="success")
         ]
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
@@ -1293,7 +1293,7 @@ class TestProvisionWebAuthn:
         result = view.delete_webauthn()
 
         assert request.session.flash.calls == [
-            pretend.call("There is no physical security key to delete", queue="error")
+            pretend.call("There is no security device to delete", queue="error")
         ]
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
