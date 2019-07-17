@@ -30,6 +30,7 @@
 @import "tools/neat/neat"; // Also imports neat's default settings
 @import "tools/design-utilities";
 @import "tools/layout-utilities";
+@import "tools/link-utilities";
 @import "tools/typography";
 
 // SETTINGS LAYER: settings we use throughout the codebase
@@ -165,6 +166,11 @@
 // Adjust size of h1s on standalone pages
 .page-title {
   @include h1-title;
+}
+
+// Resolve conflict between .page-title and .heading-wsubtitle
+.page-title--wsubtitle {
+  padding-bottom: 5px;
 }
 
 // Add extra padding to subtitles

@@ -17,6 +17,8 @@
   Use for small strings, or numbers.
 
   <span class="badge">Contributor</span>
+  or
+  <a class="badge">Sole owner</span>
 */
 
 .badge {
@@ -24,9 +26,14 @@
   text-transform: uppercase;
   background-color: $primary-color;
   color: $white;
-  padding: 2px 7px;
+  padding: 0 7px;
   border-radius: 3px;
   font-weight: 600;
+  @include link-without-underline;
+
+  &:hover {
+    color: $white;
+  }
 
   &--success {
     background-color: $success-color;
@@ -39,5 +46,9 @@
   &--warning {
     background-color: $warn-color;
     color: $warn-text;
+
+    &:hover {
+      color: $warn-text;
+    }
   }
 }

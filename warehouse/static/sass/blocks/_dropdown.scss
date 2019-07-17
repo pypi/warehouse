@@ -77,12 +77,12 @@
     cursor: pointer;
     text-align: left;
     position: relative;
+    @include link-without-underline;
 
     &:hover,
     &:focus {
       background-color: mix($white, $primary-color-light, 90%);
       color: $primary-color-dark;
-      text-decoration: none;
     }
 
     &:focus {

@@ -34,7 +34,7 @@
   }
 
   .sidebar-section__user-gravatar {
-    text-decoration: none;
+    @include link-without-underline;
   }
 
   &:last-of-type {

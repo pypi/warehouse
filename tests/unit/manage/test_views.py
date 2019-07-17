@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import datetime
 import uuid
 
@@ -743,7 +744,9 @@ class TestProvisionTOTP:
         assert isinstance(result, Response)
         assert result.status_code == 403
         assert request.session.flash.calls == [
-            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+            pretend.call(
+                "Verify your email to modify two factor authentication", queue="error"
+            )
         ]
 
     def test_totp_provision(self, monkeypatch):
@@ -782,6 +785,7 @@ class TestProvisionTOTP:
 
         assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
         assert result == {
+            "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
         }
@@ -810,7 +814,11 @@ class TestProvisionTOTP:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == [
-            pretend.call("TOTP already provisioned.", queue="error")
+            pretend.call(
+                "Account cannot be linked to more than one authentication "
+                "application at a time",
+                queue="error",
+            )
         ]
 
     def test_totp_provision_two_factor_not_allowed(self):
@@ -829,7 +837,9 @@ class TestProvisionTOTP:
         assert isinstance(result, Response)
         assert result.status_code == 403
         assert request.session.flash.calls == [
-            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+            pretend.call(
+                "Verify your email to modify two factor authentication", queue="error"
+            )
         ]
 
     def test_validate_totp_provision(self, monkeypatch):
@@ -870,7 +880,9 @@ class TestProvisionTOTP:
             pretend.call(request.user.id, totp_secret=b"secret")
         ]
         assert request.session.flash.calls == [
-            pretend.call("TOTP application successfully provisioned.", queue="success")
+            pretend.call(
+                "Authentication application successfully set up", queue="success"
+            )
         ]
 
     def test_validate_totp_provision_already_provisioned(self, monkeypatch):
@@ -900,7 +912,11 @@ class TestProvisionTOTP:
         assert user_service.update_user.calls == []
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert request.session.flash.calls == [
-            pretend.call("TOTP already provisioned.", queue="error")
+            pretend.call(
+                "Account cannot be linked to more than one authentication "
+                "application at a time",
+                queue="error",
+            )
         ]
 
         assert isinstance(result, HTTPSeeOther)
@@ -912,7 +928,7 @@ class TestProvisionTOTP:
             POST={},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
-                get_totp_secret=lambda: pretend.stub(),
+                get_totp_secret=lambda: b"secret",
             ),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -943,6 +959,7 @@ class TestProvisionTOTP:
 
         assert request.session.flash.calls == []
         assert result == {
+            "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
         }
@@ -963,7 +980,9 @@ class TestProvisionTOTP:
         assert isinstance(result, Response)
         assert result.status_code == 403
         assert request.session.flash.calls == [
-            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+            pretend.call(
+                "Verify your email to modify two factor authentication", queue="error"
+            )
         ]
 
     def test_delete_totp(self, monkeypatch, db_request):
@@ -997,7 +1016,11 @@ class TestProvisionTOTP:
             pretend.call(request.user.id, totp_secret=None)
         ]
         assert request.session.flash.calls == [
-            pretend.call("TOTP application deleted.", queue="success")
+            pretend.call(
+                "Authentication application removed from PyPI. "
+                "Remember to remove PyPI from your application.",
+                queue="success",
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -1030,7 +1053,7 @@ class TestProvisionTOTP:
 
         assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
-            pretend.call("Invalid credentials.", queue="error")
+            pretend.call("Invalid credentials", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -1063,7 +1086,9 @@ class TestProvisionTOTP:
 
         assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
-            pretend.call("No TOTP application to delete.", queue="error")
+            pretend.call(
+                "There is no authentication application to delete", queue="error"
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -1084,7 +1109,9 @@ class TestProvisionTOTP:
         assert isinstance(result, Response)
         assert result.status_code == 403
         assert request.session.flash.calls == [
-            pretend.call("Modifying 2FA requires a verified email.", queue="error")
+            pretend.call(
+                "Verify your email to modify two factor authentication", queue="error"
+            )
         ]
 
 
@@ -1179,9 +1206,9 @@ class TestProvisionWebAuthn:
             )
         ]
         assert request.session.flash.calls == [
-            pretend.call("WebAuthn successfully provisioned.", queue="success")
+            pretend.call("Security device successfully set up", queue="success")
         ]
-        assert result == {"success": "WebAuthn successfully provisioned"}
+        assert result == {"success": "Security device successfully set up"}
 
     def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
         user_service = pretend.stub(
@@ -1248,7 +1275,7 @@ class TestProvisionWebAuthn:
         result = view.delete_webauthn()
 
         assert request.session.flash.calls == [
-            pretend.call("WebAuthn device deleted.", queue="success")
+            pretend.call("Security device removed", queue="success")
         ]
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
@@ -1266,7 +1293,7 @@ class TestProvisionWebAuthn:
         result = view.delete_webauthn()
 
         assert request.session.flash.calls == [
-            pretend.call("No WebAuthhn device to delete.", queue="error")
+            pretend.call("There is no security device to delete", queue="error")
         ]
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
@@ -1293,7 +1320,7 @@ class TestProvisionWebAuthn:
         result = view.delete_webauthn()
 
         assert request.session.flash.calls == [
-            pretend.call("Invalid credentials.", queue="error")
+            pretend.call("Invalid credentials", queue="error")
         ]
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
@@ -2014,7 +2041,7 @@ class TestManageProjectRoles:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "User 'testuser' does not have a verified primary email address "
-                "and cannot be added as a Owner for project.",
+                "and cannot be added as a Owner for project",
                 queue="error",
             )
         ]
