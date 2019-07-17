@@ -296,9 +296,13 @@
     {% endif %}
     <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button">Add 2FA with physical security key</a>
 
+    <noscript>
+      <p>Enable JavaScript to set up two factor authentication with a physical (e.g. USB) security key</p>
+    </noscript>
+
     <ul id="webauthn-errors" class="form-errors margin-top--large">
       <li id="webauthn-browser-support" class="hidden">
-        Your browser <a href="/help#utfkey">does not support WebAuthn</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a physical (e.g. USB) security key
       </li>
     </ul>
   {% endmacro %}
