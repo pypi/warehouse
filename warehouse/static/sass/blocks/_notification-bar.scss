@@ -13,14 +13,15 @@
  */
 
 /*
-  A dark, full width horizontal div that contains a short notification.
+  A full width horizontal div that contains a short notification.
   Use for single lines only, as all content will be styled as a h3.
 
-  Can be nested inside the .sticky-to-top helper to stick to the top of the page.
+  Can be nested inside the .stick-to-top helper to stick to the top of the page.
 
   <div class="notification-bar">
     <span class="notification-bar__icon">
-      // icon here
+      <i class="icon-classes" aria-hidden="true"></i>
+      <span class="sr-only">Icon label:</span>
     </span>
     <span class="notification-bar__message">
       // A one line notification goes here.
@@ -29,12 +30,38 @@
 
   Modifiers:
     - danger: Applies a red background
+    - warning: Applies a yellow background
     - success: Applies a green background
     - dismissable: Indicates notification can be dismissed. Defaults to hidden.
     - visible: Indicates a visible, non-dismissed notification
 
+  Accessibility:
+  Roles should be added to danger, warning and success notifications to help
+  users using screen readers:
+
+  - danger: Add role="alert". Use with care - as this will interrupt the
+    standard screen reader workflow
+  - warning: Add role="status"
+  - success: Add role="status"
+
+  Icons should also be added to danger, warning and success notifications, to
+  ensure that color is not the only way of conveying the status of the
+  notification. This is important for color blind users.
+<<<<<<< HEAD
+
+  Icons should be hidden with "aria-hidden=true" and given a screen reader
+  label, as per the HTML example above.
+=======
+  Note "aria-hidden=true" in the HTML example above.
+>>>>>>> Add roles to notification messages
+
+   - danger: Add "fa fa-exclamation-triangle", sr-only="Error:"
+   - warning: Add "fa fa-exclamation-triangle", sr-only="Warning:"
+   - success: Add "fa fa-check", sr-only="Success:"
+
   A notification bar can be made dismissable by adding the following to the main
   notification-bar div:
+
     - .notification-bar--dismissable to its classes
     - data-controller="notification" as an attribute
     - data-target="notification.notification" as an attribute
@@ -82,10 +109,8 @@
     @include h3;
 
     a {
-      color: $white;
-      text-decoration: underline;
-
-      @include link-focus(underline);
+      @include white-underlined-link;
+      @include link-focus;
     }
   }
 
@@ -118,7 +143,7 @@
     border-color: darken($primary-color, 10);
 
     a {
-      color: $warn-text;
+      @include colored-link($warn-text);
     }
   }
 

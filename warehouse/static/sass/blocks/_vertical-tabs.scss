@@ -55,10 +55,10 @@
     display: block;
     padding: $spacing-unit / 2;
     cursor: pointer;
+    @include link-without-underline;
 
     &:hover,
     &:focus {
-      text-decoration: none;
       color: darken($primary-color, 10)
     }
 

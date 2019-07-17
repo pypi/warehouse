@@ -14,7 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Set up 2FA using a security key (WebAuthn)" %}
+{% set title = "Set up 2FA with a security device (e.g. USB key)" %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -22,29 +22,25 @@
 {% block mobile_search %}{% endblock %}
 
 {% block main %}
-<h1 class="page-title">{{ title }}</h1>
-<section>
-  <h2>How two factor authentication with WebAuthn works</h2>
-
-  <ol>
-    <li>When you sign into PyPI, you will be asked to provide your username and password, as usual</li>
-    <li>You will then see a screen asking for a secondary login method</li>
-    <li>Insert and activate your key (provisioned below) to access your PyPI account</li>
-  </ol>
-
+<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }} <span class="badge badge--warning">Beta</span></h1>
+<p class="heading-wsubtitle__subtitle">
+  PyPI supports any device that adheres to the <a href="https://fidoalliance.org/certification/fido-certified-products/" title="External link" target="_blank" rel="noopener">FIDO standard</a>.
   <br>
+  Popular <em>USB keys</em> include <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a>, <a href="https://cloud.google.com/titan-security-key/" title="External link" target="_blank" rel="noopener">Google Titan</a> and <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.
+</p>
 
+<section>
   <noscript>
-    <p>WebAuthn cannot be used without JavaScript.</p>
+    <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
   </noscript>
 
   <div class="form-group">
-    <label for="webauthn-provision-label" class="form-group__label">Key name</label>
+    <label for="webauthn-provision-label" class="form-group__label">Name your device to begin</label>
     <input id="webauthn-provision-label" type="text" name="label" class="form-group__input">
-    <p class="form-group__help-text">PyPI supports adding multiple WebAuthn keys.<br>Please give this key a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
+    <p class="form-group__help-text">PyPI supports adding multiple security devices.<br>Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
     <ul id="webauthn-errors" class="form-errors margin-top--large">
       <li id="webauthn-browser-support" class="hidden">
-        Your browser <a href="/help#utfkey">does not support WebAuthn</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
       </li>
     </ul>
   </div>
@@ -54,8 +50,15 @@
       id="webauthn-provision-begin"
       class="button button--primary"
       csrf-token="{{ request.session.get_csrf_token() }}"
-      disabled>Provision key
+      disabled>Set up security device
     </button>
   </div>
+
+  <br>
+
+  <div class="callout-block">
+    <p><strong>Device not being recognised?</strong> Some older USB keys do not adhere to the FIDO standard and will not work with PyPI.</p>
+  </div>
+
 </section>
 {% endblock %}
