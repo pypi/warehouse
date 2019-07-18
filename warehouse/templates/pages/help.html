@@ -25,7 +25,7 @@
       <strong>Note:</strong> If you lose your {{ method }} and can no longer log in, the PyPI team <strong>cannot</strong> currently help you recover your account.
       We plan to develop a <a href="https://github.com/pypa/warehouse/issues/5758" title="External link" target="_blank" rel="noopener">manual account recovery policy</a> and implement <a href="https://github.com/pypa/warehouse/issues/5800" title="External link" target="_blank" rel="noopener">account recovery codes</a> to address this issue.
     </p>
-    <p>In the short term, we recommend that all PyPI users set up <em>both</em> supported two factor authentication methods - using an authentication application <em>and</em> setting up a physical security key.</p>
+    <p>In the short term, we recommend that all PyPI users set up <em>both</em> supported two factor authentication methods - using an authentication application <em>and</em> setting up a security device (e.g. USB key).</p>
   </div>
 {% endmacro %}
 
@@ -39,8 +39,8 @@
 {% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
 {% macro twoFA() %}What is two factor authentication and how does it work on PyPI?{% endmacro %}
 {% macro totp() %}How does two factor authentication with an authentication application (TOTP) work? How do I set it up on PyPI?{% endmacro %}
-{% macro utfkey() %}How does two factor authentication with a physical security key (e.g. USB) work? How do I set it up on PyPI? <span class="badge badge--warning">Beta</span>{% endmacro %}
-{% macro utfdevices() %}What devices (other than USB) can I use as a physical security key? <span class="badge badge--warning">Beta</span>{% endmacro %}
+{% macro utfkey() %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI? <span class="badge badge--warning">Beta</span>{% endmacro %}
+{% macro utfdevices() %}What devices (other than a USB key) can I use as a security device? <span class="badge badge--warning">Beta</span>{% endmacro %}
 
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
@@ -191,7 +191,7 @@
 
         <h3 id="twofa">{{ twoFA() }}</h3>
         <p>Two factor authentication (2FA) makes your account more secure by requiring two things in order to log in: <em>something you know</em> and <em>something you own</em>.</p>
-        <p>In PyPI's case, "something you know" is your username and password, while "something you own" can be <a href="#totp">an application to generate a temporary code</a>, or a <a href="#utfkey">physical security key</a> (most commonly a USB key).</p>
+        <p>In PyPI's case, "something you know" is your username and password, while "something you own" can be <a href="#totp">an application to generate a temporary code</a>, or a <a href="#utfkey">security device</a> (most commonly a USB key).</p>
         <p>It is strongly recommended that you set up two factor authentication on your PyPI account.</p>
         <p>Users who have chosen to set up two factor authentication will be asked to provide their second method of identity verification during the log in process. This only affects logging in via a web browser, and not (yet) package uploads (<a href="https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042" title="External link" target="_blank" rel="noopener">details</a>).</p>
 
@@ -232,9 +232,9 @@
         {{ twoFA_backup("authentication application") }}
 
         <h3 id="utfkey">{{ utfkey() }}</h3>
-        <p>A physical security key is a USB key or <a href="#utfdevices">other device</a> that generates a one-time password and sends that password to the browser. This password is then used by PyPI to authenticate you as a user.</p>
+        <p>A security device is a USB key or <a href="#utfdevices">other device</a> that generates a one-time password and sends that password to the browser. This password is then used by PyPI to authenticate you as a user.</p>
 
-        <p><strong>To set up two factor authentication with a <em>USB security key</em>, you'll need:</strong></p>
+        <p><strong>To set up two factor authentication with a <em>USB key</em>, you'll need:</strong></p>
         <ul>
           <li>To use a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">browser that supports WebAuthn and PublicKeyCredential</a>, as this is the standard implemented by PyPI.</li>
           <li>To be running JavaScript on your browser</li>
@@ -248,26 +248,26 @@
 
         <p>Follow these steps:</p>
         <ol>
-          <li>Log in to your PyPI account, go to your account settings, and choose "Add 2FA with physical security key"</li>
-          <li>Give your key a name. This is neccessary because it's possible to add more than one physical security key to your account.</li>
-          <li>Click on the "Set up physical security key" button</li>
-          <li>Insert and touch your USB security key, as instructed by your browser</li>
+          <li>Log in to your PyPI account, go to your account settings, and choose "Add 2FA with security device (e.g. USB key)"</li>
+          <li>Give your key a name. This is neccessary because it's possible to add more than one security device to your account.</li>
+          <li>Click on the "Set up security device" button</li>
+          <li>Insert and touch your USB key, as instructed by your browser</li>
         </ol>
-        <p>Once complete, your USB security key will be registered to your PyPI account and can be used during the log in process.</p>
+        <p>Once complete, your USB key will be registered to your PyPI account and can be used during the log in process.</p>
 
         <p><strong>Next time you log in to PyPI you'll need to:</strong></p>
         <ol>
           <li>Provide your username and password, as normal</li>
-          <li>Insert and touch your USB security key to finish logging into PyPI</li>
+          <li>Insert and touch your USB key to finish logging into PyPI</li>
         </ol>
 
-        {{ twoFA_backup("USB security key") }}
+        {{ twoFA_backup("security device") }}
 
         <h3 id="utfdevices">{{ utfdevices() }}</h3>
 
         <p>There is a growing ecosystem of <a href="https://fidoalliance.org/certification/fido-certified-products/" title="External link" target="_blank" rel="noopener">devices that are FIDO compliant</a>, and can therefore be used with PyPI.</p>
-        <p>Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards. There is also growing support for <a href="https://fidoalliance.org/news-your-google-android-7-phone-is-now-a-fido2-security-key/" title="External link" target="_blank" rel="noopener">mobile devices to act as physical security keys</a>.</p>
-        <p>As PyPI's security key implementation follows the <a href="https://www.w3.org/TR/webauthn/" title="External link" target="_blank" rel="noopener">WebAuthn standard</a>, PyPI users will be able to take advantage of any future developments in this field.</p>
+        <p>Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards. There is also growing support for <a href="https://fidoalliance.org/news-your-google-android-7-phone-is-now-a-fido2-security-key/" title="External link" target="_blank" rel="noopener">mobile phones to act as security devices</a>.</p>
+        <p>As PyPI's two factor implementation follows the <a href="https://www.w3.org/TR/webauthn/" title="External link" target="_blank" rel="noopener">WebAuthn standard</a>, PyPI users will be able to take advantage of any future developments in this field.</p>
 
       </section>
 
