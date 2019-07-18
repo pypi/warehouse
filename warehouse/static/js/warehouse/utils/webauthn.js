@@ -19,6 +19,10 @@ const populateWebAuthnErrorList = (errors) => {
   }
 
   errorList.innerHTML = "";
+  /* NOTE: We only set the alert role once we actually have errors to present,
+   * to avoid hijacking screenreaders unnecessarily.
+   */
+  errorList.setAttribute("role", "alert");
 
   errors.forEach((error) => {
     const errorItem = document.createElement("li");
