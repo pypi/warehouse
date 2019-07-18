@@ -33,7 +33,7 @@ class Macaroon(db.Model):
 
     # Store some information about the Macaroon to give users some mechanism
     # to differentiate between them.
-    description = Column(String(100), nullable=False, server_default="")
+    description = Column(String(100), nullable=False, unique=True)
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     last_used = Column(DateTime, nullable=True)
 
