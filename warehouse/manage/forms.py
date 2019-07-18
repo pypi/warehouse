@@ -188,8 +188,10 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 class CreateMacaroonForm(forms.Form):
     __params__ = ["description", "token_scope"]
 
-    def __init__(self, *args, project_names, **kwargs):
+    def __init__(self, *args, user_id, macaroon_service, project_names, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.macaroon_service = macaroon_service
         self.project_names = project_names
 
     description = wtforms.StringField(
@@ -204,6 +206,15 @@ class CreateMacaroonForm(forms.Form):
     token_scope = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Specify a token scope")]
     )
+
+    def validate_description(self, field):
+        description = field.data
+
+        if (
+            self.macaroon_service.get_macaroon_by_description(self.user_id, description)
+            is not None
+        ):
+            raise wtforms.validators.ValidationError(f"Description already in use")
 
     def validate_token_scope(self, field):
         scope = field.data

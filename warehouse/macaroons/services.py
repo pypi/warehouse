@@ -111,6 +111,26 @@ class DatabaseMacaroonService:
         self.db.delete(dm)
         self.db.flush()
 
+    def get_macaroon_by_description(self, user_id, description):
+        """
+        Returns a macaroon model from the DB with the given description,
+        if one exists for the given user.
+
+        Returns None if the user doesn't have a macaroon with this description.
+        """
+        try:
+            dm = (
+                self.db.query(Macaroon)
+                .options(joinedload("user"))
+                .filter(Macaroon.description == description)
+                .filter(Macaroon.user_id == user_id)
+                .one()
+            )
+        except NoResultFound:
+            return None
+
+        return dm
+
 
 def database_macaroon_factory(context, request):
     return DatabaseMacaroonService(request.db)

@@ -161,12 +161,6 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
-    config.add_route(
-        "manage.account.token.create", "/manage/account/token/create/", domain=warehouse
-    )
-    config.add_route(
-        "manage.account.token.delete", "/manage/account/token/delete/", domain=warehouse
-    ),
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

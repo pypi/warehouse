@@ -12,7 +12,16 @@
 
 import os
 
-from sqlalchemy import Column, DateTime, ForeignKey, LargeBinary, String, sql
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    LargeBinary,
+    String,
+    UniqueConstraint,
+    sql,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 from warehouse import db
@@ -25,6 +34,11 @@ def _generate_key():
 class Macaroon(db.Model):
 
     __tablename__ = "macaroons"
+    __table_args__ = (
+        UniqueConstraint(
+            "description", "user_id", name="_user_macaroons_description_uc"
+        ),
+    )
 
     # All of our Macaroons belong to a specific user, because a caveat-less
     # Macaroon should act the same as their password does, instead of as a
@@ -33,7 +47,7 @@ class Macaroon(db.Model):
 
     # Store some information about the Macaroon to give users some mechanism
     # to differentiate between them.
-    description = Column(String(100), nullable=False, unique=True)
+    description = Column(String(100), nullable=False)
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     last_used = Column(DateTime, nullable=True)
 

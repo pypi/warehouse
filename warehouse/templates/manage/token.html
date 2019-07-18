@@ -44,7 +44,7 @@
     <table class="table table--light">
       <thead>
         <th>Description</th>
-        <th>Identifier</th>
+        <th>Scope</th>
         <th>Created</th>
         <th colspan="2">Last used</th>
       </thead>
@@ -52,18 +52,17 @@
         {% for macaroon in user.macaroons %}
         <tr>
           <td>{{ macaroon.description }}</td>
-          <td>{{ macaroon.id }}</td>
+          <td>TODO: Scope</td>
           <td>{{ humanize(macaroon.created) }}</td>
           <td>{{ humanize(macaroon.last_used) if macaroon.last_used else "Never" }}</td>
           <td class="table__action">
             <a href="#delete-token" class="button button--primary">Delete</a>
             {% set title="Remove API token - " + macaroon.description %}
             {% set confirm_button_label="Remove API token" %}
-            {% set action=request.route_path('manage.account.token.delete') %}
             {% set extra_fields %}
               <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
             {% endset %}
-            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="delete-token", extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="delete-token", extra_fields=extra_fields, warning=False, confirm_string_in_title=False) }}
           </td>
         </tr>
         {% endfor %}
@@ -72,12 +71,15 @@
   </section>
   {% endif %}
 
+  {{ form_error_anchor(create_macaroon_form) }}
   <section id="add-token">
     <h2>Create a new API token</h2>
-    <form method="POST" action="{{ request.route_path('manage.account.token.create') }}">
+    <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(create_macaroon_form) }}
       <div class="form-group">
         <input type="text" name="description">
+        {{ field_errors(create_macaroon_form.description) }}
       </div>
       <div class="form-group">
         Scope:
@@ -87,6 +89,7 @@
           <option value="scope:project:{{ project }}">{{ project }}</option>
         {% endfor %}
         </select>
+        {{ field_errors(create_macaroon_form.token_scope) }}
       </div>
       <div>
         <input value="Create token" class="button button--primary" type="submit">

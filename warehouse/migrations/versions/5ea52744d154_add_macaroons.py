@@ -36,7 +36,7 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column("description", sa.String(length=100), nullable=False, unique=True),
+        sa.Column("description", sa.String(length=100), nullable=False),
         sa.Column(
             "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),

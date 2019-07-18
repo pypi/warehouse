@@ -548,6 +548,7 @@ class ProvisionWebAuthnViews:
     require_methods=False,
     permission="manage:user",
     renderer="manage/token.html",
+    route_name="manage.account.token",
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -562,20 +563,32 @@ class ProvisionMacaroonViews:
 
     @property
     def default_response(self):
-        return {"project_names": self.project_names}
+        return {
+            "project_names": self.project_names,
+            "create_macaroon_form": CreateMacaroonForm(
+                user_id=self.request.user.id,
+                macaroon_service=self.macaroon_service,
+                project_names=self.project_names,
+            ),
+            "delete_macaroon_form": DeleteMacaroonForm(
+                macaroon_service=self.macaroon_service
+            ),
+        }
 
-    @view_config(request_method="GET", route_name="manage.account.token")
+    @view_config(request_method="GET")
     def manage_macaroons(self):
         return self.default_response
 
-    @view_config(
-        request_method="POST",
-        request_param=CreateMacaroonForm.__params__,
-        route_name="manage.account.token.create",
-    )
+    @view_config(request_method="POST", request_param=CreateMacaroonForm.__params__)
     def create_macaroon(self):
-        form = CreateMacaroonForm(**self.request.POST, project_names=self.project_names)
+        form = CreateMacaroonForm(
+            **self.request.POST,
+            user_id=self.request.user.id,
+            macaroon_service=self.macaroon_service,
+            project_names=self.project_names,
+        )
 
+        response = {**self.default_response}
         if form.validate():
             serialized_macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
@@ -583,15 +596,11 @@ class ProvisionMacaroonViews:
                 description=form.description.data,
                 caveats={"permissions": form.validated_scope, "version": 1},
             )
-            return {**self.default_response, "serialized_macaroon": serialized_macaroon}
+            response.update(serialized_macaroon=serialized_macaroon)
 
-        return HTTPSeeOther(self.request.route_path("manage.account.token"))
+        return {**response, "create_macaroon_form": form}
 
-    @view_config(
-        request_method="POST",
-        request_param=DeleteMacaroonForm.__params__,
-        route_name="manage.account.token.delete",
-    )
+    @view_config(request_method="POST", request_param=DeleteMacaroonForm.__params__)
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
             **self.request.POST, macaroon_service=self.macaroon_service
@@ -600,7 +609,8 @@ class ProvisionMacaroonViews:
         if form.validate():
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.request.session.flash("API key deleted.", queue="success")
-        return HTTPSeeOther(self.request.route_path("manage.account.token"))
+
+        return {**self.default_response, "delete_macaroon_form": form}
 
 
 @view_config(

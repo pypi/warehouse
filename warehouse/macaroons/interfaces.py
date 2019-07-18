@@ -44,3 +44,11 @@ class IMacaroonService(Interface):
         """
         Deletes a macaroon from the DB by its identifier.
         """
+
+    def get_macaroon_by_description(user_id, description):
+        """
+        Returns a macaroon model from the DB with the given description,
+        if one exists for the given user.
+
+        Returns None if the user doesn't have a macaroon with this description.
+        """
