@@ -137,3 +137,24 @@ class TestDatabaseMacaroonService:
         macaroon_service.delete_macaroon(m.identifier.decode())
 
         assert macaroon_service.find_macaroon(m.identifier.decode()) is None
+
+    def test_get_macaroon_by_description_no_macaroon(self, macaroon_service):
+        user = UserFactory.create()
+        assert (
+            macaroon_service.get_macaroon_by_description(user.id, "no such description")
+            is None
+        )
+
+    def test_get_macaroon_by_description(self, macaroon_service):
+        user = UserFactory.create()
+        raw_macaroon = macaroon_service.create_macaroon(
+            "fake location", user.id, "fake description", {"fake": "caveats"}
+        )
+
+        m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        dm = macaroon_service.find_macaroon(m.identifier.decode())
+
+        assert (
+            macaroon_service.get_macaroon_by_description(user.id, "fake description")
+            == dm
+        )
