@@ -111,11 +111,11 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
 
 
 class DeleteWebAuthnForm(forms.Form):
-    __params__ = ["confirm_key_name"]
+    __params__ = ["confirm_device_name"]
 
     label = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a label"),
+            wtforms.validators.DataRequired(message="Specify a device name"),
             wtforms.validators.Length(
                 max=64, message=("Label must be 64 characters or less")
             ),
