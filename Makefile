@@ -4,11 +4,20 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
+RUN_IN_DOCKER =
+RUN_IN_DOCKER_DEP = .state/env/pyvenv.cfg
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
 ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
+endif
+
+ifeq ($(TRAVIS), false)
+    RUN_IN_DOCKER = docker-compose run --rm build
+    RUN_IN_DOCKER_DEP = .state/docker-build
+    PYTHON = $(shell $(RUN_IN_DOCKER) which python)
+    BINDIR = $(shell dirname $(PYTHON))
 endif
 
 define DEPCHECKER
@@ -65,9 +74,9 @@ default:
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
 	# install ipython if enabled
-ifeq ($(IPYTHON),"yes")
-	.state/env/bin/python -m pip install -r requirements/ipython.txt
-endif
+    ifeq ($(IPYTHON),"yes")
+        .state/env/bin/python -m pip install -r requirements/ipython.txt
+    endif
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
@@ -96,18 +105,17 @@ tests:
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 
-reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/isort -rc warehouse/ tests/
-	$(BINDIR)/black warehouse/ tests/
+reformat: $(RUN_IN_DOCKER_DEP)
+	$(RUN_IN_DOCKER) $(BINDIR)/black warehouse/ tests/
 
-lint: .state/env/pyvenv.cfg
-	$(BINDIR)/flake8 .
-	$(BINDIR)/black --check warehouse/ tests/
-	$(BINDIR)/isort -rc -c warehouse/ tests/
-	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
+lint: $(RUN_IN_DOCKER_DEP)
+	$(RUN_IN_DOCKER) $(BINDIR)/flake8 .
+	$(RUN_IN_DOCKER) $(BINDIR)/black --check warehouse/ tests/
+	$(RUN_IN_DOCKER) $(BINDIR)/isort -rc -c warehouse/ tests/
+	$(RUN_IN_DOCKER) $(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(RUN_IN_DOCKER) $(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
@@ -118,24 +126,24 @@ else
 	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
 endif
 
-docs: .state/env/pyvenv.cfg
-	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
-	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
+docs: $(RUN_IN_DOCKER_DEP)
+	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" RUN_IN_DOCKER="$(RUN_IN_DOCKER)" SUBDIR=docs BINDIR=$(BINDIR)
+	$(MAKE) -C docs/ html SPHINXOPTS="-W" RUN_IN_DOCKER="$(RUN_IN_DOCKER)" SUBDIR=docs BINDIR=$(BINDIR)
 
 licenses:
 	bin/licenses
 
 export DEPCHECKER
 deps: .state/env/pyvenv.cfg
-	$(eval TMPDIR := $(shell mktemp -d))
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/lint.txt requirements/lint.txt
-	rm -r $(TMPDIR)
-	$(BINDIR)/pip check
+	$(RUN_IN_DOCKER) $(eval TMPDIR := $(shell mktemp -d))
+	$(RUN_IN_DOCKER) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(RUN_IN_DOCKER) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(RUN_IN_DOCKER) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
+	$(RUN_IN_DOCKER) python $(TMPDIR)/deploy.txt requirements/deploy.txt -c "$$DEPCHECKER"
+	$(RUN_IN_DOCKER) python - $(TMPDIR)/main.txt requirements/main.txt -c "$$DEPCHECKER"
+	$(RUN_IN_DOCKER) python - $(TMPDIR)/lint.txt requirements/lint.txt -c "$$DEPCHECKER"
+	$(RUN_IN_DOCKER) rm -r $(TMPDIR)
+	$(RUN_IN_DOCKER) $(BINDIR)/pip check
 
 travis-deps:
 ifneq ($(PR), false)

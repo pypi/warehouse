@@ -1,0 +1,40 @@
+FROM python:3.6.6-slim-stretch as python
+
+WORKDIR /opt/warehouse/src
+
+# We create an /opt directory with a virtual environment in it to store our
+# application in.
+RUN set -x \
+    && python3 -m venv /opt/warehouse/src/.state/env
+
+
+# Now that we've created our virtual environment, we'll go ahead and update
+# our $PATH to refer to it first.
+ENV PATH="/opt/warehouse/src/.state/env/bin:${PATH}"
+
+# Next, we want to update pip, setuptools, and wheel inside of this virtual
+# environment to ensure that we have the latest versions of them.
+# TODO: We use --require-hashes in our requirements files, but not here, making
+#       the ones in the requirements files kind of a moot point. We should
+#       probably pin these too, and update them as we do anything else.
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+
+# We copy this into the docker container prior to copying in the rest of our
+# application so that we can skip installing requirements if the only thing
+# that has changed is the Warehouse code itself.
+COPY requirements /tmp/requirements
+
+# Install our development dependencies if we're building a development install
+# otherwise this will do nothing.
+RUN set -x \
+    && pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt
+
+RUN set -x \
+    && pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/lint.txt
+
+RUN set -x \
+    && pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/docs.txt
+
+RUN set -x \
+    && if [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+
