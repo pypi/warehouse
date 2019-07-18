@@ -13,8 +13,10 @@
 -#}
 {% extends "base.html" %}
 
-
-{% block title %}Register{% endblock %}
+{% block title %}
+  {% if form.errors %}Error processing form –{% endif %}
+  Register
+{% endblock %}
 
 {% block content %}
   {% if testPyPI %}
@@ -31,7 +33,7 @@
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
         {% if form.errors.__all__ %}
-        <ul class="form-errors">
+        <ul class="form-errors" role="alert">
           {% for error in form.errors.__all__ %}
           <li>{{ error }}</li>
           {% endfor %}
@@ -40,9 +42,9 @@
 
         <div class="form-group">
           <label for="full_name" class="form-group__label">Name</label>
-          {{ form.full_name(placeholder="Your name", required="required", class_="form-group__input", autofocus=true, tabindex="1") }}
+          {{ form.full_name(placeholder="Your name", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
           {% if form.full_name.errors %}
-          <ul class="form-errors">
+          <ul id="name-errors" class="form-errors" role="alert">
             {% for error in form.full_name.errors %}
             <li>{{ error }}</li>
             {% endfor %}
@@ -51,10 +53,10 @@
         </div>
 
         <div class="form-group">
-          <label for="full_name" class="form-group__label">Email address</label>
-          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", tabindex="2") }}
+          <label for="email" class="form-group__label">Email address</label>
+          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
           {% if form.email.errors %}
-          <ul class="form-errors">
+          <ul id="email-errors" class="form-errors" role="alert">
             {% for error in form.email.errors %}
             <li>{{ error }}</li>
             {% endfor %}
@@ -70,9 +72,9 @@
 
         <div class="form-group">
           <label for="username" class="form-group__label">Username</label>
-          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", tabindex="3") }}
+          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
           {% if form.username.errors %}
-          <ul class="form-errors">
+          <ul id="username-errors" class="form-errors" role="alert">
             {% for error in form.username.errors %}
             <li>{{ error }}</li>
             {% endfor %}
@@ -86,15 +88,15 @@
               <label for="password" class="form-group__label">Password</label>
               <label for="show-password">
                 <input data-action="change->password#togglePasswords" data-target="password.showPassword"
-                  id="show-password" type="checkbox" tabindex="7">&nbsp;Show passwords
+                  id="show-password" type="checkbox">&nbsp;Show passwords
               </label>
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", tabindex="4") }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
             </div>
             {% if form.new_password.errors %}
-            <ul class="form-errors">
+            <ul id="password-errors" class="form-errors" role="alert">
               {% for error in form.new_password.errors %}
               <li>{{ error }}</li>
               {% endfor %}
@@ -105,9 +107,9 @@
 
           <div class="form-group">
             <label for="password_confirm" class="form-group__label">Confirm password</label>
-            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", tabindex="5") }}
+            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
             {% if form.password_confirm.errors %}
-            <ul class="form-errors">
+            <ul id="password-confirm-errors" class="form-errors" role="alert">
               {% for error in form.password_confirm.errors %}
               <li>{{ error }}</li>
               {% endfor %}
@@ -122,7 +124,7 @@
           </ul>
         </div>
 
-        <input type="submit" value="Create account" class="button button--primary" data-target="password-match.submit" tabindex="6">
+        <input type="submit" value="Create account" class="button button--primary" data-target="password-match.submit">
       </form>
     </div>
   </section>
