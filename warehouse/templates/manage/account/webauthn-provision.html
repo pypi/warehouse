@@ -36,7 +36,7 @@
 
   <div class="form-group">
     <label for="webauthn-provision-label" class="form-group__label">Name your device to begin</label>
-    <input id="webauthn-provision-label" type="text" name="label" class="form-group__input">
+    <input id="webauthn-provision-label" type="text" name="label" class="form-group__input" aria-describedby="webauthn-errors">
     <p class="form-group__help-text">PyPI supports adding multiple security devices.<br>Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
     <ul id="webauthn-errors" class="form-errors margin-top--large" role="alert">
       <li id="webauthn-browser-support" class="hidden">
