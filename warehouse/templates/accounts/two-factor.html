@@ -51,7 +51,7 @@
             csrf-token="{{ request.session.get_csrf_token() }}"
             disabled>Authenticate with key
           </button>
-          <ul id="webauthn-errors" class="form-errors margin-top--large">
+          <ul id="webauthn-errors" class="form-errors margin-top--large" role="alert">
             <li id="webauthn-browser-support" class="hidden">
               <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
             </li>
