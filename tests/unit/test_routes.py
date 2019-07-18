@@ -186,16 +186,6 @@ def test_routes(warehouse):
         pretend.call(
             "manage.account.token", "/manage/account/token/", domain=warehouse
         ),
-        pretend.call(
-            "manage.account.token.create",
-            "/manage/account/token/create/",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "manage.account.token.delete",
-            "/manage/account/token/delete/",
-            domain=warehouse,
-        ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",

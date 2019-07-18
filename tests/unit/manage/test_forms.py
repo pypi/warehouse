@@ -325,22 +325,49 @@ class TestDeleteWebAuthnForm:
 
 class TestCreateMacaroonForm:
     def test_creation(self):
+        user_id = pretend.stub()
+        macaroon_service = pretend.stub()
         project_names = pretend.stub()
-        form = forms.CreateMacaroonForm(project_names=project_names)
+        form = forms.CreateMacaroonForm(
+            user_id=user_id,
+            macaroon_service=macaroon_service,
+            project_names=project_names,
+        )
 
+        assert form.user_id is user_id
+        assert form.macaroon_service is macaroon_service
         assert form.project_names is project_names
 
     def test_validate_description_missing(self):
         form = forms.CreateMacaroonForm(
-            data={"token_scope": "scope:user"}, project_names=pretend.stub()
+            data={"token_scope": "scope:user"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(),
+            project_names=pretend.stub(),
         )
 
         assert not form.validate()
         assert form.description.errors.pop() == "Specify a description"
 
+    def test_validate_description_in_use(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:user"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(
+                get_macaroon_by_description=lambda *a: pretend.stub()
+            ),
+            project_names=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.description.errors.pop() == "Description already in use"
+
     def test_validate_token_scope_missing(self):
         form = forms.CreateMacaroonForm(
-            data={"description": "dummy"}, project_names=pretend.stub()
+            data={"description": "dummy"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            project_names=pretend.stub(),
         )
 
         assert not form.validate()
@@ -352,6 +379,8 @@ class TestCreateMacaroonForm:
     def test_validate_token_scope_invalid_format(self, scope):
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": scope},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
         )
 
@@ -361,6 +390,8 @@ class TestCreateMacaroonForm:
     def test_validate_token_scope_invalid_project(self):
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:project:foo"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["bar"],
         )
 
@@ -370,6 +401,8 @@ class TestCreateMacaroonForm:
     def test_validate_token_scope_valid_user(self):
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:user"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
         )
 
@@ -378,6 +411,8 @@ class TestCreateMacaroonForm:
     def test_validate_token_scope_valid_project(self):
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:project:foo"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["foo"],
         )
 
