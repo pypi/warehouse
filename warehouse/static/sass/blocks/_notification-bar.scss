@@ -47,13 +47,9 @@
   Icons should also be added to danger, warning and success notifications, to
   ensure that color is not the only way of conveying the status of the
   notification. This is important for color blind users.
-<<<<<<< HEAD
 
   Icons should be hidden with "aria-hidden=true" and given a screen reader
   label, as per the HTML example above.
-=======
-  Note "aria-hidden=true" in the HTML example above.
->>>>>>> Add roles to notification messages
 
    - danger: Add "fa fa-exclamation-triangle", sr-only="Error:"
    - warning: Add "fa fa-exclamation-triangle", sr-only="Warning:"
