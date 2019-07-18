@@ -44,6 +44,7 @@
     <table class="table table--light">
       <thead>
         <th>Description</th>
+        <th>Identifier</th>
         <th>Scope</th>
         <th>Created</th>
         <th colspan="2">Last used</th>
@@ -52,7 +53,8 @@
         {% for macaroon in user.macaroons %}
         <tr>
           <td>{{ macaroon.description }}</td>
-          <td>TODO: Scope</td>
+          <td>{{ macaroon.id }}</td>
+          <td>{{ macaroon.caveats.get("permissions") }}</td>
           <td>{{ humanize(macaroon.created) }}</td>
           <td>{{ humanize(macaroon.last_used) if macaroon.last_used else "Never" }}</td>
           <td class="table__action">
