@@ -48,6 +48,10 @@
     margin-top: $spacing-unit;
   }
 
+  a > img {
+    background-color: #fff;
+  }
+
   // Remove top margin on elements at the top of the description
   > div:first-child > *:first-child,
   > *:first-child,

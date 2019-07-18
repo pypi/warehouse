@@ -50,7 +50,6 @@ export function submitTriggers() {
   }
 }
 
-const tooltipClasses = ["tooltipped", "tooltipped-s", "tooltipped-immediate"];
 let passwordFormRoot = document;
 
 const passwordStrengthValidator = () => {
@@ -68,27 +67,28 @@ const fieldRequiredValidator = (value) => {
     "Please fill out this field" : null;
 };
 
-const attachTooltip = (field, message) => {
-  let parentNode = field.parentNode;
-  parentNode.classList.add.apply(parentNode.classList, tooltipClasses);
-  parentNode.setAttribute("aria-label", message);
+const showFormError = (field, message) => {
+  let error = "<ul id='"+ field.name +"-error' class='form-errors field-errors' role='alert'><li>" + message + "</li></ul>";
+  field.insertAdjacentHTML("afterend", error);
+  field.setAttribute("aria-describedby", field.name + "-error");
+  document.title = "Error processing form – " + document.title;
 };
 
-const removeTooltips = () => {
-  let tooltippedNodes = passwordFormRoot.querySelectorAll(".tooltipped");
-  for (let tooltippedNode of tooltippedNodes) {
-    tooltippedNode.classList.remove.apply(tooltippedNode.classList, tooltipClasses);
-    tooltippedNode.removeAttribute("aria-label");
+const removeFormErrors = () => {
+  let errors = passwordFormRoot.querySelectorAll(".field-errors");
+  for (let error of errors) {
+    error.parentNode.removeChild(error);
   }
+  document.title = document.title.replace("Error processing form – ","");
 };
 
 const validateForm = (event) => {
-  removeTooltips();
+  removeFormErrors();
   let inputFields = passwordFormRoot.querySelectorAll("input[required='required']");
   for (let inputField of inputFields) {
     let requiredMessage = fieldRequiredValidator(inputField.value);
     if (requiredMessage !== null) {
-      attachTooltip(inputField, requiredMessage);
+      showFormError(inputField, requiredMessage);
       event.preventDefault();
       return false;
     }
@@ -97,7 +97,7 @@ const validateForm = (event) => {
   let password = passwordFormRoot.querySelector("#new_password");
   let passwordStrengthMessage = passwordStrengthValidator(password.value);
   if (passwordStrengthMessage !== null) {
-    attachTooltip(password, passwordStrengthMessage);
+    showFormError(password, passwordStrengthMessage);
     event.preventDefault();
     return false;
   }
