@@ -13,7 +13,10 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Two-factor authentication{% endblock %}
+{% block title %}
+  {% if totp_form and totp_form.errors %}Error processing form –{% endif %}
+  Two-factor authentication
+{% endblock %}
 
 {% block content %}
 {% if testPyPI %}
@@ -30,14 +33,14 @@
       {% if has_webauthn %}
       <div class="twofa-login__method {% if totp_form %}twofa-login__method--padded{% endif %}">
         <h2>
-          Authenticate with a security key
+          Authenticate with a security device (e.g. USB key)
           &nbsp;<span class="badge badge--warning">Beta</span>
         </h2>
 
-        <p>Insert your security key and click below.</p>
+        <p>Connect your security device and click below.</p>
 
         <noscript>
-          <p>WebAuthn cannot be used without JavaScript.</p>
+          <p>Enable JavaScript to log in with a security device (e.g. USB key)</p>
         </noscript>
 
         <div class="form-group">
@@ -50,12 +53,12 @@
           </button>
           <ul id="webauthn-errors" class="form-errors margin-top--large">
             <li id="webauthn-browser-support" class="hidden">
-              Your browser <a href="/help#utfkey">does not support WebAuthn</a>
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
             </li>
           </ul>
         </div>
 
-        <p>Not working? <a href="/help/#utfkey">Get help</a>.</p>
+        <p>Lost your key? Not working? <a href="/help/#utfkey">Get help</a>.</p>
       </div>
       {% endif %}
 
@@ -72,7 +75,7 @@
           <input name="method" type="hidden" value="totp">
 
           {% if totp_form.errors.__all__ %}
-          <ul class="form-errors">
+          <ul class="form-errors" role="alert">
             {% for error in totp_form.errors.__all__ %}
             <li>{{ error }}</li>
             {% endfor %}
@@ -80,10 +83,10 @@
           {% endif %}
 
           <div class="form-group">
-            <label for="totp_value" class="form-group__label">Authentication code</label>
-            {{ totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autocomplete="off") }}
+            <label for="totp_value" class="form-group__label">Enter authentication code</label>
+            {{ totp_form.totp_value(autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-errors"}) }}
             {% if totp_form.totp_value.errors %}
-            <ul class="form-errors">
+            <ul id="totp-errors" class="form-errors" role="alert">
               {% for error in totp_form.totp_value.errors %}
               <li>{{ error }}</li>
               {% endfor %}
@@ -94,8 +97,8 @@
             <input type="submit" value="Verify" class="button button--primary">
           </div>
 
-          <p>Generate an authentication code using the application of your choice. Enter this code in the form above to verify your identity.</p>
-          <p>Not working? <a href="/help/#totp">Get help</a>.</p>
+          <p>Generate a code using the authentication application connected to your PyPI account. Enter this code in the form above to verify your identity.</p>
+          <p>Lost your application? Not working? <a href="/help/#totp">Get help</a>.</p>
         </form>
       </div>
       {% endif %}

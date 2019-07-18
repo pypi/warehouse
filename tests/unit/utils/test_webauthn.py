@@ -46,6 +46,7 @@ def test_verify_registration_response(monkeypatch):
             "fake_origin",
             {},
             webauthn._webauthn_b64encode("not_a_real_challenge".encode()).decode(),
+            self_attestation_permitted=True,
         )
     ]
     assert resp == "not a real object"
