@@ -16,7 +16,6 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
-    Index,
     LargeBinary,
     String,
     UniqueConstraint,
