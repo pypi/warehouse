@@ -88,10 +88,8 @@
   }
 
   &__card {
-    border: 1px solid darken(#ececec, 5);
-    background-color: $white;
-    box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
     display: block;
+    @include card;
     padding: $spacing-unit / 2;
     margin: ($spacing-unit / 2) 0;
   }
