@@ -610,7 +610,7 @@ class ProvisionMacaroonViews:
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.request.session.flash("API key deleted.", queue="success")
 
-        return {**self.default_response, "delete_macaroon_form": form}
+        return HTTPSeeOther(self.request.route_path("manage.account.token"))
 
 
 @view_config(
