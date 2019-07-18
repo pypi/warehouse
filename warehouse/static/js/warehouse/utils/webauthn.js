@@ -22,6 +22,7 @@ const populateWebAuthnErrorList = (errors) => {
 
   errors.forEach((error) => {
     const errorItem = document.createElement("li");
+    errorItem.setAttribute("role", "alert");
     errorItem.appendChild(document.createTextNode(error));
     errorList.appendChild(errorItem);
   });
