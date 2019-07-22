@@ -47,7 +47,7 @@ def _extract_basic_macaroon(auth):
 def _extract_http_macaroon(request):
     """
     A helper function for the extraction of HTTP Macaroon from a given request.
-    Returns either a None if no macaroon could be found, or the byte string
+    Returns either a None if no macaroon could be found, or the string
     that represents our serialized macaroon.
     """
     authorization = request.headers.get("Authorization")
