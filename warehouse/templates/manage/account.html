@@ -453,7 +453,11 @@
     </table>
     {% endif %}
 
+    {% if user.has_primary_verified_email %}
     <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">Add API token</a>
+    {% else %}
+    <p>To add API tokens, verify your primary email.</p>
+    {% endif %}
 
   </section>
 

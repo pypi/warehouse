@@ -582,6 +582,12 @@ class ProvisionMacaroonViews:
 
     @view_config(request_method="POST", request_param=CreateMacaroonForm.__params__)
     def create_macaroon(self):
+        if not self.request.user.has_primary_verified_email:
+            self.request.session.flash(
+                "Verify your email to create an API token.", queue="error"
+            )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         form = CreateMacaroonForm(
             **self.request.POST,
             user_id=self.request.user.id,
