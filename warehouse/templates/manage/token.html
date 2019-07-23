@@ -29,7 +29,7 @@
 
   {% if serialized_macaroon %}
   <section id="provisioned-key">
-    <h2>Token for "{{ macaroon_description }}"</h2>
+    <h2>Token for "{{ macaroon.description }}"</h2>
     <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
     <code class="api-token">{{ serialized_macaroon }}</code>
     <div class="margin-bottom--large">

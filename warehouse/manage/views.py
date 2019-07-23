@@ -597,11 +597,7 @@ class ProvisionMacaroonViews:
                 description=form.description.data,
                 caveats={"permissions": form.validated_scope, "version": 1},
             )
-            response.update(
-                serialized_macaroon=serialized_macaroon,
-                macaroon=macaroon,
-                macaroon_description=form.description.data,
-            )
+            response.update(serialized_macaroon=serialized_macaroon, macaroon=macaroon)
 
         return {**response, "create_macaroon_form": form}
 
