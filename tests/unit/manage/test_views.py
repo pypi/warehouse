@@ -1375,13 +1375,31 @@ class TestProvisionMacaroonViews:
 
         assert result == default_response
 
+    def test_create_macaroon_not_allowed(self):
+        request = pretend.stub(
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=pretend.stub(has_primary_verified_email=False),
+            find_service=lambda interface, **kw: pretend.stub(),
+        )
+
+        view = views.ProvisionMacaroonViews(request)
+        result = view.create_macaroon()
+
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert request.session.flash.calls == [
+            pretend.call("Verify your email to create an API token.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/foo/bar"
+
     def test_create_macaroon_invalid_form(self, monkeypatch):
         macaroon_service = pretend.stub(
             create_macaroon=pretend.call_recorder(lambda *a, **kw: pretend.stub())
         )
         request = pretend.stub(
             POST={},
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
                 IUserService: pretend.stub(),
@@ -1423,7 +1441,7 @@ class TestProvisionMacaroonViews:
         request = pretend.stub(
             POST={},
             domain=pretend.stub(),
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
                 IUserService: pretend.stub(),
