@@ -45,9 +45,7 @@ class TestUserFactory:
             ("foo@bar.com", False, False),
         ],
     )
-    def test_has_primary_verified_email(
-        self, db_session, email, verified, allowed
-    ):
+    def test_has_primary_verified_email(self, db_session, email, verified, allowed):
         user = DBUserFactory.create()
 
         if email:
