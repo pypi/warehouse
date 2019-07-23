@@ -14,87 +14,83 @@
 {% extends "manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "API token management" %}
+{% set title = "Add API token" %}
 
 {% block account_active %}vertical-tabs__tab--is-active{% endblock %}
 {% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}
+  {% if create_macaroon_form.errors %}Error processing form –{% endif %}
+  {{ title }}
+{% endblock %}
 
 {% block main %}
-  <h1 class="page-title">{{ title }}</h1>
+  <h1 class="page-title">{{ title }} <span class="badge badge--warning">Beta</span></h1>
 
   {% if serialized_macaroon %}
   <section id="provisioned-key">
-    <div class="callout-block callout-block--warning">
-      <p>
-        This token will only appear once. Copy it now.
-      </p>
-      <!-- TODO: This needs to be word-wrapped -->
-      <p>
-        {{ serialized_macaroon }}
-      </p>
-    </div>
-  </section>
-  {% endif %}
+    <h2>Token for "{{ macaroon_description }}"</h2>
+    <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
+    <code class="api-token">{{ serialized_macaroon }}</code>
+    <div class="margin-bottom--large">
+      <div class="callout-block callout-block--danger no-top-margin">
+        <p>For security reasons this token will only appear once. <strong>Copy it now.</strong></p>
+      </div>
+      <button class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="Copy token to clipboard" data-original-label="Copy token to clipboard" data-clipboard-text="{{ serialized_macaroon }}">
+        Copy
+      </button>
+      <a href="#remove-API-token" class="button">
+        Remove
+      </a>
+      {# TODO:
+        {% set slug="remove-API-token--" + macaroon.id | string %}
+        {% set title="Remove API token - " + macaroon.description %}
+        {% set confirm_button_label="Remove API token" %}
+        {% set extra_fields %}
+          <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
+        {% endset %}
+        {% set token_warning_text %}
+          <p>Applications or scripts using this token will no longer have access to PyPI.</p>
+        {% endset %}
 
-  {% if user.macaroons|length > 0 %}
-  <section id="active-tokens">
-    <h2>Active API tokens</h2>
-    <table class="table table--light">
-      <thead>
-        <th>Description</th>
-        <th>Identifier</th>
-        <th>Scope</th>
-        <th>Created</th>
-        <th colspan="2">Last used</th>
-      </thead>
-      <tbody>
-        {% for macaroon in user.macaroons %}
-        <tr>
-          <td>{{ macaroon.description }}</td>
-          <td>{{ macaroon.id }}</td>
-          <td>{{ macaroon.caveats.get("permissions") }}</td>
-          <td>{{ humanize(macaroon.created) }}</td>
-          <td>{{ humanize(macaroon.last_used) if macaroon.last_used else "Never" }}</td>
-          <td class="table__action">
-            <a href="#delete-token" class="button button--primary">Delete</a>
-            {% set title="Remove API token - " + macaroon.description %}
-            {% set confirm_button_label="Remove API token" %}
-            {% set extra_fields %}
-              <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
-            {% endset %}
-            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="delete-token", extra_fields=extra_fields, warning=False, confirm_string_in_title=False) }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        {{ confirm_modal(
+          title=title,
+          confirm_name="Username",
+          confirm_string=user.username,
+          confirm_button_label=confirm_button_label,
+          slug=slug,
+          extra_fields=extra_fields,
+          custom_warning_text=token_warning_text,
+          confirm_string_in_title=False) }}
+      #}
+    </div>
+    <hr>
   </section>
   {% endif %}
 
   {{ form_error_anchor(create_macaroon_form) }}
   <section id="add-token">
-    <h2>Create a new API token</h2>
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_macaroon_form) }}
       <div class="form-group">
-        <input type="text" name="description">
+        <label for="description" class="form-group__label">Token name</label>
+        <input type="text" name="description" id="description" class="form-group__input" aria-describedby="description-errors description-help-text">
         {{ field_errors(create_macaroon_form.description) }}
+        <p id="description-help-text" class="form-group__help-text">What is this token for?</p>
       </div>
       <div class="form-group">
-        Scope:
-        <select name="token_scope">
-          <option value="scope:user">User (all projects)</option>
+        <label for="scope" class="form-group__label">Scope</label>
+        <select name="token_scope" id="scope" class="form-group__input">
+          <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
-          <option value="scope:project:{{ project }}">{{ project }}</option>
+          <option value="scope:project:{{ project }}">Project: {{ project }}</option>
         {% endfor %}
         </select>
         {{ field_errors(create_macaroon_form.token_scope) }}
       </div>
       <div>
-        <input value="Create token" class="button button--primary" type="submit">
+        <input value="Add token" class="button button--primary" type="submit">
       </div>
     </form>
   </section>

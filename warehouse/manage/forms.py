@@ -214,7 +214,7 @@ class CreateMacaroonForm(forms.Form):
             self.macaroon_service.get_macaroon_by_description(self.user_id, description)
             is not None
         ):
-            raise wtforms.validators.ValidationError(f"Description already in use")
+            raise wtforms.validators.ValidationError("API token name already in use")
 
     def validate_token_scope(self, field):
         scope = field.data

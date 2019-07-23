@@ -124,6 +124,100 @@
   </tr>
 {%- endmacro %}
 
+{% macro api_row(macaroon) -%}
+  <tr>
+    <th class="table__api-name" scope="row">
+      {{ macaroon.description }}
+    </th>
+    <td class="table__scope">
+      <span>Scope:</span>
+      {% if macaroon.caveats.get("permissions") == 'user' %}
+      All projects
+      {% else %}
+        {% for project in macaroon.caveats.get("permissions")['projects'] %}
+        <a href="{{ request.route_path('manage.project.releases', project_name=project) }}">{{ project }}</a>
+        {% endfor %}
+      {% endif %}
+    </td>
+    <td class="table__created-date">
+      <span>Created on:</span>
+      {{ humanize(macaroon.created) }}
+    </td>
+    <td class="table__used-date">
+      <span>Last used:</span>
+      {{ humanize(macaroon.last_used) if macaroon.last_used else "Never" }}
+    </td>
+    <td class="table__action">
+      <nav class="dropdown dropdown--with-icons dropdown--wide">
+        <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+          Options
+          <span class="dropdown__trigger-caret">
+            <i class="fa fa-caret-down" aria-hidden="true"></i>
+            <span class="sr-only">view submenu</span>
+          </span>
+        </button>
+        <ul class="dropdown__content">
+          <li>
+            <a href="#remove-API-token--{{ macaroon.id }}" class="dropdown__link">
+              <i class="fa fa-trash-alt" aria-hidden="true"></i>
+              Remove token
+            </a>
+          </li>
+          <li>
+            <a href="#view-identifier--{{ macaroon.id }}" class="dropdown__link">
+              <i class="fa fa-hashtag" aria-hidden="true"></i>
+              View unique identifier
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      {# modal to remove token #}
+      {% set slug="remove-API-token--" + macaroon.id | string %}
+      {% set title="Remove API token - " + macaroon.description %}
+      {% set action=request.route_path('manage.account.token') %}
+      {% set confirm_button_label="Remove API token" %}
+      {% set extra_fields %}
+        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
+      {% endset %}
+      {% set token_warning_text %}
+        <p>Applications or scripts using this token will no longer have access to PyPI.</p>
+      {% endset %}
+
+      {{ confirm_modal(
+        title=title,
+        confirm_name="Username",
+        confirm_string=user.username,
+        confirm_button_label=confirm_button_label,
+        slug=slug,
+        extra_fields=extra_fields,
+        action=action,
+        custom_warning_text=token_warning_text,
+        confirm_string_in_title=False) }}
+
+      {# modal to view token ID #}
+      <div id="view-identifier--{{ macaroon.id }}" class="modal">
+        <div class="modal__content" role="dialog">
+          <a href="#modal-close" title="Close" class="modal__close">
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span class="sr-only">close</span>
+          </a>
+          <div class="modal__body">
+            <h3 class="modal__title">Unique identifier for API token "{{ macaroon.description }}"</h3>
+            <p><code>{{ macaroon.id }}</code></p>
+            <button class="button -js-copy-hash tooltipped tooltipped-e" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ macaroon.id }}">
+              Copy
+            </button>
+          </div>
+          <div class="modal__footer">
+            <a href="#modal-close" class="button button--primary modal__action">Close</a>
+          </div>
+        </div>
+      </div>
+    </td>
+  </tr>
+{%- endmacro %}
+
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>
   <section id="profile-picture">
@@ -338,8 +432,29 @@
 
   <hr>
 
-  <section id="api-keys">
-    <a href="{{ request.route_path('manage.account.token') }}">Manage API tokens</a>
+  <section id="api-tokens">
+    <h2>API tokens <span class="badge badge--warning">Beta</span></h2>
+    <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more</a></p>
+
+    {% if user.macaroons|length > 0 %}
+    <table class="table table--light table--api-tokens">
+      <caption class="sr-only">Active API tokens for this account</caption>
+      <thead>
+        <th scope="col">Name</th>
+        <th scope="col">Scope</th>
+        <th scope="col">Created</th>
+        <th scope="col" colspan="2">Last used</th>
+      </thead>
+      <tbody>
+        {% for macaroon in user.macaroons %}
+          {{ api_row(macaroon) }}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">Add API token</a>
+
   </section>
 
   <hr>

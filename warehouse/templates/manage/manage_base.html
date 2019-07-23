@@ -70,6 +70,7 @@
   extra_description=None,
   action=None,
   warning=True,
+  custom_warning_text="",
   confirm_string_in_title="True")
 %}
   <div id="{{ slug }}" class="modal" data-controller="confirm">
@@ -88,11 +89,8 @@
             <p>
               <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
               This action cannot be undone!
-              {% if confirm_name == "Version" %}
-              You will not be able to re-upload a new distribution of the same type with the same version number.
-              Consider making a new release or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases" title="External link" target="_blank" rel="noopener">post release</a> instead.
-              {% endif %}
             </p>
+            {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
           </div>
           {% endif %}
           {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}

@@ -360,7 +360,7 @@ class TestCreateMacaroonForm:
         )
 
         assert not form.validate()
-        assert form.description.errors.pop() == "Description already in use"
+        assert form.description.errors.pop() == "API token name already in use"
 
     def test_validate_token_scope_missing(self):
         form = forms.CreateMacaroonForm(

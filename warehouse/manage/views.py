@@ -596,7 +596,10 @@ class ProvisionMacaroonViews:
                 description=form.description.data,
                 caveats={"permissions": form.validated_scope, "version": 1},
             )
-            response.update(serialized_macaroon=serialized_macaroon)
+            response.update(
+                serialized_macaroon=serialized_macaroon,
+                macaroon_description=form.description.data,
+            )
 
         return {**response, "create_macaroon_form": form}
 
@@ -608,7 +611,7 @@ class ProvisionMacaroonViews:
 
         if form.validate():
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
-            self.request.session.flash("API key deleted.", queue="success")
+            self.request.session.flash("API token deleted.", queue="success")
 
         return HTTPSeeOther(self.request.route_path("manage.account.token"))
 
