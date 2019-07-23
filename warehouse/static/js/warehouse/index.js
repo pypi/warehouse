@@ -39,7 +39,7 @@ import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
-import {AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
+import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
 // Do this before anything else, to potentially capture errors down the line
 docReady(() => {
@@ -59,21 +59,6 @@ docReady(() => {
     warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--warning' role='status'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
 
     document.getElementById("sticky-notifications").appendChild(warning_div);
-  }
-});
-
-// Hide webauthn option for unsupported browsers, or show errors
-docReady(() => {
-  if (!window.PublicKeyCredential) {
-    let webauthn_button = document.getElementById("webauthn-button");
-    if (webauthn_button) {
-      webauthn_button.className += " button--disabled";
-    }
-
-    let webauthn_error = document.getElementById("webauthn-browser-support");
-    if (webauthn_error) {
-      webauthn_error.style.display = "block";
-    }
   }
 });
 
@@ -231,6 +216,9 @@ docReady(bindDropdowns);
 
 // Get modal keypress event listeners ready
 docReady(BindModalKeys);
+
+// Get WebAuthn compatibility checks ready
+docReady(GuardWebAuthn);
 
 // Get WebAuthn provisioning ready
 docReady(ProvisionWebAuthn);
