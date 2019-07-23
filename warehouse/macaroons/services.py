@@ -85,8 +85,9 @@ class DatabaseMacaroonService:
 
     def create_macaroon(self, location, user_id, description, caveats):
         """
-        Returns a new raw (serialized) macaroon. The description provided
-        is not embedded into the macaroon, only stored in the DB model.
+        Returns a tuple of a new raw (serialized) macaroon and its DB model.
+        The description provided is not embedded into the macaroon, only stored
+        in the DB model.
         """
         user = self.db.query(User).filter(User.id == user_id).one()
 
@@ -101,7 +102,7 @@ class DatabaseMacaroonService:
             version=pymacaroons.MACAROON_V2,
         )
         m.add_first_party_caveat(json.dumps(caveats))
-        return m.serialize()
+        return m.serialize(), dm
 
     def delete_macaroon(self, macaroon_id):
         """

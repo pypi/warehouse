@@ -53,6 +53,7 @@ from warehouse.manage.forms import (
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
@@ -590,7 +591,7 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
-            serialized_macaroon = self.macaroon_service.create_macaroon(
+            serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
@@ -598,6 +599,7 @@ class ProvisionMacaroonViews:
             )
             response.update(
                 serialized_macaroon=serialized_macaroon,
+                macaroon=macaroon,
                 macaroon_description=form.description.data,
             )
 
@@ -613,7 +615,10 @@ class ProvisionMacaroonViews:
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.request.session.flash("API token deleted.", queue="success")
 
-        return HTTPSeeOther(self.request.route_path("manage.account.token"))
+        redirect_to = self.request.referer
+        if not is_safe_url(redirect_to, host=self.request.host):
+            redirect_to = self.request.route_path("manage.account")
+        return HTTPSeeOther(redirect_to)
 
 
 @view_config(
