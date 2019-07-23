@@ -1414,9 +1414,10 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.create_macaroon.calls == []
 
     def test_create_macaroon(self, monkeypatch):
+        macaroon = pretend.stub()
         macaroon_service = pretend.stub(
             create_macaroon=pretend.call_recorder(
-                lambda *a, **kw: "not a real macaroon"
+                lambda *a, **kw: ("not a real raw macaroon", macaroon)
             )
         )
         request = pretend.stub(
@@ -1466,7 +1467,8 @@ class TestProvisionMacaroonViews:
         ]
         assert result == {
             **default_response,
-            "serialized_macaroon": "not a real macaroon",
+            "serialized_macaroon": "not a real raw macaroon",
+            "macaroon": macaroon,
             "create_macaroon_form": create_macaroon_obj,
         }
 
@@ -1476,11 +1478,13 @@ class TestProvisionMacaroonViews:
         )
         request = pretend.stub(
             POST={},
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
                 IUserService: pretend.stub(),
             }[interface],
+            referer="/fake/safe/route",
+            host=None,
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1492,22 +1496,57 @@ class TestProvisionMacaroonViews:
         view = views.ProvisionMacaroonViews(request)
         result = view.delete_macaroon()
 
-        assert request.route_path.calls == [pretend.call("manage.account.token")]
+        assert request.route_path.calls == []
         assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/fake/safe/route"
         assert macaroon_service.delete_macaroon.calls == []
 
-    def test_delete_macaroon(self, monkeypatch):
+    def test_delete_macaroon_dangerous_redirect(self, monkeypatch):
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
             POST={},
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            route_path=pretend.call_recorder(lambda x: "/safe/route"),
+            find_service=lambda interface, **kw: {
+                IMacaroonService: macaroon_service,
+                IUserService: pretend.stub(),
+            }[interface],
+            referer="http://google.com/",
+            host=None,
+        )
+
+        delete_macaroon_obj = pretend.stub(validate=lambda: False)
+        delete_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_macaroon_obj
+        )
+        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+
+        view = views.ProvisionMacaroonViews(request)
+        result = view.delete_macaroon()
+
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/safe/route"
+        assert macaroon_service.delete_macaroon.calls == []
+
+    def test_delete_macaroon(self, monkeypatch):
+        macaroon_service = pretend.stub(
+            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
+            find_macaroon=pretend.call_recorder(
+                lambda id: pretend.stub(description="fake macaroon")
+            ),
+        )
+        request = pretend.stub(
+            POST={},
+            route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
                 IUserService: pretend.stub(),
             }[interface],
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            referer="/fake/safe/route",
+            host=None,
         )
 
         delete_macaroon_obj = pretend.stub(
@@ -1521,13 +1560,17 @@ class TestProvisionMacaroonViews:
         view = views.ProvisionMacaroonViews(request)
         result = view.delete_macaroon()
 
-        assert request.route_path.calls == [pretend.call("manage.account.token")]
+        assert request.route_path.calls == []
         assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/fake/safe/route"
         assert macaroon_service.delete_macaroon.calls == [
             pretend.call(delete_macaroon_obj.macaroon_id.data)
         ]
+        assert macaroon_service.find_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
         assert request.session.flash.calls == [
-            pretend.call("API key deleted.", queue="success")
+            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
         ]
 
 
