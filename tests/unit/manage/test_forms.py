@@ -293,7 +293,7 @@ class TestDeleteWebAuthnForm:
         )
 
         assert not form.validate()
-        assert form.label.errors.pop() == "Specify a label"
+        assert form.label.errors.pop() == "Specify a device name"
 
     def test_validate_label_not_in_use(self):
         user_service = pretend.stub(

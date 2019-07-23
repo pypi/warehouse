@@ -18,7 +18,10 @@ const populateWebAuthnErrorList = (errors) => {
     return;
   }
 
-  errorList.innerHTML = "";
+  /* NOTE: We only set the alert role once we actually have errors to present,
+   * to avoid hijacking screenreaders unnecessarily.
+   */
+  errorList.setAttribute("role", "alert");
 
   errors.forEach((error) => {
     const errorItem = document.createElement("li");
@@ -28,6 +31,10 @@ const populateWebAuthnErrorList = (errors) => {
 };
 
 const doWebAuthn = (buttonId, func) => {
+  if (!window.PublicKeyCredential) {
+    return;
+  }
+
   const webAuthnButton = document.getElementById(buttonId);
   if (webAuthnButton === null) {
     return null;
@@ -35,11 +42,6 @@ const doWebAuthn = (buttonId, func) => {
 
   const csrfToken = webAuthnButton.getAttribute("csrf-token");
   if (csrfToken === null) {
-    return;
-  }
-
-  if (!window.PublicKeyCredential) {
-    populateWebAuthnErrorList(["Your browser doesn't support WebAuthn."]);
     return;
   }
 
@@ -157,12 +159,29 @@ const postAssertion = async (assertion, token) => {
   return await resp.json();
 };
 
+export const GuardWebAuthn = () => {
+  if (!window.PublicKeyCredential) {
+    let webauthn_button = document.getElementById("webauthn-button");
+    if (webauthn_button) {
+      webauthn_button.className += " button--disabled";
+    }
+
+    let webauthn_error = document.getElementById("webauthn-browser-support");
+    if (webauthn_error) {
+      webauthn_error.style.display = "block";
+    }
+
+    let webauthn_label = document.getElementById("webauthn-provision-label");
+    if (webauthn_label) {
+      webauthn_label.disabled = true;
+    }
+  }
+};
+
 export const ProvisionWebAuthn = () => {
   doWebAuthn("webauthn-provision-begin", async (csrfToken) => {
     const label = document.getElementById("webauthn-provision-label").value;
 
-    // TODO(ww): Should probably find a way to use the route string here,
-    // not the actual endpoint.
     const resp = await fetch(
       "/manage/account/webauthn-provision/options", {
         cache: "no-cache",
