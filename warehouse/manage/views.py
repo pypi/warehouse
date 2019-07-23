@@ -612,8 +612,13 @@ class ProvisionMacaroonViews:
         )
 
         if form.validate():
+            description = self.macaroon_service.find_macaroon(
+                form.macaroon_id.data
+            ).description
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
-            self.request.session.flash("API token deleted.", queue="success")
+            self.request.session.flash(
+                f"Deleted API token '{description}'.", queue="success"
+            )
 
         redirect_to = self.request.referer
         if not is_safe_url(redirect_to, host=self.request.host):
