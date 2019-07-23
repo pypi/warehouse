@@ -339,7 +339,7 @@ class ProvisionTOTPViews:
 
     @view_config(route_name="manage.account.totp-provision.image", request_method="GET")
     def generate_totp_qr(self):
-        if not self.request.user.two_factor_provisioning_allowed:
+        if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
@@ -357,7 +357,7 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="GET")
     def totp_provision(self):
-        if not self.request.user.two_factor_provisioning_allowed:
+        if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
@@ -376,7 +376,7 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=ProvisionTOTPForm.__params__)
     def validate_totp_provision(self):
-        if not self.request.user.two_factor_provisioning_allowed:
+        if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
@@ -411,7 +411,7 @@ class ProvisionTOTPViews:
 
     @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_totp(self):
-        if not self.request.user.two_factor_provisioning_allowed:
+        if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )

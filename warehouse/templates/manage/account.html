@@ -356,7 +356,7 @@
     </form>
   </section>
 
-  {% if user.two_factor_provisioning_allowed %}
+  {% if user.has_primary_verified_email %}
   <hr>
   {% macro twofa_buttons() %}
     {% if not user.totp_secret %}

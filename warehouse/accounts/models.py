@@ -119,7 +119,7 @@ class User(SitemapMixin, db.Model):
         return self.totp_secret is not None or len(self.webauthn) > 0
 
     @property
-    def two_factor_provisioning_allowed(self):
+    def has_primary_verified_email(self):
         return self.primary_email is not None and self.primary_email.verified
 
 
