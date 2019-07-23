@@ -43,22 +43,19 @@
           <p>Enable JavaScript to log in with a security device (e.g. USB key)</p>
         </noscript>
 
-        <div class="form-group">
-          <button
-            type="button"
-            id="webauthn-auth-begin"
-            class="button button--primary"
-            csrf-token="{{ request.session.get_csrf_token() }}"
-            disabled>Authenticate with key
-          </button>
-          <ul id="webauthn-errors" class="form-errors margin-top--large">
-            <li id="webauthn-browser-support" class="hidden">
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
-            </li>
-          </ul>
-        </div>
-
-        <p>Lost your key? Not working? <a href="/help/#utfkey">Get help</a>.</p>
+        <button
+          type="button"
+          id="webauthn-auth-begin"
+          class="button button--primary"
+          csrf-token="{{ request.session.get_csrf_token() }}"
+          disabled>Authenticate with key
+        </button>
+        <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
+          <li id="webauthn-browser-support" class="hidden">
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
+          </li>
+        </ul>
+        <p class="margin-top--large">Lost your key? Not working? <a href="/help/#utfkey">Get help</a>.</p>
       </div>
       {% endif %}
 
