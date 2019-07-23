@@ -43,7 +43,7 @@ class TestDatabaseMacaroonService:
 
     def test_find_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon = macaroon_service.create_macaroon(
+        raw_macaroon, macaroon = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
@@ -52,6 +52,7 @@ class TestDatabaseMacaroonService:
 
         assert isinstance(dm, Macaroon)
         assert str(dm.id) == m.identifier.decode()
+        assert str(macaroon.id) == m.identifier.decode()
 
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None
@@ -68,7 +69,7 @@ class TestDatabaseMacaroonService:
 
     def test_find_userid(self, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon = macaroon_service.create_macaroon(
+        raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
         user_id = macaroon_service.find_userid(raw_macaroon)
@@ -90,7 +91,7 @@ class TestDatabaseMacaroonService:
 
     def test_verify_invalid_macaroon(self, monkeypatch, user_service, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon = macaroon_service.create_macaroon(
+        raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
@@ -110,7 +111,7 @@ class TestDatabaseMacaroonService:
 
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon = macaroon_service.create_macaroon(
+        raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
@@ -129,7 +130,7 @@ class TestDatabaseMacaroonService:
 
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon = macaroon_service.create_macaroon(
+        raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
@@ -147,14 +148,13 @@ class TestDatabaseMacaroonService:
 
     def test_get_macaroon_by_description(self, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon = macaroon_service.create_macaroon(
+        _, macaroon = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
-        m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        dm = macaroon_service.find_macaroon(m.identifier.decode())
+        dm = macaroon_service.find_macaroon(str(macaroon.id))
 
         assert (
-            macaroon_service.get_macaroon_by_description(user.id, "fake description")
+            macaroon_service.get_macaroon_by_description(user.id, macaroon.description)
             == dm
         )
