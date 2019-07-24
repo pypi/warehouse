@@ -274,8 +274,16 @@
         <h3 id="apitoken">{{ apitoken() }}</h3>
 
         <p>API tokens provide an alternative way (instead of username and password) to authenticate when uploading packages to PyPI.</p>
-        <p>Tokens can be created for an entire PyPI account, in which case, the token will work for all projects associated with that account. Tokens can also be scoped to a specific project.</p>
+        <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
         <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
+
+        <p>To make an API token:</p>
+
+        <ul>
+          <li><a href="#verified-email">Verify your email address</a> (check your <a href="{{ request.route_path('manage.account') }}">account settings</a>)</li>
+          <li>In your <a href="{{ request.route_path('manage.account') }}">account settings</a>), go to the API tokens section and select "Add API token"</li>
+        </ul>
+
         <p>To use an API token:</p>
 
         <ul>
