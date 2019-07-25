@@ -45,9 +45,7 @@ class TestUserFactory:
             ("foo@bar.com", False, False),
         ],
     )
-    def test_two_factor_provisioning_allowed(
-        self, db_session, email, verified, allowed
-    ):
+    def test_has_primary_verified_email(self, db_session, email, verified, allowed):
         user = DBUserFactory.create()
 
         if email:
@@ -55,7 +53,7 @@ class TestUserFactory:
             db_session.add(e)
             db_session.flush()
 
-        assert user.two_factor_provisioning_allowed == allowed
+        assert user.has_primary_verified_email == allowed
 
 
 class TestUser:

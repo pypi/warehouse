@@ -24,7 +24,7 @@
 */
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: $spacing-unit / 2;
   max-width: 350px;
 
   &__label {
@@ -33,7 +33,8 @@
     margin-bottom: 7px;
   }
 
-  #{$all-text-inputs}.form-group__input {
+  #{$all-text-inputs}.form-group__input,
+  select.form-group__input {
     display: block;
     width: 350px;
     max-width: 100%;

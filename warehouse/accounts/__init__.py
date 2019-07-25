@@ -33,6 +33,10 @@ from warehouse.accounts.services import (
 )
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.macaroons.auth_policy import (
+    MacaroonAuthenticationPolicy,
+    MacaroonAuthorizationPolicy,
+)
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
@@ -144,10 +148,13 @@ def includeme(config):
             [
                 SessionAuthenticationPolicy(callback=_authenticate),
                 BasicAuthAuthenticationPolicy(check=_basic_auth_login),
+                MacaroonAuthenticationPolicy(callback=_authenticate),
             ]
         )
     )
-    config.set_authorization_policy(ACLAuthorizationPolicy())
+    config.set_authorization_policy(
+        MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
+    )
 
     # Add a request method which will allow people to access the user object.
     config.add_request_method(_user, name="user", reify=True)

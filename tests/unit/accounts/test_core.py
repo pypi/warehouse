@@ -261,6 +261,8 @@ class TestUser:
 
 
 def test_includeme(monkeypatch):
+    macaroon_authn_obj = pretend.stub()
+    macaroon_authn_cls = pretend.call_recorder(lambda callback: macaroon_authn_obj)
     basic_authn_obj = pretend.stub()
     basic_authn_cls = pretend.call_recorder(lambda check: basic_authn_obj)
     session_authn_obj = pretend.stub()
@@ -268,11 +270,13 @@ def test_includeme(monkeypatch):
     authn_obj = pretend.stub()
     authn_cls = pretend.call_recorder(lambda *a: authn_obj)
     authz_obj = pretend.stub()
-    authz_cls = pretend.call_recorder(lambda: authz_obj)
+    authz_cls = pretend.call_recorder(lambda *a, **kw: authz_obj)
     monkeypatch.setattr(accounts, "BasicAuthAuthenticationPolicy", basic_authn_cls)
     monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", session_authn_cls)
+    monkeypatch.setattr(accounts, "MacaroonAuthenticationPolicy", macaroon_authn_cls)
     monkeypatch.setattr(accounts, "MultiAuthenticationPolicy", authn_cls)
     monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
+    monkeypatch.setattr(accounts, "MacaroonAuthorizationPolicy", authz_cls)
 
     config = pretend.stub(
         registry=pretend.stub(settings={}),
@@ -312,5 +316,7 @@ def test_includeme(monkeypatch):
     assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
     assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_login)]
     assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
-    assert authn_cls.calls == [pretend.call([session_authn_obj, basic_authn_obj])]
-    assert authz_cls.calls == [pretend.call()]
+    assert authn_cls.calls == [
+        pretend.call([session_authn_obj, basic_authn_obj, macaroon_authn_obj])
+    ]
+    assert authz_cls.calls == [pretend.call(), pretend.call(policy=authz_obj)]

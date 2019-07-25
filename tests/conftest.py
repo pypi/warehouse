@@ -33,7 +33,8 @@ from pytest_postgresql.factories import (
 from sqlalchemy import event
 
 from warehouse import admin, config, static
-from warehouse.accounts import services
+from warehouse.accounts import services as account_services
+from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 
 from .common.db import Session
@@ -216,12 +217,17 @@ def db_session(app_config):
 
 @pytest.yield_fixture
 def user_service(db_session, metrics):
-    return services.DatabaseUserService(db_session, metrics=metrics)
+    return account_services.DatabaseUserService(db_session, metrics=metrics)
+
+
+@pytest.yield_fixture
+def macaroon_service(db_session):
+    return macaroon_services.DatabaseMacaroonService(db_session)
 
 
 @pytest.yield_fixture
 def token_service(app_config):
-    return services.TokenService(secret="secret", salt="salt", max_age=21600)
+    return account_services.TokenService(secret="secret", salt="salt", max_age=21600)
 
 
 class QueryRecorder:
