@@ -43,7 +43,7 @@ class DatabaseMacaroonService:
             return None
 
         try:
-            prefix, _, raw_macaroon = raw_macaroon.partition(":")
+            prefix, raw_macaroon = raw_macaroon.split(":", 1)
         except ValueError:
             return None
 
