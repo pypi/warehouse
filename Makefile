@@ -57,7 +57,7 @@ default:
 	python3.7 -m venv .state/env
 
 	# install/upgrade general requirements
-	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
+	.state/env/bin/python -m pip install --upgrade pip==19.1.1 setuptools wheel
 
 	# install various types of requirements
 	.state/env/bin/python -m pip install -r requirements/dev.txt
