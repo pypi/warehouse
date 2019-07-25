@@ -38,6 +38,18 @@ class TestDatabaseMacaroonService:
 
         assert service.db is session
 
+    @pytest.mark.parametrize(
+        ["raw_macaroon", "result"],
+        [
+            (None, None),
+            ("noprefixhere", None),
+            ("invalid:prefix", None),
+            ("pypi:validprefix", "validprefix"),
+        ],
+    )
+    def test_extract_raw_macaroon(self, macaroon_service, raw_macaroon, result):
+        assert macaroon_service._extract_raw_macaroon(raw_macaroon) == result
+
     def test_find_macaroon_invalid_macaroon(self, macaroon_service):
         assert macaroon_service.find_macaroon(str(uuid4())) is None
 
@@ -62,6 +74,7 @@ class TestDatabaseMacaroonService:
             key=b"fake key",
             version=pymacaroons.MACAROON_V2,
         ).serialize()
+        raw_macaroon = f"pypi:{raw_macaroon}"
 
         assert macaroon_service.find_userid(raw_macaroon) is None
 
@@ -74,6 +87,19 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
+    def test_verify_malformed_macaroon(self, macaroon_service):
+        raw_macaroon = pymacaroons.Macaroon(
+            location="fake location",
+            identifier=str(uuid4()),
+            key=b"fake key",
+            version=pymacaroons.MACAROON_V2,
+        ).serialize()
+
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.verify(
+                raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
+            )
+
     def test_verify_no_macaroon(self, macaroon_service):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",
@@ -81,6 +107,7 @@ class TestDatabaseMacaroonService:
             key=b"fake key",
             version=pymacaroons.MACAROON_V2,
         ).serialize()
+        raw_macaroon = f"pypi:{raw_macaroon}"
 
         with pytest.raises(services.InvalidMacaroon):
             macaroon_service.verify(
