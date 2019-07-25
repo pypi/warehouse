@@ -60,6 +60,6 @@ class Macaroon(db.Model):
     # default would be to generate a random key). However, it appears the
     # PostgreSQL pgcrypto extension uses OpenSSL RAND_bytes if available
     # instead of urandom. This is less than optimal, and we would generally
-    # prefer to just always use usrandom. Thus we'll do this ourselves here
+    # prefer to just always use urandom. Thus we'll do this ourselves here
     # in our application.
     key = Column(LargeBinary, nullable=False, default=_generate_key)
