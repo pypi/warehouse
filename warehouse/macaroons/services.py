@@ -95,7 +95,7 @@ class DatabaseMacaroonService:
         """
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
         if raw_macaroon is None:
-            return None
+            raise InvalidMacaroon("malformed or nonexistent macaroon")
 
         m = pymacaroons.Macaroon.deserialize(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
