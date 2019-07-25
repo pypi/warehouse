@@ -41,9 +41,26 @@
      - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
      - emails: specific styles for the email on account page
+     - api-tokens: specific styles for API tokens on the manage account page
  */
 
 // TABLE
+@mixin mobile-friendly-dropdown {
+  .dropdown {
+    display: block;
+    float: none;
+
+    .button {
+      display: block;
+      width: 100%;
+    }
+
+    .dropdown__content,
+    .dropdown__link {
+      width: 100%;
+    }
+  }
+}
 
 .table {
   @include table;
@@ -67,7 +84,8 @@
       border-bottom: 1px solid $base-grey;
     }
 
-    tr:last-child td {
+    tbody tr:last-child td,
+    tbody tr:last-child th {
       border-bottom: 0;
     }
   }
@@ -202,19 +220,7 @@
         padding-bottom: 10px;
         border-bottom: 1px solid $base-grey;
 
-        .dropdown {
-          display: block;
-
-          .button {
-            display: block;
-            width: 100%;
-          }
-
-          .dropdown__content,
-          .dropdown__link {
-            width: 100%;
-          }
-        }
+        @include mobile-friendly-dropdown;
       }
     }
   }
@@ -282,20 +288,7 @@
       }
 
       .table__options {
-        .dropdown {
-          display: block;
-          float: none;
-
-          .button {
-            display: block;
-            width: 100%;
-          }
-
-          .dropdown__content,
-          .dropdown__link {
-            width: 100%;
-          }
-        }
+        @include mobile-friendly-dropdown;
       }
     }
   }
@@ -548,20 +541,10 @@
       .table__action {
         padding: 0;
 
+        @include mobile-friendly-dropdown;
+
         .dropdown {
-          display: block;
-          float: none;
           margin: 8px 0 4px 0;
-
-          .button {
-            display: block;
-            width: 100%;
-          }
-
-          .dropdown__content,
-          .dropdown__link {
-            width: 100%;
-          }
         }
       }
     }
@@ -580,6 +563,85 @@
 
     .table__action {
       width: 100px;
+    }
+  }
+
+  &--api-tokens {
+    margin: 0 0 $spacing-unit;
+
+    tr td {
+      padding-right: 20px;
+
+      &:last-of-type {
+        padding-right: 0;
+      }
+    }
+
+    .table__api-name {
+      font-weight: normal;
+    }
+
+    .table__scope,
+    .table__created-date,
+    .table__used-date {
+      span {
+        display: none;
+      }
+    }
+
+    .table__action {
+      width: 150px;
+      text-align: right;
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 20px 0;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      tbody tr:last-of-type {
+        border-bottom: 0;
+      }
+
+      .table__api-name,
+      .table__scope,
+      .table__created-date,
+      .table__used-date,
+      .table__action {
+        padding: 0;
+        width: 100%;
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+      }
+
+      .table__api-name {
+        font-weight: $bold-font-weight;
+      }
+
+      .table__scope,
+      .table__created-date,
+      .table__used-date {
+        span {
+          font-weight: $bold-font-weight;
+          display: inline;
+        }
+      }
+
+      .table__action {
+        @include mobile-friendly-dropdown;
+
+        .dropdown {
+          margin: 8px 0 4px 0;
+        }
+      }
     }
   }
 }
