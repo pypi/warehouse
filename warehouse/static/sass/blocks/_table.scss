@@ -40,7 +40,8 @@
      - files: specific styles for files table on releases tab
      - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
-     - emails: specific styles for the email on account page
+     - emails: specific styles for emails on the manage account page
+     - 2fa: specific styles for 2fa methods on the manage account page
      - api-tokens: specific styles for API tokens on the manage account page
  */
 
@@ -563,6 +564,35 @@
 
     .table__action {
       width: 100px;
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 20px 0;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      tbody tr:last-of-type {
+        border-bottom: 0;
+      }
+
+      tbody tr td {
+        padding: 0;
+        width: 100%;
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+      }
+
+      .table__action {
+        margin: 8px 0 4px 0;
+      }
     }
   }
 
