@@ -31,6 +31,27 @@ class DatabaseMacaroonService:
     def __init__(self, db_session):
         self.db = db_session
 
+    def _extract_raw_macaroon(self, raw_macaroon):
+        """
+        Returns the base64-encoded macaroon component of a PyPI macaroon,
+        dropping the prefix.
+
+        Returns None if the macaroon is None, has no prefix, or has the
+        wrong prefix.
+        """
+        if raw_macaroon is None:
+            return None
+
+        try:
+            prefix, _, raw_macaroon = raw_macaroon.partition(":")
+        except ValueError:
+            return None
+
+        if prefix != "pypi":
+            return None
+
+        return raw_macaroon
+
     def find_macaroon(self, macaroon_id):
         """
         Returns a macaroon model from the DB by its identifier.
@@ -53,8 +74,10 @@ class DatabaseMacaroonService:
         Returns the id of the user associated with the given raw (serialized)
         macaroon.
         """
+        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
         if raw_macaroon is None:
             return None
+
         m = pymacaroons.Macaroon.deserialize(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
 
@@ -70,6 +93,10 @@ class DatabaseMacaroonService:
 
         Raises InvalidMacaroon if the macaroon is not valid.
         """
+        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
+        if raw_macaroon is None:
+            return None
+
         m = pymacaroons.Macaroon.deserialize(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
 
@@ -102,7 +129,8 @@ class DatabaseMacaroonService:
             version=pymacaroons.MACAROON_V2,
         )
         m.add_first_party_caveat(json.dumps(caveats))
-        return m.serialize(), dm
+        serialized_macaroon = f"pypi:{m.serialize()}"
+        return serialized_macaroon, dm
 
     def delete_macaroon(self, macaroon_id):
         """
