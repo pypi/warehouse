@@ -944,8 +944,7 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             (
-                "The credential associated with user '{0}' "
-                "isn't allowed to upload to project '{1}'. "
+                "The user '{0}' isn't allowed to upload to project '{1}'. "
                 "See {2} for more information."
             ).format(
                 request.user.username,
