@@ -41,7 +41,6 @@
 {% macro totp() %}How does two factor authentication with an authentication application (TOTP) work? How do I set it up on PyPI?{% endmacro %}
 {% macro utfkey() %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI? <span class="badge badge--warning">Beta</span>{% endmacro %}
 {% macro utfdevices() %}What devices (other than a USB key) can I use as a security device? <span class="badge badge--warning">Beta</span>{% endmacro %}
-{% macro apitoken() %}How can I use API tokens to authenticate with PyPI? <span class="badge badge--warning">Beta</span>{% endmacro %}
 
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
@@ -98,7 +97,6 @@
           <li><a href="#totp">{{ totp() }}</a></li>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
-          <li><a href="#apitoken">{{ apitoken() }}</a></li>
         </ul>
       </section>
 
@@ -271,29 +269,6 @@
         <p>Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards. There is also growing support for <a href="https://fidoalliance.org/news-your-google-android-7-phone-is-now-a-fido2-security-key/" title="External link" target="_blank" rel="noopener">mobile phones to act as security devices</a>.</p>
         <p>As PyPI's two factor implementation follows the <a href="https://www.w3.org/TR/webauthn/" title="External link" target="_blank" rel="noopener">WebAuthn standard</a>, PyPI users will be able to take advantage of any future developments in this field.</p>
 
-        <h3 id="apitoken">{{ apitoken() }}</h3>
-
-        <p>API tokens provide an alternative way (instead of username and password) to authenticate when uploading packages to PyPI.</p>
-        <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
-        <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
-
-        <p>To make an API token:</p>
-
-        <ul>
-          <li><a href="#verified-email">Verify your email address</a> (check your <a href="{{ request.route_path('manage.account') }}">account settings</a>)</li>
-          <li>In your <a href="{{ request.route_path('manage.account') }}">account settings</a>, go to the API tokens section and select "Add API token"</li>
-        </ul>
-
-        <p>To use an API token:</p>
-
-        <ul>
-          <li>Set your username to <code>@token</code></li>
-          <li>Set your password to the token value</li>
-        </ul>
-
-        <p>Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account" title="External link" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="https://docs.travis-ci.com/user/deployment/pypi/" title="External link" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).</p>
-        <p>Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.</p>
-
       </section>
 
       <section class="faq-group" id="integrating">
@@ -444,7 +419,6 @@
         <ul>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
-          <li><a href="#apitoken">{{ apitoken() }}</a></li>
         </ul>
 
       </section>

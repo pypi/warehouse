@@ -27,7 +27,6 @@ from webob.multidict import MultiDict
 import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
-from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.packaging.models import File, JournalEntry, Project, Role, User
 from warehouse.utils.paginate import paginate_url_factory
@@ -696,7 +695,7 @@ class TestProvisionTOTP:
                 username="foobar",
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -719,7 +718,7 @@ class TestProvisionTOTP:
                 username="foobar",
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
         )
 
@@ -736,7 +735,7 @@ class TestProvisionTOTP:
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(has_primary_verified_email=False),
+            user=pretend.stub(two_factor_provisioning_allowed=False),
         )
 
         view = views.ProvisionTOTPViews(request)
@@ -765,7 +764,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -804,7 +803,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -829,7 +828,7 @@ class TestProvisionTOTP:
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(has_primary_verified_email=False),
+            user=pretend.stub(two_factor_provisioning_allowed=False),
         )
 
         view = views.ProvisionTOTPViews(request)
@@ -863,7 +862,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -902,7 +901,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar"),
         )
@@ -937,7 +936,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             registry=pretend.stub(settings={"site.name": "not_a_real_site_name"}),
         )
@@ -972,7 +971,7 @@ class TestProvisionTOTP:
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(has_primary_verified_email=False),
+            user=pretend.stub(two_factor_provisioning_allowed=False),
         )
 
         view = views.ProvisionTOTPViews(request)
@@ -1001,7 +1000,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 totp_secret=b"secret",
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1040,7 +1039,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1073,7 +1072,7 @@ class TestProvisionTOTP:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
-                has_primary_verified_email=True,
+                two_factor_provisioning_allowed=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1101,7 +1100,7 @@ class TestProvisionTOTP:
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(has_primary_verified_email=False),
+            user=pretend.stub(two_factor_provisioning_allowed=False),
         )
 
         view = views.ProvisionTOTPViews(request)
@@ -1326,270 +1325,6 @@ class TestProvisionWebAuthn:
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
-
-
-class TestProvisionMacaroonViews:
-    def test_default_response(self, monkeypatch):
-        create_macaroon_obj = pretend.stub()
-        create_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: create_macaroon_obj
-        )
-        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
-
-        delete_macaroon_obj = pretend.stub()
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        project_names = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
-
-        request = pretend.stub(
-            user=pretend.stub(id=pretend.stub()),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: pretend.stub(),
-                IUserService: pretend.stub(),
-            }[interface],
-        )
-
-        view = views.ProvisionMacaroonViews(request)
-
-        assert view.default_response == {
-            "project_names": project_names,
-            "create_macaroon_form": create_macaroon_obj,
-            "delete_macaroon_form": delete_macaroon_obj,
-        }
-
-    def test_manage_macaroons(self, monkeypatch):
-        request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "default_response", default_response
-        )
-        view = views.ProvisionMacaroonViews(request)
-        result = view.manage_macaroons()
-
-        assert result == default_response
-
-    def test_create_macaroon_not_allowed(self):
-        request = pretend.stub(
-            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(has_primary_verified_email=False),
-            find_service=lambda interface, **kw: pretend.stub(),
-        )
-
-        view = views.ProvisionMacaroonViews(request)
-        result = view.create_macaroon()
-
-        assert request.route_path.calls == [pretend.call("manage.account")]
-        assert request.session.flash.calls == [
-            pretend.call("Verify your email to create an API token.", queue="error")
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/foo/bar"
-
-    def test_create_macaroon_invalid_form(self, monkeypatch):
-        macaroon_service = pretend.stub(
-            create_macaroon=pretend.call_recorder(lambda *a, **kw: pretend.stub())
-        )
-        request = pretend.stub(
-            POST={},
-            user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
-            }[interface],
-        )
-
-        create_macaroon_obj = pretend.stub(validate=lambda: False)
-        create_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: create_macaroon_obj
-        )
-        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
-
-        user_projects = pretend.call_recorder(
-            lambda r: {"projects_owned": [pretend.stub(name=pretend.stub())]}
-        )
-        monkeypatch.setattr(views, "user_projects", user_projects)
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "default_response", default_response
-        )
-
-        view = views.ProvisionMacaroonViews(request)
-        result = view.create_macaroon()
-
-        assert result == {
-            **default_response,
-            "create_macaroon_form": create_macaroon_obj,
-        }
-        assert macaroon_service.create_macaroon.calls == []
-
-    def test_create_macaroon(self, monkeypatch):
-        macaroon = pretend.stub()
-        macaroon_service = pretend.stub(
-            create_macaroon=pretend.call_recorder(
-                lambda *a, **kw: ("not a real raw macaroon", macaroon)
-            )
-        )
-        request = pretend.stub(
-            POST={},
-            domain=pretend.stub(),
-            user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
-            }[interface],
-        )
-
-        create_macaroon_obj = pretend.stub(
-            validate=lambda: True,
-            description=pretend.stub(data=pretend.stub()),
-            validated_scope=pretend.stub(),
-        )
-        create_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: create_macaroon_obj
-        )
-        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
-
-        project_name = pretend.stub()
-        user_projects = pretend.call_recorder(
-            lambda r: {"projects_owned": [pretend.stub(name=project_name)]}
-        )
-        monkeypatch.setattr(views, "user_projects", user_projects)
-
-        default_response = {"default": "response"}
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "default_response", default_response
-        )
-
-        view = views.ProvisionMacaroonViews(request)
-        result = view.create_macaroon()
-
-        assert macaroon_service.create_macaroon.calls == [
-            pretend.call(
-                location=request.domain,
-                user_id=request.user.id,
-                description=create_macaroon_obj.description.data,
-                caveats={
-                    "permissions": create_macaroon_obj.validated_scope,
-                    "version": 1,
-                },
-            )
-        ]
-        assert result == {
-            **default_response,
-            "serialized_macaroon": "not a real raw macaroon",
-            "macaroon": macaroon,
-            "create_macaroon_form": create_macaroon_obj,
-        }
-
-    def test_delete_macaroon_invalid_form(self, monkeypatch):
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
-        )
-        request = pretend.stub(
-            POST={},
-            route_path=pretend.call_recorder(lambda x: pretend.stub()),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
-            }[interface],
-            referer="/fake/safe/route",
-            host=None,
-        )
-
-        delete_macaroon_obj = pretend.stub(validate=lambda: False)
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        view = views.ProvisionMacaroonViews(request)
-        result = view.delete_macaroon()
-
-        assert request.route_path.calls == []
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/fake/safe/route"
-        assert macaroon_service.delete_macaroon.calls == []
-
-    def test_delete_macaroon_dangerous_redirect(self, monkeypatch):
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
-        )
-        request = pretend.stub(
-            POST={},
-            route_path=pretend.call_recorder(lambda x: "/safe/route"),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
-            }[interface],
-            referer="http://google.com/",
-            host=None,
-        )
-
-        delete_macaroon_obj = pretend.stub(validate=lambda: False)
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        view = views.ProvisionMacaroonViews(request)
-        result = view.delete_macaroon()
-
-        assert request.route_path.calls == [pretend.call("manage.account")]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/safe/route"
-        assert macaroon_service.delete_macaroon.calls == []
-
-    def test_delete_macaroon(self, monkeypatch):
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
-            find_macaroon=pretend.call_recorder(
-                lambda id: pretend.stub(description="fake macaroon")
-            ),
-        )
-        request = pretend.stub(
-            POST={},
-            route_path=pretend.call_recorder(lambda x: pretend.stub()),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
-            }[interface],
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            referer="/fake/safe/route",
-            host=None,
-        )
-
-        delete_macaroon_obj = pretend.stub(
-            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
-        )
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        view = views.ProvisionMacaroonViews(request)
-        result = view.delete_macaroon()
-
-        assert request.route_path.calls == []
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/fake/safe/route"
-        assert macaroon_service.delete_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert macaroon_service.find_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert request.session.flash.calls == [
-            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
-        ]
 
 
 class TestManageProjects:
