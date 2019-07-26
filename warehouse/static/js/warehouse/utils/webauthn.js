@@ -175,7 +175,7 @@ export const GuardWebAuthn = async () => {
 
     let webauthn_error = document.getElementById("webauthn-browser-support");
     if (webauthn_error) {
-      webauthn_error.style.display = "block";
+      webauthn_error.classList.remove("hidden");
     }
 
     let webauthn_label = document.getElementById("webauthn-provision-label");
