@@ -224,6 +224,9 @@ class CreateMacaroonForm(forms.Form):
         except ValueError:
             raise wtforms.ValidationError(f"Unknown token scope: {scope}")
 
+        if scope_kind == "unspecified":
+            raise wtforms.ValidationError(f"Please select a scope")
+
         if scope_kind == "user":
             self.validated_scope = scope_kind
             return
