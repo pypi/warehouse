@@ -79,6 +79,10 @@
         </select>
         {{ field_errors(create_macaroon_form.token_scope) }}
       </div>
+      <div class="callout-block callout-block--warning">
+        <h3 class="callout-block__heading">Proceed with caution!</h3>
+        <p>An API token scoped to your entire account will have the same power as your account password.</p>
+      </div>
       <div>
         <input value="Add token" class="button button--primary" type="submit">
       </div>
