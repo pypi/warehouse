@@ -159,8 +159,15 @@ const postAssertion = async (assertion, token) => {
   return await resp.json();
 };
 
-export const GuardWebAuthn = () => {
-  if (!window.PublicKeyCredential) {
+export const GuardWebAuthn = async () => {
+  if (
+      !window.PublicKeyCredential ||
+      !(
+          await window
+              .PublicKeyCredential
+              .isUserVerifyingPlatformAuthenticatorAvailable()
+      )
+  ) {
     let webauthn_button = document.getElementById("webauthn-button");
     if (webauthn_button) {
       webauthn_button.className += " button--disabled";
