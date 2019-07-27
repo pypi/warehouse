@@ -196,7 +196,7 @@ class CreateMacaroonForm(forms.Form):
 
     description = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a description"),
+            wtforms.validators.DataRequired(message="Specify a token name"),
             wtforms.validators.Length(
                 max=100, message="Description must be 100 characters or less"
             ),
@@ -204,7 +204,7 @@ class CreateMacaroonForm(forms.Form):
     )
 
     token_scope = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify a token scope")]
+        validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
     )
 
     def validate_description(self, field):
@@ -225,7 +225,7 @@ class CreateMacaroonForm(forms.Form):
             raise wtforms.ValidationError(f"Unknown token scope: {scope}")
 
         if scope_kind == "unspecified":
-            raise wtforms.ValidationError(f"Please select a scope")
+            raise wtforms.ValidationError(f"Specify the token scope")
 
         if scope_kind == "user":
             self.validated_scope = scope_kind
