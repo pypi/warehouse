@@ -71,6 +71,7 @@
 {% macro contributing() %}How can I contribute to PyPI?{% endmacro %}
 {% macro upcoming_changes() %}How do I keep up with upcoming changes to PyPI?{% endmacro %}
 {% macro beta_badge() %}What does the "beta" badge mean? What are Warehouse's current beta features?{% endmacro %}
+{% macro pronunciation_guide() %}How do I pronounce "PyPI"?{% endmacro %}
 
 {% block title %}Help{% endblock %}
 
@@ -148,6 +149,7 @@
           <li><a href="#contributing">{{ contributing() }}</a></li>
           <li><a href="#upcoming-changes">{{ upcoming_changes() }}</a></li>
           <li><a href="#beta-badge">{{ beta_badge() }}</a></li>
+          <li><a href="#pronunciation-guide">{{ pronunciation_guide() }}</a></li>
         </ul>
       </section>
 
@@ -446,6 +448,9 @@
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
         </ul>
+
+        <h3 id="pronunciation-guide">{{ pronunciation_guide() }}</h3>
+        <p>"PyPI" is intended to be pronounced as "Pie Pea Eye", with the "PI" pronounced as individual letters, rather as a word. This minimizes confusion with the <a href="https://pypy.org/">PyPy</a> project, which is a popular alternative implementation of the Python language.</p>
 
       </section>
     </div>
