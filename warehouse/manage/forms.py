@@ -183,3 +183,78 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
         if self.user_service.get_webauthn_by_label(self.user_id, label) is not None:
             raise wtforms.validators.ValidationError(f"Label '{label}' already in use")
+
+
+class CreateMacaroonForm(forms.Form):
+    __params__ = ["description", "token_scope"]
+
+    def __init__(self, *args, user_id, macaroon_service, project_names, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.macaroon_service = macaroon_service
+        self.project_names = project_names
+
+    description = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Specify a description"),
+            wtforms.validators.Length(
+                max=100, message="Description must be 100 characters or less"
+            ),
+        ]
+    )
+
+    token_scope = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired(message="Specify a token scope")]
+    )
+
+    def validate_description(self, field):
+        description = field.data
+
+        if (
+            self.macaroon_service.get_macaroon_by_description(self.user_id, description)
+            is not None
+        ):
+            raise wtforms.validators.ValidationError("API token name already in use")
+
+    def validate_token_scope(self, field):
+        scope = field.data
+
+        try:
+            _, scope_kind = scope.split(":", 1)
+        except ValueError:
+            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+
+        if scope_kind == "user":
+            self.validated_scope = scope_kind
+            return
+
+        try:
+            scope_kind, scope_value = scope_kind.split(":", 1)
+        except ValueError:
+            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+
+        if scope_kind != "project":
+            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+        if scope_value not in self.project_names:
+            raise wtforms.ValidationError(
+                f"Unknown or invalid project name: {scope_value}"
+            )
+
+        self.validated_scope = {"projects": [scope_value]}
+
+
+class DeleteMacaroonForm(forms.Form):
+    __params__ = ["macaroon_id"]
+
+    macaroon_id = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired(message="Identifier required")]
+    )
+
+    def __init__(self, *args, macaroon_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.macaroon_service = macaroon_service
+
+    def validate_macaroon_id(self, field):
+        macaroon_id = field.data
+        if self.macaroon_service.find_macaroon(macaroon_id) is None:
+            raise wtforms.validators.ValidationError("No such macaroon")

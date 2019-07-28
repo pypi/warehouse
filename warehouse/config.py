@@ -380,6 +380,9 @@ def configure(settings=None):
     # Register our authentication support.
     config.include(".accounts")
 
+    # Register support for Macaroon based authentication
+    config.include(".macaroons")
+
     # Register logged-in views
     config.include(".manage")
 
