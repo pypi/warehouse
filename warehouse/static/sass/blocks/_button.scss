@@ -33,15 +33,13 @@
   font-size: $button-font-size;
   font-weight: $bold-font-weight;
   cursor: pointer;
-  padding: 0 ($spacing-unit / 2);
+  padding: 8.5px ($spacing-unit / 2);
   background-color: transparent;
   color: lighten($text-color, 10);
-  height: 40px;
-  line-height: 35px;
+  line-height: 19px;
   border: 2px solid darken($base-grey, 10);
   border-radius: 3px;
   display: inline-block;
-  white-space: nowrap;
   @include link-without-underline;
 
   i.fa {
@@ -62,8 +60,7 @@
 
   &--small {
     font-size: $small-font-size;
-    height: 32px;
-    line-height: 28px;
+    padding: 4px 8px;
   }
 
   &--primary {
