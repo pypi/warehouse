@@ -192,6 +192,9 @@ export const ProvisionWebAuthn = () => {
     const transformedOptions = transformCredentialOptions(credentialOptions);
     const credential = await navigator.credentials.create({
       publicKey: transformedOptions,
+    }).catch((error) => {
+      populateWebAuthnErrorList([error.message]);
+      return;
     });
     const transformedCredential = transformCredential(credential);
 
@@ -222,6 +225,9 @@ export const AuthenticateWebAuthn = () => {
     const transformedOptions = transformAssertionOptions(assertionOptions);
     const assertion = await navigator.credentials.get({
       publicKey: transformedOptions,
+    }).catch((error) => {
+      populateWebAuthnErrorList([error.message]);
+      return;
     });
     const transformedAssertion = transformAssertion(assertion);
 
