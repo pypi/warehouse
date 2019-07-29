@@ -394,7 +394,7 @@
           <tr>
             <td>
               <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
-              <span class="badge badge--warning">Beta</span>
+              <span class="badge badge--warning">Beta feature</span>
             </td>
             <td class="table__action">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
@@ -426,7 +426,7 @@
   <hr>
 
   <section id="api-tokens">
-    <h2>API tokens <span class="badge badge--warning">Beta</span></h2>
+    <h2>API tokens <span class="badge badge--warning">Beta feature</span></h2>
     <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more</a>.</p>
 
     {% if user.macaroons|length > 0 %}
