@@ -25,11 +25,19 @@
 {% endblock %}
 
 {% block main %}
-  <h1 class="page-title">{{ title }} <span class="badge badge--warning">Beta</span></h1>
+  <h1 class="page-title">{{ title }} <span class="badge badge--warning">Beta feature</span></h1>
 
   {% if serialized_macaroon %}
   <section id="provisioned-key">
     <h2>Token for "{{ macaroon.description }}"</h2>
+    <p>
+      <strong>Permissions:</strong> Upload packages<br>
+      {% if macaroon.caveats.permissions == "user" %}
+      <strong>Scope:</strong> Entire account (all projects)
+      {% else %}
+      <strong>Scope:</strong> Project "{{ macaroon.caveats.permissions.projects[0] }}"
+      {% endif %}
+    </p>
     <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
     <code class="api-token">{{ serialized_macaroon }}</code>
     <div class="margin-bottom--large">
@@ -60,6 +68,9 @@
 
   {{ form_error_anchor(create_macaroon_form) }}
   <section id="add-token">
+    {% if serialized_macaroon %}
+    <h2>Add another token</h2>
+    {% endif %}
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_macaroon_form) }}
@@ -70,14 +81,22 @@
         <p id="description-help-text" class="form-group__help-text">What is this token for?</p>
       </div>
       <div class="form-group">
-        <label for="scope" class="form-group__label">Scope</label>
-        <select name="token_scope" id="scope" class="form-group__input">
-          <option value="scope:user">Entire account (all projects)</option>
+        <span class="form-group__label">Permissions</span>
+        <p class="form-group__text">Upload packages</p>
+      </div>
+      <div class="form-group">
+        <label for="token_scope" class="form-group__label">Scope</label>
+        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="token_scope-errors">
+          <option disabled selected value="scope:unspecified">Select scope...</option>
         {% for project in project_names %}
           <option value="scope:project:{{ project }}">Project: {{ project }}</option>
         {% endfor %}
         </select>
         {{ field_errors(create_macaroon_form.token_scope) }}
+      </div>
+      <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
+        <h3 class="callout-block__heading">Proceed with caution!</h3>
+        <p>An API token scoped to your entire account will have upload permissions for all of your projects.</p>
       </div>
       <div>
         <input value="Add token" class="button button--primary" type="submit">

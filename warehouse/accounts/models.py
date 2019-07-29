@@ -126,8 +126,7 @@ class User(SitemapMixin, db.Model):
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
     __table_args__ = (
-        UniqueConstraint("label", name="user_security_keys_label_key"),
-        Index("user_security_keys_label_key", "user_id"),
+        UniqueConstraint("label", "user_id", name="_user_security_keys_label_uc"),
     )
 
     user_id = Column(
