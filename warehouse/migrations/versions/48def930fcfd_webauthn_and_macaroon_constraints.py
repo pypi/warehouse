@@ -27,17 +27,17 @@ def upgrade():
     op.create_unique_constraint(
         "_user_macaroons_description_uc", "macaroons", ["description", "user_id"]
     )
-    op.drop_index("user_security_keys_label_key", table_name="user_security_keys")
     op.create_unique_constraint(
-        "user_security_keys_label_key", "user_security_keys", ["label"]
+        "_user_security_keys_label_uc", "user_security_keys", ["label", "user_id"]
     )
+    op.drop_index("user_security_keys_label_key", table_name="user_security_keys")
 
 
 def downgrade():
-    op.drop_constraint(
-        "user_security_keys_label_key", "user_security_keys", type_="unique"
-    )
     op.create_index(
         "user_security_keys_label_key", "user_security_keys", ["user_id"], unique=False
+    )
+    op.drop_constraint(
+        "_user_security_keys_label_uc", "user_security_keys", type_="unique"
     )
     op.drop_constraint("_user_macaroons_description_uc", "macaroons", type_="unique")
