@@ -70,14 +70,19 @@
         <p id="description-help-text" class="form-group__help-text">What is this token for?</p>
       </div>
       <div class="form-group">
-        <label for="scope" class="form-group__label">Scope</label>
-        <select name="token_scope" id="scope" class="form-group__input">
+        <label for="token_scope" class="form-group__label">Scope</label>
+        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="token_scope-errors">
+          <option disabled selected value="scope:unspecified">Select scope...</option>
           <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
           <option value="scope:project:{{ project }}">Project: {{ project }}</option>
         {% endfor %}
         </select>
         {{ field_errors(create_macaroon_form.token_scope) }}
+      </div>
+      <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
+        <h3 class="callout-block__heading">Proceed with caution!</h3>
+        <p>An API token scoped to your entire account will have upload permissions for all of your projects.</p>
       </div>
       <div>
         <input value="Add token" class="button button--primary" type="submit">
