@@ -1363,6 +1363,41 @@ class TestProvisionMacaroonViews:
             "delete_macaroon_form": delete_macaroon_obj,
         }
 
+    def test_project_names(self, db_request):
+        user = UserFactory.create()
+        another_user = UserFactory.create()
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        # A project with a sole owner that is the user
+        with_sole_owner = ProjectFactory.create(name="foo")
+        RoleFactory.create(user=user, project=with_sole_owner, role_name="Owner")
+        RoleFactory.create(
+            user=another_user, project=with_sole_owner, role_name="Maintainer"
+        )
+
+        # A project with multiple owners, including the user
+        with_multiple_owners = ProjectFactory.create(name="bar")
+        RoleFactory.create(user=user, project=with_multiple_owners, role_name="Owner")
+        RoleFactory.create(
+            user=another_user, project=with_multiple_owners, role_name="Owner"
+        )
+
+        # A project with a sole owner that is not the user
+        not_an_owner = ProjectFactory.create(name="baz")
+        RoleFactory.create(user=user, project=not_an_owner, role_name="Maintainer")
+        RoleFactory.create(user=another_user, project=not_an_owner, role_name="Owner")
+
+        # A project that the user is neither owner nor maintainer of
+        neither_owner_nor_maintainer = ProjectFactory.create(name="quux")
+        RoleFactory.create(
+            user=another_user, project=neither_owner_nor_maintainer, role_name="Owner"
+        )
+
+        view = views.ProvisionMacaroonViews(db_request)
+        assert set(view.project_names) == {"foo", "bar", "baz"}
+
     def test_manage_macaroons(self, monkeypatch):
         request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
 
