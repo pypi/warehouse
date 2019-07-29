@@ -71,7 +71,7 @@
       </div>
     </td>
     <td class="table__action">
-      {% if not email.verified or not email.primary%}
+      {% if not email.verified or not email.primary %}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options
@@ -123,6 +123,23 @@
     </td>
   </tr>
 {%- endmacro %}
+
+{% macro twofa_buttons() %}
+  {% if not user.totp_secret %}
+  <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
+  {% endif %}
+  <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add 2FA with security device (e.g. USB key)</a>
+
+  <noscript>
+    <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
+  </noscript>
+
+  <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
+    <li id="webauthn-browser-support" class="hidden">
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+    </li>
+  </ul>
+{% endmacro %}
 
 {% macro api_row(macaroon) -%}
   <tr>
@@ -347,85 +364,70 @@
     </form>
   </section>
 
-  {% if user.has_primary_verified_email %}
   <hr>
-  {% macro twofa_buttons() %}
-    {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
-    {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add 2FA with security device (e.g. USB key)</a>
-
-    <noscript>
-      <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
-    </noscript>
-
-    <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
-      <li id="webauthn-browser-support" class="hidden">
-        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
-      </li>
-    </ul>
-  {% endmacro %}
-
   <section id="two-factor">
     <h2 class="sub-title">Two factor authentication (2FA)</h2>
     <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more</a>.</p>
 
-    {% if user.totp_secret or user.webauthn %}
-    <table class="table table--light table--2fa">
-      <thead>
-        <tr>
-          <th colspan="2">Two factor method</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if user.totp_secret %}
-        <tr>
-          <td>Authentication application (TOTP)</td>
-          <td class="table__action">
-            <a href="#disable-totp" class="button button--primary">Remove</a>
-            {% set title="Remove authentication application" %}
-            {% set confirm_button_label="Remove application" %}
-            {% set action="/manage/account/totp-provision" %}
-            {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
-          </td>
-        </tr>
-        {% endif %}
-        {% for credential in user.webauthn %}
-        <tr>
-          <td>
-            <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
-            <span class="badge badge--warning">Beta</span>
-          </td>
-          <td class="table__action">
-            <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
-            {% set title="Remove two factor security device - " + credential.label %}
-            {% set confirm_button_label="Remove device" %}
-            {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
-            {% set slug="disable-webauthn-" + credential.id | string %}
-            {% set extra_fields %}
-              <input type="text" name="label" value="{{ credential.label }}" hidden>
-            {% endset %}
-            {{ confirm_modal(title=title, confirm_name="Device name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {{ twofa_buttons() }}
-    {% else %}
-    <div class="callout-block">
-      <p>You have not enabled two factor authentication on your account.</p>
+    {% if user.has_primary_verified_email %}
+      {% if user.totp_secret or user.webauthn %}
+      <table class="table table--light table--2fa">
+        <thead>
+          <tr>
+            <th colspan="2">Two factor method</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if user.totp_secret %}
+          <tr>
+            <td>Authentication application (TOTP)</td>
+            <td class="table__action">
+              <a href="#disable-totp" class="button button--primary">Remove</a>
+              {% set title="Remove authentication application" %}
+              {% set confirm_button_label="Remove application" %}
+              {% set action="/manage/account/totp-provision" %}
+              {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
+            </td>
+          </tr>
+          {% endif %}
+          {% for credential in user.webauthn %}
+          <tr>
+            <td>
+              <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
+              <span class="badge badge--warning">Beta</span>
+            </td>
+            <td class="table__action">
+              <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
+              {% set title="Remove two factor security device - " + credential.label %}
+              {% set confirm_button_label="Remove device" %}
+              {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
+              {% set slug="disable-webauthn-" + credential.id | string %}
+              {% set extra_fields %}
+                <input type="text" name="label" value="{{ credential.label }}" hidden>
+              {% endset %}
+              {{ confirm_modal(title=title, confirm_name="Device name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
       {{ twofa_buttons() }}
-    </div>
+      {% else %}
+      <div class="callout-block">
+        <p>You have not enabled two factor authentication on your account.</p>
+        {{ twofa_buttons() }}
+      </div>
+      {% endif %}
+    {% else %}
+      <p><strong><a href="#account-emails">Verify your primary email address</a> to add two factor authentication to your account.</strong></p>
     {% endif %}
   </section>
-  {% endif %}
 
   <hr>
 
   <section id="api-tokens">
     <h2>API tokens <span class="badge badge--warning">Beta</span></h2>
-    <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more</a></p>
+    <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more</a>.</p>
 
     {% if user.macaroons|length > 0 %}
     <table class="table table--light table--api-tokens">
@@ -447,7 +449,7 @@
     {% if user.has_primary_verified_email %}
     <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">Add API token</a>
     {% else %}
-    <p>To add API tokens, verify your primary email.</p>
+    <p><strong><a href="#account-emails">Verify your primary email address</a> to add API tokens to your account.</strong></p>
     {% endif %}
 
   </section>
