@@ -170,6 +170,7 @@ class TestValidation:
             "_foo",
             "_foo (>=1.0)",
             "name @ https://github.com/pypa",
+            "test-pypi-version-specifier-dep==0.0.1+cuda9",
         ],
     )
     def test_validate_legacy_dist_req_invalid(self, requirement):
