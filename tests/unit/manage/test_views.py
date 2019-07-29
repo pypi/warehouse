@@ -1412,10 +1412,10 @@ class TestProvisionMacaroonViews:
         )
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
-        user_projects = pretend.call_recorder(
-            lambda r: {"projects_owned": [pretend.stub(name=pretend.stub())]}
+        project_names = [pretend.stub()]
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "project_names", project_names
         )
-        monkeypatch.setattr(views, "user_projects", user_projects)
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
@@ -1458,11 +1458,10 @@ class TestProvisionMacaroonViews:
         )
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
-        project_name = pretend.stub()
-        user_projects = pretend.call_recorder(
-            lambda r: {"projects_owned": [pretend.stub(name=project_name)]}
+        project_names = [pretend.stub()]
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "project_names", project_names
         )
-        monkeypatch.setattr(views, "user_projects", user_projects)
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
