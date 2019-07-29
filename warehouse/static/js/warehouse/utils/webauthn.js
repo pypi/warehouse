@@ -193,21 +193,22 @@ export const ProvisionWebAuthn = () => {
 
     const credentialOptions = await resp.json();
     const transformedOptions = transformCredentialOptions(credentialOptions);
-    const credential = await navigator.credentials.create({
+    await navigator.credentials.create({
       publicKey: transformedOptions,
+    }).then(async (credential) => {
+      const transformedCredential = transformCredential(credential);
+
+      const status = await postCredential(label, transformedCredential, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
+
+      window.location.replace("/manage/account");
     }).catch((error) => {
       populateWebAuthnErrorList([error.message]);
       return;
     });
-    const transformedCredential = transformCredential(credential);
-
-    const status = await postCredential(label, transformedCredential, csrfToken);
-    if (status.fail) {
-      populateWebAuthnErrorList(status.fail.errors);
-      return;
-    }
-
-    window.location.replace("/manage/account");
   });
 };
 
@@ -227,20 +228,21 @@ export const AuthenticateWebAuthn = () => {
     }
 
     const transformedOptions = transformAssertionOptions(assertionOptions);
-    const assertion = await navigator.credentials.get({
+    await navigator.credentials.get({
       publicKey: transformedOptions,
+    }).then(async (assertion) => {
+      const transformedAssertion = transformAssertion(assertion);
+
+      const status = await postAssertion(transformedAssertion, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
+
+      window.location.replace(status.redirect_to);
     }).catch((error) => {
       populateWebAuthnErrorList([error.message]);
       return;
     });
-    const transformedAssertion = transformAssertion(assertion);
-
-    const status = await postAssertion(transformedAssertion, csrfToken);
-    if (status.fail) {
-      populateWebAuthnErrorList(status.fail.errors);
-      return;
-    }
-
-    window.location.replace(status.redirect_to);
   });
 };
