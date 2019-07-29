@@ -347,7 +347,7 @@ class TestCreateMacaroonForm:
         )
 
         assert not form.validate()
-        assert form.description.errors.pop() == "Specify a description"
+        assert form.description.errors.pop() == "Specify a token name"
 
     def test_validate_description_in_use(self):
         form = forms.CreateMacaroonForm(
@@ -371,7 +371,18 @@ class TestCreateMacaroonForm:
         )
 
         assert not form.validate()
-        assert form.token_scope.errors.pop() == "Specify a token scope"
+        assert form.token_scope.errors.pop() == "Specify the token scope"
+
+    def test_validate_token_scope_unspecified(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:unspecified"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            project_names=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert form.token_scope.errors.pop() == "Specify the token scope"
 
     @pytest.mark.parametrize(
         ("scope"), ["not a real scope", "scope:project", "scope:foo:bar"]

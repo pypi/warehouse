@@ -226,6 +226,24 @@ docReady(ProvisionWebAuthn);
 // Get WebAuthn authentication ready
 docReady(AuthenticateWebAuthn);
 
+docReady(() => {
+  const tokenSelect = document.getElementById("token_scope");
+
+  if (tokenSelect === null) {
+    return;
+  }
+
+  tokenSelect.addEventListener("change", () => {
+    const tokenScopeWarning = document.getElementById("api-token-scope-warning");
+    if (tokenScopeWarning === null) {
+      return;
+    }
+
+    const tokenScope = tokenSelect.options[tokenSelect.selectedIndex].value;
+    tokenScopeWarning.hidden = (tokenScope !== "scope:user");
+  });
+});
+
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)
 document.addEventListener("CSILoaded", bindDropdowns);
