@@ -28,7 +28,6 @@ import docReady from "warehouse/utils/doc-ready";
 
 // Import our utility functions
 import Analytics from "warehouse/utils/analytics";
-import enterView from "enter-view";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
@@ -36,7 +35,6 @@ import PositionWarning from "warehouse/utils/position-warning";
 import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
-import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
