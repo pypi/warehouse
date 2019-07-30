@@ -107,7 +107,7 @@ class TestUserList:
 
 
 class TestUserDetail:
-    def test_404s_on_nonexistant_user(self, db_request):
+    def test_404s_on_nonexistent_user(self, db_request):
         user = UserFactory.create()
         user_id = uuid.uuid4()
         while user.id == user_id:

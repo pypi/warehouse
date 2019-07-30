@@ -209,7 +209,7 @@ def test_esi_flash_messages():
     assert flash_messages(pretend.stub()) == {}
 
 
-def test_esi_session_notifiactions():
+def test_esi_session_notifications():
     assert session_notifications(pretend.stub()) == {}
 
 
