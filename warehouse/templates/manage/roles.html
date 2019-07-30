@@ -79,7 +79,7 @@
             </option>
             {% endfor %}
             </select>
-            <button class="button button--primary change-button" type="submit" title="Save this new role">
+            <button type="submit" class="button button--primary change-button" title="Save this new role">
               Save
             </button>
           </form>
@@ -101,8 +101,8 @@
             {% endfor %}
 
             <button
-              class="button"
               type="submit"
+              class="button"
               {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
                 title="Cannot remove yourself as owner"
                 disabled
