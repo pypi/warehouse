@@ -24,20 +24,21 @@
 
   <p>Each time you or your collaborators update this project, the action is recorded and displayed here</p>
 
-  <table class="table table--history">
+  <table class="table table--history margin-top">
+    <caption class="sr-only">History for {{ project.name }}</caption>
     <thead>
       <tr>
-        <th>Action</th>
-        <th>Date</th>
-        <th>User</th>
+        <th scope="col">Action</th>
+        <th scope="col">Date</th>
+        <th scope="col">User</th>
       </tr>
     </thead>
     <tbody>
       {% for journal in journals %}
       <tr>
-        <td class="table__action">
+        <th scope="row" class="table__action">
           {% if journal.version %} Release {{ journal.version }}: {% endif %}{{ journal.action }}
-        </td>
+        </th>
         <td>
           {{ journal.submitted_date|format_datetime() }}
         </td>

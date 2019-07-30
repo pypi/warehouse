@@ -378,7 +378,6 @@
   &--collaborators {
     .table__user {
       padding-right: 20px;
-      font-weight: normal;
     }
 
     .table__user-details {
@@ -494,7 +493,6 @@
       word-break: break-all;
       font-family: $code-font;
       font-size: 90%;
-      font-weight: normal;
     }
 
     .table__status-badges {
@@ -605,10 +603,6 @@
       &:last-of-type {
         padding-right: 0;
       }
-    }
-
-    .table__api-name {
-      font-weight: normal;
     }
 
     .table__scope,
