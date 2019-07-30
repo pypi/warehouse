@@ -559,25 +559,7 @@ class ProvisionMacaroonViews:
 
     @property
     def project_names(self):
-        projects_owned_or_maintained = (
-            self.request.db.query(Project.id)
-            .join(Role.project)
-            .filter(
-                Role.role_name.in_(("Owner", "Maintainer")),
-                Role.user == self.request.user,
-            )
-            .subquery()
-        )
-        projects = (
-            self.request.db.query(Project)
-            .join(
-                projects_owned_or_maintained,
-                Project.id == projects_owned_or_maintained.c.id,
-            )
-            .order_by(Project.name)
-            .all()
-        )
-        return [project.name for project in projects]
+        return sorted(project.name for project in self.request.user.projects)
 
     @property
     def default_response(self):
