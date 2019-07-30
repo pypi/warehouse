@@ -29,4 +29,8 @@ table {
   td[align="center"] {
     text-align: center; // Override the above when explicitly set
   }
+
+  tbody th {
+    font-weight: normal;
+  }
 }
