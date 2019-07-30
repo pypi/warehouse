@@ -102,7 +102,7 @@
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">Cancel</button>
-          <button class="button button--danger modal__action js-confirm" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
+          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm.button" data-expected="{{ confirm_string }}">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>
