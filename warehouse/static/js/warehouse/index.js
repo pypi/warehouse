@@ -145,21 +145,6 @@ docReady(() => {
 });
 
 docReady(() => {
-  if (document.querySelector(".-js-autoplay-when-visible")) {
-    YouTubeIframeLoader.load((YT) => {
-      enterView({
-        selector: ".-js-autoplay-when-visible",
-        trigger: (el) => {
-          new YT.Player(el.id, {
-            events: { "onReady": (e) => { e.target.playVideo(); } },
-          });
-        },
-      });
-    });
-  }
-});
-
-docReady(() => {
   let changeRoleForms = document.querySelectorAll("form.change-role");
 
   if (changeRoleForms) {
