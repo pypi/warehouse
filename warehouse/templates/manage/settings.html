@@ -54,6 +54,14 @@
       Deleting will irreversibly delete this project.
     {% endif %}
     </p>
+    <p>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      Deleting a project will immediately make the project name available for ownership by any other user. Any future owner will be able to make new releases for this project name.
+    </p>
+    <p>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      Neither you nor a future owner will be able to re-upload new distributions of the same type with the same version number as any existing distribution.
+    </p>
     {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
     {{ confirm_button("Delete project", "Project Name", project.name, action=action) }}
   </div>
