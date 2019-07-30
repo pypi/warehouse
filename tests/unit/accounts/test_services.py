@@ -104,7 +104,7 @@ class TestDatabaseUserService:
             )
         ]
 
-    def test_find_userid_nonexistant_user(self, user_service):
+    def test_find_userid_nonexistent_user(self, user_service):
         assert user_service.find_userid("my_username") is None
 
     def test_find_userid_existing_user(self, user_service):
@@ -128,7 +128,7 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_check_password_nonexistant_user(self, user_service, metrics):
+    def test_check_password_nonexistent_user(self, user_service, metrics):
         assert not user_service.check_password(uuid.uuid4(), None, tags=["foo"])
         assert metrics.increment.calls == [
             pretend.call("warehouse.authentication.start", tags=["foo"]),

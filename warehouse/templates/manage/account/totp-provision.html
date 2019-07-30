@@ -51,7 +51,7 @@
       <div class="totp-form__manual-code">
         <p><strong>No QR scanner?</strong> Manually enter the code instead:
           <code>{{ provision_totp_secret }}</code>
-          <button class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ provision_totp_secret }}">
+          <button type="button" class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ provision_totp_secret }}">
             Copy
           </button>
         </p>

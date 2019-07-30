@@ -73,7 +73,7 @@
     <td class="table__action">
       {% if not email.verified or not email.primary %}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
-        <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
@@ -86,7 +86,7 @@
             <form method="POST">
               <input hidden name="reverify_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button class="dropdown__link" type="submit" title="Resend verification email">
+              <button type="submit" class="dropdown__link" title="Resend verification email">
                 <i class="fa fa-envelope" aria-hidden="true"></i>
                 Resend Verification Email
               </button>
@@ -98,7 +98,7 @@
             <form method="POST">
               <input hidden name="primary_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button class="dropdown__link" type="submit" title="Set this email address as primary">
+              <button type="submit" class="dropdown__link" title="Set this email address as primary">
                 <i class="fa fa-cog" aria-hidden="true"></i>
                 Set as Primary
               </button>
@@ -110,7 +110,7 @@
             <form method="POST">
               <input hidden name="delete_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button class="dropdown__link" type="submit" title="Remove this email address">
+              <button type="submit" class="dropdown__link" title="Remove this email address">
                 <i class="fa fa-trash-alt" aria-hidden="true"></i>
                 Remove Email
               </button>
@@ -166,7 +166,7 @@
     </td>
     <td class="table__action">
       <nav class="dropdown dropdown--with-icons dropdown--wide">
-        <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
@@ -213,7 +213,7 @@
           <div class="modal__body">
             <h3 class="modal__title">Unique identifier for API token "{{ macaroon.description }}"</h3>
             <p><code>{{ macaroon.id }}</code></p>
-            <button class="button -js-copy-hash tooltipped tooltipped-e" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ macaroon.id }}">
+            <button type="button" class="button -js-copy-hash tooltipped tooltipped-e" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ macaroon.id }}">
               Copy
             </button>
           </div>
