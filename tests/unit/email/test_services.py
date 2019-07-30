@@ -212,7 +212,7 @@ class TestSESEmailSender:
         assert em.to == "somebody@example.com"
         assert em.subject == "This is a Subject"
 
-    def test_send_with_uncide_and_html(self, db_session):
+    def test_send_with_unicode_and_html(self, db_session):
         # Determine what the random boundary token will be
         import random
         import sys
