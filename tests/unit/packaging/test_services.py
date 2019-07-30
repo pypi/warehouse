@@ -52,7 +52,7 @@ class TestLocalFileStorage:
         file_object = storage.get("file.txt")
         assert file_object.read() == b"my test file contents"
 
-    def test_raises_when_file_non_existant(self, tmpdir):
+    def test_raises_when_file_non_existent(self, tmpdir):
         storage = LocalFileStorage(str(tmpdir))
         with pytest.raises(FileNotFoundError):
             storage.get("file.txt")
@@ -164,7 +164,7 @@ class TestS3FileStorage:
         assert file_object.read() == b"my contents"
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
-    def test_raises_when_key_non_existant(self):
+    def test_raises_when_key_non_existent(self):
         def raiser():
             raise botocore.exceptions.ClientError(
                 {"Error": {"Code": "NoSuchKey", "Message": "No Key!"}}, "some operation"
