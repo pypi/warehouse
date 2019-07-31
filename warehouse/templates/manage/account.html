@@ -152,7 +152,7 @@
       All projects
       {% else %}
         {% for project in macaroon.caveats.get("permissions")['projects'] %}
-        <a href="{{ request.route_path('manage.project.releases', project_name=project) }}">{{ project }}</a>
+        <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
         {% endfor %}
       {% endif %}
     </td>
