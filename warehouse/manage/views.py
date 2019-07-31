@@ -579,7 +579,7 @@ class ProvisionMacaroonViews:
     def manage_macaroons(self):
         return self.default_response
 
-    @view_config(request_method="POST", request_param=CreateMacaroonForm.__params__)
+    @view_config(request_method="POST")
     def create_macaroon(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
