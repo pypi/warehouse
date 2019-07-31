@@ -44,7 +44,7 @@
       <div class="callout-block callout-block--danger no-top-margin">
         <p>For security reasons this token will only appear once. <strong>Copy it now.</strong></p>
       </div>
-      <button class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="Copy token to clipboard" data-original-label="Copy token to clipboard" data-clipboard-text="{{ serialized_macaroon }}">
+      <button type="button" class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="Copy token to clipboard" data-original-label="Copy token to clipboard" data-clipboard-text="{{ serialized_macaroon }}">
         Copy
       </button>
       <a href="#remove-API-token--{{ macaroon.id }}" class="button">
@@ -88,6 +88,7 @@
         <label for="token_scope" class="form-group__label">Scope</label>
         <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="token_scope-errors">
           <option disabled selected value="scope:unspecified">Select scope...</option>
+          <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
           <option value="scope:project:{{ project }}">Project: {{ project }}</option>
         {% endfor %}

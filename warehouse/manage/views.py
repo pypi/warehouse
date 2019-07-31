@@ -559,8 +559,7 @@ class ProvisionMacaroonViews:
 
     @property
     def project_names(self):
-        projects = user_projects(self.request)["projects_owned"]
-        return [project.name for project in projects]
+        return sorted(project.name for project in self.request.user.projects)
 
     @property
     def default_response(self):
