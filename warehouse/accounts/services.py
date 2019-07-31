@@ -500,7 +500,8 @@ class TokenServiceFactory:
 class HaveIBeenPwnedPasswordBreachedService:
 
     _failure_message_preamble = (
-        "This password appears in a breach or has been compromised and cannot be used."
+        'This password appears on a security breach or has been compromised and cannot be used. '
+        'Please refer to the <a href="/help/#compromised-password">FAQ</a> for more information.'
     )
 
     def __init__(

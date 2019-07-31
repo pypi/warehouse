@@ -94,8 +94,9 @@ export default class extends Controller {
   }
 
   showMessage() {
-    const msg = "This password appears in a breach or has been compromised and cannot be used.";
-    this.messageTarget.innerText = msg;
+    const msg = "This password appears in a security breach or has been compromised and cannot be used. \
+      Please refer to the <a href=\"/help/#compromised-password\">FAQ</a> for more information.";
+    this.messageTarget.innerHTML = msg;
     this.messageTarget.classList.remove("hidden");
   }
 
