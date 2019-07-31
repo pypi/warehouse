@@ -137,6 +137,7 @@ const postCredential = async (label, credential, token) => {
       method: "POST",
       cache: "no-cache",
       body: formData,
+      credentials: "same-origin",
     }
   );
 
@@ -153,6 +154,7 @@ const postAssertion = async (assertion, token) => {
       method: "POST",
       cache: "no-cache",
       body: formData,
+      credentials: "same-origin",
     }
   );
 
@@ -185,23 +187,28 @@ export const ProvisionWebAuthn = () => {
     const resp = await fetch(
       "/manage/account/webauthn-provision/options", {
         cache: "no-cache",
+        credentials: "same-origin",
       }
     );
 
     const credentialOptions = await resp.json();
     const transformedOptions = transformCredentialOptions(credentialOptions);
-    const credential = await navigator.credentials.create({
+    await navigator.credentials.create({
       publicKey: transformedOptions,
-    });
-    const transformedCredential = transformCredential(credential);
+    }).then(async (credential) => {
+      const transformedCredential = transformCredential(credential);
 
-    const status = await postCredential(label, transformedCredential, csrfToken);
-    if (status.fail) {
-      populateWebAuthnErrorList(status.fail.errors);
+      const status = await postCredential(label, transformedCredential, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
+
+      window.location.replace("/manage/account");
+    }).catch((error) => {
+      populateWebAuthnErrorList([error.message]);
       return;
-    }
-
-    window.location.replace("/manage/account");
+    });
   });
 };
 
@@ -210,6 +217,7 @@ export const AuthenticateWebAuthn = () => {
     const resp = await fetch(
       "/account/webauthn-authenticate/options" + window.location.search, {
         cache: "no-cache",
+        credentials: "same-origin",
       }
     );
 
@@ -220,17 +228,21 @@ export const AuthenticateWebAuthn = () => {
     }
 
     const transformedOptions = transformAssertionOptions(assertionOptions);
-    const assertion = await navigator.credentials.get({
+    await navigator.credentials.get({
       publicKey: transformedOptions,
-    });
-    const transformedAssertion = transformAssertion(assertion);
+    }).then(async (assertion) => {
+      const transformedAssertion = transformAssertion(assertion);
 
-    const status = await postAssertion(transformedAssertion, csrfToken);
-    if (status.fail) {
-      populateWebAuthnErrorList(status.fail.errors);
+      const status = await postAssertion(transformedAssertion, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
+
+      window.location.replace(status.redirect_to);
+    }).catch((error) => {
+      populateWebAuthnErrorList([error.message]);
       return;
-    }
-
-    window.location.replace(status.redirect_to);
+    });
   });
 };
