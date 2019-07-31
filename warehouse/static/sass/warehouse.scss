@@ -183,6 +183,26 @@
   margin-bottom: $spacing-unit / 2;
 }
 
+// Add small margin to the left of elements
+.margin-left {
+  margin-left: $spacing-unit / 4;
+}
+
+// Add larger margin to the left of elements
+.margin-left--large {
+  margin-left: $spacing-unit / 2;
+}
+
+// Add small margin to the right of elements
+.margin-right {
+  margin-right: $spacing-unit / 4;
+}
+
+// Add larger margin to the right of elements
+.margin-right--large {
+  margin-right: $spacing-unit / 2;
+}
+
 // Apply spacing between elements when they wrap (usually on mobile)
 .wrap-children {
   margin-bottom: -5px;
