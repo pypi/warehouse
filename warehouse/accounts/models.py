@@ -29,7 +29,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -95,6 +95,10 @@ class User(SitemapMixin, db.Model):
         "Macaroon", backref="user", cascade="all, delete-orphan", lazy=False
     )
 
+    events = orm.relationship(
+        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=False
+    )
+
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
@@ -138,6 +142,20 @@ class WebAuthn(db.Model):
     credential_id = Column(String, unique=True, nullable=False)
     public_key = Column(String, unique=True, nullable=True)
     sign_count = Column(Integer, default=0)
+
+
+class UserEvent(db.Model):
+    __tablename__ = "user_events"
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    tag = Column(String, nullable=False)
+    time = Column(DateTime, nullable=False, server_default=sql.func.now())
+    ip_address = Column(String, nullable=False)
+    additional = Column(JSONB, nullable=True, server_default=sql.text("'{}'"))
 
 
 class UnverifyReasons(enum.Enum):
