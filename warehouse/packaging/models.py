@@ -137,10 +137,7 @@ class Project(SitemapMixin, db.Model):
     )
 
     events = orm.relationship(
-        "ProjectEvent",
-        backref="project",
-        cascade="all, delete-orphan",
-        lazy=False,
+        "ProjectEvent", backref="project", cascade="all, delete-orphan", lazy=False
     )
 
     def __getitem__(self, version):
@@ -194,6 +191,14 @@ class Project(SitemapMixin, db.Model):
             else:
                 acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
+
+    def record_event(self, **kwargs):
+        session = orm.object_session(self)
+        event = ProjectEvent(project=self, **kwargs)
+        session.add(event)
+        session.flush()
+
+        return event
 
     @property
     def documentation_url(self):

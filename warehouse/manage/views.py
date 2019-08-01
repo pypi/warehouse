@@ -52,7 +52,14 @@ from warehouse.manage.forms import (
     ProvisionWebAuthnForm,
     SaveAccountForm,
 )
-from warehouse.packaging.models import File, JournalEntry, Project, ProjectEvent, Release, Role
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    Project,
+    ProjectEvent,
+    Release,
+    Role,
+)
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
@@ -924,6 +931,15 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     submitted_from=request.remote_addr,
                 )
             )
+            project.record_event(
+                tag="project:role:add",
+                ip_address=request.client_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": role_name,
+                    "target_user": username,
+                },
+            )
 
             owner_roles = (
                 request.db.query(Role)
@@ -1019,6 +1035,15 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                             submitted_from=request.remote_addr,
                         )
                     )
+                    project.record_event(
+                        tag="project:role:delete",
+                        ip_address=request.client_addr,
+                        additional={
+                            "submitted_by": request.user.username,
+                            "role_name": role.role_name,
+                            "target_user": role.user.username,
+                        },
+                    )
                 request.session.flash("Changed role", queue="success")
         else:
             # This user only has one role, so get it and change the type.
@@ -1047,6 +1072,15 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         )
                     )
                     role.role_name = form.role_name.data
+                    project.record_event(
+                        tag="project:role:change",
+                        ip_address=request.client_addr,
+                        additional={
+                            "submitted_by": request.user.username,
+                            "role_name": form.role_name.data,
+                            "target_user": role.user.username,
+                        },
+                    )
                     request.session.flash("Changed role", queue="success")
             except NoResultFound:
                 request.session.flash("Could not find role", queue="error")
@@ -1091,6 +1125,15 @@ def delete_project_role(project, request):
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
+            )
+            project.record_event(
+                tag="project:role:delete",
+                ip_address=request.client_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": role.role_name,
+                    "target_user": role.user.username,
+                },
             )
         request.session.flash("Removed role", queue="success")
 
