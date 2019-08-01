@@ -170,6 +170,7 @@ class TestValidation:
             "_foo",
             "_foo (>=1.0)",
             "name @ https://github.com/pypa",
+            "test-pypi-version-specifier-dep==0.0.1+cuda9",
         ],
     )
     def test_validate_legacy_dist_req_invalid(self, requirement):
@@ -2212,7 +2213,8 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The user '{0}' isn't allowed to upload to project '{1}'. "
+            "403 The credential associated with user '{0}' "
+            "isn't allowed to upload to project '{1}'. "
             "See /the/help/url/ for more information."
         ).format(user2.username, project.name)
 

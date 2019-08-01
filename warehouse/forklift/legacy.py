@@ -252,6 +252,11 @@ def _validate_legacy_dist_req(requirement):
             "Can't have direct dependency: {!r}".format(requirement)
         )
 
+    if any(packaging.version.Version(spec.version).local for spec in req.specifier):
+        raise wtforms.validators.ValidationError(
+            "Can't have dependency with local version: {!r}".format(requirement)
+        )
+
 
 def _validate_legacy_dist_req_list(form, field):
     for datum in field.data:
@@ -944,7 +949,8 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             (
-                "The user '{0}' isn't allowed to upload to project '{1}'. "
+                "The credential associated with user '{0}' "
+                "isn't allowed to upload to project '{1}'. "
                 "See {2} for more information."
             ).format(
                 request.user.username,

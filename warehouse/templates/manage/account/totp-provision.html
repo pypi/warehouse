@@ -14,7 +14,10 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Set up two factor authentication using an application (TOTP)" %}
+{% set title = "Set up 2FA with an authentication application (TOTP)" %}
+
+{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
+{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
 
 {% block title %}
   {% if provision_totp_form.errors %}Error processing form –{% endif %}
@@ -25,27 +28,19 @@
 {% block mobile_search %}{% endblock %}
 
 {% block main %}
-<h1 class="page-title">{{ title }}</h1>
+<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
+<p class="heading-wsubtitle__subtitle">
+  PyPI supports any application that follows the <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm" title="External link" target="_blank" rel="noopener">TOTP standard</a>.
+  <br>
+  Visit <a href="{{ request.route_path('help', _anchor='totp') }}">PyPI's help page</a> for a list of compatible applications.
+</p>
+
 <section>
-  <h2>How 2FA with TOTP works</h2>
-
-  <ol>
-    <li>When you sign into PyPI, you will be asked to provide your username and password, as usual</li>
-    <li>You will then see a screen asking for an additional authentication code</li>
-    <li>Use the application of your choice (provisioned below) to generate a code</li>
-    <li>Enter the code to access your PyPI account</li>
-  </ol>
-
-  <h2>Provisioning your application</h2>
-
-  <p>For security reasons, you should only provision one device/application at a time.</p>
+  <h2>Set up your application</h2>
 
   <p>
-    <strong>
-      Scan the QR code with your application of choice. See our
-      <a href="{{ request.route_path('help', _anchor='totp') }}" target="_blank">help page</a>
-      for a list of popular applications.
-    </strong>
+    <strong>Scan the QR code with the authentication application of your choice.</strong>
+    For security reasons, you can only associate one authentication application per PyPI account.
   </p>
 
   <div class="totp-form">
@@ -56,7 +51,7 @@
       <div class="totp-form__manual-code">
         <p><strong>No QR scanner?</strong> Manually enter the code instead:
           <code>{{ provision_totp_secret }}</code>
-          <button class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ provision_totp_secret }}">
+          <button type="button" class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ provision_totp_secret }}">
             Copy
           </button>
         </p>
@@ -66,8 +61,8 @@
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
         <label for="totp_value" class="form-group__label">Verify application</label>
-        {{ provision_totp_form.totp_value(placeholder="TOTP value", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-help totp-errors"}) }}
-        <p id="totp-help" class="form-group__help-text">To finalize the provisioning process, enter the TOTP value provided by your application.</p>
+        {{ provision_totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-help totp-errors"}) }}
+        <p id="totp-help" class="form-group__help-text">To finalize the set up process, enter the authentication code provided by your application.</p>
         {% if provision_totp_form.totp_value.errors %}
         <ul id="totp-errors" class="form-errors" role="alert">
           {% for error in provision_totp_form.totp_value.errors %}
@@ -77,7 +72,7 @@
         {% endif %}
       </div>
       <div>
-        <input type="submit" value="Provision application" class="button button--primary">
+        <input type="submit" value="Set up application" class="button button--primary">
       </div>
     </form>
   </div>

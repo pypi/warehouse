@@ -32,6 +32,7 @@ psycopg2
 pycurl
 pyqrcode
 pyramid>=1.9,<1.11.0
+pymacaroons
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_multiauth

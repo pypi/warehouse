@@ -23,7 +23,7 @@ from warehouse.packaging.tasks import compute_trending, update_description_html
 
 
 @pytest.mark.parametrize("with_trending", [True, False])
-def test_includme(monkeypatch, with_trending):
+def test_includeme(monkeypatch, with_trending):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )

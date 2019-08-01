@@ -22,26 +22,27 @@
     <h2 class="heading-wsubtitle__heading">Release version {{ release.version }}</h2>
 
     <ul role="navigation" aria-label="Breadcrumb" class="heading-wsubtitle__subtitle breadcrumbs">
-      <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name}} releases</a></li>
+      <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name }} releases</a></li>
       <li class="breadcrumbs__breadcrumb">Release version {{ release.version }} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">view release</a></li>
     </ul>
   </div>
 
   {% if files %}
   <table class="table table--light table--files">
+    <caption class="sr-only">Files for release {{ release.version }} of {{ project.name }}</caption>
     <thead>
       <tr>
-        <th class="table__name">Filename, size</th>
-        <th class="table__type">Type</th>
-        <th class="table__version">Python version</th>
-        <th class="table__upload">Upload date</th>
+        <th scope="col" class="table__name">Filename, size</th>
+        <th scope="col" class="table__type">Type</th>
+        <th scope="col" class="table__version">Python version</th>
+        <th scope="col" class="table__upload">Upload date</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
     {% for file in files %}
       <tr>
-        <td class="table__name">
+        <th scope="row" class="table__name">
           <a href="{{ request.route_url('packaging.file', path=file.path) }}"
             {% if file.comment_text %}
               class="tooltipped tooltipped-e"
@@ -51,13 +52,13 @@
             title="Download file">
             {{ file.filename }}</a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
-        </td>
+        </th>
         <td class="table__type">{{ file.packagetype|format_package_type }}</td>
         <td class="table__version">{{ file.python_version if file.python_version != 'source' else 'None' }}</td>
         <td class="table__upload">{{ file.upload_time|format_date() }}</td>
         <td class="table__options">
           <nav class="dropdown dropdown--with-icons pull-right">
-            <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
               Options
               <span class="dropdown__trigger-caret">
                 <i class="fa fa-caret-down" aria-hidden="true"></i>
@@ -146,19 +147,20 @@
       <div class="modal__body">
         <h3 class="modal__title">Hashes for {{ file.filename }}</h3>
         <table class="table table--light table--hashes">
+          <caption class="sr-only">Hashes for {{ file.filename }}</caption>
           <thead>
             <tr>
-              <th class="table__algorithm">Algorithm</th>
-              <th class="table__hash">Hash digest</th>
+              <th scope="col" class="table__algorithm">Algorithm</th>
+              <th scope="col" class="table__hash">Hash digest</th>
               <th class="table__copy"></th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="table__algorithm">SHA256</td>
+              <th scope="row" class="table__algorithm">SHA256</th>
               <td class="table__hash"><code>{{ file.sha256_digest }}</code></td>
               <td class="table__copy">
-                <button class="button button--primary -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                   Copy
                 </button>
               </td>
@@ -167,7 +169,7 @@
               <td class="table__algorithm">MD5</td>
               <td class="table__hash"><code>{{ file.md5_digest }}</code></td>
               <td class="table__copy">
-                <button class="button button--primary -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
+                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
                   Copy
                 </button>
               </td>
@@ -176,7 +178,7 @@
               <td class="table__algorithm">BLAKE2-256</td>
               <td class="table__hash"><code>{{ file.blake2_256_digest }}</code></td>
               <td class="table__copy">
-                <button class="button button--primary -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
+                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
                   Copy
                 </button>
               </td>
@@ -185,7 +187,7 @@
         </table>
       </div>
       <div class="modal__footer">
-        <a href="#modal-close" class="button button--primary modal__action">OK</a>
+        <a href="#modal-close" class="button button--primary modal__action">Close</a>
       </div>
     </div>
   </div>
