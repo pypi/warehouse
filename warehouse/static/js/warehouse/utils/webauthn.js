@@ -206,6 +206,7 @@ export const ProvisionWebAuthn = () => {
 
       window.location.replace("/manage/account");
     }).catch((error) => {
+      console.log(credentialOptions);
       populateWebAuthnErrorList([error.message]);
       return;
     });

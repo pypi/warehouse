@@ -138,14 +138,14 @@ class IUserService(Interface):
         """
 
     def get_webauthn_credential_options(
-        user_id, *, challenge, rp_name, rp_id, icon_url
+        user_id, *, challenge, rp_name, rp_id
     ):
         """
         Returns a dictionary of credential options suitable for beginning the WebAuthn
         provisioning process for the given user.
         """
 
-    def get_webauthn_assertion_options(user_id, *, challenge, icon_url, rp_id):
+    def get_webauthn_assertion_options(user_id, *, challenge, rp_id):
         """
         Returns a dictionary of assertion options suitable for beginning the WebAuthn
         authentication process for the given user.
@@ -161,7 +161,7 @@ class IUserService(Interface):
         """
 
     def verify_webauthn_assertion(
-        user_id, assertion, *, challenge, origin, icon_url, rp_id
+        user_id, assertion, *, challenge, origin, rp_id
     ):
         """
         Checks whether the given assertion was produced by the given user's WebAuthn
