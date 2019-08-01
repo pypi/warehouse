@@ -474,9 +474,6 @@ class ProvisionWebAuthnViews:
             challenge=self.request.session.get_webauthn_challenge(),
             rp_name=self.request.registry.settings["site.name"],
             rp_id=self.request.domain,
-            icon_url=self.request.registry.settings.get(
-                "warehouse.domain", self.request.domain
-            ),
         )
 
     @view_config(

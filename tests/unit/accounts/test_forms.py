@@ -615,7 +615,6 @@ class TestWebAuthnAuthenticationForm:
         user_service = pretend.stub()
         challenge = pretend.stub()
         origin = pretend.stub()
-        icon_url = pretend.stub()
         rp_id = pretend.stub()
 
         form = forms.WebAuthnAuthenticationForm(
@@ -623,7 +622,6 @@ class TestWebAuthnAuthenticationForm:
             user_service=user_service,
             challenge=challenge,
             origin=origin,
-            icon_url=icon_url,
             rp_id=rp_id,
         )
 
@@ -636,7 +634,6 @@ class TestWebAuthnAuthenticationForm:
             user_service=pretend.stub(),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert not form.validate()
@@ -653,7 +650,6 @@ class TestWebAuthnAuthenticationForm:
             ),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert not form.validate()
@@ -670,7 +666,6 @@ class TestWebAuthnAuthenticationForm:
             ),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert form.validate()

@@ -1138,12 +1138,7 @@ class TestProvisionWebAuthn:
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge")
             ),
             find_service=lambda *a, **kw: user_service,
-            registry=pretend.stub(
-                settings={
-                    "site.name": "fake_site_name",
-                    "warehouse.domain": "fake_domain",
-                }
-            ),
+            registry=pretend.stub(settings={"site.name": "fake_site_name"}),
             domain="fake_domain",
         )
 
@@ -1157,7 +1152,6 @@ class TestProvisionWebAuthn:
                 challenge="fake_challenge",
                 rp_name=request.registry.settings["site.name"],
                 rp_id=request.domain,
-                icon_url=request.registry.settings["warehouse.domain"],
             )
         ]
 
