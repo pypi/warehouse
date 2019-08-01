@@ -38,7 +38,8 @@ def _extract_basic_macaroon(auth):
     except ValueError:
         return None
 
-    if auth_method != "@token" and auth_method != "$token":
+    # TODO: Remove @token as an acceptable token username.
+    if auth_method != "@token" and auth_method != "^token":
         return None
 
     return auth
