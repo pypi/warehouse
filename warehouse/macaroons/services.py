@@ -43,7 +43,7 @@ class DatabaseMacaroonService:
             return None
 
         prefix, split, raw_macaroon = prefixed_macaroon.partition("-")
-        # TODO: Remove ':' as an acceptable delimiter for tokens.
+        # TODO: Remove ':' as an acceptable delimiter for tokens (GH-6345)
         if prefix != "pypi" or not split:
             prefix, _, raw_macaroon = prefixed_macaroon.partition(":")
 

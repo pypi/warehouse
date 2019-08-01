@@ -38,7 +38,7 @@ def _extract_basic_macaroon(auth):
     except ValueError:
         return None
 
-    # TODO: Remove @token as an acceptable token username.
+    # TODO: Remove @token as an acceptable token username (GH-6345)
     if auth_method != "@token" and auth_method != "^token":
         return None
 
