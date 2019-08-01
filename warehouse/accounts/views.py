@@ -139,6 +139,12 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     request.route_path("accounts.two-factor", _query=token)
                 )
 
+                user_service.record_event(
+                    userid,
+                    tag="account:login:success",
+                    ip_address=request.client_addr,
+                    additional={"two_factor": True},
+                )
                 return resp
             else:
                 # If the user-originating redirection url is not safe, then
@@ -172,6 +178,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .lower(),
                 )
 
+            user_service.record_event(
+                userid, tag="account:login:success", ip_address=request.client_addr
+            )
             return resp
 
     return {

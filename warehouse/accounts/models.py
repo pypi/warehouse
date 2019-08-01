@@ -99,6 +99,14 @@ class User(SitemapMixin, db.Model):
         "UserEvent", backref="user", cascade="all, delete-orphan", lazy=False
     )
 
+    def record_event(self, **kwargs):
+        session = orm.object_session(self)
+        event = UserEvent(user=self, **kwargs)
+        session.add(event)
+        session.flush()
+
+        return event
+
     @property
     def primary_email(self):
         primaries = [x for x in self.emails if x.primary]

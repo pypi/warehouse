@@ -399,8 +399,13 @@ class ProvisionTOTPViews:
             self.user_service.update_user(
                 self.request.user.id, totp_secret=self.request.session.get_totp_secret()
             )
-
             self.request.session.clear_totp_secret()
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=self.request.client_addr,
+                additional={"method": "totp"},
+            )
             self.request.session.flash(
                 "Authentication application successfully set up", queue="success"
             )
@@ -432,6 +437,12 @@ class ProvisionTOTPViews:
 
         if form.validate():
             self.user_service.update_user(self.request.user.id, totp_secret=None)
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=self.request.client_addr,
+                additional={"method": "totp"},
+            )
             self.request.session.flash(
                 "Authentication application removed from PyPI. "
                 "Remember to remove PyPI from your application.",
@@ -502,6 +513,12 @@ class ProvisionWebAuthnViews:
                 public_key=form.validated_credential.public_key.decode(),
                 sign_count=form.validated_credential.sign_count,
             )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=self.request.client_addr,
+                additional={"method": "webauthn", "label": form.label.data},
+            )
             self.request.session.flash(
                 "Security device successfully set up", queue="success"
             )
@@ -533,6 +550,12 @@ class ProvisionWebAuthnViews:
 
         if form.validate():
             self.request.user.webauthn.remove(form.webauthn)
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=self.request.client_addr,
+                additional={"method": "webauthn", "label": form.label.data},
+            )
             self.request.session.flash("Security device removed", queue="success")
         else:
             self.request.session.flash("Invalid credentials", queue="error")
@@ -593,11 +616,21 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
+            macaroon_caveats = {"permissions": form.validated_scope, "version": 1}
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
-                caveats={"permissions": form.validated_scope, "version": 1},
+                caveats=macaroon_caveats,
+            )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:api_token:token_added",
+                ip_address=self.request.client_addr,
+                additional={
+                    "description": form.description.data,
+                    "caveats": macaroon_caveats,
+                },
             )
             response.update(serialized_macaroon=serialized_macaroon, macaroon=macaroon)
 
@@ -614,6 +647,12 @@ class ProvisionMacaroonViews:
                 form.macaroon_id.data
             ).description
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:api_token:token_removed",
+                ip_address=self.request.client_addr,
+                additional={"macaroon_id": form.macaroon_id.data},
+            )
             self.request.session.flash(
                 f"Deleted API token '{description}'.", queue="success"
             )

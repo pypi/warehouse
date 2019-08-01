@@ -428,6 +428,15 @@ class DatabaseUserService:
             None,
         )
 
+    def record_event(self, user_id, **kwargs):
+        """
+        Creates a new UserEvent for the given user.
+
+        Returns the event.
+        """
+        user = self.get_user(user_id)
+        return user.record_event(**kwargs)
+
 
 @implementer(ITokenService)
 class TokenService:

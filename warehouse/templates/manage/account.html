@@ -458,6 +458,34 @@
 
   <hr>
 
+  <section id="account-events">
+    <h2>Recent account events</h2>
+
+    {% if user.events|length > 0 %}
+    <table>
+      <caption class="sr-only">Recent account activity</caption>
+      <thead>
+        <th scope="col">Event</th>
+        <th scope="col">Time</th>
+        <th scope="col">IP Address</th>
+        <th scope="col">Additional information</th>
+      </thead>
+      <tbody>
+        {% for event in user.events %}
+        <tr>
+          <td>{{ event.tag }}</td>
+          <td>{{ humanize(event.time) }}</td>
+          <td>{{ event.ip_address }}</td>
+          <td>{{ event.additional }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </section>
+
+  <hr>
+
   <section id="delete-account">
     <h2>Delete account</h2>
     <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">

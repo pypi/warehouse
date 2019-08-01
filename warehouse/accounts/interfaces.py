@@ -179,6 +179,13 @@ class IUserService(Interface):
         or None of the user doesn't have a credential with this ID.
         """
 
+    def record_event(user_id, **kwargs):
+        """
+        Creates a new UserEvent for the given user.
+
+        Returns the event.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
