@@ -142,7 +142,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 user_service.record_event(
                     userid,
                     tag="account:login:success",
-                    ip_address=request.client_addr,
+                    ip_address=request.remote_addr,
                     additional={"two_factor": True},
                 )
                 return resp
@@ -179,7 +179,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 )
 
             user_service.record_event(
-                userid, tag="account:login:success", ip_address=request.client_addr
+                userid, tag="account:login:success", ip_address=request.remote_addr
             )
             return resp
 

@@ -410,7 +410,7 @@ class ProvisionTOTPViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_added",
-                ip_address=self.request.client_addr,
+                ip_address=self.request.remote_addr,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -447,7 +447,7 @@ class ProvisionTOTPViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_removed",
-                ip_address=self.request.client_addr,
+                ip_address=self.request.remote_addr,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -523,7 +523,7 @@ class ProvisionWebAuthnViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_added",
-                ip_address=self.request.client_addr,
+                ip_address=self.request.remote_addr,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
@@ -560,7 +560,7 @@ class ProvisionWebAuthnViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:two_factor:method_removed",
-                ip_address=self.request.client_addr,
+                ip_address=self.request.remote_addr,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
@@ -633,7 +633,7 @@ class ProvisionMacaroonViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:api_token:token_added",
-                ip_address=self.request.client_addr,
+                ip_address=self.request.remote_addr,
                 additional={
                     "description": form.description.data,
                     "caveats": macaroon_caveats,
@@ -657,7 +657,7 @@ class ProvisionMacaroonViews:
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:api_token:token_removed",
-                ip_address=self.request.client_addr,
+                ip_address=self.request.remote_addr,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
             self.request.session.flash(
@@ -933,7 +933,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
             project.record_event(
                 tag="project:role:add",
-                ip_address=request.client_addr,
+                ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
                     "role_name": role_name,
@@ -1037,7 +1037,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     )
                     project.record_event(
                         tag="project:role:delete",
-                        ip_address=request.client_addr,
+                        ip_address=request.remote_addr,
                         additional={
                             "submitted_by": request.user.username,
                             "role_name": role.role_name,
@@ -1074,7 +1074,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     role.role_name = form.role_name.data
                     project.record_event(
                         tag="project:role:change",
-                        ip_address=request.client_addr,
+                        ip_address=request.remote_addr,
                         additional={
                             "submitted_by": request.user.username,
                             "role_name": form.role_name.data,
@@ -1128,7 +1128,7 @@ def delete_project_role(project, request):
             )
             project.record_event(
                 tag="project:role:delete",
-                ip_address=request.client_addr,
+                ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
                     "role_name": role.role_name,
