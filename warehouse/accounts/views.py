@@ -252,9 +252,7 @@ def webauthn_authentication_options(request):
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)
     return user_service.get_webauthn_assertion_options(
-        userid,
-        challenge=request.session.get_webauthn_challenge(),
-        rp_id=request.domain,
+        userid, challenge=request.session.get_webauthn_challenge(), rp_id=request.domain
     )
 
 

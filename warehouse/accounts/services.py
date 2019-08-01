@@ -327,9 +327,7 @@ class DatabaseUserService:
 
         return valid
 
-    def get_webauthn_credential_options(
-        self, user_id, *, challenge, rp_name, rp_id
-    ):
+    def get_webauthn_credential_options(self, user_id, *, challenge, rp_name, rp_id):
         """
         Returns a dictionary of credential options suitable for beginning the WebAuthn
         provisioning process for the given user.
@@ -347,9 +345,7 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
 
-        return webauthn.get_assertion_options(
-            user, challenge=challenge, rp_id=rp_id
-        )
+        return webauthn.get_assertion_options(user, challenge=challenge, rp_id=rp_id)
 
     def verify_webauthn_credential(self, credential, *, challenge, rp_id, origin):
         """
@@ -387,11 +383,7 @@ class DatabaseUserService:
         user = self.get_user(user_id)
 
         return webauthn.verify_assertion_response(
-            assertion,
-            challenge=challenge,
-            user=user,
-            origin=origin,
-            rp_id=rp_id,
+            assertion, challenge=challenge, user=user, origin=origin, rp_id=rp_id
         )
 
     def add_webauthn(self, user_id, **kwargs):

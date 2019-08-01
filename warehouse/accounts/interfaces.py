@@ -137,9 +137,7 @@ class IUserService(Interface):
         Returns None if the user already has this credential.
         """
 
-    def get_webauthn_credential_options(
-        user_id, *, challenge, rp_name, rp_id
-    ):
+    def get_webauthn_credential_options(user_id, *, challenge, rp_name, rp_id):
         """
         Returns a dictionary of credential options suitable for beginning the WebAuthn
         provisioning process for the given user.
@@ -160,9 +158,7 @@ class IUserService(Interface):
         webauthn.RegistrationRejectedException on failure.
         """
 
-    def verify_webauthn_assertion(
-        user_id, assertion, *, challenge, origin, rp_id
-    ):
+    def verify_webauthn_assertion(user_id, assertion, *, challenge, origin, rp_id):
         """
         Checks whether the given assertion was produced by the given user's WebAuthn
         device.
