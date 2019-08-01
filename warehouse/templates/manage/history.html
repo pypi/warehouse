@@ -22,33 +22,28 @@
 {% block main %}
   <h2>Project history</h2>
 
-  <p>Each time you or your collaborators update this project, the action is recorded and displayed here</p>
+  <p>Each time you or your collaborators update this project or perform a security action related to it, the action is recorded and displayed here</p>
 
-  <table class="table table--history margin-top">
+  <table>
     <caption class="sr-only">History for {{ project.name }}</caption>
     <thead>
       <tr>
-        <th scope="col">Action</th>
-        <th scope="col">Date</th>
-        <th scope="col">User</th>
+        <th scope="col">Event</th>
+        <th scope="col">Time</th>
+        <th scope="col">IP address</th>
+        <th scope="col">Additional information</th>
       </tr>
     </thead>
     <tbody>
-      {% for journal in journals %}
+      {% for event in events %}
       <tr>
-        <th scope="row" class="table__action">
-          {% if journal.version %} Release {{ journal.version }}: {% endif %}{{ journal.action }}
-        </th>
-        <td>
-          {{ journal.submitted_date|format_datetime() }}
-        </td>
-        <td>
-          {{ journal.submitted_by.username }}
-          <span class="table__ip">from {{ journal.submitted_from }}</span>
-        </td>
+        <td>{{ event.tag }}</td>
+        <td>{{ humanize(event.time) }}</td>
+        <td>{{ event.ip_address }}</td>
+        <td>{{ event.additional }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  {{ pagination.paginate(journals) }}
+  {{ pagination.paginate(events) }}
 {% endblock %}

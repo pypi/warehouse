@@ -52,7 +52,7 @@ from warehouse.manage.forms import (
     ProvisionWebAuthnForm,
     SaveAccountForm,
 )
-from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.packaging.models import File, JournalEntry, Project, ProjectEvent, Release, Role
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
@@ -1112,24 +1112,24 @@ def manage_project_history(project, request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.")
 
-    journals_query = (
-        request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
-        .filter(JournalEntry.name == project.name)
-        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+    events_query = (
+        request.db.query(ProjectEvent)
+        .join(ProjectEvent.project)
+        .filter(ProjectEvent.project_id == project.id)
+        .order_by(ProjectEvent.time.desc())
     )
 
-    journals = SQLAlchemyORMPage(
-        journals_query,
+    events = SQLAlchemyORMPage(
+        events_query,
         page=page_num,
         items_per_page=25,
         url_maker=paginate_url_factory(request),
     )
 
-    if journals.page_count and page_num > journals.page_count:
+    if events.page_count and page_num > events.page_count:
         raise HTTPNotFound
 
-    return {"project": project, "journals": journals}
+    return {"project": project, "events": events}
 
 
 @view_config(
