@@ -871,15 +871,15 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             (
                 None,
                 (
-                    "This password appears in a breach or has been compromised and "
-                    "cannot be used."
+                    "This password appears in a security breach or has "
+                    "been compromised and cannot be used."
                 ),
             ),
             (
                 "http://localhost/help/#compromised-password",
                 (
-                    "This password appears in a breach or has been compromised and "
-                    "cannot be used. See "
+                    "This password appears in a security breach or has been "
+                    "compromised and cannot be used. See "
                     '<a href="http://localhost/help/#compromised-password">'
                     "this FAQ entry</a> for more information."
                 ),
@@ -906,15 +906,15 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             (
                 None,
                 (
-                    "This password appears in a breach or has been compromised and "
-                    "cannot be used."
+                    "This password appears in a security breach or has been "
+                    "compromised and cannot be used."
                 ),
             ),
             (
                 "http://localhost/help/#compromised-password",
                 (
-                    "This password appears in a breach or has been compromised and "
-                    "cannot be used. See the FAQ entry at "
+                    "This password appears in a security breach or has been "
+                    "compromised and cannot be used. See the FAQ entry at "
                     "http://localhost/help/#compromised-password for more information."
                 ),
             ),
