@@ -42,10 +42,9 @@ class DatabaseMacaroonService:
         if raw_macaroon is None:
             return None
 
-        try:
-            prefix, raw_macaroon = raw_macaroon.split(":", 1)
-        except ValueError:
-            return None
+        prefix, split, raw_macaroon = raw_macaroon.partition("-")
+        if prefix != "pypi" or not split:
+            prefix, _, raw_macaroon = raw_macaroon.partition(":")
 
         if prefix != "pypi":
             return None
@@ -129,7 +128,7 @@ class DatabaseMacaroonService:
             version=pymacaroons.MACAROON_V2,
         )
         m.add_first_party_caveat(json.dumps(caveats))
-        serialized_macaroon = f"pypi:{m.serialize()}"
+        serialized_macaroon = f"pypi-{m.serialize()}"
         return serialized_macaroon, dm
 
     def delete_macaroon(self, macaroon_id):
