@@ -138,13 +138,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 resp = HTTPSeeOther(
                     request.route_path("accounts.two-factor", _query=token)
                 )
-
-                user_service.record_event(
-                    userid,
-                    tag="account:login:success",
-                    ip_address=request.remote_addr,
-                    additional={"two_factor": True},
-                )
                 return resp
             else:
                 # If the user-originating redirection url is not safe, then
@@ -177,10 +170,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .hexdigest()
                     .lower(),
                 )
-
-            user_service.record_event(
-                userid, tag="account:login:success", ip_address=request.remote_addr
-            )
             return resp
 
     return {
@@ -225,7 +214,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            _login_user(request, userid)
+            _login_user(request, userid, two_factor_method="totp")
 
             resp = HTTPSeeOther(redirect_to)
             resp.set_cookie(
@@ -304,7 +293,7 @@ def webauthn_authentication_validate(request):
         webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
         webauthn.sign_count = sign_count
 
-        _login_user(request, userid)
+        _login_user(request, userid, two_factor_method="webauthn")
 
         request.response.set_cookie(
             USER_ID_INSECURE_COOKIE,
@@ -614,7 +603,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
     return two_factor_data
 
 
-def _login_user(request, userid):
+def _login_user(request, userid, two_factor_method=None):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -653,6 +642,12 @@ def _login_user(request, userid):
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
+    user_service.record_event(
+        userid,
+        tag="account:login:success",
+        ip_address=request.remote_addr,
+        additional={"two_factor_method": two_factor_method},
+    )
 
     return headers
 
