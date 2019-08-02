@@ -44,8 +44,8 @@ from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
-    ProjectFactory,
     ProjectEventFactory,
+    ProjectFactory,
     ReleaseFactory,
     RoleFactory,
     UserFactory,
