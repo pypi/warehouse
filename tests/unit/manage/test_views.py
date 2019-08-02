@@ -29,7 +29,14 @@ import warehouse.utils.otp as otp
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
-from warehouse.packaging.models import File, JournalEntry, Project, Role, User
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    Project,
+    ProjectEvent,
+    Role,
+    User,
+)
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
 
@@ -38,6 +45,7 @@ from ...common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
+    ProjectEventFactory,
     ReleaseFactory,
     RoleFactory,
     UserFactory,
@@ -186,7 +194,8 @@ class TestManageAccount:
         email_address = "test@example.com"
         email = pretend.stub(id=pretend.stub(), email=email_address)
         user_service = pretend.stub(
-            add_email=pretend.call_recorder(lambda *a, **kw: email)
+            add_email=pretend.call_recorder(lambda *a, **kw: email),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"email": email_address},
@@ -197,6 +206,7 @@ class TestManageAccount:
                 emails=[], username="username", name="Name", id=pretend.stub()
             ),
             task=pretend.call_recorder(lambda *args, **kwargs: send_email),
+            remote_addr="0.0.0.0",
         )
         monkeypatch.setattr(
             views,
@@ -262,6 +272,9 @@ class TestManageAccount:
     def test_delete_email(self, monkeypatch):
         email = pretend.stub(id=pretend.stub(), primary=False, email=pretend.stub())
         some_other_email = pretend.stub()
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
         request = pretend.stub(
             POST={"delete_email_id": email.id},
             user=pretend.stub(
@@ -272,8 +285,9 @@ class TestManageAccount:
                     filter=lambda *a: pretend.stub(one=lambda: email)
                 )
             ),
-            find_service=lambda *a, **kw: pretend.stub(),
+            find_service=lambda *a, **kw: user_service,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            remote_addr="0.0.0.0",
         )
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -341,13 +355,17 @@ class TestManageAccount:
 
     def test_change_primary_email(self, monkeypatch, db_request):
         user = UserFactory()
-        old_primary = EmailFactory(primary=True, user=user)
-        new_primary = EmailFactory(primary=False, verified=True, user=user)
+        old_primary = EmailFactory(primary=True, user=user, email="old")
+        new_primary = EmailFactory(primary=False, verified=True, user=user, email="new")
 
         db_request.user = user
 
-        db_request.find_service = lambda *a, **kw: pretend.stub()
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
+        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -374,8 +392,12 @@ class TestManageAccount:
 
         db_request.user = user
 
-        db_request.find_service = lambda *a, **kw: pretend.stub()
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
+        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -414,7 +436,13 @@ class TestManageAccount:
         assert old_primary.primary
 
     def test_reverify_email(self, monkeypatch):
-        email = pretend.stub(verified=False, email="email_address")
+        email = pretend.stub(
+            verified=False,
+            email="email_address",
+            user=pretend.stub(
+                record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
 
         request = pretend.stub(
             POST={"reverify_email_id": pretend.stub()},
@@ -426,6 +454,7 @@ class TestManageAccount:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
             user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
+            remote_addr="0.0.0.0",
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -499,7 +528,8 @@ class TestManageAccount:
         old_password = "0ld_p455w0rd"
         new_password = "n3w_p455w0rd"
         user_service = pretend.stub(
-            update_user=pretend.call_recorder(lambda *a, **kw: None)
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={
@@ -515,6 +545,7 @@ class TestManageAccount:
                 email=pretend.stub(),
                 name=pretend.stub(),
             ),
+            remote_addr="0.0.0.0",
         )
         change_pwd_obj = pretend.stub(
             validate=lambda: True, new_password=pretend.stub(data=new_password)
@@ -847,6 +878,7 @@ class TestProvisionTOTP:
         user_service = pretend.stub(
             get_totp_secret=lambda id: None,
             update_user=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"totp_value": "123456"},
@@ -866,6 +898,7 @@ class TestProvisionTOTP:
                 has_primary_verified_email=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
+            remote_addr="0.0.0.0",
         )
 
         provision_totp_obj = pretend.stub(validate=lambda: True)
@@ -990,6 +1023,7 @@ class TestProvisionTOTP:
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
             update_user=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"confirm_username": pretend.stub()},
@@ -1004,6 +1038,7 @@ class TestProvisionTOTP:
                 has_primary_verified_email=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
+            remote_addr="0.0.0.0",
         )
 
         delete_totp_obj = pretend.stub(validate=lambda: True)
@@ -1157,7 +1192,8 @@ class TestProvisionWebAuthn:
 
     def test_validate_webauthn_provision(self, monkeypatch):
         user_service = pretend.stub(
-            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub()),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={},
@@ -1170,6 +1206,7 @@ class TestProvisionWebAuthn:
             find_service=lambda *a, **kw: user_service,
             domain="fake_domain",
             host_url="fake_host_url",
+            remote_addr="0.0.0.0",
         )
 
         provision_webauthn_obj = pretend.stub(
@@ -1242,6 +1279,9 @@ class TestProvisionWebAuthn:
         assert result == {"fail": {"errors": ["Not a real error"]}}
 
     def test_delete_webauthn(self, monkeypatch):
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
         request = pretend.stub(
             POST={},
             user=pretend.stub(
@@ -1255,11 +1295,14 @@ class TestProvisionWebAuthn:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            find_service=lambda *a, **kw: pretend.stub(),
+            find_service=lambda *a, **kw: user_service,
+            remote_addr="0.0.0.0",
         )
 
         delete_webauthn_obj = pretend.stub(
-            validate=lambda: True, webauthn=pretend.stub()
+            validate=lambda: True,
+            webauthn=pretend.stub(),
+            label=pretend.stub(data="fake label"),
         )
         delete_webauthn_cls = pretend.call_recorder(
             lambda *a, **kw: delete_webauthn_obj
@@ -1467,14 +1510,18 @@ class TestProvisionMacaroonViews:
                 lambda *a, **kw: ("not a real raw macaroon", macaroon)
             )
         )
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
         request = pretend.stub(
             POST={},
             domain=pretend.stub(),
             user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
+                IUserService: user_service,
             }[interface],
+            remote_addr="0.0.0.0",
         )
 
         create_macaroon_obj = pretend.stub(
@@ -1583,16 +1630,21 @@ class TestProvisionMacaroonViews:
                 lambda id: pretend.stub(description="fake macaroon")
             ),
         )
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
         request = pretend.stub(
             POST={},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
+                IUserService: user_service,
             }[interface],
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             referer="/fake/safe/route",
             host=None,
+            user=pretend.stub(id=pretend.stub()),
+            remote_addr="0.0.0.0",
         )
 
         delete_macaroon_obj = pretend.stub(
@@ -2599,27 +2651,21 @@ class TestDeleteProjectRoles:
 class TestManageProjectHistory:
     def test_get(self, db_request):
         project = ProjectFactory.create()
-        older_journal = JournalEntryFactory.create(
-            name=project.name,
-            submitted_date=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
-        )
-        newer_journal = JournalEntryFactory.create(
-            name=project.name,
-            submitted_date=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
-        )
+        older_event = ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
+        newer_event = ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
 
         assert views.manage_project_history(project, db_request) == {
             "project": project,
-            "journals": [newer_journal, older_journal],
+            "events": [newer_event, older_event],
         }
 
     def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
         params = MultiDict({"page": "abc"})
         db_request.params = params
 
-        journals_query = pretend.stub()
-        db_request.journals_query = pretend.stub(
-            journals_query=lambda *a, **kw: journals_query
+        events_query = pretend.stub()
+        db_request.events_query = pretend.stub(
+            events_query=lambda *a, **kw: events_query
         )
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
@@ -2648,15 +2694,15 @@ class TestManageProjectHistory:
             JournalEntryFactory.create(
                 name=project.name, submitted_date=datetime.datetime.now()
             )
-        journals_query = (
+        events_query = (
             db_request.db.query(JournalEntry)
             .options(joinedload("submitted_by"))
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         )
 
-        journals_page = SQLAlchemyORMPage(
-            journals_query,
+        events_page = SQLAlchemyORMPage(
+            events_query,
             page=page_number,
             items_per_page=items_per_page,
             item_count=total_items,
@@ -2664,7 +2710,7 @@ class TestManageProjectHistory:
         )
         assert views.manage_project_history(project, db_request) == {
             "project": project,
-            "journals": journals_page,
+            "events": events_page,
         }
 
     def test_last_page(self, db_request):
@@ -2676,18 +2722,16 @@ class TestManageProjectHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         for _ in range(total_items):
-            JournalEntryFactory.create(
-                name=project.name, submitted_date=datetime.datetime.now()
-            )
-        journals_query = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
-            .filter(JournalEntry.name == project.name)
-            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+            ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
+        events_query = (
+            db_request.db.query(ProjectEvent)
+            .join(ProjectEvent.project)
+            .filter(ProjectEvent.project_id == project.id)
+            .order_by(ProjectEvent.time.desc())
         )
 
-        journals_page = SQLAlchemyORMPage(
-            journals_query,
+        events_page = SQLAlchemyORMPage(
+            events_query,
             page=page_number,
             items_per_page=items_per_page,
             item_count=total_items,
@@ -2695,7 +2739,7 @@ class TestManageProjectHistory:
         )
         assert views.manage_project_history(project, db_request) == {
             "project": project,
-            "journals": journals_page,
+            "events": events_page,
         }
 
     def test_raises_404_with_out_of_range_page(self, db_request):
@@ -2707,9 +2751,7 @@ class TestManageProjectHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         for _ in range(total_items):
-            JournalEntryFactory.create(
-                name=project.name, submitted_date=datetime.datetime.now()
-            )
+            ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)
