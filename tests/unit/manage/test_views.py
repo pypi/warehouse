@@ -2651,8 +2651,18 @@ class TestDeleteProjectRoles:
 class TestManageProjectHistory:
     def test_get(self, db_request):
         project = ProjectFactory.create()
-        older_event = ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
-        newer_event = ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
+        older_event = ProjectEventFactory.create(
+            project=project,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+        )
+        newer_event = ProjectEventFactory.create(
+            project=project,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        )
 
         assert views.manage_project_history(project, db_request) == {
             "project": project,
@@ -2691,14 +2701,14 @@ class TestManageProjectHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         for _ in range(total_items):
-            JournalEntryFactory.create(
-                name=project.name, submitted_date=datetime.datetime.now()
+            ProjectEventFactory.create(
+                project=project, tag="fake:event", ip_address="0.0.0.0"
             )
         events_query = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
-            .filter(JournalEntry.name == project.name)
-            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+            db_request.db.query(ProjectEvent)
+            .join(ProjectEvent.project)
+            .filter(ProjectEvent.project_id == project.id)
+            .order_by(ProjectEvent.time.desc())
         )
 
         events_page = SQLAlchemyORMPage(
@@ -2722,7 +2732,9 @@ class TestManageProjectHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         for _ in range(total_items):
-            ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
+            ProjectEventFactory.create(
+                project=project, tag="fake:event", ip_address="0.0.0.0"
+            )
         events_query = (
             db_request.db.query(ProjectEvent)
             .join(ProjectEvent.project)
@@ -2751,7 +2763,9 @@ class TestManageProjectHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         for _ in range(total_items):
-            ProjectEventFactory.create(tag="fake:event", ip_address="0.0.0.0")
+            ProjectEventFactory.create(
+                project=project, tag="fake:event", ip_address="0.0.0.0"
+            )
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)
