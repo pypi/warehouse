@@ -230,7 +230,9 @@ class ManageAccountViews:
             tag="account:email:primary:change",
             ip_address=self.request.remote_addr,
             additional={
-                "old_primary": previous_primary_email.email,
+                "old_primary": previous_primary_email.email
+                if previous_primary_email
+                else None,
                 "new_primary": new_primary_email.email,
             },
         )
