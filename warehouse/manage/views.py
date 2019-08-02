@@ -264,6 +264,11 @@ class ManageAccountViews:
             self.request.session.flash("Email is already verified", queue="error")
         else:
             send_email_verification_email(self.request, (self.request.user, email))
+            email.user.record_event(
+                tag="account:email:reverify",
+                ip_address=self.request.remote_addr,
+                additional={"email": email.email},
+            )
 
             self.request.session.flash(
                 f"Verification email for {email.email} resent", queue="success"
@@ -286,6 +291,11 @@ class ManageAccountViews:
         if form.validate():
             self.user_service.update_user(
                 self.request.user.id, password=form.new_password.data
+            )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:password:change",
+                ip_address=self.request.remote_addr,
             )
             send_password_change_email(self.request, self.request.user)
             self.request.session.flash("Password updated", queue="success")
