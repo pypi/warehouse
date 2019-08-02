@@ -13,7 +13,7 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}{% if testPyPI %}Test{% endif %}PyPI – the Python Package Index{% endblock %}
+{% block title %}{% if testPyPI %}Testing – {% endif %}The Python Package Index{% endblock %}
 
 {% macro project_snippet(release) -%}
 <li>
@@ -26,7 +26,6 @@
   </a>
 </li>
 {%- endmacro %}
-
 
 {% block brand %}
 <div>
