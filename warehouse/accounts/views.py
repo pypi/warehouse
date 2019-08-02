@@ -409,6 +409,11 @@ def register(request, _form_class=RegistrationForm):
             form.username.data, form.full_name.data, form.new_password.data
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
+        user.record_event(
+            tag="account:create",
+            ip_address=request.remote_addr,
+            additional={"email": form.email.data},
+        )
 
         send_email_verification_email(request, (user, email))
 
@@ -442,6 +447,9 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         send_password_reset_email(request, (user, email))
+        user.record_event(
+            tag="account:password:reset:request", ip_address=request.remote_addr
+        )
 
         token_service = request.find_service(ITokenService, name="password")
         n_hours = token_service.max_age // 60 // 60
@@ -516,6 +524,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
     if request.method == "POST" and form.validate():
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
+        user_service.record_event(
+            user.id, tag="account:password:reset", ip_address=request.remote_addr
+        )
 
         # Flash a success message
         request.session.flash("You have reset your password", queue="success")
@@ -565,6 +576,11 @@ def verify_email(request):
     email.verified = True
     email.unverify_reason = None
     email.transient_bounces = 0
+    email.user.record_event(
+        tag="account:email:verified",
+        ip_address=request.remote_addr,
+        additional={"email": email.email, "primary": email.primary},
+    )
 
     if not email.primary:
         confirm_message = "You can now set this email as your primary address"

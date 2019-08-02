@@ -153,6 +153,11 @@ class ManageAccountViews:
 
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
+            email.user.record_event(
+                tag="account:email:add",
+                ip_address=self.request.remote_addr,
+                additional={"email": email.email},
+            )
 
             send_email_verification_email(self.request, (self.request.user, email))
 
@@ -186,6 +191,11 @@ class ManageAccountViews:
             )
         else:
             self.request.user.emails.remove(email)
+            self.request.user.record_event(
+                tag="account:email:remove",
+                ip_address=self.request.remote_addr,
+                additional={"email": email.email},
+            )
             self.request.session.flash(
                 f"Email address {email.email} removed", queue="success"
             )
@@ -213,6 +223,15 @@ class ManageAccountViews:
         ).update(values={"primary": False})
 
         new_primary_email.primary = True
+        self.user_service.record_event(
+            self.request.user.id,
+            tag="account:email:primary:change",
+            ip_address=self.request.remote_addr,
+            additional={
+                "old_primary": previous_primary_email.email,
+                "new_primary": new_primary_email.email,
+            },
+        )
 
         self.request.session.flash(
             f"Email address {new_primary_email.email} set as primary", queue="success"
