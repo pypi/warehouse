@@ -159,6 +159,7 @@ class TestLogin:
             find_userid=pretend.call_recorder(lambda username: user_id),
             update_user=pretend.call_recorder(lambda *a, **kw: None),
             has_two_factor=lambda userid: False,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
@@ -174,6 +175,7 @@ class TestLogin:
             invalidate=pretend.call_recorder(lambda: None),
             new_csrf_token=pretend.call_recorder(lambda: None),
         )
+        pyramid_request.remote_addr = "0.0.0.0"
 
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()) if with_user else None,
@@ -214,6 +216,14 @@ class TestLogin:
 
         assert user_service.find_userid.calls == [pretend.call("theuser")]
         assert user_service.update_user.calls == [pretend.call(user_id, last_login=now)]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                user_id,
+                tag="account:login:success",
+                ip_address="0.0.0.0",
+                additional={"two_factor_method": None},
+            )
+        ]
 
         if with_user:
             assert new_session == {}
@@ -237,6 +247,7 @@ class TestLogin:
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
             has_two_factor=lambda userid: False,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
@@ -247,6 +258,7 @@ class TestLogin:
 
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
+        pyramid_request.remote_addr = "0.0.0.0"
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -275,6 +287,7 @@ class TestLogin:
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
             has_two_factor=lambda userid: True,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         breach_service = pretend.stub(check_password=lambda pw: False)
@@ -288,6 +301,7 @@ class TestLogin:
         pyramid_request.method = "POST"
         if redirect_url:
             pyramid_request.POST["next"] = redirect_url
+        pyramid_request.remote_addr = "0.0.0.0"
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -406,6 +420,7 @@ class TestTwoFactor:
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
             check_totp_value=lambda userid, totp_value: True,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         new_session = {}
@@ -416,6 +431,7 @@ class TestTwoFactor:
         }[interface]
 
         pyramid_request.method = "POST"
+        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.session = pretend.stub(
             items=lambda: [("a", "b"), ("foo", "bar")],
             update=new_session.update,
@@ -468,6 +484,7 @@ class TestTwoFactor:
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
             check_totp_value=lambda userid, totp_value: False,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         pyramid_request.find_service = lambda interface, **kwargs: {
@@ -476,6 +493,7 @@ class TestTwoFactor:
         }[interface]
 
         pyramid_request.method = "POST"
+        pyramid_request.remote_addr = "0.0.0.0"
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -698,7 +716,7 @@ class TestWebAuthn:
         )
         monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
 
-        _login_user = pretend.call_recorder(lambda req, uid: pretend.stub())
+        _login_user = pretend.call_recorder(lambda *a, **kw: pretend.stub())
         monkeypatch.setattr(views, "_login_user", _login_user)
 
         user = pretend.stub(webauthn=pretend.stub(sign_count=pretend.stub()))
@@ -738,7 +756,9 @@ class TestWebAuthn:
         result = views.webauthn_authentication_validate(request)
 
         assert _get_two_factor_data.calls == [pretend.call(request)]
-        assert _login_user.calls == [pretend.call(request, 1)]
+        assert _login_user.calls == [
+            pretend.call(request, 1, two_factor_method="webauthn")
+        ]
         assert request.session.get_webauthn_challenge.calls == [pretend.call()]
         assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
 
@@ -870,9 +890,11 @@ class TestRegister:
                 create_user=create_user,
                 add_email=add_email,
                 check_password=lambda pw, tags=None: False,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             )
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "0.0.0.0"
         db_request.POST.update(
             {
                 "username": "username_value",
@@ -951,10 +973,12 @@ class TestRequestPasswordReset:
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
 
-        stub_user = pretend.stub(username=pretend.stub())
+        stub_user = pretend.stub(id=pretend.stub(), username=pretend.stub())
         pyramid_request.method = "POST"
+        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
+        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -997,12 +1021,16 @@ class TestRequestPasswordReset:
     ):
 
         stub_user = pretend.stub(
-            email="foo@example.com", emails=[pretend.stub(email="foo@example.com")]
+            id=pretend.stub(),
+            email="foo@example.com",
+            emails=[pretend.stub(email="foo@example.com")],
         )
         pyramid_request.method = "POST"
+        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
+        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -1046,6 +1074,7 @@ class TestRequestPasswordReset:
     ):
 
         stub_user = pretend.stub(
+            id=pretend.stub(),
             email="foo@example.com",
             emails=[
                 pretend.stub(email="foo@example.com"),
@@ -1053,9 +1082,11 @@ class TestRequestPasswordReset:
             ],
         )
         pyramid_request.method = "POST"
+        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
+        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -1163,6 +1194,7 @@ class TestResetPassword:
         breach_service = pretend.stub(check_password=lambda pw: False)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
+        db_request.remote_addr = "0.0.0.0"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "password-reset",
@@ -1380,6 +1412,7 @@ class TestVerifyEmail:
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "0.0.0.0"
         token_service.loads = pretend.call_recorder(
             lambda token: {"action": "email-verify", "email.id": str(email.id)}
         )
