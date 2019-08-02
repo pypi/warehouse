@@ -153,7 +153,8 @@ class ManageAccountViews:
 
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
-            email.user.record_event(
+            self.user_service.record_event(
+                self.request.user.id,
                 tag="account:email:add",
                 ip_address=self.request.remote_addr,
                 additional={"email": email.email},
@@ -191,7 +192,8 @@ class ManageAccountViews:
             )
         else:
             self.request.user.emails.remove(email)
-            self.request.user.record_event(
+            self.user_service.record_event(
+                self.request.user.id,
                 tag="account:email:remove",
                 ip_address=self.request.remote_addr,
                 additional={"email": email.email},

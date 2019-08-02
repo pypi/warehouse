@@ -409,7 +409,8 @@ def register(request, _form_class=RegistrationForm):
             form.username.data, form.full_name.data, form.new_password.data
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
-        user.record_event(
+        user_service.record_event(
+            user.id,
             tag="account:create",
             ip_address=request.remote_addr,
             additional={"email": form.email.data},
@@ -447,8 +448,10 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         send_password_reset_email(request, (user, email))
-        user.record_event(
-            tag="account:password:reset:request", ip_address=request.remote_addr
+        user_service.record_event(
+            user.id,
+            tag="account:password:reset:request",
+            ip_address=request.remote_addr,
         )
 
         token_service = request.find_service(ITokenService, name="password")
