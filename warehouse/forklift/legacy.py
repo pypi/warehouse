@@ -42,6 +42,7 @@ from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
+from warehouse.errors import DeniedMacaroonInvalid
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
@@ -973,19 +974,23 @@ def file_upload(request):
     # Check that the user has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
-    if not request.has_permission("upload", project):
-        raise _exc_with_message(
-            HTTPForbidden,
-            (
-                "The credential associated with user '{0}' "
-                "isn't allowed to upload to project '{1}'. "
+    allowed = request.has_permission("upload", project)
+    if not allowed:
+        if isinstance(allowed, DeniedMacaroonInvalid):
+            msg = (
+                "This API token is not valid for project '{0}'."
+                "See {1} for more information."
+            ).format(project.name, request.help_url(_anchor="project-name"))
+        else:
+            msg = (
+                "The user '{0}' isn't allowed to upload to project '{1}'. "
                 "See {2} for more information."
             ).format(
                 request.user.username,
                 project.name,
                 request.help_url(_anchor="project-name"),
-            ),
-        )
+            )
+        raise _exc_with_message(HTTPForbidden, msg)
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we

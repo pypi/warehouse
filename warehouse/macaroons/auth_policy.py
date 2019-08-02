@@ -14,11 +14,11 @@ import base64
 
 from pyramid.authentication import CallbackAuthenticationPolicy
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
-from pyramid.security import Denied
 from pyramid.threadlocal import get_current_request
 from zope.interface import implementer
 
 from warehouse.cache.http import add_vary_callback
+from warehouse.errors import DeniedMacaroonInvalid, DeniedMacaroonNoRequest
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroon
 
@@ -119,7 +119,7 @@ class MacaroonAuthorizationPolicy:
         # that case we're going to always deny, because without a request, we can't
         # determine if this request is authorized or not.
         if request is None:
-            return Denied("There was no active request.")
+            return DeniedMacaroonNoRequest("There was no active request.")
 
         # Re-extract our Macaroon from the request, it sucks to have to do this work
         # twice, but I believe it is inevitable unless we pass the Macaroon back as
@@ -136,7 +136,9 @@ class MacaroonAuthorizationPolicy:
             try:
                 macaroon_service.verify(macaroon, context, principals, permission)
             except InvalidMacaroon as exc:
-                return Denied(f"The supplied token was invalid: {str(exc)!r}")
+                return DeniedMacaroonInvalid(
+                    f"The supplied token was invalid: {str(exc)!r}"
+                )
 
             # If our Macaroon is verified, and for a valid permission then we'll pass
             # this request to our underlying Authorization policy, so it can handle its
