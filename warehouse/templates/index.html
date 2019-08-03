@@ -13,7 +13,7 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}{% if testPyPI %}Testing – {% endif %}The Python Package Index{% endblock %}
+{% block title_base %}{{ request.registry.settings['site.name'] }} · The Python Package Index{% endblock %}
 
 {% macro project_snippet(release) -%}
 <li>
