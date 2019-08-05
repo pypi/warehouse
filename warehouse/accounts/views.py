@@ -252,10 +252,7 @@ def webauthn_authentication_options(request):
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)
     return user_service.get_webauthn_assertion_options(
-        userid,
-        challenge=request.session.get_webauthn_challenge(),
-        icon_url=request.registry.settings.get("warehouse.domain", request.domain),
-        rp_id=request.domain,
+        userid, challenge=request.session.get_webauthn_challenge(), rp_id=request.domain
     )
 
 
@@ -288,7 +285,6 @@ def webauthn_authentication_validate(request):
         user_service=user_service,
         challenge=request.session.get_webauthn_challenge(),
         origin=request.host_url,
-        icon_url=request.registry.settings.get("warehouse.domain", request.domain),
         rp_id=request.domain,
     )
 

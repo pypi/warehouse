@@ -70,6 +70,9 @@ your text <http://www.webpagefx.com/tools/read-able/>`_.
 For consistency, we prefer using American English spellings over British
 English.
 
+Do not use directional prompts when writing user interface copy. For example
+"Click the button on the left" should be avoided.
+
 Be consistent, particularly when it comes to domain specific words. Use this
 glossary as a guide:
 

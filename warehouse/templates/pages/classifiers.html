@@ -27,13 +27,11 @@
     <ul>
     {% for classifier in classifiers %}
       <li>
-        <a href="{{ request.route_path('search', _query={'c': classifier.classifier}) }}">
-          {{ classifier.classifier }}&nbsp;
-          <a class="-js-copy-hash tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ classifier.classifier }}">
-            <i class="fa fa-copy" aria-hidden="true"></i>
-            <span class="sr-only">Copy classifier</span>
-          </a>
-        </a>
+        <a href="{{ request.route_path('search', _query={'c': classifier.classifier}) }}">{{ classifier.classifier }}</a>
+        &nbsp;
+        <button type="button" class="button button--small margin-top margin-bottom -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ classifier.classifier }}">
+          Copy
+        </button>
       </li>
     {% endfor %}
     </ul>

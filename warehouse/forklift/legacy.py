@@ -252,11 +252,6 @@ def _validate_legacy_dist_req(requirement):
             "Can't have direct dependency: {!r}".format(requirement)
         )
 
-    if any(packaging.version.Version(spec.version).local for spec in req.specifier):
-        raise wtforms.validators.ValidationError(
-            "Can't have dependency with local version: {!r}".format(requirement)
-        )
-
 
 def _validate_legacy_dist_req_list(form, field):
     for datum in field.data:
