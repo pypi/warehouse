@@ -46,6 +46,10 @@
   &__maintainer {
     display: flex;
     align-items: center;
+
+    a {
+      @include link-without-underline;
+    }
   }
 
   &__user-gravatar {
@@ -68,6 +72,11 @@
     word-wrap: break-word;
     display: inline-block;
     max-width: calc(100% - 60px);
+    text-decoration: none;
+    background-position: 0 1.15em;
+    background-repeat: repeat-x;
+    background-size: 100% 1.5px;
+    @include primary-underlined-link;
 
     @media only screen and (max-width: $desktop) {
       max-width: calc(100% - 50px);

@@ -1138,12 +1138,7 @@ class TestProvisionWebAuthn:
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge")
             ),
             find_service=lambda *a, **kw: user_service,
-            registry=pretend.stub(
-                settings={
-                    "site.name": "fake_site_name",
-                    "warehouse.domain": "fake_domain",
-                }
-            ),
+            registry=pretend.stub(settings={"site.name": "fake_site_name"}),
             domain="fake_domain",
         )
 
@@ -1157,7 +1152,6 @@ class TestProvisionWebAuthn:
                 challenge="fake_challenge",
                 rp_name=request.registry.settings["site.name"],
                 rp_id=request.domain,
-                icon_url=request.registry.settings["warehouse.domain"],
             )
         ]
 
@@ -1363,6 +1357,41 @@ class TestProvisionMacaroonViews:
             "delete_macaroon_form": delete_macaroon_obj,
         }
 
+    def test_project_names(self, db_request):
+        user = UserFactory.create()
+        another_user = UserFactory.create()
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        # A project with a sole owner that is the user
+        with_sole_owner = ProjectFactory.create(name="foo")
+        RoleFactory.create(user=user, project=with_sole_owner, role_name="Owner")
+        RoleFactory.create(
+            user=another_user, project=with_sole_owner, role_name="Maintainer"
+        )
+
+        # A project with multiple owners, including the user
+        with_multiple_owners = ProjectFactory.create(name="bar")
+        RoleFactory.create(user=user, project=with_multiple_owners, role_name="Owner")
+        RoleFactory.create(
+            user=another_user, project=with_multiple_owners, role_name="Owner"
+        )
+
+        # A project with a sole owner that is not the user
+        not_an_owner = ProjectFactory.create(name="baz")
+        RoleFactory.create(user=user, project=not_an_owner, role_name="Maintainer")
+        RoleFactory.create(user=another_user, project=not_an_owner, role_name="Owner")
+
+        # A project that the user is neither owner nor maintainer of
+        neither_owner_nor_maintainer = ProjectFactory.create(name="quux")
+        RoleFactory.create(
+            user=another_user, project=neither_owner_nor_maintainer, role_name="Owner"
+        )
+
+        view = views.ProvisionMacaroonViews(db_request)
+        assert set(view.project_names) == {"foo", "bar", "baz"}
+
     def test_manage_macaroons(self, monkeypatch):
         request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
 
@@ -1412,10 +1441,10 @@ class TestProvisionMacaroonViews:
         )
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
-        user_projects = pretend.call_recorder(
-            lambda r: {"projects_owned": [pretend.stub(name=pretend.stub())]}
+        project_names = [pretend.stub()]
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "project_names", project_names
         )
-        monkeypatch.setattr(views, "user_projects", user_projects)
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
@@ -1458,11 +1487,10 @@ class TestProvisionMacaroonViews:
         )
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
-        project_name = pretend.stub()
-        user_projects = pretend.call_recorder(
-            lambda r: {"projects_owned": [pretend.stub(name=project_name)]}
+        project_names = [pretend.stub()]
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "project_names", project_names
         )
-        monkeypatch.setattr(views, "user_projects", user_projects)
 
         default_response = {"default": "response"}
         monkeypatch.setattr(

@@ -21,20 +21,21 @@
   <h2>Releases ({{ project.releases|length }})</h2>
   {% if project.releases %}
     <table class="table table--light table--releases no-top-margin">
+      <caption class="sr-only">Releases for {{ project.name }}</caption>
       <thead>
-        <th class="table__version">Version</th>
-        <th class="table__date">Release date</th>
-        <th class="table__summary">Summary</th>
-        <th class="table__options"></th>
+        <th scope="col" class="table__version">Version</th>
+        <th scope="col" class="table__date">Release date</th>
+        <th scope="col" class="table__summary">Summary</th>
+        <th scope="col" class="table__options"></th>
       </thead>
       <tbody>
       {% for release in project.releases %}
         <tr>
-          <td class="table__version">
+          <th scope="row" class="table__version">
             <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="Manage version">
               {{ release.version }}
             </a>
-          </td>
+          </th>
           <td class="table__date">{{ humanize(release.created) }}</time></td>
           <td class="table__summary">
             {% if release.summary %}
@@ -45,7 +46,7 @@
             </td>
           <td class="table__options">
             <nav class="dropdown dropdown--with-icons">
-              <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+              <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
                 Options
                 <span class="dropdown__trigger-caret">
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
@@ -95,7 +96,7 @@
     {% else %}
     <h3>No releases found</h3>
     {% endif %}
-    <p>Learn how to create a new release on the <a href="https://packaging.python.org/tutorials/distributing-packages/" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a></p>
     <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <p>Learn how to create a new release on the <a href="https://packaging.python.org/tutorials/distributing-packages/" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a></p>
   </div>
 {% endblock %}

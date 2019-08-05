@@ -28,7 +28,6 @@ import docReady from "warehouse/utils/doc-ready";
 
 // Import our utility functions
 import Analytics from "warehouse/utils/analytics";
-import enterView from "enter-view";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
@@ -36,7 +35,6 @@ import PositionWarning from "warehouse/utils/position-warning";
 import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
-import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
@@ -145,21 +143,6 @@ docReady(() => {
 });
 
 docReady(() => {
-  if (document.querySelector(".-js-autoplay-when-visible")) {
-    YouTubeIframeLoader.load((YT) => {
-      enterView({
-        selector: ".-js-autoplay-when-visible",
-        trigger: (el) => {
-          new YT.Player(el.id, {
-            events: { "onReady": (e) => { e.target.playVideo(); } },
-          });
-        },
-      });
-    });
-  }
-});
-
-docReady(() => {
   let changeRoleForms = document.querySelectorAll("form.change-role");
 
   if (changeRoleForms) {
@@ -225,6 +208,24 @@ docReady(ProvisionWebAuthn);
 
 // Get WebAuthn authentication ready
 docReady(AuthenticateWebAuthn);
+
+docReady(() => {
+  const tokenSelect = document.getElementById("token_scope");
+
+  if (tokenSelect === null) {
+    return;
+  }
+
+  tokenSelect.addEventListener("change", () => {
+    const tokenScopeWarning = document.getElementById("api-token-scope-warning");
+    if (tokenScopeWarning === null) {
+      return;
+    }
+
+    const tokenScope = tokenSelect.options[tokenSelect.selectedIndex].value;
+    tokenScopeWarning.hidden = (tokenScope !== "scope:user");
+  });
+});
 
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)

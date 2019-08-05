@@ -474,9 +474,6 @@ class ProvisionWebAuthnViews:
             challenge=self.request.session.get_webauthn_challenge(),
             rp_name=self.request.registry.settings["site.name"],
             rp_id=self.request.domain,
-            icon_url=self.request.registry.settings.get(
-                "warehouse.domain", self.request.domain
-            ),
         )
 
     @view_config(
@@ -559,8 +556,7 @@ class ProvisionMacaroonViews:
 
     @property
     def project_names(self):
-        projects = user_projects(self.request)["projects_owned"]
-        return [project.name for project in projects]
+        return sorted(project.name for project in self.request.user.projects)
 
     @property
     def default_response(self):
@@ -580,7 +576,7 @@ class ProvisionMacaroonViews:
     def manage_macaroons(self):
         return self.default_response
 
-    @view_config(request_method="POST", request_param=CreateMacaroonForm.__params__)
+    @view_config(request_method="POST")
     def create_macaroon(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
