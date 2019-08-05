@@ -155,7 +155,8 @@ class TestValidation:
         assert validator.calls == [pretend.call(datum) for datum in data]
 
     @pytest.mark.parametrize(
-        "requirement", ["foo (>=1.0)", "foo", "foo2", "foo-bar", "foo_bar"]
+        "requirement",
+        ["foo (>=1.0)", "foo", "foo2", "foo-bar", "foo_bar", "foo == 2.*"],
     )
     def test_validate_legacy_dist_req_valid(self, requirement):
         legacy._validate_legacy_dist_req(requirement)
@@ -2212,7 +2213,8 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The user '{0}' isn't allowed to upload to project '{1}'. "
+            "403 The credential associated with user '{0}' "
+            "isn't allowed to upload to project '{1}'. "
             "See /the/help/url/ for more information."
         ).format(user2.username, project.name)
 

@@ -39,8 +39,9 @@
 {% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
 {% macro twoFA() %}What is two factor authentication and how does it work on PyPI?{% endmacro %}
 {% macro totp() %}How does two factor authentication with an authentication application (TOTP) work? How do I set it up on PyPI?{% endmacro %}
-{% macro utfkey() %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI? <span class="badge badge--warning">Beta</span>{% endmacro %}
-{% macro utfdevices() %}What devices (other than a USB key) can I use as a security device? <span class="badge badge--warning">Beta</span>{% endmacro %}
+{% macro utfkey() %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI? <span class="badge badge--warning">Beta feature</span>{% endmacro %}
+{% macro utfdevices() %}What devices (other than a USB key) can I use as a security device? <span class="badge badge--warning">Beta feature</span>{% endmacro %}
+{% macro apitoken() %}How can I use API tokens to authenticate with PyPI? <span class="badge badge--warning">Beta feature</span>{% endmacro %}
 
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
@@ -69,7 +70,8 @@
 {% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
 {% macro contributing() %}How can I contribute to PyPI?{% endmacro %}
 {% macro upcoming_changes() %}How do I keep up with upcoming changes to PyPI?{% endmacro %}
-{% macro beta_badge() %}What does the "beta" badge mean? What are Warehouse's current beta features?{% endmacro %}
+{% macro beta_badge() %}What does the "beta feature" badge mean? What are Warehouse's current beta features?{% endmacro %}
+{% macro pronunciation() %}How do I pronounce "PyPI"?{% endmacro %}
 
 {% block title %}Help{% endblock %}
 
@@ -97,6 +99,7 @@
           <li><a href="#totp">{{ totp() }}</a></li>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
+          <li><a href="#apitoken">{{ apitoken() }}</a></li>
         </ul>
       </section>
 
@@ -146,6 +149,7 @@
           <li><a href="#contributing">{{ contributing() }}</a></li>
           <li><a href="#upcoming-changes">{{ upcoming_changes() }}</a></li>
           <li><a href="#beta-badge">{{ beta_badge() }}</a></li>
+          <li><a href="#pronunciation">{{ pronunciation() }}</a></li>
         </ul>
       </section>
 
@@ -249,7 +253,7 @@
         <p>Follow these steps:</p>
         <ol>
           <li>Log in to your PyPI account, go to your account settings, and choose "Add 2FA with security device (e.g. USB key)"</li>
-          <li>Give your key a name. This is neccessary because it's possible to add more than one security device to your account.</li>
+          <li>Give your key a name. This is necessary because it's possible to add more than one security device to your account.</li>
           <li>Click on the "Set up security device" button</li>
           <li>Insert and touch your USB key, as instructed by your browser</li>
         </ol>
@@ -268,6 +272,29 @@
         <p>There is a growing ecosystem of <a href="https://fidoalliance.org/certification/fido-certified-products/" title="External link" target="_blank" rel="noopener">devices that are FIDO compliant</a>, and can therefore be used with PyPI.</p>
         <p>Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards. There is also growing support for <a href="https://fidoalliance.org/news-your-google-android-7-phone-is-now-a-fido2-security-key/" title="External link" target="_blank" rel="noopener">mobile phones to act as security devices</a>.</p>
         <p>As PyPI's two factor implementation follows the <a href="https://www.w3.org/TR/webauthn/" title="External link" target="_blank" rel="noopener">WebAuthn standard</a>, PyPI users will be able to take advantage of any future developments in this field.</p>
+
+        <h3 id="apitoken">{{ apitoken() }}</h3>
+
+        <p>API tokens provide an alternative way (instead of username and password) to authenticate when <strong>uploading packages</strong> to PyPI.</p>
+        <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
+        <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
+
+        <p>To make an API token:</p>
+
+        <ul>
+          <li><a href="#verified-email">Verify your email address</a> (check your <a href="{{ request.route_path('manage.account') }}">account settings</a>)</li>
+          <li>In your <a href="{{ request.route_path('manage.account') }}">account settings</a>, go to the API tokens section and select "Add API token"</li>
+        </ul>
+
+        <p>To use an API token:</p>
+
+        <ul>
+          <li>Set your username to <code>@token</code></li>
+          <li>Set your password to the token value</li>
+        </ul>
+
+        <p>Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account" title="External link" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="https://docs.travis-ci.com/user/deployment/pypi/" title="External link" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).</p>
+        <p>Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.</p>
 
       </section>
 
@@ -414,12 +441,16 @@
         <p>Changes to PyPI are generally announced on both the <a href="https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/" title="External link" target="_blank" rel="noopener">pypi-announce mailing list</a> and the <a href="https://pyfound.blogspot.com/search/label/pypi" title="External link" target="_blank" rel="noopener">PSF blog</a> under the label "pypi". The PSF blog also has <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi" title="External link" target="_blank" rel="noopener">Atom</a> and <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss" title="External link" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.</p>
 
         <h3 id="beta-badge">{{ beta_badge() }}</h3>
-        <p>When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.</p>
-        <p>Currently, the following features are in beta.</p>
+        <p>When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta feature" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.</p>
+        <p>Currently, the following features are in beta:</p>
         <ul>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
+          <li><a href="#apitoken">{{ apitoken() }}</a></li>
         </ul>
+
+        <h3 id="pronunciation">{{ pronunciation() }}</h3>
+        <p>"PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather as a single sound. This minimizes confusion with the <a href="https://pypy.org/">PyPy</a> project, which is a popular alternative implementation of the Python language.</p>
 
       </section>
     </div>
@@ -428,7 +459,7 @@
   <section class="horizontal-section horizontal-section--grey">
     <div class="narrow-container">
       <h3>Resources</h3>
-      <p>Looking for something not listed above? Perhaps these links will help:</p>
+      <p>Looking for something else? Perhaps these links will help:</p>
       <ul>
         <li><a href="https://packaging.python.org" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a></li>
         <li><a href="https://docs.python.org" title="External link" target="_blank" rel="noopener">Python Documentation</a></li>
