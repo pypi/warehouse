@@ -425,6 +425,34 @@ class TestDatabaseUserService:
             ),
         ]
 
+    def test_check_totp_value_invalid_secret(self, user_service):
+        user = UserFactory.create()
+        limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
+        )
+        user_service.ratelimiters["user"] = limiter
+        user_service.ratelimiters["global"] = limiter
+
+        valid = user_service.check_totp_value(user.id, b"123456")
+
+        assert not valid
+        assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
+
+    def test_check_totp_value_invalid_totp(self, user_service, monkeypatch):
+        user = UserFactory.create()
+        limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
+        )
+        user_service.get_totp_secret = lambda uid: "secret"
+        monkeypatch.setattr(otp, "verify_totp", lambda secret, value: False)
+        user_service.ratelimiters["user"] = limiter
+        user_service.ratelimiters["global"] = limiter
+
+        valid = user_service.check_totp_value(user.id, b"123456")
+
+        assert not valid
+        assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
+
     @pytest.mark.parametrize(
         ("challenge", "rp_name", "rp_id"),
         (["fake_challenge", "fake_rp_name", "fake_rp_id"], [None, None, None]),
