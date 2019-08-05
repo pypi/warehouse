@@ -713,6 +713,8 @@ class ProvisionMacaroonViews:
                 ip_address=self.request.remote_addr,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
+            # TODO: Record an event on each project that this macaroon was
+            # provisioned for.
             self.request.session.flash(
                 f"Deleted API token '{description}'.", queue="success"
             )
