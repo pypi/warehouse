@@ -566,6 +566,7 @@ class ProvisionMacaroonViews:
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
                 project_names=self.project_names,
+                description="",
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
                 macaroon_service=self.macaroon_service
