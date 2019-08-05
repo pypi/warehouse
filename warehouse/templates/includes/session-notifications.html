@@ -31,7 +31,7 @@
 </div>
 {% endif %}
 
-{% if request.user and not request.user.has_two_factor %}
+{% if request.user and request.user.primary_email.verified and not request.user.has_two_factor %}
 <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
   <span class="notification-bar__message">
     Two factor authentication is available,
