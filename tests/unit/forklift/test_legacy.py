@@ -155,7 +155,8 @@ class TestValidation:
         assert validator.calls == [pretend.call(datum) for datum in data]
 
     @pytest.mark.parametrize(
-        "requirement", ["foo (>=1.0)", "foo", "foo2", "foo-bar", "foo_bar"]
+        "requirement",
+        ["foo (>=1.0)", "foo", "foo2", "foo-bar", "foo_bar", "foo == 2.*"],
     )
     def test_validate_legacy_dist_req_valid(self, requirement):
         legacy._validate_legacy_dist_req(requirement)
@@ -170,7 +171,6 @@ class TestValidation:
             "_foo",
             "_foo (>=1.0)",
             "name @ https://github.com/pypa",
-            "test-pypi-version-specifier-dep==0.0.1+cuda9",
         ],
     )
     def test_validate_legacy_dist_req_invalid(self, requirement):
