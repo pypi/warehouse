@@ -461,7 +461,7 @@
   <section id="account-events">
     <h2>Recent account events</h2>
 
-    {% if user.events|length > 0 %}
+    {% if user.recent_events|length > 0 %}
     <table>
       <caption class="sr-only">Recent account activity</caption>
       <thead>
@@ -471,7 +471,7 @@
         <th scope="col">Additional information</th>
       </thead>
       <tbody>
-        {% for event in user.events %}
+        {% for event in user.recent_events %}
         <tr>
           <td>{{ event.tag }}</td>
           <td>{{ humanize(event.time) }}</td>
@@ -481,6 +481,8 @@
         {% endfor %}
       </tbody>
     </table>
+    {% else %}
+    <p>Events will appear here as security-related actions occur on your account.</p>
     {% endif %}
   </section>
 

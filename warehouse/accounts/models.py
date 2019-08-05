@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import enum
 
 from citext import CIText
@@ -133,6 +134,16 @@ class User(SitemapMixin, db.Model):
     @property
     def has_primary_verified_email(self):
         return self.primary_email is not None and self.primary_email.verified
+
+    @property
+    def recent_events(self):
+        session = orm.orm_session(self)
+        last_fortnight = datetime.datetime.now() - datetime.timedelta(days=14)
+        return (
+            session.query(UserEvent)
+            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_fortnight))
+            .all()
+        )
 
 
 class WebAuthn(db.Model):
