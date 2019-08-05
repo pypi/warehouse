@@ -316,6 +316,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".cache.origin"),
             pretend.call(".email"),
             pretend.call(".accounts"),
+            pretend.call(".macaroons"),
             pretend.call(".manage"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),

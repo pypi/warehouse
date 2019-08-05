@@ -305,7 +305,7 @@ def session_view(view, info):
             # sure that we don't actually *access* request.session, because
             # doing so triggers the machinery to create a new session. So
             # instead we will dig into the request object __dict__ to
-            # effectively do the same thing, jsut without triggering an access
+            # effectively do the same thing, just without triggering an access
             # on request.session.
 
             # Save the original session so that we can restore it once the
