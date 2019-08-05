@@ -24,6 +24,7 @@
 
   Modifiers:
     - danger: Makes border red
+    - warning: Makes border brown
     - success: Makes border green
     - bottom-margin: Adds extra margin below the callout
 */
@@ -65,6 +66,14 @@
 
     &:before {
       background-color: $danger-color;
+    }
+  }
+
+  &--warning {
+    border-color: $warn-text;
+
+    &:before {
+      background-color: $warn-text;
     }
   }
 

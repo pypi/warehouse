@@ -16,13 +16,13 @@
 {% set user = request.user %}
 {% set title = "Set up 2FA with a security device (e.g. USB key)" %}
 
+{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
+{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+
 {% block title %}{{ title }}{% endblock %}
 
-{# Hide mobile search on manager pages #}
-{% block mobile_search %}{% endblock %}
-
 {% block main %}
-<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }} <span class="badge badge--warning">Beta</span></h1>
+<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }} <span class="badge badge--warning">Beta feature</span></h1>
 <p class="heading-wsubtitle__subtitle">
   PyPI supports any device that adheres to the <a href="https://fidoalliance.org/certification/fido-certified-products/" title="External link" target="_blank" rel="noopener">FIDO standard</a>.
   <br>
@@ -36,13 +36,8 @@
 
   <div class="form-group">
     <label for="webauthn-provision-label" class="form-group__label">Name your device to begin</label>
-    <input id="webauthn-provision-label" type="text" name="label" class="form-group__input">
+    <input id="webauthn-provision-label" type="text" name="label" class="form-group__input" aria-describedby="webauthn-errors">
     <p class="form-group__help-text">PyPI supports adding multiple security devices.<br>Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
-    <ul id="webauthn-errors" class="form-errors margin-top--large">
-      <li id="webauthn-browser-support" class="hidden">
-        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
-      </li>
-    </ul>
   </div>
   <div>
     <button
@@ -52,6 +47,11 @@
       csrf-token="{{ request.session.get_csrf_token() }}"
       disabled>Set up security device
     </button>
+    <ul id="webauthn-errors" class="form-errors margin-top--large">
+      <li id="webauthn-browser-support" class="hidden">
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+      </li>
+    </ul>
   </div>
 
   <br>

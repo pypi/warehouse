@@ -34,31 +34,28 @@
       <div class="twofa-login__method {% if totp_form %}twofa-login__method--padded{% endif %}">
         <h2>
           Authenticate with a security device (e.g. USB key)
-          &nbsp;<span class="badge badge--warning">Beta</span>
+          &nbsp;<span class="badge badge--warning">Beta feature</span>
         </h2>
 
-        <p>Connect your security device and click below.</p>
+        <p>Connect your security device and click the "Authenticate with device" button.</p>
 
         <noscript>
           <p>Enable JavaScript to log in with a security device (e.g. USB key)</p>
         </noscript>
 
-        <div class="form-group">
-          <button
-            type="button"
-            id="webauthn-auth-begin"
-            class="button button--primary"
-            csrf-token="{{ request.session.get_csrf_token() }}"
-            disabled>Authenticate with key
-          </button>
-          <ul id="webauthn-errors" class="form-errors margin-top--large">
-            <li id="webauthn-browser-support" class="hidden">
-              <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
-            </li>
-          </ul>
-        </div>
-
-        <p>Lost your key? Not working? <a href="/help/#utfkey">Get help</a>.</p>
+        <button
+          type="button"
+          id="webauthn-auth-begin"
+          class="button button--primary"
+          csrf-token="{{ request.session.get_csrf_token() }}"
+          disabled>Authenticate with device
+        </button>
+        <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
+          <li id="webauthn-browser-support" class="hidden">
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
+          </li>
+        </ul>
+        <p class="margin-top--large">Lost your device? Not working? <a href="/help/#utfkey">Get help</a>.</p>
       </div>
       {% endif %}
 
@@ -97,7 +94,7 @@
             <input type="submit" value="Verify" class="button button--primary">
           </div>
 
-          <p>Generate a code using the authentication application connected to your PyPI account. Enter this code in the form above to verify your identity.</p>
+          <p>Generate a code using the authentication application connected to your PyPI account. Enter this code in the form to verify your identity.</p>
           <p>Lost your application? Not working? <a href="/help/#totp">Get help</a>.</p>
         </form>
       </div>

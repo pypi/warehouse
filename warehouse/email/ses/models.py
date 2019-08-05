@@ -98,7 +98,7 @@ class EmailStatus:
     @_machine.input()
     def complain(self):
         """
-        A recipient can complain about our emaill :(
+        A recipient can complain about our email :(
         """
 
     # Outputs

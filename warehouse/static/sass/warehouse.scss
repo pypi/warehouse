@@ -65,6 +65,7 @@
 // blocks LAYER: some warehouse specific, some generic/reusable
 @import "blocks/about-pypi";
 @import "blocks/accordion";
+@import "blocks/api-token";
 @import "blocks/applied-filters";
 @import "blocks/author-profile";
 @import "blocks/badge";
@@ -116,13 +117,27 @@
 
 // TRUMPS LAYER: Overwrites everything else
 
-// Remove all styling
+// RESETS
+// Remove all styling from lists
 .unstyled {
   padding: 0;
   margin: 0;
   list-style-type: none;
 }
 
+// Reset text to default
+.reset-text {
+  font-size: $base-font-size;
+  font-weight: normal;
+}
+
+// COLORS
+// Make text or icons red to draw attention
+.danger {
+  color: $danger-color;
+}
+
+// ALIGNMENT, PADDING & MARGINS
 // Make inline elements centered
 .centered {
   text-align: center;
@@ -158,11 +173,46 @@
   margin-top: $spacing-unit / 2;
 }
 
-// Make text or icons red to draw attention
-.danger {
-  color: $danger-color;
+// Add small margin to the bottom of elements
+.margin-bottom {
+  margin-bottom: $spacing-unit / 4;
 }
 
+// Add larger margin to the bottom of elements
+.margin-bottom--large {
+  margin-bottom: $spacing-unit / 2;
+}
+
+// Add small margin to the left of elements
+.margin-left {
+  margin-left: $spacing-unit / 4;
+}
+
+// Add larger margin to the left of elements
+.margin-left--large {
+  margin-left: $spacing-unit / 2;
+}
+
+// Add small margin to the right of elements
+.margin-right {
+  margin-right: $spacing-unit / 4;
+}
+
+// Add larger margin to the right of elements
+.margin-right--large {
+  margin-right: $spacing-unit / 2;
+}
+
+// Apply spacing between elements when they wrap (usually on mobile)
+.wrap-children {
+  margin-bottom: -5px;
+
+  > * {
+    margin-bottom: 5px;
+  }
+}
+
+// TITLES
 // Adjust size of h1s on standalone pages
 .page-title {
   @include h1-title;
@@ -178,20 +228,13 @@
   padding-bottom: 25px;
 }
 
-// Reset text to default
-.reset-text {
-  font-size: $base-font-size;
-  font-weight: normal;
-}
-
-// Visibility helpers
+// VISIBILITY
 .hidden,
 .confirm-form {
   display: none;
 }
 
 // Desktop specific visibility
-
 @media screen and (min-width: $desktop + 1px) {
   .hide-on-desktop {
     display: none;
@@ -219,6 +262,7 @@
   }
 }
 
+// ACCESSIBILITY
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read. Great for extra labels, etc.
