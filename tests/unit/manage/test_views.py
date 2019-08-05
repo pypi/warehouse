@@ -1427,7 +1427,7 @@ class TestProvisionMacaroonViews:
             create_macaroon=pretend.call_recorder(lambda *a, **kw: pretend.stub())
         )
         request = pretend.stub(
-            POST={},
+            POST=MultiDict({"description": "dummy"}),
             user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1468,7 +1468,7 @@ class TestProvisionMacaroonViews:
             )
         )
         request = pretend.stub(
-            POST={},
+            POST=MultiDict({"description": "dummy"}),
             domain=pretend.stub(),
             user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
@@ -1523,7 +1523,7 @@ class TestProvisionMacaroonViews:
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
-            POST={},
+            POST=MultiDict({"description": "dummy"}),
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,

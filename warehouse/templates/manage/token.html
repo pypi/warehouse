@@ -35,7 +35,9 @@
       {% if macaroon.caveats.permissions == "user" %}
       <strong>Scope:</strong> Entire account (all projects)
       {% else %}
-      <strong>Scope:</strong> Project "{{ macaroon.caveats.permissions.projects[0] }}"
+      {% for project in macaroon.caveats.permissions.projects %}
+        <strong>Scope:</strong> Project "{{ project }}"<br>
+      {% endfor %}
       {% endif %}
     </p>
     <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
@@ -96,15 +98,15 @@
           <span class="form-group__required">(required)</span>
           {% endif %}
       </label>
-        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="token_scope-errors">
-          <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">Select scope...</option>
-          <option value="scope:user">Entire account (all projects)</option>
+        <select multiple name="token_scopes" id="token_scopes" class="form-group__input form-group__multiselect" aria-describedby="token_scopes-errors">
+          <option disabled {{ "" if create_macaroon_form.token_scopes.data else "selected" }} value="scope:unspecified">Select scope...</option>
+          <option {{ "selected" if "scope:user" in create_macaroon_form.token_scopes.data else "" }} value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
-          <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>Project: {{ project }}</option>
+          <option value="{{ project_value }}" {{ "selected" if project_value in create_macaroon_form.token_scopes.data else "" }}>Project: {{ project }}</option>
         {% endfor %}
         </select>
-        {{ field_errors(create_macaroon_form.token_scope) }}
+        {{ field_errors(create_macaroon_form.token_scopes) }}
       </div>
       <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
         <h3 class="callout-block__heading">Proceed with caution!</h3>

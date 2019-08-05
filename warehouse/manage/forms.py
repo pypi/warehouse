@@ -186,7 +186,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope"]
+    __params__ = ["description", "token_scopes"]
 
     def __init__(self, *args, user_id, macaroon_service, project_names, **kwargs):
         super().__init__(*args, **kwargs)
@@ -203,8 +203,13 @@ class CreateMacaroonForm(forms.Form):
         ]
     )
 
-    token_scope = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
+    token_scopes = wtforms.FieldList(
+        wtforms.StringField(
+            "scope",
+            validators=[
+                wtforms.validators.DataRequired(message="Specify the token scope")
+            ],
+        )
     )
 
     def validate_description(self, field):
@@ -216,34 +221,41 @@ class CreateMacaroonForm(forms.Form):
         ):
             raise wtforms.validators.ValidationError("API token name already in use")
 
-    def validate_token_scope(self, field):
-        scope = field.data
-
-        try:
-            _, scope_kind = scope.split(":", 1)
-        except ValueError:
-            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
-
-        if scope_kind == "unspecified":
+    def validate_token_scopes(self, field):
+        scopes = field.data
+        if not scopes:
             raise wtforms.ValidationError(f"Specify the token scope")
 
-        if scope_kind == "user":
-            self.validated_scope = scope_kind
-            return
+        self.validated_scope = {"projects": []}
 
-        try:
-            scope_kind, scope_value = scope_kind.split(":", 1)
-        except ValueError:
-            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+        for scope in scopes:
+            try:
+                _, scope_kind = scope.split(":", 1)
+            except ValueError:
+                raise wtforms.ValidationError(f"Unknown token scope: {scope}")
 
-        if scope_kind != "project":
-            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
-        if scope_value not in self.project_names:
-            raise wtforms.ValidationError(
-                f"Unknown or invalid project name: {scope_value}"
-            )
+            if scope_kind == "unspecified":
+                raise wtforms.ValidationError(f"Specify the token scope")
 
-        self.validated_scope = {"projects": [scope_value]}
+            if scope_kind == "user":
+                if len(scopes) != 1:
+                    raise wtforms.ValidationError(f"Mixed user and project scopes")
+                self.validated_scope = scope_kind
+                return
+
+            try:
+                scope_kind, scope_value = scope_kind.split(":", 1)
+            except ValueError:
+                raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+
+            if scope_kind != "project":
+                raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+            if scope_value not in self.project_names:
+                raise wtforms.ValidationError(
+                    f"Unknown or invalid project name: {scope_value}"
+                )
+
+            self.validated_scope["projects"].append(scope_value)
 
 
 class DeleteMacaroonForm(forms.Form):
