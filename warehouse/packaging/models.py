@@ -344,7 +344,7 @@ class Dependency(db.Model):
     __table_args__ = (
         Index("release_dependencies_release_kind_idx", "release_id", "kind"),
     )
-    __repr__ = make_repr("name", "version", "kind", "specifier")
+    __repr__ = make_repr("release", "kind", "specifier")
 
     release_id = Column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),

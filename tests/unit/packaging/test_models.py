@@ -26,11 +26,25 @@ from ...common.db.organizations import (
     OrganizationRoleFactory as DBOrganizationRoleFactory,
 )
 from ...common.db.packaging import (
+    DependencyFactory as DBDependencyFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
     RoleFactory as DBRoleFactory,
+    RoleInvitationFactory as DBRoleInvitationFactory,
 )
+
+
+class TestRole:
+    def test_repr(self, db_request):
+        role = DBRoleFactory()
+        assert isinstance(repr(role), str)
+
+
+class TestRoleInvitation:
+    def test_repr(self, db_request):
+        role_invitation = DBRoleInvitationFactory()
+        assert isinstance(repr(role_invitation), str)
 
 
 class TestProjectFactory:
@@ -146,6 +160,27 @@ class TestProject:
             ],
             key=lambda x: x[1],
         )
+
+    def test_repr(self, db_request):
+        project = DBProjectFactory()
+        assert isinstance(repr(project), str)
+
+
+class TestDependency:
+    def test_repr(self, db_session):
+        dependency = DBDependencyFactory.create()
+        assert isinstance(repr(dependency), str)
+
+
+class TestReleaseURL:
+    def test_repr(self, db_session):
+        release = DBReleaseFactory.create()
+        release_url = ReleaseURL(
+            release=release,
+            name="Homepage",
+            url="https://example.com/",
+        )
+        assert isinstance(repr(release_url), str)
 
 
 class TestRelease:
