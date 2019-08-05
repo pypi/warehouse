@@ -665,7 +665,7 @@ class ProvisionMacaroonViews:
             )
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:api_token:token_added",
+                tag="account:api_token:added",
                 ip_address=self.request.remote_addr,
                 additional={
                     "description": form.description.data,
@@ -684,7 +684,7 @@ class ProvisionMacaroonViews:
                     # have access to projects that this project's owner
                     # isn't aware of.
                     project.record_event(
-                        tag="project:api_token:token_added",
+                        tag="project:api_token:added",
                         ip_address=self.request.remote_addr,
                         additional={
                             "description": form.description.data,
@@ -709,7 +709,7 @@ class ProvisionMacaroonViews:
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.user_service.record_event(
                 self.request.user.id,
-                tag="account:api_token:token_removed",
+                tag="account:api_token:removed",
                 ip_address=self.request.remote_addr,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
