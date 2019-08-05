@@ -672,6 +672,26 @@ class ProvisionMacaroonViews:
                     "caveats": macaroon_caveats,
                 },
             )
+            if "projects" in form.validated_scope:
+                projects = [
+                    project
+                    for project in self.request.user.projects
+                    if project.name in form.validated_scope["projects"]
+                ]
+                for project in projects:
+                    # NOTE: We don't disclose the full caveats for this token
+                    # to the project event log, since the token could also
+                    # have access to projects that this project's owner
+                    # isn't aware of.
+                    project.record_event(
+                        tag="project:api_token:token_added",
+                        ip_address=self.request.remote_addr,
+                        additional={
+                            "description": form.description.data,
+                            "user": self.request.user.username,
+                        },
+                    )
+
             response.update(serialized_macaroon=serialized_macaroon, macaroon=macaroon)
 
         return {**response, "create_macaroon_form": form}
