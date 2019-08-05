@@ -67,4 +67,4 @@ def test_templates_for_empty_titles():
                 rel_dir = os.path.relpath(dir_, dir_name)
                 rel_file = os.path.join(rel_dir, file_name)
                 template = env.get_template(rel_file)
-                assert "title" in template.blocks
+                assert "title" in template.blocks or "title_base" in template.blocks
