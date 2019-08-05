@@ -137,7 +137,7 @@ class User(SitemapMixin, db.Model):
 
     @property
     def recent_events(self):
-        session = orm.orm_session(self)
+        session = orm.object_session(self)
         last_fortnight = datetime.datetime.now() - datetime.timedelta(days=14)
         return (
             session.query(UserEvent)

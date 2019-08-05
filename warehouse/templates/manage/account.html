@@ -461,7 +461,8 @@
   <section id="account-events">
     <h2>Recent account events</h2>
 
-    {% if user.recent_events|length > 0 %}
+    {% set recent_events = user.recent_events %}
+    {% if recent_events|length > 0 %}
     <table>
       <caption class="sr-only">Recent account activity</caption>
       <thead>
@@ -471,7 +472,7 @@
         <th scope="col">Additional information</th>
       </thead>
       <tbody>
-        {% for event in user.recent_events %}
+        {% for event in recent_events %}
         <tr>
           <td>{{ event.tag }}</td>
           <td>{{ humanize(event.time) }}</td>
