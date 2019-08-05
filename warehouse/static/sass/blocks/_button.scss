@@ -17,7 +17,7 @@
 
   <a class="button">Button</a>
   <input type="submit" class="button">Button</a>
-  <button class="button">Button</button>
+  <button type="button" class="button">Button</button>
 
   Modifiers:
     - small: Makes button small.
@@ -26,6 +26,9 @@
     - disabled: Styles for when the button cannot be clicked.
     - switch-to-desktop: Switch to desktop button found in site footer.
     - switch-to-mobile: Switch to mobile button found in site header.
+
+  Accessibility:
+    - All <button> elements should have a `type` defined
 */
 
 .button {
