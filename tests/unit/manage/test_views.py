@@ -1527,7 +1527,7 @@ class TestProvisionMacaroonViews:
         create_macaroon_obj = pretend.stub(
             validate=lambda: True,
             description=pretend.stub(data=pretend.stub()),
-            validated_scope=pretend.stub(),
+            validated_scope="foobar",
         )
         create_macaroon_cls = pretend.call_recorder(
             lambda *a, **kw: create_macaroon_obj
@@ -1564,6 +1564,119 @@ class TestProvisionMacaroonViews:
             "macaroon": macaroon,
             "create_macaroon_form": create_macaroon_obj,
         }
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "caveats": {
+                        "permissions": create_macaroon_obj.validated_scope,
+                        "version": 1,
+                    },
+                },
+            )
+        ]
+
+    def test_create_macaroon_records_events_for_each_project(self, monkeypatch):
+        macaroon = pretend.stub()
+        macaroon_service = pretend.stub(
+            create_macaroon=pretend.call_recorder(
+                lambda *a, **kw: ("not a real raw macaroon", macaroon)
+            )
+        )
+        record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(record_event=record_event)
+        request = pretend.stub(
+            POST={},
+            domain=pretend.stub(),
+            user=pretend.stub(
+                id=pretend.stub(),
+                has_primary_verified_email=True,
+                username=pretend.stub(),
+                projects=[
+                    pretend.stub(name="foo", record_event=record_event),
+                    pretend.stub(name="bar", record_event=record_event),
+                ],
+            ),
+            find_service=lambda interface, **kw: {
+                IMacaroonService: macaroon_service,
+                IUserService: user_service,
+            }[interface],
+            remote_addr="0.0.0.0",
+        )
+
+        create_macaroon_obj = pretend.stub(
+            validate=lambda: True,
+            description=pretend.stub(data=pretend.stub()),
+            validated_scope={"projects": ["foo", "bar"]},
+        )
+        create_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: create_macaroon_obj
+        )
+        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
+
+        project_names = [pretend.stub()]
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "project_names", project_names
+        )
+
+        default_response = {"default": "response"}
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "default_response", default_response
+        )
+
+        view = views.ProvisionMacaroonViews(request)
+        result = view.create_macaroon()
+
+        assert macaroon_service.create_macaroon.calls == [
+            pretend.call(
+                location=request.domain,
+                user_id=request.user.id,
+                description=create_macaroon_obj.description.data,
+                caveats={
+                    "permissions": create_macaroon_obj.validated_scope,
+                    "version": 1,
+                },
+            )
+        ]
+        assert result == {
+            **default_response,
+            "serialized_macaroon": "not a real raw macaroon",
+            "macaroon": macaroon,
+            "create_macaroon_form": create_macaroon_obj,
+        }
+        assert record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "caveats": {
+                        "permissions": create_macaroon_obj.validated_scope,
+                        "version": 1,
+                    },
+                },
+            ),
+            pretend.call(
+                tag="project:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "user": request.user.username,
+                },
+            ),
+            pretend.call(
+                tag="project:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "user": request.user.username,
+                },
+            ),
+        ]
 
     def test_delete_macaroon_invalid_form(self, monkeypatch):
         macaroon_service = pretend.stub(
