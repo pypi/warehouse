@@ -227,9 +227,9 @@
                 <div class="release__line"></div>
                 {% endif %}
                 {% if is_current %}
-                <img class="release__node" alt="History Node" src="{{ blue_cube }}">
+                <img class="release__node" alt="" src="{{ blue_cube }}">
                 {% else %}
-                <img class="release__node" alt="History Node" src="{{ white_cube }}">
+                <img class="release__node" alt="" src="{{ white_cube }}">
                 {% endif %}
               </div>
 
@@ -253,18 +253,13 @@
             <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">installing packages</a>.</p>
 
             <table class="table table--downloads">
+              <caption class="sr-only">Files for {{ release.project.name }}, version {{ release.version }}</caption>
               <thead>
                 <tr>
-                  <th class="table__filename">
-                    Filename, size &amp; hash
-                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" target="_blank" rel="noopener" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
-                      <i class="fa fa-question-circle" aria-hidden="true"></i>
-                      <span class="sr-only">SHA256 hash help</span>
-                    </a>
-                  </th>
-                  <th class="table__type">File type</th>
-                  <th class="table__version">Python version</th>
-                  <th class="table__upload-date">Upload date</th>
+                  <th scope="col" class="table__filename">Filename, size &amp; hash</th>
+                  <th scope="col" class="table__type">File type</th>
+                  <th scope="col" class="table__version">Python version</th>
+                  <th scope="col" class="table__upload-date">Upload date</th>
                 </tr>
               </thead>
               <tbody>
@@ -275,11 +270,7 @@
                       {{ file.filename }}
                     </a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a class="-js-copy-hash table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
-                      <i class="fa fa-copy" aria-hidden="true"></i>
-                      <span class="sr-only">Copy SHA256 hash</span>
-                      SHA256
-                    </a>
+                    <a href="#copy-hash-modal-{{ file.id }}" class="button button--small">View hashes</a>
                   </td>
                   <td>
                     {{ file.packagetype|format_package_type }}
@@ -297,6 +288,11 @@
               </tbody>
             </table>
           </div>
+
+          {% for file in files %}
+          {% include "warehouse:templates/includes/hash-modal.html" %}
+          {% endfor %}
+
         {% endif %}
       </div>
     </div>
