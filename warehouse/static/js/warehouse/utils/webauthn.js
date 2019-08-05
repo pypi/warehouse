@@ -18,7 +18,10 @@ const populateWebAuthnErrorList = (errors) => {
     return;
   }
 
-  errorList.innerHTML = "";
+  /* NOTE: We only set the alert role once we actually have errors to present,
+   * to avoid hijacking screenreaders unnecessarily.
+   */
+  errorList.setAttribute("role", "alert");
 
   errors.forEach((error) => {
     const errorItem = document.createElement("li");
@@ -28,6 +31,10 @@ const populateWebAuthnErrorList = (errors) => {
 };
 
 const doWebAuthn = (buttonId, func) => {
+  if (!window.PublicKeyCredential) {
+    return;
+  }
+
   const webAuthnButton = document.getElementById(buttonId);
   if (webAuthnButton === null) {
     return null;
@@ -35,11 +42,6 @@ const doWebAuthn = (buttonId, func) => {
 
   const csrfToken = webAuthnButton.getAttribute("csrf-token");
   if (csrfToken === null) {
-    return;
-  }
-
-  if (!window.PublicKeyCredential) {
-    populateWebAuthnErrorList(["Your browser doesn't support WebAuthn."]);
     return;
   }
 
@@ -135,6 +137,7 @@ const postCredential = async (label, credential, token) => {
       method: "POST",
       cache: "no-cache",
       body: formData,
+      credentials: "same-origin",
     }
   );
 
@@ -151,38 +154,61 @@ const postAssertion = async (assertion, token) => {
       method: "POST",
       cache: "no-cache",
       body: formData,
+      credentials: "same-origin",
     }
   );
 
   return await resp.json();
 };
 
+export const GuardWebAuthn = () => {
+  if (!window.PublicKeyCredential) {
+    let webauthn_button = document.getElementById("webauthn-button");
+    if (webauthn_button) {
+      webauthn_button.className += " button--disabled";
+    }
+
+    let webauthn_error = document.getElementById("webauthn-browser-support");
+    if (webauthn_error) {
+      webauthn_error.style.display = "block";
+    }
+
+    let webauthn_label = document.getElementById("webauthn-provision-label");
+    if (webauthn_label) {
+      webauthn_label.disabled = true;
+    }
+  }
+};
+
 export const ProvisionWebAuthn = () => {
   doWebAuthn("webauthn-provision-begin", async (csrfToken) => {
     const label = document.getElementById("webauthn-provision-label").value;
 
-    // TODO(ww): Should probably find a way to use the route string here,
-    // not the actual endpoint.
     const resp = await fetch(
       "/manage/account/webauthn-provision/options", {
         cache: "no-cache",
+        credentials: "same-origin",
       }
     );
 
     const credentialOptions = await resp.json();
     const transformedOptions = transformCredentialOptions(credentialOptions);
-    const credential = await navigator.credentials.create({
+    await navigator.credentials.create({
       publicKey: transformedOptions,
-    });
-    const transformedCredential = transformCredential(credential);
+    }).then(async (credential) => {
+      const transformedCredential = transformCredential(credential);
 
-    const status = await postCredential(label, transformedCredential, csrfToken);
-    if (status.fail) {
-      populateWebAuthnErrorList(status.fail.errors);
+      const status = await postCredential(label, transformedCredential, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
+
+      window.location.replace("/manage/account");
+    }).catch((error) => {
+      populateWebAuthnErrorList([error.message]);
       return;
-    }
-
-    window.location.replace("/manage/account");
+    });
   });
 };
 
@@ -191,6 +217,7 @@ export const AuthenticateWebAuthn = () => {
     const resp = await fetch(
       "/account/webauthn-authenticate/options" + window.location.search, {
         cache: "no-cache",
+        credentials: "same-origin",
       }
     );
 
@@ -201,17 +228,21 @@ export const AuthenticateWebAuthn = () => {
     }
 
     const transformedOptions = transformAssertionOptions(assertionOptions);
-    const assertion = await navigator.credentials.get({
+    await navigator.credentials.get({
       publicKey: transformedOptions,
-    });
-    const transformedAssertion = transformAssertion(assertion);
+    }).then(async (assertion) => {
+      const transformedAssertion = transformAssertion(assertion);
 
-    const status = await postAssertion(transformedAssertion, csrfToken);
-    if (status.fail) {
-      populateWebAuthnErrorList(status.fail.errors);
+      const status = await postAssertion(transformedAssertion, csrfToken);
+      if (status.fail) {
+        populateWebAuthnErrorList(status.fail.errors);
+        return;
+      }
+
+      window.location.replace(status.redirect_to);
+    }).catch((error) => {
+      populateWebAuthnErrorList([error.message]);
       return;
-    }
-
-    window.location.replace(status.redirect_to);
+    });
   });
 };

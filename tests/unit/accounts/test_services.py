@@ -104,7 +104,7 @@ class TestDatabaseUserService:
             )
         ]
 
-    def test_find_userid_nonexistant_user(self, user_service):
+    def test_find_userid_nonexistent_user(self, user_service):
         assert user_service.find_userid("my_username") is None
 
     def test_find_userid_existing_user(self, user_service):
@@ -128,7 +128,7 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_check_password_nonexistant_user(self, user_service, metrics):
+    def test_check_password_nonexistent_user(self, user_service, metrics):
         assert not user_service.check_password(uuid.uuid4(), None, tags=["foo"])
         assert metrics.increment.calls == [
             pretend.call("warehouse.authentication.start", tags=["foo"]),
@@ -426,22 +426,15 @@ class TestDatabaseUserService:
         ]
 
     @pytest.mark.parametrize(
-        ("challenge", "rp_name", "rp_id", "icon_url"),
-        (
-            ["fake_challenge", "fake_rp_name", "fake_rp_id", "fake_icon_url"],
-            [None, None, None, None],
-        ),
+        ("challenge", "rp_name", "rp_id"),
+        (["fake_challenge", "fake_rp_name", "fake_rp_id"], [None, None, None]),
     )
     def test_get_webauthn_credential_options(
-        self, user_service, challenge, rp_name, rp_id, icon_url
+        self, user_service, challenge, rp_name, rp_id
     ):
         user = UserFactory.create()
         options = user_service.get_webauthn_credential_options(
-            user.id,
-            challenge=challenge,
-            rp_name=rp_name,
-            rp_id=rp_id,
-            icon_url=icon_url,
+            user.id, challenge=challenge, rp_name=rp_name, rp_id=rp_id
         )
 
         assert options["user"]["id"] == str(user.id)
@@ -450,11 +443,7 @@ class TestDatabaseUserService:
         assert options["challenge"] == challenge
         assert options["rp"]["name"] == rp_name
         assert options["rp"]["id"] == rp_id
-
-        if icon_url:
-            assert options["user"]["icon"] == icon_url
-        else:
-            assert "icon" not in options["user"]
+        assert "icon" not in options["user"]
 
     def test_get_webauthn_assertion_options(self, user_service):
         user = UserFactory.create()
@@ -467,10 +456,7 @@ class TestDatabaseUserService:
         )
 
         options = user_service.get_webauthn_assertion_options(
-            user.id,
-            challenge="fake_challenge",
-            icon_url="fake_icon_url",
-            rp_id="fake_rp_id",
+            user.id, challenge="fake_challenge", rp_id="fake_rp_id"
         )
 
         assert options["challenge"] == "fake_challenge"
@@ -550,7 +536,6 @@ class TestDatabaseUserService:
             pretend.stub(),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert updated_sign_count == 2

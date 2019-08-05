@@ -166,7 +166,7 @@ def includeme(config):
         parsed_url = urllib.parse.urlparse(broker_url)
         parsed_query = urllib.parse.parse_qs(parsed_url.query)
         # Celery doesn't handle paths/query arms being passed into the SQS broker,
-        # so we'll jsut remove them from here.
+        # so we'll just remove them from here.
         broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
 
         if parsed_url.path:

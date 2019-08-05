@@ -19,7 +19,6 @@
     "date-fns": "^1.29.0",
     "debounce": "^1.1.0",
     "del": "3.0.0",
-    "enter-view": "0.1.0",
     "exports-loader": "0.6.4",
     "gulp": "^4.0.0",
     "gulp-brotli": "1.2.1",
@@ -40,7 +39,6 @@
     "webpack": "3.10.0",
     "webpack-stream": "4.0.0",
     "whatwg-fetch": "2.0.3",
-    "youtube-iframe": "1.0.3",
     "zopflipng-bin": "^5.0.0"
   },
   "devDependencies": {
