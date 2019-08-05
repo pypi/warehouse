@@ -30,13 +30,17 @@
   &__label {
     display: block;
     font-weight: bold;
-    margin-bottom: 7px;
+  }
+
+  &__label:not(:first-child) {
+    margin-top: 7px;
   }
 
   #{$all-text-inputs}.form-group__input,
   select.form-group__input {
     display: block;
     width: 350px;
+    margin-top: 4px;
     max-width: 100%;
   }
 
