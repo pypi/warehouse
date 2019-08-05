@@ -142,6 +142,7 @@ class User(SitemapMixin, db.Model):
         return (
             session.query(UserEvent)
             .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_fortnight))
+            .order_by(UserEvent.time.desc())
             .all()
         )
 
