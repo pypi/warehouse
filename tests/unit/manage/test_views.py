@@ -236,6 +236,14 @@ class TestManageAccount:
             )
         ]
         assert send_email.calls == [pretend.call(request, (request.user, email))]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:email:add",
+                ip_address=request.remote_addr,
+                additional={"email": email_address},
+            )
+        ]
 
     def test_add_email_validation_fails(self, monkeypatch):
         email_address = "test@example.com"
@@ -299,6 +307,14 @@ class TestManageAccount:
             pretend.call(f"Email address {email.email} removed", queue="success")
         ]
         assert request.user.emails == [some_other_email]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:email:remove",
+                ip_address=request.remote_addr,
+                additional={"email": email.email},
+            )
+        ]
 
     def test_delete_email_not_found(self, monkeypatch):
         email = pretend.stub()
