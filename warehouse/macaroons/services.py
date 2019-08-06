@@ -16,6 +16,7 @@ import uuid
 
 import pymacaroons
 
+from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
@@ -78,7 +79,11 @@ class DatabaseMacaroonService:
         if raw_macaroon is None:
             return None
 
-        m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        try:
+            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        except MacaroonDeserializationException:
+            return None
+
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
@@ -97,7 +102,11 @@ class DatabaseMacaroonService:
         if raw_macaroon is None:
             raise InvalidMacaroon("malformed or nonexistent macaroon")
 
-        m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        try:
+            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        except MacaroonDeserializationException:
+            raise InvalidMacaroon("malformed macaroon")
+
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
