@@ -79,6 +79,9 @@ class TestDatabaseMacaroonService:
 
         assert macaroon_service.find_userid(raw_macaroon) is None
 
+    def test_find_userid_malformed_macaroon(self, macaroon_service):
+        assert macaroon_service.find_userid(f"pypi-thiswillnotdeserialize") is None
+
     def test_find_userid(self, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
@@ -88,7 +91,7 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
-    def test_verify_malformed_macaroon(self, macaroon_service):
+    def test_verify_unprefixed_macaroon(self, macaroon_service):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",
             identifier=str(uuid4()),
@@ -134,6 +137,10 @@ class TestDatabaseMacaroonService:
         assert verifier_cls.calls == [
             pretend.call(mock.ANY, context, principals, permissions)
         ]
+
+    def test_verify_malformed_macaroon(self, macaroon_service):
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.verify(f"pypi-thiswillnotdeserialize", None, None, None)
 
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
