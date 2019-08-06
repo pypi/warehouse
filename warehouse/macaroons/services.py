@@ -15,8 +15,8 @@ import json
 import uuid
 
 import pymacaroons
-from pymacaroons.exceptions import MacaroonDeserializationException
 
+from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
