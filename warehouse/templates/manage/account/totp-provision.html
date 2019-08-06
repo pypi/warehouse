@@ -60,7 +60,10 @@
     <form method="POST" class="totp-form__form">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
-        <label for="totp_value" class="form-group__label">Verify application</label>
+        <label for="totp_value" class="form-group__label">
+          Verify application
+          <span class="form-group__required">(required)</span>
+        </label>
         {{ provision_totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-help totp-errors"}) }}
         <p id="totp-help" class="form-group__help-text">To finalize the set up process, enter the authentication code provided by your application.</p>
         {% if provision_totp_form.totp_value.errors %}

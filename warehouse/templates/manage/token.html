@@ -75,7 +75,10 @@
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_macaroon_form) }}
       <div class="form-group">
-        <label for="description" class="form-group__label">Token name</label>
+        <label for="description" class="form-group__label">
+          Token name
+          <span class="form-group__required">(required)</span>
+        </label>
         <input type="text" name="description" id="description" class="form-group__input" aria-describedby="description-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
         {{ field_errors(create_macaroon_form.description) }}
         <p id="description-help-text" class="form-group__help-text">What is this token for?</p>
@@ -85,7 +88,10 @@
         <p class="form-group__text">Upload packages</p>
       </div>
       <div class="form-group">
-        <label for="token_scope" class="form-group__label">Scope</label>
+        <label for="token_scope" class="form-group__label">
+          Scope
+          <span class="form-group__required">(required)</span>
+      </label>
         <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="token_scope-errors">
           <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">Select scope...</option>
           <option value="scope:user">Entire account (all projects)</option>
