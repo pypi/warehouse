@@ -271,6 +271,14 @@ class TestLogin:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == observed_next_url
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1,
+                tag="account:login:success",
+                ip_address="0.0.0.0",
+                additional={"two_factor_method": None},
+            )
+        ]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
@@ -326,6 +334,7 @@ class TestLogin:
             ("Content-Length", "0"),
             ("Location", "/account/two-factor"),
         ]
+        assert user_service.record_event.calls == []
 
 
 class TestTwoFactor:
@@ -467,54 +476,14 @@ class TestTwoFactor:
         assert remember.calls == [pretend.call(pyramid_request, str(1))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
-
-    @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
-    def test_totp_auth_invalid(self, pyramid_request, redirect_url):
-        query_params = {"userid": str(1)}
-        if redirect_url:
-            query_params["redirect_to"] = redirect_url
-
-        token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda s: query_params)
-        )
-
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
-            update_user=lambda *a, **k: None,
-            has_totp=lambda userid: True,
-            has_webauthn=lambda userid: False,
-            check_totp_value=lambda userid, totp_value: False,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-        }[interface]
-
-        pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
-
-        form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            totp_value=pretend.stub(data="test-otp-secret"),
-        )
-        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda a: "/account/two-factor"
-        )
-        pyramid_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
-        result = views.two_factor_and_totp_validate(
-            pyramid_request, _form_class=form_class
-        )
-
-        token_expected_data = {"userid": str(1)}
-        if redirect_url:
-            token_expected_data["redirect_to"] = redirect_url
-
-        assert isinstance(result, HTTPSeeOther)
+        assert user_service.record_event.calls == [
+            pretend.call(
+                "1",
+                tag="account:login:success",
+                ip_address="0.0.0.0",
+                additional={"two_factor_method": "totp"},
+            )
+        ]
 
     def test_totp_auth_already_authed(self):
         request = pretend.stub(
@@ -878,6 +847,7 @@ class TestRegister:
         email = pretend.stub()
         create_user = pretend.call_recorder(lambda *args, **kwargs: user)
         add_email = pretend.call_recorder(lambda *args, **kwargs: email)
+        record_event = pretend.call_recorder(lambda *a, **kw: None)
         db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 csp_policy={},
@@ -890,7 +860,7 @@ class TestRegister:
                 create_user=create_user,
                 add_email=add_email,
                 check_password=lambda pw, tags=None: False,
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                record_event=record_event,
             )
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -916,6 +886,20 @@ class TestRegister:
         ]
         assert add_email.calls == [pretend.call(user.id, "foo@bar.com", primary=True)]
         assert send_email.calls == [pretend.call(db_request, (user, email))]
+        assert record_event.calls == [
+            pretend.call(
+                user.id,
+                tag="account:create",
+                ip_address=db_request.remote_addr,
+                additional={"email": "foo@bar.com"},
+            ),
+            pretend.call(
+                user.id,
+                tag="account:login:success",
+                ip_address=db_request.remote_addr,
+                additional={"two_factor_method": None},
+            ),
+        ]
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
@@ -1015,6 +999,13 @@ class TestRequestPasswordReset:
         assert send_password_reset_email.calls == [
             pretend.call(pyramid_request, (stub_user, None))
         ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                stub_user.id,
+                tag="account:password:reset:request",
+                ip_address=pyramid_request.remote_addr,
+            )
+        ]
 
     def test_request_password_reset_with_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
@@ -1067,6 +1058,13 @@ class TestRequestPasswordReset:
         ]
         assert send_password_reset_email.calls == [
             pretend.call(pyramid_request, (stub_user, stub_user.emails[0]))
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                stub_user.id,
+                tag="account:password:reset:request",
+                ip_address=pyramid_request.remote_addr,
+            )
         ]
 
     def test_request_password_reset_with_non_primary_email(
@@ -1125,6 +1123,13 @@ class TestRequestPasswordReset:
         ]
         assert send_password_reset_email.calls == [
             pretend.call(pyramid_request, (stub_user, stub_user.emails[1]))
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                stub_user.id,
+                tag="account:password:reset:request",
+                ip_address=pyramid_request.remote_addr,
+            )
         ]
 
     def test_redirect_authenticated_user(self):
