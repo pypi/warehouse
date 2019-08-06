@@ -32,6 +32,7 @@ from warehouse.macaroons.services import InvalidMacaroon
         ("maybeafuturemethod foobar", None),
         ("token foobar", "foobar"),
         ("basic QHRva2VuOmZvb2Jhcg==", "foobar"),  # "@token:foobar"
+        ("basic X190b2tlbl9fOmZvb2Jhcg==", "foobar"),  # "__token__:foobar"
     ],
 )
 def test_extract_http_macaroon(auth, result):
@@ -49,6 +50,7 @@ def test_extract_http_macaroon(auth, result):
         ("bm90YXJlYWx0b2tlbg==", None),  # "notarealtoken"
         ("QGJhZHVzZXI6Zm9vYmFy", None),  # "@baduser:foobar"
         ("QHRva2VuOmZvb2Jhcg==", "foobar"),  # "@token:foobar"
+        ("X190b2tlbl9fOmZvb2Jhcg==", "foobar"),  # "__token__:foobar"
     ],
 )
 def test_extract_basic_macaroon(auth, result):
