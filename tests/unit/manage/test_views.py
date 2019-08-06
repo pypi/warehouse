@@ -401,6 +401,14 @@ class TestManageAccount:
         ]
         assert not old_primary.primary
         assert new_primary.primary
+        assert user_service.record_event.calls == [
+            pretend.call(
+                user.id,
+                tag="account:email:primary:change",
+                ip_address=db_request.remote_addr,
+                additional={"old_primary": "old", "new_primary": "new"},
+            )
+        ]
 
     def test_change_primary_email_without_current(self, monkeypatch, db_request):
         user = UserFactory()
@@ -430,6 +438,14 @@ class TestManageAccount:
             )
         ]
         assert new_primary.primary
+        assert user_service.record_event.calls == [
+            pretend.call(
+                user.id,
+                tag="account:email:primary:change",
+                ip_address=db_request.remote_addr,
+                additional={"old_primary": None, "new_primary": new_primary.email},
+            )
+        ]
 
     def test_change_primary_email_not_found(self, monkeypatch, db_request):
         user = UserFactory()
@@ -484,6 +500,13 @@ class TestManageAccount:
             pretend.call("Verification email for email_address resent", queue="success")
         ]
         assert send_email.calls == [pretend.call(request, (request.user, email))]
+        assert email.user.record_event.calls == [
+            pretend.call(
+                tag="account:email:reverify",
+                ip_address=request.remote_addr,
+                additional={"email": email.email},
+            )
+        ]
 
     def test_reverify_email_not_found(self, monkeypatch):
         def raise_no_result():
@@ -586,6 +609,13 @@ class TestManageAccount:
         assert send_email.calls == [pretend.call(request, request.user)]
         assert user_service.update_user.calls == [
             pretend.call(request.user.id, password=new_password)
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:password:change",
+                ip_address=request.remote_addr,
+            )
         ]
 
     def test_change_password_validation_fails(self, monkeypatch):
@@ -934,6 +964,14 @@ class TestProvisionTOTP:
                 "Authentication application successfully set up", queue="success"
             )
         ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=request.remote_addr,
+                additional={"method": "totp"},
+            )
+        ]
 
     def test_validate_totp_provision_already_provisioned(self, monkeypatch):
         user_service = pretend.stub(
@@ -1076,6 +1114,14 @@ class TestProvisionTOTP:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=request.remote_addr,
+                additional={"method": "totp"},
+            )
+        ]
 
     def test_delete_totp_bad_username(self, monkeypatch, db_request):
         user_service = pretend.stub(
@@ -1257,6 +1303,17 @@ class TestProvisionWebAuthn:
             pretend.call("Security device successfully set up", queue="success")
         ]
         assert result == {"success": "Security device successfully set up"}
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=request.remote_addr,
+                additional={
+                    "method": "webauthn",
+                    "label": provision_webauthn_obj.label.data,
+                },
+            )
+        ]
 
     def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
         user_service = pretend.stub(
@@ -1334,6 +1391,17 @@ class TestProvisionWebAuthn:
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=request.remote_addr,
+                additional={
+                    "method": "webauthn",
+                    "label": delete_webauthn_obj.label.data,
+                },
+            )
+        ]
 
     def test_delete_webauthn_not_provisioned(self):
         request = pretend.stub(
@@ -1798,6 +1866,14 @@ class TestProvisionMacaroonViews:
         ]
         assert request.session.flash.calls == [
             pretend.call("Deleted API token 'fake macaroon'.", queue="success")
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
+            )
         ]
 
 
