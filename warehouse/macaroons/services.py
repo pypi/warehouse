@@ -15,6 +15,7 @@ import json
 import uuid
 
 import pymacaroons
+from pymacaroons.exceptions import MacaroonDeserializationException
 
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -80,7 +81,7 @@ class DatabaseMacaroonService:
 
         try:
             m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        except pymacaroons.MacaroonDeserializationException:
+        except MacaroonDeserializationException:
             return None
 
         dm = self.find_macaroon(m.identifier.decode())
@@ -103,7 +104,7 @@ class DatabaseMacaroonService:
 
         try:
             m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        except pymacaroons.MacaroonDeserializationException:
+        except MacaroonDeserializationException:
             raise InvalidMacaroon("malformed macaroon")
 
         dm = self.find_macaroon(m.identifier.decode())
