@@ -125,17 +125,19 @@
 {%- endmacro %}
 
 {% macro twofa_buttons() %}
-  {% if not user.totp_secret %}
-  <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
-  {% endif %}
-  <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add 2FA with security device (e.g. USB key)</a>
+  <div class="wrap-children">
+    {% if not user.totp_secret %}
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
+    {% endif %}
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add 2FA with security device (e.g. USB key)</a>
+  </div>
 
   <noscript>
     <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
   </noscript>
 
-  <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
-    <li id="webauthn-browser-support" class="hidden">
+  <ul id="webauthn-errors" class="form-errors form-errors--full-width">
+    <li id="webauthn-browser-support" class="hidden margin-top--large">
       <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
     </li>
   </ul>
