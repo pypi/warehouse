@@ -18,7 +18,8 @@ from warehouse.packaging.models import Project
 
 
 class InvalidMacaroon(Exception):
-    ...
+    def __repr__(self):
+        return f"Invalid API Token: {self.msg}"
 
 
 class Caveat:
