@@ -62,7 +62,7 @@
       <div class="form-group">
         <label for="totp_value" class="form-group__label">
           Verify application
-          <span class="form-group__required">(required)</span>
+          {% if provision_totp_form.totp_value.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
         </label>
         {{ provision_totp_form.totp_value(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-help totp-errors"}) }}
         <p id="totp-help" class="form-group__help-text">To finalize the set up process, enter the authentication code provided by your application.</p>

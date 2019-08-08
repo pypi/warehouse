@@ -120,11 +120,17 @@
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <tr>
           <td class="table__user">
-            <label for="username" class="sr-only">User's username</label>
+            <label for="username" class="sr-only">
+              User's username
+              {% if form.username.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+            </label>
             {{ form.username(placeholder="User's username") }}
           </td>
           <td class="table__role">
-            <label for="role_name" class="sr-only">Role name</label>
+            <label for="role_name" class="sr-only">
+              Role name
+              {% if form.role_name.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+            </label>
             {{ form.role_name }}
           </td>
           <td class="table__action">

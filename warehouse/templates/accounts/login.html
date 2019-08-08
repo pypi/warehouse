@@ -47,7 +47,7 @@
         <div class="form-group">
           <label for="username" class="form-group__label">
             Username
-            <span class="form-group__required">(required)</span>
+            {% if form.username.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
           </label>
           {{ form.username(placeholder="Your username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
           {% if form.username.errors %}
@@ -63,7 +63,7 @@
           <div class="split-layout">
             <label for="password" class="form-group__label">
               Password
-              <span class="form-group__required">(required)</span>
+              {% if form.password.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
             </label>
             <label for="show-password">
               <input data-action="change->password#togglePasswords" data-target="password.showPassword"
