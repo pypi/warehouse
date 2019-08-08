@@ -82,7 +82,9 @@
           <div class="form-group">
             <label for="totp_value" class="form-group__label">
               Enter authentication code
-              {% if totp_form.totp_value.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+              {% if totp_form.totp_value.flags.required %}
+              <span class="form-group__required">(required)</span>
+              {% endif %}
             </label>
             {{ totp_form.totp_value(autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-errors"}) }}
             {% if totp_form.totp_value.errors %}

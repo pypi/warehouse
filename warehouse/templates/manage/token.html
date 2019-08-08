@@ -77,7 +77,9 @@
       <div class="form-group">
         <label for="description" class="form-group__label">
           Token name
-          {% if create_macaroon_form.description.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+          {% if create_macaroon_form.description.flags.required %}
+          <span class="form-group__required">(required)</span>
+          {% endif %}
         </label>
         <input type="text" name="description" id="description" class="form-group__input" aria-describedby="description-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
         {{ field_errors(create_macaroon_form.description) }}
@@ -90,7 +92,9 @@
       <div class="form-group">
         <label for="token_scope" class="form-group__label">
           Scope
-          {% if create_macaroon_form.token_scope.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+          {% if create_macaroon_form.token_scope.flags.required %}
+          <span class="form-group__required">(required)</span>
+          {% endif %}
       </label>
         <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="token_scope-errors">
           <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">Select scope...</option>

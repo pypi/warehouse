@@ -43,7 +43,9 @@
         <div class="form-group">
           <label for="full_name" class="form-group__label">
             Name
-            {% if form.full_name.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+            {% if form.full_name.flags.required %}
+            <span class="form-group__required">(required)</span>
+            {% endif %}
           </label>
           {{ form.full_name(placeholder="Your name", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
           {% if form.full_name.errors %}
@@ -58,7 +60,9 @@
         <div class="form-group">
           <label for="email" class="form-group__label">
             Email address
-            {% if form.email.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+            {% if form.email.flags.required %}
+            <span class="form-group__required">(required)</span>
+            {% endif %}
           </label>
           {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
           {% if form.email.errors %}
@@ -79,7 +83,9 @@
         <div class="form-group">
           <label for="username" class="form-group__label">
             Username
-            {% if form.username.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+            {% if form.username.flags.required %}
+            <span class="form-group__required">(required)</span>
+            {% endif %}
           </label>
           {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
           {% if form.username.errors %}
@@ -96,7 +102,9 @@
             <div class="split-layout">
               <label for="password" class="form-group__label">
                 Password
-                {% if form.new_password.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+                {% if form.new_password.flags.required %}
+                <span class="form-group__required">(required)</span>
+                {% endif %}
               </label>
               <label for="show-password">
                 <input data-action="change->password#togglePasswords" data-target="password.showPassword"
@@ -120,7 +128,9 @@
           <div class="form-group">
             <label for="password_confirm" class="form-group__label">
               Confirm password
-              {% if form.password_confirm.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+              {% if form.password_confirm.flags.required %}
+              <span class="form-group__required">(required)</span>
+              {% endif %}
             </label>
             {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
             {% if form.password_confirm.errors %}

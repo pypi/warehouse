@@ -122,14 +122,18 @@
           <td class="table__user">
             <label for="username" class="sr-only">
               User's username
-              {% if form.username.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+              {% if form.username.flags.required %}
+              <span class="form-group__required">(required)</span>
+              {% endif %}
             </label>
             {{ form.username(placeholder="User's username") }}
           </td>
           <td class="table__role">
             <label for="role_name" class="sr-only">
               Role name
-              {% if form.role_name.flags.required %}<span class="form-group__required">(required)</span>{% endif %}
+              {% if form.role_name.flags.required %}
+              <span class="form-group__required">(required)</span>
+              {% endif %}
             </label>
             {{ form.role_name }}
           </td>
