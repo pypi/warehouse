@@ -47,7 +47,7 @@
           type="button"
           id="webauthn-auth-begin"
           class="button button--primary"
-          csrf-token="{{ request.session.get_csrf_token() }}"
+          value="{{ request.session.get_csrf_token() }}"
           disabled>Authenticate with device
         </button>
         <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
