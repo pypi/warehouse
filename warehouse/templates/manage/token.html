@@ -92,9 +92,9 @@
         <p class="form-group__text">Upload packages</p>
       </div>
       <div class="form-group">
-        <label for="token_scope" class="form-group__label">
+        <label for="token_scopes" class="form-group__label">
           Scope
-          {% if create_macaroon_form.token_scope.flags.required %}
+          {% if create_macaroon_form.token_scopes.flags.required %}
           <span class="form-group__required">(required)</span>
           {% endif %}
       </label>
