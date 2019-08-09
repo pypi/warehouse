@@ -41,12 +41,30 @@
 {%- endmacro %}
 
 {% macro main_navigation_logged_out() -%}
-<nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall" aria-label="Main navigation">
-  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
-  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.org">Donate</a>
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log in</a>
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
-</nav>
+<div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+  <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet" aria-label="Main navigation">
+    <ul>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('help') }}" class="horizontal-menu__link">Help</a></li>
+      <li class="horizontal-menu__item"><a href="https://donate.pypi.org" class="horizontal-menu__link">Donate</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.login') }}" class="horizontal-menu__link">Log in</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.register') }}" class="horizontal-menu__link">Register</a></li>
+    </ul>
+  </nav>
+  <nav class="dropdown dropdown--on-menu hidden show-on-tablet" aria-label="Main navigation">
+    <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+      Menu
+      <span class="dropdown__trigger-caret">
+        <i class="fa fa-caret-down" aria-hidden="true"></i>
+      </span>
+    </button>
+    <ul class="dropdown__content">
+      <li><a class="dropdown__link" href="{{ request.route_path('help') }}">Help</a></li>
+      <li><a class="dropdown__link" href="https://donate.pypi.org">Donate</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('accounts.login') }}">Log in</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('accounts.register') }}">Register</a></li>
+    </ul>
+  </nav>
+</div>
 {%- endmacro %}
 
 <!DOCTYPE html>

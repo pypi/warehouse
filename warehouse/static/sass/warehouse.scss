@@ -234,6 +234,10 @@
   display: none;
 }
 
+.display-block {
+  display: block;
+}
+
 // Desktop specific visibility
 @media screen and (min-width: $desktop + 1px) {
   .hide-on-desktop {
@@ -247,8 +251,15 @@
   }
 }
 
-.display-block {
-  display: block;
+// Tablet specific visibility
+@media screen and (max-width: $tablet) {
+  .hide-on-tablet {
+    display: none;
+  }
+
+  .show-on-tablet {
+    display: block;
+  }
 }
 
 // Mobile specific visibility
