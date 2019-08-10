@@ -992,7 +992,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1026,13 +1026,13 @@ class TestProvisionTOTP:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
 
-    def test_delete_totp_bad_username(self, monkeypatch, db_request):
+    def test_delete_totp_bad_password(self, monkeypatch, db_request):
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1065,7 +1065,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
