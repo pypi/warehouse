@@ -104,6 +104,11 @@
   &__form {
     label {
       font-weight: bold;
+
+      input {
+        width: auto;
+        min-width: auto;
+      }
     }
 
     input {

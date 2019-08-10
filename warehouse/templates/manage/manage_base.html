@@ -122,6 +122,38 @@
   </div>
 {% endmacro %}
 
+{% macro confirm_password_modal(action=None) %}
+  <div id="disable-totp" class="modal" data-controller="confirm-password modal-close">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close" data-action="click->modal-close#cancel" title="Close" class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">close</span>
+      </a>
+      <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <div class="modal__body">
+          <h3 class="modal__title">Disable 2FA by TOTP application?</h3>
+          <p>Enter your password to continue.</p>
+          <div class="form-group">
+            <div class="split-layout">
+              <label for="confirm_password">Password</label>
+              <label for="show-password" class="show-password">
+                <input data-action="change->confirm-password#togglePasswords" data-target="password.showPassword" id="show-password" type="checkbox">
+                Show password
+              </label>
+            </div>
+            <input name="confirm_password" data-action="input->confirm-password#check" data-target="confirm-password.input modal-close.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">Cancel</button>
+          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm-password.button modal-close.button"">Disable TOTP application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endmacro %}
+
 {% macro confirm_button(
   title,
   confirm_name,

@@ -420,10 +420,8 @@
             <td>Authentication application (TOTP)</td>
             <td class="table__action">
               <a href="#disable-totp" class="button button--primary">Remove</a>
-              {% set title="Remove authentication application" %}
-              {% set confirm_button_label="Remove application" %}
               {% set action="/manage/account/totp-provision" %}
-              {{ confirm_modal(title=title, confirm_name="Password", confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
+              {{ confirm_password_modal(action) }}
             </td>
           </tr>
           {% endif %}
