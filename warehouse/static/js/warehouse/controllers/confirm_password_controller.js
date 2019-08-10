@@ -20,6 +20,7 @@ export default class extends Controller {
 
   connect() {
     this.buttonTarget.disabled = true;
+    this.check();
   }
 
   togglePassword() {

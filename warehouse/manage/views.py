@@ -425,7 +425,7 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
-            **self.request.POST,
+            password=self.request.POST["password_confirm"],
             username=self.request.user.username,
             user_service=self.user_service,
         )
