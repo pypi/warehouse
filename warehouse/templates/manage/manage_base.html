@@ -137,12 +137,12 @@
           <div class="form-group">
             <div class="split-layout">
               <label for="confirm_password">Password</label>
-              <label for="show-password" class="show-password">
-                <input data-action="change->confirm-password#togglePasswords" data-target="password.showPassword" id="show-password" type="checkbox">
+              <label for="show-confirm-password" class="show-password">
+                <input data-action="change->confirm-password#togglePassword" data-target="confirm-password.showPassword" id="show-confirm-password" type="checkbox">
                 Show password
               </label>
             </div>
-            <input name="confirm_password" data-action="input->confirm-password#check" data-target="confirm-password.input modal-close.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <input name="confirm_password" data-action="input->confirm-password#check" data-target="confirm-password.password modal-close.input" type="password" autocomplete="off" autocorrect="off" autocapitalize="off">
           </div>
         </div>
         <div class="modal__footer">
