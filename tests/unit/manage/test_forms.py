@@ -168,6 +168,19 @@ class TestDeleteTOTPForm:
         assert form.username == "username"
         assert form.user_service is user_service
 
+    def test_validate_confirm_password(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+        )
+        form = forms.DeleteTOTPForm(
+            username="username", user_service=user_service, password="password"
+        )
+
+        assert form.validate()
+
 
 class TestProvisionWebAuthnForm:
     def test_creation(self):
