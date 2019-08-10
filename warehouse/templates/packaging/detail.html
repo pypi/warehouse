@@ -88,7 +88,7 @@
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
 {% block content %}
-<section class="banner">
+<div class="banner">
   <div class="package-header">
     <div class="package-header__left">
       <h1 class="package-header__name">
@@ -117,9 +117,9 @@
       <p class="package-header__date">Last released: {{ humanize(release.created) }}</p>
     </div>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section horizontal-section--grey horizontal-section--thin">
+<div class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="split-layout split-layout--middle package-description">
     {% if release.summary %}
@@ -131,9 +131,9 @@
     {% endcsi %}
     </div>
   </div>
-</section>
+</div>
 
-<section data-controller="project-tabs">
+<div data-controller="project-tabs">
   <div class="tabs-container">
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
@@ -210,7 +210,7 @@
             <a class="reset-text margin-top" href="{{ request.route_path('help')}}#project-release-notifications">Release notifications</a>
           </h2>
 
-          <section class="release-timeline">
+          <div class="release-timeline">
             {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
             {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
             {% for hversion in all_versions %}
@@ -243,7 +243,7 @@
               </a>
             </div>
             {% endfor %}
-          </section>
+          </div>
         </div>
 
         {% if files %}
@@ -297,5 +297,5 @@
       </div>
     </div>
   </div>
-</section>
+</div>
 {% endblock %}
