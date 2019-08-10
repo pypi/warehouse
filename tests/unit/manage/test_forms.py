@@ -163,8 +163,9 @@ class TestProvisionTOTPForm:
 class TestDeleteTOTPForm:
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.DeleteTOTPForm(user_service=user_service)
+        form = forms.DeleteTOTPForm(username="username", user_service=user_service)
 
+        assert form.username == "username"
         assert form.user_service is user_service
 
 

@@ -20,10 +20,10 @@ export default class extends Controller {
 
   connect() {
     this.buttonTarget.disabled = true;
-    this.check();
+    this.setPasswordVisibility();
   }
 
-  togglePassword() {
+  setPasswordVisibility() {
     this.passwordTarget.type = this.showPasswordTarget.checked ? "text" : "password";
   }
 
