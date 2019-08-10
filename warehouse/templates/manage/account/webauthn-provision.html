@@ -35,7 +35,10 @@
   </noscript>
 
   <div class="form-group">
-    <label for="webauthn-provision-label" class="form-group__label">Name your device to begin</label>
+    <label for="webauthn-provision-label" class="form-group__label">
+      Name your device to begin
+      <span class="form-group__required">(required)</span>
+    </label>
     <input id="webauthn-provision-label" type="text" name="label" class="form-group__input" aria-describedby="webauthn-errors">
     <p class="form-group__help-text">PyPI supports adding multiple security devices.<br>Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
   </div>
@@ -44,7 +47,7 @@
       type="button"
       id="webauthn-provision-begin"
       class="button button--primary"
-      csrf-token="{{ request.session.get_csrf_token() }}"
+      value="{{ request.session.get_csrf_token() }}"
       disabled>Set up security device
     </button>
     <ul id="webauthn-errors" class="form-errors margin-top--large">
