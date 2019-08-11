@@ -992,7 +992,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"password_confirm": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1032,7 +1032,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"password_confirm": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1065,7 +1065,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"password_confirm": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
