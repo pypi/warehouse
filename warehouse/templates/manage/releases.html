@@ -23,10 +23,12 @@
     <table class="table table--light table--releases no-top-margin">
       <caption class="sr-only">Releases for {{ project.name }}</caption>
       <thead>
-        <th scope="col" class="table__version">Version</th>
-        <th scope="col" class="table__date">Release date</th>
-        <th scope="col" class="table__summary">Summary</th>
-        <th scope="col" class="table__options"></th>
+        <tr>
+          <th scope="col" class="table__version">Version</th>
+          <th scope="col" class="table__date">Release date</th>
+          <th scope="col" class="table__summary">Summary</th>
+          <th scope="col" class="table__options"></th>
+        </tr>
       </thead>
       <tbody>
       {% for release in project.releases %}
