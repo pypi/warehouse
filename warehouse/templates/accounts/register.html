@@ -87,7 +87,7 @@
             <span class="form-group__required">(required)</span>
             {% endif %}
           </label>
-          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
+          {{ form.username(placeholder="Select a username", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
           {% if form.username.errors %}
           <ul id="username-errors" class="form-errors" role="alert">
             {% for error in form.username.errors %}
