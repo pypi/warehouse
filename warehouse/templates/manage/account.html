@@ -470,10 +470,12 @@
     <table class="table table--light table--api-tokens">
       <caption class="sr-only">Active API tokens for this account</caption>
       <thead>
-        <th scope="col">Name</th>
-        <th scope="col">Scope</th>
-        <th scope="col">Created</th>
-        <th scope="col" colspan="2">Last used</th>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Scope</th>
+          <th scope="col">Created</th>
+          <th scope="col" colspan="2">Last used</th>
+        </tr>
       </thead>
       <tbody>
         {% for macaroon in user.macaroons %}
