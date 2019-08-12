@@ -52,13 +52,15 @@
             {% endif %}
           </label>
           {{ form.username(placeholder="Your username", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
-          {% if form.username.errors %}
-          <ul id="username-errors" class="form-errors" role="alert">
-            {% for error in form.username.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          <div id="username-errors">
+            {% if form.username.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.username.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div data-controller="password" class="form-group">
@@ -75,13 +77,15 @@
             </label>
           </div>
           {{ form.password(placeholder="Your password", required="required", class_="form-group__input", autocomplete="current-password", data_target="password.password", **{"aria-describedby":"password-errors"}) }}
-          {% if form.password.errors %}
-          <ul id="password-errors" class="form-errors" role="alert">
-            {% for error in form.password.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          <div id="password-errors">
+            {% if form.password.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.password.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div class="form-group">
