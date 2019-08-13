@@ -122,8 +122,16 @@
   </div>
 {% endmacro %}
 
-{% macro confirm_password_modal(action=None) %}
-  <div id="disable-totp" class="modal" data-controller="confirm-password modal-close">
+{% macro confirm_password_modal(
+  title,
+  slug,
+  confirm_button_label=None,
+  extra_fields=None,
+  action=None,
+  warning=True,
+  custom_warning_text=""
+) %}
+  <div id="{{ slug }}" class="modal" data-controller="confirm-password modal-close">
     <div class="modal__content" role="dialog">
       <a href="#modal-close" data-action="click->modal-close#cancel" title="Close" class="modal__close">
         <i class="fa fa-times" aria-hidden="true"></i>
@@ -131,8 +139,18 @@
       </a>
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        {{ extra_fields if extra_fields else '' }}
         <div class="modal__body">
-          <h3 class="modal__title">Disable 2FA by TOTP application?</h3>
+          <h3 class="modal__title">{{ title }}</h3>
+          {% if warning %}
+          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+            <p>
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
+              This action cannot be undone!
+            </p>
+            {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
+          </div>
+          {% endif %}
           <p>Enter your password to continue.</p>
           <div class="form-group">
             <div class="split-layout">
@@ -147,7 +165,7 @@
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">Cancel</button>
-          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm-password.button modal-close.button"">Disable TOTP application</button>
+          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm-password.button modal-close.button"">{{ confirm_button_label }}</button>
         </div>
       </form>
     </div>

@@ -420,8 +420,12 @@
             <td>Authentication application (TOTP)</td>
             <td class="table__action">
               <a href="#disable-totp" class="button button--primary">Remove</a>
-              {% set action="/manage/account/totp-provision" %}
-              {{ confirm_password_modal(action) }}
+              {# modal to remove TOTP #}
+              {% set slug="disable-totp" %}
+              {% set title="Disable 2FA by TOTP application?" %}
+              {% set action=request.route_path('manage.account.totp-provision') %}
+              {% set confirm_button_label="Disable TOTP application" %}
+              {{ confirm_password_modal(slug=slug, title=title, action=action, confirm_button_label=confirm_button_label) }}
             </td>
           </tr>
           {% endif %}
