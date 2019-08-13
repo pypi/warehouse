@@ -484,25 +484,113 @@
   <hr>
 
   <section id="account-events">
-    <h2>Recent account events</h2>
+    <h2>Security history <span class="badge badge--warning">Beta feature</span></h2>
 
     {% set recent_events = user.recent_events %}
     {% if recent_events|length > 0 %}
-    <table>
+
+    {% macro event_summary(event) -%}
+      {% if event.tag == "account:create" %}
+      <strong>Account created</strong>
+
+      {% elif event.tag == "account:login:success" %}
+      <strong>Logged in</strong><br>
+      <small>
+        Two factor method:
+        {% if event.additional.two_factor_method == None %}
+          None
+        {% elif event.additional.two_factor_method  == "webauthn" %}
+          Security device (webauthn)
+        {% elif event.additional.two_factor_method  == "totp" %}
+          Authentication application (TOTP)
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:email:add" %}
+      <strong>Email added to account</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:remove" %}
+      <strong>Email removed from account</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:verified" %}
+      <strong>Email verified</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:reverify" %}
+      <strong>Email reverified</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:primary:change" %}
+        {% if event.additional.old_email %}
+        <strong>Primary email changed</strong><br>
+        <small>
+          Old primary email: {{ event.additional.old_email }}<br>
+          New primary email: {{ event.additional.new_email }}
+        <small>
+        {% else %}
+        <strong>Primary email set</strong><br>
+        <small>
+          {{ event.additional.new_email }}
+        </small>
+        {% endif %}
+
+      {% elif event.tag  == "account:password:reset:request" %}
+      <strong>Password reset requested</strong>
+      {% elif event.tag  == "account:password:reset" %}
+      <strong>Password successfully reset</strong>
+      {% elif event.tag  == "account:password:change" %}
+      <strong>Password successfully changed</strong>
+
+      {% elif event.tag  == "account:two_factor:method_added" %}
+      <strong>Two factor authentication added</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          Method: Security device (webauthn)<br>
+          Device name: {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          Method: Authentication application (TOTP)
+        {% endif %}
+      </small>
+      {% elif event.tag  == "account:two_factor:method_removed" %}
+      <strong>Two factor authentication removed</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          Method: Security device (webauthn)<br>
+          Device name: {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          Method: Authentication application (TOTP)
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:api_token:added" %}
+      <strong>API token added</strong><br>
+      <small>
+        Token name: {{ event.additional.description }}<br>
+        {% if event.additional.caveats.permissions == "user" %}
+          Token scope: entire account
+        {% else %}
+          Token scope: Project {{event.additional.caveats.permissions.projects[0] }}
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:api_token:removed" %}
+      <strong>API token removed</strong><br>
+      <small>Unique identifier: {{ event.additional.macaroon_id }}</small>
+      {% endif %}
+    {%- endmacro %}
+
+    <p>Events appear here as security-related actions occur on your account.</p>
+    <table class="table table--light table--security-logs">
       <caption class="sr-only">Recent account activity</caption>
       <thead>
         <th scope="col">Event</th>
-        <th scope="col">Time</th>
+        <th scope="col">Date / time</th>
         <th scope="col">IP address</th>
-        <th scope="col">Additional information</th>
       </thead>
       <tbody>
         {% for event in recent_events %}
         <tr>
-          <td>{{ event.tag }}</td>
+          <td>{{ event_summary(event) }}</td>
           <td>{{ humanize(event.time) }}</td>
           <td>{{ event.ip_address }}</td>
-          <td>{{ event.additional }}</td>
         </tr>
         {% endfor %}
       </tbody>
