@@ -463,8 +463,8 @@ class TestDeleteMacaroonForm:
             find_macaroon=pretend.call_recorder(lambda id: None)
         )
         user_service = pretend.stub(
-            find_userid=lambda *a, **kw: 1,
-            check_password=lambda *a, **kw: True)
+            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
+        )
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
             macaroon_service=macaroon_service,
@@ -480,8 +480,8 @@ class TestDeleteMacaroonForm:
             find_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         user_service = pretend.stub(
-            find_userid=lambda *a, **kw: 1,
-            check_password=lambda *a, **kw: True)
+            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
+        )
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
             macaroon_service=macaroon_service,

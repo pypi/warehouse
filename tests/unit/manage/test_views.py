@@ -1532,7 +1532,7 @@ class TestProvisionMacaroonViews:
             referer="/fake/safe/route",
             host=None,
             user=pretend.stub(username=pretend.stub()),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None))
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1549,7 +1549,8 @@ class TestProvisionMacaroonViews:
         assert result.location == "/fake/safe/route"
         assert macaroon_service.delete_macaroon.calls == []
         assert request.session.flash.calls == [
-            pretend.call("Invalid credentials. Try again", queue="error")]
+            pretend.call("Invalid credentials. Try again", queue="error")
+        ]
 
     def test_delete_macaroon_dangerous_redirect(self, monkeypatch):
         macaroon_service = pretend.stub(
@@ -1565,7 +1566,7 @@ class TestProvisionMacaroonViews:
             referer="http://google.com/",
             host=None,
             user=pretend.stub(username=pretend.stub()),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None))
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
