@@ -247,15 +247,17 @@ class CreateMacaroonForm(forms.Form):
         self.validated_scope = {"projects": [scope_value]}
 
 
-class DeleteMacaroonForm(forms.Form):
-    __params__ = ["macaroon_id"]
+class DeleteMacaroonForm(PasswordMixin, forms.Form):
+    __params__ = ["confirm_password", "macaroon_id"]
 
     macaroon_id = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Identifier required")]
     )
 
-    def __init__(self, *args, macaroon_service, **kwargs):
+    def __init__(self, *args, macaroon_service, username, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.username = username
+        self.user_service = user_service
         self.macaroon_service = macaroon_service
 
     def validate_macaroon_id(self, field):

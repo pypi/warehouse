@@ -202,8 +202,7 @@
       {% set token_warning_text %}
         <p>Applications or scripts using this token will no longer have access to PyPI.</p>
       {% endset %}
-
-      {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
+      {{ confirm_password_modal(title=title, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, custom_warning_text=token_warning_text) }}
 
       {# modal to view token ID #}
       <div id="view-identifier--{{ macaroon.id }}" class="modal">
