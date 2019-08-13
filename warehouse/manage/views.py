@@ -676,7 +676,7 @@ class ProvisionMacaroonViews:
                 projects = [
                     project
                     for project in self.request.user.projects
-                    if project.name in form.validated_scope["projects"]
+                    if project.normalized_name in form.validated_scope["projects"]
                 ]
                 for project in projects:
                     # NOTE: We don't disclose the full caveats for this token
@@ -715,7 +715,8 @@ class ProvisionMacaroonViews:
                 projects = [
                     project
                     for project in self.request.user.projects
-                    if project.name in macaroon.caveats["permissions"]["projects"]
+                    if project.normalized_name
+                    in macaroon.caveats["permissions"]["projects"]
                 ]
                 for project in projects:
                     project.record_event(
