@@ -1822,6 +1822,64 @@ class TestProvisionMacaroonViews:
 
     def test_delete_macaroon(self, monkeypatch):
         macaroon = pretend.stub(
+            description="fake macaroon", caveats={"version": 1, "permissions": "user"}
+        )
+        macaroon_service = pretend.stub(
+            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
+            find_macaroon=pretend.call_recorder(lambda id: macaroon),
+        )
+        record_event = pretend.call_recorder(
+            pretend.call_recorder(lambda *a, **kw: None)
+        )
+        user_service = pretend.stub(record_event=record_event)
+        request = pretend.stub(
+            POST={},
+            route_path=pretend.call_recorder(lambda x: pretend.stub()),
+            find_service=lambda interface, **kw: {
+                IMacaroonService: macaroon_service,
+                IUserService: user_service,
+            }[interface],
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            referer="/fake/safe/route",
+            host=None,
+            user=pretend.stub(id=pretend.stub()),
+            remote_addr="0.0.0.0",
+        )
+
+        delete_macaroon_obj = pretend.stub(
+            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
+        )
+        delete_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_macaroon_obj
+        )
+        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+
+        view = views.ProvisionMacaroonViews(request)
+        result = view.delete_macaroon()
+
+        assert request.route_path.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/fake/safe/route"
+        assert macaroon_service.delete_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
+        assert macaroon_service.find_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
+        ]
+        assert record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
+            )
+        ]
+
+    def test_delete_macaroon_records_events_for_each_project(self, monkeypatch):
+        macaroon = pretend.stub(
             description="fake macaroon",
             caveats={"version": 1, "permissions": {"projects": ["foo", "bar"]}},
         )
