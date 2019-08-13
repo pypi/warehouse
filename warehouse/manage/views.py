@@ -703,9 +703,7 @@ class ProvisionMacaroonViews:
         )
 
         if form.validate():
-            description = self.macaroon_service.find_macaroon(
-                form.macaroon_id.data
-            ).description
+            macaroon = self.macaroon_service.find_macaroon(form.macaroon_id.data)
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.user_service.record_event(
                 self.request.user.id,
@@ -713,10 +711,23 @@ class ProvisionMacaroonViews:
                 ip_address=self.request.remote_addr,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
-            # TODO: Record an event on each project that this macaroon was
-            # provisioned for.
+            if "projects" in macaroon.caveats["permissions"]:
+                projects = [
+                    project
+                    for project in self.request.user.projects
+                    if project.name in macaroon.caveats["permissions"]["projects"]
+                ]
+                for project in projects:
+                    project.record_event(
+                        tag="project:api_token:removed",
+                        ip_address=self.request.remote_addr,
+                        additional={
+                            "description": macaroon.description,
+                            "user": self.request.user.username,
+                        },
+                    )
             self.request.session.flash(
-                f"Deleted API token '{description}'.", queue="success"
+                f"Deleted API token '{macaroon.description}'.", queue="success"
             )
 
         redirect_to = self.request.referer
