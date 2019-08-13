@@ -71,6 +71,11 @@
     border: 0;
     font-size: $base-font-size;
     box-shadow: none;
+    background-color: transparent;
+
+    thead tr {
+      background-color: transparent;
+    }
 
     tbody tr,
     tbody tr:nth-child(2n),
@@ -672,7 +677,7 @@
 
   &--security-logs {
     margin-top: 0;
-    
+
     tr td {
       padding-right: 20px;
 

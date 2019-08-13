@@ -17,30 +17,61 @@
 
 {% set active_tab = 'history' %}
 
-{% block title %}{{ project.name }}' project history{% endblock %}
+{% block title %}'{{ project.name }}' project history{% endblock %}
 
 {% block main %}
-  <h2>Project history</h2>
+  <h2>Security history <span class="badge badge--warning">Beta feature</span></h2>
 
-  <p>Each time you or your collaborators update this project or perform a security action related to it, the action is recorded and displayed here</p>
+  <p>Each time you (or your collaborators) perform a security action related to this project, the action is recorded and displayed here.</p>
 
-  <table>
-    <caption class="sr-only">History for {{ project.name }}</caption>
+  {% macro event_summary(event) -%}
+    {% if event.tag == "project:api_token:added" %}
+    <strong>API token added</strong><br>
+    <small>
+      Permissions: Can upload to this project<br>
+      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
+      Token name: {{ event.additional.description }}
+    </small>
+    {% elif event.tag == "project:api_token:removed" %}
+    <strong>API token removed</strong><br>
+    <small>
+      Permissions: Can upload to this project<br>
+      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
+      Token name: {{ event.additional.description }}
+    </small>
+    {% elif event.tag == "project:role:add" %}
+    <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> added as project {{ event.additional.role_name|lower }}</strong><br>
+    <small>
+      Added by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+    {% elif event.tag == "project:role:delete" %}
+    <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> removed as project {{ event.additional.role_name|lower }}</strong><br>
+    <small>
+      Removed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+    {% elif event.tag == "project:role:change" %}
+    <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> changed to project {{ event.additional.role_name|lower }}</strong><br>
+    <small>
+      Changed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+    {% endif %}
+  {%- endmacro %}
+
+  <table class="table table--light table--security-logs">
+    <caption class="sr-only">Security history for {{ project.name }}</caption>
     <thead>
       <tr>
         <th scope="col">Event</th>
-        <th scope="col">Time</th>
+        <th scope="col">Date / time</th>
         <th scope="col">IP address</th>
-        <th scope="col">Additional information</th>
       </tr>
     </thead>
     <tbody>
       {% for event in events %}
       <tr>
-        <td>{{ event.tag }}</td>
+        <td>{{ event_summary(event) }}</td>
         <td>{{ humanize(event.time) }}</td>
         <td>{{ event.ip_address }}</td>
-        <td>{{ event.additional }}</td>
       </tr>
       {% endfor %}
     </tbody>
