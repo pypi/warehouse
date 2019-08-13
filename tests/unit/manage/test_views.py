@@ -1054,7 +1054,7 @@ class TestProvisionTOTP:
 
         assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
-            pretend.call("Invalid credentials", queue="error")
+            pretend.call("Invalid credentials. Try again", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"

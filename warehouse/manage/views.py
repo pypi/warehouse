@@ -438,7 +438,7 @@ class ProvisionTOTPViews:
                 queue="success",
             )
         else:
-            self.request.session.flash("Invalid credentials", queue="error")
+            self.request.session.flash("Invalid credentials. Try again", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
