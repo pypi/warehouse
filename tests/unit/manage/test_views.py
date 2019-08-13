@@ -1680,8 +1680,8 @@ class TestProvisionMacaroonViews:
                 has_primary_verified_email=True,
                 username=pretend.stub(),
                 projects=[
-                    pretend.stub(name="foo", record_event=record_event),
-                    pretend.stub(name="bar", record_event=record_event),
+                    pretend.stub(normalized_name="foo", record_event=record_event),
+                    pretend.stub(normalized_name="bar", record_event=record_event),
                 ],
             ),
             find_service=lambda interface, **kw: {
@@ -1905,8 +1905,8 @@ class TestProvisionMacaroonViews:
                 id=pretend.stub(),
                 username=pretend.stub(),
                 projects=[
-                    pretend.stub(name="foo", record_event=record_event),
-                    pretend.stub(name="bar", record_event=record_event),
+                    pretend.stub(normalized_name="foo", record_event=record_event),
+                    pretend.stub(normalized_name="bar", record_event=record_event),
                 ],
             ),
             remote_addr="0.0.0.0",
