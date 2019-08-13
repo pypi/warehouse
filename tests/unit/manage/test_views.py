@@ -1821,15 +1821,18 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.delete_macaroon.calls == []
 
     def test_delete_macaroon(self, monkeypatch):
+        macaroon = pretend.stub(
+            description="fake macaroon",
+            caveats={"version": 1, "permissions": {"projects": ["foo", "bar"]}},
+        )
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
-            find_macaroon=pretend.call_recorder(
-                lambda id: pretend.stub(description="fake macaroon")
-            ),
+            find_macaroon=pretend.call_recorder(lambda id: macaroon),
         )
-        user_service = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        record_event = pretend.call_recorder(
+            pretend.call_recorder(lambda *a, **kw: None)
         )
+        user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
             POST={},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
@@ -1840,7 +1843,14 @@ class TestProvisionMacaroonViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             referer="/fake/safe/route",
             host=None,
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                projects=[
+                    pretend.stub(name="foo", record_event=record_event),
+                    pretend.stub(name="bar", record_event=record_event),
+                ],
+            ),
             remote_addr="0.0.0.0",
         )
 
@@ -1867,13 +1877,29 @@ class TestProvisionMacaroonViews:
         assert request.session.flash.calls == [
             pretend.call("Deleted API token 'fake macaroon'.", queue="success")
         ]
-        assert user_service.record_event.calls == [
+        assert record_event.calls == [
             pretend.call(
                 request.user.id,
                 tag="account:api_token:removed",
                 ip_address=request.remote_addr,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
-            )
+            ),
+            pretend.call(
+                tag="project:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": "fake macaroon",
+                    "user": request.user.username,
+                },
+            ),
+            pretend.call(
+                tag="project:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": "fake macaroon",
+                    "user": request.user.username,
+                },
+            ),
         ]
 
 
