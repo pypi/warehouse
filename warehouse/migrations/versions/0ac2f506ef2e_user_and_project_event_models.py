@@ -13,7 +13,7 @@
 User and Project event models
 
 Revision ID: 0ac2f506ef2e
-Revises: 48def930fcfd
+Revises: d83f20495c10
 Create Date: 2019-07-31 21:50:43.407231
 """
 
@@ -23,7 +23,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0ac2f506ef2e"
-down_revision = "48def930fcfd"
+down_revision = "d83f20495c10"
 
 
 def upgrade():
