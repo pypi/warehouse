@@ -77,46 +77,46 @@
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">view submenu</span>
+            <span class="sr-only">View submenu</span>
           </span>
         </button>
         <ul class="dropdown__content">
-          <li>
-            {% if not email.verified %}
-            <form method="POST">
-              <input hidden name="reverify_email_id" value="{{ email.id }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button type="submit" class="dropdown__link" title="Resend verification email">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                Resend Verification Email
-              </button>
-            </form>
-            {% endif %}
-          </li>
-          <li>
-            {% if not email.primary and email.verified %}
-            <form method="POST">
-              <input hidden name="primary_email_id" value="{{ email.id }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button type="submit" class="dropdown__link" title="Set this email address as primary">
-                <i class="fa fa-cog" aria-hidden="true"></i>
-                Set as Primary
-              </button>
-            </form>
-            {% endif %}
-          </li>
-          <li>
-            {% if user.emails|length > 1 and not email.primary %}
-            <form method="POST">
-              <input hidden name="delete_email_id" value="{{ email.id }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button type="submit" class="dropdown__link" title="Remove this email address">
-                <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                Remove Email
-              </button>
-            </form>
-            {% endif %}
-          </li>
+          {% if not email.verified %}
+            <li>
+              <form method="POST">
+                <input hidden name="reverify_email_id" value="{{ email.id }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <button type="submit" class="dropdown__link" title="Resend verification email">
+                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                  Resend verification email
+                </button>
+              </form>
+            </li>
+          {% endif %}
+          {% if not email.primary and email.verified %}
+            <li>
+              <form method="POST">
+                <input hidden name="primary_email_id" value="{{ email.id }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <button type="submit" class="dropdown__link" title="Set this email address as primary">
+                  <i class="fa fa-cog" aria-hidden="true"></i>
+                  Set as primary
+                </button>
+              </form>
+            </li>
+          {% endif %}
+          {% if user.emails|length > 1 and not email.primary %}
+            <li>
+              <form method="POST">
+                <input hidden name="delete_email_id" value="{{ email.id }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <button type="submit" class="dropdown__link" title="Remove this email address">
+                  <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                  Remove email
+                </button>
+              </form>
+            </li>
+          {% endif %}
         </ul>
       </nav>
       {% endif %}
@@ -172,7 +172,7 @@
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">view submenu</span>
+            <span class="sr-only">View submenu</span>
           </span>
         </button>
         <ul class="dropdown__content">
@@ -210,7 +210,7 @@
         <div class="modal__content" role="dialog">
           <a href="#modal-close" title="Close" class="modal__close">
             <i class="fa fa-times" aria-hidden="true"></i>
-            <span class="sr-only">close</span>
+            <span class="sr-only">Close</span>
           </a>
           <div class="modal__body">
             <h3 class="modal__title">Unique identifier for API token "{{ macaroon.description }}"</h3>
@@ -287,7 +287,7 @@
   {{ form_error_anchor(add_email_form) }}
   <section id="account-emails">
     <h2 class="sub-title">Account emails</h2>
-    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
+    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check" aria-hidden="true"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
 
     {# Sort the emails as follows:
       * Primary email
