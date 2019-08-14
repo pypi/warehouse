@@ -428,14 +428,14 @@ class DatabaseUserService:
             None,
         )
 
-    def record_event(self, user_id, **kwargs):
+    def record_event(self, user_id, *, tag, ip_address, additional):
         """
         Creates a new UserEvent for the given user.
 
         Returns the event.
         """
         user = self.get_user(user_id)
-        return user.record_event(**kwargs)
+        return user.record_event(tag=tag, ip_address=ip_address, additional=additional)
 
 
 @implementer(ITokenService)
