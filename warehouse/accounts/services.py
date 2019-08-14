@@ -430,7 +430,8 @@ class DatabaseUserService:
 
     def record_event(self, user_id, *, tag, ip_address, additional):
         """
-        Creates a new UserEvent for the given user.
+        Creates a new UserEvent for the given user with the given
+        tag, IP address, and additional metadata.
 
         Returns the event.
         """
