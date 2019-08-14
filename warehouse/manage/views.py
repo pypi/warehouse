@@ -877,6 +877,12 @@ class ManageProjectRelease:
             )
         )
 
+        self.release.project.record_event(
+            tag="project:release:remove",
+            ip_address=self.request.remote_addr,
+            additional={"canonical_version": self.release.canonical_version},
+        )
+
         self.request.db.delete(self.release)
 
         self.request.session.flash(
@@ -934,6 +940,15 @@ class ManageProjectRelease:
                 submitted_by=self.request.user,
                 submitted_from=self.request.remote_addr,
             )
+        )
+
+        self.release.project.record_event(
+            tag="project:release:file:remove",
+            ip_address=self.request.remote_addr,
+            additional={
+                "canonical_version": self.release.canonical_version,
+                "filename": release_file.filename,
+            },
         )
 
         self.request.db.delete(release_file)
