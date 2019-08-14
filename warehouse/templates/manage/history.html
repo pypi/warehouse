@@ -54,6 +54,8 @@
     <small>
       Changed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
+    {% else %}
+    <strong>{{ event.tag }}</strong>
     {% endif %}
   {%- endmacro %}
 

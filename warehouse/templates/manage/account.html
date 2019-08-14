@@ -574,6 +574,8 @@
       {% elif event.tag  == "account:api_token:removed" %}
       <strong>API token removed</strong><br>
       <small>Unique identifier: {{ event.additional.macaroon_id }}</small>
+      {% else %}
+      <strong>{{ event.tag }}</strong>
       {% endif %}
     {%- endmacro %}
 
