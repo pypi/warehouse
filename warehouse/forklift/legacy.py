@@ -1093,7 +1093,7 @@ def file_upload(request):
         )
 
         project.record_event(
-            tag="project:release:create",
+            tag="project:release:add",
             ip_address=request.remote_addr,
             additional={"canonical_version": release.canonical_version},
         )
