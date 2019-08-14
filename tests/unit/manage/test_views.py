@@ -2173,7 +2173,13 @@ class TestManageProjectRelease:
         }
 
     def test_delete_project_release(self, monkeypatch):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
         request = pretend.stub(
             POST={"confirm_version": release.version},
             method="POST",
@@ -2213,6 +2219,13 @@ class TestManageProjectRelease:
         ]
         assert request.route_path.calls == [
             pretend.call("manage.project.releases", project_name=release.project.name)
+        ]
+        assert release.project.record_event.calls == [
+            pretend.call(
+                tag="project:release:remove",
+                ip_address=request.remote_addr,
+                additional={"canonical_version": release.canonical_version},
+            )
         ]
 
     def test_delete_project_release_no_confirm(self):
