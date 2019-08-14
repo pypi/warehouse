@@ -409,15 +409,16 @@
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
       <table class="table table--light table--2fa">
+        <caption class="sr-only">Two factor authentication methods enabled</caption>
         <thead>
           <tr>
-            <th colspan="2">Two factor method</th>
+            <th scope="col" colspan="2">Two factor method</th>
           </tr>
         </thead>
         <tbody>
           {% if user.totp_secret %}
           <tr>
-            <td>Authentication application (TOTP)</td>
+            <th scope="row">Authentication application (TOTP)</th>
             <td class="table__action">
               <a href="#disable-totp" class="button button--primary">Remove</a>
               {% set title="Remove authentication application" %}
@@ -429,10 +430,10 @@
           {% endif %}
           {% for credential in user.webauthn %}
           <tr>
-            <td>
+            <th scope="row">
               <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
               <span class="badge badge--warning">Beta feature</span>
-            </td>
+            </th>
             <td class="table__action">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
               {% set title="Remove two factor security device - " + credential.label %}

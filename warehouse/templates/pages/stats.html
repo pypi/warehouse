@@ -39,12 +39,12 @@
       </thead>
       <tbody>
         <tr>
-          <td>All of PyPI</td>
+          <th scope="row">All of PyPI</th>
           <td>{{ total_packages_size|filesizeformat() }}</td>
         </tr>
         {% for pkg_name, pkg_data in top_packages.items() %}
         <tr>
-          <td>{{ pkg_name }}</td>
+          <th scope="row">{{ pkg_name }}</th>
           <td>{{ pkg_data["size"]|filesizeformat() }}</td>
         </tr>
         {% endfor %}
