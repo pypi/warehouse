@@ -41,12 +41,7 @@ def upgrade():
             "time", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column("ip_address", sa.String(), nullable=False),
-        sa.Column(
-            "additional",
-            postgresql.JSONB(astext_type=sa.Text()),
-            server_default=sa.text("'{}'"),
-            nullable=True,
-        ),
+        sa.Column("additional", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.ForeignKeyConstraint(
             ["project_id"], ["projects.id"], initially="DEFERRED", deferrable=True
         ),
@@ -66,12 +61,7 @@ def upgrade():
             "time", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column("ip_address", sa.String(), nullable=False),
-        sa.Column(
-            "additional",
-            postgresql.JSONB(astext_type=sa.Text()),
-            server_default=sa.text("'{}'"),
-            nullable=True,
-        ),
+        sa.Column("additional", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_id"], ["users.id"], initially="DEFERRED", deferrable=True
         ),

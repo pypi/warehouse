@@ -428,7 +428,7 @@ class DatabaseUserService:
             None,
         )
 
-    def record_event(self, user_id, *, tag, ip_address, additional):
+    def record_event(self, user_id, *, tag, ip_address, additional=None):
         """
         Creates a new UserEvent for the given user with the given
         tag, IP address, and additional metadata.

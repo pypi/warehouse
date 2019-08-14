@@ -96,9 +96,7 @@ class User(SitemapMixin, db.Model):
         "Macaroon", backref="user", cascade="all, delete-orphan", lazy=False
     )
 
-    events = orm.relationship(
-        "UserEvent", backref="user", lazy=False
-    )
+    events = orm.relationship("UserEvent", backref="user", lazy=False)
 
     def record_event(self, *, tag, ip_address, additional):
         session = orm.object_session(self)
@@ -177,7 +175,7 @@ class UserEvent(db.Model):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
     ip_address = Column(String, nullable=False)
-    additional = Column(JSONB, nullable=True, server_default=sql.text("'{}'"))
+    additional = Column(JSONB, nullable=True)
 
 
 class UnverifyReasons(enum.Enum):

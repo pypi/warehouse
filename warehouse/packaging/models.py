@@ -136,9 +136,7 @@ class Project(SitemapMixin, db.Model):
         passive_deletes=True,
     )
 
-    events = orm.relationship(
-        "ProjectEvent", backref="project", lazy=False
-    )
+    events = orm.relationship("ProjectEvent", backref="project", lazy=False)
 
     def __getitem__(self, version):
         session = orm.object_session(self)
@@ -192,9 +190,11 @@ class Project(SitemapMixin, db.Model):
                 acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
-    def record_event(self, **kwargs):
+    def record_event(self, *, tag, ip_address, additional=None):
         session = orm.object_session(self)
-        event = ProjectEvent(project=self, **kwargs)
+        event = ProjectEvent(
+            project=self, tag=tag, ip_address=ip_address, additional=additional
+        )
         session.add(event)
         session.flush()
 
@@ -244,7 +244,7 @@ class ProjectEvent(db.Model):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
     ip_address = Column(String, nullable=False)
-    additional = Column(JSONB, nullable=True, server_default=sql.text("'{}'"))
+    additional = Column(JSONB, nullable=True)
 
 
 class DependencyKind(enum.IntEnum):
