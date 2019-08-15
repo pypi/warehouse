@@ -17,12 +17,16 @@
 
 {% set active_tab = 'journal' %}
 
-{% block title %}{{ project.name }}' project journal{% endblock %}
+{% block title %}'{{ project.name }}' project journal{% endblock %}
 
 {% block main %}
   <h2>Project journal</h2>
 
-  <p>Each time you or your collaborators update this project, the action is recorded and displayed here</p>
+  <p>Each time you or your collaborators update this project, the action is recorded and displayed here.</p>
+
+  <div class="callout-block callout-block--warning no-top-margin">
+    <p>This feature will be deprecated in the future, replaced by the <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}">security history page</a>.
+  </div>
 
   <table class="table table--history margin-top">
     <caption class="sr-only">History for {{ project.name }}</caption>
