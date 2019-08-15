@@ -2189,7 +2189,7 @@ class TestManageProjectRelease:
             ),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(),
+            user=pretend.stub(username=pretend.stub()),
             remote_addr=pretend.stub(),
         )
         journal_obj = pretend.stub()
@@ -2224,7 +2224,10 @@ class TestManageProjectRelease:
             pretend.call(
                 tag="project:release:remove",
                 ip_address=request.remote_addr,
-                additional={"canonical_version": release.canonical_version},
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
             )
         ]
 
