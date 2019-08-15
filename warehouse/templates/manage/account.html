@@ -82,40 +82,40 @@
         </button>
         <ul class="dropdown__content">
           {% if not email.verified %}
-            <li>
-              <form method="POST">
-                <input hidden name="reverify_email_id" value="{{ email.id }}">
-                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                <button type="submit" class="dropdown__link" title="Resend verification email">
-                  <i class="fa fa-envelope" aria-hidden="true"></i>
-                  Resend verification email
-                </button>
-              </form>
-            </li>
+          <li>
+            <form method="POST">
+              <input hidden name="reverify_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button type="submit" class="dropdown__link" title="Resend verification email">
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                Resend verification email
+              </button>
+            </form>
+          </li>
           {% endif %}
           {% if not email.primary and email.verified %}
-            <li>
-              <form method="POST">
-                <input hidden name="primary_email_id" value="{{ email.id }}">
-                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                <button type="submit" class="dropdown__link" title="Set this email address as primary">
-                  <i class="fa fa-cog" aria-hidden="true"></i>
-                  Set as primary
-                </button>
-              </form>
-            </li>
+          <li>
+            <form method="POST">
+              <input hidden name="primary_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button type="submit" class="dropdown__link" title="Set this email address as primary">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+                Set as primary
+              </button>
+            </form>
+          </li>
           {% endif %}
           {% if user.emails|length > 1 and not email.primary %}
-            <li>
-              <form method="POST">
-                <input hidden name="delete_email_id" value="{{ email.id }}">
-                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                <button type="submit" class="dropdown__link" title="Remove this email address">
-                  <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                  Remove email
-                </button>
-              </form>
-            </li>
+          <li>
+            <form method="POST">
+              <input hidden name="delete_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button type="submit" class="dropdown__link" title="Remove this email address">
+                <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                Remove email
+              </button>
+            </form>
+          </li>
           {% endif %}
         </ul>
       </nav>
