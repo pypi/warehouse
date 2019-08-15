@@ -428,6 +428,16 @@ class DatabaseUserService:
             None,
         )
 
+    def record_event(self, user_id, *, tag, ip_address, additional=None):
+        """
+        Creates a new UserEvent for the given user with the given
+        tag, IP address, and additional metadata.
+
+        Returns the event.
+        """
+        user = self.get_user(user_id)
+        return user.record_event(tag=tag, ip_address=ip_address, additional=additional)
+
 
 @implementer(ITokenService)
 class TokenService:
