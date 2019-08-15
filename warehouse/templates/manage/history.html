@@ -31,13 +31,21 @@
       Created by: <a href="{{ request.route_path('accounts.profile', username=event.additional.created_by) }}">{{ event.additional.created_by }}</a>
     </small>
     {% elif event.tag == "project:release:add" %}
-    <strong><a href="{{ request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version) }}">Release version {{ event.additional.canonical_version }}</a> created</strong>
+    <strong><a href="{{ request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version) }}">Release version {{ event.additional.canonical_version }}</a> created</strong><br>
+    <small>
+      Added by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
     {% elif event.tag == "project:release:remove" %}
-    <strong>Release version {{ event.additional.canonical_version }} removed</strong>
+    <strong>Release version {{ event.additional.canonical_version }} removed</strong><br>
+    <small>
+      Removed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
     {% elif event.tag == "project:release:file:remove" %}
     <strong>File removed from release version {{ event.additional.canonical_version }}</strong><br>
-    <small>Filename: {{ event.additional.filename }}</small>
-
+    <small>Filename: {{ event.additional.filename }}</small><br>
+    <small>
+      Removed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
     {% elif event.tag == "project:role:add" %}
     <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> added as project {{ event.additional.role_name|lower }}</strong><br>
     <small>
@@ -53,7 +61,6 @@
     <small>
       Changed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
-
     {% elif event.tag == "project:api_token:added" %}
     <strong>API token added</strong><br>
     <small>
@@ -68,7 +75,6 @@
       Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
       Token name: {{ event.additional.description }}
     </small>
-
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}
