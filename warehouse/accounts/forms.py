@@ -95,7 +95,7 @@ class PasswordMixin:
         super().__init__(*args, **kwargs)
 
     def validate_password(self, field):
-        userid = self.user_service.find_userid(self._get_username())
+        userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
             try:
                 if not self.user_service.check_password(
@@ -109,13 +109,6 @@ class PasswordMixin:
                     "There have been too many unsuccessful login attempts, "
                     "try again later."
                 ) from None
-
-    def _get_username(self):
-        # the username may be set directly in the instance or as a field
-        if isinstance(self.username, str):
-            return self.username
-        else:
-            return self.username.data
 
 
 class NewPasswordMixin:

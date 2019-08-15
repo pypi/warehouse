@@ -163,9 +163,8 @@ class TestProvisionTOTPForm:
 class TestDeleteTOTPForm:
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.DeleteTOTPForm(username="username", user_service=user_service)
+        form = forms.DeleteTOTPForm(user_service=user_service)
 
-        assert form.username == "username"
         assert form.user_service is user_service
 
     def test_validate_confirm_password(self):
@@ -451,10 +450,8 @@ class TestDeleteMacaroonForm:
         form = forms.DeleteMacaroonForm(
             macaroon_service=macaroon_service,
             user_service=user_service,
-            username="username",
         )
 
-        assert form.username == "username"
         assert form.macaroon_service is macaroon_service
         assert form.user_service is user_service
 
