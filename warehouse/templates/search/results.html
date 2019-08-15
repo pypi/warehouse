@@ -58,8 +58,8 @@
   {% endif %}
   {% set id = level_id + ' :: ' + classifier %}
   <li>
-    <input name="c" type="checkbox" id="{{ id }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ id }}" {{ 'checked' if id in applied_filters else '' }}>
-    <label class="checkbox-tree__label" for="{{ id }}">{{ classifier }}</label>
+    <input name="c" type="checkbox" id="{{ id|classifier_id }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ id }}" {{ 'checked' if id in applied_filters else '' }}>
+    <label class="checkbox-tree__label" for="{{ id|classifier_id }}">{{ classifier }}</label>
     {%- if children %}
     <ul>{{ generate_classifier_tree(level_id, children, applied_filters, parent=classifier) }}</ul>
     {%- endif %}
@@ -75,14 +75,13 @@
 {%- endblock %}
 
 {% block content %}
-<section class="horizontal-section horizontal-section--medium">
+<div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
     <div class="left-layout__sidebar">
       <div class="dark-overlay -js-dark-overlay"></div>
       <aside class="filter-panel -js-filter-panel">
-        <button type="button" class="filter-panel__close -js-close-panel">
+        <button type="button" class="filter-panel__close -js-close-panel" aria-label="close">
           <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">Close</span>
         </button>
         <h2 class="no-top-padding">
           Filter by
@@ -142,7 +141,7 @@
       </div>
       {% endif %}
       <form action="{{ request.route_path('search') }}">
-        <section class="split-layout split-layout--table split-layout--wrap-on-tablet">
+        <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
           <div>
             {% if term or applied_filters %}
             <p>
@@ -168,7 +167,7 @@
             </select>
             {% endif %}
           </div>
-        </section>
+        </div>
 
         <div class="applied-filters">
         {% if applied_filters %}
@@ -193,7 +192,7 @@
         </div>
 
         {% if term or applied_filters %}
-        <section>
+        <div>
           {% if page.items %}
           <ul class="unstyled" aria-label="Search results">
             {% for item in page.items %}
@@ -219,10 +218,10 @@
           </div>
           {% endif %}
           {{ pagination.paginate(page) }}
-        </section>
+        </div>
         {% endif %}
       </form>
     </div>
   </div>
-</section>
+</div>
 {% endblock %}

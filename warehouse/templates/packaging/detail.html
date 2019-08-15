@@ -88,7 +88,7 @@
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
 {% block content %}
-<section class="banner">
+<div class="banner">
   <div class="package-header">
     <div class="package-header__left">
       <h1 class="package-header__name">
@@ -100,7 +100,7 @@
         <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
         <button type="button" class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
           <i class="fa fa-copy" aria-hidden="true"></i>
-          <span class="sr-only">Copy PIP instructions<span>
+          <span class="sr-only">Copy PIP instructions</span>
         </button>
       </p>
       {% endif %}
@@ -117,9 +117,9 @@
       <p class="package-header__date">Last released: {{ humanize(release.created) }}</p>
     </div>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section horizontal-section--grey horizontal-section--thin">
+<div class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="split-layout split-layout--middle package-description">
     {% if release.summary %}
@@ -131,30 +131,38 @@
     {% endcsi %}
     </div>
   </div>
-</section>
+</div>
 
-<section data-controller="project-tabs">
+<div data-controller="project-tabs">
   <div class="tabs-container">
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Navigation</h3>
-            <nav role="tablist">
-              <a id="description-tab" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" href="#description" role="tab">
-                <i class="fa fa-align-left" aria-hidden="true"></i>
-                Project description
-              </a>
-              <a id="history-tab" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" href="#history" role="tab">
-                <i class="fa fa-history" aria-hidden="true"></i>
-                Release history
-              </a>
+          <nav>
+            <ul class="vertical-tabs__list" role="tablist">
+              <li role="tab">
+                <a id="description-tab" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" href="#description">
+                  <i class="fa fa-align-left" aria-hidden="true"></i>
+                  Project description
+                </a>
+              </li>
+              <li role="tab">
+                <a id="history-tab" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" href="#history">
+                  <i class="fa fa-history" aria-hidden="true"></i>
+                  Release history
+                </a>
+              </li>
               {% if files %}
-                <a id="files-tab" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" href="#files" role="tab">
+              <li role="tab">
+                <a id="files-tab" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" href="#files">
                   <i class="fa fa-download" aria-hidden="true"></i>
                   Download files
                 </a>
+              </li>
               {% endif %}
-            </nav>
+            </ul>
+          </nav>
         </div>
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
 
@@ -162,24 +170,34 @@
       <div class="vertical-tabs__panel">
         <!-- mobile menu -->
         <nav>
-          <a id="mobile-description-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" href="#description">
-            <i class="fa fa-align-left" aria-hidden="true"></i>
-            Project description
-          </a>
-          <a id="mobile-data-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#data">
-            <i class="fa fa-info-circle" aria-hidden="true"></i>
-            Project details
-          </a>
-          <a id="mobile-history-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#history">
-            <i class="fa fa-history" aria-hidden="true"></i>
-            Release history
-          </a>
-          {% if files %}
-          <a id="mobile-files-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#files">
-            <i class="fa fa-download" aria-hidden="true"></i>
-            Download files
-          </a>
-          {% endif %}
+          <ul class="vertical-tabs__list" role="tablist">
+            <li role="tab">
+              <a id="mobile-description-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" href="#description">
+                <i class="fa fa-align-left" aria-hidden="true"></i>
+                Project description
+              </a>
+            </li>
+            <li role="tab">
+              <a id="mobile-data-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#data">
+                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                Project details
+              </a>
+            </li>
+            <li role="tab">
+              <a id="mobile-history-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#history">
+              <i class="fa fa-history" aria-hidden="true"></i>
+              Release history
+            </a>
+            </li>
+            {% if files %}
+            <li role="tab">
+              <a id="mobile-files-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#files">
+                <i class="fa fa-download" aria-hidden="true"></i>
+                Download files
+              </a>
+            </li>
+            {% endif %}
+          </ul>
         </nav>
 
         {# Tab: Project description #}
@@ -210,7 +228,7 @@
             <a class="reset-text margin-top" href="{{ request.route_path('help')}}#project-release-notifications">Release notifications</a>
           </h2>
 
-          <section class="release-timeline">
+          <div class="release-timeline">
             {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
             {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
             {% for hversion in all_versions %}
@@ -243,7 +261,7 @@
               </a>
             </div>
             {% endfor %}
-          </section>
+          </div>
         </div>
 
         {% if files %}
@@ -265,13 +283,13 @@
               <tbody>
                 {% for file in files %}
                 <tr>
-                  <td>
+                  <th scope="row">
                     <a href="{{ request.route_url('packaging.file', path=file.path) }}">
                       {{ file.filename }}
                     </a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a href="#copy-hash-modal-{{ file.id }}" class="button button--small">View hashes</a>
-                  </td>
+                  </th>
                   <td>
                     {{ file.packagetype|format_package_type }}
                   </td>
@@ -297,5 +315,5 @@
       </div>
     </div>
   </div>
-</section>
+</div>
 {% endblock %}

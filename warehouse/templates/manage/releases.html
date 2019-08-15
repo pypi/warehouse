@@ -23,10 +23,12 @@
     <table class="table table--light table--releases no-top-margin">
       <caption class="sr-only">Releases for {{ project.name }}</caption>
       <thead>
-        <th scope="col" class="table__version">Version</th>
-        <th scope="col" class="table__date">Release date</th>
-        <th scope="col" class="table__summary">Summary</th>
-        <th scope="col" class="table__options"></th>
+        <tr>
+          <th scope="col" class="table__version">Version</th>
+          <th scope="col" class="table__date">Release date</th>
+          <th scope="col" class="table__summary">Summary</th>
+          <th scope="col" class="table__options"></th>
+        </tr>
       </thead>
       <tbody>
       {% for release in project.releases %}
@@ -36,7 +38,7 @@
               {{ release.version }}
             </a>
           </th>
-          <td class="table__date">{{ humanize(release.created) }}</time></td>
+          <td class="table__date">{{ humanize(release.created) }}</td>
           <td class="table__summary">
             {% if release.summary %}
               {{ release.summary }}
@@ -50,7 +52,7 @@
                 Options
                 <span class="dropdown__trigger-caret">
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
-                  <span class="sr-only">view submenu</span>
+                  <span class="sr-only">View submenu</span>
                 </span>
               </button>
               <ul class="dropdown__content">

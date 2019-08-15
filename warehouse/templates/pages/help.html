@@ -76,7 +76,7 @@
 {% block title %}Help{% endblock %}
 
 {% block content %}
-  <section class="horizontal-section">
+  <div class="horizontal-section">
     <div class="narrow-container">
       <h1 class="page-title">Common questions</h1>
 
@@ -243,6 +243,7 @@
           <li>To use a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">browser that supports WebAuthn and PublicKeyCredential</a>, as this is the standard implemented by PyPI.</li>
           <li>To be running JavaScript on your browser</li>
           <li>To use a USB key that adheres to the <a href="https://fidoalliance.org/specifications/download/" title="External link" target="_blank" rel="noopener">FIDO U2F specification</a>:</li>
+          <li>
             <ul>
               <li>Popular keys include <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a>, <a href="https://cloud.google.com/titan-security-key/" title="External link" target="_blank" rel="noopener">Google Titan</a> and <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.</li>
               <li>Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI</li>
@@ -454,9 +455,9 @@
 
       </section>
     </div>
-  </section>
+  </div>
 
-  <section class="horizontal-section horizontal-section--grey">
+  <div class="horizontal-section horizontal-section--grey">
     <div class="narrow-container">
       <h3>Resources</h3>
       <p>Looking for something else? Perhaps these links will help:</p>
@@ -471,5 +472,5 @@
       <p>The <a href="https://pypa.io" title="External link" target="_blank" rel="noopener">Python Packaging Authority (PyPA)</a> is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer, use <a href="https://webchat.freenode.net/?channels=%23pypa" title="External link" target="_blank" rel="noopener">#pypa on IRC (freenode)</a>, or <a href="https://mail.python.org/mailman/listinfo/distutils-sig" title="External link" target="_blank" rel="noopener">join the distutils-sig mailing list</a>.</p>
 
     </div>
-  </section>
+  </div>
 {% endblock %}

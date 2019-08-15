@@ -16,14 +16,25 @@
   Set of tabs with associated content that display vertically on large resolutions
   and change to an accordion on smaller resolutions.
 
-  <div class="vertical-tabs"> // container
+  Accessibility:
+  * If the tabs are being used as navigation, wrap the tabs in a <nav>
+  * If more than one tab is present, wrap the tabs in a <ul>
+  * If the tabs are dynamic (controlled by JS), add roles as below
+
+  <div class="vertical-tabs">
     <div class="vertical-tabs__tabs">
-      <a class="vetical-tabs__tab">
-        // Tab
-      </a>
+      <nav>
+        <ul class="vertical-tabs__list" role="tablist">
+          <li>
+            <a id="my-tab-id" class="vetical-tabs__tab" role="tab">
+              // Tab
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
 
-    <div class="vertical-tabs__panel">
+    <div class="vertical-tabs__panel" role="tabpanel" aria-labelledby="my-tab-id">
       <a class="vertical-tabs__tab vertical-tabs__tab--mobile">
         // Duplicate Tab to show on smaller screens
       </a>
@@ -40,6 +51,12 @@
 
   @media only screen and (max-width: $tablet) {
     margin: 0;
+  }
+
+  &__list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
   }
 
   &__tabs {
