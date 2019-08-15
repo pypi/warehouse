@@ -42,7 +42,7 @@
     </small>
     {% elif event.tag == "project:release:file:remove" %}
     <strong>File removed from release version {{ event.additional.canonical_version }}</strong><br>
-    <small>Filename: {{ event.additional.filename }}</small><br>
+    <small>Filename: <code>{{ event.additional.filename }}</code></small><br>
     <small>
       Removed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
