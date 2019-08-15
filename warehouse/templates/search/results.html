@@ -58,8 +58,8 @@
   {% endif %}
   {% set id = level_id + ' :: ' + classifier %}
   <li>
-    <input name="c" type="checkbox" id="{{ id }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ id }}" {{ 'checked' if id in applied_filters else '' }}>
-    <label class="checkbox-tree__label" for="{{ id }}">{{ classifier }}</label>
+    <input name="c" type="checkbox" id="{{ id|classifier_id }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ id }}" {{ 'checked' if id in applied_filters else '' }}>
+    <label class="checkbox-tree__label" for="{{ id|classifier_id }}">{{ classifier }}</label>
     {%- if children %}
     <ul>{{ generate_classifier_tree(level_id, children, applied_filters, parent=classifier) }}</ul>
     {%- endif %}
