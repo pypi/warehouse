@@ -25,9 +25,9 @@
 {% set title = "PyPI" %}
 {% endif %}
 
-<section class="horizontal-section">
+<div class="horizontal-section">
   <div class="site-container">
-  <h1 class="page-title">Two-factor authentication</h1>
+    <h1 class="page-title">Two-factor authentication</h1>
 
     <div class="twofa-login">
       {% if has_webauthn %}
@@ -86,7 +86,7 @@
               <span class="form-group__required">(required)</span>
               {% endif %}
             </label>
-            {{ totp_form.totp_value(autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-errors"}) }}
+            {{ totp_form.totp_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-errors"}) }}
             {% if totp_form.totp_value.errors %}
             <ul id="totp-errors" class="form-errors" role="alert">
               {% for error in totp_form.totp_value.errors %}
@@ -105,7 +105,6 @@
       </div>
       {% endif %}
     </div>
-
   </div>
-</section>
+</div>
 {% endblock %}

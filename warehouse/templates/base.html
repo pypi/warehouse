@@ -71,7 +71,7 @@
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/brands.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic%7CSource+Code+Pro:500">
     <noscript>
       <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
     </noscript>
@@ -138,13 +138,13 @@
       Switch to mobile version
     </button>
 
-    <section id="sticky-notifications" class="stick-to-top js-stick-to-top">
+    <div id="sticky-notifications" class="stick-to-top js-stick-to-top">
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">Warning</span>
         </span>
         <span class="notification-bar__message">You are using an unsupported browser, upgrade to a newer version.</span>
       </div>
@@ -153,7 +153,7 @@
       <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">Warning</span>
         </span>
         <span class="notification-bar__message">You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
       </div>
@@ -163,12 +163,12 @@
         {# TODO: This should be removed once GH-3828 is fixed. #}
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">Warning</span>
         </span>
         <span class="notification-bar__message">Some features may not work without JavaScript. Please try enabling it if you encounter problems.</span>
       </div>
       </noscript>
-    </section>
+    </div>
 
     {% block flash_messages %}
       {% csi request.route_path("includes.flash-messages") %}
@@ -217,7 +217,7 @@
     </header>
 
     {% block mobile_search %}
-    <section class="mobile-search">
+    <div class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
         <label for="mobile-search" class="sr-only">Search PyPI</label>
         <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
@@ -227,7 +227,7 @@
           <span class="sr-only">Search</span>
         </button>
       </form>
-    </section>
+    </div>
     {% endblock mobile_search %}
 
     <main id="content">
@@ -235,9 +235,9 @@
       {% endblock content %}
     </main>
 
-    <footer class="footer" role="contentinfo">
+    <footer class="footer">
       <div class="footer__logo">
-        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="Logo" class="-js-white-cube">
+        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="" class="-js-white-cube">
       </div>
 
       <div class="footer__menus">
