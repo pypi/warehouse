@@ -67,7 +67,6 @@
   }
 
   &__name {
-    @include add-ellipsis;
     padding: 0;
     margin-top: -10px;
   }
