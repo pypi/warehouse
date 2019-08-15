@@ -448,8 +448,7 @@ class TestDeleteMacaroonForm:
         macaroon_service = pretend.stub()
         user_service = pretend.stub()
         form = forms.DeleteMacaroonForm(
-            macaroon_service=macaroon_service,
-            user_service=user_service,
+            macaroon_service=macaroon_service, user_service=user_service
         )
 
         assert form.macaroon_service is macaroon_service
