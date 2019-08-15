@@ -90,7 +90,7 @@
   {% if release.keywords %}
   <p class="tags">
     <i class="fa fa-tags" aria-hidden="true"></i>
-    <span class="sr-only">Tags:</span>
+    <span class="sr-only">Tags</span>
     {% for keyword in release.keywords | format_tags %}
     <span class="package-keyword">
       {{ keyword }}{% if not loop.last %},{% endif %}
