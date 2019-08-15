@@ -1095,7 +1095,10 @@ def file_upload(request):
         project.record_event(
             tag="project:release:add",
             ip_address=request.remote_addr,
-            additional={"canonical_version": release.canonical_version},
+            additional={
+                "submitted_by": request.user.username,
+                "canonical_version": release.canonical_version,
+            },
         )
 
     # TODO: We need a better solution to this than to just do it inline inside

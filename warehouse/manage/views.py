@@ -880,7 +880,10 @@ class ManageProjectRelease:
         self.release.project.record_event(
             tag="project:release:remove",
             ip_address=self.request.remote_addr,
-            additional={"canonical_version": self.release.canonical_version},
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+            },
         )
 
         self.request.db.delete(self.release)
@@ -946,6 +949,7 @@ class ManageProjectRelease:
             tag="project:release:file:remove",
             ip_address=self.request.remote_addr,
             additional={
+                "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
                 "filename": release_file.filename,
             },
