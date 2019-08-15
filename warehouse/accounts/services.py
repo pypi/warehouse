@@ -264,6 +264,17 @@ class DatabaseUserService:
 
         return user.totp_secret
 
+    def get_last_totp_value(self, user_id):
+        """
+        Returns the user's last (accepted) TOTP value.
+
+        If the user doesn't have a TOTP or hasn't used their TOTP
+        method, returns None.
+        """
+        user = self.get_user(user_id)
+
+        return user.last_totp_value
+
     def check_totp_value(self, user_id, totp_value, *, tags=None):
         """
         Returns True if the given TOTP is valid against the user's secret.
