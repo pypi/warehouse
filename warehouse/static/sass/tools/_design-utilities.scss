@@ -78,9 +78,3 @@
     }
   }
 }
-
-@mixin add-ellipsis {
-  @include ellipsis;
-  padding-left: 1px;
-  padding-right: 1px;
-}

@@ -237,10 +237,10 @@
       <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
       <div class="gravatar-form__content">
         <p>
-        We use <a href="https://gravatar.com/" title="External link" target="_blank" rel="noopener">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
+        We use <a href="https://gravatar.com/" title="External link" target="_blank" rel="noopener">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break">{{ user.email }}</code>
         </p>
         <a href="{{ gravatar_profile(user.email) }}" title="External link" target="_blank" rel="noopener" class="button">
-          Change image<span class="hide-on-mobile"> on gravatar.com</span>
+          Change image on gravatar.com
         </a>
       </div>
     </div>
