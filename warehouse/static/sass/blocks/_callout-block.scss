@@ -37,6 +37,10 @@
   z-index: index($z-index-scale, "callout-block");
   border-radius: 4px;
 
+  &__dismiss {
+    @include dismiss-button;
+  }
+
   &__heading {
     @include h3;
   }
@@ -53,6 +57,14 @@
     border-radius: 3px 0 0 3px;
   }
 
+  &--bottom-margin {
+    margin-bottom: $spacing-unit / 2;
+  }
+
+  &--dismissed {
+    display: none;
+  }
+
   &--danger {
     border-color: $danger-color;
 
@@ -67,33 +79,49 @@
     &:before {
       background-color: $danger-color;
     }
+
+    .callout-block__dismiss {
+      @include link-focus-state($danger-color);
+    }
   }
 
   &--warning {
-    border-color: $warn-text;
+    border-color: $warning-color;
+
+    > :not(.modal):not(.button) {
+      color: $warning-color;
+
+      a:not(.button) {
+        @include warning-underlined-link;
+      }
+    }
 
     &:before {
-      background-color: $warn-text;
+      background-color: $warning-color;
+    }
+
+    .callout-block__dismiss {
+      @include link-focus-state($warning-color);
     }
   }
 
   &--success {
     border-color: $success-color;
 
+    > :not(.modal):not(.button) {
+      color: $success-color;
+
+      a:not(.button) {
+        @include success-underlined-link;
+      }
+    }
+
     &:before {
       background-color: $success-color;
     }
-  }
 
-  &--bottom-margin {
-    margin-bottom: $spacing-unit / 2;
-  }
-
-  &--dismissed {
-    display: none;
-  }
-
-  &__dismiss {
-    @include dismiss-button;
+    .callout-block__dismiss {
+      @include link-focus-state($success-color);
+    }
   }
 }

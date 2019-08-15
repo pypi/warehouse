@@ -35,6 +35,8 @@
 
   .sidebar-section__user-gravatar {
     @include link-without-underline;
+    @include link-focus-state($primary-color);
+
   }
 
   &:last-of-type {
@@ -53,6 +55,7 @@
 
     a {
       @include link-without-underline;
+      @include link-focus-state($primary-color);
     }
   }
 

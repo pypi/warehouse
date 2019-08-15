@@ -74,9 +74,14 @@
     cursor: pointer;
     @include link-without-underline;
 
-    &:hover,
-    &:focus {
+    &:hover {
       color: darken($primary-color, 10)
+    }
+
+    &:active,
+    &:focus {
+      outline: 2px solid $white;
+      box-shadow: 0 0 0 4px $primary-color;
     }
 
     &--mobile {

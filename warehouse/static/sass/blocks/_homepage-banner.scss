@@ -46,8 +46,7 @@
     margin: $spacing-unit 0 10px 0;
 
     a {
-      @include white-underlined-link;      
-      @include link-focus;
+      @include white-underlined-link;
     }
   }
 }
