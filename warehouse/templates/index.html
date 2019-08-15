@@ -45,7 +45,7 @@
   {% set banner = "Find, install and publish Python packages with the Python Package Index" %}
 {% endif %}
 
-<section class="banner">
+<div class="banner">
   <div class="homepage-banner">
     <h1 class="homepage-banner__title">{{ banner }}</h1>
 
@@ -60,18 +60,18 @@
 
     <p class="homepage-banner__browse">Or <a href="{{ request.route_path('search') }}">browse projects</a></p>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
+<div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
     <p class="statistics-bar__statistic">{{ num_projects|format_number }} projects</p>
     <p class="statistics-bar__statistic">{{ num_releases|format_number }} releases</p>
     <p class="statistics-bar__statistic">{{ num_files|format_number }} files</p>
     <p class="statistics-bar__statistic">{{ num_users|format_number }} users</p>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section">
+<div class="horizontal-section">
   <div class="about-pypi">
     <div class="about-pypi__logo">
       <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}">
@@ -88,9 +88,9 @@
       </p>
     </div>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section horizontal-section--grey">
+<div class="horizontal-section horizontal-section--grey">
   <div class="site-container">
     <div class="col-half">
       <div class="heading-wsubtitle" id="pypi-trending-packages">
@@ -118,6 +118,6 @@
       </ul>
     </div>
   </div>
-</section>
+</div>
 
 {% endblock %}
