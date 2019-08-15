@@ -236,9 +236,9 @@ class Project(SitemapMixin, db.Model):
 class ProjectEvent(db.Model):
     __tablename__ = "project_events"
 
-    project_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("projects.id", deferrable=True, initially="DEFERRED"),
+    project_name = Column(
+        Text,
+        ForeignKey("projects.name", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
     tag = Column(String, nullable=False)

@@ -167,9 +167,9 @@ class WebAuthn(db.Model):
 class UserEvent(db.Model):
     __tablename__ = "user_events"
 
-    user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+    user_username = Column(
+        CIText,
+        ForeignKey("users.username", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
     tag = Column(String, nullable=False)
