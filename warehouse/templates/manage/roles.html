@@ -53,8 +53,9 @@
       <tr>
         <th class="table__user" scope="row">
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
+            {% set alt = "Avatar for {} from gravatar.com".format(role.user.name|default(role.user.username, true)) %}
             <span class="table__user-gravatar">
-              <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="">
+              <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
             </span>
             <span class="table__user-text">
               <strong>{{ role.user.username }}</strong>

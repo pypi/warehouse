@@ -77,46 +77,46 @@
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">view submenu</span>
+            <span class="sr-only">View submenu</span>
           </span>
         </button>
         <ul class="dropdown__content">
+          {% if not email.verified %}
           <li>
-            {% if not email.verified %}
             <form method="POST">
               <input hidden name="reverify_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="Resend verification email">
                 <i class="fa fa-envelope" aria-hidden="true"></i>
-                Resend Verification Email
+                Resend verification email
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
+          {% if not email.primary and email.verified %}
           <li>
-            {% if not email.primary and email.verified %}
             <form method="POST">
               <input hidden name="primary_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="Set this email address as primary">
                 <i class="fa fa-cog" aria-hidden="true"></i>
-                Set as Primary
+                Set as primary
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
+          {% if user.emails|length > 1 and not email.primary %}
           <li>
-            {% if user.emails|length > 1 and not email.primary %}
             <form method="POST">
               <input hidden name="delete_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="Remove this email address">
                 <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                Remove Email
+                Remove email
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
         </ul>
       </nav>
       {% endif %}
@@ -172,7 +172,7 @@
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">view submenu</span>
+            <span class="sr-only">View submenu</span>
           </span>
         </button>
         <ul class="dropdown__content">
@@ -210,7 +210,7 @@
         <div class="modal__content" role="dialog">
           <a href="#modal-close" title="Close" class="modal__close">
             <i class="fa fa-times" aria-hidden="true"></i>
-            <span class="sr-only">close</span>
+            <span class="sr-only">Close</span>
           </a>
           <div class="modal__body">
             <h3 class="modal__title">Unique identifier for API token "{{ macaroon.description }}"</h3>
@@ -287,7 +287,7 @@
   {{ form_error_anchor(add_email_form) }}
   <section id="account-emails">
     <h2 class="sub-title">Account emails</h2>
-    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
+    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check" aria-hidden="true"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
 
     {# Sort the emails as follows:
       * Primary email
@@ -409,15 +409,16 @@
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
       <table class="table table--light table--2fa">
+        <caption class="sr-only">Two factor authentication methods enabled</caption>
         <thead>
           <tr>
-            <th colspan="2">Two factor method</th>
+            <th scope="col" colspan="2">Two factor method</th>
           </tr>
         </thead>
         <tbody>
           {% if user.totp_secret %}
           <tr>
-            <td>Authentication application (TOTP)</td>
+            <th scope="row">Authentication application (TOTP)</th>
             <td class="table__action">
               <a href="#disable-totp" class="button button--primary">Remove</a>
               {% set title="Remove authentication application" %}
@@ -429,10 +430,10 @@
           {% endif %}
           {% for credential in user.webauthn %}
           <tr>
-            <td>
+            <th scope="row">
               <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
               <span class="badge badge--warning">Beta feature</span>
-            </td>
+            </th>
             <td class="table__action">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
               {% set title="Remove two factor security device - " + credential.label %}
