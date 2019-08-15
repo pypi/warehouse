@@ -16,38 +16,40 @@
 {% block title %}Statistics{% endblock %}
 
 {% block content %}
-<section class="horizontal-section">
+<div class="horizontal-section">
   <div class="narrow-container">
     <h1 class="page-title">PyPI statistics</h1>
-      <p>
-        We all love stats, so here are some useful statistics about PyPI.
-        The statistics page is cached for 24 hours, so don't expect the
-        numbers to be realtime.
-      </p>
+    <p>
+      We all love stats, so here are some useful statistics about PyPI.
+      The statistics page is cached for 24 hours, so don't expect the
+      numbers to be realtime.
+    </p>
 
-      <h2>Top Storage Users</h2>
-      <p>Here is a list of the top 100 packages based on sum of their
-      packages sizes (in bytes).</p>
+    <h2>Top storage users</h2>
+    <p>Here is a list of the top 100 packages based on sum of their
+    packages sizes (in bytes).</p>
 
-      <table id="all_pypi">
+    <table class="table table--light">
+      <caption class="sr-only">Statistics by project</caption>
+      <thead>
         <tr>
-          <td>All of PyPI: </td>
+          <th scope="col">Project name</th>
+          <th scope="col">Sum of release files (bytes)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>All of PyPI</td>
           <td>{{ total_packages_size|filesizeformat() }}</td>
         </tr>
-      </table>
-      <br>
-      <table id="top_packages">
-        <tr>
-          <th>Package Name</th>
-          <th>Sum of Release Files (bytes)</th>
-        <tr>
         {% for pkg_name, pkg_data in top_packages.items() %}
-          <tr>
-            <td>{{ pkg_name }}</td>
-            <td>{{ pkg_data["size"]|filesizeformat() }}</td>
-          <tr>
+        <tr>
+          <td>{{ pkg_name }}</td>
+          <td>{{ pkg_data["size"]|filesizeformat() }}</td>
+        </tr>
         {% endfor %}
-      </table>
+      </tbody>
+    </table>
   </div>
-</section>
+</div>
 {% endblock %}
