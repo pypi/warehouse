@@ -21,12 +21,12 @@
     Collaborators
   </a>
   <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}">
-    <i class="fa fa-history" aria-hidden="true"></i>
-    History
+    <i class="fa fa-lock" aria-hidden="true"></i>
+    Security History
   </a>
   <a href="{{ request.route_path('manage.project.journal', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'journal' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}">
     <i class="fa fa-history" aria-hidden="true"></i>
-    Journal (Legacy)
+    Journal
   </a>
   {% if project.has_docs %}
   <a href="{{ request.route_path('manage.project.documentation', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'documentation' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"> <i class="fa fa-book" aria-hidden="true"></i>
