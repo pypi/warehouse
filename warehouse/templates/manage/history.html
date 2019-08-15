@@ -25,20 +25,19 @@
   <p>Each time you (or your collaborators) perform a security action related to this project, the action is recorded and displayed here.</p>
 
   {% macro event_summary(event) -%}
-    {% if event.tag == "project:api_token:added" %}
-    <strong>API token added</strong><br>
+    {% if event.tag == "project:create" %}
+    <strong>Project created</strong><br>
     <small>
-      Permissions: Can upload to this project<br>
-      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
-      Token name: {{ event.additional.description }}
+      Created by: <a href="{{ request.route_path('accounts.profile', username=event.additional.created_by) }}">{{ event.additional.created_by }}</a>
     </small>
-    {% elif event.tag == "project:api_token:removed" %}
-    <strong>API token removed</strong><br>
-    <small>
-      Permissions: Can upload to this project<br>
-      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
-      Token name: {{ event.additional.description }}
-    </small>
+    {% elif event.tag == "project:release:add" %}
+    <strong><a href="{{ request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version) }}">Release version {{ event.additional.canonical_version }}</a> created</strong>
+    {% elif event.tag == "project:release:remove" %}
+    <strong>Release version {{ event.additional.canonical_version }} removed</strong>
+    {% elif event.tag == "project:release:file:remove" %}
+    <strong>File removed from release version {{ event.additional.canonical_version }}</strong><br>
+    <small>Filename: {{ event.additional.filename }}</small>
+
     {% elif event.tag == "project:role:add" %}
     <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> added as project {{ event.additional.role_name|lower }}</strong><br>
     <small>
@@ -54,11 +53,28 @@
     <small>
       Changed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
+
+    {% elif event.tag == "project:api_token:added" %}
+    <strong>API token added</strong><br>
+    <small>
+      Permissions: Can upload to this project<br>
+      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
+      Token name: {{ event.additional.description }}
+    </small>
+    {% elif event.tag == "project:api_token:removed" %}
+    <strong>API token removed</strong><br>
+    <small>
+      Permissions: Can upload to this project<br>
+      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
+      Token name: {{ event.additional.description }}
+    </small>
+
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}
   {%- endmacro %}
 
+  {% if events %}
   <table class="table table--light table--security-logs">
     <caption class="sr-only">Security history for {{ project.name }}</caption>
     <thead>
@@ -79,4 +95,5 @@
     </tbody>
   </table>
   {{ pagination.paginate(events) }}
+  {% endif %}
 {% endblock %}
