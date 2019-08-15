@@ -75,7 +75,7 @@
 {%- endblock %}
 
 {% block content %}
-<section class="horizontal-section horizontal-section--medium">
+<div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
     <div class="left-layout__sidebar">
       <div class="dark-overlay -js-dark-overlay"></div>
@@ -142,7 +142,7 @@
       </div>
       {% endif %}
       <form action="{{ request.route_path('search') }}">
-        <section class="split-layout split-layout--table split-layout--wrap-on-tablet">
+        <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
           <div>
             {% if term or applied_filters %}
             <p>
@@ -168,7 +168,7 @@
             </select>
             {% endif %}
           </div>
-        </section>
+        </div>
 
         <div class="applied-filters">
         {% if applied_filters %}
@@ -193,7 +193,7 @@
         </div>
 
         {% if term or applied_filters %}
-        <section>
+        <div>
           {% if page.items %}
           <ul class="unstyled" aria-label="Search results">
             {% for item in page.items %}
@@ -219,10 +219,10 @@
           </div>
           {% endif %}
           {{ pagination.paginate(page) }}
-        </section>
+        </div>
         {% endif %}
       </form>
     </div>
   </div>
-</section>
+</div>
 {% endblock %}

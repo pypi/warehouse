@@ -47,6 +47,10 @@
     display: flex;
     align-items: center;
 
+    &:not(:last-of-type) {
+      margin-bottom: 5px;
+    }
+
     a {
       @include link-without-underline;
     }
