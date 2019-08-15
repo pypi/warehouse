@@ -266,7 +266,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code.")
 
-        if last_totp_value is not None and totp_value == self.last_totp_value.encode():
+        if last_totp_value is not None and totp_value == last_totp_value.encode():
             raise wtforms.validators.ValidationError("Reused TOTP code.")
 
 
