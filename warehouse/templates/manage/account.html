@@ -532,7 +532,7 @@
       <strong>Email reverified</strong><br>
       <small>{{ event.additional.email }}<small>
       {% elif event.tag  == "account:email:primary:change" %}
-        {% if event.additional.old_email %}
+        {% if event.additional.old_primary %}
         <strong>Primary email changed</strong><br>
         <small>
           Old primary email: {{ event.additional.old_email }}<br>
