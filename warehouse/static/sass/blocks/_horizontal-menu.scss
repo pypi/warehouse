@@ -16,7 +16,11 @@
   A menu where the links stack horizontally.
 
   <nav class="horizontal-menu">
-    <a class="horizontal-menu__link">A horizontal link</a>
+    <ul>
+      <li class="horizontal-menu__item">
+        <a class="horizontal-menu__link">A horizontal link</a>
+      </li>
+    </ul>
   </nav>
 
   Modifiers:
@@ -25,6 +29,17 @@
 */
 
 .horizontal-menu {
+  ul,
+  li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__item {
+    display: inline;
+  }
+
   &__link {
     text-decoration: none;
     display: inline-block;
@@ -34,12 +49,6 @@
     &--with-icon {
       .fa {
         margin-right: 3px;
-      }
-    }
-
-    &--remove-on-mobile {
-      @media only screen and (max-width: $mobile) {
-        display: none;
       }
     }
   }
