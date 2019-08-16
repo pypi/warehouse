@@ -215,6 +215,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
         form = two_factor_state["totp_form"]
         if form.validate():
             _login_user(request, userid, two_factor_method="totp")
+            user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
             resp.set_cookie(
