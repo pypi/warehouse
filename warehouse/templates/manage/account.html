@@ -496,6 +496,127 @@
 
   <hr>
 
+  <section id="account-events">
+    <h2>Security history <span class="badge badge--warning">Beta feature</span></h2>
+
+    {% set recent_events = user.recent_events %}
+    {% if recent_events|length > 0 %}
+
+    {% macro event_summary(event) -%}
+      {% if event.tag == "account:create" %}
+      <strong>Account created</strong>
+
+      {% elif event.tag == "account:login:success" %}
+      <strong>Logged in</strong><br>
+      <small>
+        Two factor method:
+        {% if event.additional.two_factor_method == None %}
+          None
+        {% elif event.additional.two_factor_method  == "webauthn" %}
+          Security device (webauthn)
+        {% elif event.additional.two_factor_method  == "totp" %}
+          Authentication application (TOTP)
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:email:add" %}
+      <strong>Email added to account</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:remove" %}
+      <strong>Email removed from account</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:verified" %}
+      <strong>Email verified</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:reverify" %}
+      <strong>Email reverified</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:primary:change" %}
+        {% if event.additional.old_primary %}
+        <strong>Primary email changed</strong><br>
+        <small>
+          Old primary email: {{ event.additional.old_primary }}<br>
+          New primary email: {{ event.additional.new_primary }}
+        <small>
+        {% else %}
+        <strong>Primary email set</strong><br>
+        <small>
+          {{ event.additional.new_primary }}
+        </small>
+        {% endif %}
+
+      {% elif event.tag  == "account:password:reset:request" %}
+      <strong>Password reset requested</strong>
+      {% elif event.tag  == "account:password:reset" %}
+      <strong>Password successfully reset</strong>
+      {% elif event.tag  == "account:password:change" %}
+      <strong>Password successfully changed</strong>
+
+      {% elif event.tag  == "account:two_factor:method_added" %}
+      <strong>Two factor authentication added</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          Method: Security device (webauthn)<br>
+          Device name: {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          Method: Authentication application (TOTP)
+        {% endif %}
+      </small>
+      {% elif event.tag  == "account:two_factor:method_removed" %}
+      <strong>Two factor authentication removed</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          Method: Security device (webauthn)<br>
+          Device name: {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          Method: Authentication application (TOTP)
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:api_token:added" %}
+      <strong>API token added</strong><br>
+      <small>
+        Token name: {{ event.additional.description }}<br>
+        {% if event.additional.caveats.permissions == "user" %}
+          Token scope: entire account
+        {% else %}
+          Token scope: Project {{event.additional.caveats.permissions.projects[0] }}
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:api_token:removed" %}
+      <strong>API token removed</strong><br>
+      <small>Unique identifier: {{ event.additional.macaroon_id }}</small>
+      {% else %}
+      <strong>{{ event.tag }}</strong>
+      {% endif %}
+    {%- endmacro %}
+
+    <p>Events appear here as security-related actions occur on your account.</p>
+    <table class="table table--light table--security-logs">
+      <caption class="sr-only">Recent account activity</caption>
+      <thead>
+        <th scope="col">Event</th>
+        <th scope="col">Date / time</th>
+        <th scope="col">IP address</th>
+      </thead>
+      <tbody>
+        {% for event in recent_events %}
+        <tr>
+          <td>{{ event_summary(event) }}</td>
+          <td>{{ humanize(event.time) }}</td>
+          <td>{{ event.ip_address }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Events will appear here as security-related actions occur on your account.</p>
+    {% endif %}
+  </section>
+
+  <hr>
+
   <section id="delete-account">
     <h2>Delete account</h2>
     <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
