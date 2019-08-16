@@ -588,10 +588,7 @@ class TestTOTPAuthenticationForm:
         form = forms.TOTPAuthenticationForm(
             data={"totp_value": "not_a_real_value"},
             user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: True,
-                get_last_totp_value=lambda *a: None,
-            ),
+            user_service=pretend.stub(check_totp_value=lambda *a: True),
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "TOTP code must be 6 digits."
@@ -599,10 +596,7 @@ class TestTOTPAuthenticationForm:
         form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: False,
-                get_last_totp_value=lambda *a: None,
-            ),
+            user_service=pretend.stub(check_totp_value=lambda *a: False),
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "Invalid TOTP code."
@@ -610,21 +604,7 @@ class TestTOTPAuthenticationForm:
         form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
             user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: True,
-                get_last_totp_value=lambda *a: "123456",
-            ),
-        )
-        assert not form.validate()
-        assert form.totp_value.errors.pop() == "Reused TOTP code."
-
-        form = forms.TOTPAuthenticationForm(
-            data={"totp_value": "123456"},
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: True,
-                get_last_totp_value=lambda *a: None,
-            ),
+            user_service=pretend.stub(check_totp_value=lambda *a: True),
         )
         assert form.validate()
 
