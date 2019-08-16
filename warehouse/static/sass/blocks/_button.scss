@@ -99,6 +99,12 @@
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
     }
+
+    &:active,
+    &:focus {
+      border-color: $white;
+      @include link-focus-state($danger-color);
+    }
   }
 
   &[disabled],
