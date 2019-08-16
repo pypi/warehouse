@@ -370,6 +370,13 @@ class TestDatabaseUserService:
         )
         assert user_service.has_webauthn(user.id)
 
+    def test_get_last_totp_value(self, user_service):
+        user = UserFactory.create()
+        assert user_service.get_last_totp_value(user.id) is None
+
+        user_service.update_user(user.id, last_totp_value="123456")
+        assert user_service.get_last_totp_value(user.id) == "123456"
+
     @pytest.mark.parametrize("valid", [True, False])
     def test_check_totp_value(self, user_service, monkeypatch, valid):
         verify_totp = pretend.call_recorder(lambda *a: valid)
