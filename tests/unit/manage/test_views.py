@@ -1849,7 +1849,7 @@ class TestProvisionMacaroonViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             referer="/fake/safe/route",
             host=None,
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             remote_addr="0.0.0.0",
         )
 
@@ -1899,7 +1899,7 @@ class TestProvisionMacaroonViews:
         )
         user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": pretend.stub(), "macaroon_id": pretend.stub()},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
