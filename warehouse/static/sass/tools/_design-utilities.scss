@@ -78,3 +78,23 @@
     }
   }
 }
+
+@mixin dismiss-button {
+  background: transparent;
+  border: 0;
+  position: absolute;
+  top: 16px;
+  right: 15px;
+  font-size: 18px;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  text-align: center;
+  background-image: none;
+
+  &:hover,
+  &:active {
+    background-image: none;
+  }
+}

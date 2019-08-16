@@ -111,14 +111,7 @@
   }
 
   &__dismiss {
-    background: transparent;
-    border: 0;
-    position: absolute;
-    top: 0;
-    right: 15px;
-    cursor: pointer;
-    font-size: 1.0rem;
-    line-height: 3.25rem;
+    @include dismiss-button;
   }
 
   // Indicates that a notification is dismissable.
