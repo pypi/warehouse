@@ -77,46 +77,46 @@
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">view submenu</span>
+            <span class="sr-only">View submenu</span>
           </span>
         </button>
         <ul class="dropdown__content">
+          {% if not email.verified %}
           <li>
-            {% if not email.verified %}
             <form method="POST">
               <input hidden name="reverify_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="Resend verification email">
                 <i class="fa fa-envelope" aria-hidden="true"></i>
-                Resend Verification Email
+                Resend verification email
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
+          {% if not email.primary and email.verified %}
           <li>
-            {% if not email.primary and email.verified %}
             <form method="POST">
               <input hidden name="primary_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="Set this email address as primary">
                 <i class="fa fa-cog" aria-hidden="true"></i>
-                Set as Primary
+                Set as primary
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
+          {% if user.emails|length > 1 and not email.primary %}
           <li>
-            {% if user.emails|length > 1 and not email.primary %}
             <form method="POST">
               <input hidden name="delete_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="Remove this email address">
                 <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                Remove Email
+                Remove email
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
         </ul>
       </nav>
       {% endif %}
@@ -172,7 +172,7 @@
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">view submenu</span>
+            <span class="sr-only">View submenu</span>
           </span>
         </button>
         <ul class="dropdown__content">
@@ -209,7 +209,7 @@
         <div class="modal__content" role="dialog">
           <a href="#modal-close" title="Close" class="modal__close">
             <i class="fa fa-times" aria-hidden="true"></i>
-            <span class="sr-only">close</span>
+            <span class="sr-only">Close</span>
           </a>
           <div class="modal__body">
             <h3 class="modal__title">Unique identifier for API token "{{ macaroon.description }}"</h3>
@@ -236,10 +236,10 @@
       <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
       <div class="gravatar-form__content">
         <p>
-        We use <a href="https://gravatar.com/" title="External link" target="_blank" rel="noopener">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
+        We use <a href="https://gravatar.com/" title="External link" target="_blank" rel="noopener">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break">{{ user.email }}</code>
         </p>
         <a href="{{ gravatar_profile(user.email) }}" title="External link" target="_blank" rel="noopener" class="button">
-          Change image<span class="hide-on-mobile"> on gravatar.com</span>
+          Change image on gravatar.com
         </a>
       </div>
     </div>
@@ -286,7 +286,7 @@
   {{ form_error_anchor(add_email_form) }}
   <section id="account-emails">
     <h2 class="sub-title">Account emails</h2>
-    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
+    <p>You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check" aria-hidden="true"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.</p>
 
     {# Sort the emails as follows:
       * Primary email
@@ -408,15 +408,16 @@
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
       <table class="table table--light table--2fa">
+        <caption class="sr-only">Two factor authentication methods enabled</caption>
         <thead>
           <tr>
-            <th colspan="2">Two factor method</th>
+            <th scope="col" colspan="2">Two factor method</th>
           </tr>
         </thead>
         <tbody>
           {% if user.totp_secret %}
           <tr>
-            <td>Authentication application (TOTP)</td>
+            <th scope="row">Authentication application (TOTP)</th>
             <td class="table__action">
               <a href="#disable-totp" class="button button--primary">Remove</a>
               {# modal to remove TOTP #}
@@ -430,10 +431,10 @@
           {% endif %}
           {% for credential in user.webauthn %}
           <tr>
-            <td>
+            <th scope="row">
               <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
               <span class="badge badge--warning">Beta feature</span>
-            </td>
+            </th>
             <td class="table__action">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
               {% set title="Remove two factor security device - " + credential.label %}
@@ -492,6 +493,127 @@
     <p><strong><a href="#account-emails">Verify your primary email address</a> to add API tokens to your account.</strong></p>
     {% endif %}
 
+  </section>
+
+  <hr>
+
+  <section id="account-events">
+    <h2>Security history <span class="badge badge--warning">Beta feature</span></h2>
+
+    {% set recent_events = user.recent_events %}
+    {% if recent_events|length > 0 %}
+
+    {% macro event_summary(event) -%}
+      {% if event.tag == "account:create" %}
+      <strong>Account created</strong>
+
+      {% elif event.tag == "account:login:success" %}
+      <strong>Logged in</strong><br>
+      <small>
+        Two factor method:
+        {% if event.additional.two_factor_method == None %}
+          None
+        {% elif event.additional.two_factor_method  == "webauthn" %}
+          Security device (webauthn)
+        {% elif event.additional.two_factor_method  == "totp" %}
+          Authentication application (TOTP)
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:email:add" %}
+      <strong>Email added to account</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:remove" %}
+      <strong>Email removed from account</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:verified" %}
+      <strong>Email verified</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:reverify" %}
+      <strong>Email reverified</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:primary:change" %}
+        {% if event.additional.old_primary %}
+        <strong>Primary email changed</strong><br>
+        <small>
+          Old primary email: {{ event.additional.old_primary }}<br>
+          New primary email: {{ event.additional.new_primary }}
+        <small>
+        {% else %}
+        <strong>Primary email set</strong><br>
+        <small>
+          {{ event.additional.new_primary }}
+        </small>
+        {% endif %}
+
+      {% elif event.tag  == "account:password:reset:request" %}
+      <strong>Password reset requested</strong>
+      {% elif event.tag  == "account:password:reset" %}
+      <strong>Password successfully reset</strong>
+      {% elif event.tag  == "account:password:change" %}
+      <strong>Password successfully changed</strong>
+
+      {% elif event.tag  == "account:two_factor:method_added" %}
+      <strong>Two factor authentication added</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          Method: Security device (webauthn)<br>
+          Device name: {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          Method: Authentication application (TOTP)
+        {% endif %}
+      </small>
+      {% elif event.tag  == "account:two_factor:method_removed" %}
+      <strong>Two factor authentication removed</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          Method: Security device (webauthn)<br>
+          Device name: {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          Method: Authentication application (TOTP)
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:api_token:added" %}
+      <strong>API token added</strong><br>
+      <small>
+        Token name: {{ event.additional.description }}<br>
+        {% if event.additional.caveats.permissions == "user" %}
+          Token scope: entire account
+        {% else %}
+          Token scope: Project {{event.additional.caveats.permissions.projects[0] }}
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:api_token:removed" %}
+      <strong>API token removed</strong><br>
+      <small>Unique identifier: {{ event.additional.macaroon_id }}</small>
+      {% else %}
+      <strong>{{ event.tag }}</strong>
+      {% endif %}
+    {%- endmacro %}
+
+    <p>Events appear here as security-related actions occur on your account.</p>
+    <table class="table table--light table--security-logs">
+      <caption class="sr-only">Recent account activity</caption>
+      <thead>
+        <th scope="col">Event</th>
+        <th scope="col">Date / time</th>
+        <th scope="col">IP address</th>
+      </thead>
+      <tbody>
+        {% for event in recent_events %}
+        <tr>
+          <td>{{ event_summary(event) }}</td>
+          <td>{{ humanize(event.time) }}</td>
+          <td>{{ event.ip_address }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Events will appear here as security-related actions occur on your account.</p>
+    {% endif %}
   </section>
 
   <hr>

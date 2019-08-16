@@ -283,13 +283,13 @@
               <tbody>
                 {% for file in files %}
                 <tr>
-                  <td>
+                  <th scope="row">
                     <a href="{{ request.route_url('packaging.file', path=file.path) }}">
                       {{ file.filename }}
                     </a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a href="#copy-hash-modal-{{ file.id }}" class="button button--small">View hashes</a>
-                  </td>
+                  </th>
                   <td>
                     {{ file.packagetype|format_package_type }}
                   </td>
