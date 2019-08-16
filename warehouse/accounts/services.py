@@ -321,6 +321,11 @@ class DatabaseUserService:
             self.ratelimiters["global"].hit()
             return False
 
+        last_totp_value = self.get_last_totp_value(user_id)
+
+        if last_totp_value is not None and totp_value == last_totp_value.encode():
+            return False
+
         valid = otp.verify_totp(totp_secret, totp_value)
 
         if valid:

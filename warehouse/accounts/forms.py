@@ -260,14 +260,10 @@ class _TwoFactorAuthenticationForm(forms.Form):
 
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
-        last_totp_value = self.user_service.get_last_totp_value(self.user_id)
         totp_value = field.data.encode("utf8")
 
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code.")
-
-        if last_totp_value is not None and totp_value == last_totp_value.encode():
-            raise wtforms.validators.ValidationError("Reused TOTP code.")
 
 
 class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticationForm):
