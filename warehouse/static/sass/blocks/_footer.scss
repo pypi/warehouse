@@ -72,9 +72,8 @@
       text-align: center;
 
       a {
-        @include white-underlined-link;
         background-image: none;
-        @include link-focus;
+        @include white-underlined-link;
       }
 
       h2 {
@@ -102,7 +101,6 @@
 
     a {
       @include white-underlined-link;
-      @include link-focus;
     }
   }
 }

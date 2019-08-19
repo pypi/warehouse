@@ -39,8 +39,6 @@
 
   button {
     color: $white;
-
-    @include link-focus
   }
 
   &__left {
@@ -112,6 +110,8 @@
       &:hover {
         background-color: transparentize($black, 0.8);
       }
+
+      @include link-focus-state($white);
 
       @media only screen and (max-width: $tablet) {
         line-height: 25px;

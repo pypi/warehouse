@@ -83,6 +83,7 @@ class User(SitemapMixin, db.Model):
     )
 
     totp_secret = Column(Binary(length=20), nullable=True)
+    last_totp_value = Column(String, nullable=True)
 
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=False

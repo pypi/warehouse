@@ -52,6 +52,7 @@
     padding: ($spacing-unit / 2) 13px 10px 13px;
     opacity: 0.95;
     @include link-without-underline;
+    @include link-focus-state($white);
 
     &:hover {
       opacity: 1;
