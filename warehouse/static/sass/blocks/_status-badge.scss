@@ -41,6 +41,7 @@
   text-align: left;
   min-height: 40px;
   @include link-without-underline;
+  @include link-focus-state($white);
 
   &:hover {
     color: $text-color;
@@ -78,7 +79,7 @@
   }
 
   &--warn {
-    background-color: $warn-color;
+    background-color: $warning-background-color;
 
     &:hover {
       color: $white;

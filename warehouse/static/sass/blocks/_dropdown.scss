@@ -81,13 +81,16 @@
     @include link-without-underline;
 
     &:hover,
+    &:active,
     &:focus {
       background-color: mix($white, $primary-color-light, 90%);
       color: $primary-color-dark;
     }
 
+    &:active,
     &:focus {
-      border-bottom-color: $primary-color-light;
+      outline: 1px solid $primary-color;
+      border-bottom-color: $primary-color;
     }
 
     .fa {
@@ -124,13 +127,15 @@
       }
 
       &:hover,
+      &:active,
       &:focus {
         background-color: darken($header-background-color, 1.5);
         color: $white;
       }
 
       &:focus {
-        border-bottom-color: $primary-color-light;
+        outline: 1px solid $white;
+        border-bottom-color: $white;
       }
     }
   }
