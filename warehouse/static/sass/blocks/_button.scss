@@ -40,7 +40,7 @@
   background-color: transparent;
   color: lighten($text-color, 10);
   line-height: 19px;
-  border: 2px solid darken($base-grey, 10);
+  border: 1px solid $accessible-border-color;
   border-radius: 3px;
   display: inline-block;
   @include link-without-underline;
@@ -111,7 +111,7 @@
   &--disabled {
     cursor: not-allowed;
     background-color: darken($background-color, 5%);
-    border: 2px solid darken($background-color, 5%);
+    border-color: darken($background-color, 5%);
     color: darken($background-color, 12%);
     text-decoration: line-through;
     pointer-events: none;
@@ -120,14 +120,14 @@
     &:hover,
     &:active {
       background-color: darken($background-color, 5%);
-      border: 2px solid darken($background-color, 5%);
+      border-color: darken($background-color, 5%);
       color: darken($background-color, 12%);
       outline: none;
     }
   }
 
   &--switch-to-desktop {
-    border: 2px solid transparentize($white, 0.3);
+    border-color: transparentize($white, 0.3);
     color: $white;
     margin: $spacing-unit auto 0;
 
