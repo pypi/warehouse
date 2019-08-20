@@ -111,7 +111,6 @@ a {
   background-repeat: repeat-x;
   background-size: 100% 1.5px;
   @include primary-underlined-link;
-  @include link-focus;
 
   // Add 'external link' icon to most external links
   &[target="_blank"]:not(.tooltipped):not(.sponsors__sponsor) {
@@ -145,7 +144,7 @@ a {
   // Handle badges and code in links nicely
   .badge {
     position: relative;
-    top: -1px;
+    top: -3px;
   }
 
   code,
@@ -162,7 +161,7 @@ a {
 
 button {
   @include link-without-underline;
-  @include link-focus;
+  @include link-focus-state($primary-color);
 }
 
 @include selection {
