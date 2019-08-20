@@ -329,7 +329,7 @@
             </div>
           </div>
           <div class="form-group__horizontal-right">
-            <input value="Add" class="button button--primary" type="submit">
+            <input value="Add email" class="button button--primary" type="submit">
           </div>
         </div>
       </div>
@@ -404,7 +404,7 @@
   <hr>
   <section id="two-factor">
     <h2 class="sub-title">Two factor authentication (2FA)</h2>
-    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more</a>.</p>
+    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more about 2FA</a>.</p>
 
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
@@ -465,7 +465,7 @@
 
   <section id="api-tokens">
     <h2>API tokens <span class="badge badge--warning">Beta feature</span></h2>
-    <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more</a>.</p>
+    <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more about API tokens</a>.</p>
 
     {% if user.macaroons|length > 0 %}
     <table class="table table--light table--api-tokens">
@@ -641,7 +641,7 @@
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          <a href="{{ request.route_path('manage.project.roles', project_name=project.name) }}">transfer ownership</a> or <a href="{{ request.route_path('manage.project.settings', project_name=project.name) }}">delete</a>
+          <a href="{{ request.route_path('manage.project.roles', project_name=project.name) }}">transfer ownership</a> or <a href="{{ request.route_path('manage.project.settings', project_name=project.name) }}">delete project</a>
         </li>
         {% endfor %}
       </ul>
