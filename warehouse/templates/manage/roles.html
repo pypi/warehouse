@@ -75,12 +75,13 @@
               <input type="hidden" name="role_id" value="{{ role.id }}">
             {% endfor %}
 
-            <select class="change-field" name="role_name" data-original="{{ role.role_name }}">
-            {% for role_name in ['Owner', 'Maintainer'] %}
-            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
-              {{ role_name }}
-            </option>
-            {% endfor %}
+            <label for="role-for-{{ role.id }}" class="sr-only">Role</label>
+            <select id="role-for-{{ role.id }}" class="change-field" name="role_name" data-original="{{ role.role_name }}">
+              {% for role_name in ['Owner', 'Maintainer'] %}
+              <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
+                {{ role_name }}
+              </option>
+              {% endfor %}
             </select>
             <button type="submit" class="button button--primary change-button" title="Save this new role">
               Save
