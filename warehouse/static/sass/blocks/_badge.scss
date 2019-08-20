@@ -24,7 +24,7 @@
 .badge {
   font-size: $small-font-size;
   text-transform: uppercase;
-  border: 2px solid $primary-color;
+  border: 1px solid $primary-color;
   background-color: $primary-color;
   color: $white;
   padding: 0 7px;
@@ -39,7 +39,7 @@
   &:focus,
   &:active {
     border-color: $white;
-    outline: 2px solid $primary-color;
+    outline: 1px solid $primary-color;
   }
 
   &--success {
@@ -48,7 +48,7 @@
 
     &:focus,
     &:active {
-      outline: 2px solid $success-color;
+      outline: 1px solid $success-color;
     }
   }
 
@@ -58,7 +58,7 @@
 
     &:focus,
     &:active {
-      outline: 2px solid $danger-color;
+      outline: 1px solid $danger-color;
     }
   }
 
@@ -73,7 +73,7 @@
 
     &:focus,
     &:active {
-      outline: 2px solid $warning-color;
+      outline: 1px solid $warning-color;
     }
   }
 }

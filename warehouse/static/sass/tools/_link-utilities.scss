@@ -15,7 +15,7 @@
 @mixin link-focus-state($color) {
   &:focus,
   &:active {
-    outline: 2px solid $color;
+    outline: 1px solid $color;
   }
 }
 

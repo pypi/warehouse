@@ -80,8 +80,8 @@
 
     &:active,
     &:focus {
-      outline: 2px solid $white;
-      box-shadow: 0 0 0 4px $primary-color;
+      outline: 1px solid $white;
+      box-shadow: 0 0 0 2px $primary-color;
     }
 
     &--mobile {
