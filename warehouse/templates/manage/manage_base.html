@@ -24,25 +24,27 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Your account</h3>
-          <ul class="vertical-tabs__list">
-            <li>
-              <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
-                <i class="fa fa-cube" aria-hidden="true"></i>
-                Your projects
-              </a>
-            </li>
-            <li>
-              <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block account_active %}{% endblock %}">
-                <i class="fa fa-cog" aria-hidden="true"></i>
-                Account settings
-              </a>
-            </li>
-          </ul>
+          <nav aria-label="Account navigation">
+            <ul class="vertical-tabs__list">
+              <li>
+                <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
+                  <i class="fa fa-cube" aria-hidden="true"></i>
+                  Your projects
+                </a>
+              </li>
+              <li>
+                <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block account_active %}{% endblock %}">
+                  <i class="fa fa-cog" aria-hidden="true"></i>
+                  Account settings
+                </a>
+              </li>
+            </ul>
+          <nav>
         </div>
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <nav>
+        <nav aria-label="Account navigation">
           <ul class="vertical-tabs__list">
             <li>
               <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% block projects_mobile_active %}{% endblock %}">

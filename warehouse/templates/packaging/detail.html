@@ -139,7 +139,7 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Navigation</h3>
-          <nav>
+          <nav aria-label="Navigation for {{ release.project.name }}">
             <ul class="vertical-tabs__list" role="tablist">
               <li role="tab">
                 <a id="description-tab" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" href="#description">
@@ -169,7 +169,7 @@
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile menu -->
-        <nav>
+        <nav aria-label="Navigation for {{ release.project.name }}">
           <ul class="vertical-tabs__list" role="tablist">
             <li role="tab">
               <a id="mobile-description-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" href="#description">
