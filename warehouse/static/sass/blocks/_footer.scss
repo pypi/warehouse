@@ -66,6 +66,17 @@
     margin: 0 ($spacing-unit / 2) 40px ($spacing-unit / 2);
     padding: 0;
 
+    h2 {
+      color: $white;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+
     li {
       padding: 2px 0;
       list-style: none;
@@ -74,11 +85,6 @@
       a {
         background-image: none;
         @include white-underlined-link;
-      }
-
-      h2 {
-        color: $white;
-        margin-bottom: 5px;
       }
     }
   }
