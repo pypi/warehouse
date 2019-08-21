@@ -45,10 +45,10 @@
         <p>For security reasons this token will only appear once. <strong>Copy it now.</strong></p>
       </div>
       <button type="button" class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="Copy token to clipboard" data-original-label="Copy token to clipboard" data-clipboard-text="{{ serialized_macaroon }}">
-        Copy
+        Copy token
       </button>
       <a href="#remove-API-token--{{ macaroon.id }}" class="button">
-        Remove
+        Remove token
       </a>
       {% set slug="remove-API-token--" + macaroon.id | string %}
       {% set title="Remove API token - " + macaroon.description %}
