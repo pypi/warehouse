@@ -124,19 +124,23 @@
 </div>
 
 {% if release.classifiers %}
-<div class="sidebar-section classifiers">
-  <h3>Classifiers</h3>
-  <dl>
+<div class="sidebar-section">
+  <h3 class="sidebar-section__title">Classifiers</h3>
+  <ul class="sidebar-section__classifiers">
     {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
-    <dt>{{ classifier_head }}</dt>
-    {% for classifier in classifier_tail %}
-    <dd>
-    <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
-      {{ classifier }}
-    </a>
-    </dd>
+    <li>
+      <strong>{{ classifier_head }}</strong>
+      <ul>
+        {% for classifier in classifier_tail %}
+        <li>
+          <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+            {{ classifier }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </li>
     {% endfor %}
-    {% endfor %}
-  </dl>
+  </ul>
 </div>
 {% endif %}
