@@ -43,6 +43,13 @@
   @include link-without-underline;
   @include link-focus-state($white);
 
+  span {
+    background-position: 0 1.15em;
+    background-repeat: repeat-x;
+    background-size: 100% 1.5px;
+    @include white-underlined-link;
+  }
+
   &:hover {
     color: $text-color;
   }
