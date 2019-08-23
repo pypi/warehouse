@@ -16,6 +16,7 @@ from warehouse import db
 
 
 class AdminFlagValue:
+    DISALLOW_DELETION = "disallow-deletion"
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
     READ_ONLY = "read-only"
