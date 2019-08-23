@@ -39,7 +39,6 @@
   padding: 8.5px ($spacing-unit / 2);
   background-color: transparent;
   color: lighten($text-color, 10);
-  line-height: 19px;
   border: 1px solid $accessible-border-color;
   border-radius: 3px;
   display: inline-block;
@@ -61,7 +60,7 @@
 
   &--small {
     font-size: $small-font-size;
-    padding: 4px 8px;
+    padding: 6px 8px;
   }
 
   &--primary {
@@ -141,7 +140,6 @@
 
   &--switch-to-mobile {
     font-size: 500%;
-    line-height: 1.2;
     padding: 40px;
     height: auto;
     margin: 25px;
