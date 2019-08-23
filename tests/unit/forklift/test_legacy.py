@@ -753,6 +753,25 @@ class TestIsDuplicateFile:
 
 
 class TestFileUpload:
+    def test_fails_disallow_new_upload(self, pyramid_config, pyramid_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+        pyramid_request.flags = pretend.stub(
+            enabled=lambda value: value == AdminFlagValue.DISALLOW_NEW_UPLOAD
+        )
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(pyramid_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 New uploads are temporarily disabled. "
+            "See /the/help/url/ for details"
+        )
+
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_config.testing_securitypolicy(userid=1)

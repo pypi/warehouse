@@ -734,6 +734,15 @@ def file_upload(request):
             HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
         )
 
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
+        raise _exc_with_message(
+            HTTPForbidden,
+            "New uploads are temporarily disabled. "
+            "See {projecthelp} for details".format(
+                projecthelp=request.help_url(_anchor="admin-intervention")
+            ),
+        )
+
     # Log an attempt to upload
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.upload.attempt")
