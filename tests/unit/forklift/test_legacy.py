@@ -31,7 +31,7 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
-from warehouse.admin.flags import AdminFlag
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
@@ -1118,7 +1118,7 @@ class TestFileUpload:
     def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
         admin_flag = (
             db_request.db.query(AdminFlag)
-            .filter(AdminFlag.id == "disallow-new-project-registration")
+            .filter(AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION)
             .first()
         )
         admin_flag.enabled = True

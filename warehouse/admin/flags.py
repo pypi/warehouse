@@ -15,6 +15,12 @@ from sqlalchemy import Boolean, Column, Text, sql
 from warehouse import db
 
 
+class AdminFlagValue:
+    DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
+    DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
+    READ_ONLY = "read-only"
+
+
 class AdminFlag(db.ModelBase):
 
     __tablename__ = "admin_flags"
