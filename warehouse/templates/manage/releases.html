@@ -40,14 +40,18 @@
           </th>
           <td class="table__date">{{ humanize(release.created) }}</td>
           <td class="table__summary">
-            {% set num_files = release.files.all()|length %}
+            {% set num_files = version_to_file_counts[release.version]['total'] %}
             {% if num_files %}
             {% trans count=num_files %}
               {{ count }} file
             {% pluralize %}
               {{ count }} files
             {% endtrans %}
-              ({% for file in release.files %}{{ file.packagetype|format_package_type }}{{ ", " if not loop.last }}{% endfor %})
+              ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
+              {%- if packagetype != 'total' -%}
+              {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
+              {%- endif -%}
+              {% endfor %})
             {% else %}
             No Files
             {% endif %}
