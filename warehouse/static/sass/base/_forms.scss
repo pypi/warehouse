@@ -20,8 +20,7 @@ select {
   border-radius: 2px;
   background-color: $white;
   padding: 0 8px;
-  height: 40px;
-  line-height: 37px;
+  min-height: 40px;
   border: 1px solid $accessible-border-color;
   color: $text-color;
   vertical-align: middle;
