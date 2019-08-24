@@ -79,6 +79,7 @@
   slug,
   context,
   confirm_button_label=None,
+  index=None,
   extra_fields=None,
   extra_description=None,
   action=None,
@@ -86,15 +87,15 @@
   custom_warning_text="",
   confirm_string_in_title="True")
 %}
-  <div id="{{ slug }}" class="modal" data-controller="confirm modal-close">
+  <div id="{{ slug }}" class="modal" data-controller="confirm">
     <div class="modal__content" role="dialog">
-      <a href="#modal-close" data-action="click->modal-close#cancel" title="Close" class="modal__close">
-        <i class="fa fa-times" aria-hidden="true"></i>
-        <span class="sr-only">close</span>
-      </a>
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         {{ extra_fields if extra_fields else '' }}
+        <a href="#modal-close" data-action="click->confirm#cancel" title="Close" class="modal__close">
+          <i class="fa fa-times" aria-hidden="true"></i>
+          <span class="sr-only">Close</span>
+        </a>
         <div class="modal__body">
           <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
           {% if warning %}
@@ -111,63 +112,13 @@
           <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
           <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
-          <input name="{{ slug }}-{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
-          <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">Cancel</button>
-          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm.button modal-close.button" data-expected="{{ confirm_string }}">
+          <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">Cancel</button>
+          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm.button" data-expected="{{ confirm_string }}">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>
-        </div>
-      </form>
-    </div>
-  </div>
-{% endmacro %}
-
-{% macro confirm_password_modal(
-  title,
-  slug,
-  confirm_button_label=None,
-  extra_fields=None,
-  action=None,
-  warning=True,
-  custom_warning_text=""
-) %}
-  <div id="{{ slug }}" class="modal" data-controller="confirm-password modal-close">
-    <div class="modal__content" role="dialog">
-      <a href="#modal-close" data-action="click->modal-close#cancel" title="Close" class="modal__close">
-        <i class="fa fa-times" aria-hidden="true"></i>
-        <span class="sr-only">close</span>
-      </a>
-      <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        {{ extra_fields if extra_fields else '' }}
-        <div class="modal__body">
-          <h3 class="modal__title">{{ title }}</h3>
-          {% if warning %}
-          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-            <p>
-              <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-              This action cannot be undone!
-            </p>
-            {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
-          </div>
-          {% endif %}
-          <p>Enter your password to continue.</p>
-          <div class="form-group">
-            <div class="split-layout">
-              <label for="confirm_password">Password</label>
-              <label for="show-confirm-password-{{ slug }}" class="show-password">
-                <input data-action="change->confirm-password#setPasswordVisibility" data-target="confirm-password.showPassword" id="show-confirm-password-{{ slug }}" type="checkbox">
-                Show password
-              </label>
-            </div>
-            <input name="confirm_password" data-action="input->confirm-password#check" data-target="confirm-password.password modal-close.input" type="password" autocomplete="off" autocorrect="off" autocapitalize="off">
-          </div>
-        </div>
-        <div class="modal__footer">
-          <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">Cancel</button>
-          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm-password.button modal-close.button"">{{ confirm_button_label }}</button>
         </div>
       </form>
     </div>
