@@ -60,8 +60,8 @@
     font-weight: 900;
     padding: 12px;
     margin-right: 12px;
-    width: 40px;
-    height: 42px;
+    min-width: 40px;
+    min-height: 42px;
     text-align: center;
     border-right: 1px solid rgba(255, 255, 255, 0.4);
   }
