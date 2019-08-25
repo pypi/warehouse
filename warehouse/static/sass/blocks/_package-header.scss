@@ -54,13 +54,15 @@
   @media screen and (max-width: $tablet) {
     display: block;
 
-    &__left {
+    &__left,
+    &__right {
       width: 100%;
       padding-right: 0;
+      text-align: left;
     }
 
     &__right {
-      display: none;
+      margin-top: $spacing-unit / 2;
     }
   }
 
@@ -119,7 +121,7 @@
       }
 
       @media only screen and (max-width: $mobile) {
-        display: none;
+        line-height: 22px;
       }
     }
   }
@@ -127,5 +129,10 @@
   &__date {
     margin-top: 20px;
     padding-bottom: 5px;
+
+    @media screen and (max-width: $tablet) {
+      margin-top: $spacing-unit / 2;
+      padding-bottom: 0;
+    }
   }
 }
