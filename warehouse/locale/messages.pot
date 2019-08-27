@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-08-27 13:37-0400\n"
+"POT-Creation-Date: 2019-08-27 14:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,69 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/views.py:59
-msgid "There have been too many unsuccessful login attempts. Try again later."
+#: warehouse/accounts/forms.py:38
+msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/views.py:66
-msgid "Too Many Failed Login Attempts"
+#: warehouse/accounts/forms.py:71
+msgid ""
+"The username is invalid. Usernames must be composed of letters, numbers, "
+"dots, hyphens and underscores. And must also start and finish with a "
+"letter or number. Choose a different username."
+msgstr ""
+
+#: warehouse/accounts/forms.py:85
+msgid ""
+"This username is already being used by another account. Choose a "
+"different username."
+msgstr ""
+
+#: warehouse/accounts/forms.py:106
+msgid "The password is invalid. Try again."
+msgstr ""
+
+#: warehouse/accounts/forms.py:110
+msgid "There have been too many unsuccessful login attempts, try again later."
+msgstr ""
+
+#: warehouse/accounts/forms.py:132
+msgid "Your passwords don't match. Try again."
+msgstr ""
+
+#: warehouse/accounts/forms.py:163
+msgid "The email address isn't valid. Try again."
+msgstr ""
+
+#: warehouse/accounts/forms.py:172
+msgid ""
+"This email address is already being used by this account. Use a different"
+" email."
+msgstr ""
+
+#: warehouse/accounts/forms.py:177
+msgid ""
+"This email address is already being used by another account. Use a "
+"different email."
+msgstr ""
+
+#: warehouse/accounts/forms.py:184
+msgid "You can't use an email address from this domain. Use a different email."
+msgstr ""
+
+#: warehouse/accounts/forms.py:205
+msgid "The name is too long. Choose a name with 100 characters or less."
+msgstr ""
+
+#: warehouse/accounts/forms.py:269
+msgid "Invalid TOTP code."
+msgstr ""
+
+#: warehouse/accounts/forms.py:286
+msgid "Invalid WebAuthn assertion: Bad payload"
+msgstr ""
+
+#: warehouse/accounts/forms.py:318
+msgid "No user found with that username or email"
 msgstr ""
 
 #: warehouse/accounts/views.py:196 warehouse/accounts/views.py:249

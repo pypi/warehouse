@@ -57,14 +57,14 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 @view_config(context=TooManyFailedLogins)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        _("There have been too many unsuccessful login attempts. Try again later."),
+        "There have been too many unsuccessful login attempts. Try again later.",
         retry_after=exc.resets_in.total_seconds(),
     )
 
     # TODO: This is kind of gross, but we need it for as long as the legacy
     #       upload API exists and is supported. Once we get rid of that we can
     #       get rid of this as well.
-    resp.status = "{} {}".format(resp.status_code, _("Too Many Failed Login Attempts"))
+    resp.status = "{} {}".format(resp.status_code, "Too Many Failed Login Attempts")
 
     return resp
 

@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from babel.core import Locale
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
 from pyramid.threadlocal import get_current_request
 
@@ -41,13 +40,6 @@ def _negotiate_locale(request):
     )
 
 
-def _locale(request):
-    """
-    Computes a babel.core:Locale() object for this request.
-    """
-    return Locale.parse(request.locale_name)
-
-
 def localize(message, **kwargs):
     request = get_current_request()
     return request.localizer.translate(_translation_factory(message, **kwargs))
@@ -58,9 +50,6 @@ def includeme(config):
     config.add_translation_dirs("warehouse:locale/")
 
     config.set_locale_negotiator(_negotiate_locale)
-
-    # Add the request attributes
-    config.add_request_method(_locale, name="locale", reify=True)
 
     # Register our i18n/l10n filters for Jinja2
     filters = config.get_settings().setdefault("jinja2.filters", {})
