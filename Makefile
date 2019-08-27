@@ -4,6 +4,7 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
+LOCALES := $(shell find warehouse/locale -type d -depth 1 -exec basename {} \;)
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -185,5 +186,8 @@ compile-po:
 		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--directory="warehouse/locale/" \
 		--locale="$(L)"
+
+compile-pos:
+	for LOCALE in $(LOCALES); do L=$$LOCALE $(MAKE) compile-po; done
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
