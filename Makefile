@@ -172,6 +172,8 @@ stop:
 compile-pot:
 	$(BINDIR)/pybabel extract \
 		--copyright-holder="PyPA" \
+		--msgid-bugs-address="https://github.com/pypa/warehouse/issues/new" \
+		--project="Warehouse" \
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
@@ -193,13 +195,12 @@ compile-po:
 		--directory="warehouse/locale/" \
 		--locale="$(L)"
 
-build-pos:
+build-mos: compile-pot
 	for LOCALE in $(LOCALES) ; do \
 		if [[ -f warehouse/locale/$$LOCALE/LC_MESSAGES/messages.mo ]]; then \
 			L=$$LOCALE $(MAKE) update-po ; \
-		else \
-			L=$$LOCALE $(MAKE) compile-po ; \
 		fi ; \
+		L=$$LOCALE $(MAKE) compile-po ; \
 		done
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
