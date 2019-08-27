@@ -17,6 +17,8 @@ from pyramid.threadlocal import get_current_request
 _KNOWN_LOCALES = ("en", "de")
 _LOCALE_ATTR = "_LOCALE_"
 
+_translation_factory = TranslationStringFactory("messages")
+
 
 def _negotiate_locale(request):
     locale_name = getattr(request, _LOCALE_ATTR, None)
@@ -48,8 +50,7 @@ def _locale(request):
 
 def localize(message, **kwargs):
     request = get_current_request()
-    _tsf = TranslationStringFactory("messages")
-    return request.localizer.translate(_tsf(message, **kwargs))
+    return request.localizer.translate(_translation_factory(message, **kwargs))
 
 
 def includeme(config):
