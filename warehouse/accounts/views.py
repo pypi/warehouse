@@ -47,6 +47,7 @@ from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email_verification_email, send_password_reset_email
+from warehouse.i18n import localize as _
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -56,7 +57,7 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 @view_config(context=TooManyFailedLogins)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        "There have been too many unsuccessful login attempts. " "Try again later.",
+        _("There have been too many unsuccessful login attempts. Try again later."),
         retry_after=exc.resets_in.total_seconds(),
     )
 
@@ -193,7 +194,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash("Invalid or expired two factor login.", queue="error")
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
@@ -246,7 +247,7 @@ def webauthn_authentication_options(request):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash("Invalid or expired two factor login.", queue="error")
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
         return {"fail": {"errors": ["Invalid two factor token"]}}
 
     userid = two_factor_data.get("userid")
@@ -272,7 +273,7 @@ def webauthn_authentication_validate(request):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash("Invalid or expired two factor login.", queue="error")
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
         return {"fail": {"errors": ["Invalid two factor token"]}}
 
     redirect_to = two_factor_data.get("redirect_to")

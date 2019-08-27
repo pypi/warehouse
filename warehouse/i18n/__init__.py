@@ -11,6 +11,32 @@
 # limitations under the License.
 
 from babel.core import Locale
+from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
+from pyramid.threadlocal import get_current_request
+
+_KNOWN_LOCALES = ("en-US, de")
+_LOCALE_ATTR = "_LOCALE_"
+
+
+def _negotiate_locale(request):
+    locale_name = getattr(request, _LOCALE_ATTR, None)
+    if locale_name is not None:
+        return locale_name
+
+    locale_name = request.params.get(_LOCALE_ATTR)
+    if locale_name is not None:
+        return locale_name
+
+    locale_name = request.cookies.get(_LOCALE_ATTR)
+    if locale_name is not None:
+        return locale_name
+
+    if not request.accept_language:
+        return default_locale_negotiator(request)
+
+    return request.accept_language.best_match(
+        _KNOWN_LOCALES, default_locale_negotiator(request)
+    )
 
 
 def _locale(request):
@@ -20,7 +46,18 @@ def _locale(request):
     return Locale.parse(request.locale_name)
 
 
+def localize(message, **kwargs):
+    request = get_current_request()
+    _tsf = TranslationStringFactory("messages")
+    return request.localizer.translate(_tsf(message, **kwargs))
+
+
 def includeme(config):
+    # Register our translation directory.
+    config.add_translation_dirs("warehouse:locale/")
+
+    config.set_locale_negotiator(_negotiate_locale)
+
     # Add the request attributes
     config.add_request_method(_locale, name="locale", reify=True)
 

@@ -443,9 +443,6 @@ def configure(settings=None):
         "warehouse:static/dist/manifest.json", prefix="/static/"
     )
 
-    # Enable Warehouse to serve our locale files
-    config.add_static_view("locales", "warehouse:locales/")
-
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.
     config.add_wsgi_middleware(

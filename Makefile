@@ -168,4 +168,22 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
+compile-pot:
+	$(BINDIR)/pybabel extract \
+		--copyright-holder="PyPA" \
+		--output="warehouse/locale/messages.pot" \
+		warehouse
+
+init-po:
+	$(BINDIR)/pybabel init \
+		--input-file="warehouse/locale/messages.pot" \
+		--output-dir="warehouse/locale/" \
+		--locale="$(L)"
+
+compile-po:
+	$(BINDIR)/pybabel compile \
+		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
+		--directory="warehouse/locale/" \
+		--locale="$(L)"
+
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
