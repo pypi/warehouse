@@ -11,24 +11,26 @@
 # limitations under the License.
 
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
-from pyramid.threadlocal import get_current_request
 
-_KNOWN_LOCALES = ("en", "de")
-_LOCALE_ATTR = "_LOCALE_"
+# from pyramid.threadlocal import get_current_request
 
-_translation_factory = TranslationStringFactory("messages")
+KNOWN_LOCALES = {"en": "English", "de": "German"}
+
+LOCALE_ATTR = "_LOCALE_"
+
+localize = TranslationStringFactory("messages")
 
 
 def _negotiate_locale(request):
-    locale_name = getattr(request, _LOCALE_ATTR, None)
+    locale_name = getattr(request, LOCALE_ATTR, None)
     if locale_name is not None:
         return locale_name
 
-    locale_name = request.params.get(_LOCALE_ATTR)
+    locale_name = request.params.get(LOCALE_ATTR)
     if locale_name is not None:
         return locale_name
 
-    locale_name = request.cookies.get(_LOCALE_ATTR)
+    locale_name = request.cookies.get(LOCALE_ATTR)
     if locale_name is not None:
         return locale_name
 
@@ -36,13 +38,13 @@ def _negotiate_locale(request):
         return default_locale_negotiator(request)
 
     return request.accept_language.best_match(
-        _KNOWN_LOCALES, default_match=default_locale_negotiator(request)
+        tuple(KNOWN_LOCALES.keys()), default_match=default_locale_negotiator(request)
     )
 
 
-def localize(message, **kwargs):
-    request = get_current_request()
-    return request.localizer.translate(_translation_factory(message, **kwargs))
+# def localize(message, **kwargs):
+#     request = get_current_request()
+#     return request.localizer.translate(_translation_factory(message, **kwargs))
 
 
 def includeme(config):

@@ -25,6 +25,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.i18n import KNOWN_LOCALES
 
 
 class RoleNameMixin:
@@ -261,3 +262,16 @@ class DeleteMacaroonForm(forms.Form):
         macaroon_id = field.data
         if self.macaroon_service.find_macaroon(macaroon_id) is None:
             raise wtforms.validators.ValidationError("No such macaroon")
+
+
+class SetLocaleForm(forms.Form):
+    __params__ = ["language_id"]
+
+    language_id = wtforms.SelectField(
+        "Select a language ID",
+        choices=[
+            ("", "Select a language ID"),
+            *[(id, desc) for id, desc in KNOWN_LOCALES.items()],
+        ],
+        validators=[wtforms.validators.DataRequired(message="Select a language ID")],
+    )
