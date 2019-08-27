@@ -181,13 +181,25 @@ init-po:
 		--output-dir="warehouse/locale/" \
 		--locale="$(L)"
 
+update-po:
+	$(BINDIR)/pybabel update \
+		--input-file="warehouse/locale/messages.pot" \
+		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
+		--locale="$(L)"
+
 compile-po:
 	$(BINDIR)/pybabel compile \
 		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--directory="warehouse/locale/" \
 		--locale="$(L)"
 
-compile-pos:
-	for LOCALE in $(LOCALES); do L=$$LOCALE $(MAKE) compile-po; done
+build-pos:
+	for LOCALE in $(LOCALES) ; do \
+		if [[ -f warehouse/locale/$$LOCALE/LC_MESSAGES/messages.mo ]]; then \
+			L=$$LOCALE $(MAKE) update-po ; \
+		else \
+			L=$$LOCALE $(MAKE) compile-po ; \
+		fi ; \
+		done
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-08-26 18:00-0400\n"
+"POT-Creation-Date: 2019-08-27 12:01-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,8 +21,20 @@ msgstr ""
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
+#: warehouse/accounts/views.py:66
+msgid "Too Many Failed Login Attempts"
+msgstr ""
+
 #: warehouse/accounts/views.py:196 warehouse/accounts/views.py:249
 #: warehouse/accounts/views.py:275
 msgid "Invalid or expired two factor login."
+msgstr ""
+
+#: warehouse/accounts/views.py:244
+msgid "Already authenticated"
+msgstr ""
+
+#: warehouse/accounts/views.py:250
+msgid "Invalid two factor token"
 msgstr ""
 

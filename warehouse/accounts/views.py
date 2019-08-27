@@ -64,7 +64,7 @@ def failed_logins(exc, request):
     # TODO: This is kind of gross, but we need it for as long as the legacy
     #       upload API exists and is supported. Once we get rid of that we can
     #       get rid of this as well.
-    resp.status = "{} {}".format(resp.status_code, "Too Many Failed Login Attempts")
+    resp.status = "{} {}".format(resp.status_code, _("Too Many Failed Login Attempts"))
 
     return resp
 
@@ -242,13 +242,13 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
 )
 def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
-        return {"fail": {"errors": ["Already authenticated"]}}
+        return {"fail": {"errors": [_("Already authenticated")]}}
 
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
         request.session.flash(_("Invalid or expired two factor login."), queue="error")
-        return {"fail": {"errors": ["Invalid two factor token"]}}
+        return {"fail": {"errors": [_("Invalid two factor token")]}}
 
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)

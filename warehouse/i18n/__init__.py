@@ -14,7 +14,7 @@ from babel.core import Locale
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
 from pyramid.threadlocal import get_current_request
 
-_KNOWN_LOCALES = ("en-US, de")
+_KNOWN_LOCALES = ("de, en-US")
 _LOCALE_ATTR = "_LOCALE_"
 
 
