@@ -26,7 +26,7 @@
         <tr>
           <th scope="col" class="table__version">Version</th>
           <th scope="col" class="table__date">Release date</th>
-          <th scope="col" class="table__summary">Summary</th>
+          <th scope="col" class="table__summary">Files</th>
           <th scope="col" class="table__options"></th>
         </tr>
       </thead>
@@ -40,12 +40,22 @@
           </th>
           <td class="table__date">{{ humanize(release.created) }}</td>
           <td class="table__summary">
-            {% if release.summary %}
-              {{ release.summary }}
+            {% set num_files = version_to_file_counts[release.version]['total'] %}
+            {% if num_files %}
+            {% trans count=num_files %}
+              {{ count }} file
+            {% pluralize %}
+              {{ count }} files
+            {% endtrans %}
+              ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
+              {%- if packagetype != 'total' -%}
+              {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
+              {%- endif -%}
+              {% endfor %})
             {% else %}
-              —
+            No files
             {% endif %}
-            </td>
+          </td>
           <td class="table__options">
             <nav class="dropdown dropdown--with-icons">
               <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
