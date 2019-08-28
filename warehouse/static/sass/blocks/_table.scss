@@ -505,6 +505,12 @@
       min-width: 160px;
     }
 
+    .table__status-detail {
+      display: inline-block;
+      font-size: $small-font-size;
+      margin-top: 5px;
+    }
+
     .table__action {
       width: 100px;
     }
