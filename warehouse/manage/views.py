@@ -39,6 +39,7 @@ from warehouse.email import (
     send_password_change_email,
     send_primary_email_change_email,
 )
+from warehouse.i18n import LOCALE_ATTR
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -52,6 +53,7 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
+    SetLocaleForm,
 )
 from warehouse.packaging.models import (
     File,
@@ -128,6 +130,7 @@ class ManageAccountViews:
                 user_service=self.user_service, breach_service=self.breach_service
             ),
             "active_projects": self.active_projects,
+            "set_locale_form": SetLocaleForm(),
         }
 
     @view_config(request_method="GET")
@@ -349,6 +352,16 @@ class ManageAccountViews:
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+    @view_config(request_method="POST", request_param=SetLocaleForm.__params__)
+    def set_locale(self):
+        form = SetLocaleForm(**self.request.POST)
+
+        if form.validate():
+            self.request.session.flash("Locale updated", queue="success")
+            self.request.response.set_cookie(LOCALE_ATTR, form.locale_id.data)
+
+        return {**self.default_response, "set_locale_form": form}
 
 
 @view_defaults(

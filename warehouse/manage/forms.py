@@ -265,13 +265,13 @@ class DeleteMacaroonForm(forms.Form):
 
 
 class SetLocaleForm(forms.Form):
-    __params__ = ["language_id"]
+    __params__ = ["locale_id"]
 
-    language_id = wtforms.SelectField(
-        "Select a language ID",
+    locale_id = wtforms.SelectField(
+        "Select a locale ID",
         choices=[
-            ("", "Select a language ID"),
+            ("", "Select a locale ID"),
             *[(id, desc) for id, desc in KNOWN_LOCALES.items()],
         ],
-        validators=[wtforms.validators.DataRequired(message="Select a language ID")],
+        validators=[wtforms.validators.DataRequired(message="Select a locale ID")],
     )
