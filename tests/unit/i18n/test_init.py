@@ -28,12 +28,20 @@ def test_sets_locale(monkeypatch):
 def test_includeme():
     config_settings = {}
     config = pretend.stub(
+        add_translation_dirs=pretend.call_recorder(lambda s: None),
+        set_locale_negotiator=pretend.call_recorder(lambda f: None),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         get_settings=lambda: config_settings,
     )
 
     i18n.includeme(config)
 
+    assert config.add_translation_dirs.calls == [
+        pretend.call("warehouse:locale/")
+    ]
+    assert config.set_locale_negotiator.calls == [
+        pretend.call(i18n._negotiate_locale)
+    ]
     assert config.add_request_method.calls == [
         pretend.call(i18n._locale, name="locale", reify=True)
     ]
