@@ -78,6 +78,10 @@ class TestManageAccount:
         change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
         monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
 
+        set_locale_obj = pretend.stub()
+        set_locale_cls = pretend.call_recorder(lambda **kw: set_locale_obj)
+        monkeypatch.setattr(views, "SetLocaleForm", set_locale_cls)
+
         view = views.ManageAccountViews(request)
 
         monkeypatch.setattr(views.ManageAccountViews, "active_projects", pretend.stub())
@@ -87,6 +91,7 @@ class TestManageAccount:
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "set_locale_form": set_locale_obj,
         }
         assert view.request == request
         assert view.user_service == user_service
