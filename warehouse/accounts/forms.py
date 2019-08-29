@@ -35,7 +35,9 @@ class UsernameMixin:
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
-            raise wtforms.validators.ValidationError(_("No user found with that username"))
+            raise wtforms.validators.ValidationError(
+                _("No user found with that username")
+            )
 
 
 class TOTPValueMixin:
@@ -68,13 +70,15 @@ class NewUsernameMixin:
             # for the username field in accounts.models.User
             wtforms.validators.Regexp(
                 r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$",
-                message=(_(
-                    "The username is invalid. Usernames "
-                    "must be composed of letters, numbers, "
-                    "dots, hyphens and underscores. And must "
-                    "also start and finish with a letter or number. "
-                    "Choose a different username."
-                )),
+                message=(
+                    _(
+                        "The username is invalid. Usernames "
+                        "must be composed of letters, numbers, "
+                        "dots, hyphens and underscores. And must "
+                        "also start and finish with a letter or number. "
+                        "Choose a different username."
+                    )
+                ),
             ),
         ]
     )
@@ -82,8 +86,10 @@ class NewUsernameMixin:
     def validate_username(self, field):
         if self.user_service.find_userid(field.data) is not None:
             raise wtforms.validators.ValidationError(
-                _("This username is already being used by another "
-                "account. Choose a different username.")
+                _(
+                    "This username is already being used by another "
+                    "account. Choose a different username."
+                )
             )
 
 
@@ -169,22 +175,28 @@ class NewEmailMixin:
         userid = self.user_service.find_userid_by_email(field.data)
 
         if userid and userid == self.user_id:
-            raise wtforms.validators.ValidationError(_(
-                f"This email address is already being used by this account. "
-                f"Use a different email."
-            ))
+            raise wtforms.validators.ValidationError(
+                _(
+                    f"This email address is already being used by this account. "
+                    f"Use a different email."
+                )
+            )
         if userid:
-            raise wtforms.validators.ValidationError(_(
-                f"This email address is already being used by another account. "
-                f"Use a different email."
-            ))
+            raise wtforms.validators.ValidationError(
+                _(
+                    f"This email address is already being used by another account. "
+                    f"Use a different email."
+                )
+            )
 
         domain = field.data.split("@")[-1]
         if domain in disposable_email_domains.blacklist:
-            raise wtforms.validators.ValidationError(_(
-                "You can't use an email address from this domain. Use a "
-                "different email."
-            ))
+            raise wtforms.validators.ValidationError(
+                _(
+                    "You can't use an email address from this domain. Use a "
+                    "different email."
+                )
+            )
 
 
 class HoneypotMixin:
@@ -202,10 +214,12 @@ class RegistrationForm(
         validators=[
             wtforms.validators.Length(
                 max=100,
-                message=(_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
-                )),
+                message=(
+                    _(
+                        "The name is too long. "
+                        "Choose a name with 100 characters or less."
+                    )
+                ),
             )
         ]
     )
@@ -315,9 +329,9 @@ class RequestPasswordResetForm(forms.Form):
         if username_or_email is None:
             username_or_email = self.user_service.get_user_by_email(field.data)
         if username_or_email is None:
-            raise wtforms.validators.ValidationError(_(
-                "No user found with that username or email"
-            ))
+            raise wtforms.validators.ValidationError(
+                _("No user found with that username or email")
+            )
 
 
 class ResetPasswordForm(NewPasswordMixin, forms.Form):
