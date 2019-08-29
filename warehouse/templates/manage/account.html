@@ -650,16 +650,12 @@
 
   <hr>
 
-  {{ form_error_anchor(set_locale_form) }}
   <section id="set-locale">
     <h2>Set preferred locale</h2>
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
         {{ set_locale_form.locale_id }}
-        <div id="locale-id-errors">
-          {{ field_errors(set_locale_form.locale_id) }}
-        </div>
       </div>
       <div>
         <input class="button button--primary" type="submit">
