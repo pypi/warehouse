@@ -14,13 +14,13 @@ from babel.core import Locale
 
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
 
-# from pyramid.threadlocal import get_current_request
+from pyramid.threadlocal import get_current_request
 
 KNOWN_LOCALES = {"en": "English", "de": "German"}
 
 LOCALE_ATTR = "_LOCALE_"
 
-localize = TranslationStringFactory("messages")
+_translation_factory = TranslationStringFactory("messages")
 
 
 def _locale(request):
@@ -51,9 +51,9 @@ def _negotiate_locale(request):
     )
 
 
-# def localize(message, **kwargs):
-#     request = get_current_request()
-#     return request.localizer.translate(_translation_factory(message, **kwargs))
+def localize(message, **kwargs):
+    request = get_current_request()
+    return request.localizer.translate(_translation_factory(message, **kwargs))
 
 
 def includeme(config):

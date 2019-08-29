@@ -64,20 +64,18 @@ class NewUsernameMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Length(
-                max=50, message=("Choose a username with 50 characters or less.")
+                max=50, message="Choose a username with 50 characters or less."
             ),
             # the regexp below must match the CheckConstraint
             # for the username field in accounts.models.User
             wtforms.validators.Regexp(
                 r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$",
                 message=(
-                    _(
-                        "The username is invalid. Usernames "
-                        "must be composed of letters, numbers, "
-                        "dots, hyphens and underscores. And must "
-                        "also start and finish with a letter or number. "
-                        "Choose a different username."
-                    )
+                    "The username is invalid. Usernames "
+                    "must be composed of letters, numbers, "
+                    "dots, hyphens and underscores. And must "
+                    "also start and finish with a letter or number. "
+                    "Choose a different username."
                 ),
             ),
         ]
@@ -135,7 +133,7 @@ class NewPasswordMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
-                "new_password", _("Your passwords don't match. Try again.")
+                "new_password", "Your passwords don't match. Try again."
             ),
         ]
     )
@@ -166,7 +164,7 @@ class NewEmailMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                r".+@.+\..+", message=_("The email address isn't valid. Try again.")
+                r".+@.+\..+", message="The email address isn't valid. Try again."
             ),
         ]
     )
@@ -215,10 +213,8 @@ class RegistrationForm(
             wtforms.validators.Length(
                 max=100,
                 message=(
-                    _(
-                        "The name is too long. "
-                        "Choose a name with 100 characters or less."
-                    )
+                    "The name is too long. "
+                    "Choose a name with 100 characters or less."
                 ),
             )
         ]
