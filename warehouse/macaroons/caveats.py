@@ -16,6 +16,8 @@ import pymacaroons
 
 from warehouse.packaging.models import Project
 
+from datetime import datetime
+
 
 class InvalidMacaroon(Exception):
     ...
@@ -67,6 +69,16 @@ class V1Caveat(Caveat):
         projects = permissions.get("projects")
         if projects is None:
             raise InvalidMacaroon("invalid projects in predicate")
+        
+        '''
+        time = macaroon time created
+        if time > curr time - user selected amount of time:
+            raise InvalidMacaroon("time has expired.")
+        
+        project_version = macaroon project version
+        if project_version == a project version that already exists:
+            raise InvalidMacaroon("project already exists")
+        '''
 
         return self.verify_projects(projects)
 
