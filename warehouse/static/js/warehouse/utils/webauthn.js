@@ -205,19 +205,6 @@ export const ProvisionWebAuthn = () => {
       return;
     });
   });
-
-  const labelInput = document.getElementById("webauthn-provision-label");
-
-  if (labelInput === null) {
-    return;
-  }
-
-  labelInput.addEventListener("keyup", async (event) => {
-    if (event.keyCode === 13) {
-      event.preventDefault();
-      document.getElementById("webauthn-provision-begin").click();
-    }
-  });
 };
 
 export const AuthenticateWebAuthn = () => {
