@@ -18,6 +18,8 @@ from warehouse.packaging.models import Project
 
 from datetime import datetime
 
+from datetime import timedelta
+
 
 class InvalidMacaroon(Exception):
     ...
@@ -33,7 +35,6 @@ class Caveat:
     def __call__(self, predicate):
         return self.verify(predicate)
 
-
 class V1Caveat(Caveat):
     def verify_projects(self, projects):
         # First, ensure that we're actually operating in
@@ -44,10 +45,14 @@ class V1Caveat(Caveat):
             )
 
         project = self.verifier.context
-        if project.normalized_name in projects:
-            return True
-
-        raise InvalidMacaroon("project-scoped token matches no projects")
+        if project.normalized_name not in projects:
+            raise InvalidMacaroon("project-scoped token matches no projects")
+        
+        #project version -- need to test
+        if project.version in projects:
+            raise InvalidMacaroon("project version already exists")
+        
+        return True
 
     def verify(self, predicate):
         try:
@@ -69,16 +74,6 @@ class V1Caveat(Caveat):
         projects = permissions.get("projects")
         if projects is None:
             raise InvalidMacaroon("invalid projects in predicate")
-        
-        '''
-        time = macaroon time created
-        if time > curr time - user selected amount of time:
-            raise InvalidMacaroon("time has expired.")
-        
-        project_version = macaroon project version
-        if project_version == a project version that already exists:
-            raise InvalidMacaroon("project already exists")
-        '''
 
         return self.verify_projects(projects)
 
@@ -98,3 +93,7 @@ class Verifier:
             return self.verifier.verify(self.macaroon, key)
         except pymacaroons.exceptions.MacaroonInvalidSignatureException:
             raise InvalidMacaroon("invalid macaroon signature")
+        
+        time = self.macaroon.created
+        if time + timedelta(minutes = 30) < datetime.now():
+            raise InvalidMacaroon("time has expired")
