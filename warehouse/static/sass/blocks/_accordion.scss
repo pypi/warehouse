@@ -44,6 +44,7 @@
 
     @media only screen and (max-width: $desktop) {
       color: $white;
+      @include link-focus-state($white);
     }
   }
 

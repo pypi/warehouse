@@ -10,12 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
 import pytest
 
 from warehouse.accounts.models import Email, User, UserFactory
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
+    UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
 )
 
@@ -83,3 +86,18 @@ class TestUser:
         result = db_session.query(User).filter(User.email == email.email).first()
 
         assert result is None
+
+    def test_recent_events(self, db_session):
+        user = DBUserFactory.create()
+        recent_event = DBUserEventFactory(user=user, tag="foo", ip_address="0.0.0.0")
+        stale_event = DBUserEventFactory(
+            user=user,
+            tag="bar",
+            ip_address="0.0.0.0",
+            time=datetime.datetime.now() - datetime.timedelta(days=15),
+        )
+
+        assert len(user.events) == 2
+        assert len(user.recent_events) == 1
+        assert user.events == [recent_event, stale_event]
+        assert user.recent_events == [recent_event]

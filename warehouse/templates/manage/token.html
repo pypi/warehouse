@@ -45,10 +45,10 @@
         <p>For security reasons this token will only appear once. <strong>Copy it now.</strong></p>
       </div>
       <button type="button" class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="Copy token to clipboard" data-original-label="Copy token to clipboard" data-clipboard-text="{{ serialized_macaroon }}">
-        Copy
+        Copy token
       </button>
       <a href="#remove-API-token--{{ macaroon.id }}" class="button">
-        Remove
+        Remove token
       </a>
       {% set slug="remove-API-token--" + macaroon.id | string %}
       {% set title="Remove API token - " + macaroon.description %}
@@ -81,8 +81,10 @@
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        <input type="text" name="description" id="description" class="form-group__input" aria-describedby="description-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
-        {{ field_errors(create_macaroon_form.description) }}
+        <input type="text" name="description" id="description" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
+        <div id="token-name-errors">
+          {{ field_errors(create_macaroon_form.description) }}
+        </div>
         <p id="description-help-text" class="form-group__help-text">What is this token for?</p>
       </div>
       <div class="form-group">
@@ -95,8 +97,8 @@
           {% if create_macaroon_form.token_scope.flags.required %}
           <span class="form-group__required">(required)</span>
           {% endif %}
-      </label>
-        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="token_scope-errors">
+        </label>
+        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="scope-errors">
           <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">Select scope...</option>
           <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
@@ -104,7 +106,9 @@
           <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>Project: {{ project }}</option>
         {% endfor %}
         </select>
-        {{ field_errors(create_macaroon_form.token_scope) }}
+        <div id="scope-errors">
+          {{ field_errors(create_macaroon_form.token_scope) }}
+        </div>
       </div>
       <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
         <h3 class="callout-block__heading">Proceed with caution!</h3>

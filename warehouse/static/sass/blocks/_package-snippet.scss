@@ -42,7 +42,6 @@
   }
 
   &__title {
-    @include add-ellipsis;
     @include h3;
     padding-bottom: 0;
     display: block;
@@ -56,7 +55,6 @@
   }
 
   &__meta {
-    font-size: 16px;
     padding: 1px 0 2px;
   }
 
@@ -65,7 +63,6 @@
   }
 
   &__released {
-    font-size: 1rem;
     font-weight: $base-font-weight;
     float: right;
     color: $text-color;
@@ -77,9 +74,7 @@
   }
 
   &__description {
-    @include add-ellipsis;
     clear: both;
-    font-size: 1rem;
     color: $text-color;
   }
 

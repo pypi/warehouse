@@ -36,12 +36,10 @@
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <nav>
-          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
-            <i class="fa fa-arrow-left" aria-hidden="true"></i>
-            Back to projects
-          </a>
-        </nav>
+        <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
+          <i class="fa fa-arrow-left" aria-hidden="true"></i>
+          Back to projects
+        </a>
         <div class="vertical-tabs__content">
           <a class="package-snippet package-snippet--margin-bottom" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
             {% set release = project.releases[0] if project.releases else None %}

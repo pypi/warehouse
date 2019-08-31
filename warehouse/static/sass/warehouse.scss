@@ -131,6 +131,11 @@
   font-weight: normal;
 }
 
+// TYPE
+.break {
+  word-break: break-all;
+}
+
 // COLORS
 // Make text or icons red to draw attention
 .danger {
@@ -234,6 +239,10 @@
   display: none;
 }
 
+.display-block {
+  display: block;
+}
+
 // Desktop specific visibility
 @media screen and (min-width: $desktop + 1px) {
   .hide-on-desktop {
@@ -247,18 +256,14 @@
   }
 }
 
-.display-block {
-  display: block;
-}
-
-// Mobile specific visibility
-@media screen and (max-width: $mobile) {
-  .hide-on-mobile {
+// Tablet specific visibility
+@media screen and (max-width: $tablet) {
+  .hide-on-tablet {
     display: none;
   }
 
-  .break-on-mobile {
-    word-break: break-all;
+  .show-on-tablet {
+    display: block;
   }
 }
 

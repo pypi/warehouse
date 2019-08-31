@@ -29,40 +29,37 @@
   Popular <em>USB keys</em> include <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a>, <a href="https://cloud.google.com/titan-security-key/" title="External link" target="_blank" rel="noopener">Google Titan</a> and <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.
 </p>
 
-<section>
-  <noscript>
-    <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
-  </noscript>
+<noscript>
+  <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
+</noscript>
 
-  <div class="form-group">
-    <label for="webauthn-provision-label" class="form-group__label">
-      Name your device to begin
-      <span class="form-group__required">(required)</span>
-    </label>
-    <input id="webauthn-provision-label" type="text" name="label" class="form-group__input" aria-describedby="webauthn-errors">
-    <p class="form-group__help-text">PyPI supports adding multiple security devices.<br>Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
-  </div>
-  <div>
-    <button
-      type="button"
-      id="webauthn-provision-begin"
-      class="button button--primary"
-      value="{{ request.session.get_csrf_token() }}"
-      disabled>Set up security device
-    </button>
-    <ul id="webauthn-errors" class="form-errors margin-top--large">
-      <li id="webauthn-browser-support" class="hidden">
-        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
-      </li>
-    </ul>
-  </div>
+<div class="form-group">
+  <label for="webauthn-provision-label" class="form-group__label">
+    Name your device to begin
+    <span class="form-group__required">(required)</span>
+  </label>
+  <input id="webauthn-provision-label" type="text" name="label" class="form-group__input" aria-describedby="webauthn-errors">
+  <p class="form-group__help-text">PyPI supports adding multiple security devices.<br>Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
+  <ul id="webauthn-errors" class="form-errors margin-top--large">
+    <li id="webauthn-browser-support" class="hidden">
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+    </li>
+  </ul>
+</div>
+<div>
+  <button
+    type="submit"
+    id="webauthn-provision-begin"
+    class="button button--primary"
+    value="{{ request.session.get_csrf_token() }}"
+    disabled>Set up security device
+  </button>
+</div>
 
-  <br>
+<br>
 
-  <div class="callout-block">
-    <p><strong>Not working?</strong> Check you're using a device that follows the <a href="https://fidoalliance.org/specifications/download/" title="External link" target="_blank" rel="noopener">FIDO specification</a> and a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">compatible browser</a>.</p>
-    <p>Note that some older USB keys do not adhere to the FIDO standard and will not work with PyPI.</p>
-  </div>
-
-</section>
+<div class="callout-block">
+  <p><strong>Not working?</strong> Check you're using a device that follows the <a href="https://fidoalliance.org/specifications/download/" title="External link" target="_blank" rel="noopener">FIDO specification</a> and a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">compatible browser</a>.</p>
+  <p>Note that some older USB keys do not adhere to the FIDO standard and will not work with PyPI.</p>
+</div>
 {% endblock %}
