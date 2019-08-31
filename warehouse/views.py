@@ -387,7 +387,7 @@ def search(request):
     accept="application/json",
 )
 def stats(request):
-    total_size_query = request.db.query(func.sum(Project.total_size)).all()
+    total_size = int(request.db.query(func.sum(Project.total_size)).first()[0])
     top_100_packages = (
         request.db.query(Project)
         .with_entities(Project.name, Project.total_size)
@@ -397,10 +397,11 @@ def stats(request):
     )
     # Move top packages into a dict to make JSON more self describing
     top_packages = {
-        pkg_name: {"size": pkg_bytes} for pkg_name, pkg_bytes in top_100_packages
+        pkg_name: {"size": int(pkg_bytes) if pkg_bytes is not None else 0}
+        for pkg_name, pkg_bytes in top_100_packages
     }
 
-    return {"total_packages_size": total_size_query[0][0], "top_packages": top_packages}
+    return {"total_packages_size": total_size, "top_packages": top_packages}
 
 
 @view_config(

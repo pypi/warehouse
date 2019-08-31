@@ -264,6 +264,17 @@ class DatabaseUserService:
 
         return user.totp_secret
 
+    def get_last_totp_value(self, user_id):
+        """
+        Returns the user's last (accepted) TOTP value.
+
+        If the user doesn't have a TOTP or hasn't used their TOTP
+        method, returns None.
+        """
+        user = self.get_user(user_id)
+
+        return user.last_totp_value
+
     def check_totp_value(self, user_id, totp_value, *, tags=None):
         """
         Returns True if the given TOTP is valid against the user's secret.
@@ -310,6 +321,11 @@ class DatabaseUserService:
             self.ratelimiters["global"].hit()
             return False
 
+        last_totp_value = self.get_last_totp_value(user_id)
+
+        if last_totp_value is not None and totp_value == last_totp_value.encode():
+            return False
+
         valid = otp.verify_totp(totp_secret, totp_value)
 
         if valid:
@@ -327,9 +343,7 @@ class DatabaseUserService:
 
         return valid
 
-    def get_webauthn_credential_options(
-        self, user_id, *, challenge, rp_name, rp_id, icon_url
-    ):
+    def get_webauthn_credential_options(self, user_id, *, challenge, rp_name, rp_id):
         """
         Returns a dictionary of credential options suitable for beginning the WebAuthn
         provisioning process for the given user.
@@ -337,19 +351,17 @@ class DatabaseUserService:
         user = self.get_user(user_id)
 
         return webauthn.get_credential_options(
-            user, challenge=challenge, rp_name=rp_name, rp_id=rp_id, icon_url=icon_url
+            user, challenge=challenge, rp_name=rp_name, rp_id=rp_id
         )
 
-    def get_webauthn_assertion_options(self, user_id, *, challenge, icon_url, rp_id):
+    def get_webauthn_assertion_options(self, user_id, *, challenge, rp_id):
         """
         Returns a dictionary of assertion options suitable for beginning the WebAuthn
         authentication process for the given user.
         """
         user = self.get_user(user_id)
 
-        return webauthn.get_assertion_options(
-            user, challenge=challenge, icon_url=icon_url, rp_id=rp_id
-        )
+        return webauthn.get_assertion_options(user, challenge=challenge, rp_id=rp_id)
 
     def verify_webauthn_credential(self, credential, *, challenge, rp_id, origin):
         """
@@ -375,7 +387,7 @@ class DatabaseUserService:
         return validated_credential
 
     def verify_webauthn_assertion(
-        self, user_id, assertion, *, challenge, origin, icon_url, rp_id
+        self, user_id, assertion, *, challenge, origin, rp_id
     ):
         """
         Checks whether the given assertion was produced by the given user's WebAuthn
@@ -387,12 +399,7 @@ class DatabaseUserService:
         user = self.get_user(user_id)
 
         return webauthn.verify_assertion_response(
-            assertion,
-            challenge=challenge,
-            user=user,
-            origin=origin,
-            icon_url=icon_url,
-            rp_id=rp_id,
+            assertion, challenge=challenge, user=user, origin=origin, rp_id=rp_id
         )
 
     def add_webauthn(self, user_id, **kwargs):
@@ -436,6 +443,16 @@ class DatabaseUserService:
             ),
             None,
         )
+
+    def record_event(self, user_id, *, tag, ip_address, additional=None):
+        """
+        Creates a new UserEvent for the given user with the given
+        tag, IP address, and additional metadata.
+
+        Returns the event.
+        """
+        user = self.get_user(user_id)
+        return user.record_event(tag=tag, ip_address=ip_address, additional=additional)
 
 
 @implementer(ITokenService)

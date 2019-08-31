@@ -16,6 +16,7 @@ import uuid
 
 import pymacaroons
 
+from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
@@ -31,7 +32,7 @@ class DatabaseMacaroonService:
     def __init__(self, db_session):
         self.db = db_session
 
-    def _extract_raw_macaroon(self, raw_macaroon):
+    def _extract_raw_macaroon(self, prefixed_macaroon):
         """
         Returns the base64-encoded macaroon component of a PyPI macaroon,
         dropping the prefix.
@@ -39,15 +40,11 @@ class DatabaseMacaroonService:
         Returns None if the macaroon is None, has no prefix, or has the
         wrong prefix.
         """
-        if raw_macaroon is None:
+        if prefixed_macaroon is None:
             return None
 
-        try:
-            prefix, raw_macaroon = raw_macaroon.split(":", 1)
-        except ValueError:
-            return None
-
-        if prefix != "pypi":
+        prefix, _, raw_macaroon = prefixed_macaroon.partition("-")
+        if prefix != "pypi" or not raw_macaroon:
             return None
 
         return raw_macaroon
@@ -78,7 +75,11 @@ class DatabaseMacaroonService:
         if raw_macaroon is None:
             return None
 
-        m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        try:
+            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        except MacaroonDeserializationException:
+            return None
+
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
@@ -97,7 +98,11 @@ class DatabaseMacaroonService:
         if raw_macaroon is None:
             raise InvalidMacaroon("malformed or nonexistent macaroon")
 
-        m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        try:
+            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        except MacaroonDeserializationException:
+            raise InvalidMacaroon("malformed macaroon")
+
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
@@ -129,7 +134,7 @@ class DatabaseMacaroonService:
             version=pymacaroons.MACAROON_V2,
         )
         m.add_first_party_caveat(json.dumps(caveats))
-        serialized_macaroon = f"pypi:{m.serialize()}"
+        serialized_macaroon = f"pypi-{m.serialize()}"
         return serialized_macaroon, dm
 
     def delete_macaroon(self, macaroon_id):

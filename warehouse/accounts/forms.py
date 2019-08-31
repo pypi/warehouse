@@ -261,6 +261,7 @@ class _TwoFactorAuthenticationForm(forms.Form):
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
         totp_value = field.data.encode("utf8")
+
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError("Invalid TOTP code.")
 
@@ -268,11 +269,10 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
 class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticationForm):
     __params__ = ["credential"]
 
-    def __init__(self, *args, challenge, origin, icon_url, rp_id, **kwargs):
+    def __init__(self, *args, challenge, origin, rp_id, **kwargs):
         super().__init__(*args, **kwargs)
         self.challenge = challenge
         self.origin = origin
-        self.icon_url = icon_url
         self.rp_id = rp_id
 
     def validate_credential(self, field):
@@ -289,7 +289,6 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
                 assertion_dict,
                 challenge=self.challenge,
                 origin=self.origin,
-                icon_url=self.icon_url,
                 rp_id=self.rp_id,
             )
 

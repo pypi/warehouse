@@ -44,7 +44,7 @@ class TestDatabaseMacaroonService:
             (None, None),
             ("noprefixhere", None),
             ("invalid:prefix", None),
-            ("pypi:validprefix", "validprefix"),
+            ("pypi-validprefix", "validprefix"),
         ],
     )
     def test_extract_raw_macaroon(self, macaroon_service, raw_macaroon, result):
@@ -74,9 +74,12 @@ class TestDatabaseMacaroonService:
             key=b"fake key",
             version=pymacaroons.MACAROON_V2,
         ).serialize()
-        raw_macaroon = f"pypi:{raw_macaroon}"
+        raw_macaroon = f"pypi-{raw_macaroon}"
 
         assert macaroon_service.find_userid(raw_macaroon) is None
+
+    def test_find_userid_malformed_macaroon(self, macaroon_service):
+        assert macaroon_service.find_userid(f"pypi-thiswillnotdeserialize") is None
 
     def test_find_userid(self, macaroon_service):
         user = UserFactory.create()
@@ -87,7 +90,7 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
-    def test_verify_malformed_macaroon(self, macaroon_service):
+    def test_verify_unprefixed_macaroon(self, macaroon_service):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",
             identifier=str(uuid4()),
@@ -107,7 +110,7 @@ class TestDatabaseMacaroonService:
             key=b"fake key",
             version=pymacaroons.MACAROON_V2,
         ).serialize()
-        raw_macaroon = f"pypi:{raw_macaroon}"
+        raw_macaroon = f"pypi-{raw_macaroon}"
 
         with pytest.raises(services.InvalidMacaroon):
             macaroon_service.verify(
@@ -133,6 +136,10 @@ class TestDatabaseMacaroonService:
         assert verifier_cls.calls == [
             pretend.call(mock.ANY, context, principals, permissions)
         ]
+
+    def test_verify_malformed_macaroon(self, macaroon_service):
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.verify(f"pypi-thiswillnotdeserialize", None, None, None)
 
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()

@@ -40,6 +40,7 @@ def test_templates_for_empty_titles():
             "format_rfc822_datetime": "warehouse.i18n.filters:format_rfc822_datetime",
             "format_number": "warehouse.i18n.filters:format_number",
             "format_classifiers": "warehouse.filters:format_classifiers",
+            "classifier_id": "warehouse.filters:classifier_id",
             "format_tags": "warehouse.filters:format_tags",
             "json": "warehouse.filters:tojson",
             "camoify": "warehouse.filters:camoify",
@@ -67,4 +68,4 @@ def test_templates_for_empty_titles():
                 rel_dir = os.path.relpath(dir_, dir_name)
                 rel_file = os.path.join(rel_dir, file_name)
                 template = env.get_template(rel_file)
-                assert "title" in template.blocks
+                assert "title" in template.blocks or "title_base" in template.blocks

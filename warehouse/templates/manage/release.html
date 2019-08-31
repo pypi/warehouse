@@ -15,16 +15,18 @@
 
 {% set active_tab = 'releases' %}
 
-{% block title %}Manage '{{ project.name }}' release{% endblock %}
+{% block title %}Manage '{{ project.name }}' – release version {{ release.version }}{% endblock %}
 
 {% block main %}
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
     <h2 class="heading-wsubtitle__heading">Release version {{ release.version }}</h2>
 
-    <ul role="navigation" aria-label="Breadcrumb" class="heading-wsubtitle__subtitle breadcrumbs">
-      <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name }} releases</a></li>
-      <li class="breadcrumbs__breadcrumb">Release version {{ release.version }} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">view release</a></li>
-    </ul>
+    <nav aria-label="Breadcrumb">
+      <ul class="heading-wsubtitle__subtitle breadcrumbs">
+        <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name }} releases</a></li>
+        <li class="breadcrumbs__breadcrumb">Release version {{ release.version }} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">view release</a></li>
+      </ul>
+    </nav>
   </div>
 
   {% if files %}
@@ -62,7 +64,7 @@
               Options
               <span class="dropdown__trigger-caret">
                 <i class="fa fa-caret-down" aria-hidden="true"></i>
-                <span class="sr-only">view submenu</span>
+                <span class="sr-only">View submenu</span>
               </span>
             </button>
             <ul class="dropdown__content">
@@ -73,7 +75,7 @@
                 </a>
               </li>
               <li>
-                <a href="#copy-hash-modal-{{ loop.index }}" class="dropdown__link">
+                <a href="#copy-hash-modal-{{ file.id }}" class="dropdown__link">
                   <i class="fa fa-hashtag" aria-hidden="true"></i>
                   View Hashes
                 </a>
@@ -110,8 +112,8 @@
     {% else %}
     <h3>No files found</h3>
     {% endif %}
-    <p>Learn how to upload files on the <a href="https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a></p>
     <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <p>Learn how to upload files on the <a href="https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a></p>
   </div>
 
   <h3>Release settings</h3>
@@ -138,59 +140,7 @@
 
   {% if files %}
   {% for file in files %}
-  <div id="copy-hash-modal-{{ loop.index }}" class="modal modal--wide">
-    <div class="modal__content" role="dialog">
-      <a href="#modal-close" title="Close" class="modal__close">
-        <i class="fa fa-times" aria-hidden="true"></i>
-        <span class="sr-only">close</span>
-      </a>
-      <div class="modal__body">
-        <h3 class="modal__title">Hashes for {{ file.filename }}</h3>
-        <table class="table table--light table--hashes">
-          <caption class="sr-only">Hashes for {{ file.filename }}</caption>
-          <thead>
-            <tr>
-              <th scope="col" class="table__algorithm">Algorithm</th>
-              <th scope="col" class="table__hash">Hash digest</th>
-              <th class="table__copy"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row" class="table__algorithm">SHA256</th>
-              <td class="table__hash"><code>{{ file.sha256_digest }}</code></td>
-              <td class="table__copy">
-                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
-                  Copy
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td class="table__algorithm">MD5</td>
-              <td class="table__hash"><code>{{ file.md5_digest }}</code></td>
-              <td class="table__copy">
-                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
-                  Copy
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td class="table__algorithm">BLAKE2-256</td>
-              <td class="table__hash"><code>{{ file.blake2_256_digest }}</code></td>
-              <td class="table__copy">
-                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
-                  Copy
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="modal__footer">
-        <a href="#modal-close" class="button button--primary modal__action">Close</a>
-      </div>
-    </div>
-  </div>
+  {% include "warehouse:templates/includes/hash-modal.html" %}
   {% endfor %}
   {% endif %}
 {% endblock %}

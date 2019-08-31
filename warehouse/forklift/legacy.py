@@ -937,6 +937,21 @@ def file_upload(request):
             )
         )
 
+        project.record_event(
+            tag="project:create",
+            ip_address=request.remote_addr,
+            additional={"created_by": request.user.username},
+        )
+        project.record_event(
+            tag="project:role:add",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": "Owner",
+                "target_user": request.user.username,
+            },
+        )
+
     # Check that the user has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
@@ -1075,6 +1090,15 @@ def file_upload(request):
                 submitted_by=request.user,
                 submitted_from=request.remote_addr,
             )
+        )
+
+        project.record_event(
+            tag="project:release:add",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "canonical_version": release.canonical_version,
+            },
         )
 
     # TODO: We need a better solution to this than to just do it inline inside

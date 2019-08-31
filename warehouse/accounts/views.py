@@ -138,7 +138,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 resp = HTTPSeeOther(
                     request.route_path("accounts.two-factor", _query=token)
                 )
-
                 return resp
             else:
                 # If the user-originating redirection url is not safe, then
@@ -171,7 +170,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .hexdigest()
                     .lower(),
                 )
-
             return resp
 
     return {
@@ -216,7 +214,8 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            _login_user(request, userid)
+            _login_user(request, userid, two_factor_method="totp")
+            user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
             resp.set_cookie(
@@ -252,10 +251,7 @@ def webauthn_authentication_options(request):
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)
     return user_service.get_webauthn_assertion_options(
-        userid,
-        challenge=request.session.get_webauthn_challenge(),
-        icon_url=request.registry.settings.get("warehouse.domain", request.domain),
-        rp_id=request.domain,
+        userid, challenge=request.session.get_webauthn_challenge(), rp_id=request.domain
     )
 
 
@@ -288,7 +284,6 @@ def webauthn_authentication_validate(request):
         user_service=user_service,
         challenge=request.session.get_webauthn_challenge(),
         origin=request.host_url,
-        icon_url=request.registry.settings.get("warehouse.domain", request.domain),
         rp_id=request.domain,
     )
 
@@ -299,7 +294,7 @@ def webauthn_authentication_validate(request):
         webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
         webauthn.sign_count = sign_count
 
-        _login_user(request, userid)
+        _login_user(request, userid, two_factor_method="webauthn")
 
         request.response.set_cookie(
             USER_ID_INSECURE_COOKIE,
@@ -404,6 +399,12 @@ def register(request, _form_class=RegistrationForm):
             form.username.data, form.full_name.data, form.new_password.data
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
+        user_service.record_event(
+            user.id,
+            tag="account:create",
+            ip_address=request.remote_addr,
+            additional={"email": form.email.data},
+        )
 
         send_email_verification_email(request, (user, email))
 
@@ -437,6 +438,11 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         send_password_reset_email(request, (user, email))
+        user_service.record_event(
+            user.id,
+            tag="account:password:reset:request",
+            ip_address=request.remote_addr,
+        )
 
         token_service = request.find_service(ITokenService, name="password")
         n_hours = token_service.max_age // 60 // 60
@@ -511,6 +517,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
     if request.method == "POST" and form.validate():
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
+        user_service.record_event(
+            user.id, tag="account:password:reset", ip_address=request.remote_addr
+        )
 
         # Flash a success message
         request.session.flash("You have reset your password", queue="success")
@@ -560,6 +569,11 @@ def verify_email(request):
     email.verified = True
     email.unverify_reason = None
     email.transient_bounces = 0
+    email.user.record_event(
+        tag="account:email:verified",
+        ip_address=request.remote_addr,
+        additional={"email": email.email, "primary": email.primary},
+    )
 
     if not email.primary:
         confirm_message = "You can now set this email as your primary address"
@@ -590,7 +604,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
     return two_factor_data
 
 
-def _login_user(request, userid):
+def _login_user(request, userid, two_factor_method=None):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -629,6 +643,12 @@ def _login_user(request, userid):
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
+    user_service.record_event(
+        userid,
+        tag="account:login:success",
+        ip_address=request.remote_addr,
+        additional={"two_factor_method": two_factor_method},
+    )
 
     return headers
 

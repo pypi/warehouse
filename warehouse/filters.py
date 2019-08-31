@@ -144,6 +144,10 @@ def format_classifiers(classifiers):
     return structured
 
 
+def classifier_id(classifier):
+    return classifier.replace(" ", "_").replace("::", ".")
+
+
 def contains_valid_uris(items):
     """Returns boolean representing whether the input list contains any valid
     URIs
