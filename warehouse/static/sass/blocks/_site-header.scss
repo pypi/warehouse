@@ -34,6 +34,7 @@
     max-width: 65px;
     float: left;
     @include link-without-underline;
+    @include link-focus-state($white);
 
     @media screen and (max-width: $small-tablet) {
       max-width: 50px;

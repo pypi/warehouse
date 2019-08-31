@@ -41,12 +41,30 @@
 {%- endmacro %}
 
 {% macro main_navigation_logged_out() -%}
-<nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall" aria-label="Main navigation">
-  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
-  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.org">Donate</a>
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log in</a>
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
-</nav>
+<div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+  <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet" aria-label="Main navigation">
+    <ul>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('help') }}" class="horizontal-menu__link">Help</a></li>
+      <li class="horizontal-menu__item"><a href="https://donate.pypi.org" class="horizontal-menu__link">Donate</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.login') }}" class="horizontal-menu__link">Log in</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.register') }}" class="horizontal-menu__link">Register</a></li>
+    </ul>
+  </nav>
+  <nav class="dropdown dropdown--on-menu hidden show-on-tablet" aria-label="Main navigation">
+    <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+      Menu
+      <span class="dropdown__trigger-caret">
+        <i class="fa fa-caret-down" aria-hidden="true"></i>
+      </span>
+    </button>
+    <ul class="dropdown__content">
+      <li><a class="dropdown__link" href="{{ request.route_path('help') }}">Help</a></li>
+      <li><a class="dropdown__link" href="https://donate.pypi.org">Donate</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('accounts.login') }}">Log in</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('accounts.register') }}">Register</a></li>
+    </ul>
+  </nav>
+</div>
 {%- endmacro %}
 
 <!DOCTYPE html>
@@ -71,7 +89,7 @@
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/brands.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic%7CSource+Code+Pro:500">
     <noscript>
       <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
     </noscript>
@@ -138,13 +156,13 @@
       Switch to mobile version
     </button>
 
-    <section id="sticky-notifications" class="stick-to-top js-stick-to-top">
+    <div id="sticky-notifications" class="stick-to-top js-stick-to-top">
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">Warning</span>
         </span>
         <span class="notification-bar__message">You are using an unsupported browser, upgrade to a newer version.</span>
       </div>
@@ -153,7 +171,7 @@
       <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">Warning</span>
         </span>
         <span class="notification-bar__message">You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
       </div>
@@ -163,12 +181,12 @@
         {# TODO: This should be removed once GH-3828 is fixed. #}
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">Warning</span>
         </span>
         <span class="notification-bar__message">Some features may not work without JavaScript. Please try enabling it if you encounter problems.</span>
       </div>
       </noscript>
-    </section>
+    </div>
 
     {% block flash_messages %}
       {% csi request.route_path("includes.flash-messages") %}
@@ -217,7 +235,7 @@
     </header>
 
     {% block mobile_search %}
-    <section class="mobile-search">
+    <div class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
         <label for="mobile-search" class="sr-only">Search PyPI</label>
         <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
@@ -227,7 +245,7 @@
           <span class="sr-only">Search</span>
         </button>
       </form>
-    </section>
+    </div>
     {% endblock mobile_search %}
 
     <main id="content">
@@ -235,49 +253,58 @@
       {% endblock content %}
     </main>
 
-    <footer class="footer" role="contentinfo">
+    <footer class="footer">
       <div class="footer__logo">
-        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="Logo" class="-js-white-cube">
+        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="" class="-js-white-cube">
       </div>
 
       <div class="footer__menus">
-        <ul class="footer__menu">
-          <li>
-            <h2>Help</h2>
-          </li>
-          <li><a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Installing packages</a></li>
-          <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Uploading packages</a></li>
-          <li><a href="https://packaging.python.org/" title="External link" target="_blank" rel="noopener">User guide</a></li>
-          <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
-        </ul>
-        <ul class="footer__menu">
-          <li>
-            <h2>About PyPI</h2>
-          </li>
-          <li><a href="https://twitter.com/PyPI" title="External link" target="_blank" rel="noopener">PyPI on Twitter</a></li>
-          <li><a href="https://dtdg.co/pypi" title="External link" target="_blank" rel="noopener">Infrastructure dashboard</a></li>
-          <li><a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">Package index name retention</a></li>
-          <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
-        </ul>
+        <div class="footer__menu">
+          <h2>Help</h2>
+          <nav aria-label="Help navigation">
+            <ul>
+              <li><a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Installing packages</a></li>
+              <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Uploading packages</a></li>
+              <li><a href="https://packaging.python.org/" title="External link" target="_blank" rel="noopener">User guide</a></li>
+              <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
+            </ul>
+          </nav>
+        </div>
 
+        <div class="footer__menu">
+          <h2>About PyPI</h2>
+          <nav aria-label="About PyPI navigation">
+            <ul>
+              <li><a href="https://twitter.com/PyPI" title="External link" target="_blank" rel="noopener">PyPI on Twitter</a></li>
+              <li><a href="https://dtdg.co/pypi" title="External link" target="_blank" rel="noopener">Infrastructure dashboard</a></li>
+              <li><a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">Package index name retention</a></li>
+              <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
+            </ul>
+          </nav>
+        </div>
 
-        <ul class="footer__menu">
-          <li>
-            <h2>Contributing to PyPI</h2>
-          </li>
-          <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
-          <li><a href="https://github.com/pypa/warehouse" title="External link" target="_blank" rel="noopener">Contribute on GitHub</a></li>
-          <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="External link" target="_blank" rel="noopener">Development credits</a></li>
-        </ul>
-        <ul class="footer__menu">
-          <li>
-            <h2>Using PyPI</h2>
-          </li>
-          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="External link" target="_blank" rel="noopener">Code of conduct</a></li>
-          <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
-          <li><a href="https://www.python.org/privacy/" title="External link" target="_blank" rel="noopener">Privacy policy</a></li>
-          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
-        </ul>
+        <div class="footer__menu">
+          <h2>Contributing to PyPI</h2>
+          <nav aria-label="How to contribute navigation">
+            <ul>
+              <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
+              <li><a href="https://github.com/pypa/warehouse" title="External link" target="_blank" rel="noopener">Contribute on GitHub</a></li>
+              <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="External link" target="_blank" rel="noopener">Development credits</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="footer__menu">
+          <h2>Using PyPI</h2>
+          <nav aria-label="Using PyPI navigation">
+            <ul>
+              <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="External link" target="_blank" rel="noopener">Code of conduct</a></li>
+              <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
+              <li><a href="https://www.python.org/privacy/" title="External link" target="_blank" rel="noopener">Privacy policy</a></li>
+              <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
+            </ul>
+          </nav>
+        </div>
       </div>
 
       <hr class="footer__divider">
@@ -298,7 +325,7 @@
 
       <div class="centered hide-on-desktop">
         <button type="button" class="button button--switch-to-desktop hidden" data-target="viewport-toggle.switchToDesktop" data-action="viewport-toggle#switchToDesktop">
-          Desktop version
+          Switch to desktop version
         </button>
       </div>
     </footer>

@@ -15,7 +15,12 @@
 /*
   Navigation breadcrumbs.
 
-  <span class="breadcrumbs">Help</span>
+  <nav aria-label="Breadcrumb">
+    <ul class="breadcrumbs">
+      <li class="breadcrumbs__breadcrumb"></li>
+      <li class="breadcrumbs__breadcrumb"></li>
+    </ul>
+  </nav>
 */
 
 

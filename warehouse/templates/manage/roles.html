@@ -15,7 +15,7 @@
 
 {% set active_tab = 'collaborators' %}
 
-{% block title %}Manage '{{ project.name }}' collaboration{% endblock %}
+{% block title %}Manage '{{ project.name }}' collaborators{% endblock %}
 
 {% block main %}
   <h2>Collaborators</h2>
@@ -33,9 +33,11 @@
   <table class="table table--light table--collaborators">
     <caption class="sr-only">Users who can manage {{ project.name }}</caption>
     <thead>
-      <th class="table__user" scope="col">User</th>
-      <th class="table__role" scope="col">Role</th>
-      <th class="table__action" scope="col">Action</th>
+      <tr>
+        <th class="table__user" scope="col">User</th>
+        <th class="table__role" scope="col">Role</th>
+        <th class="table__action" scope="col">Action</th>
+      </tr>
     </thead>
     <tbody>
     {#
@@ -48,20 +50,21 @@
     #}
     {% for username, roles in roles_by_user|dictsort %}
       {% set role = roles|max %}
-
-      <th class="table__user" scope="row">
-        <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
-          <span class="table__user-gravatar">
-            <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="">
-          </span>
-          <span class="table__user-text">
-            <strong>{{ role.user.username }}</strong>
-            {% if role.user.name %}
-              <br><span>{{ role.user.name }}</span>
-            {% endif %}
-          <span>
-        </a>
-      </th>
+      <tr>
+        <th class="table__user" scope="row">
+          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
+            {% set alt = "Avatar for {} from gravatar.com".format(role.user.name|default(role.user.username, true)) %}
+            <span class="table__user-gravatar">
+              <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
+            </span>
+            <span class="table__user-text">
+              <strong>{{ role.user.username }}</strong>
+              {% if role.user.name %}
+                <br><span>{{ role.user.name }}</span>
+              {% endif %}
+            </span>
+          </a>
+        </th>
         <td class="table__role">
         {% if role.user == request.user %}
           {{ role.role_name }}
@@ -72,14 +75,15 @@
               <input type="hidden" name="role_id" value="{{ role.id }}">
             {% endfor %}
 
-            <select class="change-field" name="role_name" data-original="{{ role.role_name }}">
-            {% for role_name in ['Owner', 'Maintainer'] %}
-            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
-              {{ role_name }}
-            </option>
-            {% endfor %}
+            <label for="role-for-{{ role.id }}" class="sr-only">Role</label>
+            <select id="role-for-{{ role.id }}" class="change-field" name="role_name" data-original="{{ role.role_name }}">
+              {% for role_name in ['Owner', 'Maintainer'] %}
+              <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
+                {{ role_name }}
+              </option>
+              {% endfor %}
             </select>
-            <button type="submit" class="button button--primary change-button" title="Save this new role">
+            <button type="submit" class="button button--primary change-button" title="Save role">
               Save
             </button>
           </form>
@@ -116,36 +120,40 @@
         </td>
       </tr>
     {% endfor %}
-      <form method="POST">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <tr>
-          <td class="table__user">
-            <label for="username" class="sr-only">User's username</label>
-            {{ form.username(placeholder="User's username") }}
-          </td>
-          <td class="table__role">
-            <label for="role_name" class="sr-only">Role name</label>
-            {{ form.role_name }}
-          </td>
-          <td class="table__action">
-            <input type="submit" value="Add" class="button button--primary">
-          </td>
-        </tr>
-        {% if form.errors %}
-          <tr class="formset-table__errors">
-            <td colspan="3">
-              <ul class="form-errors form-errors--full-width">
-              {% for field, errors in form.errors|dictsort if errors %}
-                {% for error in errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-              {% endfor %}
-              </ul>
-            </td>
-          </tr>
-        {% endif %}
-      </form>
     </tbody>
   </table>
+
+  <h3>Add collaborator</h3>
+  <form method="POST">
+    <div class="form-group">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <label for="username" class="form-group__label">
+        User
+        {% if form.username.flags.required %}
+        <span class="form-group__required">(required)</span>
+        {% endif %}
+      </label>
+      {{ form.username(placeholder="User's username", class_="form-group__input", **{"aria-describedby":"user-errors"}) }}
+      <div id="user-errors">
+        {{ field_errors(form.username) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="role_name" class="form-group__label">
+        Role
+        {% if form.role_name.flags.required %}
+        <span class="form-group__required">(required)</span>
+        {% endif %}
+      </label>
+      {{ form.role_name(class_="form-group__input", **{"aria-describedby":"role-errors"}) }}
+      <div id="role-errors">
+        {{ field_errors(form.role_name) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="Add collaborator" class="button button--primary">
+    </div>
+  </form>
+
   <br>
 {% endblock %}
