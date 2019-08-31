@@ -76,7 +76,7 @@
 {% block title %}Help{% endblock %}
 
 {% block content %}
-  <section class="horizontal-section">
+  <div class="horizontal-section">
     <div class="narrow-container">
       <h1 class="page-title">Common questions</h1>
 
@@ -159,7 +159,7 @@
         <h3 id="packages">{{ packages() }}</h3>
         <p>We use a number of terms to describe software available on PyPI, like "project", "release", "file", and "package". Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:</p>
         <p>A "project" on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.</p>
-        <p>A "release" on PyPI is a specific version of a project. For example, the <a href="https://pypi.org/project/requests/">requests</a> project has many releases, like "requests 2.10" and "requests 1.2.1". A release consists of one or more "files".</p>
+        <p>A "release" on PyPI is a specific version of a project. For example, the <a href="https://pypi.org/project/requests/">requests project</a> has many releases, like "requests 2.10" and "requests 1.2.1". A release consists of one or more "files".</p>
         <p>A "file", also known as a "package", on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="https://pypi.org/project/wheel/#files">wheel</a>.</p>
 
         <h3 id="installing">{{ installing() }}</h3>
@@ -169,7 +169,7 @@
         <p>For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="https://packaging.python.org/distributing/" title="External link" target="_blank" rel="noopener">packaging tutorial</a> on the <a href="https://packaging.python.org" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a>.</p>
 
         <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
-        <p>Classifiers are used to categorize projects on PyPI. See <a href="{{ request.route_path('classifiers') }}"> {{ request.route_url('classifiers') }}</a> for more information, as well as a list of valid classifiers.</p>
+        <p>Classifiers are used to categorize projects on PyPI. See <a href="{{ request.route_path('classifiers') }}">the classifiers page</a> for more information, as well as a list of valid classifiers.</p>
       </section>
 
       <section class="faq-group" id="my-account">
@@ -183,7 +183,7 @@
         </ul>
         <p>The list of activities that require a verified email address is likely to grow over time.</p>
         <p>This policy will allow us to enforce a key policy of <a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">PEP 541</a> regarding maintainer reachability. It also reduces the viability of spam attacks to create many accounts in an automated fashion.</p>
-        <p>You can manage your account's email addresses in your <a href="{{ request.route_path('manage.account') }}">Profile</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.</p>
+        <p>You can manage your account's email addresses in your <a href="{{ request.route_path('manage.account') }}">account setttings</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.</p>
 
         <h3 id="compromised-password">{{ compromised_password() }}</h3>
         <p>PyPI itself has not suffered a breach. This is a protective measure to reduce the risk of <a href="https://www.owasp.org/index.php/Credential_stuffing" title="External link" target="_blank" rel="noopener">credential stuffing</a> attacks against PyPI and its users.</p>
@@ -197,7 +197,8 @@
         <p>Two factor authentication (2FA) makes your account more secure by requiring two things in order to log in: <em>something you know</em> and <em>something you own</em>.</p>
         <p>In PyPI's case, "something you know" is your username and password, while "something you own" can be <a href="#totp">an application to generate a temporary code</a>, or a <a href="#utfkey">security device</a> (most commonly a USB key).</p>
         <p>It is strongly recommended that you set up two factor authentication on your PyPI account.</p>
-        <p>Users who have chosen to set up two factor authentication will be asked to provide their second method of identity verification during the log in process. This only affects logging in via a web browser, and not (yet) package uploads (<a href="https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042" title="External link" target="_blank" rel="noopener">details</a>).</p>
+        <p>Users who have chosen to set up two factor authentication will be asked to provide their second method of identity verification during the log in process. This only affects logging in via a web browser, and not (yet) package uploads.</p>
+        <p>You can follow the improvements to 2FA on <a href="https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042" title="External link" target="_blank" rel="noopener">discuss.python.org</a>.</p>
 
         <h3 id="totp">{{ totp() }}</h3>
 
@@ -243,6 +244,7 @@
           <li>To use a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">browser that supports WebAuthn and PublicKeyCredential</a>, as this is the standard implemented by PyPI.</li>
           <li>To be running JavaScript on your browser</li>
           <li>To use a USB key that adheres to the <a href="https://fidoalliance.org/specifications/download/" title="External link" target="_blank" rel="noopener">FIDO U2F specification</a>:</li>
+          <li>
             <ul>
               <li>Popular keys include <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a>, <a href="https://cloud.google.com/titan-security-key/" title="External link" target="_blank" rel="noopener">Google Titan</a> and <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.</li>
               <li>Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI</li>
@@ -289,8 +291,8 @@
         <p>To use an API token:</p>
 
         <ul>
-          <li>Set your username to <code>@token</code></li>
-          <li>Set your password to the token value</li>
+          <li>Set your username to <code>__token__</code></li>
+          <li>Set your password to the token value, including the <code>pypi-</code> prefix</li>
         </ul>
 
         <p>Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account" title="External link" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="https://docs.travis-ci.com/user/deployment/pypi/" title="External link" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).</p>
@@ -373,7 +375,7 @@
         {{ code_of_conduct() }}
 
         <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
-        <p>Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure. It's a cryptographic protocol that's had several versions over time. PyPI <a href="https://mail.python.org/pipermail/python-announce-list/2018-April/011885.html" title="External link" target="_blank" rel="noopener">turned off support for TLS versions 1.0 and 1.1</a> in April 2018 (<a href="https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html" title="External link" target="_blank" rel="noopener">reason</a>).</p>
+        <p>Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure. It's a cryptographic protocol that's had several versions over time. PyPI <a href="https://mail.python.org/pipermail/python-announce-list/2018-April/011885.html" title="External link" target="_blank" rel="noopener">turned off support for TLS versions 1.0 and 1.1</a> in April 2018. <a href="https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html" title="External link" target="_blank" rel="noopener">Learn why on the PSF blog</a>.</p>
         <p>If you are having trouble with <code> pip install</code> and get a <code>No matching distribution found</code> or <code>Could not fetch URL</code> error, try adding <code>-v</code> to the command to get more information:</p>
         <p><code>pip install --upgrade -v pip</code></p>
         <p>If you see an error like <code>There was a problem confirming the ssl certificate</code> or <code>tlsv1 alert protocol version</code> or <code>TLSV1_ALERT_PROTOCOL_VERSION</code>, you need to be connecting to PyPI with a newer TLS support library.</p>
@@ -454,15 +456,15 @@
 
       </section>
     </div>
-  </section>
+  </div>
 
-  <section class="horizontal-section horizontal-section--grey">
+  <div class="horizontal-section horizontal-section--grey">
     <div class="narrow-container">
       <h3>Resources</h3>
       <p>Looking for something else? Perhaps these links will help:</p>
       <ul>
         <li><a href="https://packaging.python.org" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a></li>
-        <li><a href="https://docs.python.org" title="External link" target="_blank" rel="noopener">Python Documentation</a></li>
+        <li><a href="https://docs.python.org" title="External link" target="_blank" rel="noopener">Python documentation</a></li>
         <li><a href="https://python.org/" title="External link" target="_blank" rel="noopener">Python.org</a> (main Python website)</li>
         <li><a href="https://python.org/community/" title="External link" target="_blank" rel="noopener">Python community page</a> (lists IRC channels, mailing lists, etc.)</li>
       </ul>
@@ -471,5 +473,5 @@
       <p>The <a href="https://pypa.io" title="External link" target="_blank" rel="noopener">Python Packaging Authority (PyPA)</a> is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer, use <a href="https://webchat.freenode.net/?channels=%23pypa" title="External link" target="_blank" rel="noopener">#pypa on IRC (freenode)</a>, or <a href="https://mail.python.org/mailman/listinfo/distutils-sig" title="External link" target="_blank" rel="noopener">join the distutils-sig mailing list</a>.</p>
 
     </div>
-  </section>
+  </div>
 {% endblock %}

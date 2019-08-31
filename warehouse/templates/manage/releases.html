@@ -23,10 +23,12 @@
     <table class="table table--light table--releases no-top-margin">
       <caption class="sr-only">Releases for {{ project.name }}</caption>
       <thead>
-        <th scope="col" class="table__version">Version</th>
-        <th scope="col" class="table__date">Release date</th>
-        <th scope="col" class="table__summary">Summary</th>
-        <th scope="col" class="table__options"></th>
+        <tr>
+          <th scope="col" class="table__version">Version</th>
+          <th scope="col" class="table__date">Release date</th>
+          <th scope="col" class="table__summary">Files</th>
+          <th scope="col" class="table__options"></th>
+        </tr>
       </thead>
       <tbody>
       {% for release in project.releases %}
@@ -36,21 +38,31 @@
               {{ release.version }}
             </a>
           </th>
-          <td class="table__date">{{ humanize(release.created) }}</time></td>
+          <td class="table__date">{{ humanize(release.created) }}</td>
           <td class="table__summary">
-            {% if release.summary %}
-              {{ release.summary }}
+            {% set num_files = version_to_file_counts[release.version]['total'] %}
+            {% if num_files %}
+            {% trans count=num_files %}
+              {{ count }} file
+            {% pluralize %}
+              {{ count }} files
+            {% endtrans %}
+              ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
+              {%- if packagetype != 'total' -%}
+              {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
+              {%- endif -%}
+              {% endfor %})
             {% else %}
-              —
+            No files
             {% endif %}
-            </td>
+          </td>
           <td class="table__options">
             <nav class="dropdown dropdown--with-icons">
               <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
                 Options
                 <span class="dropdown__trigger-caret">
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
-                  <span class="sr-only">view submenu</span>
+                  <span class="sr-only">View submenu</span>
                 </span>
               </button>
               <ul class="dropdown__content">

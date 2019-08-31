@@ -40,13 +40,8 @@ const doWebAuthn = (buttonId, func) => {
     return null;
   }
 
-  const csrfToken = webAuthnButton.getAttribute("csrf-token");
-  if (csrfToken === null) {
-    return;
-  }
-
   webAuthnButton.disabled = false;
-  webAuthnButton.addEventListener("click", async () => { func(csrfToken); });
+  webAuthnButton.addEventListener("click", async () => { func(webAuthnButton.value); });
 };
 
 const hexEncode = (buf) => {

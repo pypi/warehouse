@@ -15,16 +15,18 @@
 
 {% set active_tab = 'releases' %}
 
-{% block title %}Manage '{{ project.name }}' release{% endblock %}
+{% block title %}Manage '{{ project.name }}' – release version {{ release.version }}{% endblock %}
 
 {% block main %}
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
     <h2 class="heading-wsubtitle__heading">Release version {{ release.version }}</h2>
 
-    <ul role="navigation" aria-label="Breadcrumb" class="heading-wsubtitle__subtitle breadcrumbs">
-      <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name }} releases</a></li>
-      <li class="breadcrumbs__breadcrumb">Release version {{ release.version }} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">view release</a></li>
-    </ul>
+    <nav aria-label="Breadcrumb">
+      <ul class="heading-wsubtitle__subtitle breadcrumbs">
+        <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name }} releases</a></li>
+        <li class="breadcrumbs__breadcrumb">Release version {{ release.version }} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">view release</a></li>
+      </ul>
+    </nav>
   </div>
 
   {% if files %}
@@ -62,7 +64,7 @@
               Options
               <span class="dropdown__trigger-caret">
                 <i class="fa fa-caret-down" aria-hidden="true"></i>
-                <span class="sr-only">view submenu</span>
+                <span class="sr-only">View submenu</span>
               </span>
             </button>
             <ul class="dropdown__content">

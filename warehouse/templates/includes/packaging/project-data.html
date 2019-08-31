@@ -15,13 +15,17 @@
 {% if release.urls.values() | contains_valid_uris %}
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">Project links</h3>
-  {% for name, url in release.urls.items() %}
-  {% if is_valid_uri(url) %}
-  <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
-    {{ url_icon(name, url) }}{{ name }}
-  </a>
-  {% endif %}
-  {% endfor %}
+  <ul class="vertical-tabs__list">
+    {% for name, url in release.urls.items() %}
+    {% if is_valid_uri(url) %}
+    <li>
+      <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
+        {{ url_icon(name, url) }}{{ name }}
+      </a>
+    </li>
+    {% endif %}
+    {% endfor %}
+  </ul>
 </div>
 {% endif %}
 
@@ -30,27 +34,35 @@
   {% if release.github_repo_info_url %}
   <div class="github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
     GitHub statistics:
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
-       target="_blank">
-      <i class="fa fa-star" aria-hidden="true"></i>
-      <strong>Stars: </strong>
-      <span class="github-repo-info__item" data-key="stargazers_count"></span>
-    </a>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
-       target="_blank">
-      <i class="fa fa-code-branch" aria-hidden="true"></i>
-      <strong>Forks: </strong>
-      <span class="github-repo-info__item" data-key="forks_count"></span>
-    </a>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
-       target="_blank">
-      <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-      <strong>Open issues/PRs: </strong>
-      <span class="github-repo-info__item" data-key="open_issues_count"></span>
-    </a>
+    <ul class="vertical-tabs__list">
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+           data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
+           target="_blank">
+          <i class="fa fa-star" aria-hidden="true"></i>
+          <strong>Stars: </strong>
+          <span class="github-repo-info__item" data-key="stargazers_count"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+           data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
+           target="_blank">
+          <i class="fa fa-code-branch" aria-hidden="true"></i>
+          <strong>Forks: </strong>
+          <span class="github-repo-info__item" data-key="forks_count"></span>
+        </a>
+      </li>
+      <li>
+        <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+           data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
+           target="_blank">
+          <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+          <strong>Open issues/PRs: </strong>
+          <span class="github-repo-info__item" data-key="open_issues_count"></span>
+        </a>
+      <li>
+    </ul>
   </div>
   {% endif %}
   <p>View statistics for this project via <a
@@ -78,7 +90,7 @@
   {% if release.keywords %}
   <p class="tags">
     <i class="fa fa-tags" aria-hidden="true"></i>
-    <span class="sr-only">Tags:</span>
+    <span class="sr-only">Tags</span>
     {% for keyword in release.keywords | format_tags %}
     <span class="package-keyword">
       {{ keyword }}{% if not loop.last %},{% endif %}
@@ -112,19 +124,23 @@
 </div>
 
 {% if release.classifiers %}
-<div class="sidebar-section classifiers">
-  <h3>Classifiers</h3>
-  <dl>
+<div class="sidebar-section">
+  <h3 class="sidebar-section__title">Classifiers</h3>
+  <ul class="sidebar-section__classifiers">
     {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
-    <dt>{{ classifier_head }}</dt>
-    {% for classifier in classifier_tail %}
-    <dd>
-    <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
-      {{ classifier }}
-    </a>
-    </dd>
+    <li>
+      <strong>{{ classifier_head }}</strong>
+      <ul>
+        {% for classifier in classifier_tail %}
+        <li>
+          <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+            {{ classifier }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </li>
     {% endfor %}
-    {% endfor %}
-  </dl>
+  </ul>
 </div>
 {% endif %}

@@ -104,21 +104,14 @@
   &__message {
     @include h3;
 
-    a {
+    a:not(.button) {
       @include white-underlined-link;
-      @include link-focus;
     }
   }
 
   &__dismiss {
-    background: transparent;
-    border: 0;
-    position: absolute;
-    top: 0;
-    right: 15px;
-    cursor: pointer;
-    font-size: 1.0rem;
-    line-height: 3.25rem;
+    @include dismiss-button;
+    @include link-focus-state($white);
   }
 
   // Indicates that a notification is dismissable.
@@ -134,12 +127,15 @@
   }
 
   &--warning {
-    background-color: $warn-color;
-    color: $warn-text;
-    border-color: darken($primary-color, 10);
+    background-color: $warning-background-color;
+    color: $warning-color;
 
-    a {
-      @include colored-link($warn-text);
+    a:not(.button) {
+      @include colored-link($warning-color);
+    }
+
+    .notification-bar__dismiss {
+      @include link-focus-state($warning-color);
     }
   }
 

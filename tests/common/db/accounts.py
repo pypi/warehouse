@@ -15,7 +15,7 @@ import datetime
 import factory
 import factory.fuzzy
 
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import Email, User, UserEvent
 
 from .base import FuzzyEmail, WarehouseFactory
 
@@ -34,6 +34,13 @@ class UserFactory(WarehouseFactory):
         datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)
     )
     last_login = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2011, 1, 1))
+
+
+class UserEventFactory(WarehouseFactory):
+    class Meta:
+        model = UserEvent
+
+    user = factory.SubFactory(User)
 
 
 class EmailFactory(WarehouseFactory):

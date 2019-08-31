@@ -26,6 +26,7 @@ from warehouse.packaging.models import (
     File,
     JournalEntry,
     Project,
+    ProjectEvent,
     Release,
     Role,
 )
@@ -41,6 +42,13 @@ class ProjectFactory(WarehouseFactory):
 
     id = factory.LazyFunction(uuid.uuid4)
     name = factory.fuzzy.FuzzyText(length=12)
+
+
+class ProjectEventFactory(WarehouseFactory):
+    class Meta:
+        model = ProjectEvent
+
+    project = factory.SubFactory(ProjectFactory)
 
 
 class DescriptionFactory(WarehouseFactory):

@@ -43,6 +43,7 @@
      - emails: specific styles for emails on the manage account page
      - 2fa: specific styles for 2fa methods on the manage account page
      - api-tokens: specific styles for API tokens on the manage account page
+     - security-logs: specific styles for security logs on the manage account page
  */
 
 // TABLE
@@ -70,6 +71,11 @@
     border: 0;
     font-size: $base-font-size;
     box-shadow: none;
+    background-color: transparent;
+
+    thead tr {
+      background-color: transparent;
+    }
 
     tbody tr,
     tbody tr:nth-child(2n),
@@ -492,11 +498,17 @@
       word-wrap: break-word;
       word-break: break-all;
       font-family: $code-font;
-      font-size: 90%;
+      font-size: 0.9em;
     }
 
     .table__status-badges {
       min-width: 160px;
+    }
+
+    .table__status-detail {
+      display: inline-block;
+      font-size: $small-font-size;
+      margin-top: 5px;
     }
 
     .table__action {
@@ -665,6 +677,43 @@
         .dropdown {
           margin: 8px 0 4px 0;
         }
+      }
+    }
+  }
+
+  &--security-logs {
+    margin-top: 0;
+
+    tr td {
+      padding-right: 20px;
+
+      &:last-of-type {
+        padding-right: 0;
+      }
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 20px 0;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      tbody tr:last-of-type {
+        border-bottom: 0;
+      }
+
+      tbody tr td {
+        padding: 0;
+        width: 100%;
+        display: block;
+        text-align: left;
+        border-bottom: 0;
       }
     }
   }
