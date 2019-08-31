@@ -48,6 +48,11 @@ tt {
   color: lighten($text-color, 15);
 }
 
+pre {
+  padding: 10px;
+  margin-bottom: $spacing-unit / 2;
+}
+
 // HEADINGS
 
 h1 {
@@ -180,7 +185,6 @@ h5,
 h6,
 p,
 blockquote,
-pre,
 ul,
 ol,
 dl,
@@ -189,7 +193,6 @@ figure {
 }
 
 p:last-child,
-pre:last-child,
 ul:last-child,
 ol:last-child,
 dl:last-child,

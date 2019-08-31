@@ -38,7 +38,6 @@
       <strong>Scope:</strong> Project "{{ macaroon.caveats.permissions.projects[0] }}"
       {% endif %}
     </p>
-    <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
     <code class="api-token">{{ serialized_macaroon }}</code>
     <div class="margin-bottom--large">
       <div class="callout-block callout-block--danger no-top-margin">
@@ -62,9 +61,31 @@
 
       {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
     </div>
-    <hr>
+
+    <h2>Using this token</h2>
+
+    <p>To use this API token:</p>
+
+    <ul>
+      <li>Set your username to <code>__token__</code></li>
+      <li>Set your password to the token value, including the <code>pypi-</code> prefix</li>
+    </ul>
+
+
+    {% if macaroon.caveats.permissions == "user" %}
+      <p>For example, if you are using <a href="https://pypi.org/project/virtualenv/">Twine</a> to upload your projects to PyPI, set up your <code>$HOME/.pypirc</code> file like this:</p>
+<pre>
+[pypi]
+  username = __token__
+  password = {{ serialized_macaroon }}
+</pre>
+    {% endif %}
+
+    <p>For further instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
   </section>
   {% endif %}
+
+  <br><br>
 
   {{ form_error_anchor(create_macaroon_form) }}
   <section id="add-token">
