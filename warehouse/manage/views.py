@@ -22,7 +22,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Load, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
@@ -815,7 +815,37 @@ def destroy_project_docs(project, request):
     permission="manage:project",
 )
 def manage_project_releases(project, request):
-    return {"project": project}
+    # Get the counts for all the files for this project, grouped by the
+    # release version and the package types
+    filecounts = (
+        request.db.query(Release.version, File.packagetype, func.count(File.id))
+        .options(Load(Release).load_only("version"))
+        .outerjoin(File)
+        .group_by(Release.id)
+        .group_by(File.packagetype)
+        .filter(Release.project == project)
+        .all()
+    )
+
+    # Turn rows like:
+    #   [('0.1', 'bdist_wheel', 2), ('0.1', 'sdist', 1)]
+    # into:
+    #   {
+    #       '0.1: {
+    #            'bdist_wheel': 2,
+    #            'sdist': 1,
+    #            'total': 3,
+    #       }
+    #   }
+
+    version_to_file_counts = {}
+    for version, packagetype, count in filecounts:
+        packagetype_to_count = version_to_file_counts.setdefault(version, {})
+        packagetype_to_count.setdefault("total", 0)
+        packagetype_to_count[packagetype] = count
+        packagetype_to_count["total"] += count
+
+    return {"project": project, "version_to_file_counts": version_to_file_counts}
 
 
 @view_defaults(
