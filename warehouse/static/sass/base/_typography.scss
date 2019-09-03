@@ -169,6 +169,12 @@ button {
   background: $highlight-color;
 }
 
+abbr[title] {
+  border-bottom: 0;
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
 // VERTICAL RHYTHM
 
 // Set `padding-bottom` to maintain vertical rhythm

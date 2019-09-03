@@ -138,9 +138,9 @@
 {% macro twofa_buttons() %}
   <div class="wrap-children">
     {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add <abbr title="two factor authentication">2FA</abbr> with authentication application</a>
     {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add 2FA with security device (e.g. USB key)</a>
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)</a>
   </div>
 
   <noscript>
@@ -415,7 +415,7 @@
   <hr>
   <section id="two-factor">
     <h2 class="sub-title">Two factor authentication (2FA)</h2>
-    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more about 2FA</a>.</p>
+    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.</p>
 
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
@@ -429,7 +429,7 @@
         <tbody>
           {% if user.totp_secret %}
           <tr>
-            <th scope="row">Authentication application (TOTP)</th>
+            <th scope="row">Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)</th>
             <td class="table__action">
               <a href="#disable-totp" class="button button--primary">Remove</a>
               {% set title="Remove authentication application" %}
@@ -442,7 +442,7 @@
           {% for credential in user.webauthn %}
           <tr>
             <th scope="row">
-              <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
+              <strong>"{{ credential.label }}"</strong> - Security device (<abbr title="web authentication">WebAuthn</abbr>)
               <span class="badge badge--warning">Beta feature</span>
             </th>
             <td class="table__action">
@@ -524,9 +524,9 @@
         {% if event.additional.two_factor_method == None %}
           None
         {% elif event.additional.two_factor_method  == "webauthn" %}
-          Security device (webauthn)
+          Security device (<abbr title="web authentication">WebAuthn</abbr>)
         {% elif event.additional.two_factor_method  == "totp" %}
-          Authentication application (TOTP)
+          Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)
         {% endif %}
       </small>
 
@@ -567,20 +567,20 @@
       <strong>Two factor authentication added</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
-          Method: Security device (webauthn)<br>
+          Method: Security device (<abbr title="web authentication">WebAuthn</abbr>)<br>
           Device name: {{ event.additional.label }}
         {% elif event.additional.method == "totp" %}
-          Method: Authentication application (TOTP)
+          Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)
         {% endif %}
       </small>
       {% elif event.tag  == "account:two_factor:method_removed" %}
       <strong>Two factor authentication removed</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
-          Method: Security device (webauthn)<br>
+          Method: Security device (<abbr title="web authentication">WebAuthn</abbr>)<br>
           Device name: {{ event.additional.label }}
         {% elif event.additional.method == "totp" %}
-          Method: Authentication application (TOTP)
+          Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)
         {% endif %}
       </small>
 
