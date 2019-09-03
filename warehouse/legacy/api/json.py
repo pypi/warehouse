@@ -121,7 +121,7 @@ def json_release(release, request):
 
     # Map our releases + files into a dictionary that maps each release to a
     # list of all its files.
-    releases = {}
+    releases = OrderedDict()
     for r, file_ in release_files:
         files = releases.setdefault(r, [])
         if file_ is not None:
