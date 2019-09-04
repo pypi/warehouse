@@ -320,7 +320,9 @@
           <br>
           <a href="https://donate.pypi.org">Donate today!</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="External link" target="_blank" rel="noopener">Python Software Foundation</a></p>
+        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="External link" target="_blank" rel="noopener">Python Software Foundation</a><br>
+          <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+        </p>
       </div>
 
       <div class="centered hide-on-desktop">

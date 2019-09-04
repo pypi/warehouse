@@ -327,6 +327,7 @@ def test_routes(warehouse):
     ]
 
     assert config.add_template_view.calls == [
+        pretend.call("sitemap", "/sitemap/", "pages/sitemap.html"),
         pretend.call("help", "/help/", "pages/help.html"),
         pretend.call("security", "/security/", "pages/security.html"),
         pretend.call(
