@@ -45,6 +45,7 @@ from warehouse.manage.forms import (
     ChangeRoleForm,
     CreateMacaroonForm,
     CreateRoleForm,
+    ConfirmPasswordForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
     DeleteWebAuthnForm,
@@ -304,18 +305,22 @@ class ManageAccountViews:
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST", request_param=["confirm_username"])
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_account(self):
-        username = self.request.params.get("confirm_username")
-
-        if not username:
+        confirm_password = self.request.params.get("confirm_password")
+        if not confirm_password:
             self.request.session.flash("Confirm the request", queue="error")
             return self.default_response
 
-        if username != self.request.user.username:
+        form = ConfirmPasswordForm(
+            password=confirm_password,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if not form.validate():
             self.request.session.flash(
-                f"Could not delete account - {username!r} is not the same as "
-                f"{self.request.user.username!r}",
+                f"Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
             return self.default_response

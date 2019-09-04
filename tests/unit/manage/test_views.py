@@ -666,8 +666,13 @@ class TestManageAccount:
         jid = JournalEntryFactory.create(submitted_by=user).id
 
         db_request.user = user
-        db_request.params = {"confirm_username": user.username}
+        db_request.params = {"confirm_password": user.password}
         db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj)
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -697,7 +702,7 @@ class TestManageAccount:
 
     def test_delete_account_no_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": ""},
+            params={"confirm_password": ""},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
@@ -715,11 +720,16 @@ class TestManageAccount:
 
     def test_delete_account_wrong_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "invalid"},
+            params={"confirm_password": "invalid"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: False)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj)
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -730,18 +740,23 @@ class TestManageAccount:
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not delete account - 'invalid' is not the same as " "'username'",
+                "Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
         ]
 
     def test_delete_account_has_active_projects(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "username"},
+            params={"confirm_password": "password"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj)
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()

@@ -189,6 +189,19 @@
   {{ confirm_modal(title, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action) }}
 {% endmacro %}
 
+{% macro confirm_password_button(
+  title,
+  extra_fields=None,
+  action=None
+)
+%}
+  {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
+  <a href="#{{ slug }}" class="button button--danger">
+    {{ title }}
+  </a>
+  {{ confirm_password_modal(title, slug, confirm_button_label=title, extra_fields=extra_fields, action=action) }}
+{% endmacro %}
+
 {% macro form_error_anchor(form) %}
   {% if form.errors %}
   <div id="errors"></div>
