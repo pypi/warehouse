@@ -671,7 +671,8 @@ class TestManageAccount:
 
         confirm_password_obj = pretend.stub(validate=lambda: True)
         confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: confirm_password_obj)
+            lambda *a, **kw: confirm_password_obj
+        )
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
@@ -728,7 +729,8 @@ class TestManageAccount:
 
         confirm_password_obj = pretend.stub(validate=lambda: False)
         confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: confirm_password_obj)
+            lambda *a, **kw: confirm_password_obj
+        )
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
@@ -755,7 +757,8 @@ class TestManageAccount:
 
         confirm_password_obj = pretend.stub(validate=lambda: True)
         confirm_password_cls = pretend.call_recorder(
-            lambda *a, **kw: confirm_password_obj)
+            lambda *a, **kw: confirm_password_obj
+        )
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
