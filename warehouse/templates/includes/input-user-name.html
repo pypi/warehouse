@@ -11,7 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{{ form.username_or_email(autocapitalize="off", spellcheck="false", class="form-group__input", required="required", **{"aria-describedby":"username-errors"}) }}
+{{ form.username_or_email(autocapitalize="off", autocomplete="off", spellcheck="false", class="form-group__input", required="required", **{"aria-describedby":"username-errors"}) }}
 <div id="username-errors">
   {% if form.username_or_email.errors %}
   <ul class="form-errors" role="alert">
