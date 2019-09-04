@@ -30,7 +30,7 @@
 {% block main %}
 <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
 <p class="heading-wsubtitle__subtitle">
-  PyPI supports any application that follows the <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm" title="External link" target="_blank" rel="noopener">TOTP standard</a>.
+  PyPI supports any application that follows the <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm" title="External link" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.
   <br>
   Visit <a href="{{ request.route_path('help', _anchor='totp') }}">PyPI's help page</a> for a list of compatible applications.
 </p>
@@ -66,7 +66,7 @@
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        {{ provision_totp_form.totp_value(placeholder="Authentication code", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-help totp-errors"}) }}
+        {{ provision_totp_form.totp_value(placeholder="Authentication code", autocapitalize="off", autocomplete="one-time-code", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"totp-help totp-errors"}) }}
         <p id="totp-help" class="form-group__help-text">To finalize the set up process, enter the authentication code provided by your application.</p>
         <div id="totp-errors">
           {% if provision_totp_form.totp_value.errors %}

@@ -217,7 +217,7 @@
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
               <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
               {% block search_form_extra_inputs %}{% endblock %}
               <button type="submit" class="search-form__button">
                 <i class="fa fa-search" aria-hidden="true"></i>
@@ -238,7 +238,7 @@
     <div class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
         <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
         {{ self.search_form_extra_inputs() }}
         <button type="submit" class="search-form__button">
           <i class="fa fa-search" aria-hidden="true"></i>
