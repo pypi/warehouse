@@ -111,7 +111,7 @@
           <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
           <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
-          <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">Cancel</button>

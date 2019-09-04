@@ -2173,11 +2173,21 @@ class TestManageProjectDocumentation:
 
 
 class TestManageProjectReleases:
-    def test_manage_project_releases(self):
-        request = pretend.stub()
-        project = pretend.stub()
+    def test_manage_project_releases(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.0.0")
+        release_file = FileFactory.create(
+            release=release,
+            filename=f"foobar-{release.version}.tar.gz",
+            packagetype="sdist",
+        )
 
-        assert views.manage_project_releases(project, request) == {"project": project}
+        assert views.manage_project_releases(project, db_request) == {
+            "project": project,
+            "version_to_file_counts": {
+                release.version: {"total": 1, release_file.packagetype: 1}
+            },
+        }
 
 
 class TestManageProjectRelease:

@@ -498,11 +498,17 @@
       word-wrap: break-word;
       word-break: break-all;
       font-family: $code-font;
-      font-size: 90%;
+      font-size: 0.9rem;
     }
 
     .table__status-badges {
       min-width: 160px;
+    }
+
+    .table__status-detail {
+      display: inline-block;
+      font-size: $small-font-size;
+      margin-top: 5px;
     }
 
     .table__action {
