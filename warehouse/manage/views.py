@@ -621,6 +621,11 @@ class ProvisionMacaroonViews:
     def project_names(self):
         return sorted(project.normalized_name for project in self.request.user.projects)
 
+    # @property
+    # def project_releases(self, project):
+    #     releases = (p for p in self.request.user.projects if p.normalized_name == project)
+    #     return sorted(version for version in releases.all_versions)
+
     @property
     def default_response(self):
         return {
@@ -629,6 +634,7 @@ class ProvisionMacaroonViews:
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
                 project_names=self.project_names,
+                all_projects=self.request.user.projects
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
                 macaroon_service=self.macaroon_service
@@ -652,6 +658,7 @@ class ProvisionMacaroonViews:
             user_id=self.request.user.id,
             macaroon_service=self.macaroon_service,
             project_names=self.project_names,
+            all_projects=self.request.user.projects
         )
 
         response = {**self.default_response}
@@ -661,6 +668,7 @@ class ProvisionMacaroonViews:
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
+                expiration=form.expiration.data,
                 caveats=macaroon_caveats,
             )
             self.user_service.record_event(
