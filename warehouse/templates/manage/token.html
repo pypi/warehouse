@@ -71,7 +71,6 @@
       <li>Set your password to the token value, including the <code>pypi-</code> prefix</li>
     </ul>
 
-
     {% if macaroon.caveats.permissions == "user" %}
       <p>For example, if you are using <a href="https://pypi.org/project/virtualenv/">Twine</a> to upload your projects to PyPI, set up your <code>$HOME/.pypirc</code> file like this:</p>
 <pre>
@@ -79,6 +78,29 @@
   username = __token__
   password = {{ serialized_macaroon }}
 </pre>
+    {% else %}
+    <p>For example, if you are using <a href="https://pypi.org/project/virtualenv/">Twine</a> to upload {{ macaroon.caveats.permissions.projects[0] }} to PyPI, you can set up a <code>.pypirc</code> file like this:</p>
+<pre>
+[pypi]
+username = __token__
+password = {{ serialized_macaroon }}
+</pre>
+    <p>By default, twine will look for a single <code>.pypirc</code> file in your <code>$HOME</code> directory.</p>
+
+    <p>Project maintainers with several projects can set up multiple tokens in a single <code>.pypirc</code> file, and use <code>twine --repository PROJECT_NAME</code> to switch to the correct API token:
+
+<pre>
+[pypi]
+username = __token__
+password = # either your user-scoped token or your default project-scoped token
+
+[PROJECT_NAME]
+username = __token__
+password = # project token
+</pre>
+
+    <p>Alternatively, maintainers with several projects can choose to create separate <code>.pypirc</code> files for each project and use <code>twine --config-file YOUR_PATH_TO_PYPIRC_FILE</code> to point to the correct configuration.</p>
+
     {% endif %}
 
     <p>For further instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
