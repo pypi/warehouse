@@ -72,14 +72,20 @@ export default class extends Controller {
     content.style.display = "none";
     let contentId = content.getAttribute("id");
     this._getAllTabsForContentId(contentId)
-      .forEach(tab => tab.classList.remove(activeClass));
+      .forEach(tab => {
+        tab.classList.remove(activeClass);
+        tab.removeAttribute("aria-selected");
+      });
   }
 
   _show(content) {
     content.style.display = "block";
     let contentId = content.getAttribute("id");
     this._getAllTabsForContentId(contentId)
-      .forEach(tab => tab.classList.add(activeClass));
+      .forEach(tab => {
+        tab.classList.add(activeClass);
+        tab.setAttribute("aria-selected", "true");
+      });
     this.data.set("content", contentId);
   }
 
