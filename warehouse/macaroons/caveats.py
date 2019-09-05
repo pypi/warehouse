@@ -14,7 +14,7 @@ import json
 
 import pymacaroons
 
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import Project, Release
 
 from datetime import datetime
 
@@ -47,9 +47,9 @@ class V1Caveat(Caveat):
         project = self.verifier.context
         if project.normalized_name not in projects:
             raise InvalidMacaroon("project-scoped token matches no projects")
-        
-        #project version -- need to test
-        if project.version in projects:
+
+        #added
+        if project.latest_version in project.all_versions:
             raise InvalidMacaroon("project version already exists")
         
         return True
@@ -94,6 +94,7 @@ class Verifier:
         except pymacaroons.exceptions.MacaroonInvalidSignatureException:
             raise InvalidMacaroon("invalid macaroon signature")
         
-        time = self.macaroon.created
-        if time + timedelta(minutes = 30) < datetime.now():
+        #added
+        expiration = self.macaroon.expiration
+        if expiration > datetime.now():
             raise InvalidMacaroon("time has expired")
