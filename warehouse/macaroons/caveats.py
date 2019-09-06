@@ -47,10 +47,6 @@ class V1Caveat(Caveat):
         project = self.verifier.context
         if project.normalized_name not in projects:
             raise InvalidMacaroon("project-scoped token matches no projects")
-
-        #added
-        if project.latest_version in project.all_versions:
-            raise InvalidMacaroon("project version already exists")
         
         return True
 
@@ -98,3 +94,7 @@ class Verifier:
         expiration = self.macaroon.expiration
         if expiration > datetime.now():
             raise InvalidMacaroon("time has expired")
+
+        release = self.macaroon.release
+        if release in self.macaroon.project.all_versions:
+            raise InvalidMacaroon("invalid release")
