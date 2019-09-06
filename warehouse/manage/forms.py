@@ -192,12 +192,11 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 class CreateMacaroonForm(forms.Form):
     __params__ = ["description", "token_scope", "release", "expiration",]
 
-    def __init__(self, *args, user_id, macaroon_service, project_names, all_projects, **kwargs):
+    def __init__(self, *args, user_id, macaroon_service, project_names, releases, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_id = user_id
         self.macaroon_service = macaroon_service
         self.project_names = project_names
-        self.all_projects = all_projects
 
     description = wtforms.StringField(
         validators=[
@@ -213,11 +212,9 @@ class CreateMacaroonForm(forms.Form):
     )
 
     release = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
+        validators=[wtforms.validators.DataRequired(message="Specify the release")]
     )
 
-    #expiration = days + ':' + hours + ':' + minutes
-    #cannot be less than 1 min cannot be longer than 1 year
     expiration = wtforms.DateTimeField(
         validators=[
             wtforms.validators.DataRequired(message="Specify an expiration time"),
@@ -262,10 +259,9 @@ class CreateMacaroonForm(forms.Form):
 
         self.validated_scope = {"projects": [scope_value]}
 
-    def validate_release(self, field):
+    def validate_release(self,field):
         release = field.data
-        #valid release
-        #release exists
+        #how would you validate a release? 1 1.0 1.0.0 format?
 
     def validate_expiration(self, field):
         expiration = field.data
