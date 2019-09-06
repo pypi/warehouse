@@ -91,6 +91,7 @@
         <span class="form-group__label">Permissions</span>
         <p class="form-group__text">Upload packages</p>
       </div>
+
       <div class="form-group">
         <label for="token_scope" class="form-group__label">
           Scope
@@ -103,7 +104,15 @@
           <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
-          <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>Project: {{ project }}</option>
+          <option value="{{ project_value }}" label="Project: {{ project }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}></option>
+          <!-- <optgroup>
+            <option disabled {{ "" if create_macaroon_form.release.data else "selected" }} value="scope:unspecified">Select release...</option>
+            {% for release in releases[project] %}
+               {% for r in release %}
+                  <option value="{{ r }}" {{ "selected" if r == create_macaroon_form.release.data else "" }}>{{ r }}</option>
+               {% endfor %}
+             {% endfor %}
+          </optgroup> -->
         {% endfor %}
         </select>
         <div id="scope-errors">
@@ -115,29 +124,18 @@
         <p>An API token scoped to your entire account will have upload permissions for all of your projects.</p>
       </div>
 
-      {% if option.selected = project_value %}
       <div class="form-group">
-        <label for="token_scope" class="form-group__label">
+        <label for="release" class="form-group__label">
           Release
           {% if create_macaroon_form.release.flags.required %}
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        <select name="release" id="release" class="form-group__input" aria-describedby="scope-errors">
-          <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">Select release...</option>
-          {% for project in all_projects %}
-            {% if project.normalized_name == selected_proj %}
-              {% for r in project.all_versions %}
-                <option value="{{ r }}" {{ "selected" if r == create_macaroon_form.release.data else "" }}>{{ r }}</option>
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-        </select>
-        <div id="scope-errors">
+        <input type="text" name="release" id="release" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.release.data or ""}}">
+        <div id="token-name-errors">
           {{ field_errors(create_macaroon_form.release) }}
         </div>
       </div>
-      {% endif %}
 
       <div class="form-group">
         <label for="expiration" class="form-group__label">
