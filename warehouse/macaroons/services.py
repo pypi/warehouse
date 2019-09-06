@@ -115,7 +115,7 @@ class DatabaseMacaroonService:
 
         raise InvalidMacaroon("invalid macaroon")
 
-    def create_macaroon(self, location, user_id, description, caveats):
+    def create_macaroon(self, location, user_id, description, scope, release, expiration, caveats):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
@@ -123,7 +123,8 @@ class DatabaseMacaroonService:
         """
         user = self.db.query(User).filter(User.id == user_id).one()
 
-        dm = Macaroon(user=user, description=description, caveats=caveats)
+        dm = Macaroon(user=user, description=description, scope=scope, release=release, 
+            expiration=expiration, caveats=caveats)
         self.db.add(dm)
         self.db.flush()
 
