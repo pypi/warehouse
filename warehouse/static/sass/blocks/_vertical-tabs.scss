@@ -132,10 +132,15 @@
   }
 
   &__content {
-    padding-left: $spacing-unit;
+    margin-left: $spacing-unit;
+
+    &:focus {
+      outline: 1px solid $primary-color;
+      outline-offset: 10px;
+    }
 
     @media only screen and (max-width: $tablet) {
-      padding: 25px 10px 10px 10px;
+      margin: 25px 10px 10px 10px;
     }
   }
 }

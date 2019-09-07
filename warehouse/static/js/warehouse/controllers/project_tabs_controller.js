@@ -49,6 +49,10 @@ export default class extends Controller {
     event.preventDefault();
     let btn = event.target;
     this.toggleTabAndPushState(btn);
+
+    // Focus tab, only on click
+    let contentId = window.location.hash.substr(1);
+    document.getElementById(contentId).focus();
   }
 
   toggleTab(btn) {
