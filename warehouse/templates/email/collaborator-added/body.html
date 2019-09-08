@@ -23,20 +23,20 @@ ul.collaborator-details {
 
 {% block content %}
 <p>
-  A new collaborator has been added to a project you own on PyPI:
+  {% trans %}A new collaborator has been added to a project you own on PyPI:{% endtrans %}
 
   <ul class="collaborator-details">
-    <li><strong>Username</strong>: {{ username }}</li>
-    <li><strong>Role</strong>: {{ role }}</li>
-    <li><strong>Collaborator for</strong>: {{ project }}</li>
-    <li><strong>Added by</strong>: {{ submitter }}</li>
+    <li>{% trans username=username %}<strong>Username</strong>: {{ username }}{% endtrans %}</li>
+    <li>{% trans role=role %}<strong>Role</strong>: {{ role }}{% endtrans %}</li>
+    <li>{% trans project=project %}<strong>Collaborator for</strong>: {{ project }}{% endtrans %}</li>
+    <li>{% trans sumbitter=submitter %}<strong>Added by</strong>: {{ submitter }}{% endtrans %}</li>
   </ul>
 </p>
 
-<p>If this was a mistake, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.</p>
+<p>{% trans href='mailto:admin@pypi.org' email_address='admin@pypi.org' %}If this was a mistake, you can email <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI administrators.{% endtrans %}</p>
 {% endblock %}
 
 
 {% block reason %}
-You are receiving this because you are an owner of this project.
+{% trans %}You are receiving this because you are an owner of this project.{% endtrans %}
 {% endblock %}

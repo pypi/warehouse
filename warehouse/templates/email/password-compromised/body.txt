@@ -15,23 +15,23 @@
 
 
 {% block content %}
-# What?
-PyPI administrators have determined that your password is compromised. To
+# {% trans %}What?{% endtrans %}
+{% trans %}PyPI administrators have determined that your password is compromised. To
 protect you and other users, we have preemptively reset your password and
 you will no longer be able to log in or upload to PyPI with your existing
-password.
+password.{% endtrans %}
 
-PyPI itself has not suffered a breach. This is a protective measure to
-reduce the risk for PyPI and its users.
-
-
-# What should I do?
-
-To regain access to your account, reset your password on PyPI
-({{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}).
+{% trans %}PyPI itself has not suffered a breach. This is a protective measure to
+reduce the risk for PyPI and its users.{% endtrans %}
 
 
-# How can I contact you?
+# {% trans %}What should I do?{% endtrans %}
 
-For more information, you can email admin@pypi.org to communicate with the PyPI administrators.
+{% trans trimmed url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) %}
+To regain access to your account, reset your password on PyPI ({{ url }}).{% endtrans %}
+
+
+# {% trans %}How can I contact you?{% endtrans %}
+
+{% trans email_address='admin@pypi.org' %}For more information, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
 {% endblock %}

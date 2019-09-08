@@ -15,27 +15,27 @@
 
 {% set active_tab = 'collaborators' %}
 
-{% block title %}Manage '{{ project.name }}' collaborators{% endblock %}
+{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' collaborators{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>Collaborators</h2>
-  <p>Use this page to control which PyPI users can help you to manage {{ project.name }}</p>
+  <h2>{% trans %}Collaborators{% endtrans %}</h2>
+  <p>{% trans project_name=project.name %}Use this page to control which PyPI users can help you to manage {{ project_name }}{% endtrans %}</p>
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="roles">
-    <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
-    <p>There are two possible roles for collaborators:</p>
+    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
-      <dt>Maintainer</dt>
-      <dd>Can upload releases for a package. Cannot add collaborators. Cannot delete files, releases, or the project.</dd>
-      <dt>Owner</dt>
-      <dd>Can upload releases. Can add other collaborators. Can delete files, releases, or the entire project.</dd>
+      <dt>{% trans %}Maintainer{% endtrans %}</dt>
+      <dd>{% trans %}Can upload releases for a package. Cannot add collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
+      <dt>{% trans %}Owner{% endtrans %}</dt>
+      <dd>{% trans %}Can upload releases. Can add other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
     </dl>
   </div>
   <table class="table table--collaborators">
-    <caption class="sr-only">Users who can manage {{ project.name }}</caption>
+    <caption class="sr-only">{% trans project_name=project.name %}Users who can manage {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col">User</th>
-        <th scope="col">Role</th>
+        <th scope="col">{% trans %}User{% endtrans %}</th>
+        <th scope="col">{% trans %}Role{% endtrans %}</th>
         <th></th>
       </tr>
     </thead>
@@ -53,7 +53,7 @@
       <tr>
         <th scope="row">
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
-            {% set alt = "Avatar for {} from gravatar.com".format(role.user.name|default(role.user.username, true)) %}
+            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
             <span class="table__user-gravatar">
               <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
             </span>
@@ -75,16 +75,16 @@
               <input type="hidden" name="role_id" value="{{ role.id }}">
             {% endfor %}
 
-            <label for="role-for-{{ role.id }}" class="sr-only">Role</label>
+            <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
-              {% for role_name in ['Owner', 'Maintainer'] %}
-              <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
-                {{ role_name }}
-              </option>
-              {% endfor %}
+            {% for role_name, role_name_label in [('Owner', gettext('Owner')), ('Maintainer', gettext('Maintainer'))] %}
+            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
+              {{ role_name_label }}
+            </option>
+            {% endfor %}
             </select>
-            <button type="submit" class="button button--primary table__change-button" title="Save role">
-              Save
+            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save this new role{% endtrans %}">
+              {% trans %}Save{% endtrans %}
             </button>
           </form>
         {% endif %}
@@ -108,13 +108,13 @@
               type="submit"
               class="button"
               {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
-                title="Cannot remove yourself as owner"
+                title="{% trans %}Cannot remove yourself as owner{% endtrans %}"
                 disabled
               {% else %}
-                title="Remove {{ role.user.username }} from this project"
+                title="{% trans user=role.user.username %}Remove {{ user }} from this project{% endtrans %}"
               {% endif %}
             >
-              Remove
+              {% trans %}Remove{% endtrans %}
             </button>
           </form>
         </td>
@@ -123,26 +123,26 @@
     </tbody>
   </table>
 
-  <h3>Add collaborator</h3>
+  <h3>{% trans %}Add collaborator{% endtrans %}</h3>
   <form method="POST">
     <div class="form-group">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <label for="username" class="form-group__label">
-        User
+        {% trans %}User{% endtrans %}
         {% if form.username.flags.required %}
-        <span class="form-group__required">(required)</span>
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.username(placeholder="User's username", autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"user-errors"}) }}
+      {{ form.username(placeholder=gettext("User's username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"user-errors"}) }}
       <div id="user-errors">
         {{ field_errors(form.username) }}
       </div>
     </div>
     <div class="form-group">
       <label for="role_name" class="form-group__label">
-        Role
+        {% trans %}Role{% endtrans %}
         {% if form.role_name.flags.required %}
-        <span class="form-group__required">(required)</span>
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
       {{ form.role_name(class_="form-group__input", autocomplete="off", **{"aria-describedby":"role-errors"}) }}
@@ -151,7 +151,7 @@
       </div>
     </div>
     <div>
-      <input type="submit" value="Add collaborator" class="button button--primary">
+      <input type="submit" value="{% trans %}Add collaborator{% endtrans %}" class="button button--primary">
     </div>
   </form>
 

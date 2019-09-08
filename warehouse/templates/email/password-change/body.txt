@@ -14,9 +14,9 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-Someone, perhaps you, has changed the password for your PyPI account
-'{{ username }}'.
+{% trans username=username %}Someone, perhaps you, has changed the password for your PyPI account
+'{{ username }}'.{% endtrans %}
 
-If you did not make this change, you can email admin@pypi.org to
+{% trans email_address='admin@pypi.org' %}If you did not make this change, you can email {{ email_address }} to
 communicate with the PyPI administrators.
 {% endblock %}

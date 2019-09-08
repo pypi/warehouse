@@ -15,30 +15,31 @@
 
 
 {% block content %}
-<h3>What?</h3>
+<h3>{% trans %}What?{% endtrans %}</h3>
 <p>
-  PyPI administrators have determined that your password is compromised. To
+  {% trans %}PyPI administrators have determined that your password is compromised. To
   protect you and other users, we have preemptively reset your password and you
   will no longer be able to log in or upload to PyPI with your existing
-  password.
+  password.{% endtrans %}
 </p>
 <p>
-  PyPI itself has not suffered a breach. This is a protective measure to reduce the
-  risk for PyPI and its users.
-</p>
-
-
-<h3>What should I do?</h3>
-<p>
-  To regain access to your account,
-  <a href="{{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}">reset your password</a>
-  on PyPI.
+  {% trans %}PyPI itself has not suffered a breach. This is a protective measure to reduce the
+  risk for PyPI and its users.{% endtrans %}
 </p>
 
 
-<h3>How can I contact you?</h3>
+<h3>{% trans %}What should I do?{% endtrans %}</h3>
 <p>
-  For more information, you can email admin@pypi.org to communicate with
-  the PyPI administrators.
+  {% trans trimmed href=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) %}
+    To regain access to your account,
+    <a href="{{ href }}">reset your password</a> on PyPI.
+  {% endtrans %}
+</p>
+
+
+<h3>{% trans %}How can I contact you?{% endtrans %}</h3>
+<p>
+  {% trans email_address='admin@pypi.org' %}For more information, you can email {{ email_address }} to communicate with
+  the PyPI administrators.{% endtrans %}
 </p>
 {% endblock %}

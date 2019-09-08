@@ -15,33 +15,34 @@
 
 
 {% block content %}
-# What?
+# {% trans %}What?{% endtrans %}
 
-During your recent attempt to log in or upload to PyPI, we noticed your password appears
+{% trans %}During your recent attempt to log in or upload to PyPI, we noticed your password appears
 in public data breaches. To protect you and other users, we have preemptively reset your
 password and you will no longer be able to log in or upload to PyPI with your existing
-password.
+password.{% endtrans %}
 
-PyPI itself has not suffered a breach. This is a protective measure to reduce the risk
-of credential stuffing (https://www.owasp.org/index.php/Credential_stuffing) attacks
-against PyPI and its users.
+{% trans url='https://www.owasp.org/index.php/Credential_stuffing' %}PyPI itself has not suffered a breach. This is a protective measure to reduce the risk
+of credential stuffing ({{ url }}) attacks
+against PyPI and its users.{% endtrans %}
 
 
-# What should I do?
+# {% trans %}What should I do?{% endtrans %}
 
+{% trans trimmed reset_pw_url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) have_i_been_pwned_url='https://haveibeenpwned.com/' %}
 To regain access to your account, reset your password on PyPI
-({{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}). We also recommend that you go to
-HaveIBeenPwned (https://haveibeenpwned.com/) and check your other passwords and get
-yourself familiar with good password practices.
+({{ reset_pw_url }}). We also recommend that you go to
+HaveIBeenPwned ({{ have_i_been_pwned_url }}) and check your other passwords and get
+yourself familiar with good password practices.{% endtrans %}
 
 
-# How do you know this?
+# {% trans %}How do you know this?{% endtrans %}
 
-We use a free security service from HaveIBeenPwned. When registering, authenticating, or
+{% trans %}We use a free security service from HaveIBeenPwned. When registering, authenticating, or
 updating your password, we generate a SHA1 hash of your password and use the first 5
 characters of the hash to decide if the password is compromised. The plaintext password
-is never stored by PyPI or sent to HaveIBeenPwned.
+is never stored by PyPI or sent to HaveIBeenPwned.{% endtrans %}
 
-For more information, see {{ request.help_url(_anchor='compromised-password') }}. For
-help, you can email admin@pypi.org to communicate with the PyPI administrators.
+{% trans help_url=request.help_url(_anchor='compromised-password') email_address='admin@pypi.org' %}For more information, see {{ help_url }}. For
+help, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
 {% endblock %}

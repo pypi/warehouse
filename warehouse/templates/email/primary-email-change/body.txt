@@ -14,18 +14,18 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-The primary email for your PyPI account:
+{% trans username=username old_email=old_email new_email=new_email %}The primary email for your PyPI account:
 
   '{{ username }}'
 
-been changed from this address:
+has been changed from this address:
 
   {{ old_email }}
 
 to this address:
 
-  {{ new_email }}
+  {{ new_email }}{% endtrans %}
 
-If you did not make this change, you can email admin@pypi.org to
-communicate with the PyPI administrators.
+{% trans email_address='admin@pypi.org' %}If you did not make this change, you can email {{ email_address }} to
+communicate with the PyPI administrators.{% endtrans %}
 {% endblock %}

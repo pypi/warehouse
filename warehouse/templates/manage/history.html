@@ -17,63 +17,63 @@
 
 {% set active_tab = 'history' %}
 
-{% block title %}'{{ project.name }}' project history{% endblock %}
+{% block title %}{% trans project_name=project.name %}'{{ project_name }}' project history{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>Security history <span class="badge badge--warning">Beta feature</span></h2>
+  <h2>{% trans %}Security history{% endtrans %} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span></h2>
 
-  <p>Each time you (or your collaborators) perform a security action related to this project, the action is recorded and displayed here.</p>
+  <p>{% trans %}Each time you (or your collaborators) perform a security action related to this project, the action is recorded and displayed here.{% endtrans %}</p>
 
   {% macro event_summary(event) -%}
     {% if event.tag == "project:create" %}
-    <strong>Project created</strong><br>
+    <strong>{% trans %}Project created{% endtrans %}</strong><br>
     <small>
-      Created by: <a href="{{ request.route_path('accounts.profile', username=event.additional.created_by) }}">{{ event.additional.created_by }}</a>
+      {% trans %}Created by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.created_by) }}">{{ event.additional.created_by }}</a>
     </small>
     {% elif event.tag == "project:release:add" %}
-    <strong><a href="{{ request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version) }}">Release version {{ event.additional.canonical_version }}</a> created</strong><br>
+    <strong>{% trans href=request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version) version=event.additional.canonical_version %}<a href="{{ href }}">Release version {{ version }}</a> created{% endtrans %}</strong><br>
     <small>
-      Added by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
     {% elif event.tag == "project:release:remove" %}
-    <strong>Release version {{ event.additional.canonical_version }} removed</strong><br>
+    <strong>{% trans version=event.additional.canonical_version %}Release version {{ version }} removed{% endtrans %}</strong><br>
     <small>
-      Removed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
     {% elif event.tag == "project:release:file:remove" %}
-    <strong>File removed from release version {{ event.additional.canonical_version }}</strong><br>
-    <small>Filename: <code>{{ event.additional.filename }}</code></small><br>
+    <strong>{% trans version=event.additional.canonical_version %}File removed from release version {{ version }}{% endtrans %}</strong><br>
+    <small>{% trans %}Filename:{% endtrans %} <code>{{ event.additional.filename }}</code></small><br>
     <small>
-      Removed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
     {% elif event.tag == "project:role:add" %}
-    <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> added as project {{ event.additional.role_name|lower }}</strong><br>
+    <strong>{% trans href=request.route_path('accounts.profile', username=event.additional.target_user) username=event.additional.target_user role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> added as project {{ role_name }}{% endtrans %}</strong><br>
     <small>
-      Added by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
     {% elif event.tag == "project:role:delete" %}
-    <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> removed as project {{ event.additional.role_name|lower }}</strong><br>
+    <strong>{% trans href=request.route_path('accounts.profile', username=event.additional.target_user) username=event.additional.target_user role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> removed as project {{ role_name }}{% endtrans %}</strong><br>
     <small>
-      Removed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
     {% elif event.tag == "project:role:change" %}
-    <strong><a href="{{ request.route_path('accounts.profile', username=event.additional.target_user) }}">{{ event.additional.target_user }}</a> changed to project {{ event.additional.role_name|lower }}</strong><br>
+    <strong>{% trans href=request.route_path('accounts.profile', username=event.additional.target_user) username=event.additional.target_user role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> changed to project {{ role_name }}{% endtrans %}</strong><br>
     <small>
-      Changed by: <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% trans %}Changed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
     {% elif event.tag == "project:api_token:added" %}
-    <strong>API token added</strong><br>
+    <strong>{% trans %}API token added{% endtrans %}</strong><br>
     <small>
-      Permissions: Can upload to this project<br>
-      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
-      Token name: {{ event.additional.description }}
+      {% trans %}Permissions: Can upload to this project{% endtrans %}<br>
+      {% trans %}Controlled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
+      {% trans %}Token name:{% endtrans %} {{ event.additional.description }}
     </small>
     {% elif event.tag == "project:api_token:removed" %}
-    <strong>API token removed</strong><br>
+    <strong>{% trans %}API token removed{% endtrans %}</strong><br>
     <small>
-      Permissions: Can upload to this project<br>
-      Controlled by: <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
-      Token name: {{ event.additional.description }}
+      {% trans %}Permissions: Can upload to this project{% endtrans %}<br>
+      {% trans %}Controlled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
+      {% trans %}Token name:{% endtrans %} {{ event.additional.description }}
     </small>
     {% else %}
     <strong>{{ event.tag }}</strong>
@@ -82,12 +82,12 @@
 
   {% if events %}
   <table class="table table--security-logs">
-    <caption class="sr-only">Security history for {{ project.name }}</caption>
+    <caption class="sr-only">{% trans project_name=project.name %}Security history for {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col">Event</th>
-        <th scope="col">Date / time</th>
-        <th scope="col">IP address</th>
+        <th scope="col">{% trans %}Event{% endtrans %}</th>
+        <th scope="col">{% trans %}Date / time{% endtrans %}</th>
+        <th scope="col">{% trans %}IP address{% endtrans %}</th>
       </tr>
     </thead>
     <tbody>

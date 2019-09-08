@@ -13,7 +13,7 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Manage{% endblock %}
+{% block title %}{% trans %}Manage{% endtrans %}{% endblock %}
 
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
@@ -23,19 +23,19 @@
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Your account</h3>
-          <nav aria-label="Account navigation">
+          <h3 class="sidebar-section__title">{% trans %}Your account{% endtrans %}</h3>
+          <nav aria-label="{% trans %}Account navigation{% endtrans %}">
             <ul class="vertical-tabs__list">
               <li>
                 <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-cube" aria-hidden="true"></i>
-                  Your projects
+                  {% trans %}Your projects{% endtrans %}
                 </a>
               </li>
               <li>
                 <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-cog" aria-hidden="true"></i>
-                  Account settings
+                  {% trans %}Account settings{% endtrans %}
                 </a>
               </li>
             </ul>
@@ -49,13 +49,13 @@
             <li>
               <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
                 <i class="fa fa-cube" aria-hidden="true"></i>
-                Your projects
+                {% trans %}Your projects{% endtrans %}
               </a>
             </li>
             <li>
               <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
                 <i class="fa fa-cog" aria-hidden="true"></i>
-                Account settings
+                {% trans %}Account settings{% endtrans %}
               </a>
             </li>
           </ul>
@@ -92,30 +92,35 @@
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         {{ extra_fields if extra_fields else '' }}
-        <a href="#modal-close" data-action="click->confirm#cancel" title="Close" class="modal__close">
+        <a href="#modal-close" data-action="click->confirm#cancel" title="{% trans %}Close{% endtrans %}" class="modal__close">
           <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">Close</span>
+          <span class="sr-only">{% trans %}Close{% endtrans %}</span>
         </a>
         <div class="modal__body">
           <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
           {% if warning %}
           <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
             <p>
-              <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-              This action cannot be undone!
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+              {% trans %}This action cannot be undone!{% endtrans %}
             </p>
             {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
           </div>
           {% endif %}
-          {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}
           {{ extra_description if extra_description else '' }}
-          <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
+          <p>
+            {% if confirm_name.lower() == 'username' %}
+            {% trans %}Confirm your username to continue.{% endtrans %}
+            {% else %}
+            {% trans item=confirm_name|lower %}Confirm the {{ item }} to continue.{% endtrans %}
+            {% endif %}
+          </p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
           <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
           <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
         </div>
         <div class="modal__footer">
-          <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">Cancel</button>
+          <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">{% trans %}Cancel{% endtrans %}</button>
           <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm.button" data-expected="{{ confirm_string }}">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>

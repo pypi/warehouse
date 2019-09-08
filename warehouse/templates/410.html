@@ -13,8 +13,8 @@
 -#}
 {% extends "error-base-with-search.html" %}
 
-{% block title %}Page removed (410){% endblock %}
+{% block title %}{% trans %}Page removed (410){% endtrans %}{% endblock %}
 
-{% block error_heading %}The page you are looking for has been removed{% endblock %}
+{% block error_heading %}{% trans %}The page you are looking for has been removed{% endtrans %}{% endblock %}
 
 {% block error_code %}410{% endblock %}

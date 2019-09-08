@@ -14,12 +14,12 @@
 
   {% if request.user %}
   <div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
-    <nav aria-label="Main navigation" class="dropdown dropdown--on-menu dropdown--with-icons">
+    <nav aria-label="{% trans %}Main navigation{% endtrans %}" class="dropdown dropdown--on-menu dropdown--with-icons">
       <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false">
         {{ request.user.username }}
         <span class="dropdown__trigger-caret">
           <i class="fa fa-caret-down" aria-hidden="true"></i>
-          <span class="sr-only">View submenu</span>
+          <span class="sr-only">{% trans %}View submenu{% endtrans %}</span>
         </span>
       </button>
       <ul class="dropdown__content">
@@ -27,46 +27,46 @@
         <li>
           <a href="{{ request.route_path('admin.dashboard') }}" class="dropdown__link">
             <i class="fa fa-wrench" aria-hidden="true"></i>
-            Admin
+            {% trans %}Admin{% endtrans %}
           </a>
         </li>
         {% endif %}
         <li>
           <a href="{{ request.route_path('manage.projects') }}" class="dropdown__link">
             <i class="fa fa-cube" aria-hidden="true"></i>
-            Your projects
+            {% trans %}Your projects{% endtrans %}
           </a>
         </li>
         <li>
           <a href="{{ request.route_path('manage.account') }}" class="dropdown__link">
             <i class="fa fa-cog" aria-hidden="true"></i>
-            Account settings
+            {% trans %}Account settings{% endtrans %}
           </a>
         </li>
         <li>
           <a href="{{ request.route_path('accounts.profile', username=request.user.username) }}" class="dropdown__link">
             <i class="fa fa-user-circle" aria-hidden="true"></i>
-            Public profile
+            {% trans %}Public profile{% endtrans %}
           </a>
         </li>
         <li>
           <a href="{{ request.route_path('help') }}" class="dropdown__link">
             <i class="fa fa-question-circle" aria-hidden="true"></i>
-            Help
+            {% trans %}Help{% endtrans %}
           </a>
         </li>
         <li>
           <a href="https://donate.pypi.org" class="dropdown__link">
             <i class="fa fa-heart" aria-hidden="true"></i>
-            Donate
+            {% trans %}Donate{% endtrans %}
           </a>
         </li>
         <li>
           <form method="POST" action="{{ request.route_path('accounts.logout') }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <button type="submit" value="log out" class="dropdown__link">
+            <button type="submit" class="dropdown__link">
               <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-              Log Out
+              {% trans %}Log out{% endtrans %}
             </button>
           </form>
         </li>
