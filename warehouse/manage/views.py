@@ -671,9 +671,6 @@ class ProvisionMacaroonViews:
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
-                scope=form.token_scope,
-                release=form.release,
-                expiration=form.expiration.data,
                 caveats=macaroon_caveats,
             )
             self.user_service.record_event(
