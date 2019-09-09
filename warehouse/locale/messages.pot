@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-08-27 14:09-0400\n"
+"POT-Creation-Date: 2019-09-09 15:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,81 +17,53 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:38
-msgid "No user found with that username"
+#: warehouse/accounts/forms.py:39
+msgid "no-user-found-with-username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:71
-msgid ""
-"The username is invalid. Usernames must be composed of letters, numbers, "
-"dots, hyphens and underscores. And must also start and finish with a "
-"letter or number. Choose a different username."
+#: warehouse/accounts/forms.py:90
+msgid "username-already-in-use"
 msgstr ""
 
-#: warehouse/accounts/forms.py:85
-msgid ""
-"This username is already being used by another account. Choose a "
-"different username."
+#: warehouse/accounts/forms.py:114
+msgid "invalid-password"
 msgstr ""
 
-#: warehouse/accounts/forms.py:106
-msgid "The password is invalid. Try again."
+#: warehouse/accounts/forms.py:121
+msgid "too-many-login-attempts"
 msgstr ""
 
-#: warehouse/accounts/forms.py:110
-msgid "There have been too many unsuccessful login attempts, try again later."
+#: warehouse/accounts/forms.py:185
+msgid "email-in-use-same-account"
 msgstr ""
 
-#: warehouse/accounts/forms.py:132
-msgid "Your passwords don't match. Try again."
+#: warehouse/accounts/forms.py:193
+msgid "email-in-use-other-account"
 msgstr ""
 
-#: warehouse/accounts/forms.py:163
-msgid "The email address isn't valid. Try again."
+#: warehouse/accounts/forms.py:203
+msgid "email-blacklisted-domain"
 msgstr ""
 
-#: warehouse/accounts/forms.py:172
-msgid ""
-"This email address is already being used by this account. Use a different"
-" email."
+#: warehouse/accounts/forms.py:291
+msgid "invalid-totp-code"
 msgstr ""
 
-#: warehouse/accounts/forms.py:177
-msgid ""
-"This email address is already being used by another account. Use a "
-"different email."
+#: warehouse/accounts/forms.py:309
+msgid "invalid-webauthn-payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:184
-msgid "You can't use an email address from this domain. Use a different email."
+#: warehouse/accounts/forms.py:345
+msgid "no-user-with-username-or-email"
 msgstr ""
 
-#: warehouse/accounts/forms.py:205
-msgid "The name is too long. Choose a name with 100 characters or less."
+#: warehouse/accounts/views.py:197 warehouse/accounts/views.py:257
+#: warehouse/accounts/views.py:263 warehouse/accounts/views.py:295
+#: warehouse/accounts/views.py:301
+msgid "invalid-expired-2fa"
 msgstr ""
 
-#: warehouse/accounts/forms.py:269
-msgid "Invalid TOTP code."
-msgstr ""
-
-#: warehouse/accounts/forms.py:286
-msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
-
-#: warehouse/accounts/forms.py:318
-msgid "No user found with that username or email"
-msgstr ""
-
-#: warehouse/accounts/views.py:196 warehouse/accounts/views.py:249
-#: warehouse/accounts/views.py:275
-msgid "Invalid or expired two factor login."
-msgstr ""
-
-#: warehouse/accounts/views.py:244
-msgid "Already authenticated"
-msgstr ""
-
-#: warehouse/accounts/views.py:250
-msgid "Invalid two factor token"
+#: warehouse/accounts/views.py:249
+msgid "already-authenticated"
 msgstr ""
 

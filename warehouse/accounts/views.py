@@ -194,7 +194,10 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        request.session.flash(
+            _("invalid-expired-2fa", default="Invalid or expired two factor login."),
+            queue="error",
+        )
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
@@ -242,13 +245,29 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
 )
 def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
-        return {"fail": {"errors": [_("Already authenticated")]}}
+        return {
+            "fail": {
+                "errors": [_("already-authenticated", default="Already authenticated")]
+            }
+        }
 
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(_("Invalid or expired two factor login."), queue="error")
-        return {"fail": {"errors": [_("Invalid two factor token")]}}
+        request.session.flash(
+            _("invalid-expired-2fa", default="Invalid or expired two factor login."),
+            queue="error",
+        )
+        return {
+            "fail": {
+                "errors": [
+                    _(
+                        "invalid-expired-2fa",
+                        default="Invalid or expired two factor login.",
+                    )
+                ]
+            }
+        }
 
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)
@@ -273,8 +292,20 @@ def webauthn_authentication_validate(request):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(_("Invalid or expired two factor login."), queue="error")
-        return {"fail": {"errors": ["Invalid two factor token"]}}
+        request.session.flash(
+            _("invalid-expired-2fa", default="Invalid or expired two factor login."),
+            queue="error",
+        )
+        return {
+            "fail": {
+                "errors": [
+                    _(
+                        "invalid-expired-2fa",
+                        default="Invalid or expired two factor login.",
+                    )
+                ]
+            }
+        }
 
     redirect_to = two_factor_data.get("redirect_to")
     userid = two_factor_data.get("userid")
