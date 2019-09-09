@@ -44,7 +44,7 @@
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <nav aria-label="Account navigation">
+        <nav aria-label="{% trans %}Account navigation{% endtrans %}">
           <ul class="vertical-tabs__list">
             <li>
               <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>

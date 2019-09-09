@@ -17,7 +17,7 @@
   <div class="callout-block">
     <p>
       <strong>{% trans %}Note:{% endtrans %}</strong>
-      {% trans trimmed href='https://www.pypa.io/en/latest/code-of-conduct/' title={% trans %}External link') %}
+      {% trans trimmed href='https://www.pypa.io/en/latest/code-of-conduct/' title=gettext('External link') %}
         All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPA Code of Conduct</a>.
       {% endtrans %}
     </p>
@@ -28,7 +28,7 @@
   <div class="callout-block">
     <p>
       <strong>{% trans %}Note:{% endtrans %}</strong>
-      {% trans trimmed method=method policy_href='https://github.com/pypa/warehouse/issues/5758' recovery_codes_href='https://github.com/pypa/warehouse/issues/5800' title={% trans %}External link') %}
+      {% trans trimmed method=method policy_href='https://github.com/pypa/warehouse/issues/5758' recovery_codes_href='https://github.com/pypa/warehouse/issues/5800' title=gettext('External link') %}
         If you lose your {{ method }} and can no longer log in, the PyPI team <strong>cannot</strong> currently help you recover your account.
         We plan to develop a <a href="{{ policy_href }}" title="{{ title }}" target="_blank" rel="noopener">manual account recovery policy</a>
         and implement <a href="{{ recovery_codes_href }}" title="{{ title }}" target="_blank" rel="noopener">account recovery codes</a>
@@ -202,7 +202,7 @@
         <p>
           {% trans trimmed href=request.route_path('classifiers') %}
             Classifiers are used to categorize projects on PyPI.
-            See <a href="{{ href }}">{{ href }}</a>
+            See <a href="{{ href }}">the classifiers page</a>
             for more information, as well as a list of valid classifiers.
           {% endtrans %}
         </p>
@@ -530,7 +530,7 @@
             Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure.
             It's a cryptographic protocol that's had several versions over time.
             PyPI <a href="{{ announcement_href }}" title="{{ title }}" target="_blank" rel="noopener">turned off support for TLS versions 1.0 and 1.1</a>
-            in April 2018 (<a href="{{ reason_href }}" title="{{ title }}" target="_blank" rel="noopener">reason</a>).
+            in April 2018. <a href="{{ reason_href }}" title="{{ title }}" target="_blank" rel="noopener">Learn why on the PSF blog</a>.
           {% endtrans %}
         </p>
         <p>{% trans command='pip install' %}If you are having trouble with <code>{{ command }}</code> and get a <code>No matching distribution found</code> or <code>Could not fetch URL</code> error, try adding <code>-v</code> to the command to get more information:{% endtrans %}</p>
@@ -647,7 +647,7 @@
         <h3 id="sponsors">{{ sponsors() }}</h3>
         <p>
           {% trans trimmed warehouse_href='https://warehouse.readthedocs.io/' sponsors_href=request.route_path('sponsors') title=gettext('External link') %}
-            PyPI is powered by <a href="{{ warehouse_href }}" title="External link" target="_blank" rel="noopener">Warehouse</a>
+            PyPI is powered by <a href="{{ warehouse_href }}" title="{{ title }}" target="_blank" rel="noopener">Warehouse</a>
             and by a variety of tools and services provided by our <a href="{{ sponsors_href }}">generous sponsors</a>.
           {% endtrans %}
         </p>
@@ -738,10 +738,10 @@
       <h3>{% trans %}Resources{% endtrans %}</h3>
       <p>{% trans %}Looking for something else? Perhaps these links will help:{% endtrans %}</p>
       <ul>
-        <li><a href="https://packaging.python.org" title="External link" target="_blank" rel="noopener">{% trans %}Python Packaging User Guide{% endtrans %}</a></li>
-        <li><a href="https://docs.python.org" title="External link" target="_blank" rel="noopener">{% trans %}Python Documentation{% endtrans %}</a></li>
-        <li><a href="https://python.org/" title="External link" target="_blank" rel="noopener">Python.org</a> {% trans %}(main Python website){% endtrans %}</li>
-        <li><a href="https://python.org/community/" title="External link" target="_blank" rel="noopener">{% trans %}Python community page{% endtrans %}</a> {% trans %}(lists IRC channels, mailing lists, etc.){% endtrans %}</li>
+        <li><a href="https://packaging.python.org" title="{% trans %}External link{% endtrans %}k" target="_blank" rel="noopener">{% trans %}Python Packaging User Guide{% endtrans %}</a></li>
+        <li><a href="https://docs.python.org" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Python documentation{% endtrans %}</a></li>
+        <li><a href="https://python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Python.org</a> {% trans %}(main Python website){% endtrans %}</li>
+        <li><a href="https://python.org/community/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Python community page{% endtrans %}</a> {% trans %}(lists IRC channels, mailing lists, etc.){% endtrans %}</li>
       </ul>
 
       <h3>{% trans %}Contact{% endtrans %}</h3>
