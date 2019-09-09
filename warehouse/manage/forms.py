@@ -261,7 +261,12 @@ class CreateMacaroonForm(forms.Form):
 
     def validate_release(self,field):
         release = field.data
-        #how would you validate a release? 1 1.0 1.0.0 format?
+        try:
+            releases = release.split(".")
+            for val in releases:
+                int(val)
+        except ValueError:
+            raise wtforms.ValidationError("Invalid release")
 
     def validate_expiration(self, field):
         expiration = field.data
@@ -269,6 +274,8 @@ class CreateMacaroonForm(forms.Form):
 
         if expiration > datetime.now() + timedelta(days=365):
             raise wtforms.ValidationError("Expiration cannot be greater than one year")
+        if expiration < datetime.now():
+            raise wtforms.ValidationError("Expiration must be after the current time")
 
 
 class DeleteMacaroonForm(forms.Form):
