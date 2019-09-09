@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-09-09 15:04-0400\n"
+"POT-Creation-Date: 2019-09-09 15:23-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgstr ""
 msgid "invalid-password"
 msgstr ""
 
-#: warehouse/accounts/forms.py:121
+#: warehouse/accounts/forms.py:121 warehouse/accounts/views.py:59
 msgid "too-many-login-attempts"
 msgstr ""
 
@@ -57,13 +57,85 @@ msgstr ""
 msgid "no-user-with-username-or-email"
 msgstr ""
 
-#: warehouse/accounts/views.py:197 warehouse/accounts/views.py:257
-#: warehouse/accounts/views.py:263 warehouse/accounts/views.py:295
-#: warehouse/accounts/views.py:301
+#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:261
+#: warehouse/accounts/views.py:267 warehouse/accounts/views.py:299
+#: warehouse/accounts/views.py:305
 msgid "invalid-expired-2fa"
 msgstr ""
 
-#: warehouse/accounts/views.py:249
+#: warehouse/accounts/views.py:253
 msgid "already-authenticated"
+msgstr ""
+
+#: warehouse/accounts/views.py:342
+msgid "successful-webauthn-assertion"
+msgstr ""
+
+#: warehouse/accounts/views.py:424
+msgid "new-user-registration-temp-disabled"
+msgstr ""
+
+#: warehouse/accounts/views.py:522
+msgid "expired-token-request-pass-reset-link"
+msgstr ""
+
+#: warehouse/accounts/views.py:529
+msgid "invalid-token-request-pass-reset-link"
+msgstr ""
+
+#: warehouse/accounts/views.py:536 warehouse/accounts/views.py:637
+msgid "invalid-token-token-not-supplied"
+msgstr ""
+
+#: warehouse/accounts/views.py:545
+msgid "invalid-token-not-password-reset-token"
+msgstr ""
+
+#: warehouse/accounts/views.py:555
+msgid "invalid-token-user-not-found"
+msgstr ""
+
+#: warehouse/accounts/views.py:563
+msgid "invalid-token-user-has-since-logged-in"
+msgstr ""
+
+#: warehouse/accounts/views.py:573
+msgid "invalid-token-password-has-already-changed"
+msgstr ""
+
+#: warehouse/accounts/views.py:598
+msgid "you-have-reset-password"
+msgstr ""
+
+#: warehouse/accounts/views.py:623
+msgid "expired-token-request-email-verification-link"
+msgstr ""
+
+#: warehouse/accounts/views.py:630
+msgid "invalid-token-request-email-verification-link"
+msgstr ""
+
+#: warehouse/accounts/views.py:646
+msgid "invalid-token-not-email-verification-token"
+msgstr ""
+
+#: warehouse/accounts/views.py:659
+msgid "invalid-token-email-not-found"
+msgstr ""
+
+#: warehouse/accounts/views.py:663
+msgid "invalid-token-email-already-verified"
+msgstr ""
+
+#: warehouse/accounts/views.py:676
+msgid "email-can-be-made-primary"
+msgstr ""
+
+#: warehouse/accounts/views.py:681
+msgid "email-is-now-primary"
+msgstr ""
+
+#: warehouse/accounts/views.py:688
+msgid "email-address-verified"
 msgstr ""
 
