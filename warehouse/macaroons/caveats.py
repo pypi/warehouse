@@ -20,6 +20,7 @@ from datetime import datetime
 
 from datetime import timedelta
 
+import pytz
 
 class InvalidMacaroon(Exception):
     ...
@@ -92,7 +93,10 @@ class Verifier:
         
         #added
         expiration = self.macaroon.expiration
-        if expiration > datetime.now():
+        d = datetime.now()
+        tz = pytz.timezone('GMT') #GMT for POC
+        tz_aware = tz.localize(d)
+        if expiration > tz_aware:
             raise InvalidMacaroon("time has expired")
 
         release = self.macaroon.release

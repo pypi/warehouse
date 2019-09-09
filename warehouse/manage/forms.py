@@ -28,6 +28,7 @@ from warehouse.accounts.forms import (
 
 from datetime import datetime
 from datetime import timedelta
+import pytz
 
 
 class RoleNameMixin:
@@ -257,7 +258,7 @@ class CreateMacaroonForm(forms.Form):
                 f"Unknown or invalid project name: {scope_value}"
             )
 
-        self.validated_scope = {"projects": [scope_value]}
+        self.validated_scope.update({"projects": [scope_value]})
 
     def validate_release(self,field):
         release = field.data
@@ -267,15 +268,22 @@ class CreateMacaroonForm(forms.Form):
                 int(val)
         except ValueError:
             raise wtforms.ValidationError("Invalid release")
+        
+        self.validated_scope.update({"release": release})
 
     def validate_expiration(self, field):
         expiration = field.data
         expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
+        d = datetime.now()
+        tz = pytz.timezone('GMT') #GMT for POC
+        tz_aware = tz.localize(d)
 
-        if expiration > datetime.now() + timedelta(days=365):
+        if expiration > tz_aware + timedelta(days=365):
             raise wtforms.ValidationError("Expiration cannot be greater than one year")
-        if expiration < datetime.now():
+        if expiration < tz_aware:
             raise wtforms.ValidationError("Expiration must be after the current time")
+        
+        self.validated_scope.update({"expiration": expiration})
 
 
 class DeleteMacaroonForm(forms.Form):
