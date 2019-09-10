@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{% trans username=username old_email=old_email new_email=new_email %}The primary email for your PyPI account:
+{% trans username=username, old_email=old_email, new_email=new_email %}The primary email for your PyPI account:
 
   '{{ username }}'
 

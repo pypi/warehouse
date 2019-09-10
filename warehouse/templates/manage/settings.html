@@ -36,7 +36,7 @@
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
     <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
     <p>
-      {% trans trimmed project_name=project.name setup_args_href='https://packaging.python.org/tutorials/distributing-packages/#setup-args' twine_docs_href='https://twine.readthedocs.io/en/latest/' distribution_href='https://packaging.python.org/tutorials/distributing-packages/' %}
+      {% trans trimmed project_name=project.name, setup_args_href='https://packaging.python.org/tutorials/distributing-packages/#setup-args', twine_docs_href='https://twine.readthedocs.io/en/latest/', distribution_href='https://packaging.python.org/tutorials/distributing-packages/' %}
         To set the '{{ project_name }}' description, author, links,
         classifiers, and other details for your next release, use
         the <a href="{{ setup_args_href }}" rel="noopener" target="_blank"><code>setup()</code>
@@ -60,10 +60,10 @@
     <ul>
       <li>
         {% if project.releases %}
-        {% trans trimmed count=project.releases|length href=request.route_path('manage.project.releases', project_name=project.name) %}
-          Irreversibly delete the project along with <a href="{{ href }}">{{ project.releases|length() }} release</a>
+        {% trans trimmed count=project.releases|length(), href=request.route_path('manage.project.releases', project_name=project.name) %}
+          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} release</a>
         {% pluralize %}
-          Irreversibly delete the project along with <a href="{{ href }}">{{ project.releases|length() }} releases</a>
+          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} releases</a>
         {% endtrans %}
         {% else %}
         {% trans %}Irreversibly delete the project{% endtrans %}

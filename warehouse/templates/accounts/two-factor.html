@@ -53,7 +53,7 @@
           </button>
           <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
             <li id="webauthn-browser-support" class="hidden">
-              {% trans trimmed href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title=gettext("External link") target="_blank" rel="noopener" %}
+              {% trans trimmed href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility", title=gettext("External link"), target="_blank", rel="noopener" %}
               <a href="{{ href }}" title="{{ title }}" target="{{ target }}" rel="{{ rel }}">Upgrade your browser</a> to log in with a security device (e.g. USB key)
               {% endtrans %}
             </li>

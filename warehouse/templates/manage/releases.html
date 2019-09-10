@@ -90,10 +90,10 @@
             </nav>
             {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
             {% set version_warning_text %}
-            <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases' title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
+            <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
             {% endset %}
 
-            {{ confirm_modal(title, gettext("Version"), release.version, slug, index=loop.index, custom_warning_text=version_warning_text, action=action) }}
+            {{ confirm_modal(title, gettext('Version'), release.version, slug, index=loop.index, custom_warning_text=version_warning_text, action=action) }}
           </td>
         </tr>
       {% endfor %}
@@ -108,6 +108,6 @@
     <h3>{% trans %}No releases found{% endtrans %}</h3>
     {% endif %}
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
-    <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/' title=gettext('External link') %}Learn how to create a new release on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
+    <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/', title=gettext('External link') %}Learn how to create a new release on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
   </div>
 {% endblock %}

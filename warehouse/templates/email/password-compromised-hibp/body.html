@@ -31,7 +31,7 @@
 
 <h3>{% trans %}What should I do?{% endtrans %}</h3>
 <p>
-  {% trans trimmed reset_pw_url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) have_i_been_pwned_url='https://haveibeenpwned.com/' %}
+  {% trans trimmed reset_pw_url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')), have_i_been_pwned_url='https://haveibeenpwned.com/' %}
     To regain access to your account,
     <a href="{{ reset_pw_url }}">reset your password</a>
     on PyPI. We also recommend that you go to
@@ -52,7 +52,7 @@
   {% endtrans %}
 </p>
 <p>
-  {% trans trimmed faq_url=request.help_url(_anchor='compromised-password') email_href='mailto:admin@pypi.org' email_address='admin@pypi.org' %}
+  {% trans trimmed faq_url=request.help_url(_anchor='compromised-password'), email_href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
     For more information, see our
     <a href="{{ faq_url }}">FAQ</a>. For help,
     you can email <a href="{{ email_href }}">{{ email_address }}</a> to communicate with

@@ -29,7 +29,7 @@ against PyPI and its users.{% endtrans %}
 
 # {% trans %}What should I do?{% endtrans %}
 
-{% trans trimmed reset_pw_url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) have_i_been_pwned_url='https://haveibeenpwned.com/' %}
+{% trans trimmed reset_pw_url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')), have_i_been_pwned_url='https://haveibeenpwned.com/' %}
 To regain access to your account, reset your password on PyPI
 ({{ reset_pw_url }}). We also recommend that you go to
 HaveIBeenPwned ({{ have_i_been_pwned_url }}) and check your other passwords and get
@@ -43,6 +43,6 @@ updating your password, we generate a SHA1 hash of your password and use the fir
 characters of the hash to decide if the password is compromised. The plaintext password
 is never stored by PyPI or sent to HaveIBeenPwned.{% endtrans %}
 
-{% trans help_url=request.help_url(_anchor='compromised-password') email_address='admin@pypi.org' %}For more information, see {{ help_url }}. For
+{% trans help_url=request.help_url(_anchor='compromised-password'), email_address='admin@pypi.org' %}For more information, see {{ help_url }}. For
 help, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
 {% endblock %}

@@ -23,9 +23,9 @@
 {% block main %}
 <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span></h1>
 <p class="heading-wsubtitle__subtitle">
-  {% trans href='https://fidoalliance.org/certification/fido-certified-products/' title=gettext('External link') %}PyPI supports any device that adheres to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO standard</a>.{% endtrans %}
+  {% trans href='https://fidoalliance.org/certification/fido-certified-products/', title=gettext('External link') %}PyPI supports any device that adheres to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO standard</a>.{% endtrans %}
   <br>
-  {% trans trimmed title=gettext('External link') yubico_href='https://www.yubico.com/' titan_href='https://cloud.google.com/titan-security-key/' thetis_href='https://thetis.io/' %}
+  {% trans trimmed title=gettext('External link'), yubico_href='https://www.yubico.com/', titan_href='https://cloud.google.com/titan-security-key/', thetis_href='https://thetis.io/' %}
     Popular <em>USB keys</em> include
     <a href="{{ yubico_href }}" title="{{ title }}" target="_blank" rel="noopener">Yubikey</a>,
     <a href="{{ titan_href }}" title="{{ title }}" target="_blank" rel="noopener">Google Titan</a>
@@ -50,7 +50,7 @@
     </p>
     <ul id="webauthn-errors" class="form-errors margin-top--large">
       <li id="webauthn-browser-support" class="hidden">
-        {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility' title=gettext('External link') %}
+        {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
           <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
         {% endtrans %}
       </li>
@@ -71,7 +71,7 @@
 
 <div class="callout-block">
   <p>
-    {% trans trimmed title=gettext('External link') fido_href='https://fidoalliance.org/specifications/download/' mozilla_href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility' %}
+    {% trans trimmed title=gettext('External link'), fido_href='https://fidoalliance.org/specifications/download/', mozilla_href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility' %}
       <strong>Not working?</strong> Check you're using a device that follows the
       <a href="{{ fido_href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO specification</a>
       and a

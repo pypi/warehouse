@@ -148,7 +148,7 @@
 
   <ul id="webauthn-errors" class="form-errors form-errors--full-width">
     <li id="webauthn-browser-support" class="hidden margin-top--large">
-      {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility' title=gettext('External link') %}
+      {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
         <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a>
         to set up two factor authentication with a security device (e.g. USB key)
       {% endtrans %}
@@ -251,7 +251,7 @@
       <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
       <div class="gravatar-form__content">
         <p>
-        {% trans trimmed href='https://gravatar.com/' title=gettext('External link')%}
+        {% trans trimmed href='https://gravatar.com/', title=gettext('External link')%}
           We use
           <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">gravatar.com</a>
           to generate your profile picture based on your primary email address
@@ -304,7 +304,7 @@
           {% endtrans %}
         </p>
       </div>
-      <input value="{% endtrans %}Update account{% endtrans %}" class="button button--primary" type="submit">
+      <input value="{% trans %}Update account{% endtrans %}" class="button button--primary" type="submit">
     </form>
   </section>
 
@@ -672,7 +672,7 @@
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          {% trans trimmed transfer_href=request.route_path('manage.project.roles', project_name=project.name) delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+          {% trans trimmed transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
             <a href="{{ transfer_href }}">transfer ownership</a>
             or
             <a href="{{ delete_href }}">delete project</a>
