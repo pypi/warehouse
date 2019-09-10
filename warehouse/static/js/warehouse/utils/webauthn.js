@@ -44,7 +44,7 @@ const doWebAuthn = (formId, func) => {
   webAuthnButton.disabled = false;
 
   webAuthnForm.addEventListener("submit", async() => {
-    func(webAuthnButton.value);
+    await func(webAuthnButton.value);
     event.preventDefault();
   });
 };
