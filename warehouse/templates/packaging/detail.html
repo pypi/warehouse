@@ -280,33 +280,43 @@
               <caption class="sr-only">Files for {{ release.project.name }}, version {{ release.version }}</caption>
               <thead>
                 <tr>
-                  <th scope="col" class="table__filename">Filename, size &amp; hash</th>
-                  <th scope="col" class="table__type">File type</th>
-                  <th scope="col" class="table__version">Python version</th>
-                  <th scope="col" class="table__upload-date">Upload date</th>
+                  <th scope="col">Filename, size</th>
+                  <th scope="col">File type</th>
+                  <th scope="col">Python version</th>
+                  <th scope="col">Upload date</th>
+                  <th scope="col" class="table__align-right">Hashes</th>
                 </tr>
               </thead>
               <tbody>
                 {% for file in files %}
                 <tr>
                   <th scope="row">
+                    <span class="table__mobile-label">Filename, size</span>
                     <a href="{{ request.route_url('packaging.file', path=file.path) }}">
                       {{ file.filename }}
                     </a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a href="#copy-hash-modal-{{ file.id }}" class="button button--small">View hashes</a>
                   </th>
                   <td>
+                    <span class="table__mobile-label">File type</span>
                     {{ file.packagetype|format_package_type }}
                   </td>
                   <td>
+                    <span class="table__mobile-label">Python version</span>
                     {% if file.python_version != "source" %}
                       {{ file.python_version }}
                     {% else %}
                       None
                     {% endif %}
                   </td>
-                  <td>{{ localize(file.upload_time) }}</td>
+                  <td>
+                    <span class="table__mobile-label">Upload date</span>
+                    {{ localize(file.upload_time) }}
+                  </td>
+                  <td class="table__align-right">
+                    <span class="table__mobile-label table__mobile-label--hashes">Hashes</span>
+                    <a href="#copy-hash-modal-{{ file.id }}" class="button button--small button--primary">View <span>hashes</span></a>
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

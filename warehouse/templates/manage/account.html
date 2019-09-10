@@ -73,15 +73,15 @@
     <th class="table__email" scope="row">
       {{ email.email }}
     </th>
-    <td class="table__status">
-      <div class="table__status-badges">
+    <td>
+      <span class="table__status-badges">
         {% if email.primary %}
         <span class="badge">Primary</span>
         {% endif %}
         {{ email_verification_label(email) }}
-      </div>
+      </span>
     </td>
-    <td class="table__action">
+    <td class="table__align-right">
       {% if not email.verified or not email.primary %}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
@@ -156,11 +156,12 @@
 
 {% macro api_row(macaroon) -%}
   <tr>
-    <th class="table__api-name" scope="row">
+    <th scope="row">
+      <span class="table__mobile-label">Name</span>
       {{ macaroon.description }}
     </th>
-    <td class="table__scope">
-      <span>Scope:</span>
+    <td>
+      <span class="table__mobile-label">Scope</span>
       {% if macaroon.caveats.get("permissions") == 'user' %}
       All projects
       {% else %}
@@ -169,15 +170,15 @@
         {% endfor %}
       {% endif %}
     </td>
-    <td class="table__created-date">
-      <span>Created on:</span>
+    <td>
+      <span class="table__mobile-label">Created on</span>
       {{ humanize(macaroon.created) }}
     </td>
-    <td class="table__used-date">
-      <span>Last used:</span>
+    <td>
+      <span class="table__mobile-label">Last used</span>
       {{ humanize(macaroon.last_used) if macaroon.last_used else "Never" }}
     </td>
-    <td class="table__action">
+    <td class="table__align-right">
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options
@@ -306,7 +307,7 @@
     #}
     {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
 
-    <table class="table table--light table--emails">
+    <table class="table table--emails">
       <caption class="sr-only">Emails associated with your account</caption>
       <thead>
         <tr>
@@ -418,7 +419,7 @@
 
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
-      <table class="table table--light table--2fa">
+      <table class="table table--2fa">
         <caption class="sr-only">Two factor authentication methods enabled</caption>
         <thead>
           <tr>
@@ -429,7 +430,7 @@
           {% if user.totp_secret %}
           <tr>
             <th scope="row">Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)</th>
-            <td class="table__action">
+            <td class="table__align-right">
               <a href="#disable-totp" class="button button--primary">Remove</a>
               {# modal to remove TOTP #}
               {% set slug="disable-totp" %}
@@ -446,7 +447,7 @@
               <strong>"{{ credential.label }}"</strong> - Security device (<abbr title="web authentication">WebAuthn</abbr>)
               <span class="badge badge--warning">Beta feature</span>
             </th>
-            <td class="table__action">
+            <td class="table__align-right">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
               {% set title="Remove two factor security device - " + credential.label %}
               {% set confirm_button_label="Remove device" %}
@@ -480,7 +481,7 @@
     <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more about API tokens</a>.</p>
 
     {% if user.macaroons|length > 0 %}
-    <table class="table table--light table--api-tokens">
+    <table class="table table--api-tokens">
       <caption class="sr-only">Active API tokens for this account</caption>
       <thead>
         <tr>
@@ -605,7 +606,7 @@
     {%- endmacro %}
 
     <p>Events appear here as security-related actions occur on your account.</p>
-    <table class="table table--light table--security-logs">
+    <table class="table table--security-logs">
       <caption class="sr-only">Recent account activity</caption>
       <thead>
         <th scope="col">Event</th>
@@ -616,8 +617,14 @@
         {% for event in recent_events %}
         <tr>
           <td>{{ event_summary(event) }}</td>
-          <td>{{ humanize(event.time) }}</td>
-          <td>{{ event.ip_address }}</td>
+          <td>
+            <span class="table__mobile-label">Date / time</span>
+            {{ humanize(event.time) }}
+          </td>
+          <td>
+            <span class="table__mobile-label">IP address</span>
+            {{ event.ip_address }}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
