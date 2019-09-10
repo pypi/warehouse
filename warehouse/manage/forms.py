@@ -193,11 +193,13 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 class CreateMacaroonForm(forms.Form):
     __params__ = ["description", "token_scope", "release", "expiration",]
 
-    def __init__(self, *args, user_id, macaroon_service, project_names, releases, **kwargs):
+    def __init__(self, *args, user_id, macaroon_service, project_names, all_projects, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_id = user_id
         self.macaroon_service = macaroon_service
         self.project_names = project_names
+        self.all_projects = all_projects
+        self.validated_scope = {}
 
     description = wtforms.StringField(
         validators=[
@@ -258,8 +260,6 @@ class CreateMacaroonForm(forms.Form):
                 f"Unknown or invalid project name: {scope_value}"
             )
 
-        self.validated_scope.update({"projects": [scope_value]})
-
     def validate_release(self,field):
         release = field.data
         try:
@@ -267,23 +267,35 @@ class CreateMacaroonForm(forms.Form):
             for val in releases:
                 int(val)
         except ValueError:
-            raise wtforms.ValidationError("Invalid release")
-        
-        self.validated_scope.update({"release": release})
+            raise wtforms.validators.ValidationError("Invalid release")
 
+        for project in self.all_projects:
+            if project.normalized_name == self.validate_token_scope(self.token_scope):
+                for version in project.all_versions:
+                    if version[0] == release:
+                        raise wtforms.validators.ValidationError("Invalid release")
+        
     def validate_expiration(self, field):
         expiration = field.data
         expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
         d = datetime.now()
-        tz = pytz.timezone('GMT') #GMT for POC
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
+        expiration_aware = tz.localize(expiration)
 
-        if expiration > tz_aware + timedelta(days=365):
-            raise wtforms.ValidationError("Expiration cannot be greater than one year")
-        if expiration < tz_aware:
-            raise wtforms.ValidationError("Expiration must be after the current time")
+        if expiration_aware > tz_aware + timedelta(days=365):
+            raise wtforms.validators.ValidationError("Expiration cannot be greater than one year")
+        if expiration_aware < tz_aware:
+            raise wtforms.validators.ValidationError("Expiration must be after the current time")
         
-        self.validated_scope.update({"expiration": expiration})
+        expiration = datetime.strftime(expiration, "%Y-%m-%dT%H:%M")
+
+    def validate(self):
+        res = super().validate()
+        self.validated_scope.update({"expiration": self.expiration.data, 
+            "release": self.release.data, "projects": [self.token_scope.data]})     
+        return res
+        
 
 
 class DeleteMacaroonForm(forms.Form):
