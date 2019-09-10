@@ -178,11 +178,10 @@
   title,
   confirm_name,
   confirm_string,
-  index=None,
   extra_fields=None,
   action=None)
 %}
-  {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
+  {% set slug = title.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
@@ -191,12 +190,11 @@
 
 {% macro confirm_password_button(
   title,
-  index=None,
   extra_fields=None,
   action=None
 )
 %}
-  {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
+  {% set slug = title.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
