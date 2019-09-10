@@ -14,8 +14,13 @@ import json
 
 import pymacaroons
 
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import Project, Release
 
+from datetime import datetime
+
+from datetime import timedelta
+
+import pytz
 
 class InvalidMacaroon(Exception):
     ...
@@ -31,7 +36,6 @@ class Caveat:
     def __call__(self, predicate):
         return self.verify(predicate)
 
-
 class V1Caveat(Caveat):
     def verify_projects(self, projects):
         # First, ensure that we're actually operating in
@@ -42,10 +46,34 @@ class V1Caveat(Caveat):
             )
 
         project = self.verifier.context
-        if project.normalized_name in projects:
-            return True
+        if project.normalized_name not in projects:
+            raise InvalidMacaroon("project-scoped token matches no projects")
+        
+        return True
+    
+    def verify_releases(self, release):
+        project = self.verifier.context
 
-        raise InvalidMacaroon("project-scoped token matches no projects")
+        for version in project.all_versions:
+            if release == version[0]:
+                raise InvalidMacaroon("release already exists")
+
+        return True
+    
+    def verify_expiration(self, expiration):
+        try:
+            expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            raise InvalidMacaroon("invalid expiration")
+
+        d = datetime.now()
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration_aware = tz.localize(expiration)
+        if expiration_aware > tz_aware:
+            raise InvalidMacaroon("time has expired")
+
+        return True
 
     def verify(self, predicate):
         try:
@@ -67,8 +95,22 @@ class V1Caveat(Caveat):
         projects = permissions.get("projects")
         if projects is None:
             raise InvalidMacaroon("invalid projects in predicate")
+        else:
+            self.verify_projects(projects)
 
-        return self.verify_projects(projects)
+        release = permissions.get("release")
+        if release is None and projects is not None:
+            raise InvalidMacaroon("invalid release in predicate")
+        else:
+            self.verify_releases(release)
+
+        expiration = permissions.get("expiration")
+        if expiration is None:
+            raise InvalidMacaroon("invalid expiration in predicate")
+        else:
+            self.verify_expiration(expiration)
+
+        return True
 
 
 class Verifier:

@@ -91,6 +91,7 @@
         <span class="form-group__label">Permissions</span>
         <p class="form-group__text">Upload packages</p>
       </div>
+
       <div class="form-group">
         <label for="token_scope" class="form-group__label">
           Scope
@@ -103,7 +104,7 @@
           <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
-          <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>Project: {{ project }}</option>
+          <option value="{{ project_value }}" label="Project: {{ project }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}></option>
         {% endfor %}
         </select>
         <div id="scope-errors">
@@ -114,6 +115,33 @@
         <h3 class="callout-block__heading">Proceed with caution!</h3>
         <p>An API token scoped to your entire account will have upload permissions for all of your projects.</p>
       </div>
+
+      <div class="form-group">
+        <label for="release" class="form-group__label">
+          Release
+          {% if create_macaroon_form.release.flags.required %}
+          <span class="form-group__required">(required)</span>
+          {% endif %}
+        </label>
+        <input type="text" name="release" id="release" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.release.data or ""}}">
+        <div id="token-name-errors">
+          {{ field_errors(create_macaroon_form.release) }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="expiration" class="form-group__label">
+          Expiration
+          {% if create_macaroon_form.expiration.flags.required %}
+          <span class="form-group__required">(required)</span>
+          {% endif %}
+        </label>
+        <input type="datetime-local" name="expiration" id="expiration" class="form-group__input" aria-describedby="token-name-errors expiration-help-text" value="{{ create_macaroon_form.expiration.data or ""}}">
+        <div id="token-name-errors">
+          {{ field_errors(create_macaroon_form.expiration) }}
+        </div>
+      </div>
+
       <div>
         <input value="Add token" class="button button--primary" type="submit">
       </div>

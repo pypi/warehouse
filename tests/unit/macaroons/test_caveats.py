@@ -19,7 +19,7 @@ from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
 from warehouse.macaroons.caveats import Caveat, InvalidMacaroon, V1Caveat, Verifier
 
-from ...common.db.packaging import ProjectFactory
+from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 
 class TestCaveat:
@@ -93,7 +93,18 @@ class TestV1Caveat:
 
         predicate = {"version": 1, "permissions": {"projects": ["foobar"]}}
         assert caveat(json.dumps(predicate)) is True
+    
+    #added
+    def test_verify_project_version(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.0")
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
 
+        predicate = {"version": "1.0", "permissions": {"projects": ["foobar"]}}
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
+            
 
 class TestVerifier:
     def test_creation(self):
