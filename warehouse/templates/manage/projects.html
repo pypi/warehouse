@@ -13,8 +13,7 @@
 -#}
 {% extends "manage_base.html" %}
 
-{% block projects_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block projects_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'projects' %}
 
 {% block title %}Your projects{% endblock %}
 
