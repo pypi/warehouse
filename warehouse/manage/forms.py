@@ -189,7 +189,6 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
             raise wtforms.validators.ValidationError(f"Label '{label}' already in use")
 
 
-#modified
 class CreateMacaroonForm(forms.Form):
     __params__ = ["description", "token_scope", "release", "expiration",]
 
