@@ -108,7 +108,7 @@
           {% endif %}
           {% set context = gettext('your') if confirm_name.lower() == gettext('username') else gettext('the') %}
           {{ extra_description if extra_description else '' }}
-          <p>{{ gettext("Confirm %(context) %(confirm_name) to continue.")|format(context=context, confirm_name=confirm_name.lower()) }}</p>
+          <p>{{ gettext("Confirm {context} {confirm_name} to continue.").format(context=context, confirm_name=confirm_name.lower()) }}</p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
           <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
           <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
