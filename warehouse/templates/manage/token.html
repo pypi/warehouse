@@ -105,14 +105,6 @@
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
           <option value="{{ project_value }}" label="Project: {{ project }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}></option>
-          <!-- <optgroup>
-            <option disabled {{ "" if create_macaroon_form.release.data else "selected" }} value="scope:unspecified">Select release...</option>
-            {% for release in releases[project] %}
-               {% for r in release %}
-                  <option value="{{ r }}" {{ "selected" if r == create_macaroon_form.release.data else "" }}>{{ r }}</option>
-               {% endfor %}
-             {% endfor %}
-          </optgroup> -->
         {% endfor %}
         </select>
         <div id="scope-errors">
