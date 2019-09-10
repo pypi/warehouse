@@ -50,6 +50,30 @@ class V1Caveat(Caveat):
             raise InvalidMacaroon("project-scoped token matches no projects")
         
         return True
+    
+    def verify_releases(self, release):
+        project = self.verifier.context
+
+        for version in project.all_versions:
+            if release == version[0]:
+                raise InvalidMacaroon("release already exists")
+
+        return True
+    
+    def verify_expiration(self, expiration):
+        try:
+            expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            raise InvalidMacaroon("invalid expiration")
+
+        d = datetime.now()
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration_aware = tz.localize(expiration)
+        if expiration_aware > tz_aware:
+            raise InvalidMacaroon("time has expired")
+
+        return True
 
     def verify(self, predicate):
         try:
@@ -71,8 +95,22 @@ class V1Caveat(Caveat):
         projects = permissions.get("projects")
         if projects is None:
             raise InvalidMacaroon("invalid projects in predicate")
+        else:
+            self.verify_projects(projects)
 
-        return self.verify_projects(projects)
+        release = permissions.get("release")
+        if release is None and projects is not None:
+            raise InvalidMacaroon("invalid release in predicate")
+        else:
+            self.verify_releases(release)
+
+        expiration = permissions.get("expiration")
+        if expiration is None:
+            raise InvalidMacaroon("invalid expiration in predicate")
+        else:
+            self.verify_expiration(expiration)
+
+        return True
 
 
 class Verifier:
@@ -90,15 +128,3 @@ class Verifier:
             return self.verifier.verify(self.macaroon, key)
         except pymacaroons.exceptions.MacaroonInvalidSignatureException:
             raise InvalidMacaroon("invalid macaroon signature")
-        
-        #added
-        expiration = self.macaroon.expiration
-        d = datetime.now()
-        tz = pytz.timezone('GMT') #GMT for POC
-        tz_aware = tz.localize(d)
-        if expiration > tz_aware:
-            raise InvalidMacaroon("time has expired")
-
-        release = self.macaroon.release
-        if release in self.macaroon.project.all_versions:
-            raise InvalidMacaroon("invalid release")
