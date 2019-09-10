@@ -620,6 +620,10 @@ class ProvisionMacaroonViews:
     @property
     def project_names(self):
         return sorted(project.normalized_name for project in self.request.user.projects)
+    
+    @property
+    def all_projects(self):
+        return [project for project in self.request.user.projects]
 
     @property
     def project_releases(self):
@@ -632,12 +636,11 @@ class ProvisionMacaroonViews:
     def default_response(self):
         return {
             "project_names": self.project_names,
-            "releases": self.project_releases,
             "create_macaroon_form": CreateMacaroonForm(
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
                 project_names=self.project_names,
-                releases=self.project_releases
+                all_projects=self.all_projects
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
                 macaroon_service=self.macaroon_service
@@ -661,7 +664,7 @@ class ProvisionMacaroonViews:
             user_id=self.request.user.id,
             macaroon_service=self.macaroon_service,
             project_names=self.project_names,
-            releases=self.project_releases,
+            all_projects=self.all_projects
         )
 
         response = {**self.default_response}
