@@ -67,10 +67,7 @@
   {% endif %}
   <p>
     {% trans trimmed libs_io_href='https://libraries.io/pypi/{project_name}'.format(project_name=release.project.name) title=gettext('External link') gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/' %}
-      View statistics for this project via
-      <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>,
-      or by using
-      <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
+      View statistics for this project via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
     {% endtrans %}
   </p>
 </div>

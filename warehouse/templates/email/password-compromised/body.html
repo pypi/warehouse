@@ -31,8 +31,7 @@
 <h3>{% trans %}What should I do?{% endtrans %}</h3>
 <p>
   {% trans trimmed href=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) %}
-    To regain access to your account,
-    <a href="{{ href }}">reset your password</a> on PyPI.
+  To regain access to your account, <a href="{{ href }}">reset your password</a> on PyPI.
   {% endtrans %}
 </p>
 

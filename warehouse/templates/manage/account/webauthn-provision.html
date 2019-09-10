@@ -72,10 +72,7 @@
 <div class="callout-block">
   <p>
     {% trans trimmed title=gettext('External link'), fido_href='https://fidoalliance.org/specifications/download/', mozilla_href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility' %}
-      <strong>Not working?</strong> Check you're using a device that follows the
-      <a href="{{ fido_href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO specification</a>
-      and a
-      <a href="{{ mozilla_href }}" title="{{ title }}" target="_blank" rel="noopener">compatible browser</a>.
+    <strong>Not working?</strong> Check you're using a device that follows the <a href="{{ fido_href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO specification</a> and a <a href="{{ mozilla_href }}" title="{{ title }}" target="_blank" rel="noopener">compatible browser</a>.
     {% endtrans %}
   </p>
   <p>{% trans %}Note that some older USB keys do not adhere to the FIDO standard and will not work with PyPI.{% endtrans %}</p>

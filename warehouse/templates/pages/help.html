@@ -183,27 +183,21 @@
         <h3 id="installing">{{ installing() }}</h3>
         <p>
           {% trans trimmed installation_href='https://packaging.python.org/installing/', user_guide_href='https://packaging.python.org/', title=gettext('External link') %}
-            To learn how to install a file from PyPI, visit the
-            <a href="{{ installation_href }}" title="{{ title }}" target="_blank" rel="noopener">installation tutorial</a>
-            on the <a href="{{ user_guide_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
+          To learn how to install a file from PyPI, visit the <a href="{{ installation_href }}" title="{{ title }}" target="_blank" rel="noopener">installation tutorial</a> on the <a href="{{ user_guide_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
           {% endtrans %}
         </p>
 
         <h3 id="publishing">{{ publishing() }}</h3>
         <p>
           {% trans trimmed packaging_tutorial_href='https://packaging.python.org/distributing/', user_guide_href='https://packaging.python.org', title=gettext('External link') %}
-            For full instructions on configuring, packaging and distributing your Python project, refer to the
-            <a href="{{ packaging_tutorial_href }}" title="{{ title }}" target="_blank" rel="noopener">packaging tutorial</a>
-            on the <a href="{{ user_guide_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
+          For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="{{ packaging_tutorial_href }}" title="{{ title }}" target="_blank" rel="noopener">packaging tutorial</a> on the <a href="{{ user_guide_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
           {% endtrans %}
         </p>
 
         <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
         <p>
           {% trans trimmed href=request.route_path('classifiers') %}
-            Classifiers are used to categorize projects on PyPI.
-            See <a href="{{ href }}">the classifiers page</a>
-            for more information, as well as a list of valid classifiers.
+          Classifiers are used to categorize projects on PyPI. See <a href="{{ href }}">the classifiers page</a> for more information, as well as a list of valid classifiers.
           {% endtrans %}
         </p>
       </section>
@@ -290,18 +284,16 @@
         <ul>
           <li>
             {% trans trimmed android_href='https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2', ios_href='https://itunes.apple.com/app/google-authenticator/id388497605', title=gettext('External link') %}
-              Google Authenticator for
-              <a href="{{ android_href }}" title="{{ title }}" target="_blank" rel="noopener">Android</a> or
-              <a href="{{ ios_href }}" title="{{ title }}" target="_blank" rel="noopener">iOS</a>
-            {% endtrans %} {% trans %}(proprietary){% endtrans %}
+            Google Authenticator for <a href="{{ android_href }}" title="{{ title }}" target="_blank" rel="noopener">Android</a> or <a href="{{ ios_href }}" title="{{ title }}" target="_blank" rel="noopener">iOS</a>
+            {% endtrans %}
+            {% trans %}(proprietary){% endtrans %}
           </li>
           <li><a href="https://www.microsoft.com/en-us/account/authenticator" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Microsoft Authenticator</a> {% trans %}(proprietary){% endtrans %}</li>
           <li>
             {% trans trimmed android_href='https://play.google.com/store/apps/details?id=com.duosecurity.duomobile', ios_href='https://itunes.apple.com/app/duo-mobile/id422663827', title=gettext('External link') %}
-              Duo Mobile for
-              <a href="{{ android_href }}" title="{{ title }}" target="_blank" rel="noopener">Android</a> or
-              <a href="{{ ios_href }}" title="{{ title }}" target="_blank" rel="noopener">iOS</a>
-            {% endtrans %} {% trans %}(proprietary){% endtrans %}
+            Duo Mobile for <a href="{{ android_href }}" title="{{ title }}" target="_blank" rel="noopener">Android</a> or <a href="{{ ios_href }}" title="{{ title }}" target="_blank" rel="noopener">iOS</a>
+            {% endtrans %}
+            {% trans %}(proprietary){% endtrans %}
           </li>
           <li><a href="https://authy.com/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Authy</a> {% trans %}(proprietary){% endtrans %}</li>
           <li><a href="https://play.google.com/store/apps/details?id=org.liberty.android.freeotpplus" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">FreeOTP+</a> {% trans %}(open source){% endtrans %}</li>
@@ -361,10 +353,10 @@
         <p>{% trans %}Follow these steps:{% endtrans %}</p>
         <ol>
           {% trans %}
-            <li>Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)"</li>
-            <li>Give your key a name. This is necessary because it's possible to add more than one security device to your account.</li>
-            <li>Click on the "Set up security device" button</li>
-            <li>Insert and touch your USB key, as instructed by your browser</li>
+          <li>Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)"</li>
+          <li>Give your key a name. This is necessary because it's possible to add more than one security device to your account.</li>
+          <li>Click on the "Set up security device" button</li>
+          <li>Insert and touch your USB key, as instructed by your browser</li>
           {% endtrans %}
         </ol>
         <p>{% trans %}Once complete, your USB key will be registered to your PyPI account and can be used during the log in process.{% endtrans %}</p>
@@ -372,8 +364,8 @@
         <p><strong>{% trans %}Next time you log in to PyPI you'll need to:{% endtrans %}</strong></p>
         <ol>
           {% trans %}
-            <li>Provide your username and password, as normal</li>
-            <li>Insert and touch your USB key to finish logging into PyPI</li>
+          <li>Provide your username and password, as normal</li>
+          <li>Insert and touch your USB key to finish logging into PyPI</li>
           {% endtrans %}
         </ol>
 
@@ -423,11 +415,7 @@
 
         <p>
           {% trans trimmed pypirc_href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account', travis_href='https://docs.travis-ci.com/user/deployment/pypi/', title=gettext('External link') %}
-            Where you edit or add these values will depend on your individual use case.
-            For example, some users may need to edit
-            <a href="{{ pypirc_href }}" title="{{ title }}" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>,
-            while others may need to update their CI configuration file
-            (e.g. <a href="{{ travis_href }}" title="{{ title }}" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).
+          Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="{{ pypirc_href }}" title="{{ title }}" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="{{ travis_href }}" title="{{ title }}" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).
           {% endtrans %}
         </p>
         <p>{% trans %}Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.{% endtrans %}</p>
@@ -450,12 +438,12 @@
         <p>{% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">analyze PyPI download usage statistics via Google BigQuery</a>.{% endtrans %}</p>
         <p>
           {% trans trimmed libs_io_href='https://libraries.io/pypi', libs_io_example_href='https://libraries.io/pypi/twine/', libs_io_api_href='https://libraries.io/api', in_progress_href='https://github.com/librariesio/bibliothecary/issues/415', other_factors_href='https://docs.libraries.io/overview#sourcerank', title=gettext('External link') %}
-            <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io provides statistics for PyPI projects</a>
-            (<a href="{{ libs_io_example_href }}" title="{{ title }}" target="_blank" rel="noopener">example</a>,
-            <a href="{{ libs_io_api_href }}" title="{{ title }}" target="_blank" rel="noopener">API</a>)
-            including GitHub stars and forks, dependency tracking
-            (<a href="{{ in_progress_href }}" title="{{ title }}" target="_blank" rel="noopener">in progress</a>),
-            and <a href="{{ other_factors_href }}" title="{{ title }}" target="_blank" rel="noopener">other relevant factors</a>.
+          <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io provides statistics for PyPI projects</a>
+          (<a href="{{ libs_io_example_href }}" title="{{ title }}" target="_blank" rel="noopener">example</a>,
+          <a href="{{ libs_io_api_href }}" title="{{ title }}" target="_blank" rel="noopener">API</a>)
+          including GitHub stars and forks, dependency tracking
+          (<a href="{{ in_progress_href }}" title="{{ title }}" target="_blank" rel="noopener">in progress</a>),
+          and <a href="{{ other_factors_href }}" title="{{ title }}" target="_blank" rel="noopener">other relevant factors</a>.
           {% endtrans %}
         </p>
         <p>{% trans href='https://status.python.org/', title=gettext('External link') %}For recent statistics on uptime and performance, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>.{% endtrans %}</p>
@@ -591,9 +579,7 @@
         <p>{% trans %}PyPI does not allow for a filename to be reused, even once a project has been deleted and recreated.{% endtrans %}</p>
         <p>
           {% trans trimmed test_pypi_href='https://packaging.python.org/guides/using-testpypi/', pypi_href='https://pypi.org', title=gettext('External link') %}
-            To avoid this situation,
-            <a href="{{ test_pypi_href }}" title="{{ title }}" target="_blank" rel="noopener">use Test PyPI to perform and check your upload first</a>,
-            before uploading to <a href="{{ pypi_href }}">pypi.org</a>.
+          To avoid this situation, <a href="{{ test_pypi_href }}" title="{{ title }}" target="_blank" rel="noopener">use Test PyPI to perform and check your upload first</a>, before uploading to <a href="{{ pypi_href }}">pypi.org</a>.
           {% endtrans %}
         </p>
 
@@ -625,9 +611,7 @@
         <h3 id="maintainers">{{ maintainers() }}</h3>
         <p>
           {% trans trimmed href='https://warehouse.readthedocs.io/', title=gettext('External link') %}
-            PyPI is powered by the Warehouse project;
-            <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Warehouse</a> is an open source project
-            developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
+          PyPI is powered by the Warehouse project; <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Warehouse</a> is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
           {% endtrans %}
         </p>
         <p>
@@ -656,14 +640,14 @@
         <p>{% trans %}As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the old site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.{% endtrans %}</p>
         <p>
           {% trans trimmed fastly_href='https://www.fastly.com/', status_page_href='https://status.python.org/', mirror_href='#mirroring', private_index_href='#private-indices', title=gettext('External link') %}
-            PyPI is heavily cached and distributed via <abbr title="content delivery network">CDN</abbr> thanks to our sponsor
-            <a href="{{ fastly_href }}" title="{{ title }}" target="_blank" rel="noopener">Fastly</a>
-            and thus is generally available globally. However, the site is mostly maintained by volunteers,
-            we do not provide any specific Service Level Agreement,
-            and as could be expected for a giant distributed system, things can and sometimes do go wrong.
-            See <a href="{{ status_page_href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>
-            for current and past outages and incidents. If you have high availability requirements for your package index,
-            consider either a <a href="{{ mirror_href }}">mirror</a> or a <a href="{{ private_index_href }}">private index</a>.
+          PyPI is heavily cached and distributed via <abbr title="content delivery network">CDN</abbr> thanks to our sponsor
+          <a href="{{ fastly_href }}" title="{{ title }}" target="_blank" rel="noopener">Fastly</a>
+          and thus is generally available globally. However, the site is mostly maintained by volunteers,
+          we do not provide any specific Service Level Agreement,
+          and as could be expected for a giant distributed system, things can and sometimes do go wrong.
+          See <a href="{{ status_page_href }}" title="{{ title }}" target="_blank" rel="noopener">our status page</a>
+          for current and past outages and incidents. If you have high availability requirements for your package index,
+          consider either a <a href="{{ mirror_href }}">mirror</a> or a <a href="{{ private_index_href }}">private index</a>.
           {% endtrans %}
         </p>
 
@@ -678,10 +662,10 @@
         <p><strong>{% trans %}Development:{% endtrans %}</strong> {% trans %}Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!{% endtrans %}</p>
         <p>
           {% trans trimmed getting_started_href='https://warehouse.readthedocs.io/development/getting-started/', issue_tracker_href='https://github.com/pypa/warehouse/issues', good_first_issue_href='https://github.com/pypa/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22', title=gettext('External link') %}
-            If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or SQLAlchemy then skim our
-            <a href="{{ getting_started_href }}" title="{{ title }}" target="_blank" rel="noopener">"Getting started" guide</a>,
-            then take a look at the <a href="{{ issue_tracker_href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
-            We've created a <a href="{{ good_first_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.
+          If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or SQLAlchemy then skim our
+          <a href="{{ getting_started_href }}" title="{{ title }}" target="_blank" rel="noopener">"Getting started" guide</a>,
+          then take a look at the <a href="{{ issue_tracker_href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
+          We've created a <a href="{{ good_first_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.
           {% endtrans %}
         </p>
         <p>
@@ -704,11 +688,11 @@
         <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
         <p>
           {% trans trimmed mailing_list_href='https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/', blog_href='https://pyfound.blogspot.com/search/label/pypi', atom_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi', rss_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss', title=gettext('External link') %}
-            Changes to PyPI are generally announced on both the
-            <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">pypi-announce mailing list</a>
-            and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PSF blog</a> under the label "pypi".
-            The PSF blog also has <a href="{{ atom_href }}" title="{{ title }}" target="_blank" rel="noopener">Atom</a>
-            and <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.
+          Changes to PyPI are generally announced on both the
+          <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">pypi-announce mailing list</a>
+          and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PSF blog</a> under the label "pypi".
+          The PSF blog also has <a href="{{ atom_href }}" title="{{ title }}" target="_blank" rel="noopener">Atom</a>
+          and <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.
           {% endtrans %}
         </p>
 

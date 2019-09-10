@@ -37,15 +37,10 @@
     <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
     <p>
       {% trans trimmed project_name=project.name, setup_args_href='https://packaging.python.org/tutorials/distributing-packages/#setup-args', twine_docs_href='https://twine.readthedocs.io/en/latest/', distribution_href='https://packaging.python.org/tutorials/distributing-packages/' %}
-        To set the '{{ project_name }}' description, author, links,
-        classifiers, and other details for your next release, use
-        the <a href="{{ setup_args_href }}" rel="noopener" target="_blank"><code>setup()</code>
-        arguments in your <code>setup.py</code> file</a>. Updating these
-        fields will not change the metadata for past
-        releases. Additionally, you <strong>must</strong> use
-        <a href="{{ twine_docs_href }}" rel="noopener" target="_blank">Twine</a>
-        to upload your files in order to get full support for these fields. See
-        <a href="{{ distribution_href }}" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
+        To set the '{{ project_name }}' description, author, links, classifiers, and other details for your next release, use the <a href="{{ setup_args_href }}" rel="noopener" target="_blank"><code>setup()</code> arguments in your <code>setup.py</code> file</a>.
+        Updating these fields will not change the metadata for past releases.
+        Additionally, you <strong>must</strong> use <a href="{{ twine_docs_href }}" rel="noopener" target="_blank">Twine</a> to upload your files in order to get full support for these fields.
+        See <a href="{{ distribution_href }}" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
       {% endtrans %}
     </p>
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>

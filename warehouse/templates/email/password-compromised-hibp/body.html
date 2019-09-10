@@ -32,11 +32,7 @@
 <h3>{% trans %}What should I do?{% endtrans %}</h3>
 <p>
   {% trans trimmed reset_pw_url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')), have_i_been_pwned_url='https://haveibeenpwned.com/' %}
-    To regain access to your account,
-    <a href="{{ reset_pw_url }}">reset your password</a>
-    on PyPI. We also recommend that you go to
-    <a href="{{ have_i_been_pwned_url }}">HaveIBeenPwned</a> and check your other
-    passwords and get yourself familiar with good password practices.
+  To regain access to your account, <a href="{{ reset_pw_url }}">reset your password</a> on PyPI. We also recommend that you go to <a href="{{ have_i_been_pwned_url }}">HaveIBeenPwned</a> and check your other passwords and get yourself familiar with good password practices.
   {% endtrans %}
 </p>
 
@@ -44,19 +40,12 @@
 <h3>{% trans %}How do you know this?{% endtrans %}</h3>
 <p>
   {% trans trimmed have_i_been_pwned_url='https://haveibeenpwned.com/' %}
-    We use a free security service from
-    <a href="{{ have_i_been_pwned_url }}">HaveIBeenPwned</a>. When registering,
-    authenticating, or updating your password, we generate a SHA1 hash of your password
-    and use the first 5 characters of the hash to decide if the password is compromised.
-    The plaintext password is never stored by PyPI or sent to HaveIBeenPwned.
+  We use a free security service from <a href="{{ have_i_been_pwned_url }}">HaveIBeenPwned</a>. When registering, authenticating, or updating your password, we generate a SHA1 hash of your password and use the first 5 characters of the hash to decide if the password is compromised. The plaintext password is never stored by PyPI or sent to HaveIBeenPwned.
   {% endtrans %}
 </p>
 <p>
   {% trans trimmed faq_url=request.help_url(_anchor='compromised-password'), email_href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
-    For more information, see our
-    <a href="{{ faq_url }}">FAQ</a>. For help,
-    you can email <a href="{{ email_href }}">{{ email_address }}</a> to communicate with
-    the PyPI administrators.
+  For more information, see our <a href="{{ faq_url }}">FAQ</a>. For help, you can email <a href="{{ email_href }}">{{ email_address }}</a> to communicate with the PyPI administrators.
   {% endtrans %}
 </p>
 {% endblock %}
