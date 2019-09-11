@@ -332,6 +332,7 @@ class TestCreateMacaroonForm:
             user_id=user_id,
             macaroon_service=macaroon_service,
             project_names=project_names,
+            all_projects=pretend.stub()
         )
 
         assert form.user_id is user_id
@@ -344,6 +345,7 @@ class TestCreateMacaroonForm:
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(),
             project_names=pretend.stub(),
+            all_projects=pretend.stub()
         )
 
         assert not form.validate()
@@ -357,6 +359,7 @@ class TestCreateMacaroonForm:
                 get_macaroon_by_description=lambda *a: pretend.stub()
             ),
             project_names=pretend.stub(),
+            all_projects=pretend.stub()
         )
 
         assert not form.validate()
@@ -368,6 +371,7 @@ class TestCreateMacaroonForm:
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
+            all_projects=pretend.stub()
         )
 
         assert not form.validate()
@@ -379,6 +383,7 @@ class TestCreateMacaroonForm:
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
+            all_projects=pretend.stub()
         )
 
         assert not form.validate()
@@ -393,6 +398,7 @@ class TestCreateMacaroonForm:
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
+            all_projects=pretend.stub()
         )
 
         assert not form.validate()
@@ -404,27 +410,72 @@ class TestCreateMacaroonForm:
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["bar"],
+            all_projects=pretend.stub()
         )
 
         assert not form.validate()
         assert form.token_scope.errors.pop() == "Unknown or invalid project name: foo"
+    
+    def test_validate_token_scope_invalid_release(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foo",
+                "releases": "AA.BB.CC", "expiration": "2020-09-01T06:00"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            project_names=["foo"],
+            all_projects=pretend.stub()
+        )
 
+        assert not form.validate()
+        assert form.token_scope.errors.pop() == "Invalid release"
+    
+    def test_validate_expiration_missing(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foo",
+                "releases": "1.0"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            project_names=pretend.stub(),
+            all_projects=pretend.stub()
+        )
+
+        assert not form.validate()
+        assert form.token_scope.errors.pop() == "Specify the expiration"
+
+    #will have to add a test for greater than 1 year
+    def test_validate_token_scope_invalid_expiration(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foo",
+                "releases": "1.0", "expiration": "2019-09-01T06:00"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            project_names=["foo"],
+            all_projects=pretend.stub()
+        )
+
+        assert not form.validate()
+        assert form.token_scope.errors.pop() == "Expiration must be after the current time"
+
+    #once js is figured out would have to disable releases
     def test_validate_token_scope_valid_user(self):
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:user"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
+            all_projects=pretend.stub()
         )
 
         assert form.validate()
 
     def test_validate_token_scope_valid_project(self):
         form = forms.CreateMacaroonForm(
-            data={"description": "dummy", "token_scope": "scope:project:foo"},
+            data={"description": "dummy", "token_scope": "scope:project:foo",
+                "releases": "1.0", "expiration": "2019-09-01T06:00"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["foo"],
+            all_projects=pretend.stub()
         )
 
         assert form.validate()
