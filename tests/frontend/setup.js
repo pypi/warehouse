@@ -30,3 +30,6 @@ const script = window.document.createElement("script");
 script.textContent = shim;
 
 window.document.body.appendChild(script);
+
+// Extend Jest with jest-dom https://github.com/testing-library/jest-dom
+import "@testing-library/jest-dom/extend-expect";

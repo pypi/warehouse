@@ -8,7 +8,7 @@
     "test": "jest"
   },
   "jest": {
-    "setupFiles": [
+    "setupFilesAfterEnv": [
       "./tests/frontend/setup.js"
     ],
     "testRegex": ".*_test.js"
@@ -51,6 +51,7 @@
     "zopflipng-bin": "^5.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^4.1.0",
     "babel-eslint": "8.2.2",
     "babel-jest": "^24.9.0",
     "eslint": "4.18.2",

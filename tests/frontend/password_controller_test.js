@@ -31,11 +31,6 @@ describe("Password controller", () => {
     const application = Application.start();
     application.register("password", PasswordController);
   });
-  // it("Renders 'It works!'", () => {
-  //   const header = document.getElementById("header");
-  //   console.log(header.innerHTML);
-  //   expect(header.innerHTML).toEqual("It works!");
-  // });
 
   describe("initial state", () => {
     describe("the show password checkbox", () => {
@@ -46,28 +41,25 @@ describe("Password controller", () => {
     });
   });
 
-  // describe("functionality", function() {
-  //   context("clicking show password", function() {
-  //     it("toggles password fields", function() {
-  //       let passwordField = fixture.el.querySelector("#password");
-  //       let confirmField = fixture.el.querySelector("#confirm");
-  //       expect(passwordField).to.have.attr("type").equal("password");
-  //       expect(confirmField).to.have.attr("type").equal("password");
+  describe("functionality", function() {
+    describe("clicking show password", function() {
+      it("toggles password fields", function() {
+        const passwordField = document.querySelector("#password");
+        const confirmField = document.querySelector("#confirm");
+        const toggleCheckbox = document.getElementsByTagName("input")[0];
+        expect(passwordField).toHaveAttribute("type", "password");
+        expect(confirmField).toHaveAttribute("type", "password");
 
-  //       // simulate clicking on checkbox
-  //       this.controller.showPasswordTarget.checked = true;
-  //       this.controller.togglePasswords();
+        toggleCheckbox.click();
 
-  //       expect(passwordField).to.have.attr("type").equal("text");
-  //       expect(confirmField).to.have.attr("type").equal("text");
+        expect(passwordField).toHaveAttribute("type", "text");
+        expect(confirmField).toHaveAttribute("type", "text");
 
-  //       // simulate clicking on checkbox
-  //       this.controller.showPasswordTarget.checked = false;
-  //       this.controller.togglePasswords();
+        toggleCheckbox.click();
 
-  //       expect(passwordField).to.have.attr("type").equal("password");
-  //       expect(confirmField).to.have.attr("type").equal("password");
-  //     });
-  //   });
-  // });
+        expect(passwordField).toHaveAttribute("type", "password");
+        expect(confirmField).toHaveAttribute("type", "password");
+      });
+    });
+  });
 });
