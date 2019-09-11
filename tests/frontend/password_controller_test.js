@@ -14,7 +14,7 @@
 /* global expect, beforeEach, describe, it */
 
 import { Application } from "stimulus";
-import PasswordController from "../../warehouse/static/js/warehouse/controllers/password_controller"
+import PasswordController from "../../warehouse/static/js/warehouse/controllers/password_controller";
 
 describe("Password controller", () => {
   beforeEach(() => {
