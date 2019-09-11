@@ -70,7 +70,7 @@ class V1Caveat(Caveat):
         tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
         expiration_aware = tz.localize(expiration)
-        if expiration_aware > tz_aware:
+        if expiration_aware < tz_aware:
             raise InvalidMacaroon("time has expired")
 
         return True
@@ -98,7 +98,7 @@ class V1Caveat(Caveat):
         else:
             self.verify_projects(projects)
 
-        release = permissions.get("release")
+        release = permissions.get("releases")
         if release is None and projects is not None:
             raise InvalidMacaroon("invalid release in predicate")
         else:
