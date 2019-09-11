@@ -37,8 +37,8 @@
       <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
       {% endif %}
     </p>
-    <p>{% trans href='/help#apitoken' %}For instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
-    <code class="api-token">{{ serialized_macaroon }}</code>
+
+    <code class="code-block">{{ serialized_macaroon }}</code>
     <div class="margin-bottom--large">
       <div class="callout-block callout-block--danger no-top-margin">
         <p>{% trans %}For security reasons this token will only appear once. <strong>Copy it now.</strong>{% endtrans %}</p>
@@ -61,8 +61,40 @@
 
       {{ confirm_modal(title=title, confirm_name=gettext("Username"), confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
     </div>
-    <hr>
+
+    <h2>Using this token</h2>
+
+    <p>To use this API token:</p>
+
+    <ul>
+      <li>Set your username to <code>__token__</code></li>
+      <li>Set your password to the token value, including the <code>pypi-</code> prefix</li>
+    </ul>
+
+    {% if macaroon.caveats.permissions == "user" %}
+    <p>For example, if you are using <a href="https://pypi.org/project/virtualenv/">Twine</a> to upload your projects to PyPI, set up your <code>$HOME/.pypirc</code> file like this:</p>
+<pre class="code-block">
+[pypi]
+  username = __token__
+  password = {{ serialized_macaroon }}
+</pre>
+    {% else %}
+    <p>For example, if you are using <a href="https://pypi.org/project/virtualenv/">Twine</a> to upload multiple projects to PyPI, you can set up a <code>$HOME/.pypirc</code> file like this:</p>
+<pre class="code-block">
+[pypi]
+  username = __token__
+  password = # either a user-scoped token or a project-scoped token you want to set as the default
+
+[PROJECT_NAME]
+  username = __token__
+  password = # a project token
+</pre>
+    <p>You can then use <code>twine --repository PROJECT_NAME</code> to switch to the correct token when uploading to PyPI.</p>
+    {% endif %}
+
+    <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
   </section>
+  <hr>
   {% endif %}
 
   {{ form_error_anchor(create_macaroon_form) }}
@@ -111,7 +143,7 @@
       </div>
       <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
         <h3 class="callout-block__heading">{% trans %}Proceed with caution!{% endtrans %}</h3>
-        <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your projects.{% endtrans %}</p>
+        <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your current and future projects.{% endtrans %}</p>
       </div>
       <div>
         <input value="{% trans %}Add token{% endtrans %}" class="button button--primary" type="submit">
