@@ -219,7 +219,7 @@ class CreateMacaroonForm(forms.Form):
 
     expiration = wtforms.DateTimeField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify an expiration time"),
+            wtforms.validators.DataRequired(message="Specify the expiration"),
         ]
     )
 
@@ -291,8 +291,9 @@ class CreateMacaroonForm(forms.Form):
 
     def validate(self):
         res = super().validate()
-        self.validated_scope.update({"expiration": self.expiration.data, 
-            "release": self.release.data, "projects": [self.token_scope.data]})     
+        if not isinstance(self.validated_scope, str):
+            self.validated_scope.update({"expiration": self.expiration.data, 
+                "releases": self.release.data, "projects": [self.token_scope.data]})     
         return res
         
 
