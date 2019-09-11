@@ -1,0 +1,69 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  Language switcher found on the site footer.
+
+  <div class="language-switcher">
+    <ul>
+      <li><button type="button" class="language-swticher__selected">Selected language</button><li>
+      <li><button type="button">Other language</button></li>
+    </ul>
+  </div>
+*/
+
+.language-switcher {
+  background-color: lighten($primary-color, 1);
+  border-top: 1px solid darken($primary-color, 2);
+  color: $white;
+  padding: ($spacing-unit / 2) 0;
+  width: 100%;
+  text-align: center;
+  font-size: $small-font-size;
+
+  ul {
+    list-style-type: none;
+
+    li {
+      display: inline-block;
+      margin: 0 ($spacing-unit / 4);
+    }
+
+    button {
+      color: $white;
+      border: 0;
+      background-color: transparent;
+      padding: 0;
+      background-position: 0 1.3em;
+      background-repeat: repeat-x;
+      background-size: 100% 1.5px;
+      @include white-underlined-link;
+    }
+
+    button.language-switcher__selected {
+      pointer-events: none;
+      @include link-without-underline;
+
+      &:before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f105";
+        margin-right: 4px;
+        color: $white;
+        position: relative;
+        top: 0.5px;
+      }
+    }
+  }
+}
