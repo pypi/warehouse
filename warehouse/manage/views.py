@@ -636,6 +636,7 @@ class ProvisionMacaroonViews:
     def default_response(self):
         return {
             "project_names": self.project_names,
+            "all_projects": self.all_projects,
             "create_macaroon_form": CreateMacaroonForm(
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
