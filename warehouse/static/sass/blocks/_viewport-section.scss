@@ -42,11 +42,11 @@
   }
 
   &__heading {
-    font-size: 2.4em;
+    font-size: 2.4rem;
     padding: $spacing-unit ($spacing-unit / 2);
 
     @media screen and (max-width: $small-tablet) {
-      font-size: 1.5em;
+      font-size: 1.5rem;
     }
   }
 
@@ -91,22 +91,22 @@
       span {
         line-height: 1;
         padding-bottom: 30px;
-        font-size: 3.5em;
+        font-size: 3.5rem;
 
         @media screen and (max-width: $desktop) {
-          font-size: 2.8em;
+          font-size: 2.8rem;
         }
 
         @media screen and (max-width: $tablet) {
-          font-size: 2.1em;
+          font-size: 2.1rem;
         }
 
         @media screen and (max-width: $small-tablet) {
-          font-size: 1.8em;
+          font-size: 1.8rem;
         }
 
         @media screen and (max-width: $mobile) {
-          font-size: 1.2em;
+          font-size: 1.2rem;
         }
       }
     }

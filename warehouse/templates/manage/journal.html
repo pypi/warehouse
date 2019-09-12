@@ -28,7 +28,7 @@
     <p>This feature will be deprecated in the future, replaced by the <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}">security history page</a>.
   </div>
 
-  <table class="table table--history margin-top">
+  <table class="table table--history">
     <caption class="sr-only">History for {{ project.name }}</caption>
     <thead>
       <tr>
@@ -40,13 +40,16 @@
     <tbody>
       {% for journal in journals %}
       <tr>
-        <th scope="row" class="table__action">
+        <th scope="row">
+          <span class="table__mobile-label">Action</span>
           {% if journal.version %} Release {{ journal.version }}: {% endif %}{{ journal.action }}
         </th>
         <td>
+          <span class="table__mobile-label">Date</span>
           {{ journal.submitted_date|format_datetime() }}
         </td>
         <td>
+          <span class="table__mobile-label">User</span>
           {{ journal.submitted_by.username }}
           <span class="table__ip">from {{ journal.submitted_from }}</span>
         </td>

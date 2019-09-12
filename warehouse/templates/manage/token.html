@@ -16,8 +16,7 @@
 {% set user = request.user %}
 {% set title = "Add API token" %}
 
-{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'account' %}
 
 {% block title %}
   {% if create_macaroon_form.errors %}Error processing form –{% endif %}
@@ -81,7 +80,7 @@
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        <input type="text" name="description" id="description" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
+        <input type="text" name="description" id="description" autocomplete="off" autocapitalize="off" spellcheck="false" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
         <div id="token-name-errors">
           {{ field_errors(create_macaroon_form.description) }}
         </div>
@@ -98,7 +97,7 @@
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="scope-errors">
+        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="scope-errors" autocomplete="off">
           <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">Select scope...</option>
           <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}

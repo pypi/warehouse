@@ -22,39 +22,39 @@
       <h3 class="modal__title">
         <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" title="External link" target="_blank" rel="noopener">Hashes</a> for {{ file.filename }}
       </h3>
-      <table class="table table--light table--hashes">
+      <table class="table table--hashes">
         <caption class="sr-only">Hashes for {{ file.filename }}</caption>
         <thead>
           <tr>
-            <th scope="col" class="table__algorithm">Algorithm</th>
-            <th scope="col" class="table__hash">Hash digest</th>
-            <th class="table__copy"></th>
+            <th scope="col">Algorithm</th>
+            <th scope="col">Hash digest</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <th scope="row" class="table__algorithm">SHA256</th>
-            <td class="table__hash"><code>{{ file.sha256_digest }}</code></td>
-            <td class="table__copy">
-              <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+            <th scope="row">SHA256</th>
+            <td><code>{{ file.sha256_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                 Copy
               </button>
             </td>
           </tr>
           <tr>
-            <th scope="row" class="table__algorithm">MD5</th>
-            <td class="table__hash"><code>{{ file.md5_digest }}</code></td>
-            <td class="table__copy">
-              <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
+            <th scope="row">MD5</th>
+            <td><code>{{ file.md5_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
                 Copy
               </button>
             </td>
           </tr>
           <tr>
-            <th scope="row" class="table__algorithm">BLAKE2-256</th>
-            <td class="table__hash"><code>{{ file.blake2_256_digest }}</code></td>
-            <td class="table__copy">
-              <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
+            <th scope="row">BLAKE2-256</th>
+            <td><code>{{ file.blake2_256_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
                 Copy
               </button>
             </td>

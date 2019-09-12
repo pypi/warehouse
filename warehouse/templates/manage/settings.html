@@ -20,6 +20,19 @@
 {% block main %}
   <h2>Project settings</h2>
 
+  <h3>API tokens</h3>
+  <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI.</p>
+  {% if user.has_primary_verified_email %}
+    <p class="no-bottom-padding">
+      <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">Create a token for {{ project.name }}</a>
+    </p>
+  {% else %}
+    <p class="no-bottom-padding">
+      <a href="{{ request.route_path('manage.account') }}#account-emails">Verify your primary email address</a> to add an API token for {{ project.name }}.
+    </p>
+  {% endif %}
+  <hr>
+
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
     <h3>Project description and sidebar</h3>
     <p>

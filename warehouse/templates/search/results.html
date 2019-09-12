@@ -100,8 +100,8 @@
         {% for each_filter in available_filters %}
         {% for top_level, classifiers in each_filter.items() recursive %}
           <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
-            <button type="button" class="accordion__link -js-accordion-trigger">{{ top_level }}</button>
-            <div class="accordion__content">
+            <button type="button" class="accordion__link -js-accordion-trigger" aria-expanded="false" aria-controls="accordion-{{ top_level|classifier_id }}">{{ top_level }}</button>
+            <div id="accordion-{{ top_level|classifier_id }}" aria-hidden="true" class="accordion__content">
               <div class="checkbox-tree">
                 <ul>
                  {{ generate_classifier_tree(top_level, classifiers, applied_filters, parent=None) }}
@@ -116,6 +116,7 @@
     </div>
 
     <div class="left-layout__main">
+      <h2 class="sr-only">{% trans %}Search results{% endtrans %}</h2>
       {% if not term and not applied_filters %}
       <div class="callout-block no-top-margin">
         <p class="hide-below-desktop">Enter a search query, or select a filter from the list of classifiers.</p>

@@ -79,7 +79,7 @@
     span {
       font-family: $code-font;
       font-weight: 500;
-      font-size: 1.2em;
+      font-size: 1.2rem;
       float: left;
       background-color: transparentize($black, 0.85);
       padding: 8px;
@@ -87,11 +87,11 @@
       line-height: $spacing-unit;
 
       @media only screen and (max-width: $tablet) {
-        font-size: 1.1em;
+        font-size: 1.1rem;
       }
 
       @media only screen and (max-width: $mobile) {
-        font-size: 1em;
+        font-size: 1rem;
       }
     }
 

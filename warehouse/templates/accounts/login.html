@@ -76,7 +76,7 @@
                 id="show-password" type="checkbox">&nbsp;Show password
             </label>
           </div>
-          {{ form.password(placeholder="Your password", required="required", class_="form-group__input", autocomplete="current-password", data_target="password.password", **{"aria-describedby":"password-errors"}) }}
+          {{ form.password(placeholder="Your password", required="required", class_="form-group__input", autocomplete="current-password", spellcheck="false", data_target="password.password", **{"aria-describedby":"password-errors"}) }}
           <div id="password-errors">
             {% if form.password.errors %}
             <ul class="form-errors" role="alert">
