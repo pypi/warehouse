@@ -43,18 +43,20 @@
           <p>Enable JavaScript to log in with a security device (e.g. USB key)</p>
         </noscript>
 
-        <button
-          type="button"
-          id="webauthn-auth-begin"
-          class="button button--primary"
-          value="{{ request.session.get_csrf_token() }}"
-          disabled>Authenticate with device
-        </button>
-        <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
-          <li id="webauthn-browser-support" class="hidden">
-            <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
-          </li>
-        </ul>
+        <form id="webauthn-auth-form">
+          <button
+            type="submit"
+            id="webauthn-auth-begin"
+            class="button button--primary"
+            value="{{ request.session.get_csrf_token() }}"
+            disabled>Authenticate with device
+          </button>
+          <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
+            <li id="webauthn-browser-support" class="hidden">
+              <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
+            </li>
+          </ul>
+        </form>
         <p class="margin-top--large">Lost your device? Not working? <a href="/help/#utfkey">Get help</a>.</p>
       </div>
       {% endif %}
@@ -86,7 +88,7 @@
               <span class="form-group__required">(required)</span>
               {% endif %}
             </label>
-            {{ totp_form.totp_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-errors"}) }}
+            {{ totp_form.totp_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="one-time-code", **{"aria-describedby":"totp-errors"}) }}
             {% if totp_form.totp_value.errors %}
             <ul id="totp-errors" class="form-errors" role="alert">
               {% for error in totp_form.totp_value.errors %}

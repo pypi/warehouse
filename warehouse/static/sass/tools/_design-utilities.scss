@@ -37,48 +37,6 @@
   transition: opacity 0.3s;
 }
 
-@mixin table {
-  @include card;
-  @include border-width(1px null);
-  border-collapse: collapse;
-  border-spacing: 0;
-  text-align: left;
-  margin: 25px 0 0 0;
-  font-size: $small-font-size;
-  width: 100%;
-
-  tr {
-    border-bottom: 1px solid $border-color;
-  }
-
-  th,
-  td {
-    margin: 0;
-    border: 0;
-    padding: 10px 7px;
-    border-right: 1px solid $border-color;
-  }
-
-  thead tr {
-    background-color: $white;
-
-    th {
-      vertical-align: bottom;
-      font-weight: $bold-font-weight;
-    }
-  }
-
-  tbody {
-    tr {
-      background-color: darken($background-color, 0.75);
-    }
-
-    tr:nth-child(even) {
-      background-color: darken($background-color, 2);
-    }
-  }
-}
-
 @mixin dismiss-button {
   background: transparent;
   border: 0;

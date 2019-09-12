@@ -15,8 +15,8 @@
 /*
   Navigation breadcrumbs.
 
-  <nav aria-label="Breadcrumb">
-    <ul class="breadcrumbs">
+  <nav aria-label="Breadcrumb" class="breadcrumbs">
+    <ul>
       <li class="breadcrumbs__breadcrumb"></li>
       <li class="breadcrumbs__breadcrumb"></li>
     </ul>
@@ -25,9 +25,13 @@
 
 
 .breadcrumbs {
-  margin: 0;
-  padding: 0;
-  @include clearfix;
+  padding-bottom: ($spacing-unit / 2);
+
+  ul {
+    margin: 0;
+    padding: 0;
+    @include clearfix;
+  }
 
   &__breadcrumb {
     list-style-type: none;
