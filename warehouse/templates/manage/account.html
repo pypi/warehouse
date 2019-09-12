@@ -16,8 +16,7 @@
 {% set user = request.user %}
 {% set title = "Account settings" %}
 
-{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'account' %}
 
 {% block title %}
   {% if add_email_form.errors or change_password_form.errors %}
@@ -29,32 +28,43 @@
 {% macro email_verification_label(email) -%}
 {% if email.verified %}
   {% if email.transient_bounces %}
-  {% set message = "Intermittent delivery problems may lead to verification loss" %}
-  <span class="badge badge--warning tooltipped tooltipped-s" data-original-label="{{ message }}" aria-label="{{ message }}"><i class="fa fa-exclamation-triangle"></i> Verified</span>
+  <span class="badge badge--warning">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+    Verified*
+  </span>
+  <span class="table__status-detail">*Intermittent delivery problems may lead to verification loss</span>
   {% else %}
   <span class="badge badge--success">
     <i class="fa fa-check" aria-hidden="true"></i>
     Verified
   </span>
   {% endif %}
-  {% else %}
-  {% set icon = 'exclamation-triangle' %}
+{% else %}
   {% if email.unverify_reason.value == "spam complaint" %}
-    {% set message = "Email from PyPI being treated as spam" %}
-    {% set icon = 'ban' %}
+  <span class="badge badge--danger">
+    <i class="fa fa-ban" aria-hidden="true"></i>
+    Unverified*
+  </span>
+  <span class="table__status-detail">*Email from PyPI being treated as spam</span>
   {% elif email.unverify_reason.value == "hard bounce" %}
-    {% set message = "Hard failure during delivery" %}
+  <span class="badge badge--danger">
+    <i class="fa fa-ban" aria-hidden="true"></i>
+    Unverified*
+  </span>
+  <span class="table__status-detail">*Hard failure during delivery</span>
   {% elif email.unverify_reason.value == "soft bounce" %}
-    {% set message = "Too many delivery problems" %}
+  <span class="badge badge--danger">
+    <i class="fa fa-ban" aria-hidden="true"></i>
+    Unverified*
+  </span>
+  <span class="table__status-detail">*Too many delivery problems</span>
   {% else %}
-    {% set message = "Verification in progress" %}
-    {% set icon = 'spinner' %}
-  {% endif %}
-  <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}">
-    <i class="fa fa-{{ icon }}" aria-hidden="true"></i>
+  <span class="badge badge--danger">
+    <i class="fa fa-times" aria-hidden="true"></i>
     Unverified
   </span>
   {% endif %}
+{% endif %}
 {% endmacro %}
 
 {% macro email_row(email) -%}
@@ -62,15 +72,15 @@
     <th class="table__email" scope="row">
       {{ email.email }}
     </th>
-    <td class="table__status">
-      <div class="table__status-badges">
+    <td>
+      <span class="table__status-badges">
         {% if email.primary %}
         <span class="badge">Primary</span>
         {% endif %}
         {{ email_verification_label(email) }}
-      </div>
+      </span>
     </td>
-    <td class="table__action">
+    <td class="table__align-right">
       {% if not email.verified or not email.primary %}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
@@ -127,9 +137,9 @@
 {% macro twofa_buttons() %}
   <div class="wrap-children">
     {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add 2FA with authentication application</a>
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Add <abbr title="two factor authentication">2FA</abbr> with authentication application</a>
     {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add 2FA with security device (e.g. USB key)</a>
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)</a>
   </div>
 
   <noscript>
@@ -145,11 +155,12 @@
 
 {% macro api_row(macaroon) -%}
   <tr>
-    <th class="table__api-name" scope="row">
+    <th scope="row">
+      <span class="table__mobile-label">Name</span>
       {{ macaroon.description }}
     </th>
-    <td class="table__scope">
-      <span>Scope:</span>
+    <td>
+      <span class="table__mobile-label">Scope</span>
       {% if macaroon.caveats.get("permissions") == 'user' %}
       All projects
       {% else %}
@@ -158,15 +169,15 @@
         {% endfor %}
       {% endif %}
     </td>
-    <td class="table__created-date">
-      <span>Created on:</span>
+    <td>
+      <span class="table__mobile-label">Created on</span>
       {{ humanize(macaroon.created) }}
     </td>
-    <td class="table__used-date">
-      <span>Last used:</span>
+    <td>
+      <span class="table__mobile-label">Last used</span>
       {{ humanize(macaroon.last_used) if macaroon.last_used else "Never" }}
     </td>
-    <td class="table__action">
+    <td class="table__align-right">
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options
@@ -272,7 +283,7 @@
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        {{ save_account_form.name(placeholder="No name set", class_="form-group__input", **{"aria-describedby":"full-name-errors"}) }}
+        {{ save_account_form.name(placeholder="No name set", autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"full-name-errors"}) }}
         <div id="full-name-errors">
           {{ field_errors(save_account_form.name) }}
         </div>
@@ -296,7 +307,7 @@
     #}
     {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
 
-    <table class="table table--light table--emails">
+    <table class="table table--emails">
       <caption class="sr-only">Emails associated with your account</caption>
       <thead>
         <tr>
@@ -323,7 +334,7 @@
         </label>
         <div class="form-group__horizontal">
           <div class="form-group__horizontal-left">
-            {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", **{"aria-describedby":"add-email-errors"}) }}
+            {{ add_email_form.email(placeholder="Your email address", autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"add-email-errors"}) }}
             <div id="add-email-errors">
               {{ field_errors(add_email_form.email) }}
             </div>
@@ -357,7 +368,7 @@
               id="show-password" type="checkbox">&nbsp;Show passwords
           </label>
         </div>
-        {{ change_password_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
+        {{ change_password_form.password(placeholder="Your current password", required="required", autocomplete="current-password", spellcheck="false", class_="form-group__input", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
         <div id="current-password-errors">
           {{ field_errors(change_password_form.password) }}
         </div>
@@ -371,7 +382,7 @@
         </label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
+          {{ change_password_form.new_password(placeholder="Select a new password", required="required", autocomplete="new-password", spellcheck="false", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
         </div>
         <div id="new-password-errors">
           {{ field_errors(change_password_form.new_password) }}
@@ -385,7 +396,7 @@
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
+        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", autocomplete="new-password", spellcheck="false", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
         <div id="confirm-password-errors">
           {{ field_errors(change_password_form.password_confirm) }}
         </div>
@@ -404,11 +415,11 @@
   <hr>
   <section id="two-factor">
     <h2 class="sub-title">Two factor authentication (2FA)</h2>
-    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more about 2FA</a>.</p>
+    <p>Two factor authentication adds an additional layer of security to your account. <a href="/help#twofa">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.</p>
 
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
-      <table class="table table--light table--2fa">
+      <table class="table table--2fa">
         <caption class="sr-only">Two factor authentication methods enabled</caption>
         <thead>
           <tr>
@@ -418,8 +429,8 @@
         <tbody>
           {% if user.totp_secret %}
           <tr>
-            <th scope="row">Authentication application (TOTP)</th>
-            <td class="table__action">
+            <th scope="row">Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)</th>
+            <td class="table__align-right">
               <a href="#disable-totp" class="button button--primary">Remove</a>
               {% set title="Remove authentication application" %}
               {% set confirm_button_label="Remove application" %}
@@ -431,10 +442,10 @@
           {% for credential in user.webauthn %}
           <tr>
             <th scope="row">
-              <strong>"{{ credential.label }}"</strong> - Security device (WebAuthn)
+              <strong>"{{ credential.label }}"</strong> - Security device (<abbr title="web authentication">WebAuthn</abbr>)
               <span class="badge badge--warning">Beta feature</span>
             </th>
-            <td class="table__action">
+            <td class="table__align-right">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">Remove</a>
               {% set title="Remove two factor security device - " + credential.label %}
               {% set confirm_button_label="Remove device" %}
@@ -468,7 +479,7 @@
     <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="/help#apitoken">Learn more about API tokens</a>.</p>
 
     {% if user.macaroons|length > 0 %}
-    <table class="table table--light table--api-tokens">
+    <table class="table table--api-tokens">
       <caption class="sr-only">Active API tokens for this account</caption>
       <thead>
         <tr>
@@ -513,9 +524,9 @@
         {% if event.additional.two_factor_method == None %}
           None
         {% elif event.additional.two_factor_method  == "webauthn" %}
-          Security device (webauthn)
+          Security device (<abbr title="web authentication">WebAuthn</abbr>)
         {% elif event.additional.two_factor_method  == "totp" %}
-          Authentication application (TOTP)
+          Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)
         {% endif %}
       </small>
 
@@ -556,20 +567,20 @@
       <strong>Two factor authentication added</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
-          Method: Security device (webauthn)<br>
+          Method: Security device (<abbr title="web authentication">WebAuthn</abbr>)<br>
           Device name: {{ event.additional.label }}
         {% elif event.additional.method == "totp" %}
-          Method: Authentication application (TOTP)
+          Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)
         {% endif %}
       </small>
       {% elif event.tag  == "account:two_factor:method_removed" %}
       <strong>Two factor authentication removed</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
-          Method: Security device (webauthn)<br>
+          Method: Security device (<abbr title="web authentication">WebAuthn</abbr>)<br>
           Device name: {{ event.additional.label }}
         {% elif event.additional.method == "totp" %}
-          Method: Authentication application (TOTP)
+          Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>)
         {% endif %}
       </small>
 
@@ -593,7 +604,7 @@
     {%- endmacro %}
 
     <p>Events appear here as security-related actions occur on your account.</p>
-    <table class="table table--light table--security-logs">
+    <table class="table table--security-logs">
       <caption class="sr-only">Recent account activity</caption>
       <thead>
         <th scope="col">Event</th>
@@ -604,8 +615,14 @@
         {% for event in recent_events %}
         <tr>
           <td>{{ event_summary(event) }}</td>
-          <td>{{ humanize(event.time) }}</td>
-          <td>{{ event.ip_address }}</td>
+          <td>
+            <span class="table__mobile-label">Date / time</span>
+            {{ humanize(event.time) }}
+          </td>
+          <td>
+            <span class="table__mobile-label">IP address</span>
+            {{ event.ip_address }}
+          </td>
         </tr>
         {% endfor %}
       </tbody>

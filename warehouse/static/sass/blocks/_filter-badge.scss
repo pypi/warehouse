@@ -65,5 +65,7 @@
       color: $white;
       background-color: darken($primary-color, 5%);
     }
+
+    @include link-focus-state($white);
   }
 }

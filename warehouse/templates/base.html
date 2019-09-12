@@ -217,7 +217,7 @@
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
               <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
               {% block search_form_extra_inputs %}{% endblock %}
               <button type="submit" class="search-form__button">
                 <i class="fa fa-search" aria-hidden="true"></i>
@@ -238,7 +238,7 @@
     <div class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
         <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
         {{ self.search_form_extra_inputs() }}
         <button type="submit" class="search-form__button">
           <i class="fa fa-search" aria-hidden="true"></i>
@@ -259,43 +259,52 @@
       </div>
 
       <div class="footer__menus">
-        <ul class="footer__menu">
-          <li>
-            <h2>Help</h2>
-          </li>
-          <li><a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Installing packages</a></li>
-          <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Uploading packages</a></li>
-          <li><a href="https://packaging.python.org/" title="External link" target="_blank" rel="noopener">User guide</a></li>
-          <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
-        </ul>
-        <ul class="footer__menu">
-          <li>
-            <h2>About PyPI</h2>
-          </li>
-          <li><a href="https://twitter.com/PyPI" title="External link" target="_blank" rel="noopener">PyPI on Twitter</a></li>
-          <li><a href="https://dtdg.co/pypi" title="External link" target="_blank" rel="noopener">Infrastructure dashboard</a></li>
-          <li><a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">Package index name retention</a></li>
-          <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
-        </ul>
+        <div class="footer__menu">
+          <h2>Help</h2>
+          <nav aria-label="Help navigation">
+            <ul>
+              <li><a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Installing packages</a></li>
+              <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Uploading packages</a></li>
+              <li><a href="https://packaging.python.org/" title="External link" target="_blank" rel="noopener">User guide</a></li>
+              <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
+            </ul>
+          </nav>
+        </div>
 
+        <div class="footer__menu">
+          <h2>About PyPI</h2>
+          <nav aria-label="About PyPI navigation">
+            <ul>
+              <li><a href="https://twitter.com/PyPI" title="External link" target="_blank" rel="noopener">PyPI on Twitter</a></li>
+              <li><a href="https://dtdg.co/pypi" title="External link" target="_blank" rel="noopener">Infrastructure dashboard</a></li>
+              <li><a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">Package index name retention</a></li>
+              <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
+            </ul>
+          </nav>
+        </div>
 
-        <ul class="footer__menu">
-          <li>
-            <h2>Contributing to PyPI</h2>
-          </li>
-          <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
-          <li><a href="https://github.com/pypa/warehouse" title="External link" target="_blank" rel="noopener">Contribute on GitHub</a></li>
-          <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="External link" target="_blank" rel="noopener">Development credits</a></li>
-        </ul>
-        <ul class="footer__menu">
-          <li>
-            <h2>Using PyPI</h2>
-          </li>
-          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="External link" target="_blank" rel="noopener">Code of conduct</a></li>
-          <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
-          <li><a href="https://www.python.org/privacy/" title="External link" target="_blank" rel="noopener">Privacy policy</a></li>
-          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
-        </ul>
+        <div class="footer__menu">
+          <h2>Contributing to PyPI</h2>
+          <nav aria-label="How to contribute navigation">
+            <ul>
+              <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
+              <li><a href="https://github.com/pypa/warehouse" title="External link" target="_blank" rel="noopener">Contribute on GitHub</a></li>
+              <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="External link" target="_blank" rel="noopener">Development credits</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="footer__menu">
+          <h2>Using PyPI</h2>
+          <nav aria-label="Using PyPI navigation">
+            <ul>
+              <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="External link" target="_blank" rel="noopener">Code of conduct</a></li>
+              <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
+              <li><a href="https://www.python.org/privacy/" title="External link" target="_blank" rel="noopener">Privacy policy</a></li>
+              <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
+            </ul>
+          </nav>
+        </div>
       </div>
 
       <hr class="footer__divider">
@@ -311,7 +320,9 @@
           <br>
           <a href="https://donate.pypi.org">Donate today!</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="External link" target="_blank" rel="noopener">Python Software Foundation</a></p>
+        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="External link" target="_blank" rel="noopener">Python Software Foundation</a><br>
+          <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+        </p>
       </div>
 
       <div class="centered hide-on-desktop">
