@@ -11,9 +11,7 @@
 # limitations under the License.
 
 from babel.core import Locale
-
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
-
 from pyramid.threadlocal import get_current_request
 
 KNOWN_LOCALES = {"en": "English", "de": "German"}
