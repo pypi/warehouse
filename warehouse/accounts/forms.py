@@ -192,8 +192,8 @@ class NewEmailMixin:
             raise wtforms.validators.ValidationError(
                 _(
                     "email-in-use-other-account",
-                    default="This email address is already being used by another account. "
-                    "Use a different email.",
+                    default="This email address is already being used "
+                    "by another account. Use a different email.",
                 )
             )
 

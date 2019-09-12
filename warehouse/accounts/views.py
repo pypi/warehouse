@@ -563,7 +563,8 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return _error(
             _(
                 "invalid-token-user-has-since-logged-in",
-                default="Invalid token: user has logged in since this token was requested",
+                default="Invalid token: user has logged in since "
+                "this token was requested",
             )
         )
 
