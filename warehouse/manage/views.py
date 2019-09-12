@@ -626,13 +626,6 @@ class ProvisionMacaroonViews:
         return [project for project in self.request.user.projects]
 
     @property
-    def project_releases(self):
-        releases = {}
-        for project in self.request.user.projects:
-            releases.update({project.normalized_name : project.all_versions})
-        return releases
-
-    @property
     def default_response(self):
         return {
             "project_names": self.project_names,
