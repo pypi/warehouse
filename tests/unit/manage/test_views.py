@@ -1464,8 +1464,12 @@ class TestProvisionMacaroonViews:
         monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
 
         project_names = [pretend.stub()]
+        all_projects = [pretend.stub()]
         monkeypatch.setattr(
             views.ProvisionMacaroonViews, "project_names", project_names
+        )
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "all_projects", all_projects
         )
 
         request = pretend.stub(
@@ -1480,6 +1484,7 @@ class TestProvisionMacaroonViews:
 
         assert view.default_response == {
             "project_names": project_names,
+            "all_projects": all_projects,
             "create_macaroon_form": create_macaroon_obj,
             "delete_macaroon_form": delete_macaroon_obj,
         }
@@ -1569,8 +1574,12 @@ class TestProvisionMacaroonViews:
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
         project_names = [pretend.stub()]
+        all_projects = [pretend.stub()]
         monkeypatch.setattr(
             views.ProvisionMacaroonViews, "project_names", project_names
+        )
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "all_projects", all_projects
         )
 
         default_response = {"default": "response"}
@@ -1619,8 +1628,12 @@ class TestProvisionMacaroonViews:
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
         project_names = [pretend.stub()]
+        all_projects = [pretend.stub()]
         monkeypatch.setattr(
             views.ProvisionMacaroonViews, "project_names", project_names
+        )
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "all_projects", all_projects
         )
 
         default_response = {"default": "response"}

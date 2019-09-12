@@ -328,16 +328,18 @@ class TestCreateMacaroonForm:
         user_id = pretend.stub()
         macaroon_service = pretend.stub()
         project_names = pretend.stub()
+        all_projects = pretend.stub()
         form = forms.CreateMacaroonForm(
             user_id=user_id,
             macaroon_service=macaroon_service,
             project_names=project_names,
-            all_projects=pretend.stub()
+            all_projects=all_projects
         )
 
         assert form.user_id is user_id
         assert form.macaroon_service is macaroon_service
         assert form.project_names is project_names
+        assert form.all_projects is all_projects
 
     def test_validate_description_missing(self):
         form = forms.CreateMacaroonForm(
@@ -427,7 +429,7 @@ class TestCreateMacaroonForm:
         )
 
         assert not form.validate()
-        assert form.token_scope.errors.pop() == "Invalid release"
+        assert form.releases.errors.pop() == "Invalid release"
     
     def test_validate_expiration_missing(self):
         form = forms.CreateMacaroonForm(
@@ -435,12 +437,12 @@ class TestCreateMacaroonForm:
                 "releases": "1.0"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
-            project_names=pretend.stub(),
-            all_projects=pretend.stub()
+            project_names=["foo"],
+            all_projects=[]
         )
 
         assert not form.validate()
-        assert form.token_scope.errors.pop() == "Specify the expiration"
+        assert form.expiration.errors.pop() == "Specify the expiration"
 
     #will have to add a test for greater than 1 year
     def test_validate_token_scope_invalid_expiration(self):
@@ -450,20 +452,21 @@ class TestCreateMacaroonForm:
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["foo"],
-            all_projects=pretend.stub()
+            all_projects=[]
         )
 
         assert not form.validate()
-        assert form.token_scope.errors.pop() == "Expiration must be after the current time"
+        assert form.expiration.errors.pop() == "Expiration must be after the current time"
 
     #once js is figured out would have to disable releases
     def test_validate_token_scope_valid_user(self):
         form = forms.CreateMacaroonForm(
-            data={"description": "dummy", "token_scope": "scope:user"},
+            data={"description": "dummy", "token_scope": "scope:user",
+            "releases": "1.0", "expiration": "2020-09-01T06:00"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
-            project_names=pretend.stub(),
-            all_projects=pretend.stub()
+            project_names=[],
+            all_projects=[]
         )
 
         assert form.validate()
@@ -471,11 +474,11 @@ class TestCreateMacaroonForm:
     def test_validate_token_scope_valid_project(self):
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:project:foo",
-                "releases": "1.0", "expiration": "2019-09-01T06:00"},
+                "releases": "1.0", "expiration": "2020-09-01T06:00"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["foo"],
-            all_projects=pretend.stub()
+            all_projects=[]
         )
 
         assert form.validate()
