@@ -210,7 +210,7 @@ def _create_session(request):
     # Check if we're in read-only mode
     from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
-    flag = session.query(AdminFlag).get(AdminFlagValue.READ_ONLY)
+    flag = session.query(AdminFlag).get(AdminFlagValue.READ_ONLY.value)
     if flag and flag.enabled and not request.user.is_superuser:
         request.tm.doom()
 

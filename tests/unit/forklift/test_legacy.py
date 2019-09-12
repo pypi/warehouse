@@ -1137,7 +1137,9 @@ class TestFileUpload:
     def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
         admin_flag = (
             db_request.db.query(AdminFlag)
-            .filter(AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION)
+            .filter(
+                AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION.value
+            )
             .first()
         )
         admin_flag.enabled = True

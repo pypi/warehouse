@@ -274,7 +274,7 @@ def test_create_session_read_only_mode(
     )
 
     assert _create_session(request) is session_obj
-    assert get.calls == [pretend.call(AdminFlagValue.READ_ONLY)]
+    assert get.calls == [pretend.call(AdminFlagValue.READ_ONLY.value)]
     assert request.tm.doom.calls == doom_calls
 
 
