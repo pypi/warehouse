@@ -25,6 +25,43 @@ def test_sets_locale(monkeypatch):
     assert locale_cls.parse.calls == [pretend.call(request.locale_name)]
 
 
+def test_negotiate_locale(monkeypatch):
+    request = pretend.stub(_LOCALE_="fake-locale-attr")
+    assert i18n._negotiate_locale(request) == "fake-locale-attr"
+
+    request = pretend.stub(params={"_LOCALE_": "fake-locale-param"})
+    assert i18n._negotiate_locale(request) == "fake-locale-param"
+
+    request = pretend.stub(params={}, cookies={"_LOCALE_": "fake-locale-cookie"})
+    assert i18n._negotiate_locale(request) == "fake-locale-cookie"
+
+    request = pretend.stub(params={}, cookies={}, accept_language=None)
+    default_locale_negotiator = pretend.call_recorder(lambda r: "fake-locale-default")
+    monkeypatch.setattr(i18n, "default_locale_negotiator", default_locale_negotiator)
+    assert i18n._negotiate_locale(request) == "fake-locale-default"
+
+    request = pretend.stub(
+        params={},
+        cookies={},
+        accept_language=pretend.stub(
+            best_match=pretend.call_recorder(lambda *a, **kw: "fake-locale-best-match")
+        ),
+    )
+    assert i18n._negotiate_locale(request) == "fake-locale-best-match"
+
+
+def test_localize(monkeypatch):
+    request = pretend.stub(
+        localizer=pretend.stub(
+            translate=pretend.call_recorder(lambda ts: "fake translated string")
+        )
+    )
+    get_current_request = pretend.call_recorder(lambda: request)
+    monkeypatch.setattr(i18n, "get_current_request", get_current_request)
+
+    assert i18n.localize("foo") == "fake translated string"
+
+
 def test_includeme():
     config_settings = {}
     config = pretend.stub(
@@ -36,12 +73,8 @@ def test_includeme():
 
     i18n.includeme(config)
 
-    assert config.add_translation_dirs.calls == [
-        pretend.call("warehouse:locale/")
-    ]
-    assert config.set_locale_negotiator.calls == [
-        pretend.call(i18n._negotiate_locale)
-    ]
+    assert config.add_translation_dirs.calls == [pretend.call("warehouse:locale/")]
+    assert config.set_locale_negotiator.calls == [pretend.call(i18n._negotiate_locale)]
     assert config.add_request_method.calls == [
         pretend.call(i18n._locale, name="locale", reify=True)
     ]
