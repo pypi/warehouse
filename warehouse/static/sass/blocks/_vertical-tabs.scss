@@ -13,32 +13,67 @@
  */
 
 /*
-  Set of tabs with associated content that display vertically on large resolutions
-  and change to an accordion on smaller resolutions.
+  Tabs that are not navigation. Used to display a vertical list of links:
 
-  Accessibility:
-  * If the tabs are being used as navigation, wrap the tabs in a <nav>
-  * If more than one tab is present, wrap the tabs in a <ul>
-  * If the tabs are dynamic (controlled by JS), add roles as below
+  <div class="vertical-tabs">
+    <div class="vertical-tabs__tabs">
+      <ul class="vertical-tabs__list">
+        <li>
+          <a id="my-tab-id" class="vetical-tabs__tab">
+            // Tab
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  Navigation tabs (no JS). Used to display a vertical navigation.
+
+  <div class="vertical-tabs">
+    <div class="vertical-tabs__tabs">
+      <nav aria-label="label for navigation">
+        <ul class="vertical-tabs__list">
+          <li>
+            <a id="my-tab-id" class="vetical-tabs__tab vertical-tabs__tab--is-active" aria-selected="true">
+              // Active Tab. Remove --is-active and aria-selected for standard tab
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="vertical-tabs__panel">
+      <a class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" aria-selected="true"">
+        // Duplicate Tab to show on smaller screens.
+        // Active Tab. Remove --is-active and aria-selected for standard tab
+      </a>
+      <div class="vertical-tabs__content">
+        // Tab content
+      </div>
+    </div>
+  </div>
+  </div>
+
+  Dynamic (JS) tabs, with associated tab panel:
 
   <div class="vertical-tabs">
     <div class="vertical-tabs__tabs">
       <nav>
         <ul class="vertical-tabs__list" role="tablist">
           <li>
-            <a id="my-tab-id" class="vetical-tabs__tab" role="tab">
-              // Tab
+            <a id="my-tab-id" class="vetical-tabs__tab vertical-tabs__tab--is-active" aria-selected="true" role="tab">
+              // Active Tab. Remove --is-active and aria-selected for standard tab
             </a>
           </li>
         </ul>
       </nav>
     </div>
 
-    <div class="vertical-tabs__panel" role="tabpanel" aria-labelledby="my-tab-id">
-      <a class="vertical-tabs__tab vertical-tabs__tab--mobile">
+    <div class="vertical-tabs__panel" role="tabpanel" aria-labelledby="my-tab-id my-mofile-tab-id">
+      <a id="my-mobile-tab-id" class="vetical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" aria-selected="true" role="tab">
         // Duplicate Tab to show on smaller screens
+        // Active Tab. Remove --is-active and aria-selected for standard tab
       </a>
-      <div class="vertical-tabs__content">
+      <div class="vertical-tabs__content" tabindex="-1">
         // Tab content
       </div>
     </div>
@@ -132,10 +167,15 @@
   }
 
   &__content {
-    padding-left: $spacing-unit;
+    margin-left: $spacing-unit;
+
+    &:focus {
+      outline: 1px solid $primary-color;
+      outline-offset: 10px;
+    }
 
     @media only screen and (max-width: $tablet) {
-      padding: 25px 10px 10px 10px;
+      margin: 25px 10px 10px 10px;
     }
   }
 }

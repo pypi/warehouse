@@ -16,8 +16,7 @@
 {% set user = request.user %}
 {% set title = "Account settings" %}
 
-{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'account' %}
 
 {% block title %}
   {% if add_email_form.errors or change_password_form.errors %}

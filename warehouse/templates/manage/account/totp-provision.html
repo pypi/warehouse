@@ -16,8 +16,7 @@
 {% set user = request.user %}
 {% set title = "Set up 2FA with an authentication application (TOTP)" %}
 
-{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'account' %}
 
 {% block title %}
   {% if provision_totp_form.errors %}Error processing form –{% endif %}
