@@ -33,7 +33,6 @@
 
 .button {
   position: relative;
-  font-size: $button-font-size;
   font-weight: $bold-font-weight;
   cursor: pointer;
   padding: 8.5px ($spacing-unit / 2);
@@ -42,6 +41,7 @@
   border: 1px solid $accessible-border-color;
   border-radius: 3px;
   display: inline-block;
+  text-align: center;
   @include link-without-underline;
 
   i.fa {
