@@ -421,12 +421,10 @@ def register(request, _form_class=RegistrationForm):
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION):
         request.session.flash(
-            (
-                _(
-                    "new-user-registration-temp-disabled",
-                    default="New user registration temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details.",
-                ),
+            _(
+                "new-user-registration-temp-disabled",
+                default="New user registration temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details.",
             ),
             queue="error",
         )
@@ -631,7 +629,7 @@ def verify_email(request):
         return _error(
             _(
                 "invalid-token-request-email-verification-link",
-                default="Invalid token: request a new verification link",
+                default="Invalid token: request a new email verification link",
             )
         )
     except TokenMissing:
