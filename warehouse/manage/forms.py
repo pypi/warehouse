@@ -190,7 +190,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope", "releases", "expiration",]
+    __params__ = ["description", "token_scope", "release", "expiration",]
 
     def __init__(self, *args, user_id, macaroon_service, project_names, all_projects, **kwargs):
         super().__init__(*args, **kwargs)
@@ -213,7 +213,7 @@ class CreateMacaroonForm(forms.Form):
         validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
     )
 
-    releases = wtforms.StringField(
+    release = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Specify the release")]
     )
 
@@ -259,7 +259,7 @@ class CreateMacaroonForm(forms.Form):
                 f"Unknown or invalid project name: {scope_value}"
             )
 
-    def validate_releases(self,field):
+    def validate_release(self,field):
         release = field.data
         try:
             releases = release.split(".")
@@ -293,9 +293,10 @@ class CreateMacaroonForm(forms.Form):
         res = super().validate()
         if not isinstance(self.validated_scope, str):
             self.validated_scope.update({"expiration": self.expiration.data, 
-                "releases": self.releases.data, "projects": [self.token_scope.data]})     
+                "releases": self.release.data, "projects": [self.token_scope.data]})     
         return res
         
+
 
 class DeleteMacaroonForm(forms.Form):
     __params__ = ["macaroon_id"]
