@@ -31,13 +31,14 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    String,
     Table,
     Text,
     func,
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -135,6 +136,10 @@ class Project(SitemapMixin, db.Model):
         passive_deletes=True,
     )
 
+    events = orm.relationship(
+        "ProjectEvent", backref="project", cascade="all, delete-orphan", lazy=False
+    )
+
     def __getitem__(self, version):
         session = orm.object_session(self)
         canonical_version = packaging.utils.canonicalize_version(version)
@@ -187,6 +192,16 @@ class Project(SitemapMixin, db.Model):
                 acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
+    def record_event(self, *, tag, ip_address, additional=None):
+        session = orm.object_session(self)
+        event = ProjectEvent(
+            project=self, tag=tag, ip_address=ip_address, additional=additional
+        )
+        session.add(event)
+        session.flush()
+
+        return event
+
     @property
     def documentation_url(self):
         # TODO: Move this into the database and eliminate the use of the
@@ -218,6 +233,20 @@ class Project(SitemapMixin, db.Model):
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
+
+
+class ProjectEvent(db.Model):
+    __tablename__ = "project_events"
+
+    project_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    tag = Column(String, nullable=False)
+    time = Column(DateTime, nullable=False, server_default=sql.func.now())
+    ip_address = Column(String, nullable=False)
+    additional = Column(JSONB, nullable=True)
 
 
 class DependencyKind(enum.IntEnum):

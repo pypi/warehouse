@@ -24,27 +24,41 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Your account</h3>
-          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
-            <i class="fa fa-cube" aria-hidden="true"></i>
-            Your projects
-          </a>
-          <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block account_active %}{% endblock %}">
-            <i class="fa fa-cog" aria-hidden="true"></i>
-            Account settings
-          </a>
+          <nav aria-label="Account navigation">
+            <ul class="vertical-tabs__list">
+              <li>
+                <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
+                  <i class="fa fa-cube" aria-hidden="true"></i>
+                  Your projects
+                </a>
+              </li>
+              <li>
+                <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
+                  <i class="fa fa-cog" aria-hidden="true"></i>
+                  Account settings
+                </a>
+              </li>
+            </ul>
+          <nav>
         </div>
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <nav>
-          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% block projects_mobile_active %}{% endblock %}">
-            <i class="fa fa-cube" aria-hidden="true"></i>
-            Your projects
-          </a>
-          <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% block account_mobile_active %}{% endblock %}">
-            <i class="fa fa-cog" aria-hidden="true"></i>
-            Account settings
-          </a>
+        <nav aria-label="Account navigation">
+          <ul class="vertical-tabs__list">
+            <li>
+              <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
+                <i class="fa fa-cube" aria-hidden="true"></i>
+                Your projects
+              </a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
+                <i class="fa fa-cog" aria-hidden="true"></i>
+                Account settings
+              </a>
+            </li>
+          </ul>
         </nav>
 
         <div class="vertical-tabs__content">
@@ -80,7 +94,7 @@
         {{ extra_fields if extra_fields else '' }}
         <a href="#modal-close" data-action="click->confirm#cancel" title="Close" class="modal__close">
           <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">close</span>
+          <span class="sr-only">Close</span>
         </a>
         <div class="modal__body">
           <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
@@ -97,8 +111,8 @@
           {{ extra_description if extra_description else '' }}
           <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
-          <label for="{{ name }}">{{ confirm_name }}</label>
-          <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
+          <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">Cancel</button>

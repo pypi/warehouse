@@ -45,13 +45,13 @@
   {% set banner = "Find, install and publish Python packages with the Python Package Index" %}
 {% endif %}
 
-<section class="banner">
+<div class="banner">
   <div class="homepage-banner">
     <h1 class="homepage-banner__title">{{ banner }}</h1>
 
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
       <label for="search" class="sr-only">Search PyPI</label>
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search projects">
+      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search projects" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button type="submit" class="search-form__button">
         <i class="fa fa-search" aria-hidden="true"></i>
         <span class="sr-only">Search</span>
@@ -60,21 +60,21 @@
 
     <p class="homepage-banner__browse">Or <a href="{{ request.route_path('search') }}">browse projects</a></p>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
+<div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
     <p class="statistics-bar__statistic">{{ num_projects|format_number }} projects</p>
     <p class="statistics-bar__statistic">{{ num_releases|format_number }} releases</p>
     <p class="statistics-bar__statistic">{{ num_files|format_number }} files</p>
     <p class="statistics-bar__statistic">{{ num_users|format_number }} users</p>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section">
+<div class="horizontal-section">
   <div class="about-pypi">
     <div class="about-pypi__logo">
-      <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}">
+      <img alt="" src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}">
     </div>
     <div class="about-pypi__text">
       <p class="lede-paragraph">The Python Package Index (PyPI) is a repository of software for the Python programming language.</p>
@@ -88,9 +88,9 @@
       </p>
     </div>
   </div>
-</section>
+</div>
 
-<section class="horizontal-section horizontal-section--grey">
+<div class="horizontal-section horizontal-section--grey">
   <div class="site-container">
     <div class="col-half">
       <div class="heading-wsubtitle" id="pypi-trending-packages">
@@ -102,9 +102,6 @@
           {{ project_snippet(release) }}
         {% endfor %}
       </ul>
-      {#
-      <a class="button" href="TODO">Show more</a>
-      #}
     </div>
     <div class="col-half">
       <div class="heading-wsubtitle" id="pypi-new-packages">
@@ -118,6 +115,6 @@
       </ul>
     </div>
   </div>
-</section>
+</div>
 
 {% endblock %}

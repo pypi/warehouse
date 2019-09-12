@@ -66,20 +66,25 @@
     margin: 0 ($spacing-unit / 2) 40px ($spacing-unit / 2);
     padding: 0;
 
+    h2 {
+      color: $white;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+
     li {
       padding: 2px 0;
       list-style: none;
       text-align: center;
 
       a {
-        @include white-underlined-link;
         background-image: none;
-        @include link-focus;
-      }
-
-      h2 {
-        color: $white;
-        margin-bottom: 5px;
+        @include white-underlined-link;
       }
     }
   }
@@ -94,7 +99,7 @@
 
   &__text {
     color: transparentize($white, 0.05);
-    font-size: $base-font-size * 0.9;
+    font-size: 0.9rem;
     margin: auto;
     max-width: 600px;
     text-align: center;
@@ -102,7 +107,6 @@
 
     a {
       @include white-underlined-link;
-      @include link-focus;
     }
   }
 }
