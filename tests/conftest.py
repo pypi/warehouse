@@ -24,6 +24,7 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pytest_postgresql.factories import (
     drop_postgresql_database,
@@ -33,11 +34,17 @@ from pytest_postgresql.factories import (
 from sqlalchemy import event
 
 from warehouse import admin, config, static
-from warehouse.accounts import services as account_services
+from warehouse.accounts import (
+    forms as account_forms,
+    services as account_services,
+    views as account_views,
+)
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 
 from .common.db import Session
+
+L10N_TAGGED_MODULES = [account_forms, account_views]
 
 
 def pytest_collection_modifyitems(items):
@@ -313,3 +320,25 @@ def pytest_runtest_makereport(item, call):
                 )
                 if data:
                     rep.sections.append(("Captured {} log".format(log_type), data))
+
+
+@pytest.fixture(scope="session")
+def monkeypatch_session():
+    # NOTE: This is a minor hack to avoid duplicate monkeypatching
+    # on every function scope for dummy_localize.
+    # https://github.com/pytest-dev/pytest/issues/1872#issuecomment-375108891
+    from _pytest.monkeypatch import MonkeyPatch
+
+    m = MonkeyPatch()
+    yield m
+    m.undo()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def dummy_localize(monkeypatch_session):
+    def localize(message, **kwargs):
+        ts = TranslationString(message, **kwargs)
+        return ts.interpolate()
+
+    for mod in L10N_TAGGED_MODULES:
+        monkeypatch_session.setattr(mod, "_", localize)
