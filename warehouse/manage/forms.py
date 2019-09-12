@@ -190,15 +190,14 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope", "release", "expiration",]
+    __params__ = ["description", "token_scope", "releases", "expiration",]
 
-    def __init__(self, *args, user_id, macaroon_service, project_names, all_projects, **kwargs):
+    def __init__(self, *args, user_id, macaroon_service, all_projects, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_id = user_id
         self.macaroon_service = macaroon_service
-        self.project_names = project_names
         self.all_projects = all_projects
-        self.validated_scope = {}
+        self.validated_scope = None
 
     description = wtforms.StringField(
         validators=[
@@ -213,13 +212,13 @@ class CreateMacaroonForm(forms.Form):
         validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
     )
 
-    release = wtforms.StringField(
+    releases = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Specify the release")]
     )
 
     expiration = wtforms.DateTimeField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify an expiration time"),
+            wtforms.validators.DataRequired(message="Specify the expiration"),
         ]
     )
 
@@ -254,12 +253,14 @@ class CreateMacaroonForm(forms.Form):
 
         if scope_kind != "project":
             raise wtforms.ValidationError(f"Unknown token scope: {scope}")
-        if scope_value not in self.project_names:
-            raise wtforms.ValidationError(
-                f"Unknown or invalid project name: {scope_value}"
-            )
+        for project in self.all_projects:
+            if scope_value == project.normalized_name:
+                return
+        raise wtforms.ValidationError(
+            f"Unknown or invalid project name: {scope_value}"
+        )
 
-    def validate_release(self,field):
+    def validate_releases(self,field):
         release = field.data
         try:
             releases = release.split(".")
@@ -291,8 +292,9 @@ class CreateMacaroonForm(forms.Form):
 
     def validate(self):
         res = super().validate()
-        self.validated_scope.update({"expiration": self.expiration.data, 
-            "release": self.release.data, "projects": [self.token_scope.data]})     
+        if not isinstance(self.validated_scope, str):
+            self.validated_scope = {"expiration": self.expiration.data, 
+                "releases": self.releases.data, "projects": [self.token_scope.data]}   
         return res
         
 

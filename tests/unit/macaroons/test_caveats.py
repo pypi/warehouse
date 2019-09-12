@@ -91,20 +91,30 @@ class TestV1Caveat:
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
 
-        predicate = {"version": 1, "permissions": {"projects": ["foobar"]}}
+        predicate = {"version": 1, "permissions": {"projects": ["foobar"], 
+            "releases": "1.0", "expiration": "2020-01-01T00:00"}}
         assert caveat(json.dumps(predicate)) is True
     
     #added
-    def test_verify_project_version(self, db_request):
+    def test_verify_release(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project, version="1.0")
+        # release = ReleaseFactory.create(project=project, version="1.0")
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
 
-        predicate = {"version": "1.0", "permissions": {"projects": ["foobar"]}}
+        predicate = {"version": "1.0", "permissions": {"projects": ["foobar"], "releases": "1.0"}}
         with pytest.raises(InvalidMacaroon):
             caveat(json.dumps(predicate))
-            
+    
+    def test_expiration(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+
+        predicate = {"version": "1.0", "permissions": {"projects": ["foobar"], "releases": "1.0", 
+            "expiration": "2019-09-01T06:00"}}
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))    
 
 class TestVerifier:
     def test_creation(self):

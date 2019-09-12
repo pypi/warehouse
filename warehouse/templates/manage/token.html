@@ -119,13 +119,13 @@
       <div class="form-group">
         <label for="release" class="form-group__label">
           Release
-          {% if create_macaroon_form.release.flags.required %}
+          {% if create_macaroon_form.releases.flags.required %}
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        <input type="text" name="release" id="release" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.release.data or ""}}">
+        <input type="text" name="releases" id="releases" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.releases.data or ""}}">
         <div id="token-name-errors">
-          {{ field_errors(create_macaroon_form.release) }}
+          {{ field_errors(create_macaroon_form.releases) }}
         </div>
       </div>
 
