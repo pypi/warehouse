@@ -44,9 +44,12 @@ from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailable
+from warehouse.forms import SetLocaleForm
+from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
+from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
 
@@ -224,6 +227,27 @@ def index(request):
         "num_files": counts.get(File.__tablename__, 0),
         "num_users": counts.get(User.__tablename__, 0),
     }
+
+
+@view_config(
+    route_name="locale",
+    request_method="GET",
+    request_param=SetLocaleForm.__params__,
+    uses_session=True,
+)
+def locale(request):
+    form = SetLocaleForm(**request.GET)
+
+    redirect_to = request.referer
+    if not is_safe_url(redirect_to, host=request.host):
+        redirect_to = request.route_path("index")
+    resp = HTTPSeeOther(redirect_to)
+
+    if form.validate():
+        request.session.flash("Locale updated", queue="success")
+        resp.set_cookie(LOCALE_ATTR, form.locale_id.data)
+
+    return resp
 
 
 @view_config(route_name="classifiers", renderer="pages/classifiers.html")

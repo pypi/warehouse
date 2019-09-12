@@ -10,10 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from wtforms import Form as BaseForm
-from wtforms.validators import StopValidation, ValidationError
+from wtforms import Form as BaseForm, SelectField
+from wtforms.validators import DataRequired, StopValidation, ValidationError
 from zxcvbn import zxcvbn
 
+from warehouse.i18n import KNOWN_LOCALES
 from warehouse.utils.http import is_valid_uri
 
 
@@ -118,3 +119,16 @@ class DBForm(Form):
     def __init__(self, *args, db, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = db
+
+
+class SetLocaleForm(Form):
+    __params__ = ["locale_id"]
+
+    locale_id = SelectField(
+        "Select a locale ID",
+        choices=[
+            ("", "Select a locale ID"),
+            *[(id, desc) for id, desc in KNOWN_LOCALES.items()],
+        ],
+        validators=[DataRequired(message="Select a locale ID")],
+    )

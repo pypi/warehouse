@@ -650,21 +650,6 @@
 
   <hr>
 
-  <section id="set-locale">
-    <h2>Set preferred locale</h2>
-    <form method="POST">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <div class="form-group">
-        {{ set_locale_form.locale_id }}
-      </div>
-      <div>
-        <input class="button button--primary" type="submit">
-      </div>
-    </form>
-  </section>
-
-  <hr>
-
   <section id="delete-account">
     <h2>{% trans %}Delete account{% endtrans %}</h2>
     <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
