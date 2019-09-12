@@ -34,358 +34,207 @@
     upload column on that table.
 
    Modifiers:
-     - light: removes borders and backgrounds from table - maintains only horizontal borders
      - downloads: specific styles for downloads table on project detail page
      - releases: specific styles for releases table on manage project page
      - files: specific styles for files table on releases tab
+     - history: specific styles for project journals
      - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
      - emails: specific styles for emails on the manage account page
      - 2fa: specific styles for 2fa methods on the manage account page
      - api-tokens: specific styles for API tokens on the manage account page
      - security-logs: specific styles for security logs on the manage account page
+
  */
 
 // TABLE
-@mixin mobile-friendly-dropdown {
-  .dropdown {
+@mixin mobile-friendly-table {
+  border-bottom: 1px solid $base-grey;
+
+  thead {
+    display: none;
+  }
+
+  tbody tr th,
+  tbody tr td,
+  tbody tr th:first-child,
+  tbody tr td:first-child,
+  tbody tr th:last-child,
+  tbody tr td:last-child {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border-bottom: 0;
+    padding: 2px 0;
+  }
+
+  tbody tr td:first-child,
+  tbody tr th:first-child {
+    border-top: 1px solid $base-grey;
+    padding-top: 15px;
+
+    .table__mobile-label {
+      margin-top: 0;
+    }
+  }
+
+  tbody tr td:last-child {
+    padding-bottom: 15px;
+  }
+
+  .table__mobile-label {
+    display: block;
+    margin-top: 5px;
+  }
+
+  .table__align-right {
+    text-align: left;
+  }
+
+  tbody tr td .dropdown {
     display: block;
     float: none;
 
-    .button {
-      display: block;
-      width: 100%;
-    }
-
     .dropdown__content,
     .dropdown__link {
-      width: 100%;
+      width: unset;
+      right: auto;
     }
+  }
+
+  tbody tr td .button {
+    margin-top: 5px;
   }
 }
 
 .table {
-  @include table;
+  width: 100%;
+  border: 0;
+  box-sizing: border-box;
+  box-shadow: none;
+  background-color: transparent;
 
-  &--light {
-    border: 0;
-    font-size: $base-font-size;
-    box-shadow: none;
+  thead tr {
     background-color: transparent;
-
-    thead tr {
-      background-color: transparent;
-    }
-
-    tbody tr,
-    tbody tr:nth-child(2n),
-    th,
-    td {
-      border: 0;
-      background-color: transparent;
-      padding: 10px 0;
-    }
-
-    th,
-    td {
-      border-bottom: 1px solid $base-grey;
-    }
-
-    tbody tr:last-child td,
-    tbody tr:last-child th {
-      border-bottom: 0;
-    }
   }
 
+  tbody tr,
+  th,
+  td {
+    border: 0;
+    background-color: transparent;
+    padding: 10px;
+  }
+
+  th,
+  td {
+    border-bottom: 1px solid $base-grey;
+  }
+
+  tr th:first-child,
+  tr td:first-child {
+    padding-left: 0;
+  }
+
+  tr th:last-child,
+  tr td:last-child {
+    padding-right: 0;
+  }
+
+  tbody tr:last-child td,
+  tbody tr:last-child th {
+    border-bottom: 0;
+  }
+
+  &__align-right {
+    text-align: right;
+  }
+
+  &__mobile-label {
+    display: none;
+    font-weight: $bold-font-weight;
+  }
+
+  // Custom table styles
+
   &--downloads {
-    box-sizing: border-box;
-    table-layout: fixed;
     word-wrap: break-word;
     margin-top: ($spacing-unit / 2);
-    margin-bottom: 10px;
 
-    .table__filename {
-      width: 64%;
-    }
-
-    .table__type {
-      width: 10%;
-    }
-
-    .table__version {
-      width: 14%;
-    }
-
-    .table__upload-date {
-      width: 12%;
-    }
-
-    .table__sha256-link {
-      margin-left: 5px;
-    }
-
-    @media only screen and (max-width: $large-desktop) {
-      // Hide "file type" column
-      th:nth-child(3),
-      td:nth-child(3) {
-        display: none;
-      }
-    }
-
-    @media only screen and (max-width: $desktop) {
-      // Hide "version" column
-      th:nth-child(5),
-      td:nth-child(5) {
-        display: none;
-      }
+    td .button span {
+      display: none;
     }
 
     @media only screen and (max-width: $tablet) {
-      // Hide "upload date" column
-      th:nth-child(4),
-      td:nth-child(4) {
-        display: none;
-      }
-
-      // Hide "upload date" column
-      th:nth-child(2),
-      td:nth-child(2) {
-        width: 20%;
-      }
-
-      th:first,
-      td:first {
-        width: 80%;
-      }
+      @include mobile-friendly-table;
+      margin-bottom: ($spacing-unit / 2);
     }
 
     @media only screen and (max-width: $mobile) {
-      // Hide "upload date" column
-      th:nth-child(2),
-      td:nth-child(2) {
+      .table__mobile-label--hashes {
         display: none;
+      }
+
+      td .button span {
+        display: inline;
       }
     }
   }
 
   &--releases {
-    box-sizing: border-box;
-    table-layout: fixed;
     word-wrap: break-word;
+    margin-bottom: $spacing-unit;
 
-    .table__version,
-    .table__date,
-    .table__summary {
-      padding-right: 20px;
-    }
-
-    .table__version,
-    .table__date {
-      width: 130px;
-    }
-
-    .table__options {
-      width: 110px;
-      text-align: right;
-    }
-
-    @media only screen and (max-width: $tablet) {
-      .table__summary {
-        display: none;
-      }
-
-      .table__version,
-      .table__date,
-      .table__options {
-        width: auto;
-      }
-    }
-
-    @media only screen and (max-width: $mobile) and (min-width: 0px) {
-      thead {
-        display: none;
-      }
-
-      tbody tr {
-        padding: 10px;
-      }
-
-      .table__version,
-      .table__date,
-      .table__options {
-        display: block;
-        text-align: left;
-        border-bottom: 0;
-        padding: 2px 0;
-      }
-
-      .table__version {
-        padding-top: 10px;
-      }
-
-      .table__options {
-        padding-bottom: 10px;
-        border-bottom: 1px solid $base-grey;
-
-        @include mobile-friendly-dropdown;
-      }
+    @media only screen and (max-width: $small-tablet) {
+      @include mobile-friendly-table;
+      margin-bottom: ($spacing-unit / 2);
     }
   }
 
-  &--files {
-    .table__name,
-    .table__type,
-    .table__version,
-    .table__upload {
-      padding-right: 20px;
-    }
+  &--files,
+  &--history {
+    margin-top: $spacing-unit / 2;
 
-    .table__type {
-      width: 90px;
-    }
-
-    .table__version {
-      width: 140px;
-    }
-
-    .table__upload {
-      width: 130px;
-    }
-
-    .table__options {
-      width: 100px;
-    }
-
-    @media only screen and (max-width: $large-desktop) {
-      .table__version {
-        display: none;
-      }
-    }
-
-    @media only screen and (max-width: $desktop) {
-      .table__type {
-        display: none;
-      }
-    }
-
-    @media only screen and (max-width: $small-tablet) {
-      thead {
-        display: none;
-      }
-
-      tbody tr,
-      tbody tr:nth-child(2n) {
-        display: block;
-        padding: 20px 0;
-        border-bottom: 1px solid $base-grey;
-      }
-
-      .table__name,
-      .table__upload,
-      .table__options {
-        display: block;
-        width: 100%;
-        text-align: left;
-        border-bottom: 0;
-        padding: 4px 0;
-      }
-
-      .table__name a {
-        font-weight: bold;
-      }
-
-      .table__options {
-        @include mobile-friendly-dropdown;
-      }
+    @media only screen and (max-width: $tablet) {
+      @include mobile-friendly-table;
     }
   }
 
   &--hashes {
     margin-top: $spacing-unit / 2;
 
-    .table__algorithm,
-    .table__hash {
-      padding-right: 20px;
-    }
-
-    td.table__algorithm {
-      font-weight: 600;
-    }
-
-    td.table__hash {
+    td code {
       word-break: break-all;
     }
 
-    .table__copy {
-      width: 75px;
-      text-align: right;
-    }
-
     @media only screen and (max-width: $mobile) {
+      @include mobile-friendly-table;
       margin-top: 0;
 
-      thead {
-        display: none;
-      }
+      td .button {
+        &::after {
+          top: 100%;
+          right: 50%;
+          margin-top: 5px;
+          margin-right: auto;
+          bottom: auto;
+          transform: translate(50%, 0);
+        }
 
-      tbody tr,
-      tbody tr:nth-child(2n) {
-        display: block;
-        padding: 20px 0;
-        border-bottom: 1px solid $base-grey;
-      }
-
-      tbody tr:last-of-type {
-        border-bottom: 0;
-      }
-
-      .table__algorithm,
-      .table__copy,
-      .table__hash {
-        display: block;
-        text-align: left;
-        border-bottom: 0;
-        padding: 4px 0;
-      }
-
-      .table__copy {
-        width: 100%;
-
-        .button {
-          display: block;
-          text-align: center;
-
-          // Change direction of the copy tooltip on mobile
-          $tooltip-background-color: transparentize($black, 0.3) !default;
-
-          &::after {
-            top: 100%;
-            right: 50%;
-            margin-top: 5px;
-            margin-right: auto;
-            bottom: auto;
-            transform: translate(50%, 0);
-          }
-
-          &::before {
-            top: auto;
-            left: auto;
-            right: 50%;
-            bottom: -5px;
-            margin-right: -5px;
-            border-color: transparent;
-            border-bottom-color: $tooltip-background-color;
-          }
+        &::before {
+          top: auto;
+          left: auto;
+          right: 50%;
+          bottom: -5px;
+          margin-right: -5px;
+          border-color: transparent;
+          border-bottom-color: transparentize($black, 0.3);
         }
       }
     }
   }
 
   &--collaborators {
-    .table__user {
-      padding-right: 20px;
-    }
-
     .table__user-details {
       display: flex;
       align-items: center;
@@ -393,10 +242,14 @@
     }
 
     .table__user-gravatar {
-      margin-right: 10px;
+      display: block;
+      width: 50px;
+      flex-shrink: 0;
     }
 
     .table__user-text {
+      margin-left: 10px;
+
       > * {
         display: inline-block;
         background-position: 0 1.15em;
@@ -406,78 +259,25 @@
       }
     }
 
-    .change-role {
-      width: 330px;
-    }
-
-    .change-field {
-      float: left;
-    }
-
-    .change-button {
+    .table__change-button {
       display: none;
-      float: left;
-      margin-left: 5px;
-    }
-
-    .table__action {
-      width: 100px;
-    }
-
-    @media only screen and (max-width: 1120px) {
-      input[type="text"],
-      select {
-        min-width: 160px;
-        width: 160px;
-      }
-
-      .change-role {
-        width: 235px;
-      }
+      margin-top: 5px;
     }
 
     @media only screen and (max-width: $small-tablet) {
-      thead {
-        display: none;
+      @include mobile-friendly-table;
+
+      .table__user-details {
+        margin-bottom: 5px;
       }
 
-      tbody tr,
-      tbody tr:nth-child(2n) {
-        display: block;
-        padding: 20px 0;
-        border-bottom: 1px solid $base-grey;
-      }
-
-      tbody tr:last-of-type {
-        border-bottom: 0;
-      }
-
-      tbody tr td,
-      .table__user {
-        display: block;
-        text-align: left;
-        border-bottom: 0;
-        padding: 4px 0;
-      }
-
-      .table__user a {
-        font-weight: bold;
-      }
-
-      input[type="text"],
-      select,
-      .table__action,
-      .button,
-      .change-role,
-      .change-field,
-      .change-button {
-        float: none;
+      .table__change-role {
         width: 100%;
-        margin: 0;
-      }
 
-      .change-button {
-        margin-top: 8px;
+        .table__change-field,
+        .tabel__change-button {
+          width: 100%;
+        }
       }
     }
   }
@@ -485,230 +285,48 @@
   &--emails {
     margin: 0 0 $spacing-unit;
 
-    tr td {
-      padding-right: 20px;
-
-      &:last-of-type {
-        padding-right: 0;
-      }
-    }
-
     .table__email {
-      padding: 20px 20px 20px 0;
       word-wrap: break-word;
       word-break: break-all;
       font-family: $code-font;
-      font-size: 90%;
+      font-size: 0.9rem;
     }
 
     .table__status-badges {
+      display: block;
       min-width: 160px;
     }
 
-    .table__action {
-      width: 100px;
+    .table__status-detail {
+      display: block;
+      max-width: 200px;
+      font-size: $small-font-size;
+      margin-top: 5px;
     }
 
     @media only screen and (max-width: $small-tablet) {
-      thead {
-        display: none;
-      }
+      @include mobile-friendly-table;
 
-      tbody tr,
-      tbody tr:nth-child(2n) {
-        display: block;
-        padding: 20px 0;
-        border-bottom: 1px solid $base-grey;
-      }
-
-      tbody tr:last-of-type {
-        border-bottom: 0;
-      }
-
-      .table__email,
-      .table__status,
-      .table__action {
-        width: 100%;
-        display: block;
-        text-align: left;
-        border-bottom: 0;
-      }
-
-      .table__email,
-      .table__status {
-        padding: 4px 0;
-      }
-
-      .table__status-badges {
-        min-width: auto;
-      }
-
-      .table__action {
-        padding: 0;
-
-        @include mobile-friendly-dropdown;
-
-        .dropdown {
-          margin: 8px 0 4px 0;
-        }
+      .table__status-detail {
+        max-width: initial;
       }
     }
   }
 
-  &--2fa {
-    margin: 0 0 $spacing-unit;
-
-    tr td {
-      padding-right: 20px;
-
-      &:last-of-type {
-        padding-right: 0;
-      }
-    }
-
-    .table__action {
-      width: 100px;
-    }
-
-    @media only screen and (max-width: $small-tablet) {
-      thead {
-        display: none;
-      }
-
-      tbody tr,
-      tbody tr:nth-child(2n) {
-        display: block;
-        padding: 20px 0;
-        border-bottom: 1px solid $base-grey;
-      }
-
-      tbody tr:last-of-type {
-        border-bottom: 0;
-      }
-
-      tbody tr td {
-        padding: 0;
-        width: 100%;
-        display: block;
-        text-align: left;
-        border-bottom: 0;
-      }
-
-      .table__action {
-        margin: 8px 0 4px 0;
-      }
-    }
-  }
-
+  &--2fa,
   &--api-tokens {
     margin: 0 0 $spacing-unit;
 
-    tr td {
-      padding-right: 20px;
-
-      &:last-of-type {
-        padding-right: 0;
-      }
-    }
-
-    .table__scope,
-    .table__created-date,
-    .table__used-date {
-      span {
-        display: none;
-      }
-    }
-
-    .table__action {
-      width: 150px;
-      text-align: right;
-    }
-
     @media only screen and (max-width: $small-tablet) {
-      thead {
-        display: none;
-      }
-
-      tbody tr,
-      tbody tr:nth-child(2n) {
-        display: block;
-        padding: 20px 0;
-        border-bottom: 1px solid $base-grey;
-      }
-
-      tbody tr:last-of-type {
-        border-bottom: 0;
-      }
-
-      .table__api-name,
-      .table__scope,
-      .table__created-date,
-      .table__used-date,
-      .table__action {
-        padding: 0;
-        width: 100%;
-        display: block;
-        text-align: left;
-        border-bottom: 0;
-      }
-
-      .table__api-name {
-        font-weight: $bold-font-weight;
-      }
-
-      .table__scope,
-      .table__created-date,
-      .table__used-date {
-        span {
-          font-weight: $bold-font-weight;
-          display: inline;
-        }
-      }
-
-      .table__action {
-        @include mobile-friendly-dropdown;
-
-        .dropdown {
-          margin: 8px 0 4px 0;
-        }
-      }
+      @include mobile-friendly-table;
     }
   }
 
   &--security-logs {
     margin-top: 0;
 
-    tr td {
-      padding-right: 20px;
-
-      &:last-of-type {
-        padding-right: 0;
-      }
-    }
-
     @media only screen and (max-width: $small-tablet) {
-      thead {
-        display: none;
-      }
-
-      tbody tr,
-      tbody tr:nth-child(2n) {
-        display: block;
-        padding: 20px 0;
-        border-bottom: 1px solid $base-grey;
-      }
-
-      tbody tr:last-of-type {
-        border-bottom: 0;
-      }
-
-      tbody tr td {
-        padding: 0;
-        width: 100%;
-        display: block;
-        text-align: left;
-        border-bottom: 0;
-      }
+      @include mobile-friendly-table;
     }
   }
 }

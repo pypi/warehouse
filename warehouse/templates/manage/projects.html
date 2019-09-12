@@ -13,8 +13,7 @@
 -#}
 {% extends "manage_base.html" %}
 
-{% block projects_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block projects_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'projects' %}
 
 {% block title %}Your projects{% endblock %}
 
@@ -25,7 +24,7 @@
     {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
     <div class="package-snippet">
-      <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
+      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
             {% if project.name in projects_sole_owned %}

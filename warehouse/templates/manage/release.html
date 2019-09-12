@@ -21,8 +21,8 @@
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
     <h2 class="heading-wsubtitle__heading">Release version {{ release.version }}</h2>
 
-    <nav aria-label="Breadcrumb">
-      <ul class="heading-wsubtitle__subtitle breadcrumbs">
+    <nav aria-label="Breadcrumb" class="breadcrumbs">
+      <ul class="heading-wsubtitle__subtitle">
         <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name }} releases</a></li>
         <li class="breadcrumbs__breadcrumb">Release version {{ release.version }} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">view release</a></li>
       </ul>
@@ -30,21 +30,22 @@
   </div>
 
   {% if files %}
-  <table class="table table--light table--files">
+  <table class="table table--files">
     <caption class="sr-only">Files for release {{ release.version }} of {{ project.name }}</caption>
     <thead>
       <tr>
-        <th scope="col" class="table__name">Filename, size</th>
-        <th scope="col" class="table__type">Type</th>
-        <th scope="col" class="table__version">Python version</th>
-        <th scope="col" class="table__upload">Upload date</th>
+        <th scope="col">Filename, size</th>
+        <th scope="col">Type</th>
+        <th scope="col">Python version</th>
+        <th scope="col">Upload date</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
     {% for file in files %}
       <tr>
-        <th scope="row" class="table__name">
+        <th scope="row">
+          <span class="table__mobile-label">Filename, size</span>
           <a href="{{ request.route_url('packaging.file', path=file.path) }}"
             {% if file.comment_text %}
               class="tooltipped tooltipped-e"
@@ -55,11 +56,20 @@
             {{ file.filename }}</a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </th>
-        <td class="table__type">{{ file.packagetype|format_package_type }}</td>
-        <td class="table__version">{{ file.python_version if file.python_version != 'source' else 'None' }}</td>
-        <td class="table__upload">{{ file.upload_time|format_date() }}</td>
-        <td class="table__options">
-          <nav class="dropdown dropdown--with-icons pull-right">
+        <td>
+          <span class="table__mobile-label">Type</span>
+          {{ file.packagetype|format_package_type }}
+        </td>
+        <td>
+          <span class="table__mobile-label">Python version</span>
+          {{ file.python_version if file.python_version != 'source' else 'None' }}
+        </td>
+        <td>
+          <span class="table__mobile-label">Upload date</span>
+          {{ file.upload_time|format_date() }}
+        </td>
+        <td class="table__align-right">
+          <nav class="dropdown dropdown--with-icons">
             <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
               Options
               <span class="dropdown__trigger-caret">
