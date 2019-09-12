@@ -78,6 +78,13 @@
     top: 3px;
   }
 
+  @media only screen and (max-width: $desktop) {
+    &__checkbox[type="checkbox"]:active,
+    &__checkbox[type="checkbox"]:focus {
+      outline: 1px solid $white;
+    }
+  }
+
   &__label {
     font-size: $small-font-size;
     cursor: pointer;

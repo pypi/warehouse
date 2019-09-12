@@ -40,6 +40,7 @@ def test_templates_for_empty_titles():
             "format_rfc822_datetime": "warehouse.i18n.filters:format_rfc822_datetime",
             "format_number": "warehouse.i18n.filters:format_number",
             "format_classifiers": "warehouse.filters:format_classifiers",
+            "classifier_id": "warehouse.filters:classifier_id",
             "format_tags": "warehouse.filters:format_tags",
             "json": "warehouse.filters:tojson",
             "camoify": "warehouse.filters:camoify",

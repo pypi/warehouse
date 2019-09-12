@@ -16,7 +16,7 @@
 {% block title %}Profile of {{ user.username }}{% endblock %}
 
 {% block content %}
-<section class="horizontal-section horizontal-section--medium">
+<div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
     <div class="left-layout__sidebar">
       <div class="author-profile">
@@ -27,9 +27,17 @@
           <h1 class="author-profile__name">{{ user.name }}</h1>
           {% endif %}
           <div class="author-profile__meta">
-            <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
+            <p>
+              <i class="fa fa-user-circle" aria-hidden="true"></i>
+              <span class="sr-only">Username</span>
+              &nbsp;&nbsp;{{ user.username }}
+            </p>
             {% if user.date_joined %}
-            <p><i class="fa fa-calendar-alt" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
+            <p>
+              <i class="fa fa-calendar-alt" aria-hidden="true"></i>
+              <span class="sr-only">Date joined</span>
+              &nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}
+            </p>
             {% endif %}
           </div>
           {% csi request.route_path("includes.profile-actions", username=user.username) %}
@@ -72,7 +80,7 @@
       </div>
     </div>
   </div>
-</section>
+</div>
 
 
 {% endblock %}

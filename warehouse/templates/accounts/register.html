@@ -25,7 +25,7 @@
     {% set title = "PyPI" %}
   {% endif %}
 
-  <section class="horizontal-section">
+  <div class="horizontal-section">
     <div class="site-container">
       <h1 class="page-title">Create an account on {{ title }}</h1>
 
@@ -47,14 +47,16 @@
             <span class="form-group__required">(required)</span>
             {% endif %}
           </label>
-          {{ form.full_name(placeholder="Your name", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
-          {% if form.full_name.errors %}
-          <ul id="name-errors" class="form-errors" role="alert">
-            {% for error in form.full_name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          {{ form.full_name(placeholder="Your name", autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
+          <div id="name-errors">
+            {% if form.full_name.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.full_name.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div class="form-group">
@@ -64,14 +66,16 @@
             <span class="form-group__required">(required)</span>
             {% endif %}
           </label>
-          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
-          {% if form.email.errors %}
-          <ul id="email-errors" class="form-errors" role="alert">
-            {% for error in form.email.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          {{ form.email(placeholder="Your email address", autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
+          <div id="email-errors">
+            {% if form.email.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.email.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         {# The following is a honeypot field and is hidden from the user #}
@@ -87,20 +91,22 @@
             <span class="form-group__required">(required)</span>
             {% endif %}
           </label>
-          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
-          {% if form.username.errors %}
-          <ul id="username-errors" class="form-errors" role="alert">
-            {% for error in form.username.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          {{ form.username(placeholder="Select a username", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
+          <div id="username-errors">
+            {% if form.username.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.username.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div>
           <div class="form-group">
             <div class="split-layout">
-              <label for="password" class="form-group__label">
+              <label for="new_password" class="form-group__label">
                 Password
                 {% if form.new_password.flags.required %}
                 <span class="form-group__required">(required)</span>
@@ -113,15 +119,17 @@
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
             </div>
-            {% if form.new_password.errors %}
-            <ul id="password-errors" class="form-errors" role="alert">
-              {% for error in form.new_password.errors %}
-              <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
+            <div id="password-errors">
+              {% if form.new_password.errors %}
+              <ul class="form-errors" role="alert">
+                {% for error in form.new_password.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
             {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
           </div>
 
@@ -132,14 +140,16 @@
               <span class="form-group__required">(required)</span>
               {% endif %}
             </label>
-            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
-            {% if form.password_confirm.errors %}
-            <ul id="password-confirm-errors" class="form-errors" role="alert">
-              {% for error in form.password_confirm.errors %}
-              <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
+            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
+            <div id="password-confirm-errors">
+              {% if form.password_confirm.errors %}
+              <ul class="form-errors" role="alert">
+                {% for error in form.password_confirm.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
           </div>
         </div>
 
@@ -152,7 +162,7 @@
         <input type="submit" value="Create account" class="button button--primary" data-target="password-match.submit">
       </form>
     </div>
-  </section>
+  </div>
 {% endblock %}
 
 {% block extra_js %}

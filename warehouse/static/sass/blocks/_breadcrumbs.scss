@@ -15,14 +15,23 @@
 /*
   Navigation breadcrumbs.
 
-  <span class="breadcrumbs">Help</span>
+  <nav aria-label="Breadcrumb" class="breadcrumbs">
+    <ul>
+      <li class="breadcrumbs__breadcrumb"></li>
+      <li class="breadcrumbs__breadcrumb"></li>
+    </ul>
+  </nav>
 */
 
 
 .breadcrumbs {
-  margin: 0;
-  padding: 0;
-  @include clearfix;
+  padding-bottom: ($spacing-unit / 2);
+
+  ul {
+    margin: 0;
+    padding: 0;
+    @include clearfix;
+  }
 
   &__breadcrumb {
     list-style-type: none;
