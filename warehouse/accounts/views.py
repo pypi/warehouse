@@ -57,11 +57,7 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 @view_config(context=TooManyFailedLogins)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        _(
-            "too-many-login-attempts",
-            default="There have been too many unsuccessful login attempts. "
-            "Try again later.",
-        ),
+        _("There have been too many unsuccessful login attempts. " "Try again later."),
         retry_after=exc.resets_in.total_seconds(),
     )
 
@@ -198,10 +194,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(
-            _("invalid-expired-2fa", default="Invalid or expired two factor login."),
-            queue="error",
-        )
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
@@ -249,29 +242,13 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
 )
 def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
-        return {
-            "fail": {
-                "errors": [_("already-authenticated", default="Already authenticated")]
-            }
-        }
+        return {"fail": {"errors": [_("Already authenticated")]}}
 
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(
-            _("invalid-expired-2fa", default="Invalid or expired two factor login."),
-            queue="error",
-        )
-        return {
-            "fail": {
-                "errors": [
-                    _(
-                        "invalid-expired-2fa",
-                        default="Invalid or expired two factor login.",
-                    )
-                ]
-            }
-        }
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        return {"fail": {"errors": [_("Invalid or expired two factor login.")]}}
 
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)
@@ -296,20 +273,8 @@ def webauthn_authentication_validate(request):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(
-            _("invalid-expired-2fa", default="Invalid or expired two factor login."),
-            queue="error",
-        )
-        return {
-            "fail": {
-                "errors": [
-                    _(
-                        "invalid-expired-2fa",
-                        default="Invalid or expired two factor login.",
-                    )
-                ]
-            }
-        }
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        return {"fail": {"errors": [_("Invalid or expired two factor login.")]}}
 
     redirect_to = two_factor_data.get("redirect_to")
     userid = two_factor_data.get("userid")
@@ -340,9 +305,7 @@ def webauthn_authentication_validate(request):
             .lower(),
         )
         return {
-            "success": _(
-                "successful-webauthn-assertion", default="Successful WebAuthn assertion"
-            ),
+            "success": _("Successful WebAuthn assertion"),
             "redirect_to": redirect_to,
         }
 
@@ -422,9 +385,8 @@ def register(request, _form_class=RegistrationForm):
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION):
         request.session.flash(
             _(
-                "new-user-registration-temp-disabled",
-                default="New user registration temporarily disabled. "
-                "See https://pypi.org/help#admin-intervention for details.",
+                "New user registration temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details."
             ),
             queue="error",
         )
@@ -517,53 +479,27 @@ def reset_password(request, _form_class=ResetPasswordForm):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(
-            _(
-                "expired-token-request-pass-reset-link",
-                default="Expired token: request a new password reset link",
-            )
-        )
+        return _error(_("Expired token: request a new password reset link"))
     except TokenInvalid:
-        return _error(
-            _(
-                "invalid-token-request-pass-reset-link",
-                default="Invalid token: request a new password reset link",
-            )
-        )
+        return _error(_("Invalid token: request a new password reset link"))
     except TokenMissing:
-        return _error(
-            _(
-                "invalid-token-token-not-supplied",
-                default="Invalid token: no token supplied",
-            )
-        )
+        return _error(_("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
     if data.get("action") != "password-reset":
-        return _error(
-            _(
-                "invalid-token-not-password-reset-token",
-                default="Invalid token: not a password reset token",
-            )
-        )
+        return _error(_("Invalid token: not a password reset token"))
 
     # Check whether a user with the given user ID exists
     user = user_service.get_user(uuid.UUID(data.get("user.id")))
     if user is None:
-        return _error(
-            _("invalid-token-user-not-found", default="Invalid token: user not found")
-        )
+        return _error(_("Invalid token: user not found"))
 
     # Check whether the user has logged in since the token was created
     last_login = data.get("user.last_login")
     if str(user.last_login) > last_login:
         # TODO: track and audit this, seems alertable
         return _error(
-            _(
-                "invalid-token-user-has-since-logged-in",
-                default="Invalid token: user has logged in since "
-                "this token was requested",
-            )
+            _("Invalid token: user has logged in since " "this token was requested")
         )
 
     # Check whether the password has been changed since the token was created
@@ -571,9 +507,8 @@ def reset_password(request, _form_class=ResetPasswordForm):
     if str(user.password_date) > password_date:
         return _error(
             _(
-                "invalid-token-password-has-already-changed",
-                default="Invalid token: password has already been changed since this "
-                "token was requested",
+                "Invalid token: password has already been changed since this "
+                "token was requested"
             )
         )
 
@@ -594,10 +529,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
         # Flash a success message
-        request.session.flash(
-            _("you-have-reset-password", default="You have reset your password"),
-            queue="success",
-        )
+        request.session.flash(_("You have reset your password"), queue="success")
 
         # Redirect to account login.
         return HTTPSeeOther(request.route_path("accounts.login"))
@@ -619,35 +551,15 @@ def verify_email(request):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(
-            _(
-                "expired-token-request-email-verification-link",
-                default="Expired token: request a new email verification link",
-            )
-        )
+        return _error(_("Expired token: request a new email verification link"))
     except TokenInvalid:
-        return _error(
-            _(
-                "invalid-token-request-email-verification-link",
-                default="Invalid token: request a new email verification link",
-            )
-        )
+        return _error(_("Invalid token: request a new email verification link"))
     except TokenMissing:
-        return _error(
-            _(
-                "invalid-token-token-not-supplied",
-                default="Invalid token: no token supplied",
-            )
-        )
+        return _error(_("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
     if data.get("action") != "email-verify":
-        return _error(
-            _(
-                "invalid-token-not-email-verification-token",
-                default="Invalid token: not an email verification token",
-            )
-        )
+        return _error(_("Invalid token: not an email verification token"))
 
     try:
         email = (
@@ -656,12 +568,10 @@ def verify_email(request):
             .one()
         )
     except NoResultFound:
-        return _error(_("invalid-token-email-not-found", default="Email not found"))
+        return _error(_("Email not found"))
 
     if email.verified:
-        return _error(
-            _("invalid-token-email-already-verified", default="Email already verified")
-        )
+        return _error(_("Email already verified"))
 
     email.verified = True
     email.unverify_reason = None
@@ -673,21 +583,15 @@ def verify_email(request):
     )
 
     if not email.primary:
-        confirm_message = _(
-            "email-can-be-made-primary",
-            default="You can now set this email as your primary address",
-        )
+        confirm_message = _("You can now set this email as your primary address")
     else:
-        confirm_message = _(
-            "email-is-now-primary", default="This is your primary address"
-        )
+        confirm_message = _("This is your primary address")
 
     request.user.is_active = True
 
     request.session.flash(
         _(
-            "email-address-verified",
-            default="Email address ${email_address} verified. ${confirm_message}.",
+            "Email address ${email_address} verified. ${confirm_message}.",
             mapping={"email_address": email.email, "confirm_message": confirm_message},
         ),
         queue="success",
