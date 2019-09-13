@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-09-09 15:23-0400\n"
+"POT-Creation-Date: 2019-09-13 15:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,124 +18,138 @@ msgstr ""
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
-msgid "no-user-found-with-username"
+msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:90
-msgid "username-already-in-use"
+#: warehouse/accounts/forms.py:87
+msgid ""
+"This username is already being used by another account. Choose a "
+"different username."
+msgstr ""
+
+#: warehouse/accounts/forms.py:110
+msgid "The password is invalid. Try again."
 msgstr ""
 
 #: warehouse/accounts/forms.py:114
-msgid "invalid-password"
+msgid "There have been too many unsuccessful login attempts, try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:121 warehouse/accounts/views.py:59
-msgid "too-many-login-attempts"
+#: warehouse/accounts/forms.py:177
+msgid ""
+"This email address is already being used by this account. Use a different"
+" email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:185
-msgid "email-in-use-same-account"
+#: warehouse/accounts/forms.py:184
+msgid ""
+"This email address is already being used by another account. Use a "
+"different email."
 msgstr ""
 
 #: warehouse/accounts/forms.py:193
-msgid "email-in-use-other-account"
+msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:203
-msgid "email-blacklisted-domain"
+#: warehouse/accounts/forms.py:279
+msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:291
-msgid "invalid-totp-code"
+#: warehouse/accounts/forms.py:296
+msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:309
-msgid "invalid-webauthn-payload"
+#: warehouse/accounts/forms.py:329
+msgid "No user found with that username or email"
 msgstr ""
 
-#: warehouse/accounts/forms.py:345
-msgid "no-user-with-username-or-email"
+#: warehouse/accounts/views.py:60
+msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:261
-#: warehouse/accounts/views.py:267 warehouse/accounts/views.py:299
-#: warehouse/accounts/views.py:305
-msgid "invalid-expired-2fa"
+#: warehouse/accounts/views.py:197 warehouse/accounts/views.py:250
+#: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
+#: warehouse/accounts/views.py:277
+msgid "Invalid or expired two factor login."
 msgstr ""
 
-#: warehouse/accounts/views.py:253
-msgid "already-authenticated"
+#: warehouse/accounts/views.py:245
+msgid "Already authenticated"
 msgstr ""
 
-#: warehouse/accounts/views.py:342
-msgid "successful-webauthn-assertion"
+#: warehouse/accounts/views.py:308
+msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:424
-msgid "new-user-registration-temp-disabled"
+#: warehouse/accounts/views.py:387
+msgid ""
+"New user registration temporarily disabled. See https://pypi.org/help"
+"#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:522
-msgid "expired-token-request-pass-reset-link"
+#: warehouse/accounts/views.py:482
+msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:529
-msgid "invalid-token-request-pass-reset-link"
+#: warehouse/accounts/views.py:484
+msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:536 warehouse/accounts/views.py:637
-msgid "invalid-token-token-not-supplied"
+#: warehouse/accounts/views.py:486 warehouse/accounts/views.py:558
+msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:545
-msgid "invalid-token-not-password-reset-token"
+#: warehouse/accounts/views.py:490
+msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:555
-msgid "invalid-token-user-not-found"
+#: warehouse/accounts/views.py:495
+msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:563
-msgid "invalid-token-user-has-since-logged-in"
+#: warehouse/accounts/views.py:502
+msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:573
-msgid "invalid-token-password-has-already-changed"
+#: warehouse/accounts/views.py:509
+msgid ""
+"Invalid token: password has already been changed since this token was "
+"requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:598
-msgid "you-have-reset-password"
+#: warehouse/accounts/views.py:532
+msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:623
-msgid "expired-token-request-email-verification-link"
+#: warehouse/accounts/views.py:554
+msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:630
-msgid "invalid-token-request-email-verification-link"
+#: warehouse/accounts/views.py:556
+msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:646
-msgid "invalid-token-not-email-verification-token"
+#: warehouse/accounts/views.py:562
+msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:659
-msgid "invalid-token-email-not-found"
+#: warehouse/accounts/views.py:571
+msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:663
-msgid "invalid-token-email-already-verified"
+#: warehouse/accounts/views.py:574
+msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:676
-msgid "email-can-be-made-primary"
+#: warehouse/accounts/views.py:586
+msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:681
-msgid "email-is-now-primary"
+#: warehouse/accounts/views.py:588
+msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:688
-msgid "email-address-verified"
+#: warehouse/accounts/views.py:593
+msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
