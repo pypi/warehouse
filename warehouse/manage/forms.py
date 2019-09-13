@@ -294,7 +294,7 @@ class CreateMacaroonForm(forms.Form):
         res = super().validate()
         if not isinstance(self.validated_scope, str):
             self.validated_scope = {"expiration": self.expiration.data, 
-                "releases": self.releases.data, "projects": [self.token_scope.data]}   
+            "projects": [{"project-name": self.token_scope.data, "version": self.releases.data}]}   
         return res
         
 
