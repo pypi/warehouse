@@ -83,14 +83,13 @@
     <td class="table__align-right">
       {% if not email.verified or not email.primary %}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
-        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View email options{% endtrans %}">
           {% trans %}Options{% endtrans %}
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">{% trans %}View submenu{% endtrans %}</span>
           </span>
         </button>
-        <ul class="dropdown__content">
+        <ul class="dropdown__content" aria-hidden="true" aria-label="Options for {{ email.email }}">
           {% if not email.verified %}
           <li>
             <form method="POST">
@@ -181,11 +180,10 @@
     </td>
     <td class="table__align-right">
       <nav class="dropdown dropdown--with-icons dropdown--wide">
-        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View token options{% endtrans %}">
           {% trans %}Options{% endtrans %}
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">{% trans %}View submenu{% endtrans %}</span>
           </span>
         </button>
         <ul class="dropdown__content">
