@@ -185,9 +185,9 @@
             <input id="search" type="hidden" name="q" value="{{ term }}">
             <label for="order">{% trans %}Order by{% endtrans %} &nbsp;</label>
             <select class="-js-form-submit-trigger" id="order" name="o">
-              {{ search_option("{% trans %}Relevance{% endtrans %}", "") }}
-              {{ search_option("{% trans %}Date last updated{% endtrans %}", "-created") }}
-              {{ search_option("{% trans %}Trending{% endtrans %}", "-zscore") }}
+              {{ search_option(gettext("Relevance"), "") }}
+              {{ search_option(gettext("Date last updated"), "-created") }}
+              {{ search_option(gettext("Trending"), "-zscore") }}
             </select>
             {% endif %}
           </div>
