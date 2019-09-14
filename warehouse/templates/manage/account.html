@@ -228,7 +228,7 @@
           <div class="modal__body">
             <h3 class="modal__title">{% trans token_description=macaroon.description %}Unique identifier for API token "{{ token_description }}"{% endtrans %}</h3>
             <p><code>{{ macaroon.id }}</code></p>
-            <button type="button" class="button -js-copy-hash tooltipped tooltipped-e" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ macaroon.id }}">
+            <button type="button" class="button -js-copy-hash tooltipped tooltipped-e" aria-label="{% trans %}Copy to clipboard{% endtrans %}" data-original-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ macaroon.id }}">
               {% trans %}Copy{% endtrans %}
             </button>
           </div>

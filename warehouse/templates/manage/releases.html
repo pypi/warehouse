@@ -107,7 +107,7 @@
     {% else %}
     <h3>{% trans %}No releases found{% endtrans %}</h3>
     {% endif %}
-    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
     <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/', title=gettext('External link') %}Learn how to create a new release on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
   </div>
 {% endblock %}

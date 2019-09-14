@@ -21,7 +21,7 @@
   <h2>{% trans %}Collaborators{% endtrans %}</h2>
   <p>{% trans project_name=project.name %}Use this page to control which PyPI users can help you to manage {{ project_name }}{% endtrans %}</p>
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="roles">
-    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
     <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
       <dt>{% trans %}Maintainer{% endtrans %}</dt>
