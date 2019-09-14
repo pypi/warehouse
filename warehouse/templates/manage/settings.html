@@ -20,15 +20,19 @@
 {% block main %}
   <h2>{% trans %}Project settings{% endtrans %}</h2>
 
-  <h3>API tokens</h3>
-  <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI.</p>
+  <h3>{% trans %}API tokens{% endtrans %}</h3>
+  <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
   {% if user.has_primary_verified_email %}
     <p class="no-bottom-padding">
-      <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">Create a token for {{ project.name }}</a>
+      <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">
+        {% trans project_name=project.name %}Create a token for {{ project_name }}{% endtrans %}
+      </a>
     </p>
   {% else %}
     <p class="no-bottom-padding">
-      <a href="{{ request.route_path('manage.account') }}#account-emails">Verify your primary email address</a> to add an API token for {{ project.name }}.
+      {% trans trimmed href='{url}#account-emails'.format(url=request.route_path('manage.account')), project_name=project.name %}
+      <a href="{{ href }}">Verify your primary email address</a> to add an API token for {{ project_name }}.
+      {% endtrans %}
     </p>
   {% endif %}
   <hr>
