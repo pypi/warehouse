@@ -18,5 +18,5 @@
 Your PyPI account '{{ username }}' has been deleted.
 
 If you did not make this change, you can email {{ email_address }} to communicate
-with the PyPI administrators.
+with the PyPI administrators.{% endtrans %}
 {% endblock %}
