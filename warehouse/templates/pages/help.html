@@ -336,18 +336,19 @@
         <ul>
           <li>{% trans href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}To use a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">browser that supports <abbr title="web authentication">WebAuthn</abbr> and PublicKeyCredential</a>, as this is the standard implemented by PyPI.{% endtrans %}</li>
           <li>{% trans %}To be running JavaScript on your browser{% endtrans %}</li>
-          <li>{% trans href='https://fidoalliance.org/specifications/download/', title=gettext('External link') %}To use a USB key that adheres to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO U2F specification</a>:{% endtrans %}</li>
-          <ul>
-            <li>
-              {% trans trimmed yubikey_href='https://www.yubico.com/', titan_href='https://cloud.google.com/titan-security-key/', thetis_href='https://thetis.io/', title=gettext('External link') %}
+          <li>{% trans href='https://fidoalliance.org/specifications/download/', title=gettext('External link') %}To use a USB key that adheres to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO U2F specification</a>:{% endtrans %}
+            <ul>
+              <li>
+                {% trans trimmed yubikey_href='https://www.yubico.com/', titan_href='https://cloud.google.com/titan-security-key/', thetis_href='https://thetis.io/', title=gettext('External link') %}
                 Popular keys include
                 <a href="{{ yubikey_href }}" title="{{ title }}" target="_blank" rel="noopener">Yubikey</a>,
                 <a href="{{ titan_href }}" title="{{ title }}" target="_blank" rel="noopener">Google Titan</a> and
                 <a href="{{ thetis_href }}" title="{{ title }}" target="_blank" rel="noopener">Thetis</a>.
-              {% endtrans %}
-            </li>
-            <li>{% trans %}Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI{% endtrans %}</li>
-          </ul>
+                {% endtrans %}
+              </li>
+              <li>{% trans %}Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI{% endtrans %}</li>
+            </ul>
+          </li>
         </ul>
 
         <p>{% trans %}Follow these steps:{% endtrans %}</p>
