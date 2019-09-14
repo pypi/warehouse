@@ -143,18 +143,18 @@ docReady(() => {
 });
 
 docReady(() => {
-  let changeRoleForms = document.querySelectorAll("form.change-role");
+  let changeRoleForms = document.querySelectorAll("form.table__change-role");
 
   if (changeRoleForms) {
     for (let form of changeRoleForms) {
-      let changeButton = form.querySelector("button.change-button");
-      let changeSelect = form.querySelector("select.change-field");
+      let changeButton = form.querySelector("button.table__change-button");
+      let changeSelect = form.querySelector("select.table__change-field");
 
       changeSelect.addEventListener("change", function (event) {
         if (event.target.value === changeSelect.dataset.original) {
           changeButton.style.display = "none";
         } else {
-          changeButton.style.display = "inline-block";
+          changeButton.style.display = "block";
         }
       });
     }

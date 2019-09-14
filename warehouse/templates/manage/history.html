@@ -81,7 +81,7 @@
   {%- endmacro %}
 
   {% if events %}
-  <table class="table table--light table--security-logs">
+  <table class="table table--security-logs">
     <caption class="sr-only">Security history for {{ project.name }}</caption>
     <thead>
       <tr>
@@ -94,8 +94,14 @@
       {% for event in events %}
       <tr>
         <td>{{ event_summary(event) }}</td>
-        <td>{{ humanize(event.time) }}</td>
-        <td>{{ event.ip_address }}</td>
+        <td>
+          <span class="table__mobile-label">Date / time</span>
+          {{ humanize(event.time) }}
+        </td>
+        <td>
+          <span class="table__mobile-label">IP address</span>
+          {{ event.ip_address }}
+        </td>
       </tr>
       {% endfor %}
     </tbody>

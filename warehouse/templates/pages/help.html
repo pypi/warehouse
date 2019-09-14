@@ -38,7 +38,7 @@
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
 {% macro twoFA() %}What is two factor authentication and how does it work on PyPI?{% endmacro %}
-{% macro totp() %}How does two factor authentication with an authentication application (TOTP) work? How do I set it up on PyPI?{% endmacro %}
+{% macro totp() %}How does two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endmacro %}
 {% macro utfkey() %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI? <span class="badge badge--warning">Beta feature</span>{% endmacro %}
 {% macro utfdevices() %}What devices (other than a USB key) can I use as a security device? <span class="badge badge--warning">Beta feature</span>{% endmacro %}
 {% macro apitoken() %}How can I use API tokens to authenticate with PyPI? <span class="badge badge--warning">Beta feature</span>{% endmacro %}
@@ -182,7 +182,7 @@
           <li>Upload a new version or file.</li>
         </ul>
         <p>The list of activities that require a verified email address is likely to grow over time.</p>
-        <p>This policy will allow us to enforce a key policy of <a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">PEP 541</a> regarding maintainer reachability. It also reduces the viability of spam attacks to create many accounts in an automated fashion.</p>
+        <p>This policy will allow us to enforce a key policy of <a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 541</a> regarding maintainer reachability. It also reduces the viability of spam attacks to create many accounts in an automated fashion.</p>
         <p>You can manage your account's email addresses in your <a href="{{ request.route_path('manage.account') }}">account setttings</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.</p>
 
         <h3 id="compromised-password">{{ compromised_password() }}</h3>
@@ -198,13 +198,13 @@
         <p>In PyPI's case, "something you know" is your username and password, while "something you own" can be <a href="#totp">an application to generate a temporary code</a>, or a <a href="#utfkey">security device</a> (most commonly a USB key).</p>
         <p>It is strongly recommended that you set up two factor authentication on your PyPI account.</p>
         <p>Users who have chosen to set up two factor authentication will be asked to provide their second method of identity verification during the log in process. This only affects logging in via a web browser, and not (yet) package uploads.</p>
-        <p>You can follow the improvements to 2FA on <a href="https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042" title="External link" target="_blank" rel="noopener">discuss.python.org</a>.</p>
+        <p>You can follow the improvements to <abbr title="two factor authentication">2FA</abbr> on <a href="https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042" title="External link" target="_blank" rel="noopener">discuss.python.org</a>.</p>
 
         <h3 id="totp">{{ totp() }}</h3>
 
-        <p>PyPI users can set up two-factor authentication using any authentication application that supports the <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm" title="External link" target="_blank" rel="noopener">TOTP ("Time-Based One-Time Password") standard</a>.</p>
-        <p>TOTP authentication applications generate a regularly changing authentication code to use when logging into your account.</p>
-        <p>Because TOTP is an open standard, there are many applications that are compatible with your PyPI account. Popular applications include:</p>
+        <p>PyPI users can set up two-factor authentication using any authentication application that supports the <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm" title="External link" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.</p>
+        <p><abbr title="time-based one-time password">TOTP</abbr> authentication applications generate a regularly changing authentication code to use when logging into your account.</p>
+        <p>Because <abbr title="time-based one-time password">TOTP</abbr> is an open standard, there are many applications that are compatible with your PyPI account. Popular applications include:</p>
         <ul>
           <li>Google Authenticator for <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" title="External link" target="_blank" rel="noopener">Android</a> or <a href="https://itunes.apple.com/app/google-authenticator/id388497605" title="External link" target="_blank" rel="noopener">iPhone</a> (proprietary)</li>
           <li><a href="https://www.microsoft.com/en-us/account/authenticator" title="External link" target="_blank" rel="noopener">Microsoft Authenticator</a> (proprietary)</li>
@@ -216,10 +216,10 @@
 
         <p>Some password managers (e.g. <a href="https://1password.com/" title="External link" target="_blank" rel="noopener">1Password</a>) can also generate authentication codes. For security reasons, PyPI only allows you to set up one application per account.</p>
 
-        <p><strong>To set up 2FA with an authentication application:</strong></p>
+        <p><strong>To set up <abbr title="two factor authentication">2FA</abbr> with an authentication application:</strong></p>
         <ol>
-          <li>Open an authentication (TOTP) application</li>
-          <li>Log in to your PyPI account, go to your account settings, and choose "Add 2FA with authentication application"</li>
+          <li>Open an authentication (<abbr title="time-based one-time password">TOTP</abbr>) application</li>
+          <li>Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with authentication application"</li>
           <li>PyPI will generate a secret key, specific to your account. This is displayed as a QR code, and as a text code.</li>
           <li>Scan the QR code with your authentication application, or type it in manually. The method of input will depend on the application you have chosen.</li>
           <li>Your application will generate an authentication code - use this to verify your set up on PyPI</li>
@@ -241,20 +241,18 @@
 
         <p><strong>To set up two factor authentication with a <em>USB key</em>, you'll need:</strong></p>
         <ul>
-          <li>To use a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">browser that supports WebAuthn and PublicKeyCredential</a>, as this is the standard implemented by PyPI.</li>
+          <li>To use a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">browser that supports <abbr title="web authentication">WebAuthn</abbr> and PublicKeyCredential</a>, as this is the standard implemented by PyPI.</li>
           <li>To be running JavaScript on your browser</li>
           <li>To use a USB key that adheres to the <a href="https://fidoalliance.org/specifications/download/" title="External link" target="_blank" rel="noopener">FIDO U2F specification</a>:</li>
-          <li>
-            <ul>
-              <li>Popular keys include <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a>, <a href="https://cloud.google.com/titan-security-key/" title="External link" target="_blank" rel="noopener">Google Titan</a> and <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.</li>
-              <li>Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI</li>
-            </ul>
-          </li>
+          <ul>
+            <li>Popular keys include <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a>, <a href="https://cloud.google.com/titan-security-key/" title="External link" target="_blank" rel="noopener">Google Titan</a> and <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.</li>
+            <li>Note that some older Yubico USB keys <strong>do not follow the FIDO specification</strong>, and will therefore not work with PyPI</li>
+          </ul>
         </ul>
 
         <p>Follow these steps:</p>
         <ol>
-          <li>Log in to your PyPI account, go to your account settings, and choose "Add 2FA with security device (e.g. USB key)"</li>
+          <li>Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)"</li>
           <li>Give your key a name. This is necessary because it's possible to add more than one security device to your account.</li>
           <li>Click on the "Set up security device" button</li>
           <li>Insert and touch your USB key, as instructed by your browser</li>
@@ -273,7 +271,7 @@
 
         <p>There is a growing ecosystem of <a href="https://fidoalliance.org/certification/fido-certified-products/" title="External link" target="_blank" rel="noopener">devices that are FIDO compliant</a>, and can therefore be used with PyPI.</p>
         <p>Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards. There is also growing support for <a href="https://fidoalliance.org/news-your-google-android-7-phone-is-now-a-fido2-security-key/" title="External link" target="_blank" rel="noopener">mobile phones to act as security devices</a>.</p>
-        <p>As PyPI's two factor implementation follows the <a href="https://www.w3.org/TR/webauthn/" title="External link" target="_blank" rel="noopener">WebAuthn standard</a>, PyPI users will be able to take advantage of any future developments in this field.</p>
+        <p>As PyPI's two factor implementation follows the <a href="https://www.w3.org/TR/webauthn/" title="External link" target="_blank" rel="noopener"><abbr title="web authentication">WebAuthn</abbr> standard</a>, PyPI users will be able to take advantage of any future developments in this field.</p>
 
         <h3 id="apitoken">{{ apitoken() }}</h3>
 
@@ -295,7 +293,7 @@
           <li>Set your password to the token value, including the <code>pypi-</code> prefix</li>
         </ul>
 
-        <p>Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account" title="External link" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="https://docs.travis-ci.com/user/deployment/pypi/" title="External link" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).</p>
+        <p>Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account" title="External link" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their continuous integration configuration file (e.g. <a href="https://docs.travis-ci.com/user/deployment/pypi/" title="External link" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).</p>
         <p>Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.</p>
 
       </section>
@@ -333,8 +331,8 @@
         </ul>
 
         <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
-        <p>There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development per <a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">PEP 541</a>.</p>
-        <p>PEP 541 has been accepted, and PyPI is <a href="https://github.com/pypa/warehouse/issues/1506" title="External link" target="_blank" rel="noopener">creating a workflow</a> which will be documented here.</p>
+        <p>There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development per <a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 541</a>.</p>
+        <p><abbr title="Python enhancement proposal">PEP</abbr> 541 has been accepted, and PyPI is <a href="https://github.com/pypa/warehouse/issues/1506" title="External link" target="_blank" rel="noopener">creating a workflow</a> which will be documented here.</p>
 
         <h3 id="collaborator-roles">{{ collaborator_roles() }}</h3>
         <p>There are two possible roles for collaborators:</p>
@@ -379,8 +377,8 @@
         <p>If you are having trouble with <code> pip install</code> and get a <code>No matching distribution found</code> or <code>Could not fetch URL</code> error, try adding <code>-v</code> to the command to get more information:</p>
         <p><code>pip install --upgrade -v pip</code></p>
         <p>If you see an error like <code>There was a problem confirming the ssl certificate</code> or <code>tlsv1 alert protocol version</code> or <code>TLSV1_ALERT_PROTOCOL_VERSION</code>, you need to be connecting to PyPI with a newer TLS support library.</p>
-        <p>The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <code>setuptools</code>, and <code>pip</code>.</p>
-        <p>For help, go to <a href="https://webchat.freenode.net/?channels=%23pypa" title="External link" target="_blank" rel="noopener">the <code>#pypa</code> IRC channel on Freenode</a>, file an issue at <a href="https://github.com/pypa/packaging-problems/issues" title="External link" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>, or <a href="https://www.python.org/community/lists/" title="External link" target="_blank" rel="noopener">post to the python-help mailing list</a>, including your OS and installation details and the output of <code>pip install --upgrade -vvv pip</code>.</p>
+        <p>The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your operating system vendor, or an intermediate distributor), and the installed versions of Python, <code>setuptools</code>, and <code>pip</code>.</p>
+        <p>For help, go to <a href="https://webchat.freenode.net/?channels=%23pypa" title="External link" target="_blank" rel="noopener">the <code>#pypa</code> IRC channel on Freenode</a>, file an issue at <a href="https://github.com/pypa/packaging-problems/issues" title="External link" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>, or <a href="https://www.python.org/community/lists/" title="External link" target="_blank" rel="noopener">post to the python-help mailing list</a>, including your operating system and installation details and the output of <code>pip install --upgrade -vvv pip</code>.</p>
         {{ code_of_conduct() }}
 
         <h3 id="accessibility">{{ accessibility() }}</h3>
@@ -428,7 +426,7 @@
 
         <h3 id="availability">{{ availability() }}</h3>
         <p>As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the old site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.</p>
-        <p>PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" title="External link" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. See <a href="https://status.python.org/" title="External link" target="_blank" rel="noopener">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.</p>
+        <p>PyPI is heavily cached and distributed via <abbr title="content delivery network">CDN</abbr> thanks to our sponsor <a href="https://www.fastly.com/" title="External link" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. See <a href="https://status.python.org/" title="External link" target="_blank" rel="noopener">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.</p>
 
         <h3 id="contributing">{{ contributing() }}</h3>
         <p>We have a huge amount of work to do to continue to maintain and improve PyPI (also known as <a href="https://warehouse.readthedocs.io/" title="External link" target="_blank" rel="noopener">the Warehouse project</a>).</p>

@@ -47,7 +47,7 @@
             <span class="form-group__required">(required)</span>
             {% endif %}
           </label>
-          {{ form.full_name(placeholder="Your name", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
+          {{ form.full_name(placeholder="Your name", autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
           <div id="name-errors">
             {% if form.full_name.errors %}
             <ul class="form-errors" role="alert">
@@ -66,7 +66,7 @@
             <span class="form-group__required">(required)</span>
             {% endif %}
           </label>
-          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
+          {{ form.email(placeholder="Your email address", autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
           <div id="email-errors">
             {% if form.email.errors %}
             <ul class="form-errors" role="alert">
@@ -119,7 +119,7 @@
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
             </div>
             <div id="password-errors">
               {% if form.new_password.errors %}
@@ -140,7 +140,7 @@
               <span class="form-group__required">(required)</span>
               {% endif %}
             </label>
-            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
+            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
             <div id="password-confirm-errors">
               {% if form.password_confirm.errors %}
               <ul class="form-errors" role="alert">

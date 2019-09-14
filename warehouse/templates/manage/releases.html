@@ -20,33 +20,43 @@
 {% block main %}
   <h2>Releases ({{ project.releases|length }})</h2>
   {% if project.releases %}
-    <table class="table table--light table--releases no-top-margin">
+    <table class="table table--releases">
       <caption class="sr-only">Releases for {{ project.name }}</caption>
       <thead>
         <tr>
-          <th scope="col" class="table__version">Version</th>
-          <th scope="col" class="table__date">Release date</th>
-          <th scope="col" class="table__summary">Summary</th>
-          <th scope="col" class="table__options"></th>
+          <th scope="col">Version</th>
+          <th scope="col">Release date</th>
+          <th scope="col">Files</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
       {% for release in project.releases %}
         <tr>
-          <th scope="row" class="table__version">
+          <th scope="row">
             <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="Manage version">
               {{ release.version }}
             </a>
           </th>
-          <td class="table__date">{{ humanize(release.created) }}</td>
-          <td class="table__summary">
-            {% if release.summary %}
-              {{ release.summary }}
+          <td>{{ humanize(release.created) }}</td>
+          <td>
+            {% set num_files = version_to_file_counts[release.version]['total'] %}
+            {% if num_files %}
+            {% trans count=num_files %}
+              {{ count }} file
+            {% pluralize %}
+              {{ count }} files
+            {% endtrans %}
+              ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
+              {%- if packagetype != 'total' -%}
+              {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
+              {%- endif -%}
+              {% endfor %})
             {% else %}
-              —
+            No files
             {% endif %}
-            </td>
-          <td class="table__options">
+          </td>
+          <td class="table__align-right">
             <nav class="dropdown dropdown--with-icons">
               <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
                 Options
@@ -89,7 +99,6 @@
       {% endfor %}
       </tbody>
     </table>
-    <br>
   {% endif %}
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">
