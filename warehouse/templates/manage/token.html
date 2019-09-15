@@ -62,34 +62,42 @@
       {{ confirm_modal(title=title, confirm_name=gettext("Username"), confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
     </div>
 
-    <h2>Using this token</h2>
+    <h2>{% trans %}Using this token{% endtrans %}</h2>
 
-    <p>To use this API token:</p>
+    <p>{% trans %}To use this API token:{% endtrans %}</p>
 
     <ul>
-      <li>Set your username to <code>__token__</code></li>
-      <li>Set your password to the token value, including the <code>pypi-</code> prefix</li>
+      <li>{% trans token='__token__' %}Set your username to <code>{{ token }}</code>{% endtrans %}</li>
+      <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
     </ul>
 
     {% if macaroon.caveats.permissions == "user" %}
-    <p>For example, if you are using <a href="https://pypi.org/project/virtualenv/">Twine</a> to upload your projects to PyPI, set up your <code>$HOME/.pypirc</code> file like this:</p>
+
+    {% trans trimmed twine_url='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+    <p>For example, if you are using <a href="{{ twine_url }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:</p>
+    {% endtrans %}
 <pre class="code-block">
 [pypi]
   username = __token__
   password = {{ serialized_macaroon }}
 </pre>
     {% else %}
-    <p>For example, if you are using <a href="https://pypi.org/project/virtualenv/">Twine</a> to upload multiple projects to PyPI, you can set up a <code>$HOME/.pypirc</code> file like this:</p>
+    {% trans trimmed twine_url='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+    <p>For example, if you are using <a href="{{ twine_url }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:</p>
+    {% endtrans %}
 <pre class="code-block">
 [pypi]
   username = __token__
-  password = # either a user-scoped token or a project-scoped token you want to set as the default
+  password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
   username = __token__
-  password = # a project token
+  password = # {% trans %}a project token{% endtrans %}
 </pre>
-    <p>You can then use <code>twine --repository PROJECT_NAME</code> to switch to the correct token when uploading to PyPI.</p>
+
+    {% trans trimmed command='twine --repository PROJECT_NAME' %}
+    <p>You can then use <code>{{ command }}</code> to switch to the correct token when uploading to PyPI.</p>
+    {% endtrans %}
     {% endif %}
 
     <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
