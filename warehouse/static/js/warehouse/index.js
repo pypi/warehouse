@@ -172,13 +172,13 @@ let bindDropdowns = function () {
       content.classList.add("display-block");
       content.removeAttribute("aria-hidden");
       trigger.setAttribute("aria-expanded", "true");
-    }
+    };
 
     let closeDropdown = function () {
       content.classList.remove("display-block");
       content.setAttribute("aria-hidden", "true");
       trigger.setAttribute("aria-expanded", "false");
-    }
+    };
 
     if (!trigger.dataset.dropdownBound) {
       // If the user has clicked the trigger (either with a mouse or by
@@ -199,11 +199,11 @@ let bindDropdowns = function () {
         closeDropdown();
       };
 
-      dropdown.addEventListener('focusout', closeInactiveDropdown, false);
-      dropdown.addEventListener('mouseout', closeInactiveDropdown, false);
+      dropdown.addEventListener("focusout", closeInactiveDropdown, false);
+      dropdown.addEventListener("mouseout", closeInactiveDropdown, false);
 
       // Close the dropdown if the user presses the escape key
-      document.addEventListener('keydown', function(event) {
+      document.addEventListener("keydown", function(event) {
         if (event.key === "Escape") {
           closeDropdown();
         }
