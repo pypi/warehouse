@@ -76,7 +76,7 @@
                 <i class="fa fa-caret-down" aria-hidden="true"></i>
               </span>
             </button>
-            <ul class="dropdown__content" aria-hidden="true" aria-label="File options">
+            <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}File options{% endtrans %}">
               <li>
                 <a href="{{ request.route_url('packaging.file', path=file.path) }}" class="dropdown__link">
                   <i class="fa fa-download" aria-hidden="true"></i>

@@ -89,7 +89,7 @@
             <i class="fa fa-caret-down" aria-hidden="true"></i>
           </span>
         </button>
-        <ul class="dropdown__content" aria-hidden="true" aria-label="Options for {{ email.email }}">
+        <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans email=email.email %}Options for {{ email }}{% endtrans %}">
           {% if not email.verified %}
           <li>
             <form method="POST">

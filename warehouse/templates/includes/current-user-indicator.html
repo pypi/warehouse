@@ -21,7 +21,7 @@
           <i class="fa fa-caret-down" aria-hidden="true"></i>
         </span>
       </button>
-      <ul class="dropdown__content" aria-hidden="true" aria-label="Main menu">
+      <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
         {% if request.has_permission("moderator") %}
         <li>
           <a href="{{ request.route_path('admin.dashboard') }}" class="dropdown__link">
