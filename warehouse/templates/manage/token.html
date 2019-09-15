@@ -73,18 +73,22 @@
 
     {% if macaroon.caveats.permissions == "user" %}
 
-    {% trans trimmed twine_url='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
-    <p>For example, if you are using <a href="{{ twine_url }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:</p>
-    {% endtrans %}
+    <p>
+      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+        For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
+      {% endtrans %}
+    </p>
 <pre class="code-block">
 [pypi]
   username = __token__
   password = {{ serialized_macaroon }}
 </pre>
     {% else %}
-    {% trans trimmed twine_url='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
-    <p>For example, if you are using <a href="{{ twine_url }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:</p>
-    {% endtrans %}
+    <p>
+      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+        For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
+      {% endtrans %}
+    </p>
 <pre class="code-block">
 [pypi]
   username = __token__
@@ -95,9 +99,11 @@
   password = # {% trans %}a project token{% endtrans %}
 </pre>
 
-    {% trans trimmed command='twine --repository PROJECT_NAME' %}
-    <p>You can then use <code>{{ command }}</code> to switch to the correct token when uploading to PyPI.</p>
-    {% endtrans %}
+    <p>
+      {% trans trimmed command='twine --repository PROJECT_NAME' %}
+        You can then use <code>{{ command }}</code> to switch to the correct token when uploading to PyPI.
+      {% endtrans %}
+    </p>
     {% endif %}
 
     <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
