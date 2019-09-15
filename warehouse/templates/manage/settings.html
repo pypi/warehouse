@@ -15,68 +15,73 @@
 
 {% set active_tab = 'settings' %}
 
-{% block title %}Manage '{{ project.name }}' settings{% endblock %}
+{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' settings{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>Project settings</h2>
+  <h2>{% trans %}Project settings{% endtrans %}</h2>
 
-  <h3>API tokens</h3>
-  <p>API tokens provide an alternative way to authenticate when uploading packages to PyPI.</p>
+  <h3>{% trans %}API tokens{% endtrans %}</h3>
+  <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
   {% if user.has_primary_verified_email %}
     <p class="no-bottom-padding">
-      <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">Create a token for {{ project.name }}</a>
+      <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">
+        {% trans project_name=project.name %}Create a token for {{ project_name }}{% endtrans %}
+      </a>
     </p>
   {% else %}
     <p class="no-bottom-padding">
-      <a href="{{ request.route_path('manage.account') }}#account-emails">Verify your primary email address</a> to add an API token for {{ project.name }}.
+      {% trans trimmed href='{url}#account-emails'.format(url=request.route_path('manage.account')), project_name=project.name %}
+      <a href="{{ href }}">Verify your primary email address</a> to add an API token for {{ project_name }}.
+      {% endtrans %}
     </p>
   {% endif %}
   <hr>
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
-    <h3>Project description and sidebar</h3>
+    <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
     <p>
-      To set the '{{ project.name }}' description, author, links,
-      classifiers, and other details for your next release, use
-      the <a href="https://packaging.python.org/tutorials/distributing-packages/#setup-args" rel="noopener" target="_blank"><code>setup()</code>
-      arguments in your <code>setup.py</code> file</a>. Updating these
-      fields will not change the metadata for past
-      releases. Additionally, you <strong>must</strong> use
-      <a href="https://twine.readthedocs.io/en/latest/" rel="noopener" target="_blank">Twine</a>
-      to upload your files in order to get full support for these fields. See
-      <a href="https://packaging.python.org/tutorials/distributing-packages/" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
+      {% trans trimmed project_name=project.name, setup_args_href='https://packaging.python.org/tutorials/distributing-packages/#setup-args', twine_docs_href='https://twine.readthedocs.io/en/latest/', distribution_href='https://packaging.python.org/tutorials/distributing-packages/' %}
+        To set the '{{ project_name }}' description, author, links, classifiers, and other details for your next release, use the <a href="{{ setup_args_href }}" rel="noopener" target="_blank"><code>setup()</code> arguments in your <code>setup.py</code> file</a>.
+        Updating these fields will not change the metadata for past releases.
+        Additionally, you <strong>must</strong> use <a href="{{ twine_docs_href }}" rel="noopener" target="_blank">Twine</a> to upload your files in order to get full support for these fields.
+        See <a href="{{ distribution_href }}" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
+      {% endtrans %}
     </p>
-    <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
   </div>
 
   <div class="callout-block callout-block--danger">
-    <h3>Delete project</h3>
+    <h3>{% trans %}Delete project{% endtrans %}</h3>
     <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-      Deleting this project will:
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+      {% trans %}Deleting this project will:{% endtrans %}
     </p>
     <ul>
       <li>
         {% if project.releases %}
-        Irreversibly delete the project along with
-        <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}">
-        {{ project.releases|length() }}
-        {% trans count=project.releases|length %}
-          release
-        {%- pluralize -%}
-          releases
-        {%- endtrans -%}
-        </a>
+        {% trans trimmed count=project.releases|length(), href=request.route_path('manage.project.releases', project_name=project.name) %}
+          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} release</a>
+        {% pluralize %}
+          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} releases</a>
+        {% endtrans %}
         {% else %}
-        Irreversibly delete the project
+        {% trans %}Irreversibly delete the project{% endtrans %}
         {% endif %}
       </li>
       <li>
-        Make the project name available to <strong>any other PyPI</strong> user<br>
-        <small class="margin-left display-block margin-top margin-bottom">This user will be able to make new releases under this project name, so long as the distribution filenames do not match filenames from a previously released distribution (all PyPI distribution filenames are unique, as they are generated by combining the project name + version number + distribution type)</small>
+        {% trans %}Make the project name available to <strong>any other PyPI</strong> user{% endtrans %}<br>
+        <small class="margin-left display-block margin-top margin-bottom">
+          {% trans trimmed %}
+            This user will be able to make new releases under this project name,
+            so long as the distribution filenames do not match filenames from a
+            previously released distribution (all PyPI distribution filenames
+            are unique, as they are generated by combining the
+            project name + version number + distribution type)
+          {% endtrans %}
+        </small>
       </li>
     </ul>
     {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
-    {{ confirm_button("Delete project", "Project Name", project.name, action=action) }}
+    {{ confirm_button(gettext("Delete project"), gettext("Project Name"), project.name, action=action) }}
   </div>
 {% endblock %}

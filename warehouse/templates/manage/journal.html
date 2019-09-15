@@ -17,41 +17,41 @@
 
 {% set active_tab = 'journal' %}
 
-{% block title %}'{{ project.name }}' project journal{% endblock %}
+{% block title %}{% trans project_name=project.name %}'{{ project_name }}' project journal{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>Project journal</h2>
+  <h2>{% trans %}Project journal{% endtrans %}</h2>
 
-  <p>Each time you or your collaborators update this project, the action is recorded and displayed here.</p>
+  <p>{% trans %}Each time you or your collaborators update this project, the action is recorded and displayed here.{% endtrans %}</p>
 
   <div class="callout-block callout-block--warning no-top-margin">
-    <p>This feature will be deprecated in the future, replaced by the <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}">security history page</a>.
+    <p>{% trans href=request.route_path('manage.project.history', project_name=project.normalized_name) %}This feature will be deprecated in the future, replaced by the <a href="{{ href }}">security history page</a>.{% endtrans %}
   </div>
 
   <table class="table table--history">
-    <caption class="sr-only">History for {{ project.name }}</caption>
+    <caption class="sr-only">{% trans project_name=project.name %}History for {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col">Action</th>
-        <th scope="col">Date</th>
-        <th scope="col">User</th>
+        <th scope="col">{% trans %}Action{% endtrans %}</th>
+        <th scope="col">{% trans %}Date{% endtrans %}</th>
+        <th scope="col">{% trans %}User{% endtrans %}</th>
       </tr>
     </thead>
     <tbody>
       {% for journal in journals %}
       <tr>
         <th scope="row">
-          <span class="table__mobile-label">Action</span>
-          {% if journal.version %} Release {{ journal.version }}: {% endif %}{{ journal.action }}
+          <span class="table__mobile-label">{% trans %}Action{% endtrans %}</span>
+          {% if journal.version %} {% trans version=journal.version %}Release {{ version }}:{% endtrans %} {% endif %}{{ journal.action }}
         </th>
         <td>
-          <span class="table__mobile-label">Date</span>
+          <span class="table__mobile-label">{% trans %}Date{% endtrans %}</span>
           {{ journal.submitted_date|format_datetime() }}
         </td>
         <td>
-          <span class="table__mobile-label">User</span>
+          <span class="table__mobile-label">{% trans %}User{% endtrans %}</span>
           {{ journal.submitted_by.username }}
-          <span class="table__ip">from {{ journal.submitted_from }}</span>
+          <span class="table__ip">{% trans ip_address=journal.submitted_from %}from {{ ip_address }}{% endtrans %}</span>
         </td>
       </tr>
       {% endfor %}

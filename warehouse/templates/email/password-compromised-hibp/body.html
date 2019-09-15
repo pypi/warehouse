@@ -15,42 +15,37 @@
 
 
 {% block content %}
-<h3>What?</h3>
+<h3>{% trans %}What?{% endtrans %}</h3>
 <p>
-  During your recent attempt to log in or upload to PyPI, we noticed your password appears
+  {% trans %}During your recent attempt to log in or upload to PyPI, we noticed your password appears
   in public data breaches. To protect you and other users, we have preemptively reset your
   password and you will no longer be able to log in or upload to PyPI with your existing
-  password.
+  password.{% endtrans %}
 </p>
 <p>
-  PyPI itself has not suffered a breach. This is a protective measure to reduce the
-  risk of <a href="https://www.owasp.org/index.php/Credential_stuffing">credential stuffing</a>
-  attacks against PyPI and its users.
-</p>
-
-
-<h3>What should I do?</h3>
-<p>
-  To regain access to your account,
-  <a href="{{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}">reset your password</a>
-  on PyPI. We also recommend that you go to
-  <a href="https://haveibeenpwned.com/">HaveIBeenPwned</a> and check your other
-  passwords and get yourself familiar with good password practices.
+  {% trans href='https://www.owasp.org/index.php/Credential_stuffing' %}PyPI itself has not suffered a breach. This is a protective measure to reduce the
+  risk of <a href="{{ href }}">credential stuffing</a>
+  attacks against PyPI and its users.{% endtrans %}
 </p>
 
 
-<h3>How do you know this?</h3>
+<h3>{% trans %}What should I do?{% endtrans %}</h3>
 <p>
-  We use a free security service from
-  <a href="https://haveibeenpwned.com/">HaveIBeenPwned</a>. When registering,
-  authenticating, or updating your password, we generate a SHA1 hash of your password
-  and use the first 5 characters of the hash to decide if the password is compromised.
-  The plaintext password is never stored by PyPI or sent to HaveIBeenPwned.
+  {% trans trimmed reset_pw_url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')), have_i_been_pwned_url='https://haveibeenpwned.com/' %}
+  To regain access to your account, <a href="{{ reset_pw_url }}">reset your password</a> on PyPI. We also recommend that you go to <a href="{{ have_i_been_pwned_url }}">HaveIBeenPwned</a> and check your other passwords and get yourself familiar with good password practices.
+  {% endtrans %}
+</p>
+
+
+<h3>{% trans %}How do you know this?{% endtrans %}</h3>
+<p>
+  {% trans trimmed have_i_been_pwned_url='https://haveibeenpwned.com/' %}
+  We use a free security service from <a href="{{ have_i_been_pwned_url }}">HaveIBeenPwned</a>. When registering, authenticating, or updating your password, we generate a SHA1 hash of your password and use the first 5 characters of the hash to decide if the password is compromised. The plaintext password is never stored by PyPI or sent to HaveIBeenPwned.
+  {% endtrans %}
 </p>
 <p>
-  For more information, see our
-  <a href="{{ request.help_url(_anchor='compromised-password') }}">FAQ</a>. For help,
-  you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with
-  the PyPI administrators.
+  {% trans trimmed faq_url=request.help_url(_anchor='compromised-password'), email_href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
+  For more information, see our <a href="{{ faq_url }}">FAQ</a>. For help, you can email <a href="{{ email_href }}">{{ email_address }}</a> to communicate with the PyPI administrators.
+  {% endtrans %}
 </p>
 {% endblock %}

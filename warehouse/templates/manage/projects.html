@@ -15,10 +15,10 @@
 
 {% set active_tab = 'projects' %}
 
-{% block title %}Your projects{% endblock %}
+{% block title %}{% trans %}Your projects{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h1 class="page-title">Your projects ({{ projects|length }})</h1>
+  <h1 class="page-title">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</h1>
   <div class="package-list">
     {% if projects %}
     {% for project in projects %}
@@ -28,19 +28,19 @@
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
             {% if project.name in projects_sole_owned %}
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__sole-owner-badge">Sole owner</a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning package-snippet__sole-owner-badge">{% trans %}Sole owner{% endtrans %}</a>
             {% endif %}
           </h3>
           {% if release %}
           <p class="package-snippet__meta">
-            Last released on {{ release.created|format_date() }}
+            {% trans release_date=release.created|format_date() %}Last released on {{ release_date }}{% endtrans %}
           </p>
           <p class="package-snippet__description">
             {{ release.summary }}
           </p>
           {% else %}
           <p class="package-snippet__meta">
-            Created on {{ project.created|format_date() }}
+            {% trans creation_date=project.created|format_date() %}Created on {{ creation_date }}{% endtrans %}
           </p>
           {% endif %}
         </div>
@@ -49,29 +49,29 @@
             href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             class="button button--primary"
             {% if project.name in projects_owned %}
-            title="Manage this project"
+            title="{% trans %}Manage this project{% endtrans %}"
             {% else %}
             disabled
-            title="You are not an owner of this project"
+            title="{% trans %}You are not an owner of this project{% endtrans %}"
             {% endif %}
-            >Manage</a>
+            >{% trans %}Manage{% endtrans %}</a>
           <a
             href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
             class="button"
             {% if project.releases %}
-            title="View this project's public page"
+            title="{% trans %}View this project's public page{% endtrans %}"
             {% else %}
             disabled
-            title="This project has no releases"
+            title="{% trans %}This project has no releases{% endtrans %}"
             {% endif %}
-            >View</a>
+            >{% trans %}View{% endtrans %}</a>
         </div>
       </div>
     </div>
     {% endfor %}
     {% else %}
       <div class="callout-block no-top-margin">
-        <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/" target="_blank" rel="noopener">Python Packaging User Guide</a></p>
+        <p>{% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
       </div>
     {% endif %}
   </div>

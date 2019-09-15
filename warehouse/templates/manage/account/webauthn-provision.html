@@ -14,35 +14,45 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Set up 2FA with a security device (e.g. USB key)" %}
+{% set title = gettext("Set up 2FA with a security device (e.g. USB key)") %}
 
 {% set active_tab = 'account' %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block main %}
-<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }} <span class="badge badge--warning">Beta feature</span></h1>
+<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span></h1>
 <p class="heading-wsubtitle__subtitle">
-  PyPI supports any device that adheres to the <a href="https://fidoalliance.org/certification/fido-certified-products/" title="External link" target="_blank" rel="noopener">FIDO standard</a>.
+  {% trans href='https://fidoalliance.org/certification/fido-certified-products/', title=gettext('External link') %}PyPI supports any device that adheres to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO standard</a>.{% endtrans %}
   <br>
-  Popular <em>USB keys</em> include <a href="https://www.yubico.com/" title="External link" target="_blank" rel="noopener">Yubikey</a>, <a href="https://cloud.google.com/titan-security-key/" title="External link" target="_blank" rel="noopener">Google Titan</a> and <a href="https://thetis.io/" title="External link" target="_blank" rel="noopener">Thetis</a>.
+  {% trans trimmed title=gettext('External link'), yubico_href='https://www.yubico.com/', titan_href='https://cloud.google.com/titan-security-key/', thetis_href='https://thetis.io/' %}
+    Popular <em>USB keys</em> include
+    <a href="{{ yubico_href }}" title="{{ title }}" target="_blank" rel="noopener">Yubikey</a>,
+    <a href="{{ titan_href }}" title="{{ title }}" target="_blank" rel="noopener">Google Titan</a>
+    and <a href="{{ thetis_href }}" title="{{ title }}" target="_blank" rel="noopener">Thetis</a>.
+  {% endtrans %}
 </p>
 
 <noscript>
-  <p>Enable JavaScript to set up two factor authentication with a security device (e.g. USB key)</p>
+  <p>{% trans %}Enable JavaScript to set up two factor authentication with a security device (e.g. USB key){% endtrans %}</p>
 </noscript>
 
 <form id="webauthn-provision-form">
   <div class="form-group">
     <label for="webauthn-provision-label" class="form-group__label">
-      Name your device to begin
-      <span class="form-group__required">(required)</span>
+      {% trans %}Name your device to begin{% endtrans %}
+      <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
     </label>
     <input id="webauthn-provision-label" type="text" name="label" class="form-group__input" aria-describedby="webauthn-errors">
-    <p class="form-group__help-text">PyPI supports adding multiple security devices.<br>Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.</p>
+    <p class="form-group__help-text">
+      {% trans %}PyPI supports adding multiple security devices.{% endtrans %}<br>
+      {% trans %}Please give this device a name. 64 characters or fewer. All Unicode is valid, including spaces.{% endtrans %}
+    </p>
     <ul id="webauthn-errors" class="form-errors margin-top--large">
       <li id="webauthn-browser-support" class="hidden">
-        <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+        {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
+        <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+        {% endtrans %}
       </li>
     </ul>
   </div>
@@ -52,7 +62,7 @@
       id="webauthn-provision-begin"
       class="button button--primary"
       value="{{ request.session.get_csrf_token() }}"
-      disabled>Set up security device
+      disabled>{% trans %}Set up security device{% endtrans %}
     </button>
   </div>
 </form>
@@ -60,7 +70,11 @@
 <br>
 
 <div class="callout-block">
-  <p><strong>Not working?</strong> Check you're using a device that follows the <a href="https://fidoalliance.org/specifications/download/" title="External link" target="_blank" rel="noopener">FIDO specification</a> and a <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">compatible browser</a>.</p>
-  <p>Note that some older USB keys do not adhere to the FIDO standard and will not work with PyPI.</p>
+  <p>
+    {% trans trimmed title=gettext('External link'), fido_href='https://fidoalliance.org/specifications/download/', mozilla_href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility' %}
+    <strong>Not working?</strong> Check you're using a device that follows the <a href="{{ fido_href }}" title="{{ title }}" target="_blank" rel="noopener">FIDO specification</a> and a <a href="{{ mozilla_href }}" title="{{ title }}" target="_blank" rel="noopener">compatible browser</a>.
+    {% endtrans %}
+  </p>
+  <p>{% trans %}Note that some older USB keys do not adhere to the FIDO standard and will not work with PyPI.{% endtrans %}</p>
 </div>
 {% endblock %}

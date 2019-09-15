@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Account deletion notification{% endblock %}
+{% block subject %}{% trans %}Account deletion notification{% endtrans %}{% endblock %}
