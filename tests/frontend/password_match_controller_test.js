@@ -17,7 +17,7 @@ import { getByPlaceholderText, fireEvent } from "@testing-library/dom";
 import { Application } from "stimulus";
 import PasswordMatchController from "../../warehouse/static/js/warehouse/controllers/password_match_controller";
 
-describe("Password controller", () => {
+describe("Password match controller", () => {
   beforeEach(() => {
     document.body.innerHTML = `
   <div data-controller="password-match">

@@ -13,12 +13,11 @@
 
 /* global expect, beforeEach, describe, it, jest */
 
-import { getByPlaceholderText, fireEvent } from "@testing-library/dom";
 import { Application } from "stimulus";
 import ViewportToggleController from "../../warehouse/static/js/warehouse/controllers/viewport_toggle_controller";
 
 
-describe("Password controller", () => {
+describe("Viewport toggle controller", () => {
   beforeEach(() => {
     document.body.innerHTML = `
     <meta name="viewport" content="width=device-width, initial-scale=1">
