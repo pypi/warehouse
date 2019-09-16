@@ -34,17 +34,13 @@ from pytest_postgresql.factories import (
 from sqlalchemy import event
 
 from warehouse import admin, config, static
-from warehouse.accounts import (
-    forms as account_forms,
-    services as account_services,
-    views as account_views,
-)
+from warehouse.accounts import services as account_services, views as account_views
 from warehouse.macaroons import services as macaroon_services
 from warehouse.metrics import IMetricsService
 
 from .common.db import Session
 
-L10N_TAGGED_MODULES = [account_forms, account_views]
+L10N_TAGGED_MODULES = [account_views]
 
 
 def pytest_collection_modifyitems(items):
