@@ -22,18 +22,15 @@ _translation_factory = TranslationStringFactory("messages")
 
 
 class LazyString:
-    def __init__(self, fn, *args, mapping=None, **kwargs):
+    def __init__(self, fn, *args, **kwargs):
         self.fn = fn
         self.args = args
-        self.mapping = mapping
+        self.mapping = kwargs.get("mapping", {})
         self.kwargs = kwargs
 
     def __mod__(self, new_mapping):
-        if self.mapping:
-            mapping = self.mapping.copy()
-            mapping.update(new_mapping)
-        else:
-            mapping = new_mapping
+        mapping = self.mapping.copy()
+        mapping.update(new_mapping)
         return LazyString(self.fn, *self.args, mapping=new_mapping, **self.kwargs)
 
     def __str__(self):
