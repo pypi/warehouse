@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-09-13 16:05-0400\n"
+"POT-Creation-Date: 2019-09-16 15:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,6 +25,17 @@ msgstr ""
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
+#: warehouse/accounts/forms.py:70
+msgid "Choose a username with 50 characters or less."
+msgstr ""
+
+#: warehouse/accounts/forms.py:76
+msgid ""
+"The username is invalid. Usernames must be composed of letters, numbers, "
+"dots, hyphens and underscores. And must also start and finish with a "
+"letter or number. Choose a different username."
+msgstr ""
+
 #: warehouse/accounts/forms.py:90
 msgid ""
 "This username is already being used by another account. Choose a "
@@ -37,6 +48,14 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:117
 msgid "There have been too many unsuccessful login attempts, try again later."
+msgstr ""
+
+#: warehouse/accounts/forms.py:139
+msgid "Your passwords don't match. Try again."
+msgstr ""
+
+#: warehouse/accounts/forms.py:170
+msgid "The email address isn't valid. Try again."
 msgstr ""
 
 #: warehouse/accounts/forms.py:180
@@ -53,6 +72,10 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
+msgstr ""
+
+#: warehouse/accounts/forms.py:218
+msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
 #: warehouse/accounts/forms.py:282
