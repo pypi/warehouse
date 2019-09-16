@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from wtforms import Form as BaseForm, SelectField
+from wtforms import Form as BaseForm, StringField
 from wtforms.validators import DataRequired, StopValidation, ValidationError
 from zxcvbn import zxcvbn
 
@@ -124,11 +124,8 @@ class DBForm(Form):
 class SetLocaleForm(Form):
     __params__ = ["locale_id"]
 
-    locale_id = SelectField(
-        "Select a locale ID",
-        choices=[
-            ("", "Select a locale ID"),
-            *[(id, desc) for id, desc in KNOWN_LOCALES.items()],
-        ],
-        validators=[DataRequired(message="Select a locale ID")],
-    )
+    locale_id = StringField(validators=[DataRequired(message="Missing locale ID")])
+
+    def validate_locale_id(self, field):
+        if field.data not in KNOWN_LOCALES:
+            raise ValidationError(f"Unknown locale ID: {field.data}")

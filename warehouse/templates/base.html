@@ -333,11 +333,13 @@
     </footer>
 
     <div class="language-switcher">
-      <ul>
-        <li><button type="button" class="language-switcher__selected">English</button></li>
-        <li><button type="button">Français</button></li>
-        <li><button type="button">中文</button></li>
-      </ul>
+      <form action="{{ request.route_path('locale') }}">
+        <ul>
+          <li><button name="locale_id" value="en" type="submit">English</button></li>
+          <li><button name="locale_id" value="fr" type="submit">Français</button></li>
+          <li><button name="locale_id" value="zh-CN" type="submit">中文</button></li>
+        </ul>
+      </form>
     </div>
 
     {% include "warehouse:templates/includes/sponsors.html" %}
