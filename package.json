@@ -51,6 +51,7 @@
     "zopflipng-bin": "^5.0.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^6.2.0",
     "@testing-library/jest-dom": "^4.1.0",
     "babel-eslint": "8.2.2",
     "babel-jest": "^24.9.0",
