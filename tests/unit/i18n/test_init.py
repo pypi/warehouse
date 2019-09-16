@@ -59,7 +59,7 @@ def test_localize(monkeypatch):
     get_current_request = pretend.call_recorder(lambda: request)
     monkeypatch.setattr(i18n, "get_current_request", get_current_request)
 
-    assert i18n.localize("foo") == "fake translated string"
+    assert str(i18n.localize("foo")) == "fake translated string"
 
 
 def test_includeme():
