@@ -21,6 +21,25 @@ LOCALE_ATTR = "_LOCALE_"
 _translation_factory = TranslationStringFactory("messages")
 
 
+class LazyString:
+    def __init__(self, fn, *args, mapping=None, **kwargs):
+        self.fn = fn
+        self.args = args
+        self.mapping = mapping
+        self.kwargs = kwargs
+
+    def __mod__(self, new_mapping):
+        if self.mapping:
+            mapping = self.mapping.copy()
+            mapping.update(new_mapping)
+        else:
+            mapping = new_mapping
+        return LazyString(self.fn, *self.args, mapping=new_mapping, **self.kwargs)
+
+    def __str__(self):
+        return self.fn(*self.args, **self.kwargs)
+
+
 def _locale(request):
     """
     Computes a babel.core:Locale() object for this request.
@@ -50,8 +69,11 @@ def _negotiate_locale(request):
 
 
 def localize(message, **kwargs):
-    request = get_current_request()
-    return request.localizer.translate(_translation_factory(message, **kwargs))
+    def _localize(message, **kwargs):
+        request = get_current_request()
+        return request.localizer.translate(_translation_factory(message, **kwargs))
+
+    return LazyString(_localize, message, **kwargs)
 
 
 def includeme(config):
