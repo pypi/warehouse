@@ -335,9 +335,11 @@
     <div class="language-switcher">
       <form action="{{ request.route_path('locale') }}">
         <ul>
-          <li><button name="locale_id" value="en" type="submit">English</button></li>
-          <li><button name="locale_id" value="fr" type="submit">Français</button></li>
-          <li><button name="locale_id" value="zh-CN" type="submit">中文</button></li>
+          {% for locale, language in KNOWN_LOCALES.items() %}
+          <li>
+            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
+          </li>
+          {% endfor %}
         </ul>
       </form>
     </div>

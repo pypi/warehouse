@@ -14,7 +14,7 @@ from babel.core import Locale
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
 from pyramid.threadlocal import get_current_request
 
-KNOWN_LOCALES = {"en", "fr", "zh-CN"}
+KNOWN_LOCALES = {"en": "English", "fr": "Français", "zh-CN": "中文"}
 
 LOCALE_ATTR = "_LOCALE_"
 
@@ -61,7 +61,7 @@ def _negotiate_locale(request):
         return default_locale_negotiator(request)
 
     return request.accept_language.best_match(
-        tuple(KNOWN_LOCALES), default_match=default_locale_negotiator(request)
+        tuple(KNOWN_LOCALES.keys()), default_match=default_locale_negotiator(request)
     )
 
 
@@ -90,3 +90,6 @@ def includeme(config):
         "format_rfc822_datetime", "warehouse.i18n.filters:format_rfc822_datetime"
     )
     filters.setdefault("format_number", "warehouse.i18n.filters:format_number")
+
+    jglobals = config.get_settings().setdefault("jinja2.globals", {})
+    jglobals.setdefault("KNOWN_LOCALES", "warehouse.i18n:KNOWN_LOCALES")
