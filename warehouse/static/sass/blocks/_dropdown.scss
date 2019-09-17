@@ -40,10 +40,6 @@
     list-style-type: none;
   }
 
-  &:hover .dropdown__content {
-    display: block;
-  }
-
   &__trigger {
     cursor: pointer;
     white-space: nowrap;

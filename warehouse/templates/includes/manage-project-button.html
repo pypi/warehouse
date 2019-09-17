@@ -13,5 +13,5 @@
 -#}
 
 {% if request.user %}
-  <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}" class="button button--primary package-description__edit-button">Manage project</a>
+  <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}" class="button button--primary package-description__edit-button">{% trans %}Manage project{% endtrans %}</a>
 {% endif %}

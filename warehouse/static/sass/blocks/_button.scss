@@ -41,6 +41,7 @@
   border: 1px solid $accessible-border-color;
   border-radius: 3px;
   display: inline-block;
+  text-align: center;
   @include link-without-underline;
 
   i.fa {
