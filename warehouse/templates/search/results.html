@@ -84,16 +84,8 @@
           <i class="fa fa-times" aria-hidden="true"></i>
         </button>
         <h2 class="no-top-padding">
-          {% set href = request.route_path('help') + '#trove-classifier' %}
-          {% set label = gettext("What's a trove classifier?") %}
-          {% trans trimmed href=href, aria_label=label, data_original_label=label, classes="tooltipped tooltipped-s" %}
-          Filter by
-          <a href="{{ href }}"
-             class="{{ classes }}"
-             aria-label="{{ aria_label }}"
-             data-original-label="{{ data_original_label }}">
-            classifier
-          </a>
+          {% trans trimmed href=request.route_path('classifiers') %}
+          Filter by <a href="{{ href }}">classifier</a>
           {% endtrans %}
         </h2>
         <form id="classifiers">
