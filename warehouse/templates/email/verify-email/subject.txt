@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Email verification{% endblock %}
+{% block subject %}{% trans %}Email verification{% endtrans %}{% endblock %}

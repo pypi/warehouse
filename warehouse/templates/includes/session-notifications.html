@@ -16,16 +16,16 @@
 <div class="notification-bar notification-bar--warning" role="status">
   <span class="notification-bar__icon">
     <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-    <span class="sr-only">Warning</span>
+    <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
   </span>
   <span class="notification-bar__message">
     {% if request.user.primary_email %}
-    Your primary email address ({{ request.user.primary_email.email }}) is unverified.
+    {% trans email_address=request.user.primary_email.email %}Your primary email address ({{ email_address }}) is unverified.{% endtrans %}
     {% else %}
-    You do not have a primary email address.
+    {% trans %}You do not have a primary email address.{% endtrans %}
     {% endif %}
     <a href="{{ request.route_path('manage.account', _anchor="account-emails") }}">
-      Verify your email or add a new address.
+      {% trans %}Verify your email or add a new address.{% endtrans %}
     </a>
   </span>
 </div>
@@ -34,11 +34,10 @@
 {% if request.user and request.user.primary_email.verified and not request.user.has_two_factor %}
 <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
   <span class="notification-bar__message">
-    Two factor authentication is available,
-    <a href="{{ request.route_path('manage.account', _anchor="two-factor") }}">
-      enable it now for your account.
-    </a>
+    {% trans trimmed href=request.route_path('manage.account', _anchor="two-factor") %}
+      Two factor authentication is available, <a href="{{ href }}">enable it now for your account.</a>
+    {% endtrans %}
   </span>
-  <button type="button" title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+  <button type="button" title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
 </div>
 {% endif %}

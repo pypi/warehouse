@@ -44,7 +44,7 @@ tt {
   background-color: lighten($base-grey, 5);
   border: 1px solid $border-color;
   padding: 0 2px 1px 2px;
-  font-size: 0.85em;
+  font-size: 0.85rem;
   color: lighten($text-color, 15);
 }
 
@@ -116,7 +116,7 @@ a {
   &[target="_blank"]:not(.tooltipped):not(.sponsors__sponsor) {
     &::after {
       white-space: nowrap;
-      font-size: 0.8em;
+      font-size: 0.8rem;
       font-family: "Font Awesome 5 Free";
       font-weight: 900;
       content: "\f35d";
@@ -130,7 +130,7 @@ a {
   // Add 'email' icon to email links
   &[href^="mailto:"] {
     &::after {
-      font-size: 0.9em;
+      font-size: 0.9rem;
       font-family: "Font Awesome 5 Free";
       font-weight: 400;
       content: "\f0e0";
@@ -152,7 +152,7 @@ a {
   pre,
   samp,
   tt {
-    font-size: 0.7em;
+    font-size: 0.7rem;
     position: relative;
     top: -2px;
     padding: 0 2px;
@@ -167,6 +167,12 @@ button {
 @include selection {
   color: darken($primary-color, 15);
   background: $highlight-color;
+}
+
+abbr[title] {
+  border-bottom: 0;
+  text-decoration: underline dotted;
+  cursor: help;
 }
 
 // VERTICAL RHYTHM

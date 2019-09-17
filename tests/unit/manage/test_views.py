@@ -27,6 +27,7 @@ from webob.multidict import MultiDict
 import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.packaging.models import (
@@ -2027,6 +2028,7 @@ class TestManageProjectSettings:
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -2036,6 +2038,9 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -2044,6 +2049,7 @@ class TestManageProjectSettings:
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={"confirm_project_name": "bar"},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -2053,11 +2059,44 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call(
                 "Could not delete project - 'bar' is not the same as 'foo'",
                 queue="error",
             )
+        ]
+
+    def test_delete_project_disallow_deletion(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.delete_project(project, request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_delete_project(self, db_request):
@@ -2172,6 +2211,7 @@ class TestManageProjectReleases:
             filename=f"foobar-{release.version}.tar.gz",
             packagetype="sdist",
         )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
 
         assert views.manage_project_releases(project, db_request) == {
             "project": project,
@@ -2195,6 +2235,48 @@ class TestManageProjectRelease:
             "files": files,
         }
 
+    def test_delete_project_release_disallow_deletion(self, monkeypatch):
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            method="POST",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release()
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
     def test_delete_project_release(self, monkeypatch):
         release = pretend.stub(
             version="1.2.3",
@@ -2210,6 +2292,7 @@ class TestManageProjectRelease:
                 delete=pretend.call_recorder(lambda a: None),
                 add=pretend.call_recorder(lambda a: None),
             ),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             user=pretend.stub(username=pretend.stub()),
@@ -2228,6 +2311,9 @@ class TestManageProjectRelease:
 
         assert request.db.delete.calls == [pretend.call(release)]
         assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert journal_cls.calls == [
             pretend.call(
                 name=release.project.name,
@@ -2260,6 +2346,7 @@ class TestManageProjectRelease:
             POST={"confirm_version": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2273,6 +2360,9 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
         ]
         assert request.route_path.calls == [
             pretend.call(
@@ -2288,6 +2378,7 @@ class TestManageProjectRelease:
             POST={"confirm_version": "invalid"},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2303,6 +2394,42 @@ class TestManageProjectRelease:
             pretend.call(
                 "Could not delete release - "
                 + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_delete_project_release_file_disallow_deletion(self):
+        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        request = pretend.stub(
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
                 queue="error",
             )
         ]
@@ -2372,6 +2499,7 @@ class TestManageProjectRelease:
             POST={"confirm_project_name": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2383,6 +2511,9 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert request.db.delete.calls == []
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -2409,6 +2540,7 @@ class TestManageProjectRelease:
                 filter=lambda *a: pretend.stub(one=no_result_found)
             ),
         )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -2422,6 +2554,9 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert db_request.db.delete.calls == []
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Could not find file", queue="error")
         ]

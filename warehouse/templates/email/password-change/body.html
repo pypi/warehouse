@@ -15,7 +15,7 @@
 
 
 {% block content %}
-<p>Someone, perhaps you, has changed the password for your PyPI account <strong>{{ username }}</strong>.</p>
+<p>{% trans username=username %}Someone, perhaps you, has changed the password for your PyPI account <strong>{{ username }}</strong>.{% endtrans %}</p>
 
-<p>If you did not make this change, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.</p>
+<p>{% trans href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}If you did not make this change, you can email <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI administrators.{% endtrans %}</p>
 {% endblock %}
