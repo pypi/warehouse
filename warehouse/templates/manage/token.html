@@ -35,7 +35,7 @@
       {% if macaroon.caveats.permissions == "user" %}
       <strong>Scope:</strong> Entire account (all projects)
       {% else %}
-      <strong>Scope:</strong> Project "{{ macaroon.caveats.permissions.projects[0] }}"
+      <strong>Scope:</strong> Project "{{ macaroon.caveats.permissions.projects[0]["project-name"].split(":")[-1] }}"
       {% endif %}
     </p>
     <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
@@ -104,7 +104,7 @@
           <option value="scope:user">Entire account (all projects)</option>
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
-          <option value="{{ project_value }}" label="Project: {{ project }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}></option>
+          <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>{% trans %}Project:{% endtrans %} {{ project }}</option>
         {% endfor %}
         </select>
         <div id="scope-errors">
