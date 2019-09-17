@@ -21,6 +21,10 @@ from warehouse.macaroons.caveats import Caveat, InvalidMacaroon, V1Caveat, Verif
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
+from datetime import datetime
+from datetime import timedelta
+import pytz
+
 
 class TestCaveat:
     def test_creation(self):
@@ -53,15 +57,28 @@ class TestV1Caveat:
     def test_verify_valid_predicate(self):
         verifier = pretend.stub()
         caveat = V1Caveat(verifier)
-        predicate = '{"permissions": "user", "version": 1}'
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+        predicate = {"permissions": {"scope": "user", "expiration": expiration}, "version": 1}
 
-        assert caveat(predicate) is True
+        assert caveat(json.dumps(predicate)) is True
+    
+    def test_verify_user_invalid_predicate(self):
+        verifier = pretend.stub()
+        caveat = V1Caveat(verifier)
+        predicate = {"permissions": {"scope": "user"}, "version": 1}
+
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
 
     def test_verify_project_invalid_context(self):
         verifier = pretend.stub(context=pretend.stub())
         caveat = V1Caveat(verifier)
 
-        predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "notfoobar"}]}}
         with pytest.raises(InvalidMacaroon):
             caveat(json.dumps(predicate))
 
@@ -70,7 +87,8 @@ class TestV1Caveat:
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
 
-        predicate = {"version": 1, "permissions": {"projects": ["notfoobar"]}}
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "notfoobar"}]}}
         with pytest.raises(InvalidMacaroon):
             caveat(json.dumps(predicate))
 
@@ -88,33 +106,113 @@ class TestV1Caveat:
 
     def test_verify_project(self, db_request):
         project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
 
-        predicate = {"version": 1, "permissions": {"projects": ["foobar"], 
-            "releases": "1.0", "expiration": "2020-01-01T00:00"}}
+        predicate = {"version": 1, "permissions": 
+            {"expiration": expiration, "projects": [{"project-name": "foobar", "version": "1.0"}]}}
         assert caveat(json.dumps(predicate)) is True
     
-    #added
-    def test_verify_release(self, db_request):
+    def test_verify_releases(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        # release = ReleaseFactory.create(project=project, version="1.0")
+        release = ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
 
-        predicate = {"version": "1.0", "permissions": {"projects": ["foobar"], "releases": "1.0"}}
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "foobar", "version": "1.0"}], "expiration": expiration}}
+        assert caveat(json.dumps(predicate)) is True
+
+    def test_verify_release_exists(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "foobar", "version": project.latest_version[0]}],
+            "expiration": expiration}}
         with pytest.raises(InvalidMacaroon):
             caveat(json.dumps(predicate))
     
-    def test_expiration(self, db_request):
+    def test_verify_release_missing(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "foobar"}], "expiration": expiration}}
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
+
+    def test_verify_invalid_expiration(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name":"foobar", "version": "1.0"}], 
+            "expiration": "notanexpiration"}}
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
+    
+    def test_verify_expiration(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "foobar", "version": "1.0"}], 
+            "expiration": expiration}}
+        assert caveat(json.dumps(predicate)) is True
+
+    def test_verify_expired(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+        d = datetime.now() - timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "foobar", "version": "1.0"}], 
+            "expiration": expiration}}
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
+    
+    def test_verify_expiration_missing(self, db_request):
         project = ProjectFactory.create(name="foobar")
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
 
-        predicate = {"version": "1.0", "permissions": {"projects": ["foobar"], "releases": "1.0", 
-            "expiration": "2019-09-01T06:00"}}
+        predicate = {"version": 1, "permissions": 
+            {"projects": [{"project-name": "foobar", "version": "1.0"}]}}
         with pytest.raises(InvalidMacaroon):
-            caveat(json.dumps(predicate))    
+            caveat(json.dumps(predicate))
 
 class TestVerifier:
     def test_creation(self):

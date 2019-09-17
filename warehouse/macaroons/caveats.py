@@ -46,10 +46,11 @@ class V1Caveat(Caveat):
             )
 
         project = self.verifier.context
-        if project.normalized_name not in projects:
-            raise InvalidMacaroon("project-scoped token matches no projects")
-        
-        return True
+
+        for user_proj in projects:
+            if project.normalized_name == user_proj.get("project-name"):
+                return True
+        raise InvalidMacaroon("project-scoped token matches no projects")
     
     def verify_releases(self, release):
         project = self.verifier.context
@@ -57,7 +58,6 @@ class V1Caveat(Caveat):
         for version in project.all_versions:
             if release == version[0]:
                 raise InvalidMacaroon("release already exists")
-
         return True
     
     def verify_expiration(self, expiration):
@@ -79,17 +79,20 @@ class V1Caveat(Caveat):
         try:
             data = json.loads(predicate)
         except ValueError:
-            raise InvalidMacaroon("malformatted predicate")
+            raise InvalidMacaroon(f"malformatted predicate {predicate}")
 
         if data.get("version") != 1:
-            raise InvalidMacaroon("invalidate version in predicate")
+            raise InvalidMacaroon("invalid version in predicate")
 
         permissions = data.get("permissions")
         if permissions is None:
             raise InvalidMacaroon("invalid permissions in predicate")
 
-        if permissions == "user":
-            # User-scoped tokens behave exactly like a user's normal credentials.
+        if permissions.get("scope") == "user":
+            if permissions.get("expiration") is None:
+                raise InvalidMacaroon("invalid expiration in predicate")
+            else:
+                self.verify_expiration(permissions.get("expiration"))
             return True
 
         projects = permissions.get("projects")
@@ -98,11 +101,13 @@ class V1Caveat(Caveat):
         else:
             self.verify_projects(projects)
 
-        release = permissions.get("releases")
-        if release is None and projects is not None:
-            raise InvalidMacaroon("invalid release in predicate")
-        else:
-            self.verify_releases(release)
+        # done
+        for project in projects:
+            release = project.get("version")
+            if release is None:
+                raise InvalidMacaroon("invalid release in predicate")
+            else:
+                self.verify_releases(release)
 
         expiration = permissions.get("expiration")
         if expiration is None:

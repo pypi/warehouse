@@ -21,11 +21,13 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.manage import forms
 
+from ...common.db.packaging import ProjectFactory, ReleaseFactory
+
 from datetime import datetime
 from datetime import timedelta
 import pytz
 
-from ...common.db.packaging import ProjectFactory
+from warehouse.packaging.models import Project
 
 
 class TestCreateRoleForm:
@@ -415,14 +417,42 @@ class TestCreateMacaroonForm:
         assert not form.validate()
         assert form.token_scope.errors.pop() == "Unknown or invalid project name: foo"
     
-    def test_validate_token_scope_invalid_release(self):
+    def test_validate_token_scope_valid_project(self, db_request):
+        project = ProjectFactory(name="foo")
+        release = ReleaseFactory(project=project)
         d = datetime.now() + timedelta(days=1)
         tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
         expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
         form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foo", 
+                "releases": "1.0", "expiration": expiration},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            all_projects=[project]
+        )
+        assert form.validate()
+    
+    def test_validate_token_scope_not_in_projects(self, db_request):
+        project = ProjectFactory(name="foo")
+        release = ReleaseFactory(project=project)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foobar", 
+                "releases": "1.0", "expiration": expiration},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            all_projects=[project]
+        )
+        assert not form.validate()
+
+    def test_validate_token_scope_invalid_release(self):
+        form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:project:foo",
-                "releases": "AA.BB.CC", "expiration": expiration},
+                "releases": "AA.BB.CC"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             all_projects=[]
@@ -431,6 +461,26 @@ class TestCreateMacaroonForm:
         assert not form.validate()
         assert form.releases.errors.pop() == "Invalid release"
     
+
+    def test_validate_token_scope_release_in_use(self, db_request):
+        project = Project(name="foo")
+        release = ReleaseFactory(project=project)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:project:foo",
+                "releases": project.latest_version[0], "expiration": expiration},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            all_projects=[project]
+        )
+
+        assert not form.validate()
+        assert form.releases.errors.pop() == "Invalid release"
+
+
     def test_validate_expiration_missing(self):
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:project:foo",
@@ -443,8 +493,7 @@ class TestCreateMacaroonForm:
         assert not form.validate()
         assert form.expiration.errors.pop() == "Specify the expiration"
 
-    #will have to add a test for greater than 1 year
-    def test_validate_token_scope_invalid_expiration(self):
+    def test_validate_invalid_expiration(self):
         d = datetime.now() - timedelta(days=1)
         tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
@@ -459,26 +508,9 @@ class TestCreateMacaroonForm:
 
         assert not form.validate()
         assert form.expiration.errors.pop() == "Expiration must be after the current time"
-
-    #once js is figured out would have to disable releases
-    def test_validate_token_scope_valid_user(self):
-        d = datetime.now() + timedelta(days=1)
-        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
-        tz_aware = tz.localize(d)
-        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
-        form = forms.CreateMacaroonForm(
-            data={"description": "dummy", "token_scope": "scope:user",
-            "releases": "1.0", "expiration": expiration},
-            user_id=pretend.stub(),
-            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
-            all_projects=[]
-        )
-
-        assert form.validate()
-
-    #need to fix -> add foo project to all_projects
-    def test_validate_token_scope_valid_project(self):
-        d = datetime.now() + timedelta(days=1)
+    
+    def test_validate_long_expiration(self):
+        d = datetime.now() + timedelta(days=366)
         tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
         expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
@@ -490,8 +522,24 @@ class TestCreateMacaroonForm:
             all_projects=[]
         )
 
-        assert form.validate()
+        assert not form.validate()
+        assert form.expiration.errors.pop() == "Expiration cannot be greater than one year"
 
+    #once js is figured out would have to disable releases
+    def test_validate_token_scope_valid_user(self):
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:user",
+                "releases": "0.0", "expiration": expiration},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            all_projects=[]
+        )
+
+        assert form.validate()
 
 class TestDeleteMacaroonForm:
     def test_creation(self):

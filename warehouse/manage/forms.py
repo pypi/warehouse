@@ -270,10 +270,9 @@ class CreateMacaroonForm(forms.Form):
             raise wtforms.validators.ValidationError("Invalid release")
 
         for project in self.all_projects:
-            if project.normalized_name == self.validate_token_scope(self.token_scope):
-                for version in project.all_versions:
-                    if version[0] == release:
-                        raise wtforms.validators.ValidationError("Invalid release")
+            for version in project.all_versions:
+                if version[0] == release:
+                    raise wtforms.validators.ValidationError("Invalid release")
         
     def validate_expiration(self, field):
         expiration = field.data
@@ -294,7 +293,9 @@ class CreateMacaroonForm(forms.Form):
         res = super().validate()
         if not isinstance(self.validated_scope, str):
             self.validated_scope = {"expiration": self.expiration.data, 
-                "releases": self.releases.data, "projects": [self.token_scope.data]}   
+            "projects": [{"project-name": self.token_scope.data, "version": self.releases.data}]}
+        else:
+            self.validated_scope = {"scope": "user", "expiration": self.expiration.data}
         return res
         
 
