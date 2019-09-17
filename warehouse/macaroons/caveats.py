@@ -101,7 +101,6 @@ class V1Caveat(Caveat):
         else:
             self.verify_projects(projects)
 
-        # done
         for project in projects:
             release = project.get("version")
             if release is None:
