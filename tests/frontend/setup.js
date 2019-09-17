@@ -33,3 +33,6 @@ window.document.body.appendChild(script);
 
 // Extend Jest with jest-dom https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom/extend-expect";
+
+// Required to use async/await in tests
+import "@babel/polyfill";
