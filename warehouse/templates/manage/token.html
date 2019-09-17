@@ -35,7 +35,7 @@
       {% if macaroon.caveats.permissions == "user" %}
       <strong>Scope:</strong> Entire account (all projects)
       {% else %}
-      <strong>Scope:</strong> Project "{{ macaroon.caveats.permissions.projects[0]["project-name"].split(":")[-1] }}"
+      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0]["project-name"].split(":")[-1] %}Project "{{ project }}"{% endtrans %}
       {% endif %}
     </p>
     <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
