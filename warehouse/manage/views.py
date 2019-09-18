@@ -619,10 +619,6 @@ class ProvisionMacaroonViews:
         self.macaroon_service = request.find_service(IMacaroonService, context=None)
 
     @property
-    def project_names(self):
-        return [project.normalized_name for project in self.request.user.projects]
-
-    @property
     def all_projects(self):
         return [project for project in self.request.user.projects]
 
@@ -630,7 +626,6 @@ class ProvisionMacaroonViews:
     def default_response(self):
         return {
             "all_projects": self.all_projects,
-            "project_names": self.project_names,
             "create_macaroon_form": CreateMacaroonForm(
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
