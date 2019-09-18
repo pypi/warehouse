@@ -113,7 +113,7 @@ class TestV1Caveat:
 
     def test_verify_project(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() + timedelta(days=1)
@@ -132,7 +132,7 @@ class TestV1Caveat:
 
     def test_verify_releases(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() + timedelta(days=1)
@@ -151,7 +151,7 @@ class TestV1Caveat:
 
     def test_verify_release_exists(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() + timedelta(days=1)
@@ -192,7 +192,7 @@ class TestV1Caveat:
 
     def test_verify_invalid_expiration(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
 
@@ -226,7 +226,7 @@ class TestV1Caveat:
 
     def test_verify_expired(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() - timedelta(days=1)

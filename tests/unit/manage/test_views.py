@@ -1516,7 +1516,11 @@ class TestProvisionMacaroonViews:
         )
 
         view = views.ProvisionMacaroonViews(db_request)
-        assert set(view.all_projects) == {with_sole_owner, with_multiple_owners, not_an_owner}
+        assert set(view.all_projects) == {
+            with_sole_owner,
+            with_multiple_owners,
+            not_an_owner,
+        }
 
     def test_manage_macaroons(self, monkeypatch):
         request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())

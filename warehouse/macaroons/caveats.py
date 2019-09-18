@@ -48,8 +48,10 @@ class V1Caveat(Caveat):
         project = self.verifier.context
 
         for user_proj in projects:
-            if isinstance(user_proj, str): ...
-            if isinstance(user_proj, dict) and project.normalized_name == user_proj.get("project-name"):
+            # if isinstance(user_proj, str): ...
+            if isinstance(user_proj, dict) and project.normalized_name == user_proj.get(
+                "project-name"
+            ):
                 return True
         raise InvalidMacaroon("project-scoped token matches no projects")
 
