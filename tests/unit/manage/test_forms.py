@@ -419,7 +419,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_valid_project(self, db_request):
         project = ProjectFactory(name="foo")
-        release = ReleaseFactory(project=project)
+        ReleaseFactory.create(project=project)
         d = datetime.now() + timedelta(days=1)
         tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
@@ -439,7 +439,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_not_in_projects(self, db_request):
         project = ProjectFactory(name="foo")
-        release = ReleaseFactory(project=project)
+        ReleaseFactory.create(project=project)
         d = datetime.now() + timedelta(days=1)
         tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
@@ -474,7 +474,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_release_in_use(self, db_request):
         project = Project(name="foo")
-        release = ReleaseFactory(project=project)
+        ReleaseFactory.create(project=project)
         d = datetime.now() + timedelta(days=1)
         tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
