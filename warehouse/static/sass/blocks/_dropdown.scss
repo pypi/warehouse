@@ -40,10 +40,6 @@
     list-style-type: none;
   }
 
-  &:hover .dropdown__content {
-    display: block;
-  }
-
   &__trigger {
     cursor: pointer;
     white-space: nowrap;
@@ -97,7 +93,7 @@
       font-size: 14px;
       position: absolute;
       left: 15px;
-      top: 20px;
+      top: calc(50% - 7px);
     }
   }
 

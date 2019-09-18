@@ -14,15 +14,15 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-Someone, perhaps you, has made a password reset request for your PyPI account
-'{{ username }}'.
+{% trans username=username %}Someone, perhaps you, has made a password reset request for your PyPI account
+'{{ username }}'.{% endtrans %}
 
-If you wish to proceed with this request, follow the link below to reset your
-password:
+{% trans %}If you wish to proceed with this request, follow the link below to reset your
+password:{% endtrans %}
 
   {{ request.route_url('accounts.reset-password', _query={'token': token}) }}
 
-This link will expire in {{ n_hours }} hours.
+{% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hour.{% pluralize %}This link will expire in {{ n_hours }} hours.{% endtrans %}
 
-If you did not make this request, you can safely ignore this email.
+{% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}
 {% endblock %}

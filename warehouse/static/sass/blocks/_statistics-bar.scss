@@ -27,14 +27,14 @@
 
   &__statistic {
     color: darken($primary-color, 15);
-    font-size: 20px;
+    font-size: 1.2rem;
     display: inline-block;
     padding: 10px 20px;
     margin: 0;
     box-sizing: border-box;
 
     @media only screen and (max-width: $tablet) {
-      font-size: 18px;
+      font-size: $base-font-size;
     }
   }
 }

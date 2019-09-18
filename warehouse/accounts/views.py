@@ -44,6 +44,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email_verification_email, send_password_reset_email
 from warehouse.packaging.models import Project, Release
@@ -377,7 +378,7 @@ def register(request, _form_class=RegistrationForm):
     if request.method == "POST" and request.POST.get("confirm_form"):
         return HTTPSeeOther(request.route_path("index"))
 
-    if request.flags.enabled("disallow-new-user-registration"):
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION):
         request.session.flash(
             (
                 "New user registration temporarily disabled. "

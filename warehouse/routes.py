@@ -33,6 +33,7 @@ def includeme(config):
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
+    config.add_template_view("sitemap", "/sitemap/", "pages/sitemap.html")
     config.add_template_view("help", "/help/", "pages/help.html")
     config.add_template_view("security", "/security/", "pages/security.html")
     config.add_template_view(

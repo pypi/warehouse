@@ -143,48 +143,70 @@ docReady(() => {
 });
 
 docReady(() => {
-  let changeRoleForms = document.querySelectorAll("form.change-role");
+  let changeRoleForms = document.querySelectorAll("form.table__change-role");
 
   if (changeRoleForms) {
     for (let form of changeRoleForms) {
-      let changeButton = form.querySelector("button.change-button");
-      let changeSelect = form.querySelector("select.change-field");
+      let changeButton = form.querySelector("button.table__change-button");
+      let changeSelect = form.querySelector("select.table__change-field");
 
       changeSelect.addEventListener("change", function (event) {
         if (event.target.value === changeSelect.dataset.original) {
           changeButton.style.display = "none";
         } else {
-          changeButton.style.display = "inline-block";
+          changeButton.style.display = "block";
         }
       });
     }
   }
 });
 
-var bindDropdowns = function () {
+let bindDropdowns = function () {
   // Bind click handlers to dropdowns for keyboard users
   let dropdowns = document.querySelectorAll(".dropdown");
   for (let dropdown of dropdowns) {
     let trigger = dropdown.querySelector(".dropdown__trigger");
     let content = dropdown.querySelector(".dropdown__content");
 
+    let openDropdown = function () {
+      content.classList.add("display-block");
+      content.removeAttribute("aria-hidden");
+      trigger.setAttribute("aria-expanded", "true");
+    };
+
+    let closeDropdown = function () {
+      content.classList.remove("display-block");
+      content.setAttribute("aria-hidden", "true");
+      trigger.setAttribute("aria-expanded", "false");
+    };
+
     if (!trigger.dataset.dropdownBound) {
-      // If the user has clicked the trigger (either with a mouse or by pressing
-      // space/enter on the keyboard) show the content
+      // If the user has clicked the trigger (either with a mouse or by
+      // pressing space/enter on the keyboard) show the content
       trigger.addEventListener("click", function () {
-        // Toggle the visibility of the content
         if (content.classList.contains("display-block")) {
-          content.classList.remove("display-block");
+          closeDropdown();
         } else {
-          content.classList.add("display-block");
+          openDropdown();
         }
       });
 
-      // If the user has moused onto the trigger and has happened to click it,
-      // remove the `display-block` class so that it doesn't stay visable when
-      // they mouse out
-      trigger.addEventListener("mouseout", function() {
-        content.classList.remove("display-block");
+      // Close the dropdown when a user moves away with their mouse or keyboard
+      let closeInactiveDropdown = function (event) {
+        if (dropdown.contains(event.relatedTarget)) {
+          return;
+        }
+        closeDropdown();
+      };
+
+      dropdown.addEventListener("focusout", closeInactiveDropdown, false);
+      dropdown.addEventListener("mouseout", closeInactiveDropdown, false);
+
+      // Close the dropdown if the user presses the escape key
+      document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+          closeDropdown();
+        }
       });
 
       // Set the 'data-dropdownBound' attribute so we don't bind multiple

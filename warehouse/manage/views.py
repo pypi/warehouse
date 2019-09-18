@@ -22,7 +22,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Load, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
@@ -30,6 +30,7 @@ import warehouse.utils.otp as otp
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -788,6 +789,18 @@ def manage_project_settings(project, request):
     permission="manage:project",
 )
 def delete_project(project, request):
+    if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+        request.session.flash(
+            (
+                "Project deletion temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details."
+            ),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
     confirm_project(project, request, fail_route="manage.project.settings")
     remove_project(project, request)
 
@@ -820,7 +833,37 @@ def destroy_project_docs(project, request):
     permission="manage:project",
 )
 def manage_project_releases(project, request):
-    return {"project": project}
+    # Get the counts for all the files for this project, grouped by the
+    # release version and the package types
+    filecounts = (
+        request.db.query(Release.version, File.packagetype, func.count(File.id))
+        .options(Load(Release).load_only("version"))
+        .outerjoin(File)
+        .group_by(Release.id)
+        .group_by(File.packagetype)
+        .filter(Release.project == project)
+        .all()
+    )
+
+    # Turn rows like:
+    #   [('0.1', 'bdist_wheel', 2), ('0.1', 'sdist', 1)]
+    # into:
+    #   {
+    #       '0.1: {
+    #            'bdist_wheel': 2,
+    #            'sdist': 1,
+    #            'total': 3,
+    #       }
+    #   }
+
+    version_to_file_counts = {}
+    for version, packagetype, count in filecounts:
+        packagetype_to_count = version_to_file_counts.setdefault(version, {})
+        packagetype_to_count.setdefault("total", 0)
+        packagetype_to_count[packagetype] = count
+        packagetype_to_count["total"] += count
+
+    return {"project": project, "version_to_file_counts": version_to_file_counts}
 
 
 @view_defaults(
@@ -847,6 +890,22 @@ class ManageProjectRelease:
 
     @view_config(request_method="POST", request_param=["confirm_version"])
     def delete_project_release(self):
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+            self.request.session.flash(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
         version = self.request.POST.get("confirm_version")
         if not version:
             self.request.session.flash("Confirm the request", queue="error")
@@ -916,6 +975,13 @@ class ManageProjectRelease:
                     version=self.release.version,
                 )
             )
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+            message = (
+                "Project deletion temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details."
+            )
+            return _error(message)
 
         project_name = self.request.POST.get("confirm_project_name")
 

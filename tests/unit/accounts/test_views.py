@@ -31,7 +31,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.admin.flags import AdminFlag
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
@@ -903,7 +903,9 @@ class TestRegister:
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
-        flag = db_request.db.query(AdminFlag).get("disallow-new-user-registration")
+        flag = db_request.db.query(AdminFlag).get(
+            AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION.value
+        )
         flag.enabled = True
 
         db_request.method = "POST"
