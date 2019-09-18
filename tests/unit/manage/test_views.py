@@ -1468,9 +1468,7 @@ class TestProvisionMacaroonViews:
         monkeypatch.setattr(
             views.ProvisionMacaroonViews, "project_names", project_names
         )
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "all_projects", all_projects
-        )
+        monkeypatch.setattr(views.ProvisionMacaroonViews, "all_projects", all_projects)
 
         request = pretend.stub(
             user=pretend.stub(id=pretend.stub()),
@@ -1578,9 +1576,7 @@ class TestProvisionMacaroonViews:
         monkeypatch.setattr(
             views.ProvisionMacaroonViews, "project_names", project_names
         )
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "all_projects", all_projects
-        )
+        monkeypatch.setattr(views.ProvisionMacaroonViews, "all_projects", all_projects)
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
@@ -1632,9 +1628,7 @@ class TestProvisionMacaroonViews:
         monkeypatch.setattr(
             views.ProvisionMacaroonViews, "project_names", project_names
         )
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "all_projects", all_projects
-        )
+        monkeypatch.setattr(views.ProvisionMacaroonViews, "all_projects", all_projects)
 
         default_response = {"default": "response"}
         monkeypatch.setattr(

@@ -16,17 +16,15 @@ import smtpd
 
 
 class DebuggingServer(smtpd.SMTPServer):
-
     def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
-        print('---------- MESSAGE FOLLOWS ----------')
+        print("---------- MESSAGE FOLLOWS ----------")
         print(quopri.decodestring(data).decode())
-        print('------------ END MESSAGE ------------')
+        print("------------ END MESSAGE ------------")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     options = smtpd.parseargs()
     DebuggingServer(
-        (options.localhost, options.localport),
-        (options.remotehost, options.remoteport),
+        (options.localhost, options.localport), (options.remotehost, options.remoteport)
     )
     asyncore.loop()
