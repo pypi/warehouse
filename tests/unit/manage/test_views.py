@@ -1464,11 +1464,7 @@ class TestProvisionMacaroonViews:
         )
         monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
 
-        project_names = [pretend.stub()]
         all_projects = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
         monkeypatch.setattr(views.ProvisionMacaroonViews, "all_projects", all_projects)
 
         request = pretend.stub(
@@ -1482,13 +1478,12 @@ class TestProvisionMacaroonViews:
         view = views.ProvisionMacaroonViews(request)
 
         assert view.default_response == {
-            "project_names": project_names,
             "all_projects": all_projects,
             "create_macaroon_form": create_macaroon_obj,
             "delete_macaroon_form": delete_macaroon_obj,
         }
 
-    def test_project_names(self, db_request):
+    def test_projects(self, db_request):
         user = UserFactory.create()
         another_user = UserFactory.create()
 
@@ -1521,7 +1516,7 @@ class TestProvisionMacaroonViews:
         )
 
         view = views.ProvisionMacaroonViews(db_request)
-        assert set(view.project_names) == {"foo", "bar", "baz"}
+        assert set(view.all_projects) == {with_sole_owner, with_multiple_owners, not_an_owner}
 
     def test_manage_macaroons(self, monkeypatch):
         request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
@@ -1572,11 +1567,7 @@ class TestProvisionMacaroonViews:
         )
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
-        project_names = [pretend.stub()]
         all_projects = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
         monkeypatch.setattr(views.ProvisionMacaroonViews, "all_projects", all_projects)
 
         default_response = {"default": "response"}
@@ -1624,11 +1615,7 @@ class TestProvisionMacaroonViews:
         )
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
 
-        project_names = [pretend.stub()]
         all_projects = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
         monkeypatch.setattr(views.ProvisionMacaroonViews, "all_projects", all_projects)
 
         default_response = {"default": "response"}
@@ -1708,11 +1695,6 @@ class TestProvisionMacaroonViews:
             lambda *a, **kw: create_macaroon_obj
         )
         monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
-
-        project_names = [pretend.stub()]
-        monkeypatch.setattr(
-            views.ProvisionMacaroonViews, "project_names", project_names
-        )
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
