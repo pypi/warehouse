@@ -98,7 +98,7 @@
       {% if files %}
       <p class="package-header__pip-instructions">
         <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
-        <button type="button" class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="{% trans %}Copy to clipboard{% endtrans %}" data-original-label="{% trans %}Copy to clipboard{% endtrans %}">
+        <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#pip-command" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}">
           <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
         </button>
