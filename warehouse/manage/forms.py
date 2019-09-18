@@ -292,11 +292,12 @@ class CreateMacaroonForm(forms.Form):
     def validate(self):
         res = super().validate()
         if not isinstance(self.validated_scope, str):
+            name = self.token_scope.data.split(":")[-1] if self.token_scope.data is not None else ''
             self.validated_scope = {
                 "expiration": self.expiration.data,
                 "projects": [
                     {
-                        "project-name": self.token_scope.data,
+                        "project-name": name,
                         "version": self.releases.data,
                     }
                 ],
