@@ -85,6 +85,45 @@ class TestV1Caveat:
         }
         with pytest.raises(InvalidMacaroon):
             caveat(json.dumps(predicate))
+    
+    def test_verify_invalid_string_project(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        ReleaseFactory.create(project=project)
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+
+        predicate = {
+            "version": 1,
+            "permissions": {
+                "expiration": expiration,
+                "projects": "notfoobar",
+            },
+        }
+        with pytest.raises(InvalidMacaroon):
+            caveat(json.dumps(predicate))
+
+    def test_verify_valid_string_project(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        ReleaseFactory.create(project=project)
+        verifier = pretend.stub(context=project)
+        caveat = V1Caveat(verifier)
+        d = datetime.now() + timedelta(days=1)
+        tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
+        tz_aware = tz.localize(d)
+        expiration = datetime.strftime(tz_aware, "%Y-%m-%dT%H:%M")
+
+        predicate = {
+            "version": 1,
+            "permissions": {
+                "expiration": expiration,
+                "projects": "foobar",
+            },
+        }
+        assert caveat(json.dumps(predicate)) is True
 
     def test_verify_project_invalid_project_name(self, db_request):
         project = ProjectFactory.create(name="foobar")
