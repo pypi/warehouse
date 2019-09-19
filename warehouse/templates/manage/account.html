@@ -272,7 +272,9 @@
       <p class="form-group__text">{{ user.username }}</p>
       {% if user.date_joined %}
       <span class="form-group__label">{% trans %}Date Joined{% endtrans %}</span>
-      <p class="form-group__text"> {{ user.date_joined|format_date() }}</p>
+      <p class="form-group__text">
+        {{ humanize(user.date_joined) }}
+      </p>
       {% endif %}
       <p class="form-group__help-text">
         {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
