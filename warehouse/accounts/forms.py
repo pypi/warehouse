@@ -23,6 +23,7 @@ from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse.accounts.models import DisableReason
 from warehouse.email import send_password_compromised_email_hibp
+from warehouse.i18n import localize as _
 from warehouse.utils.otp import TOTP_LENGTH
 
 
@@ -34,7 +35,9 @@ class UsernameMixin:
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
-            raise wtforms.validators.ValidationError("No user found with that username")
+            raise wtforms.validators.ValidationError(
+                _("No user found with that username")
+            )
 
 
 class TOTPValueMixin:
@@ -44,7 +47,10 @@ class TOTPValueMixin:
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
                 rf"^[0-9]{{{TOTP_LENGTH}}}$",
-                message=f"TOTP code must be {TOTP_LENGTH} digits.",
+                message=_(
+                    "TOTP code must be ${totp_length} digits.",
+                    mapping={"totp_length": TOTP_LENGTH},
+                ),
             ),
         ]
     )
@@ -61,13 +67,13 @@ class NewUsernameMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Length(
-                max=50, message=("Choose a username with 50 characters or less.")
+                max=50, message=_("Choose a username with 50 characters or less.")
             ),
             # the regexp below must match the CheckConstraint
             # for the username field in accounts.models.User
             wtforms.validators.Regexp(
                 r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$",
-                message=(
+                message=_(
                     "The username is invalid. Usernames "
                     "must be composed of letters, numbers, "
                     "dots, hyphens and underscores. And must "
@@ -81,8 +87,10 @@ class NewUsernameMixin:
     def validate_username(self, field):
         if self.user_service.find_userid(field.data) is not None:
             raise wtforms.validators.ValidationError(
-                "This username is already being used by another "
-                "account. Choose a different username."
+                _(
+                    "This username is already being used by another "
+                    "account. Choose a different username."
+                )
             )
 
 
@@ -102,12 +110,14 @@ class PasswordMixin:
                     userid, field.data, tags=self._check_password_metrics_tags
                 ):
                     raise wtforms.validators.ValidationError(
-                        "The password is invalid. Try again."
+                        _("The password is invalid. Try again.")
                     )
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
-                    "There have been too many unsuccessful login attempts, "
-                    "try again later."
+                    _(
+                        "There have been too many unsuccessful login attempts, "
+                        "try again later."
+                    )
                 ) from None
 
 
@@ -126,7 +136,7 @@ class NewPasswordMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
-                "new_password", "Your passwords don't match. Try again."
+                "new_password", message=_("Your passwords don't match. Try again.")
             ),
         ]
     )
@@ -157,7 +167,7 @@ class NewEmailMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                r".+@.+\..+", message=("The email address isn't valid. Try again.")
+                r".+@.+\..+", message=_("The email address isn't valid. Try again.")
             ),
         ]
     )
@@ -167,20 +177,26 @@ class NewEmailMixin:
 
         if userid and userid == self.user_id:
             raise wtforms.validators.ValidationError(
-                f"This email address is already being used by this account. "
-                f"Use a different email."
+                _(
+                    "This email address is already being used by this account. "
+                    "Use a different email."
+                )
             )
         if userid:
             raise wtforms.validators.ValidationError(
-                f"This email address is already being used by another account. "
-                f"Use a different email."
+                _(
+                    "This email address is already being used "
+                    "by another account. Use a different email."
+                )
             )
 
         domain = field.data.split("@")[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "You can't use an email address from this domain. Use a "
-                "different email."
+                _(
+                    "You can't use an email address from this domain. Use a "
+                    "different email."
+                )
             )
 
 
@@ -199,7 +215,7 @@ class RegistrationForm(
         validators=[
             wtforms.validators.Length(
                 max=100,
-                message=(
+                message=_(
                     "The name is too long. "
                     "Choose a name with 100 characters or less."
                 ),
@@ -263,7 +279,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
         totp_value = field.data.encode("utf8")
 
         if not self.user_service.check_totp_value(self.user_id, totp_value):
-            raise wtforms.validators.ValidationError("Invalid TOTP code.")
+            raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
 
 
 class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticationForm):
@@ -280,7 +296,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             assertion_dict = json.loads(field.data.encode("utf8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
-                f"Invalid WebAuthn assertion: Bad payload"
+                _("Invalid WebAuthn assertion: Bad payload")
             )
 
         try:
@@ -313,7 +329,7 @@ class RequestPasswordResetForm(forms.Form):
             username_or_email = self.user_service.get_user_by_email(field.data)
         if username_or_email is None:
             raise wtforms.validators.ValidationError(
-                "No user found with that username or email"
+                _("No user found with that username or email")
             )
 
 

@@ -27,6 +27,7 @@ def includeme(config):
 
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
+    config.add_route("locale", "/locale", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
