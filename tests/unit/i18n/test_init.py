@@ -22,7 +22,7 @@ def test_sets_locale(monkeypatch):
     request = pretend.stub(locale_name=pretend.stub())
 
     assert i18n._locale(request) is locale_obj
-    assert locale_cls.parse.calls == [pretend.call(request.locale_name, sep="-")]
+    assert locale_cls.parse.calls == [pretend.call(request.locale_name, sep="_")]
 
 
 def test_negotiate_locale(monkeypatch):
