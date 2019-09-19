@@ -12,6 +12,9 @@
 
 import json
 
+from datetime import datetime, timedelta
+
+import pytz
 import wtforms
 
 import warehouse.utils.otp as otp
@@ -25,10 +28,6 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
-
-from datetime import datetime
-from datetime import timedelta
-import pytz
 
 
 class RoleNameMixin:

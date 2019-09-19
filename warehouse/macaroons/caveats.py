@@ -12,13 +12,21 @@
 
 import json
 
+<<<<<<< HEAD
 import pymacaroons
 
 from warehouse.packaging.models import Project
 
 from datetime import datetime
 
+=======
+from datetime import datetime
+
+import pymacaroons
+>>>>>>> tob-6255
 import pytz
+
+from warehouse.packaging.models import Project
 
 
 class InvalidMacaroon(Exception):
@@ -47,12 +55,12 @@ class V1Caveat(Caveat):
 
         project = self.verifier.context
 
-        for user_proj in projects:
-            # if isinstance(user_proj, str): ...
-            if isinstance(user_proj, dict) and project.normalized_name == user_proj.get(
-                "project-name"
-            ):
+        if isinstance(projects, str) and project.normalized_name == projects:
                 return True
+        else:
+            for user_proj in projects:
+                if isinstance(user_proj, dict) and project.normalized_name == user_proj.get("project-name"):
+                    return True
         raise InvalidMacaroon("project-scoped token matches no projects")
 
     def verify_releases(self, release):
@@ -103,13 +111,14 @@ class V1Caveat(Caveat):
             raise InvalidMacaroon("invalid projects in predicate")
         else:
             self.verify_projects(projects)
-
-        for project in projects:
-            release = project.get("version")
-            if release is None:
-                raise InvalidMacaroon("invalid release in predicate")
-            else:
-                self.verify_releases(release)
+            
+        if not isinstance(projects, str):
+            for project in projects:
+                release = project.get("version")
+                if release is None:
+                    raise InvalidMacaroon("invalid release in predicate")
+                else:
+                    self.verify_releases(release)
 
         expiration = permissions.get("expiration")
         if expiration is None:
