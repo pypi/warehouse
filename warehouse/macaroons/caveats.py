@@ -12,15 +12,12 @@
 
 import json
 
-import pymacaroons
-
-from warehouse.packaging.models import Project, Release
-
 from datetime import datetime
 
-from datetime import timedelta
-
+import pymacaroons
 import pytz
+
+from warehouse.packaging.models import Project
 
 
 class InvalidMacaroon(Exception):

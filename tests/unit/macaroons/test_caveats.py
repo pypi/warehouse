@@ -12,18 +12,17 @@
 
 import json
 
+from datetime import datetime, timedelta
+
 import pretend
 import pytest
+import pytz
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
 from warehouse.macaroons.caveats import Caveat, InvalidMacaroon, V1Caveat, Verifier
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
-
-from datetime import datetime
-from datetime import timedelta
-import pytz
 
 
 class TestCaveat:
@@ -113,7 +112,7 @@ class TestV1Caveat:
 
     def test_verify_project(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() + timedelta(days=1)
@@ -132,7 +131,7 @@ class TestV1Caveat:
 
     def test_verify_releases(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() + timedelta(days=1)
@@ -151,7 +150,7 @@ class TestV1Caveat:
 
     def test_verify_release_exists(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() + timedelta(days=1)
@@ -192,7 +191,7 @@ class TestV1Caveat:
 
     def test_verify_invalid_expiration(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
 
@@ -226,7 +225,7 @@ class TestV1Caveat:
 
     def test_verify_expired(self, db_request):
         project = ProjectFactory.create(name="foobar")
-        release = ReleaseFactory.create(project=project)
+        ReleaseFactory.create(project=project)
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
         d = datetime.now() - timedelta(days=1)

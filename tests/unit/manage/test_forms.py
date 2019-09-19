@@ -10,8 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime, timedelta
+
 import pretend
 import pytest
+import pytz
 import wtforms
 
 from webob.multidict import MultiDict
@@ -20,14 +23,9 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.manage import forms
+from warehouse.packaging.models import Project
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
-
-from datetime import datetime
-from datetime import timedelta
-import pytz
-
-from warehouse.packaging.models import Project
 
 
 class TestCreateRoleForm:
@@ -419,7 +417,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_valid_project(self, db_request):
         project = ProjectFactory(name="foo")
-        release = ReleaseFactory(project=project)
+        ReleaseFactory.create(project=project)
         d = datetime.now() + timedelta(days=1)
         tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
@@ -439,7 +437,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_not_in_projects(self, db_request):
         project = ProjectFactory(name="foo")
-        release = ReleaseFactory(project=project)
+        ReleaseFactory.create(project=project)
         d = datetime.now() + timedelta(days=1)
         tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
@@ -474,7 +472,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_release_in_use(self, db_request):
         project = Project(name="foo")
-        release = ReleaseFactory(project=project)
+        ReleaseFactory.create(project=project)
         d = datetime.now() + timedelta(days=1)
         tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
