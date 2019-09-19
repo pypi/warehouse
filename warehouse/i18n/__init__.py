@@ -41,7 +41,7 @@ def _locale(request):
     """
     Computes a babel.core:Locale() object for this request.
     """
-    return Locale.parse(request.locale_name, sep="-")
+    return Locale.parse(request.locale_name, sep="_")
 
 
 def _negotiate_locale(request):
