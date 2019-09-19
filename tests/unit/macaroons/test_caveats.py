@@ -85,7 +85,7 @@ class TestV1Caveat:
         }
         with pytest.raises(InvalidMacaroon):
             caveat(json.dumps(predicate))
-    
+
     def test_verify_invalid_string_project(self, db_request):
         project = ProjectFactory.create(name="foobar")
         ReleaseFactory.create(project=project)
@@ -98,10 +98,7 @@ class TestV1Caveat:
 
         predicate = {
             "version": 1,
-            "permissions": {
-                "expiration": expiration,
-                "projects": "notfoobar",
-            },
+            "permissions": {"expiration": expiration, "projects": "notfoobar"},
         }
         with pytest.raises(InvalidMacaroon):
             caveat(json.dumps(predicate))
@@ -118,10 +115,7 @@ class TestV1Caveat:
 
         predicate = {
             "version": 1,
-            "permissions": {
-                "expiration": expiration,
-                "projects": "foobar",
-            },
+            "permissions": {"expiration": expiration, "projects": "foobar"},
         }
         assert caveat(json.dumps(predicate)) is True
 
