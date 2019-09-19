@@ -12,14 +12,8 @@
  # limitations under the License.
 -#}
 
-{% macro humanize(timestamp) -%}
-<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="true">
-  {{ timestamp|format_date()}}
-</time>
-{%- endmacro %}
-
-{% macro localize(timestamp) -%}
-<time class="tooltipped tooltipped-s -js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time">
+{% macro humanize(timestamp, relative="true", time="false") -%}
+<time datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="{{ relative }}" data-localized-time-show-time="{{ time }}">
   {{ timestamp|format_date()}}
 </time>
 {%- endmacro %}
