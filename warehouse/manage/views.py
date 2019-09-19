@@ -39,6 +39,7 @@ from warehouse.email import (
     send_password_change_email,
     send_primary_email_change_email,
 )
+from warehouse.i18n import localize as _
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -164,8 +165,11 @@ class ManageAccountViews:
             send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
-                f"Email {email.email} added - check your email for "
-                + "a verification link",
+                _(
+                    "Email ${email_address} added - check your email for "
+                    "a verification link",
+                    mapping={"email_address": email.email},
+                ),
                 queue="success",
             )
             return self.default_response

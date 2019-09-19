@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-09-16 15:11-0400\n"
+"POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -178,6 +178,10 @@ msgstr ""
 
 #: warehouse/accounts/views.py:593
 msgid "Email address ${email_address} verified. ${confirm_message}."
+msgstr ""
+
+#: warehouse/manage/views.py:168
+msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
 #: warehouse/templates/403.html:16

@@ -25,6 +25,7 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.cache.http import add_vary
+from warehouse.utils.msgpack import object_encode
 from warehouse.utils import crypto
 
 
@@ -274,7 +275,12 @@ class SessionFactory:
             self.redis.setex(
                 self._redis_key(request.session.sid),
                 self.max_age,
-                msgpack.packb(request.session, encoding="utf8", use_bin_type=True),
+                msgpack.packb(
+                    request.session,
+                    encoding="utf8",
+                    default=object_encode,
+                    use_bin_type=True,
+                ),
             )
 
             # Send our session cookie to the client
