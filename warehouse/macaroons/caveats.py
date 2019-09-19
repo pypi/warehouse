@@ -12,18 +12,9 @@
 
 import json
 
-<<<<<<< HEAD
-import pymacaroons
-
-from warehouse.packaging.models import Project
-
-from datetime import datetime
-
-=======
 from datetime import datetime
 
 import pymacaroons
->>>>>>> tob-6255
 import pytz
 
 from warehouse.packaging.models import Project
