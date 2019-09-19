@@ -28,6 +28,9 @@ class LazyString:
         self.mapping = kwargs.get("mapping", {})
         self.kwargs = kwargs
 
+    def __json__(self, request):
+        return str(self)
+
     def __mod__(self, new_mapping):
         mapping = self.mapping.copy()
         mapping.update(new_mapping)

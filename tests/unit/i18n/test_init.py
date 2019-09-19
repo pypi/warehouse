@@ -87,3 +87,12 @@ def test_includeme():
         },
         "jinja2.globals": {"KNOWN_LOCALES": "warehouse.i18n:KNOWN_LOCALES"},
     }
+
+
+def test_lazy_string():
+    def stringify(string_in, *args, **kwargs):
+        return string_in
+
+    lazy_string = i18n.LazyString(stringify, "test_string")
+
+    assert lazy_string.__json__(None) == "test_string"
