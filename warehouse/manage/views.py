@@ -617,7 +617,7 @@ class ProvisionMacaroonViews:
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
         self.macaroon_service = request.find_service(IMacaroonService, context=None)
-    
+
     @property
     def all_projects(self):
         return [project for project in self.request.user.projects]
@@ -629,7 +629,7 @@ class ProvisionMacaroonViews:
             "create_macaroon_form": CreateMacaroonForm(
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
-                all_projects=self.all_projects
+                all_projects=self.all_projects,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
                 macaroon_service=self.macaroon_service
@@ -652,7 +652,7 @@ class ProvisionMacaroonViews:
             **self.request.POST,
             user_id=self.request.user.id,
             macaroon_service=self.macaroon_service,
-            all_projects=self.all_projects
+            all_projects=self.all_projects,
         )
 
         response = {**self.default_response}
