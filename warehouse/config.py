@@ -265,6 +265,9 @@ def configure(settings=None):
     # We want to use newstyle gettext
     config.add_settings({"jinja2.newstyle": True})
 
+    # Our translation strings are all in the "messages" domain
+    config.add_settings({"jinja2.i18n.domain": "messages"})
+
     # We also want to use Jinja2 for .html templates as well, because we just
     # assume that all templates will be using Jinja.
     config.add_jinja2_renderer(".html")
@@ -442,9 +445,6 @@ def configure(settings=None):
     config.whitenoise_add_manifest(
         "warehouse:static/dist/manifest.json", prefix="/static/"
     )
-
-    # Enable Warehouse to serve our locale files
-    config.add_static_view("locales", "warehouse:locales/")
 
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.

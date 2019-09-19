@@ -58,14 +58,13 @@
           </td>
           <td class="table__align-right">
             <nav class="dropdown dropdown--with-icons">
-              <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+              <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View release options{% endtrans %}">
                 {% trans %}Options{% endtrans %}
                 <span class="dropdown__trigger-caret">
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
-                  <span class="sr-only">{% trans %}View submenu{% endtrans %}</span>
                 </span>
               </button>
-              <ul class="dropdown__content">
+              <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans version=release.version %}Options for {{ version }}{% endtrans %}">
                 <li>
                   <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
                     <i class="fa fa-pencil-alt" aria-hidden="true"></i>

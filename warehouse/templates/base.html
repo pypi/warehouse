@@ -51,13 +51,13 @@
     </ul>
   </nav>
   <nav class="dropdown dropdown--on-menu hidden show-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
-    <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+    <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View menu{% endtrans %}">
       {% trans %}Menu{% endtrans %}
       <span class="dropdown__trigger-caret">
         <i class="fa fa-caret-down" aria-hidden="true"></i>
       </span>
     </button>
-    <ul class="dropdown__content">
+    <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
       <li><a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a></li>
       <li><a class="dropdown__link" href="https://donate.pypi.org">{% trans %}Donate{% endtrans %}</a></li>
       <li><a class="dropdown__link" href="{{ request.route_path('accounts.login') }}">{% trans %}Log in{% endtrans %}</a></li>
@@ -331,6 +331,21 @@
         </button>
       </div>
     </footer>
+
+    <!-- TODO: Remove this check once a non-English translation is available. -->
+    {% if KNOWN_LOCALES|length > 1 %}
+    <div class="language-switcher">
+      <form action="{{ request.route_path('locale') }}">
+        <ul>
+          {% for locale, language in KNOWN_LOCALES.items() %}
+          <li>
+            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
+          </li>
+          {% endfor %}
+        </ul>
+      </form>
+    </div>
+    {% endif %}
 
     {% include "warehouse:templates/includes/sponsors.html" %}
 
