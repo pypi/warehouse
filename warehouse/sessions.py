@@ -25,8 +25,8 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.cache.http import add_vary
-from warehouse.utils.msgpack import object_encode
 from warehouse.utils import crypto
+from warehouse.utils.msgpack import object_encode
 
 
 def _invalid_method(method):
