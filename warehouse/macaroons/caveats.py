@@ -34,7 +34,6 @@ class Caveat:
     def __call__(self, predicate):
         return self.verify(predicate)
 
-
 class V1Caveat(Caveat):
     def verify_projects(self, projects):
         # First, ensure that we're actually operating in
@@ -55,7 +54,7 @@ class V1Caveat(Caveat):
                 ) and project.normalized_name == user_proj.get("project-name"):
                     return True
         raise InvalidMacaroon("project-scoped token matches no projects")
-
+    
     def verify_releases(self, release):
         project = self.verifier.context
 
@@ -63,7 +62,7 @@ class V1Caveat(Caveat):
             if release == version[0]:
                 raise InvalidMacaroon("release already exists")
         return True
-
+    
     def verify_expiration(self, expiration):
         try:
             expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
@@ -71,7 +70,7 @@ class V1Caveat(Caveat):
             raise InvalidMacaroon("invalid expiration")
 
         d = datetime.now()
-        tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
         expiration_aware = tz.localize(expiration)
         if expiration_aware < tz_aware:

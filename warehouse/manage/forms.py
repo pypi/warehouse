@@ -189,7 +189,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope", "releases", "expiration"]
+    __params__ = ["description", "token_scope", "releases", "expiration",]
 
     def __init__(self, *args, user_id, macaroon_service, all_projects, **kwargs):
         super().__init__(*args, **kwargs)
@@ -216,7 +216,9 @@ class CreateMacaroonForm(forms.Form):
     )
 
     expiration = wtforms.DateTimeField(
-        validators=[wtforms.validators.DataRequired(message="Specify the expiration")]
+        validators=[
+            wtforms.validators.DataRequired(message="Specify the expiration"),
+        ]
     )
 
     def validate_description(self, field):
@@ -253,9 +255,11 @@ class CreateMacaroonForm(forms.Form):
         for project in self.all_projects:
             if scope_value == project.normalized_name:
                 return
-        raise wtforms.ValidationError(f"Unknown or invalid project name: {scope_value}")
+        raise wtforms.ValidationError(
+            f"Unknown or invalid project name: {scope_value}"
+        )
 
-    def validate_releases(self, field):
+    def validate_releases(self,field):
         release = field.data
         try:
             releases = release.split(".")
@@ -268,24 +272,20 @@ class CreateMacaroonForm(forms.Form):
             for version in project.all_versions:
                 if version[0] == release:
                     raise wtforms.validators.ValidationError("Invalid release")
-
+        
     def validate_expiration(self, field):
         expiration = field.data
         expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
         d = datetime.now()
-        tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
+        tz = pytz.timezone('GMT') # GMT for POC, ideally would be user's local timezone
         tz_aware = tz.localize(d)
         expiration_aware = tz.localize(expiration)
 
         if expiration_aware > tz_aware + timedelta(days=365):
-            raise wtforms.validators.ValidationError(
-                "Expiration cannot be greater than one year"
-            )
+            raise wtforms.validators.ValidationError("Expiration cannot be greater than one year")
         if expiration_aware < tz_aware:
-            raise wtforms.validators.ValidationError(
-                "Expiration must be after the current time"
-            )
-
+            raise wtforms.validators.ValidationError("Expiration must be after the current time")
+        
         expiration = datetime.strftime(expiration, "%Y-%m-%dT%H:%M")
 
     def validate(self):
@@ -303,6 +303,7 @@ class CreateMacaroonForm(forms.Form):
         else:
             self.validated_scope = {"scope": "user", "expiration": self.expiration.data}
         return res
+        
 
 
 class DeleteMacaroonForm(forms.Form):
