@@ -16,7 +16,12 @@ import elasticsearch
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPServiceUnavailable
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPNotFound,
+    HTTPSeeOther,
+    HTTPServiceUnavailable,
+)
 from webob.multidict import MultiDict
 
 from warehouse import views
@@ -30,6 +35,7 @@ from warehouse.views import (
     health,
     httpexception_view,
     index,
+    locale,
     opensearchxml,
     robotstxt,
     search,
@@ -199,6 +205,36 @@ class TestIndex:
             "num_releases": 2,
             "num_files": 1,
         }
+
+
+class TestLocale:
+    @pytest.mark.parametrize(
+        ("referer", "redirect", "get", "valid"),
+        [
+            (None, "/fake-route", {"locale_id": "en"}, True),
+            ("http://example.com", "/fake-route", {"nonsense": "arguments"}, False),
+            ("/robots.txt", "/robots.txt", {"locale_id": "non-existent-locale"}, False),
+        ],
+    )
+    def test_locale(self, referer, redirect, get, valid):
+        request = pretend.stub(
+            GET=get,
+            referer=referer,
+            route_path=pretend.call_recorder(lambda r: "/fake-route"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            host=None,
+        )
+
+        result = locale(request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == redirect
+
+        if valid:
+            assert "Set-Cookie" in result.headers
+            assert f"_LOCALE_={get['locale_id']};" in result.headers["Set-Cookie"]
+        else:
+            assert "Set-Cookie" not in result.headers
 
 
 def test_esi_current_user_indicator():
