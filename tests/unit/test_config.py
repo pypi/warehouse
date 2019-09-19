@@ -343,6 +343,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
     assert configurator_obj.add_settings.calls == [
         pretend.call({"jinja2.newstyle": True}),
+        pretend.call({"jinja2.i18n.domain": "messages"}),
         pretend.call({"retry.attempts": 3}),
         pretend.call(
             {
@@ -354,7 +355,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ),
         pretend.call({"http": {"verify": "/etc/ssl/certs/"}}),
     ]
-    add_settings_dict = configurator_obj.add_settings.calls[2].args[0]
+    add_settings_dict = configurator_obj.add_settings.calls[3].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is transaction_manager
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.require_https_tween_factory"),
