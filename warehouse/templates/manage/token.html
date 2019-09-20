@@ -43,7 +43,7 @@
       <div class="callout-block callout-block--danger no-top-margin">
         <p>{% trans %}For security reasons this token will only appear once. <strong>Copy it now.</strong>{% endtrans %}</p>
       </div>
-      <button type="button" class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="{% trans %}Copy token to clipboard{% endtrans %}" data-original-label="{% trans %}Copy token to clipboard{% endtrans %}" data-clipboard-text="{{ serialized_macaroon }}">
+      <button type="button" class="button button--primary copy-tooltip copy-tooltip-e" aria-label="{% trans %}Copy token to clipboard{% endtrans %}" data-tooltip-label="{% trans %}Copy token to clipboard{% endtrans %}" data-clipboard-text="{{ serialized_macaroon }}">
         {% trans %}Copy token{% endtrans %}
       </button>
       <a href="#remove-API-token--{{ macaroon.id }}" class="button">
