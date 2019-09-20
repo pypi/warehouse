@@ -240,16 +240,13 @@ docReady(() => {
 
   tokenSelect.addEventListener("change", () => {
     const tokenScopeWarning = document.getElementById("api-token-scope-warning");
-    const releaseHidden = document.getElementById("release-group");
-    if (tokenScopeWarning === null) {
-      return;
-    }
-    if (releaseHidden === null) {
+    const releaseHidden = document.getElementById("project-release");
+    if (tokenScopeWarning === null || releaseHidden === null) {
       return;
     }
     const tokenScope = tokenSelect.options[tokenSelect.selectedIndex].value;
     tokenScopeWarning.hidden = (tokenScope !== "scope:user");
-    releaseHidden.hidden = (tokenScope === "scope:user");
+    releaseHidden.hidden = !(tokenScope.startsWith("scope:project"));
   });
 });
 

@@ -661,12 +661,11 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
-            macaroon_caveats = {"permissions": form.validated_scope, "version": 1}
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
-                caveats=macaroon_caveats,
+                caveats=form.validated_caveats,
             )
             self.user_service.record_event(
                 self.request.user.id,
@@ -674,7 +673,7 @@ class ProvisionMacaroonViews:
                 ip_address=self.request.remote_addr,
                 additional={
                     "description": form.description.data,
-                    "caveats": macaroon_caveats,
+                    "caveats": form.validated_caveats,
                 },
             )
             if "projects" in form.validated_scope:

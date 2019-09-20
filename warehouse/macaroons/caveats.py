@@ -12,10 +12,9 @@
 
 import json
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pymacaroons
-import pytz
 
 from warehouse.packaging.models import Project
 
@@ -45,58 +44,18 @@ class V1Caveat(Caveat):
             )
 
         project = self.verifier.context
-
-        if isinstance(projects, str) and project.normalized_name == projects:
+        if project.normalized_name in projects:
             return True
-        else:
-            for user_proj in projects:
-                if isinstance(
-                    user_proj, dict
-                ) and project.normalized_name == user_proj.get("project-name"):
-                    return True
+
         raise InvalidMacaroon("project-scoped token matches no projects")
 
-    def verify_releases(self, release):
-        project = self.verifier.context
-
-        for version in project.all_versions:
-            if release == version[0]:
-                raise InvalidMacaroon("release already exists")
-        return True
-
-    def verify_expiration(self, expiration):
-        try:
-            expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
-        except ValueError:
-            raise InvalidMacaroon("invalid expiration")
-
-        d = datetime.now()
-        tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
-        tz_aware = tz.localize(d)
-        expiration_aware = tz.localize(expiration)
-        if expiration_aware < tz_aware:
-            raise InvalidMacaroon("time has expired")
-
-        return True
-
     def verify(self, predicate):
-        try:
-            data = json.loads(predicate)
-        except ValueError:
-            raise InvalidMacaroon(f"malformatted predicate {predicate}")
-
-        if data.get("version") != 1:
-            raise InvalidMacaroon("invalid version in predicate")
-
-        permissions = data.get("permissions")
+        permissions = predicate.get("permissions")
         if permissions is None:
             raise InvalidMacaroon("invalid permissions in predicate")
 
-        if permissions.get("scope") == "user":
-            if permissions.get("expiration") is None:
-                raise InvalidMacaroon("invalid expiration in predicate")
-            else:
-                self.verify_expiration(permissions.get("expiration"))
+        if permissions == "user":
+            # User-scoped tokens behave exactly like a user's normal credentials.
             return True
 
         projects = permissions.get("projects")
@@ -105,21 +64,85 @@ class V1Caveat(Caveat):
         else:
             self.verify_projects(projects)
 
-        if not isinstance(projects, str):
-            for project in projects:
-                release = project.get("version")
-                if release is None:
-                    raise InvalidMacaroon("invalid release in predicate")
-                else:
-                    self.verify_releases(release)
+        return True
 
-        expiration = permissions.get("expiration")
-        if expiration is None:
-            raise InvalidMacaroon("invalid expiration in predicate")
-        else:
-            self.verify_expiration(expiration)
+
+class V2Caveat(Caveat):
+    def verify_expiration(self, expiration):
+        now = int(datetime.now(tz=timezone.utc))
+        if expiration < now:
+            raise InvalidMacaroon("token has expired")
 
         return True
+
+    def verify_release(self, release):
+        project = self.verifier.context
+
+        for version in project.all_versions:
+            if release == version[0]:
+                raise InvalidMacaroon("release already exists")
+        return True
+
+    def verify_projects(self, projects):
+        # First, ensure that we're actually operating in
+        # the context of a package.
+        if not isinstance(self.verifier.context, Project):
+            raise InvalidMacaroon(
+                "project-scoped token used outside of a project context"
+            )
+
+        project = self.verifier.context
+
+        for proj in projects:
+            if proj["name"] == project.normalized_name:
+                release = proj.get("release")
+                if release is not None:
+                    self.verify_release(release)
+                return True
+
+        raise InvalidMacaroon("project-scoped token matches no projects")
+
+    def verify(self, predicate):
+        expiration = predicate.get("expiration")
+        if expiration is not None:
+            self.verify_expiration(expiration)
+
+        permissions = predicate.get("permissions")
+        if permissions is None:
+            raise InvalidMacaroon("invalid permissions in predicate")
+
+        if permissions == "user":
+            # User-scoped tokens behave exactly like a user's normal credentials.
+            return True
+
+        projects = permissions.get("projects")
+        if projects is None:
+            raise InvalidMacaroon("invalid projects in predicate")
+        else:
+            self.verify_projects(projects)
+
+        return True
+
+
+class TopLevelCaveat(Caveat):
+    def verify(self, predicate):
+        try:
+            data = json.loads(predicate)
+        except ValueError:
+            raise InvalidMacaroon("malformed predicate")
+
+        version = data.get("version")
+        if version is None:
+            raise InvalidMacaroon("malformed version")
+
+        if version == 1:
+            caveat_verifier = V1Caveat(self.verifier)
+        elif version == 2:
+            caveat_verifier = V2Caveat(self.verifier)
+        else:
+            raise InvalidMacaroon("invalid version")
+
+        caveat_verifier.verify(data)
 
 
 class Verifier:
@@ -131,7 +154,7 @@ class Verifier:
         self.verifier = pymacaroons.Verifier()
 
     def verify(self, key):
-        self.verifier.satisfy_general(V1Caveat(self))
+        self.verifier.satisfy_general(TopLevelCaveat(self))
 
         try:
             return self.verifier.verify(self.macaroon, key)

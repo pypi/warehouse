@@ -166,7 +166,8 @@
       {% trans %}All projects{% endtrans %}
       {% else %}
         {% for project in macaroon.caveats.get("permissions")['projects'] %}
-        <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
+        {% set project_name = project["name"] if project is mapping else project %}
+        <a href="{{ request.route_path('packaging.project', name=project_name) }}">{{ project_name }}</a>
         {% endfor %}
       {% endif %}
     </td>

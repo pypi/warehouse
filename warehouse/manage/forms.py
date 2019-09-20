@@ -12,9 +12,9 @@
 
 import json
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
-import pytz
+import packaging
 import wtforms
 
 import warehouse.utils.otp as otp
@@ -189,14 +189,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope", "releases", "expiration"]
-
-    def __init__(self, *args, user_id, macaroon_service, all_projects, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_id = user_id
-        self.macaroon_service = macaroon_service
-        self.all_projects = all_projects
-        self.validated_scope = None
+    __params__ = ["description", "token_scope", "expiration"]
 
     description = wtforms.StringField(
         validators=[
@@ -207,17 +200,23 @@ class CreateMacaroonForm(forms.Form):
         ]
     )
 
+    project_version = wtforms.StringField()
+
     token_scope = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
     )
 
-    releases = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify the release")]
-    )
+    expiration = wtforms.DateTimeField()
 
-    expiration = wtforms.DateTimeField(
-        validators=[wtforms.validators.DataRequired(message="Specify the expiration")]
-    )
+    def __init__(self, *args, user_id, macaroon_service, all_projects, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.macaroon_service = macaroon_service
+        self.all_projects = all_projects
+        self.validated_expiration = None
+        self.validated_project_version = None
+        self.validated_scope = None
+        self.validated_caveats = None
 
     def validate_description(self, field):
         description = field.data
@@ -227,6 +226,15 @@ class CreateMacaroonForm(forms.Form):
             is not None
         ):
             raise wtforms.validators.ValidationError("API token name already in use")
+
+    def validate_project_version(self, field):
+        if not field.data:
+            return
+
+        version = packaging.version.parse(field.data)
+        if not isinstance(version, packaging.version.Version):
+            raise wtforms.validators.ValidationError("Invalid version format")
+        self.validated_project_version = str(version)
 
     def validate_token_scope(self, field):
         scope = field.data
@@ -250,58 +258,51 @@ class CreateMacaroonForm(forms.Form):
 
         if scope_kind != "project":
             raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+
+        self.validated_scope = {"projects": []}
         for project in self.all_projects:
             if scope_value == project.normalized_name:
+                project_scope = {"name": scope_value}
+                all_versions = [version[0] for version in project.all_versions]
+                if self.validated_project_version:
+                    if self.validated_project_version in all_versions:
+                        raise wtforms.validators.ValidationError(
+                            "Release already exists"
+                        )
+                    project_scope["version"] = self.validated_project_version
+                self.validated_scope["projects"].append(project_scope)
                 return
+
         raise wtforms.ValidationError(f"Unknown or invalid project name: {scope_value}")
 
-    def validate_releases(self, field):
-        release = field.data
-        try:
-            releases = release.split(".")
-            for val in releases:
-                int(val)
-        except ValueError:
-            raise wtforms.validators.ValidationError("Invalid release")
-
-        for project in self.all_projects:
-            for version in project.all_versions:
-                if version[0] == release:
-                    raise wtforms.validators.ValidationError("Invalid release")
-
     def validate_expiration(self, field):
-        expiration = field.data
-        expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
-        d = datetime.now()
-        tz = pytz.timezone("GMT")  # GMT for POC, ideally would be user's local timezone
-        tz_aware = tz.localize(d)
-        expiration_aware = tz.localize(expiration)
+        if not field.data:
+            return
 
-        if expiration_aware > tz_aware + timedelta(days=365):
+        try:
+            expiration = datetime.strptime(field.data, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            raise wtforms.validators.ValidationError("Malformatted date")
+
+        expiration = expiration.astimezone(timezone.utc)
+        now = datetime.now(tz=timezone.utc)
+        if expiration > now + timedelta(days=365):
             raise wtforms.validators.ValidationError(
                 "Expiration cannot be greater than one year"
             )
-        if expiration_aware < tz_aware:
+        if expiration < now:
             raise wtforms.validators.ValidationError(
                 "Expiration must be after the current time"
             )
 
-        expiration = datetime.strftime(expiration, "%Y-%m-%dT%H:%M")
+        self.validated_expiration = int(expiration.timestamp())
 
     def validate(self):
         res = super().validate()
-        if not isinstance(self.validated_scope, str):
-            name = (
-                self.token_scope.data.split(":")[-1]
-                if self.token_scope.data is not None
-                else ""
-            )
-            self.validated_scope = {
-                "expiration": self.expiration.data,
-                "projects": [{"project-name": name, "version": self.releases.data}],
-            }
-        else:
-            self.validated_scope = {"scope": "user", "expiration": self.expiration.data}
+
+        self.validated_caveats = {"version": 2, "permissions": self.validated_scope}
+        if self.validated_expiration is not None:
+            self.validated_caveats["expiration"] = self.validated_expiration
         return res
 
 

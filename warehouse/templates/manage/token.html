@@ -34,7 +34,7 @@
       {% if macaroon.caveats.permissions == "user" %}
       <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans %}Entire account (all projects){% endtrans %}
       {% else %}
-      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0]["project-name"].split(":")[-1] %}Project "{{ project }}"{% endtrans %}
+      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0]["name"] %}Project "{{ project }}"{% endtrans %}
       {% endif %}
     </p>
     <p>{% trans href='/help#apitoken' %}For instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
@@ -115,16 +115,17 @@
         <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your projects.{% endtrans %}</p>
       </div>
 
-      <div class="form-group" id="release-group">
+      {% set token_scope = create_macaroon_form.token_scope.data %}
+      <div class="form-group" id="project-release" {{ "" if token_scope and token_scope.startswith("scope:project") else "hidden" }}>
         <label for="release" class="form-group__label">
           Release
-          {% if create_macaroon_form.releases.flags.required %}
+          {% if create_macaroon_form.project_version.flags.required %}
           <span class="form-group__required">(required)</span>
           {% endif %}
         </label>
-        <input type="text" name="releases" id="releases" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.releases.data or ""}}">
+        <input type="text" name="project_version" id="project_version" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.project_version.data or ""}}">
         <div id="token-name-errors">
-          {{ field_errors(create_macaroon_form.releases) }}
+          {{ field_errors(create_macaroon_form.project_version) }}
         </div>
       </div>
 
