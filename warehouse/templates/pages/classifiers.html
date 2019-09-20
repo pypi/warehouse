@@ -34,7 +34,7 @@
       <li>
         <a href="{{ request.route_path('search', _query={'c': classifier.classifier}) }}">{{ classifier.classifier }}</a>
         &nbsp;
-        <button type="button" class="button button--small margin-top margin-bottom -js-copy-hash tooltipped tooltipped-w" aria-label="{% trans %}Copy to clipboard{% endtrans %}" data-original-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ classifier.classifier }}">
+        <button type="button" class="button button--small margin-top margin-bottom copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ classifier.classifier }}">
           {% trans %}Copy{% endtrans %}
         </button>
       </li>

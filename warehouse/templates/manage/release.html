@@ -46,14 +46,7 @@
       <tr>
         <th scope="row">
           <span class="table__mobile-label">{% trans %}Filename, size{% endtrans %}</span>
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}"
-            {% if file.comment_text %}
-              class="tooltipped tooltipped-e"
-              aria-label="{{ file.comment_text|truncate(60, True) }}"
-              data-original-label="{{ file.comment_text|truncate(60, True) }}"
-            {% endif %}
-            title="{% trans %}Download file{% endtrans %}">
-            {{ file.filename }}</a>
+          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </th>
         <td>
@@ -66,7 +59,7 @@
         </td>
         <td>
           <span class="table__mobile-label">{% trans %}Upload date{% endtrans %}</span>
-          {{ file.upload_time|format_date() }}
+          {{ humanize(file.upload_time) }}
         </td>
         <td class="table__align-right">
           <nav class="dropdown dropdown--with-icons">

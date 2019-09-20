@@ -117,10 +117,7 @@
                   id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
               </label>
             </div>
-            {# the password field needs to be wrapped in a div to properly place tooltips #}
-            <div>
-              {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
-            </div>
+            {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
             <div id="password-errors">
               {% if form.new_password.errors %}
               <ul class="form-errors" role="alert">
