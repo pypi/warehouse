@@ -46,7 +46,7 @@
         </th>
         <td>
           <span class="table__mobile-label">{% trans %}Date{% endtrans %}</span>
-          {{ journal.submitted_date|format_datetime() }}
+          {{ humanize(journal.submitted_date, time="true") }}
         </td>
         <td>
           <span class="table__mobile-label">{% trans %}User{% endtrans %}</span>
