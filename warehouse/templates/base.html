@@ -326,6 +326,21 @@
       </div>
     </footer>
 
+    <!-- TODO: Remove this check once a non-English translation is available. -->
+    {% if KNOWN_LOCALES|length > 1 %}
+    <div class="language-switcher">
+      <form action="{{ request.route_path('locale') }}">
+        <ul>
+          {% for locale, language in KNOWN_LOCALES.items() %}
+          <li>
+            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
+          </li>
+          {% endfor %}
+        </ul>
+      </form>
+    </div>
+    {% endif %}
+
     {% include "warehouse:templates/includes/sponsors.html" %}
 
     {% endblock body %}

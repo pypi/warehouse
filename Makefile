@@ -4,6 +4,7 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
+LOCALES := $(shell find warehouse/locale -type d -depth 1 -exec basename {} \;)
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -168,4 +169,39 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
+compile-pot:
+	$(BINDIR)/pybabel extract \
+		-F babel.cfg \
+		--copyright-holder="PyPA" \
+		--msgid-bugs-address="https://github.com/pypa/warehouse/issues/new" \
+		--project="Warehouse" \
+		--output="warehouse/locale/messages.pot" \
+		warehouse
+
+init-po:
+	$(BINDIR)/pybabel init \
+		--input-file="warehouse/locale/messages.pot" \
+		--output-dir="warehouse/locale/" \
+		--locale="$(L)"
+
+update-po:
+	$(BINDIR)/pybabel update \
+		--input-file="warehouse/locale/messages.pot" \
+		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
+		--locale="$(L)"
+
+compile-po:
+	$(BINDIR)/pybabel compile \
+		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
+		--directory="warehouse/locale/" \
+		--locale="$(L)"
+
+build-mos: compile-pot
+	for LOCALE in $(LOCALES) ; do \
+		if [[ -f warehouse/locale/$$LOCALE/LC_MESSAGES/messages.mo ]]; then \
+			L=$$LOCALE $(MAKE) update-po ; \
+		fi ; \
+		L=$$LOCALE $(MAKE) compile-po ; \
+		done
+
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
