@@ -36,8 +36,11 @@ describe("Localized time controller", () => {
     it("shows the local date", () => {
       const el = document.getElementById("element");
       expect(el).toHaveTextContent("Sep 20, 2019");
-      expect(el).toHaveAttribute("title", "2019-09-20 20:06:58");
-      expect(el).toHaveAttribute("aria-label", "2019-09-20 20:06:58");
+      // The expected ISO string in the title is localized
+      const date = new Date(el.getAttribute("datetime"));
+      const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss");
+      expect(el).toHaveAttribute("title", expectedDate);
+      expect(el).toHaveAttribute("aria-label", expectedDate);
     });
   });
 
