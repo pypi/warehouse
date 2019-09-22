@@ -46,14 +46,7 @@
       <tr>
         <th scope="row">
           <span class="table__mobile-label">{% trans %}Filename, size{% endtrans %}</span>
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}"
-            {% if file.comment_text %}
-              class="tooltipped tooltipped-e"
-              aria-label="{{ file.comment_text|truncate(60, True) }}"
-              data-original-label="{{ file.comment_text|truncate(60, True) }}"
-            {% endif %}
-            title="{% trans %}Download file{% endtrans %}">
-            {{ file.filename }}</a>
+          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </th>
         <td>
@@ -66,18 +59,17 @@
         </td>
         <td>
           <span class="table__mobile-label">{% trans %}Upload date{% endtrans %}</span>
-          {{ file.upload_time|format_date() }}
+          {{ humanize(file.upload_time) }}
         </td>
         <td class="table__align-right">
           <nav class="dropdown dropdown--with-icons">
-            <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View file options{% endtrans %}">
               {% trans %}Options{% endtrans %}
               <span class="dropdown__trigger-caret">
                 <i class="fa fa-caret-down" aria-hidden="true"></i>
-                <span class="sr-only">{% trans %}View submenu{% endtrans %}</span>
               </span>
             </button>
-            <ul class="dropdown__content">
+            <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}File options{% endtrans %}">
               <li>
                 <a href="{{ request.route_url('packaging.file', path=file.path) }}" class="dropdown__link">
                   <i class="fa fa-download" aria-hidden="true"></i>

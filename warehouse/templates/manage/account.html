@@ -83,14 +83,13 @@
     <td class="table__align-right">
       {% if not email.verified or not email.primary %}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
-        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View email options{% endtrans %}">
           {% trans %}Options{% endtrans %}
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">{% trans %}View submenu{% endtrans %}</span>
           </span>
         </button>
-        <ul class="dropdown__content">
+        <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans email=email.email %}Options for {{ email }}{% endtrans %}">
           {% if not email.verified %}
           <li>
             <form method="POST">
@@ -172,7 +171,7 @@
       {% endif %}
     </td>
     <td>
-      <span class="table__mobile-label">{% trans %}Created on{% endtrans %}</span>
+      <span class="table__mobile-label">{% trans %}Created{% endtrans %}</span>
       {{ humanize(macaroon.created) }}
     </td>
     <td>
@@ -181,11 +180,10 @@
     </td>
     <td class="table__align-right">
       <nav class="dropdown dropdown--with-icons dropdown--wide">
-        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View token options{% endtrans %}">
           {% trans %}Options{% endtrans %}
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">{% trans %}View submenu{% endtrans %}</span>
           </span>
         </button>
         <ul class="dropdown__content">
@@ -228,7 +226,7 @@
           <div class="modal__body">
             <h3 class="modal__title">{% trans token_description=macaroon.description %}Unique identifier for API token "{{ token_description }}"{% endtrans %}</h3>
             <p><code>{{ macaroon.id }}</code></p>
-            <button type="button" class="button -js-copy-hash tooltipped tooltipped-e" aria-label="{% trans %}Copy to clipboard{% endtrans %}" data-original-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ macaroon.id }}">
+            <button type="button" class="button copy-tooltip copy-tooltip-e" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ macaroon.id }}">
               {% trans %}Copy{% endtrans %}
             </button>
           </div>
@@ -274,7 +272,9 @@
       <p class="form-group__text">{{ user.username }}</p>
       {% if user.date_joined %}
       <span class="form-group__label">{% trans %}Date Joined{% endtrans %}</span>
-      <p class="form-group__text"> {{ user.date_joined|format_date() }}</p>
+      <p class="form-group__text">
+        {{ humanize(user.date_joined) }}
+      </p>
       {% endif %}
       <p class="form-group__help-text">
         {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
@@ -633,7 +633,7 @@
           <td>{{ event_summary(event) }}</td>
           <td>
             <span class="table__mobile-label">{% trans %}Date / time{% endtrans %}</span>
-            {{ humanize(event.time) }}
+            {{ humanize(event.time, time="true") }}
           </td>
           <td>
             <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>

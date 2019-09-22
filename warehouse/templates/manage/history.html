@@ -96,7 +96,7 @@
         <td>{{ event_summary(event) }}</td>
         <td>
           <span class="table__mobile-label">{% trans %}Date / time{% endtrans %}</span>
-          {{ humanize(event.time) }}
+          {{ humanize(event.time, time="true") }}
         </td>
         <td>
           <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
