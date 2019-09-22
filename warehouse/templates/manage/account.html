@@ -348,18 +348,12 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}
           </span>{% endif %}
         </label>
-        <div class="form-group__horizontal">
-          <div class="form-group__horizontal-left">
-            {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"add-email-errors"}) }}
-            <div id="add-email-errors">
-              {{ field_errors(add_email_form.email) }}
-            </div>
-          </div>
-          <div class="form-group__horizontal-right">
-            <input value="{% trans %}Add email{% endtrans %}" class="button button--primary" type="submit">
-          </div>
+        {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"add-email-errors"}) }}
+        <div id="add-email-errors">
+          {{ field_errors(add_email_form.email) }}
         </div>
       </div>
+      <input value="{% trans %}Add email{% endtrans %}" class="button button--primary" type="submit">
     </form>
   </section>
 
