@@ -78,27 +78,24 @@
         For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
-<pre class="code-block">
+    <pre class="code-block">
 [pypi]
   username = __token__
-  password = {{ serialized_macaroon }}
-</pre>
+  password = {{ serialized_macaroon }}</pre>
     {% else %}
     <p>
       {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
-<pre class="code-block">
+    <pre class="code-block">
 [pypi]
   username = __token__
   password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
   username = __token__
-  password = # {% trans %}a project token{% endtrans %}
-</pre>
-
+  password = # {% trans %}a project token{% endtrans %} </pre>
     <p>
       {% trans trimmed command='twine --repository PROJECT_NAME' %}
         You can then use <code>{{ command }}</code> to switch to the correct token when uploading to PyPI.
