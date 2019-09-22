@@ -11,6 +11,7 @@ Contents:
    api-reference/index
    ui-principles
    security
+   translations
    roadmap
 
 Warehouse is a `web application`_ that implements the canonical
