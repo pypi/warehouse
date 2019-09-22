@@ -31,6 +31,7 @@ from warehouse.sessions import (
     session_view,
 )
 from warehouse.utils import crypto
+from warehouse.utils.msgpack import object_encode
 
 
 class TestInvalidSession:
@@ -497,9 +498,7 @@ class TestSessionFactory:
         assert response.delete_cookie.calls == [pretend.call("session_id")]
 
     def test_invalidated_deletes_save_non_secure(self, monkeypatch, pyramid_request):
-        msgpack_packb = pretend.call_recorder(
-            lambda data, encoding, use_bin_type: b"msgpack data"
-        )
+        msgpack_packb = pretend.call_recorder(lambda *a, **kw: b"msgpack data")
         monkeypatch.setattr(msgpack, "packb", msgpack_packb)
 
         session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
@@ -524,7 +523,12 @@ class TestSessionFactory:
             pretend.call("warehouse/session/data/2"),
         ]
         assert msgpack_packb.calls == [
-            pretend.call(pyramid_request.session, encoding="utf8", use_bin_type=True)
+            pretend.call(
+                pyramid_request.session,
+                encoding="utf8",
+                default=object_encode,
+                use_bin_type=True,
+            )
         ]
         assert session_factory.redis.setex.calls == [
             pretend.call("warehouse/session/data/123456", 12 * 60 * 60, b"msgpack data")

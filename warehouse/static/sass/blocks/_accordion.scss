@@ -13,11 +13,21 @@
  */
 
 /*
-  Menu that opens and closes:
+  An accordion that opens and closes
+  Initialise the component in either a closed or open state, and JS will do the rest:
 
+  Closed state:
+  <div class="accordion accordion--closed">
+    <a class="accordion__link -js-expander-trigger" aria-expanded="false" aria-controls="my-accordion-content">Trigger</a>
+    <div id="my-accordion-content" class="accordion__content" aria-hidden="true">
+      // Content to show and hide here
+    </div>
+  </div>
+
+  Open state:
   <div class="accordion">
-    <a class="accordion__link -js-expander-trigger">Trigger</a>
-    <div class="accordion__content">
+    <a class="accordion__link -js-expander-trigger" aria-expanded="true" aria-controls="my-accordion-content">Trigger</a>
+    <div id="my-accordion-content" class="accordion__content" aria-hidden="false">
       // Content to show and hide here
     </div>
   </div>

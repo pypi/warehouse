@@ -13,33 +13,39 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Statistics{% endblock %}
+{% block title %}{% trans %}Statistics{% endtrans %}{% endblock %}
 
 {% block content %}
 <div class="horizontal-section">
   <div class="narrow-container">
-    <h1 class="page-title">PyPI statistics</h1>
+    <h1 class="page-title">{% trans %}PyPI statistics{% endtrans %}</h1>
     <p>
-      We all love stats, so here are some useful statistics about PyPI.
-      The statistics page is cached for 24 hours, so don't expect the
-      numbers to be realtime.
+      {% trans trimmed %}
+        We all love stats, so here are some useful statistics about PyPI.
+        The statistics page is cached for 24 hours, so don't expect the
+        numbers to be realtime.
+      {% endtrans %}
     </p>
 
-    <h2>Top storage users</h2>
-    <p>Here is a list of the top 100 packages based on sum of their
-    packages sizes (in bytes).</p>
+    <h2>{% trans %}Top storage users{% endtrans %}</h2>
+    <p>
+      {% trans trimmed %}
+        Here is a list of the top 100 packages based on sum of their
+        packages sizes (in bytes).
+      {% endtrans %}
+    </p>
 
-    <table class="table table--light">
-      <caption class="sr-only">Statistics by project</caption>
+    <table class="table">
+      <caption class="sr-only">{% trans %}Statistics by project{% endtrans %}</caption>
       <thead>
         <tr>
-          <th scope="col">Project name</th>
-          <th scope="col">Sum of release files (bytes)</th>
+          <th scope="col">{% trans %}Project name{% endtrans %}</th>
+          <th scope="col">{% trans %}Sum of release files (bytes){% endtrans %}</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <th scope="row">All of PyPI</th>
+          <th scope="row">{% trans %}All of PyPI{% endtrans %}</th>
           <td>{{ total_packages_size|filesizeformat() }}</td>
         </tr>
         {% for pkg_name, pkg_data in top_packages.items() %}

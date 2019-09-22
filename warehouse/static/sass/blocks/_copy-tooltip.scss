@@ -8,19 +8,18 @@ $tooltip-text-color: $white !default;
 $tooltip-delay: 0.4s !default;
 $tooltip-duration: 0.1s !default;
 
-.tooltipped {
+.copy-tooltip {
   position: relative;
   cursor: pointer;
 }
 
 // This is the tooltip bubble
-.tooltipped::after {
-  content: attr(aria-label);
+.copy-tooltip::after {
+  content: attr(data-tooltip-label);
   position: absolute;
   z-index: 1000000;
   display: none;
   padding: 5px 8px;
-  font-size: $base-font-size;
   font-weight: normal;
   -webkit-font-smoothing: subpixel-antialiased;
   color: $tooltip-text-color;
@@ -38,7 +37,7 @@ $tooltip-duration: 0.1s !default;
 }
 
 // This is the tooltip arrow
-.tooltipped::before {
+.copy-tooltip::before {
   position: absolute;
   z-index: 1000001;
   display: none;
@@ -63,10 +62,10 @@ $tooltip-duration: 0.1s !default;
 }
 
 // This will indicate when we'll activate the tooltip
-.tooltipped:hover,
-.tooltipped:active,
-.tooltipped:focus,
-.tooltipped-immediate {
+.copy-tooltip:hover,
+.copy-tooltip:active,
+.copy-tooltip:focus,
+.copy-tooltip-immediate {
   &::before,
   &::after {
     display: inline-block;
@@ -79,9 +78,9 @@ $tooltip-duration: 0.1s !default;
   }
 }
 
-.tooltipped-no-delay:hover,
-.tooltipped-no-delay:active,
-.tooltipped-no-delay:focus {
+.copy-tooltip-no-delay:hover,
+.copy-tooltip-no-delay:active,
+.copy-tooltip-no-delay:focus {
   &::before,
   &::after {
     opacity: 1;
@@ -89,18 +88,18 @@ $tooltip-duration: 0.1s !default;
   }
 }
 
-.tooltipped-multiline:hover,
-.tooltipped-multiline:active,
-.tooltipped-multiline:focus {
+.copy-tooltip-multiline:hover,
+.copy-tooltip-multiline:active,
+.copy-tooltip-multiline:focus {
   &::after {
     display: table-cell;
   }
 }
 
 // Tooltipped south
-.tooltipped-s,
-.tooltipped-se,
-.tooltipped-sw {
+.copy-tooltip-s,
+.copy-tooltip-se,
+.copy-tooltip-sw {
   &::after {
     top: 100%;
     right: 50%;
@@ -116,7 +115,7 @@ $tooltip-duration: 0.1s !default;
   }
 }
 
-.tooltipped-se {
+.copy-tooltip-se {
   &::after {
     right: auto;
     left: 50%;
@@ -124,14 +123,14 @@ $tooltip-duration: 0.1s !default;
   }
 }
 
-.tooltipped-sw::after {
+.copy-tooltip-sw::after {
   margin-right: -($spacing-unit / 2);
 }
 
 // Tooltips above the object
-.tooltipped-n,
-.tooltipped-ne,
-.tooltipped-nw {
+.copy-tooltip-n,
+.copy-tooltip-ne,
+.copy-tooltip-nw {
   &::after {
     right: 50%;
     bottom: 100%;
@@ -147,7 +146,7 @@ $tooltip-duration: 0.1s !default;
   }
 }
 
-.tooltipped-ne {
+.copy-tooltip-ne {
   &::after {
     right: auto;
     left: 50%;
@@ -155,18 +154,18 @@ $tooltip-duration: 0.1s !default;
   }
 }
 
-.tooltipped-nw::after {
+.copy-tooltip-nw::after {
   margin-right: -($spacing-unit / 2);
 }
 
 // Move the tooltip body to the center of the object.
-.tooltipped-s::after,
-.tooltipped-n::after {
+.copy-tooltip-s::after,
+.copy-tooltip-n::after {
   transform: translateX(50%);
 }
 
 // Tooltipped to the left
-.tooltipped-w {
+.copy-tooltip-w {
   &::after {
     right: 100%;
     bottom: 50%;
@@ -183,8 +182,8 @@ $tooltip-duration: 0.1s !default;
   }
 }
 
-// tooltipped to the right
-.tooltipped-e {
+// copy-tooltip to the right
+.copy-tooltip-e {
   &::after {
     bottom: 50%;
     left: 100%;

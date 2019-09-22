@@ -13,15 +13,23 @@
 -#}
 
 {% if request.user == user %}
-  <a href="{{ request.route_path('manage.account') }}" class="button button--primary author-profile__edit-button">Edit profile</a>
+  <a href="{{ request.route_path('manage.account') }}" class="button button--primary author-profile__edit-button">{% trans %}Edit profile{% endtrans %}</a>
 
   <div class="sidebar-section">
-    <h3 class="sidebar-section__title">Statistics</h3>
-    <p>View statistics for your projects via <a href="https://libraries.io/" title="External link" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/" target="_blank" rel="noopener">Google BigQuery</a></p>
+    <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
+    <p>
+      {% trans trimmed libs_io_href='https://libraries.io/', title=gettext('External link'), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/' %}
+        View statistics for your projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
+      {% endtrans %}
+    </p>
   </div>
 {% else %}
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">Statistics</h3>
-  <p>View statistics for {{ user.username }}'s projects via <a href="https://libraries.io/" title="External link" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/" target="_blank" rel="noopener">Google BigQuery</a></p>
+  <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
+  <p>
+    {% trans trimmed username=user.username, libs_io_href='https://libraries.io/', title=gettext('External link'), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/' %}
+      View statistics for {{ username }}'s projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
+    {% endtrans %}
+  </p>
 </div>
 {% endif %}

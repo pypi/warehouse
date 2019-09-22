@@ -39,6 +39,7 @@ from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
@@ -728,9 +729,18 @@ def _no_deprecated_classifiers(request):
 )
 def file_upload(request):
     # If we're in read-only mode, let upload clients know
-    if request.flags.enabled("read-only"):
+    if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
             HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
+        )
+
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
+        raise _exc_with_message(
+            HTTPForbidden,
+            "New uploads are temporarily disabled. "
+            "See {projecthelp} for details".format(
+                projecthelp=request.help_url(_anchor="admin-intervention")
+            ),
         )
 
     # Log an attempt to upload
@@ -850,7 +860,7 @@ def file_upload(request):
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
         # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if request.flags.enabled("disallow-new-project-registration"):
+        if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
             raise _exc_with_message(
                 HTTPForbidden,
                 (
