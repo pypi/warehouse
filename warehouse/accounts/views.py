@@ -46,7 +46,11 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_email_verification_email, send_password_reset_email
+from warehouse.email import (
+    send_email_verification_email,
+    send_password_change_email,
+    send_password_reset_email,
+)
 from warehouse.i18n import localize as _
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
@@ -527,6 +531,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
         user_service.record_event(
             user.id, tag="account:password:reset", ip_address=request.remote_addr
         )
+
+        # Send password change email
+        send_password_change_email(request, user)
 
         # Flash a success message
         request.session.flash(_("You have reset your password"), queue="success")
