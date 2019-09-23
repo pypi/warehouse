@@ -676,11 +676,14 @@ class ProvisionMacaroonViews:
                     "caveats": form.validated_caveats,
                 },
             )
-            if "projects" in form.validated_scope:
+
+            permissions = form.validated_caveats["permissions"]
+            if "projects" in permissions:
+                project_names = [project["name"] for project in permissions["projects"]]
                 projects = [
                     project
                     for project in self.request.user.projects
-                    if project.normalized_name in form.validated_scope["projects"]
+                    if project.normalized_name in project_names
                 ]
                 for project in projects:
                     # NOTE: We don't disclose the full caveats for this token
