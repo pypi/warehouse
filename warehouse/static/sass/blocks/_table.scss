@@ -15,14 +15,16 @@
 /*
   Tables for displaying data about a project, release or file.
 
-  <table>
+  <table class="table">
+    <caption class="sr-only">Caption for table</caption>
     <thead>
       <tr>
-        <th>Heading</th>
+        <th scope="col">Heading</th>
       </tr>
     </thead>
     <tbody>
       <tr>
+        <th scope="row">Row title</th>
         <td>Data</td>
       </tr>
     </tbody>
@@ -32,6 +34,11 @@
     Elements applied to this component will differ based on the table.
     e.g. the downloads table will contain 'table__upload-date' to represent the
     upload column on that table.
+
+  Accessibility:
+    - label the table with caption (for screen reader users)
+    - Add 'scope="col"' to column headings
+    - Use a th and add 'scope="row"' for row headings
 
    Modifiers:
      - downloads: specific styles for downloads table on project detail page

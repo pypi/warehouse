@@ -19,7 +19,9 @@
   <div class="applied-filters">
     // Filters go here (see filter-badge for details)
     <span class="applied-filters__add-button">
-      // Button to toggle sidebar goes here
+      <button type="button" class="-js-add-filter button button--small">
+        Add filter
+      </button>
     </div>
   </div>
 */

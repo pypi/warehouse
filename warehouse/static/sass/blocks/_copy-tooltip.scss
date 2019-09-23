@@ -1,6 +1,25 @@
-// The following is derived from https://github.com/primer/tooltips
+// The following is modified from https://github.com/primer/tooltips
 // The MIT License (MIT)
-// Copyright (c) 2016 GitHub Inc.
+// Copyright (c) 2016 GitHub Inc
+
+/*
+  A tooltip that is attached to a button, incidacting that clicking the button will cause something to be copied:
+
+  <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#target" data-tooltip-label="Copy to clipboard">
+    // Text or icon
+  </button>
+
+  Data:
+    - data-clipboard-target: the content that will be copied to the clipboard
+    - data-tooltip-label: the label of the tooltip (before the button is clicked)
+
+  Modifiers:
+    - copy-tooltip-s: Tooltip appears below the button (south)
+    - copy-tooltip-n: Tooltip appears above the button (north)
+    - copy-tooltip-e: Tooltip appears to the right of the button (east)
+    - copy-tooltip-w: Tooltip appears to the left of the button (west)
+*/
+
 
 $tooltip-max-width: 250px !default;
 $tooltip-background-color: transparentize($black, 0.3) !default;
