@@ -72,6 +72,7 @@
     font-weight: $base-font-weight;
     float: right;
     color: $text-color;
+    font-size: 1rem;
 
     @media only screen and (max-width: $tablet) {
       float: none;
