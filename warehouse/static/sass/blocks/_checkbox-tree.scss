@@ -18,8 +18,8 @@
   <div class="checkbox-tree">
     <ul>
       <li>
-        <input class="checkbox-tree__checkbox">
-        <label class="checkbox-tree__label"></label>
+        <input class="checkbox-tree__checkbox" id="mycheckbox">
+        <label class="checkbox-tree__label" for="mycheckbox"></label>
         <!-- more tree here -->
       </li>
     </ul>
