@@ -137,14 +137,14 @@ class TestV1Caveat:
             (
                 {
                     "version": 2,
-                    "permissions": {"projects": [{"name": "foo", "release": "1.0.0"}]},
+                    "permissions": {"projects": [{"name": "foo", "version": "1.0.0"}]},
                 },
                 False,
             ),
             (
                 {
                     "version": 2,
-                    "permissions": {"projects": [{"name": "foo", "release": "1.0.1"}]},
+                    "permissions": {"projects": [{"name": "foo", "version": "1.0.1"}]},
                 },
                 True,
             ),

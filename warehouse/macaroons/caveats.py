@@ -75,11 +75,11 @@ class V2Caveat(Caveat):
 
         return True
 
-    def verify_release(self, release):
+    def verify_version(self, version):
         project = self.verifier.context
 
-        for version in project.all_versions:
-            if release == version[0]:
+        for extant_version in project.all_versions:
+            if version == extant_version[0]:
                 raise InvalidMacaroon("release already exists")
         return True
 
@@ -95,9 +95,9 @@ class V2Caveat(Caveat):
 
         for proj in projects:
             if proj["name"] == project.normalized_name:
-                release = proj.get("release")
-                if release is not None:
-                    self.verify_release(release)
+                version = proj.get("version")
+                if version is not None:
+                    self.verify_version(version)
                 return True
 
         raise InvalidMacaroon("project-scoped token matches no projects")
@@ -118,8 +118,7 @@ class V2Caveat(Caveat):
         projects = permissions.get("projects")
         if projects is None:
             raise InvalidMacaroon("invalid projects in predicate")
-        else:
-            self.verify_projects(projects)
+        self.verify_projects(projects)
 
         return True
 
