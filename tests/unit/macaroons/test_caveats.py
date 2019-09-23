@@ -114,7 +114,7 @@ class TestV1Caveat:
             (
                 {
                     "version": 2,
-                    "expiration": int(datetime.now(tz=timezone.utc).timestamp()) + 120,
+                    "expiration": int(datetime.now(tz=timezone.utc).timestamp()) + 3600,
                     "permissions": "user",
                 },
                 True,

@@ -10,11 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pretend
 import pytest
-import pytz
 import wtforms
 
 from webob.multidict import MultiDict
@@ -417,9 +416,23 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_valid_project(self, db_request):
         project = ProjectFactory(name="foo")
-        ReleaseFactory.create(project=project)
         form = forms.CreateMacaroonForm(
             data={"description": "dummy", "token_scope": "scope:project:foo"},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            all_projects=[project],
+        )
+        assert form.validate()
+
+    def test_validate_token_scope_valid_project_and_version(self, db_request):
+        project = ProjectFactory(name="foo")
+        ReleaseFactory.create(project=project, version="1.0.0")
+        form = forms.CreateMacaroonForm(
+            data={
+                "description": "dummy",
+                "token_scope": "scope:project:foo",
+                "project_version": "1.0.1",
+            },
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             all_projects=[project],
@@ -470,6 +483,33 @@ class TestCreateMacaroonForm:
 
         assert not form.validate()
         assert form.token_scope.errors.pop() == "Release already exists"
+
+    @pytest.mark.parametrize(
+        ["expiration", "valid"],
+        [
+            ("invalid date", False),
+            ((datetime.now() - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M"), False),
+            ((datetime.now() + timedelta(days=366)).strftime("%Y-%m-%dT%H:%M"), False),
+            ((datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M"), True),
+        ],
+    )
+    def test_validate_expiration(self, expiration, valid):
+        form = forms.CreateMacaroonForm(
+            data={
+                "description": "dummy",
+                "token_scope": "scope:user",
+                "expiration": expiration,
+            },
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            all_projects=pretend.stub(),
+        )
+
+        assert form.validate() == valid
+        if valid:
+            expiration = datetime.strptime(expiration, "%Y-%m-%dT%H:%M")
+            expiration = expiration.astimezone(timezone.utc)
+            assert form.validated_caveats["expiration"] == int(expiration.timestamp())
 
 
 class TestDeleteMacaroonForm:
