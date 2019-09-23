@@ -31,12 +31,6 @@
       // Content to show and hide here
     </div>
   </div>
-
-  When used in a filter panel (.filter-panel), JS will attempt to infer the last tabbable
-  element according to the following rules:
-
-  * If the last accordion is in a closed state, then its child .accordion__link is last
-  * If the last accordion is in an open state, then the last input in its last child list is last
 */
 
 .accordion {
