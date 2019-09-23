@@ -19,15 +19,19 @@ export default () => {
     const filterPanel = document.querySelector(".filter-panel");
     keys[event.keyCode] = event.type === "keydown";
 
-    if (filterPanel && keys[9]) {
-      // `firstItem` assumes that the close button is the first tabbable element.
-      const firstItem = filterPanel.querySelector(".filter-panel__close");
+    if (filterPanel === null) {
+      return;
+    }
 
-      const getLastItem = () => filterPanel.querySelector(
-        ".accordion:last-child").classList.contains("accordion--closed")
-        ? filterPanel.querySelector(".accordion:last-child > .accordion__link")
-        : filterPanel.querySelector(".accordion:last-child li:last-child > input");
+    // `firstItem` assumes that the close button is the first tabbable element.
+    const firstItem = filterPanel.querySelector(".filter-panel__close");
 
+    const getLastItem = () => filterPanel.querySelector(
+      ".accordion:last-child").classList.contains("accordion--closed")
+      ? filterPanel.querySelector(".accordion:last-child > .accordion__link")
+      : filterPanel.querySelector(".accordion:last-child li:last-child > input");
+
+    if (keys[9]) {
       // Handle SHIFT+TAB
       if (keys[9] && keys[16]) {
         if (document.activeElement === firstItem) {
@@ -40,6 +44,9 @@ export default () => {
           event.preventDefault();
         }
       }
+    }
+    else if (keys[27]) {
+      firstItem.click();
     }
   });
 
