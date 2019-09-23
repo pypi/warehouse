@@ -98,7 +98,7 @@
       {% if files %}
       <p class="package-header__pip-instructions">
         <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
-        <button type="button" class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="{% trans %}Copy to clipboard{% endtrans %}" data-original-label="{% trans %}Copy to clipboard{% endtrans %}">
+        <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#pip-command" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}">
           <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
         </button>
@@ -120,7 +120,9 @@
         <span>{% trans %}Latest version{% endtrans %}</span>
       </a>
       {% endif %}
-      <p class="package-header__date">{% trans release_date=humanize(release.created) %}Last released: {{ release_date }}{% endtrans %}</p>
+      <p class="package-header__date">
+        {% trans release_date=humanize(release.created) %}Last released: {{ release_date }}{% endtrans %}
+      </p>
     </div>
   </div>
 </div>
@@ -262,7 +264,7 @@
                   {{ hversion.version }} {% if hversion.is_prerelease %}<span class="badge badge--warning release__version-badge">{% trans %}pre-release{% endtrans %}</span>{% endif %}
                 </p>
                 <p class="release__version-date">
-                  {{ localize(hversion.created) }}
+                  {{ humanize(hversion.created) }}
                 </p>
               </a>
             </div>
@@ -311,7 +313,7 @@
                   </td>
                   <td>
                     <span class="table__mobile-label">{% trans %}Upload date{% endtrans %}</span>
-                    {{ localize(file.upload_time) }}
+                    {{ humanize(file.upload_time) }}
                   </td>
                   <td class="table__align-right">
                     <span class="table__mobile-label table__mobile-label--hashes">{% trans %}Hashes{% endtrans %}</span>

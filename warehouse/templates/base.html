@@ -12,14 +12,8 @@
  # limitations under the License.
 -#}
 
-{% macro humanize(timestamp) -%}
-<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="true">
-  {{ timestamp|format_date()}}
-</time>
-{%- endmacro %}
-
-{% macro localize(timestamp) -%}
-<time class="tooltipped tooltipped-s -js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time">
+{% macro humanize(timestamp, relative="true", time="false") -%}
+<time datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="{{ relative }}" data-localized-time-show-time="{{ time }}">
   {{ timestamp|format_date()}}
 </time>
 {%- endmacro %}
@@ -289,6 +283,7 @@
             <ul>
               <li><a href="{{ request.route_path('help')}}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a></li>
               <li><a href="https://github.com/pypa/warehouse" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Contribute on GitHub{% endtrans %}</a></li>
+              <li><a href="https://hosted.weblate.org/projects/pypa/warehouse/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Translate PyPI{% endtrans %}</a></li>
               <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Development credits{% endtrans %}</a></li>
             </ul>
           </nav>

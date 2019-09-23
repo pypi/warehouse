@@ -16,7 +16,8 @@
   A horizontal search form, with an input on the left and a button on the right.
 
   <form class="search-form" role="search">
-    <input class="search-form__search">
+    <label for="my-search" class="sr-only">Search PyPI</label>
+    <input class="search-form__search" id="my-search">
     <button type="submit" class="search-form__button">
       <i class="fa fa-search" aria-hidden="true"></i>
       <span class="sr-only">Search</span>

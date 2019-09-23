@@ -82,28 +82,29 @@ docReady(formUtils.registerFormValidation);
 
 docReady(Statuspage);
 
-// Copy handler for
+// Copy handler for copy tooltips, e.g.
 //   - the pip command on package detail page
 //   - the copy hash on package detail page
 //   - the copy hash on release maintainers page
 docReady(() => {
   let setCopiedTooltip = (e) => {
-    e.trigger.setAttribute("aria-label", "Copied!");
+    e.trigger.setAttribute("data-tooltip-label", "Copied!");
+    e.trigger.setAttribute("role", "alert");
     e.clearSelection();
   };
 
-  new Clipboard(".-js-copy-pip-command").on("success", setCopiedTooltip);
-  new Clipboard(".-js-copy-hash").on("success", setCopiedTooltip);
+  new Clipboard(".copy-tooltip").on("success", setCopiedTooltip);
 
-  // Get all elements with class "tooltipped" and bind to focousout and
-  // mouseout events. Change the "aria-label" to "original-label" attribute
-  // value.
   let setOriginalLabel = (element) => {
-    element.setAttribute("aria-label", element.dataset.originalLabel);
+    element.setAttribute("data-tooltip-label", "Copy to clipboard");
+    element.removeAttribute("role");
+    element.blur();
   };
-  let tooltippedElems = Array.from(document.querySelectorAll(".tooltipped"));
+
+  let tooltippedElems = Array.from(document.querySelectorAll(".copy-tooltip"));
+
   tooltippedElems.forEach((element) => {
-    element.addEventListener("focousout",
+    element.addEventListener("focusout",
       setOriginalLabel.bind(undefined, element),
       false
     );

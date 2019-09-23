@@ -37,13 +37,13 @@
       <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0]["name"] %}Project "{{ project }}"{% endtrans %}
       {% endif %}
     </p>
-    <p>{% trans href='/help#apitoken' %}For instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
-    <code class="api-token">{{ serialized_macaroon }}</code>
+
+    <code class="code-block">{{ serialized_macaroon }}</code>
     <div class="margin-bottom--large">
       <div class="callout-block callout-block--danger no-top-margin">
         <p>{% trans %}For security reasons this token will only appear once. <strong>Copy it now.</strong>{% endtrans %}</p>
       </div>
-      <button type="button" class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="{% trans %}Copy token to clipboard{% endtrans %}" data-original-label="{% trans %}Copy token to clipboard{% endtrans %}" data-clipboard-text="{{ serialized_macaroon }}">
+      <button type="button" class="button button--primary copy-tooltip copy-tooltip-e" aria-label="{% trans %}Copy token to clipboard{% endtrans %}" data-tooltip-label="{% trans %}Copy token to clipboard{% endtrans %}" data-clipboard-text="{{ serialized_macaroon }}">
         {% trans %}Copy token{% endtrans %}
       </button>
       <a href="#remove-API-token--{{ macaroon.id }}" class="button">
@@ -61,8 +61,51 @@
 
       {{ confirm_modal(title=title, confirm_name=gettext("Username"), confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
     </div>
-    <hr>
+
+    <h2>{% trans %}Using this token{% endtrans %}</h2>
+
+    <p>{% trans %}To use this API token:{% endtrans %}</p>
+
+    <ul>
+      <li>{% trans token='__token__' %}Set your username to <code>{{ token }}</code>{% endtrans %}</li>
+      <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
+    </ul>
+
+    {% if macaroon.caveats.permissions == "user" %}
+
+    <p>
+      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+        For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
+      {% endtrans %}
+    </p>
+    <pre class="code-block">
+[pypi]
+  username = __token__
+  password = {{ serialized_macaroon }}</pre>
+    {% else %}
+    <p>
+      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+        For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
+      {% endtrans %}
+    </p>
+    <pre class="code-block">
+[pypi]
+  username = __token__
+  password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
+
+[PROJECT_NAME]
+  username = __token__
+  password = # {% trans %}a project token{% endtrans %} </pre>
+    <p>
+      {% trans trimmed command='twine --repository PROJECT_NAME' %}
+        You can then use <code>{{ command }}</code> to switch to the correct token when uploading to PyPI.
+      {% endtrans %}
+    </p>
+    {% endif %}
+
+    <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
   </section>
+  <hr>
   {% endif %}
 
   {{ form_error_anchor(create_macaroon_form) }}
@@ -112,7 +155,7 @@
       </div>
       <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
         <h3 class="callout-block__heading">{% trans %}Proceed with caution!{% endtrans %}</h3>
-        <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your projects.{% endtrans %}</p>
+        <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your current and future projects.{% endtrans %}</p>
       </div>
 
       {% set token_scope = create_macaroon_form.token_scope.data %}
