@@ -10,13 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 
 import pretend
 import pytest
-import pytz
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
@@ -67,8 +64,7 @@ class TestV1Caveat:
                 caveat(predicate)
 
     @pytest.mark.parametrize(
-        "predicate",
-        [{}, {"permissions": None}, {"permissions": {"projects": None}}],
+        "predicate", [{}, {"permissions": None}, {"permissions": {"projects": None}}]
     )
     def test_verify_invalid_v1_predicates(self, predicate):
         verifier = pretend.stub()
@@ -77,10 +73,17 @@ class TestV1Caveat:
         with pytest.raises(InvalidMacaroon):
             caveat(predicate)
 
-    def test_verify_valid_v1_predicate(self):
-        verifier = pretend.stub()
+    @pytest.mark.parametrize(
+        "predicate",
+        [
+            {"version": 1, "permissions": {"projects": ["foobar"]}},
+            {"version": 1, "permissions": "user"},
+        ],
+    )
+    def test_verify_valid_v1_predicates(self, db_request, predicate):
+        project = ProjectFactory.create(name="foobar")
+        verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
-        predicate = {"permissions": "user", "version": 1}
 
         caveat(predicate)
 
@@ -101,6 +104,28 @@ class TestV1Caveat:
 
         with pytest.raises(InvalidMacaroon):
             caveat(predicate)
+
+    @pytest.mark.parametrize(
+        ["predicate", "valid"],
+        [
+            ({"version": 2, "expiration": 0, "permissions": "user"}, False),
+            (
+                {
+                    "version": 2,
+                    "expiration": int(datetime.now(tz=timezone.utc)) + 120,
+                    "permissions": "user",
+                },
+                True,
+            ),
+        ],
+    )
+    def test_verify_v2_caveat_expiration(self, predicate, valid):
+        verifier = pretend.stub()
+        caveat = V2Caveat(verifier)
+
+        if not valid:
+            with pytest.raises(InvalidMacaroon):
+                caveat(predicate)
 
     # def test_verify_invalid_string_project(self, db_request):
     #     project = ProjectFactory.create(name="foobar")

@@ -69,7 +69,7 @@ class V1Caveat(Caveat):
 
 class V2Caveat(Caveat):
     def verify_expiration(self, expiration):
-        now = int(datetime.now(tz=timezone.utc))
+        now = int(datetime.now(tz=timezone.utc).timestamp())
         if expiration < now:
             raise InvalidMacaroon("token has expired")
 
@@ -142,7 +142,7 @@ class TopLevelCaveat(Caveat):
         else:
             raise InvalidMacaroon("invalid version")
 
-        caveat_verifier.verify(data)
+        return caveat_verifier.verify(data)
 
 
 class Verifier:
