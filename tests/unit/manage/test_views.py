@@ -1612,7 +1612,7 @@ class TestProvisionMacaroonViews:
         create_macaroon_obj = pretend.stub(
             validate=lambda: True,
             description=pretend.stub(data=pretend.stub()),
-            validated_scope="foobar",
+            validated_caveats={"version": 2, "permissions": "user"},
         )
         create_macaroon_cls = pretend.call_recorder(
             lambda *a, **kw: create_macaroon_obj
@@ -1635,10 +1635,7 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats={
-                    "permissions": create_macaroon_obj.validated_scope,
-                    "version": 1,
-                },
+                caveats=create_macaroon_obj.validated_caveats,
             )
         ]
         assert result == {
@@ -1654,10 +1651,7 @@ class TestProvisionMacaroonViews:
                 ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
-                    "caveats": {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    },
+                    "caveats": create_macaroon_obj.validated_caveats,
                 },
             )
         ]
@@ -1693,7 +1687,10 @@ class TestProvisionMacaroonViews:
         create_macaroon_obj = pretend.stub(
             validate=lambda: True,
             description=pretend.stub(data=pretend.stub()),
-            validated_scope={"projects": ["foo", "bar"]},
+            validated_caveats={
+                "version": 2,
+                "permissions": {"projects": [{"name": "foo"}, {"name": "bar"}]},
+            },
         )
         create_macaroon_cls = pretend.call_recorder(
             lambda *a, **kw: create_macaroon_obj
@@ -1713,10 +1710,7 @@ class TestProvisionMacaroonViews:
                 location=request.domain,
                 user_id=request.user.id,
                 description=create_macaroon_obj.description.data,
-                caveats={
-                    "permissions": create_macaroon_obj.validated_scope,
-                    "version": 1,
-                },
+                caveats=create_macaroon_obj.validated_caveats,
             )
         ]
         assert result == {
@@ -1732,10 +1726,7 @@ class TestProvisionMacaroonViews:
                 ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
-                    "caveats": {
-                        "permissions": create_macaroon_obj.validated_scope,
-                        "version": 1,
-                    },
+                    "caveats": create_macaroon_obj.validated_caveats,
                 },
             ),
             pretend.call(
