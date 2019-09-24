@@ -37,6 +37,7 @@ import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
+import BindFilterKeys from "warehouse/utils/bind-filter-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
 // Do this before anything else, to potentially capture errors down the line
@@ -222,6 +223,9 @@ docReady(bindDropdowns);
 
 // Get modal keypress event listeners ready
 docReady(BindModalKeys);
+
+// Get filter pane keypress event listeners ready
+docReady(BindFilterKeys);
 
 // Get WebAuthn compatibility checks ready
 docReady(GuardWebAuthn);
