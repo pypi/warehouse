@@ -21,7 +21,10 @@ code, which will make Warehouse easier to maintain in the long term.
 ---------------------------------------
 
 Ensuring Warehouse follows usability and accessibility best practices will make
-the site easier to use for everybody. At a minimum:
+the site easier to use for everybody.
+
+Warehouse follows the `WCAG 2.0 AA standard <https://www.w3.org/TR/WCAG20/>`_.
+When working on the UI:
 
 - Ensure contrast is high, particularly on text. This can be checked:
    - On Chrome by installing `Accessibility Developer Tools

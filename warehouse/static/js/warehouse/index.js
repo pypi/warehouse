@@ -96,15 +96,14 @@ docReady(() => {
 
   new Clipboard(".copy-tooltip").on("success", setCopiedTooltip);
 
-  // Get all elements with class "tooltipped" and bind to focousout and
-  // mouseout events. Change the "aria-label" to "original-label" attribute
-  // value.
   let setOriginalLabel = (element) => {
     element.setAttribute("data-tooltip-label", "Copy to clipboard");
     element.removeAttribute("role");
     element.blur();
   };
+
   let tooltippedElems = Array.from(document.querySelectorAll(".copy-tooltip"));
+
   tooltippedElems.forEach((element) => {
     element.addEventListener("focusout",
       setOriginalLabel.bind(undefined, element),
