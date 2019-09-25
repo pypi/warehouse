@@ -61,7 +61,7 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 @view_config(context=TooManyFailedLogins)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        _("There have been too many unsuccessful login attempts. " "Try again later."),
+        _("There have been too many unsuccessful login attempts. Try again later."),
         retry_after=exc.resets_in.total_seconds(),
     )
 
