@@ -518,8 +518,8 @@ six==1.12.0 \
     --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73
 sqlalchemy-citext==1.3.post0 \
     --hash=sha256:7d7343037a35153d6f94c3c2f6baf391f88a57651c3bde5d6749d216859ae4c5
-sqlalchemy==1.3.6 \
-    --hash=sha256:217e7fc52199a05851eee9b6a0883190743c4fb9c8ac4313ccfceaffd852b0ff
+sqlalchemy==1.3.8 \
+    --hash=sha256:2f8ff566a4d3a92246d367f2e9cd6ed3edeef670dcd6dda6dfdc9efed88bcd80
 stdlib-list==0.5.0 \
     --hash=sha256:5311a95812ebce3c5ad0b1f6ded798ce6f945d157075d166a5426c2da75a6625 \
     --hash=sha256:fe30e9fc98304de4207f545311c75a6ad7701719bbeb1ac018a0fcf6aa70c0ce
