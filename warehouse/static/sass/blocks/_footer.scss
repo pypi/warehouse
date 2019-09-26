@@ -20,10 +20,14 @@
       // footer icon image goes here
     </div>
     <div class="footer__menus"> // menu wrapper
-      <ul class="footer__menu"> // 3 of these!
-        <li><h3>Menu Title</h3></li>
-        <li><a>Menu Link</a></li>
-      </ul>
+      <div class="footer__menu">
+        // H2: Menu title
+        <nav aria-label="menu label">
+          <ul>
+            <li><a>Menu Link</a></li>
+          </ul>
+        </nav>
+      </div>
     </div>
 
     <hr class="footer__divider">

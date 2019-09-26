@@ -15,13 +15,16 @@
 /*
   A menu where the links stack horizontally.
 
-  <nav class="horizontal-menu">
+  <nav class="horizontal-menu" aria-label="my label">
     <ul>
       <li class="horizontal-menu__item">
         <a class="horizontal-menu__link">A horizontal link</a>
       </li>
     </ul>
   </nav>
+
+  Accessibility:
+    - Describe the menu with aria-label
 
   Modifiers:
     - tall: Adds extra padding to the menu items
