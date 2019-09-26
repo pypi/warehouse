@@ -32,13 +32,19 @@
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;
 
-  &,
-  &:hover {
-    // Use png fallback
-    background: $white url("../images/white-cube.png") no-repeat 0 50%;
-    // Or svg if the browser supports it
-    background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
-    background-position: 20px;
+  @media only screen and (max-width: $tablet) {
+    padding: $spacing-unit / 2;
+  }
+
+  @media only screen and (min-width: $tablet + 1px) {
+    &,
+    &:hover {
+      // Use png fallback
+      background: $white url("../images/white-cube.png") no-repeat 0 50%;
+      // Or svg if the browser supports it
+      background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
+      background-position: 20px;
+    }
   }
 
   &__title {
@@ -66,6 +72,7 @@
     font-weight: $base-font-weight;
     float: right;
     color: $text-color;
+    font-size: 1rem;
 
     @media only screen and (max-width: $tablet) {
       float: none;
@@ -85,7 +92,7 @@
   }
 
   &__buttons {
-    width: 170px;
+    flex-shrink: 0;
 
     .button {
       display: inline-block;

@@ -13,7 +13,7 @@
 -#}
 {% extends "base.html" %}
 
-{% block title_base %}{{ request.registry.settings['site.name'] }} · The Python Package Index{% endblock %}
+{% block title_base %}{{ request.registry.settings['site.name'] }} · {% trans %}The Python Package Index{% endtrans %}{% endblock %}
 
 {% macro project_snippet(release) -%}
 <li>
@@ -40,9 +40,9 @@
 {% block content %}
 
 {% if testPyPI %}
-  {% set banner = "Test Python package publishing with the Test Python Package Index" %}
+  {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
 {% else %}
-  {% set banner = "Find, install and publish Python packages with the Python Package Index" %}
+  {% set banner = _("Find, install and publish Python packages with the Python Package Index") %}
 {% endif %}
 
 <div class="banner">
@@ -50,24 +50,24 @@
     <h1 class="homepage-banner__title">{{ banner }}</h1>
 
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
-      <label for="search" class="sr-only">Search PyPI</label>
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search projects">
+      <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
+      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button type="submit" class="search-form__button">
         <i class="fa fa-search" aria-hidden="true"></i>
-        <span class="sr-only">Search</span>
+        <span class="sr-only">{% trans %}Search{% endtrans %}</span>
       </button>
     </form>
 
-    <p class="homepage-banner__browse">Or <a href="{{ request.route_path('search') }}">browse projects</a></p>
+    <p class="homepage-banner__browse">{% trans href=request.route_path('search') %}Or <a href="{{ href }}">browse projects</a>{% endtrans %}</p>
   </div>
 </div>
 
 <div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
-    <p class="statistics-bar__statistic">{{ num_projects|format_number }} projects</p>
-    <p class="statistics-bar__statistic">{{ num_releases|format_number }} releases</p>
-    <p class="statistics-bar__statistic">{{ num_files|format_number }} files</p>
-    <p class="statistics-bar__statistic">{{ num_users|format_number }} users</p>
+    <p class="statistics-bar__statistic">{% trans num_projects=num_projects|format_number %}{{ num_projects }} projects{% endtrans %}</p>
+    <p class="statistics-bar__statistic">{% trans num_releases=num_releases|format_number %}{{ num_releases }} releases{% endtrans %}</p>
+    <p class="statistics-bar__statistic">{% trans num_files=num_files|format_number %}{{ num_files }} files{% endtrans %}</p>
+    <p class="statistics-bar__statistic">{% trans num_users=num_users|format_number %}{{ num_users }} users{% endtrans %}</p>
   </div>
 </div>
 
@@ -77,14 +77,14 @@
       <img alt="" src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}">
     </div>
     <div class="about-pypi__text">
-      <p class="lede-paragraph">The Python Package Index (PyPI) is a repository of software for the Python programming language.</p>
+      <p class="lede-paragraph">{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}</p>
       <p>
-        PyPI helps you find and install software developed and shared by the Python community.
-        <a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Learn about installing packages</a>.
+        {% trans %}PyPI helps you find and install software developed and shared by the Python community.{% endtrans %}
+        <a href="https://packaging.python.org/installing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn about installing packages</a>.{% endtrans %}
       </p>
       <p>
-        Package authors use PyPI to distribute their software.
-        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Learn how to package your Python code for PyPI</a>.
+        {% trans %}Package authors use PyPI to distribute their software.{% endtrans %}
+        <a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Learn how to package your Python code for PyPI</a>.{% endtrans %}
       </p>
     </div>
   </div>
@@ -94,8 +94,8 @@
   <div class="site-container">
     <div class="col-half">
       <div class="heading-wsubtitle" id="pypi-trending-packages">
-        <h2 class="heading-wsubtitle__heading">Trending projects</h2>
-        <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
+        <h2 class="heading-wsubtitle__heading">{% trans %}Trending projects{% endtrans %}</h2>
+        <p class="heading-wsubtitle__subtitle">{% trans %}Trending projects as downloaded by the community{% endtrans %}</p>
       </div>
       <ul class="unstyled" aria-labelledby="pypi-trending-packages">
         {% for release in trending_projects %}
@@ -105,8 +105,8 @@
     </div>
     <div class="col-half">
       <div class="heading-wsubtitle" id="pypi-new-packages">
-        <h2 class="heading-wsubtitle__heading">New releases</h2>
-        <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
+        <h2 class="heading-wsubtitle__heading">{% trans %}New releases{% endtrans %}</h2>
+        <p class="heading-wsubtitle__subtitle">{% trans %}Hot off the press: the newest project releases{% endtrans %}</p>
       </div>
       <ul class="unstyled" aria-labelledby="pypi-new-packages">
         {% for release in latest_releases %}

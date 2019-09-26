@@ -14,7 +14,7 @@
 
 {% if release.urls.values() | contains_valid_uris %}
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">Project links</h3>
+  <h3 class="sidebar-section__title">{% trans %}Project links{% endtrans %}</h3>
   <ul class="vertical-tabs__list">
     {% for name, url in release.urls.items() %}
     {% if is_valid_uri(url) %}
@@ -30,17 +30,17 @@
 {% endif %}
 
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">Statistics</h3>
+  <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
   {% if release.github_repo_info_url %}
   <div class="github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
-    GitHub statistics:
+    {% trans %}GitHub statistics:{% endtrans %}
     <ul class="vertical-tabs__list">
       <li>
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
            data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
            target="_blank">
           <i class="fa fa-star" aria-hidden="true"></i>
-          <strong>Stars: </strong>
+          <strong>{% trans %}Stars:{% endtrans %}</strong>
           <span class="github-repo-info__item" data-key="stargazers_count"></span>
         </a>
       </li>
@@ -49,7 +49,7 @@
            data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
            target="_blank">
           <i class="fa fa-code-branch" aria-hidden="true"></i>
-          <strong>Forks: </strong>
+          <strong>{% trans %}Forks:{% endtrans %}</strong>
           <span class="github-repo-info__item" data-key="forks_count"></span>
         </a>
       </li>
@@ -58,39 +58,40 @@
            data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
            target="_blank">
           <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-          <strong>Open issues/PRs: </strong>
+          <strong>{% trans %}Open issues/PRs:{% endtrans %}</strong>
           <span class="github-repo-info__item" data-key="open_issues_count"></span>
         </a>
       <li>
     </ul>
   </div>
   {% endif %}
-  <p>View statistics for this project via <a
-          href="https://libraries.io/pypi/{{ release.project.name }}" title="External link" target="_blank" rel="noopener">Libraries.io</a>, or by using
-    <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/" target="_blank" rel="noopener">Google
-      BigQuery</a></p>
+  <p>
+    {% trans trimmed libs_io_href='https://libraries.io/pypi/{project_name}'.format(project_name=release.project.name), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}
+      View statistics for this project via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
+    {% endtrans %}
+  </p>
 </div>
 
 {% if release.has_meta %}
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">Meta</h3>
+  <h3 class="sidebar-section__title">{% trans %}Meta{% endtrans %}</h3>
   {% if license %}
-  <p><strong>License:</strong> {{ license }}</p>
+  <p><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</p>
   {% endif %}
   {% if release.author_email %}
-    <p><strong>Author:</strong> <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
+    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
   {% elif release.author %}
-    <p><strong>Author:</strong> {{ release.author }}</p>
+    <p><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</p>
   {% endif %}
   {% if release.maintainer_email %}
-    <p><strong>Maintainer:</strong> <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
+    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
   {% elif release.maintainer %}
-    <p><strong>Maintainer:</strong> {{ release.maintainer }}</p>
+    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}</p>
   {% endif %}
   {% if release.keywords %}
   <p class="tags">
     <i class="fa fa-tags" aria-hidden="true"></i>
-    <span class="sr-only">Tags</span>
+    <span class="sr-only">{% trans %}Tags{% endtrans %}</span>
     {% for keyword in release.keywords | format_tags %}
     <span class="package-keyword">
       {{ keyword }}{% if not loop.last %},{% endif %}
@@ -100,16 +101,16 @@
   {% endif %}
   {% if release.requires_python %}
   <p>
-    <strong>Requires:</strong> Python {{ release.requires_python|replace(',', ', ') }}
+    <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
   </p>
   {% endif %}
 </div>
 {% endif %}
 
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">Maintainers</h3>
+  <h3 class="sidebar-section__title">{% trans %}Maintainers{% endtrans %}</h3>
   {% for maintainer in maintainers %}
-    {% set alt = "Avatar for {} from gravatar.com".format(maintainer.username) %}
+    {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
     <span class="sidebar-section__maintainer">
       <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ maintainer.username}}">
         <span class="sidebar-section__user-gravatar">
@@ -125,7 +126,7 @@
 
 {% if release.classifiers %}
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">Classifiers</h3>
+  <h3 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h3>
   <ul class="sidebar-section__classifiers">
     {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
     <li>

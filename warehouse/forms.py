@@ -10,10 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from wtforms import Form as BaseForm
-from wtforms.validators import StopValidation, ValidationError
+from wtforms import Form as BaseForm, StringField
+from wtforms.validators import DataRequired, StopValidation, ValidationError
 from zxcvbn import zxcvbn
 
+from warehouse.i18n import KNOWN_LOCALES
 from warehouse.utils.http import is_valid_uri
 
 
@@ -118,3 +119,13 @@ class DBForm(Form):
     def __init__(self, *args, db, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = db
+
+
+class SetLocaleForm(Form):
+    __params__ = ["locale_id"]
+
+    locale_id = StringField(validators=[DataRequired(message="Missing locale ID")])
+
+    def validate_locale_id(self, field):
+        if field.data not in KNOWN_LOCALES.keys():
+            raise ValidationError(f"Unknown locale ID: {field.data}")

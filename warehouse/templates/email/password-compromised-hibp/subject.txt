@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Your {{ request.registry.settings["site.name"] }} password has been reset{% endblock %}
+{% block subject %}{% trans site=request.registry.settings["site.name"] %}Your {{ site }} password has been reset{% endtrans %}{% endblock %}

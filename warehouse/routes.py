@@ -27,12 +27,14 @@ def includeme(config):
 
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
+    config.add_route("locale", "/locale", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
+    config.add_template_view("sitemap", "/sitemap/", "pages/sitemap.html")
     config.add_template_view("help", "/help/", "pages/help.html")
     config.add_template_view("security", "/security/", "pages/security.html")
     config.add_template_view(
