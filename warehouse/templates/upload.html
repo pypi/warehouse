@@ -22,10 +22,10 @@
     <h2 class="viewport-section__heading">API endpoint</h2>
     <div class="viewport-section__text no-top-margin">
       <p>
-        This URL is an API endpoint for uploading files to PyPI.<br>
-        For more information on uploading projects to PyPI, visit the <a href="https://packaging.python.org/distributing/#uploading-your-project-to-pypi" title="External link" target="_blank" rel="noopener">Python Packaging User Guide.</a>
+        {% trans %}This URL is an API endpoint for uploading files to PyPI.{% endtrans %}<br>
+        {% trans href='https://packaging.python.org/distributing/#uploading-your-project-to-pypi', title=gettext('External link') %}For more information on uploading projects to PyPI, visit the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.{% endtrans %}
       </p>
-      <p>Otherwise, we suggest you <a href="https://pypi.org/">go to the PyPI homepage</a>.</p>
+      <p>{% trans href='https://pypi.org/' %}Otherwise, we suggest you <a href="{{ href }}">go to the PyPI homepage</a>.{% endtrans %}</p>
     </div>
   </div>
 </div>

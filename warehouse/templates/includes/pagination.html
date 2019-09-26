@@ -18,9 +18,9 @@
 <div class="button-group button-group--pagination">
     {# previous button #}
     {% if map.current_page.value == map.first_page.number %}
-  <a class="button button-group__button button--disabled">Previous</a>
+  <a class="button button-group__button button--disabled">{% trans %}Previous{% endtrans %}</a>
     {% else %}
-    <a href="{{ map.previous_page.href }}" class="button button-group__button">Previous</a>
+    <a href="{{ map.previous_page.href }}" class="button button-group__button">{% trans %}Previous{% endtrans %}</a>
     {% endif %}
 
     {# show first page button - special case #}
@@ -45,11 +45,10 @@
 
     {# "next" button #}
     {% if map.current_page.value == map.last_page.number %}
-    <a class="button button-group__button button--disabled">Next</a>
+    <a class="button button-group__button button--disabled">{% trans %}Next{% endtrans %}</a>
     {% else %}
-    <a href="{{ map.next_page.href }}" class="button button-group__button">Next</a>
+    <a href="{{ map.next_page.href }}" class="button button-group__button">{% trans %}Next{% endtrans %}</a>
     {% endif %}
 </div>
 {% endif %}
 {%- endmacro %}
-

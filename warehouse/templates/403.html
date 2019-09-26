@@ -13,8 +13,8 @@
 -#}
 {% extends "error-base-with-search.html" %}
 
-{% block title %}Access Denied / Forbidden (403){% endblock %}
+{% block title %}{% trans %}Access Denied / Forbidden (403){% endtrans %}{% endblock %}
 
-{% block error_heading %}You don't have permission to view this page{% endblock %}
+{% block error_heading %}{% trans %}You don't have permission to view this page{% endtrans %}{% endblock %}
 
 {% block error_code %}403{% endblock %}

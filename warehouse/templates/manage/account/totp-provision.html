@@ -14,13 +14,12 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Set up 2FA with an authentication application (TOTP)" %}
+{% set title = gettext("Set up 2FA with an authentication application (TOTP)") %}
 
-{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'account' %}
 
 {% block title %}
-  {% if provision_totp_form.errors %}Error processing form –{% endif %}
+  {% if provision_totp_form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
   {{ title }}
 {% endblock %}
 
@@ -30,29 +29,33 @@
 {% block main %}
 <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
 <p class="heading-wsubtitle__subtitle">
-  PyPI supports any application that follows the <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm" title="External link" target="_blank" rel="noopener">TOTP standard</a>.
+  {% trans trimmed href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}
+    PyPI supports any application that follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.
+  {% endtrans %}
   <br>
-  Visit <a href="{{ request.route_path('help', _anchor='totp') }}">PyPI's help page</a> for a list of compatible applications.
+  {% trans trimmed href=request.route_path('help', _anchor='totp') %}
+    Visit <a href="{{ href }}">PyPI's help page</a> for a list of compatible applications.
+  {% endtrans %}
 </p>
 
 <section>
-  <h2>Set up your application</h2>
+  <h2>{% trans %}Set up your application{% endtrans %}</h2>
 
   <p>
-    <strong>Scan the QR code with the authentication application of your choice.</strong>
-    For security reasons, you can only associate one authentication application per PyPI account.
+    <strong>{% trans %}Scan the QR code with the authentication application of your choice.{% endtrans %}</strong>
+    {% trans %}For security reasons, you can only associate one authentication application per PyPI account.{% endtrans %}
   </p>
 
   <div class="totp-form">
     <div>
       <div class="totp-form__qr">
-        <img src="{{ request.route_path('manage.account.totp-provision.image') }}" alt="QR code for setting up an authentication application" aria-label="{{ provision_totp_uri }}">
+        <img src="{{ request.route_path('manage.account.totp-provision.image') }}" alt="{% trans %}QR code for setting up an authentication application{% endtrans %}" aria-label="{{ provision_totp_uri }}">
       </div>
       <div class="totp-form__manual-code">
-        <p><strong>No QR scanner?</strong> Manually enter the code instead:
+        <p>{% trans %}<strong>No QR scanner?</strong> Manually enter the code instead:{% endtrans %}
           <code>{{ provision_totp_secret }}</code>
-          <button type="button" class="button button--small -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ provision_totp_secret }}">
-            Copy
+          <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ provision_totp_secret }}">
+            {% trans %}Copy{% endtrans %}
           </button>
         </p>
       </div>
@@ -61,13 +64,13 @@
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
         <label for="totp_value" class="form-group__label">
-          Verify application
+          {% trans %}Verify application{% endtrans %}
           {% if provision_totp_form.totp_value.flags.required %}
-          <span class="form-group__required">(required)</span>
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ provision_totp_form.totp_value(placeholder="Authentication code", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="off", **{"aria-describedby":"totp-help totp-errors"}) }}
-        <p id="totp-help" class="form-group__help-text">To finalize the set up process, enter the authentication code provided by your application.</p>
+        {{ provision_totp_form.totp_value(placeholder=gettext("Authentication code"), autocapitalize="off", autocomplete="one-time-code", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"totp-help totp-errors"}) }}
+        <p id="totp-help" class="form-group__help-text">{% trans %}To finalize the set up process, enter the authentication code provided by your application.{% endtrans %}</p>
         <div id="totp-errors">
           {% if provision_totp_form.totp_value.errors %}
           <ul class="form-errors" role="alert">
@@ -79,7 +82,7 @@
         </div>
       </div>
       <div>
-        <input type="submit" value="Set up application" class="button button--primary">
+        <input type="submit" value="{% trans %}Set up application{% endtrans %}" class="button button--primary">
       </div>
     </form>
   </div>
