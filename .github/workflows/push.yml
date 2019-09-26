@@ -9,7 +9,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7.3]
+        python-version: [3.7]
         node-version: [8.9.4]
 
     steps:
