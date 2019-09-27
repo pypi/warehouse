@@ -211,7 +211,7 @@
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
               <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false" tabindex="1">
               {% block search_form_extra_inputs %}{% endblock %}
               <button type="submit" class="search-form__button">
                 <i class="fa fa-search" aria-hidden="true"></i>
