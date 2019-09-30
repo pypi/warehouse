@@ -37,6 +37,7 @@ import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
+import BindFilterKeys from "warehouse/utils/bind-filter-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
 // Do this before anything else, to potentially capture errors down the line
@@ -95,15 +96,14 @@ docReady(() => {
 
   new Clipboard(".copy-tooltip").on("success", setCopiedTooltip);
 
-  // Get all elements with class "tooltipped" and bind to focousout and
-  // mouseout events. Change the "aria-label" to "original-label" attribute
-  // value.
   let setOriginalLabel = (element) => {
     element.setAttribute("data-tooltip-label", "Copy to clipboard");
     element.removeAttribute("role");
     element.blur();
   };
+
   let tooltippedElems = Array.from(document.querySelectorAll(".copy-tooltip"));
+
   tooltippedElems.forEach((element) => {
     element.addEventListener("focusout",
       setOriginalLabel.bind(undefined, element),
@@ -223,6 +223,9 @@ docReady(bindDropdowns);
 
 // Get modal keypress event listeners ready
 docReady(BindModalKeys);
+
+// Get filter pane keypress event listeners ready
+docReady(BindFilterKeys);
 
 // Get WebAuthn compatibility checks ready
 docReady(GuardWebAuthn);

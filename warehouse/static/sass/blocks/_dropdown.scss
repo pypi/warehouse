@@ -14,14 +14,28 @@
 
 /*
   A dropdown - containing a trigger and dropdown content, which may include
-  links. Styled to match the banner.
+  links.
 
-  <div class="dropdown">
-    <button class="dropdown__trigger">
-    <div class="dropdown__content">
-      <a class="dropdown__link">Link Here</a>
-    </div>
-  </div>
+  <nav class="dropdown" aria-label="Dropdown label">
+    <button type="button" class="dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="button label">
+      // Button text or icon
+    </button>
+    <ul class="dropdown__content" aria-hidden="true" aria-label="Main menu">
+      <li>
+        <a class="dropdown__link" href="url">
+          // Link text
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  Accessbility:
+    - .dropdown - aria-label: label the entire dropdown. E.g. "Main navigation"
+    - .dropdown__trigger - aria-label: label the button. E.g. "Show menu"
+    - .dropdown__trigger - aria-haspopup: indicates that the button has a popup element attached
+    - .dropdown__trigger - aria-expended: indicates whether or not the popup is expanded
+    - .dropdown__content - aria-hidden: indicates whether or not list is hidden
+    - .dropdown__content - aria-label: labels the content. E.g. "Main menu"
 
   Modifiers:
     - on-menu: Styles the dropdown to match the site header

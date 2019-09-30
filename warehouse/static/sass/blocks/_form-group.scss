@@ -64,30 +64,4 @@
     max-width: 100%;
     font-size: $small-font-size;
   }
-
-  &__horizontal {
-    display: flex;
-  }
-
-  &__horizontal-left {
-    display: inline-block;
-    max-width: 100%;
-  }
-
-  &__horizontal-right {
-    margin-left: 10px;
-    display: inline-block;
-    max-width: 100%;
-  }
-
-  @media only screen and (max-width: $small-tablet) {
-    &__horizontal {
-      flex-wrap: wrap;
-    }
-
-    &__horizontal-right {
-      margin-left: 0;
-      margin-top: 10px;
-    }
-  }
 }

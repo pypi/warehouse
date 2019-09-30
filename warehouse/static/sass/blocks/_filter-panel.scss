@@ -20,9 +20,9 @@
     - shown over other content after being launched by a button
 
   <div class="filter-panel">
-    <a class="filter-panel__close">
-      // close button
-    </a>
+    <button type="button" class="filter-panel__close -js-close-panel" aria-label="Close panel">
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </button>
     // Panel content here
   </div>
 */

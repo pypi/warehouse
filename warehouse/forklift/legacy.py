@@ -103,6 +103,13 @@ _allowed_platforms = {
     "manylinux1_i686",
     "manylinux2010_x86_64",
     "manylinux2010_i686",
+    "manylinux2014_x86_64",
+    "manylinux2014_i686",
+    "manylinux2014_aarch64",
+    "manylinux2014_armv7l",
+    "manylinux2014_ppc64",
+    "manylinux2014_ppc64le",
+    "manylinux2014_s390x",
     "linux_armv6l",
     "linux_armv7l",
 }
