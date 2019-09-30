@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Primary email change notification{% endblock %}
+{% block subject %}{% trans %}Primary email change notification{% endtrans %}{% endblock %}

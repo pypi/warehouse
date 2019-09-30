@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Password change notification{% endblock %}
+{% block subject %}{% trans %}Password change notification{% endtrans %}{% endblock %}
