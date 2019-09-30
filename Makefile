@@ -96,6 +96,11 @@ tests:
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
+static_tests:
+	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/static_tests $(T) $(TESTARGS)
+
 
 reformat: .state/env/pyvenv.cfg
 	$(BINDIR)/isort -rc warehouse/ tests/
@@ -111,11 +116,11 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation,boolean_attribute `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
-	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
+	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
 	./node_modules/.bin/sass-lint --verbose
 else
 	# We're not on Travis, so we should lint static files inside the static container
-	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
+	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
 	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
 endif
 

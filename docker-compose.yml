@@ -111,6 +111,8 @@ services:
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
+      - ./bin:/opt/warehouse/src/bin:z
 
   smtp:
     build:
