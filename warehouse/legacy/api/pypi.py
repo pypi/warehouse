@@ -168,7 +168,13 @@ def create_token(request):
         user = macaroon_service.find_userid(
             request.master_key
         )  # To determine the user of the original token
-        scope = {"version": 2, "permissions": scope}
+        scope = {
+            "version": 2,
+            "expiration": request.expiration,
+            "permissions": {
+                "projects": [{"name": request.project_name, "version": request.release}]
+            },
+        }
         serialized_macaroon, macaroon = macaroon_service.create_macaroon(
             location=request.domain,  # ?
             user_id=user,
@@ -178,4 +184,4 @@ def create_token(request):
     except ValueError or InvalidMacaroon:
         raise HTTPBadRequest()
 
-    return {"api_key": serialized_macaroon}
+    return {"upload_token": serialized_macaroon}
