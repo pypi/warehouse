@@ -14,6 +14,10 @@ from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
 
+from pyramid.httpexceptions import HTTPUnauthorized, HTTPBadRequest
+from warehouse.macaroons.caveats import InvalidMacaroon
+from warehouse.macaroons.interfaces import IMacaroonService
+
 from warehouse.classifiers.models import Classifier
 
 
@@ -145,3 +149,33 @@ def display(request):
             request.route_path("packaging.release", name=name, version=version)
         )
     return HTTPMovedPermanently(request.route_path("packaging.project", name=name))
+
+
+@view_config(route_name="legacy.api.pypi.token.new")
+# TODO figure out best way to verify master token
+def create_token(request):
+    macaroon_service = request.find_service(IMacaroonService, context=None)
+    try:
+        macaroon_service.verify(
+            raw_macaroon=request.master_key,
+            context="",
+            principals="",
+            permissions="user",
+        )
+    except InvalidMacaroon:
+        raise HTTPUnauthorized()
+    try:
+        user = macaroon_service.find_userid(
+            request.master_key
+        )  # To determine the user of the original token
+        scope = {"version": 2, "permissions": scope}
+        serialized_macaroon, macaroon = macaroon_service.create_macaroon(
+            location=request.domain,  # ?
+            user_id=user,
+            description=request.description,
+            caveats=scope,
+        )
+    except ValueError or InvalidMacaroon:
+        raise HTTPBadRequest()
+
+    return {"api_key": serialized_macaroon}
