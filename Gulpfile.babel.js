@@ -62,8 +62,8 @@ let webpackConfig = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["env"],
-            plugins: ["transform-class-properties"],
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-proposal-class-properties"],
           },
         },
       },

@@ -115,8 +115,8 @@ class PasswordMixin:
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
                     _(
-                        "There have been too many unsuccessful login attempts, "
-                        "try again later."
+                        "There have been too many unsuccessful login attempts. "
+                        "Try again later."
                     )
                 ) from None
 
