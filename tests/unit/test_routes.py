@@ -365,6 +365,7 @@ def test_routes(warehouse):
         pretend.call("legacy.api.pypi.browse", "browse", domain=warehouse),
         pretend.call("legacy.api.pypi.files", "files", domain=warehouse),
         pretend.call("legacy.api.pypi.display", "display", domain=warehouse),
+        pretend.call("legacy.api.pypi.token.new", "create_token", domain=warehouse)
     ]
 
     assert config.add_pypi_action_redirect.calls == [
