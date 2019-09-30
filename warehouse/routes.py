@@ -333,7 +333,9 @@ def includeme(config):
     config.add_pypi_action_route("legacy.api.pypi.browse", "browse", domain=warehouse)
     config.add_pypi_action_route("legacy.api.pypi.files", "files", domain=warehouse)
     config.add_pypi_action_route("legacy.api.pypi.display", "display", domain=warehouse)
-    config.add_pypi_action_route("legacy.api.pypi.token.new", "create_token", domain=warehouse)
+    config.add_pypi_action_route(
+        "legacy.api.pypi.token.new", "create_token", domain=warehouse
+    )
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(
