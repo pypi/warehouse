@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2019.
+# Alan Velasco <AlanVelasco.A@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-22 12:30+0000\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
+"PO-Revision-Date: 2019-09-24 20:27+0000\n"
+"Last-Translator: Alan Velasco <AlanVelasco.A@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -823,6 +824,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project)s by %(submitter)s."
 msgstr ""
+"Has sido añadido como <strong>%(role)s</strong> al proyecto %(project)s de "
+"%(site)s por %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
@@ -836,6 +839,8 @@ msgstr ""
 #: warehouse/templates/email/collaborator-added/body.html:26
 msgid "A new collaborator has been added to a project you own on PyPI:"
 msgstr ""
+"Un colaborador nuevo ha sido añadido a un proyecto del que eres dueño en "
+"PyPI:"
 
 #: warehouse/templates/email/collaborator-added/body.html:29
 #, python-format
@@ -855,7 +860,7 @@ msgstr "<strong>Colabora en</strong>: %(project)s"
 #: warehouse/templates/email/collaborator-added/body.html:32
 #, python-format
 msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr ""
+msgstr "<strong>Añadido por</strong>: %(submitter)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:36
 #, python-format
@@ -864,10 +869,13 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
+"Si esto fue un error, puedes enviar un correo a <a href=\"%(href)s\""
+">%(email_address)s</a> para ponerte en contact con los administradores de "
+"PyPI."
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
-msgstr ""
+msgstr "Estás recibiendo esto porque eres propietario de este proyecto."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -875,6 +883,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
+"Alguien, quizás tu, ha cambiado la contraseña de tu cuenta de PyPI "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -890,6 +900,13 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
+"Los administradores de PyPI han determinado que tu contraseña ha sido "
+"comprometida. Para\n"
+"  protegerte a ti y a otros usuarios, hemos reestablecido tu contraseña de "
+"manera preventiva y\n"
+"  ya no serás capaz de iniciar sesión ni de subir paquetes a PyPI con tu "
+"contraseña\n"
+"  existente."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -897,6 +914,9 @@ msgid ""
 "reduce the\n"
 "  risk for PyPI and its users."
 msgstr ""
+"PyPI en sí no ha sufrido una brecha de seguridad. Esta es una medida de "
+"protección para reducir el\n"
+"  riesgo a PyPI y a sus usuarios."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
@@ -909,10 +929,12 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your "
 "password</a> on PyPI."
 msgstr ""
+"Para recuperar el accesso a tu cuenta, <a href=\"%(href)s\">reestablece tu "
+"contraseña</a> en PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
-msgstr ""
+msgstr "¿Cómo te puedo contactar?"
 
 #: warehouse/templates/email/password-compromised/body.html:41
 #, python-format
@@ -921,6 +943,9 @@ msgid ""
 "\n"
 "  the PyPI administrators."
 msgstr ""
+"Para más información, puedes enviar un correo a %(email_address)s para "
+"comunicarte con\n"
+"  los administradores de PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
