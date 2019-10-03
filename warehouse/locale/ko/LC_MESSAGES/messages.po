@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Younggun Kim <iam@younggun.kim>, 2019.
+# Hyung Jin Kim <hyungjin8943@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Younggun Kim <iam@younggun.kim>\n"
+"Last-Translator: Hyung Jin Kim <hyungjin8943@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -30,7 +31,7 @@ msgstr "TOTP 코드는 ${totp_length} 자리여야 합니다."
 
 #: warehouse/accounts/forms.py:70
 msgid "Choose a username with 50 characters or less."
-msgstr ""
+msgstr "사용자 이름을 50자 내외로 정해 주세요."
 
 #: warehouse/accounts/forms.py:76
 msgid ""
@@ -38,6 +39,8 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
+"올바른 사용자 이름이 아닙니다. 사용자 이름은 글자, 숫자,  마침표, 붙임표 와 밑줄 로 구성 되어야 하며, 글자와 숫자로 시작 하고 "
+"끝나야 합니다. 다른 사용자 이름을 정해주세요."
 
 #: warehouse/accounts/forms.py:90
 msgid ""
