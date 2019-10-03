@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Eray Erdin <eraygezer.94@gmail.com>\n"
+"PO-Revision-Date: 2019-09-25 21:55+0000\n"
+"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -134,11 +134,11 @@ msgstr ""
 
 #: warehouse/accounts/views.py:482
 msgid "Expired token: request a new password reset link"
-msgstr "Süresi dolmuş belirteç: yeni bir parola sıfırlama linki isteyin"
+msgstr "Süresi dolmuş belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
 #: warehouse/accounts/views.py:484
 msgid "Invalid token: request a new password reset link"
-msgstr "Geçersiz belirteç: yeni bir parola sıfırlama linki isteyin"
+msgstr "Geçersiz belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
 #: warehouse/accounts/views.py:486 warehouse/accounts/views.py:558
 msgid "Invalid token: no token supplied"
@@ -168,11 +168,11 @@ msgstr "Parolanızı sıfırladınız"
 
 #: warehouse/accounts/views.py:554
 msgid "Expired token: request a new email verification link"
-msgstr "Süresi dolmuş belirteç: yeni bir e-posta doğrulama linki isteyin"
+msgstr "Süresi dolmuş belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
 #: warehouse/accounts/views.py:556
 msgid "Invalid token: request a new email verification link"
-msgstr "Geçersiz belirteç: yeni bir e-posta doğrulama linki isteyin"
+msgstr "Geçersiz belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
 #: warehouse/accounts/views.py:562
 msgid "Invalid token: not an email verification token"
@@ -201,7 +201,8 @@ msgstr "E-posta adresin ${email_address} onaylandı. ${confirm_message}."
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
-"${email_address} e-postan eklendi - e-postanı doğrulama linki için kontrol et"
+"${email_address} e-postan eklendi - e-postanı doğrulama bağlantısı için "
+"kontrol et"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -1251,6 +1252,10 @@ msgid ""
 "rel=\"noopener\">Libraries.io</a>, or by using <a href=\"%(gbq_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"%(username)s'in projelerine ait istatistikleri <a href=\"%(libs_io_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya "
+"<a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
+"BigQuery</a> kullanarak incele"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1290,7 +1295,7 @@ msgstr "Güvenlik Geçmişi"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
 msgid "Journal"
-msgstr ""
+msgstr "Günlük"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/documentation.html:21
@@ -1329,6 +1334,10 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Bu projenin istatistiklerini <a href=\"%(libs_io_href)s\" title=\"%(title)s\""
+" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</a> "
+"kullanarak incele"
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
@@ -1382,7 +1391,7 @@ msgstr "%(project_name)s için Bağlantılar"
 
 #: warehouse/templates/legacy/api/simple/index.html:17
 msgid "Simple index"
-msgstr ""
+msgstr "Basit dizin"
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -1390,7 +1399,7 @@ msgstr "Doğrulanmış*"
 
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
-msgstr ""
+msgstr "*Aralıklı teslimat sorunları doğrulama kaybına yol açabilir"
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
@@ -1464,12 +1473,16 @@ msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 "authentication application"
 msgstr ""
+"Kinlik doğrulama uygulamasıyla <abbr title=\"two factor authentication\">2-"
+"aşamalı kimlik doğrulama</abbr> ekleyin"
 
 #: warehouse/templates/manage/account.html:141
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
 msgstr ""
+"Güvenlik cihazı (örneğin USB anahtarı) ile <abbr title=\"two factor "
+"authentication\">2 aşamalı kimlik doğrulama</abbr> ekleyin"
 
 #: warehouse/templates/manage/account.html:145
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1526,7 +1539,7 @@ msgstr "Tokeni Kaldır"
 
 #: warehouse/templates/manage/account.html:199
 msgid "View unique identifier"
-msgstr ""
+msgstr "Benzersiz tanımlayıcıyı görüntüle"
 
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account.html:209
@@ -1547,7 +1560,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:227
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
-msgstr ""
+msgstr "API belirteci %(token_description)s için benzersiz tanımlayıcı"
 
 #: warehouse/templates/manage/account.html:245
 msgid "Profile picture"
@@ -1688,6 +1701,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
+"Kimlik doğrulama uygulaması (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:448
 #: warehouse/templates/manage/account.html:463
@@ -1706,7 +1721,7 @@ msgstr "Uygulamayı kaldır"
 #: warehouse/templates/manage/account.html:459
 #: warehouse/templates/manage/account.html:541
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
+msgstr "Güvenlik cihazı (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:464
 msgid "Remove two factor security device"
@@ -1889,11 +1904,13 @@ msgstr "API tokeni kaldırıldı"
 
 #: warehouse/templates/manage/account.html:614
 msgid "Unique identifier:"
-msgstr ""
+msgstr "Benzersiz tanımlayıcı:"
 
 #: warehouse/templates/manage/account.html:620
 msgid "Events appear here as security-related actions occur on your account."
 msgstr ""
+"Hesabınızda güvenlikle ilgili eylemler gerçekleştiğinde olaylar burada "
+"görünür."
 
 #: warehouse/templates/manage/account.html:622
 msgid "Recent account activity"
@@ -1921,6 +1938,8 @@ msgstr "IP Adresi"
 #: warehouse/templates/manage/account.html:645
 msgid "Events will appear here as security-related actions occur on your account."
 msgstr ""
+"Hesabınızda güvenlikle ilgili eylemler gerçekleştiğinde olaylar burada "
+"görünür."
 
 #: warehouse/templates/manage/account.html:652
 msgid "Delete account"
@@ -2091,16 +2110,21 @@ msgstr "Dosya Adı:"
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeye eklendi"
 
 #: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeden "
+"kaldırıldı"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projedeki "
+"yetkilerini değiştirdiler"
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
@@ -2124,11 +2148,11 @@ msgstr "%(project_name)s Projesinin Güvenlik Geçmişi"
 #: warehouse/templates/manage/journal.html:20
 #, python-format
 msgid "'%(project_name)s' project journal"
-msgstr ""
+msgstr "'%(project_name)s' proje günlüğü"
 
 #: warehouse/templates/manage/journal.html:23
 msgid "Project journal"
-msgstr ""
+msgstr "Proje günlüğü"
 
 #: warehouse/templates/manage/journal.html:25
 msgid ""
@@ -2205,7 +2229,7 @@ msgstr "Devam etmek için kullanıcı adınızı doğrulayın."
 #: warehouse/templates/manage/manage_base.html:115
 #, python-format
 msgid "Confirm the %(item)s to continue."
-msgstr ""
+msgstr "Devam etmek için %(item)s 'ı onaylayın."
 
 #: warehouse/templates/manage/manage_base.html:123
 msgid "Cancel"
@@ -2268,6 +2292,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"PyPI'a henüz herhangi bir proje yüklemedin. Nasıl başlaşayacağınızı öğrenmek "
+"için <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">Python "
+"Paketleme Kullanım Kılavuzunu</a> ziyaret edin"
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
@@ -2282,7 +2309,7 @@ msgstr "%(version)s Sürümü"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
-msgstr ""
+msgstr "İkincil navigasyon"
 
 #: warehouse/templates/manage/release.html:26
 #, python-format
@@ -2291,7 +2318,7 @@ msgstr "Bütün %(project_name)s Sürümleri"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
-msgstr ""
+msgstr "sürümü incele"
 
 #: warehouse/templates/manage/release.html:34
 #, python-format
@@ -2336,11 +2363,11 @@ msgstr "İndir"
 
 #: warehouse/templates/manage/release.html:89
 msgid "View Hashes"
-msgstr ""
+msgstr "Hashleri Gör"
 
 #: warehouse/templates/manage/release.html:94
 msgid "Delete file from"
-msgstr ""
+msgstr "'dan dosya sil"
 
 #: warehouse/templates/manage/release.html:95
 msgid "Delete file"
@@ -2372,6 +2399,9 @@ msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\""
 " target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
+"üzerinde öğren"
 
 #: warehouse/templates/manage/release.html:128
 msgid "Release settings"
@@ -2418,6 +2448,10 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
+"Aynı sürüm numarasıyla aynı türdeki yeni bir dağıtımı yeniden "
+"yükleyemeyeceksiniz. Yeni bir sürüm veya <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">post-relase</a> yapmayı "
+"düşünün."
 
 #: warehouse/templates/manage/release.html:148
 #: warehouse/templates/manage/releases.html:27
@@ -2503,6 +2537,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
 "User Guide</a>"
 msgstr ""
+"Nasıl yeni bir sürüm oluşturacağınızı <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı "
+"Kılavuzu</a> üzerinde öğrenin"
 
 #: warehouse/templates/manage/roles.html:18
 #, python-format
@@ -2515,6 +2552,8 @@ msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s"
 msgstr ""
+"Hangi PyPI kullanıcılarının %(project_name)s'yi yönetmenize yardımcı "
+"olabileceklerini denetlemek için bu sayfayı kullanın"
 
 #: warehouse/templates/manage/roles.html:25
 #: warehouse/templates/pages/help.html:472
@@ -2598,7 +2637,7 @@ msgstr "Proje Ayarları"
 #: warehouse/templates/manage/settings.html:28
 #, python-format
 msgid "Create a token for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s için bir belirteç oluştur"
 
 #: warehouse/templates/manage/settings.html:33
 #, python-format
@@ -2606,10 +2645,12 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
+"%(project_name)s 'e API belirteci eklemek için <a href=\"%(href)s\">birincil "
+"e-posta adresinizi onaylayın</a>."
 
 #: warehouse/templates/manage/settings.html:41
 msgid "Project description and sidebar"
-msgstr ""
+msgstr "Proje açıklaması ve kenar çubuğu"
 
 #: warehouse/templates/manage/settings.html:43
 #, python-format
@@ -2626,6 +2667,16 @@ msgid ""
 "rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
 "for more help."
 msgstr ""
+"%(project_name)s 'in açıklamasını, yayınlanlarını, bağlantılarını, "
+"sınıflandıracılarını ve diğer detayları sonraki sürümde belirtmek için <a "
+"href=\"%(setup_args_href)s\" rel=\"noopener\" target=\"_blank\""
+"><code>setup.py</code> dosyasındaki <code>setup()</code> fonksiyonun "
+"argümanlarını</a> kullanın. Bu alanları güncellemek eski sürümlere ait üst-"
+"bilgiyi değiştirmeyecektir</a>. Ayrıca bu alanlarda tam destek istiyorsanız <"
+"a href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> "
+"ile yükleme yapmak <strong>zorundasınız</strong>. Daha fazla yardım için <a "
+"href=\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">Python "
+"Paketleme Kullanıcı Kılavuzunu</a> inceleyin."
 
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
@@ -2667,6 +2718,10 @@ msgid ""
 "unique, as they are generated by combining the project name + version "
 "number + distribution type)"
 msgstr ""
+"Dağıtım dosya adları daha önce yayımlanan bir dağıtımdaki dosya adlarıyla "
+"eşleşmediği sürece bu kullanıcı bu proje adı altında yeni sürümler yapabilir "
+"(proje adı birleştirilerek oluşturulan tüm PYPI dağıtım dosya adları "
+"benzersizdir, sürüm numarası + dağıtım türü)"
 
 #: warehouse/templates/manage/settings.html:85
 msgid "Project Name"
@@ -2675,7 +2730,7 @@ msgstr "Proje Adı"
 #: warehouse/templates/manage/token.html:31
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
-msgstr ""
+msgstr "\"%(macaroon_description)s\" için belirteç"
 
 #: warehouse/templates/manage/token.html:33
 msgid "Permissions:"
@@ -2707,32 +2762,36 @@ msgid ""
 "For instructions on how to use this token, <a href=\"%(href)s\">visit the"
 " PyPI help page</a>."
 msgstr ""
+"Bu belirteci nasıl kullanılacağıyla ilgili talimatlar için <a href=\"%(href)"
+"s\">PyPI yardım sayfasını ziyaret edin</a>."
 
 #: warehouse/templates/manage/token.html:44
 msgid ""
 "For security reasons this token will only appear once. <strong>Copy it "
 "now.</strong>"
 msgstr ""
+"Güvenlik nedenleriyle bu belirteç yalnızca bir kez görünür. <strong>Hemen "
+"şimdi kopyalayın.</strong>"
 
 #: warehouse/templates/manage/token.html:46
 msgid "Copy token to clipboard"
-msgstr ""
+msgstr "Belirteci panoya kopyalama"
 
 #: warehouse/templates/manage/token.html:47
 msgid "Copy token"
-msgstr ""
+msgstr "Belirteci kopyala"
 
 #: warehouse/templates/manage/token.html:71
 msgid "Add another token"
-msgstr ""
+msgstr "Yeni bir belirteç ekle"
 
 #: warehouse/templates/manage/token.html:78
 msgid "Token name"
-msgstr ""
+msgstr "Belirteç adı"
 
 #: warehouse/templates/manage/token.html:87
 msgid "What is this token for?"
-msgstr ""
+msgstr "Bu belirteç ne için?"
 
 #: warehouse/templates/manage/token.html:90
 msgid "Permissions"
@@ -2751,14 +2810,16 @@ msgid ""
 "An API token scoped to your entire account will have upload permissions "
 "for all of your projects."
 msgstr ""
+"Tüm hesabınıza yönelik bir API belirteci, tüm projeleriniz için yükleme "
+"izinlerine sahip olacaktır."
 
 #: warehouse/templates/manage/token.html:117
 msgid "Add token"
-msgstr ""
+msgstr "Belirteç ekle"
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
-msgstr ""
+msgstr "kimlik doğrulama uygulaması ile (TOTP) 2 aşamalı kimlik doğrulama kur"
 
 #: warehouse/templates/manage/account/totp-provision.html:32
 #, python-format
@@ -2767,6 +2828,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title"
 "=\"time-based one-time password\">TOTP</abbr> standard</a>."
 msgstr ""
+"PyPI <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\"><abbr title=\"time-based one-time password\">TOTP</abbr> "
+"standardını </a> uygulayan her uygulamayı destekleyecektir."
 
 #: warehouse/templates/manage/account/totp-provision.html:36
 #, python-format
@@ -2824,6 +2888,7 @@ msgstr "Uygulama Oluştur"
 #: warehouse/templates/manage/account/webauthn-provision.html:17
 msgid "Set up 2FA with a security device (e.g. USB key)"
 msgstr ""
+"Güvenlik cihazıyla (örneğin USB anahtarı) 2 aşamalı kimlik doğrulama kur"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:26
 #, python-format
@@ -2831,6 +2896,8 @@ msgid ""
 "PyPI supports any device that adheres to the <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
 msgstr ""
+"PyPI <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">FIDO standartını</a> uygulayan her cihazi destekler."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #, python-format
@@ -2841,10 +2908,15 @@ msgid ""
 "rel=\"noopener\">Google Titan</a> and <a href=\"%(thetis_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
+"En popüler <em>USB anahtarları</em> şunları içerir: <a href=\"%(yubico_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a "
+"href=\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Google Titan</a> ve <a href=\"%(thetis_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:43
 msgid "Name your device to begin"
-msgstr ""
+msgstr "Başlamak için cihazınızı adlandırın"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:48
 msgid "PyPI supports adding multiple security devices."
@@ -2936,6 +3008,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPA Code of "
 "Conduct</a>."
 msgstr ""
+"Geri bildirim gönderen, sorunları bildiren veya Warehouse'a katkıda bulunan "
+"tüm kullanıcıların <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">PyPA Davranış Kurallarını</a> izlemesi beklenmektedir."
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -2948,6 +3023,12 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">account recovery codes</a> to address "
 "this issue."
 msgstr ""
+"%(method)s'larınızı kaybederseniz ve artık oturum açamıyorsanız, PyPI ekibi "
+"<strong>şu anda hesabınızı kurtarmanıza yardımcı olamaz </strong>. Bu sorunu "
+"çözmek için <a href=\"%(policy_href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">manual hesap kurtma talimatları</a> ve <a href=\""
+"%(recovery_codes_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">hesap kurtma kurtarma kodlarını</a> geliştirmeyi planlıyor."
 
 #: warehouse/templates/pages/help.html:39
 msgid ""
@@ -2963,32 +3044,32 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:49
 msgid "What's a package, project, or release?"
-msgstr ""
+msgstr "Paket, proje veya sürüm nedir?"
 
 #: warehouse/templates/pages/help.html:50
 msgid "How do I install a file (package) from PyPI?"
-msgstr ""
+msgstr "PyPI'den bir dosyayı (paketi) nasıl yüklerim?"
 
 #: warehouse/templates/pages/help.html:51
 msgid "How do I package and publish my code for PyPI?"
-msgstr ""
+msgstr "Nasıl kodumu PyPI için paketleyip yayımlayabilirim?"
 
 #: warehouse/templates/pages/help.html:52
 #: warehouse/templates/search/results.html:88
 msgid "What's a trove classifier?"
-msgstr ""
+msgstr "Trove sınıflandırıcısı nedir?"
 
 #: warehouse/templates/pages/help.html:54
 msgid "Why do I need a verified email address?"
-msgstr ""
+msgstr "Neden doğrulanmış bir e-posta adresine ihtiyacım var?"
 
 #: warehouse/templates/pages/help.html:55
 msgid "Why is PyPI telling me my password is compromised?"
-msgstr ""
+msgstr "PyPI neden bana parolamın ele geçirildiğini söylüyor?"
 
 #: warehouse/templates/pages/help.html:56
 msgid "What is two factor authentication and how does it work on PyPI?"
-msgstr ""
+msgstr "İki aşamalı kimlik doğrulaması nedir ve PyPI'de nasıl çalışır?"
 
 #: warehouse/templates/pages/help.html:57
 msgid ""
@@ -2996,24 +3077,32 @@ msgid ""
 "(<abbr title=\"time-based one-time password\">TOTP</abbr>) work? How do I"
 " set it up on PyPI?"
 msgstr ""
+"Nasıl 2 aşamalı bir kimlik doğrulama uygulaması (<abbr title=\"time-based "
+"one-time password\">TOTP</abbr>) çalışır? PyPI üzerinde bunu nasıl "
+"kurabilirim?"
 
 #: warehouse/templates/pages/help.html:58
 msgid ""
 "How does two factor authentication with a security device (e.g. USB key) "
 "work? How do I set it up on PyPI?"
 msgstr ""
+"Bir güvenlik aygıtıyla (örneğin USB anahtarı) iki faktörlü kimlik doğrulama "
+"nasıl çalışır? PyPI'ye nasıl ayarlarım?"
 
 #: warehouse/templates/pages/help.html:59
 msgid "What devices (other than a USB key) can I use as a security device?"
 msgstr ""
+"Güvenlik aygıtı olarak hangi aygıtları (USB anahtarı dışında) kullanabilirim?"
 
 #: warehouse/templates/pages/help.html:60
 msgid "How can I use API tokens to authenticate with PyPI?"
 msgstr ""
+"PyPI ile kimlik doğrulaması yapmak için API belirteçlerini nasıl "
+"kullanabilirim?"
 
 #: warehouse/templates/pages/help.html:62
 msgid "How can I run a mirror of PyPI?"
-msgstr ""
+msgstr "PyPI'nin bir aynasını nasıl çalıştırabilirim?"
 
 #: warehouse/templates/pages/help.html:63
 msgid "Does PyPI have APIs I can use?"
