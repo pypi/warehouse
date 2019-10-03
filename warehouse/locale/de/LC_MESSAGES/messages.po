@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-20 15:33+0000\n"
-"Last-Translator: Fabian Neumann <mail@fabianneumann.de>\n"
+"PO-Revision-Date: 2019-09-22 12:29+0000\n"
+"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -320,7 +320,7 @@ msgstr "Externer Link"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr ""
+msgstr "Skript des Sketches"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
@@ -529,7 +529,7 @@ msgstr "Einloggen"
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
-msgstr ""
+msgstr "Bei %(title)s anmelden"
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/register.html:89
@@ -609,7 +609,7 @@ msgstr "Konto erstellen"
 #: warehouse/templates/accounts/register.html:30
 #, python-format
 msgid "Create an account on %(title)s"
-msgstr ""
+msgstr "Konto auf %(title)s erstellen"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:160
@@ -619,7 +619,7 @@ msgstr "Name"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr "Ihr Name"
+msgstr "Name"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
@@ -629,7 +629,7 @@ msgstr "E-Mail-Adresse"
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:351
 msgid "Your email address"
-msgstr "Ihre E-Mail-Adresse"
+msgstr "E-Mail-Adresse"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
@@ -678,16 +678,15 @@ msgstr "Benutzername oder E-Mail-Adresse"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr "Passwort-Zurücksetzen anfordern"
+msgstr "Zurücksetzen des Passwortes anfordern"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
-msgstr ""
+msgstr "E-Mail zum Zurücksetzen des Passwortes gesendet"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "We have sent an email to your registered email address."
-msgstr ""
-"Wir haben eine E-Mail an die von Ihnen registrierte E-Mail-Adresse geschickt."
+msgstr "Wir haben eine E-Mail an die registrierte E-Mail-Adresse geschickt."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -695,7 +694,7 @@ msgid ""
 "The email contains a link to reset your password. This link will expire "
 "in %(n_hours)s hours."
 msgstr ""
-"Diese E-Mail enthält einen Link, um Ihr Passwort zurückzusetzen. Dieser Link "
+"Diese E-Mail enthält einen Link, um das Passwort zurückzusetzen. Dieser Link "
 "läuft in %(n_hours)s Stunden ab."
 
 #: warehouse/templates/accounts/reset-password.html:18
@@ -720,7 +719,7 @@ msgstr "Zwei-Faktor-Authentifizierung"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
-msgstr ""
+msgstr "Mit einem USB-Sicherheitsschlüssel oder anderen Gerät authentifizieren"
 
 #: warehouse/templates/accounts/two-factor.html:37
 #: warehouse/templates/manage/account.html:460
@@ -740,14 +739,18 @@ msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
 msgstr ""
+"Den USB-Sicherheitsschlüssel (oder ähnliches) anschließen und auf den \"Mit "
+"Gerät verbinden\"-Knopf drücken"
 
 #: warehouse/templates/accounts/two-factor.html:43
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
 msgstr ""
+"Bitte JavaScript aktivieren, um sich mit einem USB-Sicherheitsschlüssel ("
+"oder ähnliches) anmelden zu können"
 
 #: warehouse/templates/accounts/two-factor.html:52
 msgid "Authenticate with device"
-msgstr ""
+msgstr "Mit Gerät verbinden"
 
 #: warehouse/templates/accounts/two-factor.html:56
 #, python-format
@@ -756,11 +759,15 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device"
 " (e.g. USB key)"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Bitte den Browser aktualisieren</a>, um sich mit einem USB-"
+"Sicherheitsschlüssel (oder ähnliches) anmelden zu können"
 
 #: warehouse/templates/accounts/two-factor.html:61
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
 msgstr ""
+"Gerät verloren? Funktioniert nicht? <a href=\"%(href)s\">Hilfe holen</a>."
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
@@ -772,7 +779,7 @@ msgstr "Authentifizierungscode eingeben"
 
 #: warehouse/templates/accounts/two-factor.html:103
 msgid "Verify"
-msgstr ""
+msgstr "Bestätigen"
 
 #: warehouse/templates/accounts/two-factor.html:106
 #, python-format
@@ -786,7 +793,7 @@ msgstr ""
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr "Ihr PyPI-Konto <strong>%(username)s</strong> wurde gelöscht."
+msgstr "Das PyPI-Konto <strong>%(username)s</strong> wurde gelöscht."
 
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
