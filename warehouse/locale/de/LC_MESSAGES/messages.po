@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-20 15:10+0000\n"
-"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
+"PO-Revision-Date: 2019-09-20 15:24+0000\n"
+"Last-Translator: Fabian Neumann <mail@fabianneumann.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -119,7 +119,7 @@ msgstr "Ungültiger oder abgelaufener Zweifaktor-Login."
 
 #: warehouse/accounts/views.py:245
 msgid "Already authenticated"
-msgstr ""
+msgstr "Schon authentifiziert"
 
 #: warehouse/accounts/views.py:308
 msgid "Successful WebAuthn assertion"
@@ -130,60 +130,65 @@ msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
+"Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
+"ttps://pypi.org/help#admin-intervention für Details."
 
 #: warehouse/accounts/views.py:482
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Abgelaufenes Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
 #: warehouse/accounts/views.py:484
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Ungültiges Token: bitte neuen Passwort-Zurücksetzen-Link anfordern"
 
 #: warehouse/accounts/views.py:486 warehouse/accounts/views.py:558
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Ungültiges Token: kein Token angegeben"
 
 #: warehouse/accounts/views.py:490
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Ungültiges Token: dies ist kein Passwort-Zurücksetzen-Token"
 
 #: warehouse/accounts/views.py:495
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "Ungültiges Token: Benutzer nicht gefunden"
 
 #: warehouse/accounts/views.py:502
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
+"Ungültiges Token: Benutzer hat sich angemeldet seit dieses Token angefordert "
+"wurde"
 
 #: warehouse/accounts/views.py:509
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Ungültiges Token: Passwort wurde geändert seit dieses Token angefordert wurde"
 
 #: warehouse/accounts/views.py:532
 msgid "You have reset your password"
-msgstr ""
+msgstr "Sie haben Ihr Passwort zurückgesetzt"
 
 #: warehouse/accounts/views.py:554
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "Abgelaufenes Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
 #: warehouse/accounts/views.py:556
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "Ungültiges Token: bitte neuen E-Mail-Bestätigungslink anfordern"
 
 #: warehouse/accounts/views.py:562
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "Ungültiges Token: dies ist kein E-Mail-Bestätigungs-Token"
 
 #: warehouse/accounts/views.py:571
 msgid "Email not found"
-msgstr ""
+msgstr "E-Mail nicht gefunden"
 
 #: warehouse/accounts/views.py:574
 msgid "Email already verified"
-msgstr ""
+msgstr "E-Mail-Adresse ist schon verifiziert"
 
 #: warehouse/accounts/views.py:586
 msgid "You can now set this email as your primary address"
@@ -191,35 +196,37 @@ msgstr "Diese E-Mail-Adresse kann nun als Haupt-Addresse markiert werden"
 
 #: warehouse/accounts/views.py:588
 msgid "This is your primary address"
-msgstr ""
+msgstr "Dies ist Ihre primäre E-Mail-Adresse"
 
 #: warehouse/accounts/views.py:593
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "E-Mail-Adresse ${email_address} bestätigt. ${confirm_message}."
 
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
+"E-Mail-Adresse ${email_address} hinzugefügt - überprüfen Sie Ihren "
+"Posteingang nach dem Bestätigungslink"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr ""
+msgstr "Zugriff abgelehnt / Verboten (403)"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "Sie haben keine Berechtigung, diese Seite anzusehen"
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Seite nicht gefunden (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "Wir haben überall nachgesehen, konnten diese Seite aber nicht finden"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "Und nun zu etwas <br><span>völlig anderem"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -309,7 +316,7 @@ msgstr ""
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "Externer Link"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
@@ -317,19 +324,19 @@ msgstr ""
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "Seite entfernt (410)"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "Die Seite, nach der Sie suchen, wurde entfernt"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "Interner Server-Fehler (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "Irgendetwas lief schief"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -337,22 +344,25 @@ msgid ""
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
 msgstr ""
+"<p>Wir haben gerade mit technischen Problemen zu kämpfen und können die "
+"Website nicht ausliefern.</p> <p>Wir sind uns dem Problem bewusst und "
+"arbeiten daran, es schnellstmöglich zu beheben.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Beachten Sie unsere Status-Seite"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Python-Status auf Twitter ansehen"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "Fehlercode 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Vertrauen Sie PyPI bei Ihrer Arbeit?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -366,29 +376,29 @@ msgstr ""
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr ""
+msgstr "PyPI durchsuchen"
 
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr ""
+msgstr "Projekte suchen"
 
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr ""
+msgstr "Suche"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr ""
+msgstr "Fehlercode"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr ""
+msgstr "Zurück zur Homepage"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr ""
+msgstr "Der Python Package Index"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
@@ -397,16 +407,18 @@ msgstr ""
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
+"Finde, installiere und veröffentliche Python-Pakete mit dem Python Package "
+"Index"
 
 #: warehouse/templates/index.html:61
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr ""
+msgstr "Oder <a href=\"%(href)s\">Projekte durchstöbern</a>"
 
 #: warehouse/templates/index.html:67
 #, python-format
 msgid "%(num_projects)s projects"
-msgstr ""
+msgstr "%(num_projects)s Projekte"
 
 #: warehouse/templates/index.html:68
 #, python-format
@@ -416,12 +428,12 @@ msgstr ""
 #: warehouse/templates/index.html:69
 #, python-format
 msgid "%(num_files)s files"
-msgstr ""
+msgstr "%(num_files)s Dateien"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr ""
+msgstr "%(num_users)s Benutzer"
 
 #: warehouse/templates/index.html:80
 msgid ""
@@ -434,14 +446,16 @@ msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
+"PyPI hilft dabei, von der Python-Community entwickelte und geteilte Software "
+"zu finden und zu installieren."
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr ""
+msgstr "Mehr über die Installation von Paketen erfahren</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
-msgstr ""
+msgstr "Paket-Entwickler benutzer PyPI, um ihre Software zu verteilen."
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
@@ -449,7 +463,7 @@ msgstr ""
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
-msgstr ""
+msgstr "Angesagte Projekte"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
@@ -457,15 +471,15 @@ msgstr ""
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr ""
+msgstr "Neue Releases"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Druckfrisch: die neuesten Projekt-Releases"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr ""
+msgstr "Diese URL ist ein API-Endpunkt zum Upload von Dateien nach PyPI."
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -474,6 +488,9 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
+"Für mehr Informationen über das Hochladen von Projekten zum PyPI, besuchen "
+"Sie den <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Python Packaging User Guide</a>."
 
 #: warehouse/templates/upload.html:28
 #, python-format
@@ -511,7 +528,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:686
 #: warehouse/templates/manage/token.html:62
 msgid "Username"
-msgstr ""
+msgstr "Benutzername"
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -536,29 +553,29 @@ msgstr ""
 #: warehouse/templates/manage/token.html:80
 #: warehouse/templates/manage/token.html:97
 msgid "(required)"
-msgstr ""
+msgstr "(benötigt)"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr ""
+msgstr "Ihr Benutzername"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
 msgid "Password"
-msgstr ""
+msgstr "Passwort"
 
 #: warehouse/templates/accounts/login.html:76
 msgid "Show password"
-msgstr ""
+msgstr "Passwort anzeigen"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr ""
+msgstr "Ihr Passwort"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
-msgstr ""
+msgstr "Passwort vergessen?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/includes/current-user-indicator.html:68
