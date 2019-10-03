@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 20:03+0000\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
+"PO-Revision-Date: 2019-09-25 21:55+0000\n"
+"Last-Translator: Alan Velasco <AlanVelasco.A@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -987,14 +987,14 @@ msgid ""
 "other passwords and get yourself familiar with good password practices."
 msgstr ""
 "Para recuperar el acceso a su cuenta de PyPI, <a href=\"%(reset_pw_url)s\">"
-"restablezca la contraseña</a>. Recomendamos además que visite <a href=\""
+"restablezca su contraseña</a>. Recomendamos además que visite <a href=\""
 "%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>, compruebe sus demás "
 "contraseñas y se familiarice con las prácticas recomendadas relativas al uso "
 "de contraseñas."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr ""
+msgstr "¿Cómo saben esto?"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -1020,9 +1020,9 @@ msgid ""
 "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
 "communicate with the PyPI administrators."
 msgstr ""
-"Para obtener más información, consulte nuestra <a href=\"%(faq_url)s\">lista "
-"de preguntas frecuentes</a>. Para recibir ayuda de los administradores de "
-"PyPI, puede enviar un mensaje a <a href=\"%(email_href)s\""
+"Para obtener más información, consulte nuestra lista de <a href=\"%(faq_url)"
+"s\">Preguntas Frecuentes</a>. Para recibir ayuda de los administradores de "
+"PyPI, puede enviar un correo a <a href=\"%(email_href)s\""
 ">%(email_address)s</a> (en inglés)."
 
 #: warehouse/templates/email/password-reset/body.html:18
@@ -1040,8 +1040,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
-"Si quiere continuar con esta solicitud, <a href=\"%(href)s\">pulse para "
-"restablecer la contraseña</a>."
+"Si quiere continuar con esta solicitud, <a href=\"%(href)s\">haga click aquí "
+"para restablecer su contraseña</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -1065,7 +1065,7 @@ msgid ""
 " been changed from <code>%(old_email)s</code> to "
 "<code>%(new_email)s</code>"
 msgstr ""
-"La cuenta de correo principal de la cuenta de PyPI "
+"La cuenta de correo principal de tu cuenta de PyPI "
 "<strong>%(username)s</strong> ha cambiado de <code>%(old_email)s</code> a "
 "<code>%(new_email)s</code>"
 
@@ -1084,8 +1084,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>"
 msgstr ""
-"Si quiere continuar con esta solicitud, <a href=\"%(href)s\">pulse en este "
-"enlace para verificar la dirección de correo</a>"
+"Si quiere continuar con esta solicitud, <a href=\"%(href)s\">haga click en "
+"este enlace para verificar tu dirección de correo</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
@@ -1296,19 +1296,19 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"Aún no ha cargado ningún proyecto en PyPI. Para una iniciación, consulte el <"
-"a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"manual de uso del empaquetamiento de Python</a>"
+"Aún no ha cargado ningún proyecto en PyPI. Para aprender como empezar, "
+"consulte el <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">manual de uso del empaquetamiento de Python</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
-msgstr "%(username)s aún no ha cargado ningún proyecto en PyPI."
+msgstr "%(username)s no ha cargado ningún proyecto a PyPI, aún."
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
-msgstr "Navegación para gestionar %(project)s"
+msgstr "Navegación para administrar %(project)s"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
@@ -1425,17 +1425,17 @@ msgstr "Índice sencillo"
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
-msgstr "Con verificación*"
+msgstr "Verificado*"
 
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
 msgstr ""
-"*Algunos problemas de entrega intermitente pueden conllevar la pérdida de la "
+"*Algunos problemas de entrega intermitente pueden llevar a la pérdida de la "
 "verificación"
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
-msgstr "Con verificación"
+msgstr "Verificado"
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
@@ -1445,15 +1445,15 @@ msgstr "Sin verificar*"
 
 #: warehouse/templates/manage/account.html:48
 msgid "*Email from PyPI being treated as spam"
-msgstr "*El mensaje enviado por PyPI se consideró «basura»"
+msgstr "*El correo enviado por PyPI siendo considerado «correo basura»"
 
 #: warehouse/templates/manage/account.html:54
 msgid "*Hard failure during delivery"
-msgstr "*Fallo definitivo al entregar"
+msgstr "*Fallo definitivo durante la entrega"
 
 #: warehouse/templates/manage/account.html:60
 msgid "*Too many delivery problems"
-msgstr "*Demasiados problemas de entrega"
+msgstr "*Demasiados problemas con la entrega"
 
 #: warehouse/templates/manage/account.html:64
 msgid "Unverified"
