@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-20 15:02+0000\n"
-"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
+"Last-Translator: Fabian Neumann <mail@fabianneumann.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -80,36 +80,40 @@ msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
+"Diese E-Mail-Adresse wird schon von einem anderen Konto verwendet. Verwende "
+"eine andere E-Mail-Adresse."
 
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
+"Du darfst keine E-Mail-Adresse von dieser Domain verwenden. Benutze eine "
+"andere."
 
 #: warehouse/accounts/forms.py:218
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr ""
+msgstr "Der Name ist zu lang. Wähle einen Namen mit 100 Zeichen oder weniger."
 
 #: warehouse/accounts/forms.py:282
 msgid "Invalid TOTP code."
-msgstr ""
+msgstr "Ungültiger TOTP-Code."
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "Ungültige WebAuthn-Assertion: Bad payload"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "Kein Benutzer mit diesem Benutzernamen oder E-Mail gefunden"
 
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
+msgstr "Es gab zu viele erfolglose Login-Versuche. Versuche es später erneut."
 
 #: warehouse/accounts/views.py:197 warehouse/accounts/views.py:250
 #: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
 #: warehouse/accounts/views.py:277
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "Ungültiger oder abgelaufener Zweifaktor-Login."
 
 #: warehouse/accounts/views.py:245
 msgid "Already authenticated"
