@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Reano Ivo <reanoivo@gmail.com>, 2019.
+# Dario Vinella <d.vinella@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Reano Ivo <reanoivo@gmail.com>\n"
+"Last-Translator: Dario Vinella <d.vinella@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "it/>\n"
 "Language: it\n"
@@ -26,7 +27,7 @@ msgstr "Nessun utente con questo username"
 
 #: warehouse/accounts/forms.py:50
 msgid "TOTP code must be ${totp_length} digits."
-msgstr ""
+msgstr "Il codice TOTP deve essere di ${totp_length} cifre."
 
 #: warehouse/accounts/forms.py:70
 msgid "Choose a username with 50 characters or less."
@@ -38,34 +39,43 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
+"L'username non è valido. Gli username devono essere composti di lettere, "
+"numeri, punti, trattini e underscore. E devono anche iniziare e terminare "
+"con una lettera o un numero. Scegli un username differente."
 
 #: warehouse/accounts/forms.py:90
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
+"Questo username è stato già utilizzato per un altro account. Scegli un "
+"username differente."
 
 #: warehouse/accounts/forms.py:113
 msgid "The password is invalid. Try again."
-msgstr ""
+msgstr "La password non è valida. Prova di nuovo."
 
 #: warehouse/accounts/forms.py:117
 msgid "There have been too many unsuccessful login attempts, try again later."
 msgstr ""
+"Ci sono stati troppi tentativi di accesso falliti, prova nuovamente più "
+"tardi."
 
 #: warehouse/accounts/forms.py:139
 msgid "Your passwords don't match. Try again."
-msgstr ""
+msgstr "Le tue password non corrispondono. Prova di nuovo."
 
 #: warehouse/accounts/forms.py:170
 msgid "The email address isn't valid. Try again."
-msgstr ""
+msgstr "L'indirizzo email non è valido. Prova di nuovo."
 
 #: warehouse/accounts/forms.py:180
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
+"Questo indirizzo email è già utilizzato per questo account. Usa un indirizzo "
+"diverso."
 
 #: warehouse/accounts/forms.py:187
 msgid ""
@@ -83,7 +93,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:282
 msgid "Invalid TOTP code."
-msgstr ""
+msgstr "Codice TOTP non valido."
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
