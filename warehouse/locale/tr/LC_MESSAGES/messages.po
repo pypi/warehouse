@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 17:29+0000\n"
-"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
+"PO-Revision-Date: 2019-09-24 20:27+0000\n"
+"Last-Translator: Eray Erdin <eraygezer.94@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -2657,7 +2657,7 @@ msgstr "Geri Dönüşü Olmadan Projeyi Kaldır"
 
 #: warehouse/templates/manage/settings.html:72
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
-msgstr "Proje adını"
+msgstr "Proje adını <strong>diğer PyPI kullanıcılarına</strong> aç"
 
 #: warehouse/templates/manage/settings.html:74
 msgid ""
@@ -2670,7 +2670,7 @@ msgstr ""
 
 #: warehouse/templates/manage/settings.html:85
 msgid "Project Name"
-msgstr ""
+msgstr "Proje Adı"
 
 #: warehouse/templates/manage/token.html:31
 #, python-format
@@ -2679,27 +2679,27 @@ msgstr ""
 
 #: warehouse/templates/manage/token.html:33
 msgid "Permissions:"
-msgstr ""
+msgstr "İzinler:"
 
 #: warehouse/templates/manage/token.html:33
 #: warehouse/templates/manage/token.html:91
 msgid "Upload packages"
-msgstr ""
+msgstr "Paket yükleyebilir"
 
 #: warehouse/templates/manage/token.html:35
 #: warehouse/templates/manage/token.html:37
 msgid "Scope:"
-msgstr ""
+msgstr "Kapsam:"
 
 #: warehouse/templates/manage/token.html:35
 #: warehouse/templates/manage/token.html:102
 msgid "Entire account (all projects)"
-msgstr ""
+msgstr "Tüm Hesap (Tüm Projeler)"
 
 #: warehouse/templates/manage/token.html:37
 #, python-format
 msgid "Project \"%(project)s\""
-msgstr ""
+msgstr "\"%(project)s\" Projesi"
 
 #: warehouse/templates/manage/token.html:40
 #, python-format
@@ -2736,15 +2736,15 @@ msgstr ""
 
 #: warehouse/templates/manage/token.html:90
 msgid "Permissions"
-msgstr ""
+msgstr "İzinler"
 
 #: warehouse/templates/manage/token.html:101
 msgid "Select scope..."
-msgstr ""
+msgstr "Kapsamı seçin."
 
 #: warehouse/templates/manage/token.html:105
 msgid "Project:"
-msgstr ""
+msgstr "Proje:"
 
 #: warehouse/templates/manage/token.html:114
 msgid ""
@@ -2774,46 +2774,52 @@ msgid ""
 "Visit <a href=\"%(href)s\">PyPI's help page</a> for a list of compatible "
 "applications."
 msgstr ""
+"Uygun uygulamalar için <a href=\"%(href)s\">PyPI'ın yardım sayfası</a>nı "
+"ziyaret edin."
 
 #: warehouse/templates/manage/account/totp-provision.html:42
 msgid "Set up your application"
-msgstr ""
+msgstr "Uygulamanızı Oluşturun"
 
 #: warehouse/templates/manage/account/totp-provision.html:45
 msgid "Scan the QR code with the authentication application of your choice."
-msgstr ""
+msgstr "Seçtiğiniz kimlik doğrulama uygulamasıyla QR kodunu taratın."
 
 #: warehouse/templates/manage/account/totp-provision.html:46
 msgid ""
 "For security reasons, you can only associate one authentication "
 "application per PyPI account."
 msgstr ""
+"Güvenlik sebebiyle her PyPI hesabı sadece bir kimlik doğrulama uygulaması "
+"kullanabilir."
 
 #: warehouse/templates/manage/account/totp-provision.html:52
 msgid "QR code for setting up an authentication application"
-msgstr ""
+msgstr "Kimlik Doğrulama Uygulaması için QR Kodu"
 
 #: warehouse/templates/manage/account/totp-provision.html:55
 msgid "<strong>No QR scanner?</strong> Manually enter the code instead:"
-msgstr ""
+msgstr "<strong>QR tarayıcı yok mu?</strong> Kodu elle girin:"
 
 #: warehouse/templates/manage/account/totp-provision.html:67
 msgid "Verify application"
-msgstr ""
+msgstr "Uygulamayı Doğrula"
 
 #: warehouse/templates/manage/account/totp-provision.html:72
 msgid "Authentication code"
-msgstr ""
+msgstr "Kimlik Doğrulama Kodu"
 
 #: warehouse/templates/manage/account/totp-provision.html:73
 msgid ""
 "To finalize the set up process, enter the authentication code provided by"
 " your application."
 msgstr ""
+"Kurulum işlemini bitirmek için uygulamanız tarafından oluşturulan kimlik "
+"doğrulama kodunu girin."
 
 #: warehouse/templates/manage/account/totp-provision.html:85
 msgid "Set up application"
-msgstr ""
+msgstr "Uygulama Oluştur"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:17
 msgid "Set up 2FA with a security device (e.g. USB key)"
@@ -2842,17 +2848,19 @@ msgstr ""
 
 #: warehouse/templates/manage/account/webauthn-provision.html:48
 msgid "PyPI supports adding multiple security devices."
-msgstr ""
+msgstr "PyPI birden fazla güvenlik aygıtı eklemeyi desteklemektedir."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:49
 msgid ""
 "Please give this device a name. 64 characters or fewer. All Unicode is "
 "valid, including spaces."
 msgstr ""
+"Lütfen aygıta bir isim verin. 64 karakterden fazla olmamalıdır. Boşluk dahil "
+"tüm Unicode karakterler uygundur."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:65
 msgid "Set up security device"
-msgstr ""
+msgstr "Bir güvenlik aygıtı kur"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #, python-format
@@ -2863,12 +2871,18 @@ msgid ""
 "href=\"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">compatible browser</a>."
 msgstr ""
+"<strong>Sorun mu var?</strong>  Aygıtınızın <a href=\"%(fido_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO gereksinimlerini</a> "
+"uyguladığından ve <a href=\"%(mozilla_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">uygun bir tarayıcı</a> kullandığınızdan emin olun."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:78
 msgid ""
 "Note that some older USB keys do not adhere to the FIDO standard and will"
 " not work with PyPI."
 msgstr ""
+"Bazı USB aygıtları FIDO gereksinimlerini uygulamadığından PyPI'da "
+"çalışmamaktadır."
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -2876,12 +2890,17 @@ msgid ""
 "classifiers\" to categorize each release, describing who it's for, what "
 "systems it can run on, and how mature it is."
 msgstr ""
+"Her projenin geliştiricileri her bir sürümü sınıflandırmak için PyPI'a hedef "
+"kitlenin kim olduğunu, projenin hangi sistemlerde çalıştığını ve uygunluğunu "
+"belirten bir sınıflandırma listesi sunmaktadır."
 
 #: warehouse/templates/pages/classifiers.html:23
 msgid ""
 "These standardized classifiers can then be used by community members to "
 "find projects based on their desired criteria."
 msgstr ""
+"Bu standardı olan sınıflandırma listesi, daha sonra, topluluk üyelerince "
+"istedikleri kıstaslardaki projeleri bulabilmek için kulanılabilir."
 
 #: warehouse/templates/pages/classifiers.html:25
 #, python-format
@@ -2893,15 +2912,21 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
 "title=\"Python enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
+"Bu sınıflandırmaları nasıl ekleyebileceğinizi <a href=\"%(ppug_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
+"Kullanıcı Rehberi</a> adresinden öğrenebilirsiniz. Özgün sınıflandırma "
+"uzlaşımını okumak için <a href=\"%(pep301_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"><abbr title=\"Python Geliştirme Önerisi\""
+">PEP</abbr> 301</a>'e başvurun."
 
 #: warehouse/templates/pages/classifiers.html:31
 msgid "List of classifiers"
-msgstr ""
+msgstr "Sınıflandırma Listesi"
 
 #: warehouse/templates/pages/help.html:19
 #: warehouse/templates/pages/help.html:30
 msgid "Note:"
-msgstr ""
+msgstr "Not:"
 
 #: warehouse/templates/pages/help.html:20
 #, python-format
