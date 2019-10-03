@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Alan Velasco <AlanVelasco.A@gmail.com>\n"
+"PO-Revision-Date: 2019-09-25 20:03+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -726,7 +726,7 @@ msgstr "Autenticación en dos fases"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
-msgstr "Autentíquese con un aparato de seguridad (p. ej., un dispositivo USB)"
+msgstr "Autentíquese con un aparato de seguridad (p. ej., una llave USB)"
 
 #: warehouse/templates/accounts/two-factor.html:37
 #: warehouse/templates/manage/account.html:460
@@ -752,8 +752,8 @@ msgstr ""
 #: warehouse/templates/accounts/two-factor.html:43
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
 msgstr ""
-"Active JavaScript para acceder con un aparato de seguridad (p. ej., un "
-"dispositivo USB)"
+"Active JavaScript para acceder con un aparato de seguridad (p. ej., una "
+"llave USB)"
 
 #: warehouse/templates/accounts/two-factor.html:52
 msgid "Authenticate with device"
@@ -768,7 +768,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
 "s\">Actualice el navegador</a> para acceder con un aparato de seguridad (p. "
-"ej., un dispositivo USB)"
+"ej., una llave USB)"
 
 #: warehouse/templates/accounts/two-factor.html:61
 #, python-format
@@ -824,8 +824,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project)s by %(submitter)s."
 msgstr ""
-"Has sido añadido como <strong>%(role)s</strong> al proyecto %(project)s de "
-"%(site)s por %(submitter)s."
+"%(submitter)s lo/a ha añadido como <strong>%(role)s</strong> al proyecto "
+"%(project)s en %(site)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
@@ -839,8 +839,7 @@ msgstr ""
 #: warehouse/templates/email/collaborator-added/body.html:26
 msgid "A new collaborator has been added to a project you own on PyPI:"
 msgstr ""
-"Un colaborador nuevo ha sido añadido a un proyecto del que eres dueño en "
-"PyPI:"
+"Se añadió un colaborador nuevo a un proyecto del que es propietario en PyPI:"
 
 #: warehouse/templates/email/collaborator-added/body.html:29
 #, python-format
@@ -860,7 +859,7 @@ msgstr "<strong>Colabora en</strong>: %(project)s"
 #: warehouse/templates/email/collaborator-added/body.html:32
 #, python-format
 msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>Añadido por</strong>: %(submitter)s"
+msgstr "<strong>Incorporado/a por</strong>: %(submitter)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:36
 #, python-format
@@ -869,13 +868,14 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Si esto fue un error, puedes enviar un correo a <a href=\"%(href)s\""
-">%(email_address)s</a> para ponerte en contact con los administradores de "
-"PyPI."
+"Si esto fue un error, puede enviar un mensaje a <a href=\"%(href)s\""
+">%(email_address)s</a> (en inglés) para ponerse en contacto con los "
+"administradores de PyPI."
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
-msgstr "Estás recibiendo esto porque eres propietario de este proyecto."
+msgstr ""
+"Ha recibido esto porque forma parte de los propietarios de este proyecto."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -883,7 +883,7 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Alguien, quizás tu, ha cambiado la contraseña de tu cuenta de PyPI "
+"Alguien, quizá usted, ha cambiado la contraseña de su cuenta de PyPI, "
 "<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
@@ -900,13 +900,13 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
-"Los administradores de PyPI han determinado que tu contraseña ha sido "
-"comprometida. Para\n"
-"  protegerte a ti y a otros usuarios, hemos reestablecido tu contraseña de "
-"manera preventiva y\n"
-"  ya no serás capaz de iniciar sesión ni de subir paquetes a PyPI con tu "
-"contraseña\n"
-"  existente."
+"Los administradores de PyPI han determinado que su contraseña es vulnerable. "
+"Para\n"
+"  protegerle a usted y a otros usuarios, hemos restablecido su contraseña "
+"como medida\n"
+"  precautoria; ya no podrá acceder a la cuenta ni cargar paquetes en PyPI "
+"con la\n"
+"  contraseña existente."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -914,9 +914,8 @@ msgid ""
 "reduce the\n"
 "  risk for PyPI and its users."
 msgstr ""
-"PyPI en sí no ha sufrido una brecha de seguridad. Esta es una medida de "
-"protección para reducir el\n"
-"  riesgo a PyPI y a sus usuarios."
+"El propio PyPI no ha sufrido una brecha de seguridad. Esta es una medida\n"
+"  de protección para reducir el riesgo a PyPI y a sus usuarios."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
@@ -929,12 +928,12 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your "
 "password</a> on PyPI."
 msgstr ""
-"Para recuperar el accesso a tu cuenta, <a href=\"%(href)s\">reestablece tu "
+"Para recuperar el acceso a su cuenta, <a href=\"%(href)s\">restablezca su "
 "contraseña</a> en PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
-msgstr "¿Cómo te puedo contactar?"
+msgstr "¿Cómo ponerse en contacto con PyPI?"
 
 #: warehouse/templates/email/password-compromised/body.html:41
 #, python-format
@@ -943,9 +942,9 @@ msgid ""
 "\n"
 "  the PyPI administrators."
 msgstr ""
-"Para más información, puedes enviar un correo a %(email_address)s para "
-"comunicarte con\n"
-"  los administradores de PyPI."
+"Para obtener más información, puede enviar un mensaje a %(email_address)s ("
+"en inglés)\n"
+" para comunicarse con los administradores de PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
@@ -957,6 +956,13 @@ msgid ""
 "with your existing\n"
 "  password."
 msgstr ""
+"Hemos notado, durante su intento de acceder a PyPI o cargar un paquete en "
+"este, que su\n"
+"  contraseña figura en una o más brechas de seguridad públicas. Para "
+"protegerle a usted\n"
+"  y a otros usuarios, hemos restablecido su contraseña existente y no podrá "
+"utilizarla\n"
+"  para acceder a PyPI ni para cargar paquetes en este."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -966,6 +972,11 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"El propio PyPI no ha sufrido una brecha. Esta es una medida precautoria "
+"para\n"
+"  reducir el riesgo de <a href=\"%(href)s\">ataques por «credential "
+"stuffing»</a>\n"
+"  que podrían perpetrarse contra PyPI y sus usuarios."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -975,6 +986,11 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your "
 "other passwords and get yourself familiar with good password practices."
 msgstr ""
+"Para recuperar el acceso a su cuenta de PyPI, <a href=\"%(reset_pw_url)s\">"
+"restablezca la contraseña</a>. Recomendamos además que visite <a href=\""
+"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>, compruebe sus demás "
+"contraseñas y se familiarice con las prácticas recomendadas relativas al uso "
+"de contraseñas."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
@@ -990,6 +1006,12 @@ msgid ""
 " password is compromised. The plaintext password is never stored by PyPI "
 "or sent to HaveIBeenPwned."
 msgstr ""
+"Nos servimos de un servicio gratuito, <a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a>. Cuando se registra, se autentica o actualiza su "
+"contraseña, generamos un resumen SHA1 de su contraseña y empleamos los "
+"primeros cinco caracteres del resumen para determinar si la contraseña se ha "
+"vulnerado. Jamás se almacena la contraseña en texto plano en PyPI ni se "
+"envía esta a HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -998,6 +1020,10 @@ msgid ""
 "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
 "communicate with the PyPI administrators."
 msgstr ""
+"Para obtener más información, consulte nuestra <a href=\"%(faq_url)s\">lista "
+"de preguntas frecuentes</a>. Para recibir ayuda de los administradores de "
+"PyPI, puede enviar un mensaje a <a href=\"%(email_href)s\""
+">%(email_address)s</a> (en inglés)."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1014,6 +1040,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
+"Si quiere continuar con esta solicitud, <a href=\"%(href)s\">pulse para "
+"restablecer la contraseña</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -1037,6 +1065,9 @@ msgid ""
 " been changed from <code>%(old_email)s</code> to "
 "<code>%(new_email)s</code>"
 msgstr ""
+"La cuenta de correo principal de la cuenta de PyPI "
+"<strong>%(username)s</strong> ha cambiado de <code>%(old_email)s</code> a "
+"<code>%(new_email)s</code>"
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1053,6 +1084,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>"
 msgstr ""
+"Si quiere continuar con esta solicitud, <a href=\"%(href)s\">pulse en este "
+"enlace para verificar la dirección de correo</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
@@ -1106,7 +1139,7 @@ msgstr "Error"
 #: warehouse/templates/includes/flash-messages.html:29
 #: warehouse/templates/includes/flash-messages.html:40
 msgid "Dismiss this notification"
-msgstr ""
+msgstr "Descartar esta notificación"
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
@@ -1130,7 +1163,7 @@ msgstr "Cerrar"
 
 #: warehouse/templates/includes/flash-messages.html:37
 msgid "Success"
-msgstr ""
+msgstr "Éxito"
 
 #: warehouse/templates/includes/hash-modal.html:23
 #, python-format
@@ -1138,6 +1171,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Hashes</a> for %(filename)s"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Resúmenes</a> de %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
@@ -1213,6 +1248,8 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it "
 "now for your account.</a>"
 msgstr ""
+"La autenticación en dos fases está disponible. <a href=\"%(href)s\">Actívela "
+"ahora para su cuenta.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
@@ -1234,6 +1271,10 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Consulte estadísticas sobre sus proyectos en <a href=\"%(libs_io_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> o a "
+"través de <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
+"BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1243,6 +1284,10 @@ msgid ""
 "rel=\"noopener\">Libraries.io</a>, or by using <a href=\"%(gbq_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Consulte estadísticas sobre los proyectos de %(username)s en <a href=\""
+"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Libraries.io</a> o a través de <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1251,16 +1296,19 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"Aún no ha cargado ningún proyecto en PyPI. Para una iniciación, consulte el <"
+"a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"manual de uso del empaquetamiento de Python</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
-msgstr ""
+msgstr "%(username)s aún no ha cargado ningún proyecto en PyPI."
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
-msgstr ""
+msgstr "Navegación para gestionar %(project)s"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
@@ -1318,10 +1366,10 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
-"Vea las estadísticas de este proyecto a través de <a href=\"%(libs_io_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> "
-"o mediante <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
-"Google BigQuery</a>"
+"Consulte estadísticas de este proyecto en <a href=\"%(libs_io_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> o a través "
+"de <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
+"BigQuery</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
@@ -1377,37 +1425,39 @@ msgstr "Índice sencillo"
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
-msgstr ""
+msgstr "Con verificación*"
 
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
 msgstr ""
+"*Algunos problemas de entrega intermitente pueden conllevar la pérdida de la "
+"verificación"
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
-msgstr ""
+msgstr "Con verificación"
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
 #: warehouse/templates/manage/account.html:58
 msgid "Unverified*"
-msgstr ""
+msgstr "Sin verificar*"
 
 #: warehouse/templates/manage/account.html:48
 msgid "*Email from PyPI being treated as spam"
-msgstr ""
+msgstr "*El mensaje enviado por PyPI se consideró «basura»"
 
 #: warehouse/templates/manage/account.html:54
 msgid "*Hard failure during delivery"
-msgstr ""
+msgstr "*Fallo definitivo al entregar"
 
 #: warehouse/templates/manage/account.html:60
 msgid "*Too many delivery problems"
-msgstr ""
+msgstr "*Demasiados problemas de entrega"
 
 #: warehouse/templates/manage/account.html:64
 msgid "Unverified"
-msgstr ""
+msgstr "Sin verificar"
 
 #: warehouse/templates/manage/account.html:78
 msgid "Primary"
@@ -1415,7 +1465,7 @@ msgstr "Principal"
 
 #: warehouse/templates/manage/account.html:86
 msgid "View email options"
-msgstr ""
+msgstr "Ver opciones de correo electrónico"
 
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:184
@@ -1436,19 +1486,19 @@ msgstr "Reenviar mensaje de verificación"
 
 #: warehouse/templates/manage/account.html:110
 msgid "Set this email address as primary"
-msgstr ""
+msgstr "Establecer esta dirección de correo como principal"
 
 #: warehouse/templates/manage/account.html:112
 msgid "Set as primary"
-msgstr ""
+msgstr "Establecer como principal"
 
 #: warehouse/templates/manage/account.html:122
 msgid "Remove this email address"
-msgstr ""
+msgstr "Quitar esta dirección de correo"
 
 #: warehouse/templates/manage/account.html:124
 msgid "Remove email"
-msgstr ""
+msgstr "Quitar correo"
 
 #: warehouse/templates/manage/account.html:139
 msgid ""
@@ -1464,7 +1514,7 @@ msgid ""
 "device (e.g. USB key)"
 msgstr ""
 "Añadir <abbr title=\"autenticación en dos fases\">A2F</abbr> con aparato de "
-"seguridad (p. ej., dispositivo USB)"
+"seguridad (p. ej., llave USB)"
 
 #: warehouse/templates/manage/account.html:145
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1473,7 +1523,7 @@ msgid ""
 "device (e.g. USB key)"
 msgstr ""
 "Active JavaScript para configurar la autenticación en dos fases con un "
-"aparato de seguridad (p. ej., un dispositivo USB)"
+"aparato de seguridad (p. ej., una llave USB)"
 
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account/webauthn-provision.html:53
@@ -1485,7 +1535,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
 "Actualice su navegador</a> para configurar la autenticación en dos fases con "
-"un aparato de seguridad (p. ej., un dispositivo USB)"
+"un aparato de seguridad (p. ej., una llave USB)"
 
 #: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/account.html:501
@@ -1499,12 +1549,12 @@ msgstr "Todos los proyectos"
 
 #: warehouse/templates/manage/account.html:174
 msgid "Created on"
-msgstr ""
+msgstr "Creación"
 
 #: warehouse/templates/manage/account.html:178
 #: warehouse/templates/manage/account.html:503
 msgid "Last used"
-msgstr ""
+msgstr "Último uso"
 
 #: warehouse/templates/manage/account.html:179
 msgid "Never"
@@ -1574,7 +1624,7 @@ msgstr "Datos de cuenta"
 
 #: warehouse/templates/manage/account.html:274
 msgid "Date Joined"
-msgstr ""
+msgstr "Fecha de alta"
 
 #: warehouse/templates/manage/account.html:278
 #, python-format
@@ -1582,6 +1632,8 @@ msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
 "changed."
 msgstr ""
+"Se muestra en su <a href=\"%(href)s\">perfil público</a>. No puede "
+"modificarse."
 
 #: warehouse/templates/manage/account.html:289
 msgid "Full name"
@@ -1589,7 +1641,7 @@ msgstr "Nombre completo"
 
 #: warehouse/templates/manage/account.html:294
 msgid "No name set"
-msgstr ""
+msgstr "No se estableció ningún nombre"
 
 #: warehouse/templates/manage/account.html:299
 #, python-format
@@ -1612,6 +1664,11 @@ msgid ""
 "only your <span class=\"badge\">Primary</span> email will receive "
 "notifications."
 msgstr ""
+"Puede asociar varias direcciones de correo con su cuenta. Puede emplear "
+"cualquier dirección <span class=\"badge badge--success\"><i class=\"fa fa-"
+"check\" aria-hidden=\"true\"></i> verificada</span> para recuperar su "
+"cuenta, aunque únicamente la <span class=\"badge\">principal</span> recibirá "
+"notificaciones."
 
 #: warehouse/templates/manage/account.html:325
 msgid "Emails associated with your account"
@@ -1747,7 +1804,7 @@ msgstr "Fichas de API activas de esta cuenta"
 
 #: warehouse/templates/manage/account.html:502
 msgid "Created"
-msgstr ""
+msgstr "Creación"
 
 #: warehouse/templates/manage/account.html:515
 #: warehouse/templates/manage/token.html:17
@@ -1760,14 +1817,16 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
 "tokens to your account."
 msgstr ""
+"<a href=\"%(href)s\">Verifique su dirección de correo principal</a> para "
+"añadir fichas de API a su cuenta."
 
 #: warehouse/templates/manage/account.html:532
 msgid "Account created"
-msgstr ""
+msgstr "Creación de la cuenta"
 
 #: warehouse/templates/manage/account.html:535
 msgid "Logged in"
-msgstr ""
+msgstr "Acceso"
 
 #: warehouse/templates/manage/account.html:537
 msgid "Two factor method:"
@@ -1780,51 +1839,51 @@ msgstr "Ninguno"
 
 #: warehouse/templates/manage/account.html:548
 msgid "Email added to account"
-msgstr ""
+msgstr "Adición de correo a la cuenta"
 
 #: warehouse/templates/manage/account.html:551
 msgid "Email removed from account"
-msgstr ""
+msgstr "Retirada de correo de la cuenta"
 
 #: warehouse/templates/manage/account.html:554
 msgid "Email verified"
-msgstr ""
+msgstr "Verificación de correo"
 
 #: warehouse/templates/manage/account.html:557
 msgid "Email reverified"
-msgstr ""
+msgstr "Reverificación de correo"
 
 #: warehouse/templates/manage/account.html:561
 msgid "Primary email changed"
-msgstr ""
+msgstr "Cambio de correo principal"
 
 #: warehouse/templates/manage/account.html:563
 msgid "Old primary email:"
-msgstr ""
+msgstr "Dirección principal anterior:"
 
 #: warehouse/templates/manage/account.html:564
 msgid "New primary email:"
-msgstr ""
+msgstr "Dirección principal nueva:"
 
 #: warehouse/templates/manage/account.html:567
 msgid "Primary email set"
-msgstr ""
+msgstr "Establecimiento de correo principal"
 
 #: warehouse/templates/manage/account.html:574
 msgid "Password reset requested"
-msgstr ""
+msgstr "Solicitud de restablecimiento de contraseña"
 
 #: warehouse/templates/manage/account.html:576
 msgid "Password successfully reset"
-msgstr ""
+msgstr "Restablecimiento correcto de contraseña"
 
 #: warehouse/templates/manage/account.html:578
 msgid "Password successfully changed"
-msgstr ""
+msgstr "Modificación correcta de contraseña"
 
 #: warehouse/templates/manage/account.html:581
 msgid "Two factor authentication added"
-msgstr ""
+msgstr "Adición de autenticación en dos fases"
 
 #: warehouse/templates/manage/account.html:584
 #: warehouse/templates/manage/account.html:594
@@ -1851,12 +1910,12 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:591
 msgid "Two factor authentication removed"
-msgstr ""
+msgstr "Retirada de autenticación en dos fases"
 
 #: warehouse/templates/manage/account.html:602
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
-msgstr ""
+msgstr "Adición de ficha de API"
 
 #: warehouse/templates/manage/account.html:604
 #: warehouse/templates/manage/history.html:69
@@ -1876,15 +1935,17 @@ msgstr "Ámbito de ficha: proyecto %(project_name)s"
 #: warehouse/templates/manage/account.html:613
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
-msgstr ""
+msgstr "Retirada de ficha de API"
 
 #: warehouse/templates/manage/account.html:614
 msgid "Unique identifier:"
-msgstr ""
+msgstr "Identificador único:"
 
 #: warehouse/templates/manage/account.html:620
 msgid "Events appear here as security-related actions occur on your account."
 msgstr ""
+"Aquí aparecerán sucesos a medida que se produzcan acciones relativas a la "
+"seguridad de la cuenta."
 
 #: warehouse/templates/manage/account.html:622
 msgid "Recent account activity"
@@ -1970,7 +2031,7 @@ msgstr "No podrá recuperar la cuenta después de que la elimine"
 
 #: warehouse/templates/manage/account.html:686
 msgid "Delete your PyPI account"
-msgstr ""
+msgstr "Eliminar su cuenta de PyPI"
 
 #: warehouse/templates/manage/documentation.html:18
 #, python-format
@@ -1988,10 +2049,13 @@ msgid ""
 "href=\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as "
 "uploading new documentation is no longer supported."
 msgstr ""
+"Si quiere DESTRUIR cualquier documentación existente alojada en <a href=\""
+"%(url)s\">%(url)s</a>, <strong>no</strong> podrá dar marcha atrás; ya no se "
+"admite cargar documentación nueva."
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
-msgstr ""
+msgstr "Destruir documentación de proyecto"
 
 #: warehouse/templates/manage/documentation.html:35
 #: warehouse/templates/manage/release.html:110
@@ -2055,17 +2119,21 @@ msgstr ""
 #: warehouse/templates/manage/history.html:45
 #: warehouse/templates/manage/release.html:105
 msgid "Filename:"
-msgstr ""
+msgstr "Nombre de archivo:"
 
 #: warehouse/templates/manage/history.html:50
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> se incorporó como %(role_name)s del "
+"proyecto"
 
 #: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> se eliminó como %(role_name)s del "
+"proyecto"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
@@ -2089,7 +2157,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:85
 #, python-format
 msgid "Security history for %(project_name)s"
-msgstr ""
+msgstr "Histórico de seguridad de %(project_name)s"
 
 #: warehouse/templates/manage/journal.html:20
 #, python-format
@@ -2116,81 +2184,81 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:32
 #, python-format
 msgid "History for %(project_name)s"
-msgstr ""
+msgstr "Histórico de %(project_name)s"
 
 #: warehouse/templates/manage/journal.html:35
 #: warehouse/templates/manage/journal.html:44
 msgid "Action"
-msgstr ""
+msgstr "Acción"
 
 #: warehouse/templates/manage/journal.html:36
 #: warehouse/templates/manage/journal.html:48
 msgid "Date"
-msgstr ""
+msgstr "Fecha"
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
 #: warehouse/templates/manage/roles.html:131
 msgid "User"
-msgstr ""
+msgstr "Usuario"
 
 #: warehouse/templates/manage/journal.html:45
 #, python-format
 msgid "Release %(version)s:"
-msgstr ""
+msgstr "Versión %(version)s:"
 
 #: warehouse/templates/manage/journal.html:54
 #, python-format
 msgid "from %(ip_address)s"
-msgstr ""
+msgstr "desde %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
 #: warehouse/templates/manage/releases.html:71
 msgid "Manage"
-msgstr ""
+msgstr "Gestionar"
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
-msgstr ""
+msgstr "Su cuenta"
 
 #: warehouse/templates/manage/manage_base.html:27
 #: warehouse/templates/manage/manage_base.html:47
 msgid "Account navigation"
-msgstr ""
+msgstr "Navegación de la cuenta"
 
 #: warehouse/templates/manage/manage_base.html:105
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "No puede deshacerse esta acción."
 
 #: warehouse/templates/manage/manage_base.html:113
 msgid "Confirm your username to continue."
-msgstr ""
+msgstr "Confirme su nombre de usuario para continuar."
 
 #: warehouse/templates/manage/manage_base.html:115
 #, python-format
 msgid "Confirm the %(item)s to continue."
-msgstr ""
+msgstr "Confirme %(item)s para continuar."
 
 #: warehouse/templates/manage/manage_base.html:123
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
 msgid "Manage '%(project_name)s'"
-msgstr ""
+msgstr "Gestionar «%(project_name)s»"
 
 #: warehouse/templates/manage/manage_project_base.html:32
 #: warehouse/templates/manage/projects.html:21
 #, python-format
 msgid "Your projects (%(project_count)s)"
-msgstr ""
+msgstr "Sus proyectos (%(project_count)s)"
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr ""
+msgstr "Volver a los proyectos"
 
 #: warehouse/templates/manage/projects.html:31
 msgid "Sole owner"
@@ -2216,16 +2284,16 @@ msgstr ""
 
 #: warehouse/templates/manage/projects.html:62
 msgid "View this project's public page"
-msgstr ""
+msgstr "Ver la página pública de este proyecto"
 
 #: warehouse/templates/manage/projects.html:65
 msgid "This project has no releases"
-msgstr ""
+msgstr "Este proyecto no tiene versiones"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:77
 msgid "View"
-msgstr ""
+msgstr "Ver"
 
 #: warehouse/templates/manage/projects.html:74
 #, python-format
@@ -2248,41 +2316,41 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Ruta de navegación"
 
 #: warehouse/templates/manage/release.html:26
 #, python-format
 msgid "All %(project_name)s releases"
-msgstr ""
+msgstr "Todas las versiones de %(project_name)s"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
-msgstr ""
+msgstr "ver versión"
 
 #: warehouse/templates/manage/release.html:34
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
-msgstr ""
+msgstr "Archivos de la versión %(version)s de %(project_name)s"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
 msgid "Filename, size"
-msgstr ""
+msgstr "Nombre de archivo, tamaño"
 
 #: warehouse/templates/manage/release.html:38
 #: warehouse/templates/manage/release.html:60
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:64
 msgid "Python version"
-msgstr ""
+msgstr "Versión de Python"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:68
 msgid "Upload date"
-msgstr ""
+msgstr "Fecha de carga"
 
 #: warehouse/templates/manage/release.html:55
 msgid "Download file"
@@ -2298,24 +2366,24 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:83
 msgid "Download"
-msgstr ""
+msgstr "Descargar"
 
 #: warehouse/templates/manage/release.html:89
 msgid "View Hashes"
-msgstr ""
+msgstr "Ver resúmenes"
 
 #: warehouse/templates/manage/release.html:94
 msgid "Delete file from"
-msgstr ""
+msgstr "Eliminar archivo de"
 
 #: warehouse/templates/manage/release.html:95
 msgid "Delete file"
-msgstr ""
+msgstr "Eliminar archivo"
 
 #: warehouse/templates/manage/release.html:99
 #: warehouse/templates/manage/releases.html:85
 msgid "Delete"
-msgstr ""
+msgstr "Eliminar"
 
 #: warehouse/templates/manage/release.html:120
 msgid "Uploading new files"
@@ -2323,14 +2391,14 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:122
 msgid "No files found"
-msgstr ""
+msgstr "No se encontró ningún archivo"
 
 #: warehouse/templates/manage/release.html:124
 #: warehouse/templates/manage/releases.html:109
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
-msgstr ""
+msgstr "Descartar"
 
 #: warehouse/templates/manage/release.html:125
 #, python-format
@@ -2381,34 +2449,34 @@ msgstr ""
 #: warehouse/templates/manage/releases.html:27
 #: warehouse/templates/manage/releases.html:95
 msgid "Version"
-msgstr ""
+msgstr "Versión"
 
 #: warehouse/templates/manage/releases.html:18
 #, python-format
 msgid "Manage '%(project_name)s' releases"
-msgstr ""
+msgstr "Gestionar versiones de «%(project_name)s»"
 
 #: warehouse/templates/manage/releases.html:21
 #, python-format
 msgid "Releases (%(release_count)s)"
-msgstr ""
+msgstr "Versiones (%(release_count)s)"
 
 #: warehouse/templates/manage/releases.html:24
 #, python-format
 msgid "Releases for %(project_name)s"
-msgstr ""
+msgstr "Versiones de %(project_name)s"
 
 #: warehouse/templates/manage/releases.html:28
 msgid "Release date"
-msgstr ""
+msgstr "Fecha de publicación"
 
 #: warehouse/templates/manage/releases.html:29
 msgid "Files"
-msgstr ""
+msgstr "Archivos"
 
 #: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
-msgstr ""
+msgstr "Gestionar versión"
 
 #: warehouse/templates/manage/releases.html:45
 #, python-format
@@ -2421,11 +2489,17 @@ msgid_plural ""
 "              %(count)s files\n"
 "            "
 msgstr[0] ""
+"\n"
+"              %(count)s archivo\n"
+"            "
 msgstr[1] ""
+"\n"
+"              %(count)s archivos\n"
+"            "
 
 #: warehouse/templates/manage/releases.html:56
 msgid "No files"
-msgstr ""
+msgstr "No hay ningún archivo"
 
 #: warehouse/templates/manage/releases.html:61
 msgid "View release options"
@@ -2476,7 +2550,7 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:27
 #: warehouse/templates/manage/roles.html:80
 msgid "Maintainer"
-msgstr ""
+msgstr "Responsable"
 
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/pages/help.html:473
@@ -2488,7 +2562,7 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:80
 msgid "Owner"
-msgstr ""
+msgstr "Propietario"
 
 #: warehouse/templates/manage/roles.html:30
 #: warehouse/templates/pages/help.html:474
@@ -2506,15 +2580,15 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:78
 #: warehouse/templates/manage/roles.html:143
 msgid "Role"
-msgstr ""
+msgstr "Puesto"
 
 #: warehouse/templates/manage/roles.html:86
 msgid "Save role"
-msgstr ""
+msgstr "Guardar puesto"
 
 #: warehouse/templates/manage/roles.html:87
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #: warehouse/templates/manage/roles.html:111
 msgid "Cannot remove yourself as owner"
@@ -2528,25 +2602,25 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:126
 #: warehouse/templates/manage/roles.html:154
 msgid "Add collaborator"
-msgstr ""
+msgstr "Añadir colaborador"
 
 #: warehouse/templates/manage/roles.html:136
 msgid "User's username"
-msgstr ""
+msgstr "Nombre de usuario"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
 msgid "Manage '%(project_name)s' settings"
-msgstr ""
+msgstr "Gestionar configuración de «%(project_name)s»"
 
 #: warehouse/templates/manage/settings.html:21
 msgid "Project settings"
-msgstr ""
+msgstr "Configuración del proyecto"
 
 #: warehouse/templates/manage/settings.html:28
 #, python-format
 msgid "Create a token for %(project_name)s"
-msgstr ""
+msgstr "Crear una ficha para %(project_name)s"
 
 #: warehouse/templates/manage/settings.html:33
 #, python-format
@@ -2554,10 +2628,12 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
+"<a href=\"%(href)s\">Verifique su dirección de correo principal</a> para "
+"añadir una ficha de API a %(project_name)s."
 
 #: warehouse/templates/manage/settings.html:41
 msgid "Project description and sidebar"
-msgstr ""
+msgstr "Descripción y barra lateral del proyecto"
 
 #: warehouse/templates/manage/settings.html:43
 #, python-format
@@ -2578,7 +2654,7 @@ msgstr ""
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
 msgid "Delete project"
-msgstr ""
+msgstr "Eliminar proyecto"
 
 #: warehouse/templates/manage/settings.html:57
 msgid "Deleting this project will:"
@@ -2597,7 +2673,7 @@ msgstr[1] ""
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
-msgstr ""
+msgstr "Eliminar proyecto irreversiblemente"
 
 #: warehouse/templates/manage/settings.html:72
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
@@ -2614,12 +2690,12 @@ msgstr ""
 
 #: warehouse/templates/manage/settings.html:85
 msgid "Project Name"
-msgstr ""
+msgstr "Nombre del proyecto"
 
 #: warehouse/templates/manage/token.html:31
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
-msgstr ""
+msgstr "Ficha para «%(macaroon_description)s»"
 
 #: warehouse/templates/manage/token.html:33
 msgid "Permissions:"
@@ -2769,7 +2845,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/webauthn-provision.html:17
 msgid "Set up 2FA with a security device (e.g. USB key)"
-msgstr ""
+msgstr "Configurar A2F con un aparato de seguridad (p. ej., una llave USB)"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:26
 #, python-format
@@ -2867,6 +2943,10 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPA Code of "
 "Conduct</a>."
 msgstr ""
+"Se espera que todos los usuarios que envíen comentarios, informen de "
+"problemas o contribuyan a Warehouse sigan el <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">código de conducta de "
+"PyPA</a>."
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -2891,6 +2971,14 @@ msgid ""
 "key).\n"
 "      "
 msgstr ""
+"\n"
+"        A corto plazo, recomendamos que todos los usuarios de PyPI "
+"configuren <em>los dos</em>\n"
+"        métodos de autenticación en dos fases compatibles: una aplicación "
+"de\n"
+"        autenticación <em>y</em> un aparato de seguridad (p. ej., una llave "
+"USB).\n"
+"      "
 
 #: warehouse/templates/pages/help.html:49
 msgid "What's a package, project, or release?"
@@ -2933,10 +3021,14 @@ msgid ""
 "How does two factor authentication with a security device (e.g. USB key) "
 "work? How do I set it up on PyPI?"
 msgstr ""
+"¿Cómo funciona la autenticación en dos fases con aparato de seguridad (p. "
+"ej., llave USB)? ¿Cómo la configuro en PyPI?"
 
 #: warehouse/templates/pages/help.html:59
 msgid "What devices (other than a USB key) can I use as a security device?"
 msgstr ""
+"¿Cuáles dispositivos (además de una llave USB) puedo emplear como aparato de "
+"seguridad?"
 
 #: warehouse/templates/pages/help.html:60
 msgid "How can I use API tokens to authenticate with PyPI?"
@@ -3248,6 +3340,20 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">discuss.python.org</a>.</p>"
 msgstr ""
+"<p> La autenticación en dos fases (A2F) hace que su cuenta sea más segura "
+"exigiendo dos cosas para poder acceder: <em>algo que sabe</em> y <em>algo "
+"que posee</em>. </p> <p> En el caso de PyPI, «algo que sabe» es su usuario y "
+"contraseña, y «algo que posee» puede ser <a href=\"#totp\">una aplicación "
+"generadora de códigos temporales</a> o un <a href=\"#utfkey\">aparato de "
+"seguridad</a> (más frecuentemente, una llave USB). </p> <p> Exhortamos a que "
+"configure la autenticación en dos fases para su cuenta de PyPI. </p> <p> A "
+"los usuarios que han elegido configurar la autenticación en dos fases se les "
+"solicitará que provean su segundo método de comprobación identitaria durante "
+"el proceso de acceso. Esto afecta solo a los accesos a través del navegador; "
+"(aún) no a las cargas de paquetes. </p> <p>Puede mantenerse al tanto de las "
+"mejoras a la <abbr title=\"autenticación en dos fases\">A2F</abbr> en <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">discuss.python.org</a>.</p>"
 
 #: warehouse/templates/pages/help.html:281
 #, python-format
@@ -3380,10 +3486,16 @@ msgid ""
 "the browser. This password is then used by PyPI to authenticate you as a "
 "user."
 msgstr ""
+"Un aparato de seguridad es una llave USB u <a href=\"#utfdevices\">otro "
+"dispositivo</a> que genera una contraseña de un solo uso y la envía al "
+"navegador. Posteriormente, PyPI utiliza esta contraseña para autenticarle "
+"como usuario/a."
 
 #: warehouse/templates/pages/help.html:335
 msgid "To set up two factor authentication with a <em>USB key</em>, you'll need:"
 msgstr ""
+"Para configurar la autenticación en dos fases con una <em>llave USB</em>, "
+"necesita:"
 
 #: warehouse/templates/pages/help.html:337
 #, python-format
@@ -3393,10 +3505,14 @@ msgid ""
 "authentication\">WebAuthn</abbr> and PublicKeyCredential</a>, as this is "
 "the standard implemented by PyPI."
 msgstr ""
+"Utilizar un <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">navegador que admita <abbr title=\"autenticación web\""
+">WebAuthn</abbr> y PublicKeyCredential</a>, ya que esta es la norma que PyPI "
+"implementa."
 
 #: warehouse/templates/pages/help.html:338
 msgid "To be running JavaScript on your browser"
-msgstr ""
+msgstr "Ejecutar JavaScript en el navegador"
 
 #: warehouse/templates/pages/help.html:339
 #, python-format
@@ -3405,6 +3521,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO U2F "
 "specification</a>:"
 msgstr ""
+"Utilizar una llave USB que se apegue a la <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">especificación U2F de "
+"FIDO</a>:"
 
 #: warehouse/templates/pages/help.html:342
 #, python-format
@@ -3424,7 +3543,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:354
 msgid "Follow these steps:"
-msgstr ""
+msgstr "Siga estos pasos:"
 
 #: warehouse/templates/pages/help.html:356
 msgid ""
@@ -4296,7 +4415,7 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:39
 msgid "Statistics by project"
-msgstr ""
+msgstr "Estadísticas por proyecto"
 
 #: warehouse/templates/pages/stats.html:43
 msgid "Sum of release files (bytes)"
