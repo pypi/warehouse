@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 17:07+0000\n"
-"Last-Translator: Eray Erdin <eraygezer.94@gmail.com>\n"
+"PO-Revision-Date: 2019-09-24 17:23+0000\n"
+"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -878,6 +878,10 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
+"PyPI yöneticileri parolanızın deşifre olduğuna karar verdi. Sizi ve diğer "
+"kullanıcıları korumak için sizin parolanızı sıfırladık bu da sizin var olan "
+"parolanız ile bir daha paket yüklemeyi veya giriş yapmayı "
+"gerçekleştiremeyeğiniz anlamına geliyor."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -927,6 +931,12 @@ msgid ""
 "with your existing\n"
 "  password."
 msgstr ""
+"PyPI'a yaptığınız son giriş veya yükleme esnasında parolanızın açık veri "
+"ihlaline uğradığı\n"
+"  tespit edilmiştir. Siz ve diğer kullanıcıların korunması için parolanız "
+"sıfırlanmıştır,\n"
+"  dolayısıyla şu anki parolanızla PyPI'a giriş ya da yükleme "
+"yapamayacaksınız."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -936,6 +946,11 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"PyPI sistemi herhangi bir ihlale uğramamıştır. Bu, PyPI ve kullanıcılarına "
+"karşı\n"
+"  düzenlenebilecek <a href=\"%(href)s\">otomatize form doldurma</a> "
+"saldırısının\n"
+"  riskini azaltmak adına uygulanan koruyucu bir önlemdir."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -945,6 +960,10 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your "
 "other passwords and get yourself familiar with good password practices."
 msgstr ""
+"Hesabınıza yeniden erişim sağlamak için PyPI'da <a href=\"%(reset_pw_url)s\">"
+"parolanızı sıfırlayın</a>. Ayrıca <a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a> adresini ziyaret edip diğer parolalarınızı da kontrol "
+"etmenizi ve güçlü bir parola oluşturmayla ilgili bilgi almanızı öneriyoruz."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
@@ -960,6 +979,12 @@ msgid ""
 " password is compromised. The plaintext password is never stored by PyPI "
 "or sent to HaveIBeenPwned."
 msgstr ""
+"Sistemimizde <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> adlı "
+"ücretsiz güvenlik servisi kullanılmaktadır. Kayıt olurken, giriş yaparken "
+"veya yükleme yaparken parolanızın SHA1 hash'ı oluşturulmakta ve bu hash'ın "
+"ilk beş karakteri kullanılarak parolanızın güvenliği kontrol edilmektedir. "
+"Açık parolanız hiçbir şekilde PyPI'da barındırılmamakta veya "
+"HaveIBeenPwned'a gönderilmemektedir."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -968,6 +993,9 @@ msgid ""
 "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
 "communicate with the PyPI administrators."
 msgstr ""
+"Daha fazla bilgi için <a href=\"%(faq_url)s\">SSS</a> sayfasına göz atın. "
+"Yardım için <a href=\"%(email_href)s\">%(email_address)s</a> adresinden PyPI "
+"yöneticilerine ulaşabilirsiniz."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -975,13 +1003,15 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
+"Birisi, muhtemelen siz, PyPI üzerinden %(username)s için parola sıfırlama "
+"isteğinde bulundu."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
-msgstr ""
+msgstr "Parolanızı sıfırlamak için <a href=\"%(href)s\">buraya</a> tıklayın."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -1023,6 +1053,7 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>"
 msgstr ""
+"E-posta adresinizi doğrulamak için <a href=\"%(href)s\">buraya tıklayın</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
@@ -1122,7 +1153,7 @@ msgstr "Algoritma"
 
 #: warehouse/templates/includes/hash-modal.html:32
 msgid "Hash digest"
-msgstr ""
+msgstr "Hash özeti"
 
 #: warehouse/templates/includes/hash-modal.html:41
 #: warehouse/templates/includes/hash-modal.html:50
@@ -1144,7 +1175,7 @@ msgstr "Kopyala"
 
 #: warehouse/templates/includes/manage-project-button.html:16
 msgid "Manage project"
-msgstr ""
+msgstr "Projeyi Yönet"
 
 #: warehouse/templates/includes/pagination.html:21
 #: warehouse/templates/includes/pagination.html:23
@@ -1168,11 +1199,11 @@ msgstr "Uyarı"
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr ""
+msgstr "Birincil e-posta adresiniz (%(email_address)s) doğrulanmadı."
 
 #: warehouse/templates/includes/session-notifications.html:25
 msgid "You do not have a primary email address."
-msgstr ""
+msgstr "Birincil e-posta adresiniz bulunmamakta."
 
 #: warehouse/templates/includes/session-notifications.html:28
 msgid "Verify your email or add a new address."
@@ -1184,6 +1215,8 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it "
 "now for your account.</a>"
 msgstr ""
+"2-aşamalı kimlik doğrulama hizmeti mevcut, <a href=\"%(href)s\">hesabınız "
+"için kurulum yapın.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
@@ -1205,6 +1238,10 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Projenizle ilgili istatistikleri <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya <a href="
+"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</a> "
+"aracılığıyla inceleyin"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1238,12 +1275,12 @@ msgstr "%(project)s yönetimi için navigasyon"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
-msgstr ""
+msgstr "Sürümler"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
 #: warehouse/templates/manage/roles.html:21
 msgid "Collaborators"
-msgstr ""
+msgstr "Ortaklar"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
 #: warehouse/templates/manage/account.html:525
@@ -1943,7 +1980,7 @@ msgid ""
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 "<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s\""
-">kaldır"
+">kaldır</a>"
 
 #: warehouse/templates/manage/account.html:681
 #: warehouse/templates/manage/token.html:113
@@ -1974,6 +2011,10 @@ msgid ""
 "href=\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as "
 "uploading new documentation is no longer supported."
 msgstr ""
+"Eğer herhangi bir var olan \n"
+"ve <a href=\"%(url)s\">%(url)s</a>'da sunulan dokümantasyonu yok etmek "
+"isterseniz, bunun <strong>hiçbir</strong> geri dönüşü yok, yeni "
+"dokümantasyon yüklemenin de artık geçersiz olacağı gibi."
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
@@ -4191,28 +4232,28 @@ msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Kayıt"
 
 #: warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "PyPI hakkında"
 
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
-msgstr ""
+msgstr "Sponsorlar"
 
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
-msgstr ""
+msgstr "Güvenlik politikası"
 
 #: warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "Kullanım şartları"
 
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
-msgstr ""
+msgstr "PyPI istatistikleri"
 
 #: warehouse/templates/pages/stats.html:23
 msgid ""
@@ -4220,10 +4261,13 @@ msgid ""
 "statistics page is cached for 24 hours, so don't expect the numbers to be"
 " realtime."
 msgstr ""
+"Hepimiz istatistikleri severiz, işte PyPI hakkında işe yarar bir kaç "
+"istatistik. İstatistik sayfası 24 saat için önbelleğe alınıyor, bu yüzden "
+"istatistiklerin gerçek zamanlı olmasını beklemeyin."
 
 #: warehouse/templates/pages/stats.html:30
 msgid "Top storage users"
-msgstr ""
+msgstr "En fazla hafızayı kullanan kullanıcılar"
 
 #: warehouse/templates/pages/stats.html:32
 msgid ""
