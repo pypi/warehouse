@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Reano Ivo <reanoivo@gmail.com>, 2019.
 # Dario Vinella <d.vinella@gmail.com>, 2019.
+# Paolo Melchiorre <paolo@melchiorre.org>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Dario Vinella <d.vinella@gmail.com>\n"
+"Last-Translator: Paolo Melchiorre <paolo@melchiorre.org>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "it/>\n"
 "Language: it\n"
@@ -82,6 +83,8 @@ msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
+"Questo indirizzo e-mail è già utilizzato da un altro account. Usa una e-mail "
+"differente."
 
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
@@ -4053,56 +4056,56 @@ msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr ""
+msgstr "Mappa del sito"
 
 #: warehouse/templates/pages/sitemap.html:21
 msgid "PyPI site map"
-msgstr ""
+msgstr "Mappa del sito PyPI"
 
 #: warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr ""
+msgstr "Utilizzo di PyPI"
 
 #: warehouse/templates/pages/sitemap.html:25
 msgid "PyPI home"
-msgstr ""
+msgstr "PyPI home"
 
 #: warehouse/templates/pages/sitemap.html:26
 msgid "Search and filter projects"
-msgstr ""
+msgstr "Cerca e filtra i progetti"
 
 #: warehouse/templates/pages/sitemap.html:30
 msgid "Authentication"
-msgstr ""
+msgstr "Autenticazione"
 
 #: warehouse/templates/pages/sitemap.html:32
 msgid "Login"
-msgstr ""
+msgstr "Entra"
 
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Registrati"
 
 #: warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "Informazioni su PyPI"
 
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
-msgstr ""
+msgstr "Sponsor"
 
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
-msgstr ""
+msgstr "Politica di sicurezza"
 
 #: warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "Condizioni d'uso"
 
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
-msgstr ""
+msgstr "Statistiche PyPI"
 
 #: warehouse/templates/pages/stats.html:23
 msgid ""
