@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-29 13:06+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2019-09-29 15:42+0000\n"
+"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -2655,7 +2655,7 @@ msgid "Project description and sidebar"
 msgstr "Proje açıklaması ve kenar çubuğu"
 
 #: warehouse/templates/manage/settings.html:43
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, "
 "and other details for your next release, use the <a "
@@ -3127,7 +3127,6 @@ msgid "I forgot my PyPI password. Can you help me?"
 msgstr "PyPI parolamı unuttum. Bana yardım edebilir misiniz?"
 
 #: warehouse/templates/pages/help.html:68
-#, fuzzy
 msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch "
 "URL\" errors during <code>pip install</code>?"
@@ -3146,9 +3145,8 @@ msgid "Why can't I manually upload files to PyPI, through the browser interface?
 msgstr "Neden tarayıcı arayüzünden PyPI' a manuel olarak dosya yükleyemiyorum?"
 
 #: warehouse/templates/pages/help.html:71
-#, fuzzy
 msgid "How can I publish my private packages to PyPI?"
-msgstr "Kişisel(Private) paketlerimi PyPI' da nasıl yayınlayabilirim(Publish)?"
+msgstr "Kişisel(Private) paketlerimi PyPI'da nasıl yayınlayabilirim?"
 
 #: warehouse/templates/pages/help.html:72
 msgid "Why did my package or user registration get blocked?"
@@ -3161,17 +3159,14 @@ msgstr ""
 "kaldırabilirim?"
 
 #: warehouse/templates/pages/help.html:75
-#, fuzzy
 msgid ""
 "Why am I getting a \"Filename or contents already exists\" or \"Filename "
 "has been previously used\" error?"
 msgstr ""
-"Neden  \"Filename or contents already exists\"(Dosya ismi ya da içeriği "
-"zaten mevcut) ya da\"Filename has been previously used\"(Dosya ismi daha "
-"önce kullanılmış) hatalarını alıyorum?"
+"Neden  \"Filename or contents already exists\" ya da\"Filename has been "
+"previously used\" hatalarını alıyorum?"
 
 #: warehouse/templates/pages/help.html:76
-#, fuzzy
 msgid "Why isn't my desired project name available?"
 msgstr "Neden belirlediğim proje ismi müsait değil?"
 
@@ -3188,7 +3183,6 @@ msgstr ""
 "roller nelerdir?"
 
 #: warehouse/templates/pages/help.html:79
-#, fuzzy
 msgid "How do I become a owner/maintainer of a project on PyPI?"
 msgstr ""
 "Nasıl PyPI üzerinde bulunan bir projenin sahibi/geliştiricisi olabilirim?"
@@ -3198,9 +3192,8 @@ msgid "How can I upload a project description in a different format?"
 msgstr "Bir projenin açıklamasını farklı bir formatta nasıl yükleyebilirim?"
 
 #: warehouse/templates/pages/help.html:81
-#, fuzzy
 msgid "How do I request a new trove classifier?"
-msgstr "Yeni bir trove sınıflandırıcısını nasıl talep edebilirim?"
+msgstr "Yeni bir sınıflandırıcıyı nasıl talep edebilirim?"
 
 #: warehouse/templates/pages/help.html:82
 msgid "Where can I report a bug or provide feedback about PyPI?"
@@ -3209,9 +3202,8 @@ msgstr ""
 "bildirebilirim?"
 
 #: warehouse/templates/pages/help.html:84
-#, fuzzy
 msgid "Who maintains PyPI?"
-msgstr "PyPI' ı kimler geliştiriyor?"
+msgstr "PyPI'yı kimler sürdürüyor?"
 
 #: warehouse/templates/pages/help.html:85
 msgid "What powers PyPI?"
@@ -3256,7 +3248,6 @@ msgstr "Hesabım"
 
 #: warehouse/templates/pages/help.html:123
 #: warehouse/templates/pages/help.html:427
-#, fuzzy
 msgid "Integrating"
 msgstr "Birleştirme"
 
@@ -3315,7 +3306,7 @@ msgstr ""
 " göz atın."
 
 #: warehouse/templates/pages/help.html:192
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "For full instructions on configuring, packaging and distributing your "
 "Python project, refer to the <a href=\"%(packaging_tutorial_href)s\" "
@@ -3325,9 +3316,9 @@ msgid ""
 msgstr ""
 "Python projenizin ayarlama, paketleme ve dağıtımı ile ilgili tüm talimatlar "
 "için, lütfen <a href=\"%(user_guide_href)s\" title=\"%(title)s\" target=\""
-"_blank\" rel=\"noopener\">Python Packaging User Guide</a> üzerinde bulunan <"
-"a href=\"%(packaging_tutorial_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">paketleme eğitimine</a> bakın."
+"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> üzerinde "
+"bulunan <a href=\"%(packaging_tutorial_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">paketleme eğitimine</a> bakın."
 
 #: warehouse/templates/pages/help.html:199
 #, python-format
@@ -3533,7 +3524,6 @@ msgstr ""
 "metin olarak görüntülenir."
 
 #: warehouse/templates/pages/help.html:317
-#, fuzzy
 msgid ""
 "Scan the QR code with your authentication application, or type it in "
 "manually. The method of input will depend on the application you have "
@@ -3790,7 +3780,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:439
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">analyze PyPI download usage statistics via Google "
@@ -3798,7 +3788,7 @@ msgid ""
 msgstr ""
 "PyPI veri indirme, kullanım istatistiklerinizi <a href=\"%(href)s\" title=\""
 "%(title)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery kullanarak "
-"analiz edebilrsiniz</a>."
+"analiz edebilirsiniz</a>."
 
 #: warehouse/templates/pages/help.html:441
 #, python-format
@@ -3970,7 +3960,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:509
-#, fuzzy, python-format
+#, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr "Şu link ile <a href=\"%(href)s\">parolanızı sıfırlayın</a>."
 
@@ -4096,7 +4086,6 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:574
-#, fuzzy
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "PyPI bu hataları, şu nedenlerden biri yüzünden üretebilir:"
 
@@ -4247,17 +4236,16 @@ msgid "Development:"
 msgstr "Geliştirme:"
 
 #: warehouse/templates/pages/help.html:663
-#, fuzzy
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working"
 " on the project. You <strong>do not</strong> need to be an experienced "
 "open-source developer to make a contribution – in fact, we'd love to help"
 " you make your first open source pull request!"
 msgstr ""
-"Warehouse açık kaynaklı bir proje, ve bu projede çalışan yeni yüzler görmeyi "
+"Warehouse açık kaynaklı bir proje ve bu projede çalışan yeni yüzler görmeyi "
 "çok istiyoruz. Katkı sağlamak için tecrübeli bir açık-kaynak geliştiricisi "
 "olmak zorunda <strong>değilsiniz</strong>. Hatta ilk açık-kaynak pull "
-"request' inizi yapmanıza yardımcı olmaktan mutluluk duyarız."
+"request'inizi yapmanıza yardımcı olmaktan mutluluk duyarız!"
 
 #: warehouse/templates/pages/help.html:665
 #, python-format
