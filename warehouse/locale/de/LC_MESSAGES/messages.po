@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Jannis Leidel <jannis@leidel.info>, 2019.
+# Fabian Neumann <mail@fabianneumann.de>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-20 14:58+0000\n"
-"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
+"Last-Translator: Fabian Neumann <mail@fabianneumann.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -52,7 +53,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:113
 msgid "The password is invalid. Try again."
-msgstr ""
+msgstr "Das Passwort ist ungültig. Bitte erneut versuchen."
 
 #: warehouse/accounts/forms.py:117
 msgid "There have been too many unsuccessful login attempts, try again later."
@@ -60,17 +61,19 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:139
 msgid "Your passwords don't match. Try again."
-msgstr ""
+msgstr "Deine Passwörter stimmen nicht überein. Bitte erneut versuchen."
 
 #: warehouse/accounts/forms.py:170
 msgid "The email address isn't valid. Try again."
-msgstr ""
+msgstr "Die E-Mail-Adresse ist nicht gültig. Bitte erneut versuchen."
 
 #: warehouse/accounts/forms.py:180
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
+"Diese E-Mail-Adresse wird schon von diesem Konto verwendet. Verwende eine "
+"andere."
 
 #: warehouse/accounts/forms.py:187
 msgid ""
