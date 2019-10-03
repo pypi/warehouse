@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-24 17:29+0000\n"
-"Last-Translator: Eray Erdin <eraygezer.94@gmail.com>\n"
+"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -104,7 +104,7 @@ msgstr "Geçersiz WebAuthn önermesi: Kötü yük"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
-msgstr "Bu kullanıcı adı veya e-posta ile hiçbir kullanıcı bulunamadı"
+msgstr "Bu kullanıcı adı veya e-posta ile alakalı hiçbir kullanıcı bulunamadı"
 
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
@@ -878,10 +878,10 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
-"PyPI yöneticileri parolanızın deşifre olduğuna karar verdi. Sizi ve diğer "
-"kullanıcıları korumak için sizin parolanızı sıfırladık bu da sizin var olan "
-"parolanız ile bir daha paket yüklemeyi veya giriş yapmayı "
-"gerçekleştiremeyeğiniz anlamına geliyor."
+"PyPI yöneticileri parolanızın tehlikede olduğu belirledi. Sizi ve\n"
+"  diğer kullanıcıları korumak için parolanız tarafımızca sıfırlanmıştır ve "
+"şu anki\n"
+"  parolanızla PyPI'a giriş ya da yükleme yapmanız mümkün değildir."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -889,7 +889,7 @@ msgid ""
 "reduce the\n"
 "  risk for PyPI and its users."
 msgstr ""
-"PyPI sisteminde herhangi bir açık bulunmamaktadır. Bu, PyPI ve "
+"PyPI sisteminde herhangi bir açık bulunmamıştır. Bu, PyPI ve "
 "kullanıcılarının\n"
 "  riskini azaltmak için alınmış koruyucu bir önlemdir."
 
@@ -1275,7 +1275,7 @@ msgstr "%(project)s yönetimi için navigasyon"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
-msgstr "Sürümler"
+msgstr "Yayınlananlar"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
 #: warehouse/templates/manage/roles.html:21
