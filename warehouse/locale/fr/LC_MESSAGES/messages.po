@@ -6,13 +6,14 @@
 # Julia Duimovich <duimovich.julia@gmail.com>, 2019.
 # Maelle <maellevance@gmail.com>, 2019.
 # Xavier Fernandez <xav.fernandez@gmail.com>, 2019.
+# Allan Nordhøy <epost@anotheragency.no>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 21:55+0000\n"
-"Last-Translator: Xavier Fernandez <xav.fernandez@gmail.com>\n"
+"PO-Revision-Date: 2019-09-29 13:07+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -103,7 +104,7 @@ msgstr "Code TOTP invalide."
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr "Assertion WebAuthn non valide: requête malformée"
+msgstr "Assertion WebAuthn non valide : requête malformée"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"

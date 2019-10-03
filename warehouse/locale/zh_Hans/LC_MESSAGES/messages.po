@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # 王赛 <wangsai@bootcss.com>, 2019.
+# Allan Nordhøy <epost@anotheragency.no>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 21:55+0000\n"
-"Last-Translator: 王赛 <wangsai@bootcss.com>\n"
+"PO-Revision-Date: 2019-09-29 13:09+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -784,7 +785,7 @@ msgstr "新的协作者已添加到您在 PyPI 上拥有的项目中："
 #: warehouse/templates/email/collaborator-added/body.html:29
 #, python-format
 msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong><strong>用户名</strong>：%(username)s"
+msgstr "<strong>用户名</strong>：%(username)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:30
 #, python-format
@@ -2159,7 +2160,7 @@ msgstr "面包屑"
 #: warehouse/templates/manage/release.html:26
 #, python-format
 msgid "All %(project_name)s releases"
-msgstr "%(version)s 的所有版本"
+msgstr "%(project_name)s 的所有版本"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
