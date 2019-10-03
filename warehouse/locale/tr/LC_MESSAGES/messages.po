@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 17:02+0000\n"
-"Last-Translator: Eray Erdin <eraygezer.94@gmail.com>\n"
+"PO-Revision-Date: 2019-09-24 17:07+0000\n"
+"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -1224,7 +1224,7 @@ msgid ""
 msgstr ""
 "PyPI'a henüz bir proje yüklemediniz. Nasıl başlayacağınızı öğrenmek için <a "
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Python Paketleme Kullanıcı Rehberi</a>'ni ziyaret edin."
+"Python Paketleme Kullanıcı Rehberi</a>'ni ziyaret edin"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -1234,7 +1234,7 @@ msgstr "%(username)s PyPI'a henüz bir proje yüklemedi."
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
-msgstr "Proje Yönetim Menüsü"
+msgstr "%(project)s yönetimi için navigasyon"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
@@ -1273,7 +1273,6 @@ msgid "GitHub statistics:"
 msgstr "GitHub İstatistikleri:"
 
 #: warehouse/templates/includes/packaging/project-data.html:43
-#, fuzzy
 msgid "Stars:"
 msgstr "Toplam Yıldız:"
 
@@ -1304,9 +1303,8 @@ msgstr "Lisans:"
 
 #: warehouse/templates/includes/packaging/project-data.html:82
 #: warehouse/templates/includes/packaging/project-data.html:84
-#, fuzzy
 msgid "Author:"
-msgstr "Yazar:"
+msgstr "Yayımlayan:"
 
 #: warehouse/templates/includes/packaging/project-data.html:87
 #: warehouse/templates/includes/packaging/project-data.html:89
@@ -1323,14 +1321,14 @@ msgid "Requires:"
 msgstr "Gereken Python Sürümü:"
 
 #: warehouse/templates/includes/packaging/project-data.html:111
-#, fuzzy
 msgid "Maintainers"
 msgstr "İlgilenenler"
 
 #: warehouse/templates/includes/packaging/project-data.html:113
-#, fuzzy
 msgid "Avatar for {username} from gravatar.com"
-msgstr "{username} Adlı Kullanıcının Gravatar.com Avatarı"
+msgstr ""
+"{username} adlı K\n"
+"kullanıcının Gravatar.com Avatarı"
 
 #: warehouse/templates/includes/packaging/project-data.html:129
 #: warehouse/templates/pages/classifiers.html:16
@@ -1368,19 +1366,16 @@ msgid "Unverified*"
 msgstr "Doğrulanmamış"
 
 #: warehouse/templates/manage/account.html:48
-#, fuzzy
 msgid "*Email from PyPI being treated as spam"
-msgstr "*PyPI e-postaları spam olarak algılandı"
+msgstr "*PyPI e-postalarına spam olarak davranıldı"
 
 #: warehouse/templates/manage/account.html:54
-#, fuzzy
 msgid "*Hard failure during delivery"
-msgstr "*Sunucu hatası"
+msgstr "*Teslim sırasında sunucu hatası"
 
 #: warehouse/templates/manage/account.html:60
-#, fuzzy
 msgid "*Too many delivery problems"
-msgstr "*Birden fazla problem"
+msgstr "*Birden fazla teslim sorunu"
 
 #: warehouse/templates/manage/account.html:64
 msgid "Unverified"
@@ -1456,8 +1451,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
-"Donanımla (örn. USB bellek) çift faktörlü kimlik doğrulamayı kurmak için <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Güvenlik cihazıyla (örneğin USB anahtar) 2-aşamalı kimlik doğrulamayı kurmak "
+"için <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\"> tarayıcınızın güncelleyin </a>"
 
 #: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/account.html:501
@@ -1483,9 +1479,8 @@ msgid "Never"
 msgstr "Hiç"
 
 #: warehouse/templates/manage/account.html:183
-#, fuzzy
 msgid "View token options"
-msgstr "Token Ayarlarını Görüntüler"
+msgstr "Belirteç ayarlarını gör"
 
 #: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/token.html:50
@@ -1500,9 +1495,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:209
 #: warehouse/templates/manage/token.html:53
 #: warehouse/templates/manage/token.html:54
-#, fuzzy
 msgid "Remove API token"
-msgstr "API Tokenini Kaldır"
+msgstr "API belirtecini kaldır"
 
 #: warehouse/templates/manage/account.html:214
 #: warehouse/templates/manage/token.html:59
@@ -1534,8 +1528,9 @@ msgid ""
 "rel=\"noopener\">gravatar.com</a> to generate your profile picture based "
 "on your primary email address"
 msgstr ""
-"Profil fotoğrafınız birincil e-posta adresiniz kullanılarak <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Profil fotoğrafınız birincil e-posta adresiniz kullanılarak oluşturmak için "
+"biz <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">gravatar.com</a> kullanıyoruz"
 
 #: warehouse/templates/manage/account.html:258
 msgid "Change image on gravatar.com"
@@ -1563,9 +1558,8 @@ msgid "Full name"
 msgstr "Tam Adınız"
 
 #: warehouse/templates/manage/account.html:294
-#, fuzzy
 msgid "No name set"
-msgstr "İsim belirtilmedi"
+msgstr "Hiç bir isim ayarlanmadı"
 
 #: warehouse/templates/manage/account.html:299
 #, python-format
@@ -1581,7 +1575,6 @@ msgid "Account emails"
 msgstr "Hesap E-postaları"
 
 #: warehouse/templates/manage/account.html:314
-#, fuzzy
 msgid ""
 "You can associate several emails with your account. You can use any <span"
 " class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
@@ -1595,9 +1588,8 @@ msgstr ""
 "span class=\"badge\">birincil</span> e-postanız bildirimleri alacaktır."
 
 #: warehouse/templates/manage/account.html:325
-#, fuzzy
 msgid "Emails associated with your account"
-msgstr "Hesabınızla İlişkili E-postalar"
+msgstr "Hesabınızla ilişkili e-postalar"
 
 #: warehouse/templates/manage/account.html:329
 msgid "Status"
@@ -1605,9 +1597,8 @@ msgstr "Durum"
 
 #: warehouse/templates/manage/account.html:344
 #: warehouse/templates/manage/account.html:357
-#, fuzzy
 msgid "Add email"
-msgstr "E-posta Ekle"
+msgstr "E-posta ekle"
 
 #: warehouse/templates/manage/account.html:367
 msgid "Change password"
@@ -1626,9 +1617,8 @@ msgid "New password"
 msgstr "Yeni Şifre"
 
 #: warehouse/templates/manage/account.html:408
-#, fuzzy
 msgid "Confirm new password"
-msgstr "Yeni Şifre (Tekrar)"
+msgstr "Yeni parolanı onayla"
 
 #: warehouse/templates/manage/account.html:431
 msgid "Two factor authentication (2FA)"
@@ -1646,14 +1636,14 @@ msgstr ""
 ">2FA</abbr> ile ilgili daha fazla bilgi edinin</a>."
 
 #: warehouse/templates/manage/account.html:437
-#, fuzzy
 msgid "Two factor authentication methods enabled"
-msgstr "Çift Faktörlü Kimlik Doğrulama Yöntemleri Etkin"
+msgstr ""
+"Çift faktörlü \n"
+"kimlik doğrulama yöntemleri etkin"
 
 #: warehouse/templates/manage/account.html:440
-#, fuzzy
 msgid "Two factor method"
-msgstr "Çift Faktörlü Yöntem"
+msgstr "2 aşamalı method"
 
 #: warehouse/templates/manage/account.html:446
 #: warehouse/templates/manage/account.html:543
@@ -1794,9 +1784,8 @@ msgid "Primary email set"
 msgstr "Birincil e-posta ayarlandı"
 
 #: warehouse/templates/manage/account.html:574
-#, fuzzy
 msgid "Password reset requested"
-msgstr "Şifre sıfırlama işleme alındı"
+msgstr "Parola sıfırlama istendi"
 
 #: warehouse/templates/manage/account.html:576
 msgid "Password successfully reset"
@@ -1875,9 +1864,8 @@ msgstr "Son Hesap Hareketleri"
 
 #: warehouse/templates/manage/account.html:624
 #: warehouse/templates/manage/history.html:88
-#, fuzzy
 msgid "Event"
-msgstr "Hareket"
+msgstr "Olay"
 
 #: warehouse/templates/manage/account.html:625
 #: warehouse/templates/manage/account.html:633
