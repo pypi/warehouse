@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Laurent LAPORTE <laurent.laporte.pro@gmail.com>, 2019.
+# Julia Duimovich <duimovich.julia@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-22 12:30+0000\n"
-"Last-Translator: Laurent LAPORTE <laurent.laporte.pro@gmail.com>\n"
+"PO-Revision-Date: 2019-09-24 05:35+0000\n"
+"Last-Translator: Julia Duimovich <duimovich.julia@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -124,7 +125,7 @@ msgstr "Déjà authentifié"
 
 #: warehouse/accounts/views.py:308
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "Assertion WebAuthn réussi"
 
 #: warehouse/accounts/views.py:387
 msgid ""
@@ -168,6 +169,8 @@ msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Jeton invalide : mot de passe a déjà été changé depuis que ce jeton a été "
+"demandé"
 
 #: warehouse/accounts/views.py:532
 msgid "You have reset your password"
@@ -175,15 +178,15 @@ msgstr ""
 
 #: warehouse/accounts/views.py:554
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "Jeton expiré : demandez un nouveau lien de vérification de courriel"
 
 #: warehouse/accounts/views.py:556
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "Jeton invalide : demandez un nouveau lien de vérification de courriel"
 
 #: warehouse/accounts/views.py:562
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "Jeton invalide : ce n'est pas un jeton de vérification de courriel"
 
 #: warehouse/accounts/views.py:571
 msgid "Email not found"
@@ -191,7 +194,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:574
 msgid "Email already verified"
-msgstr ""
+msgstr "Courriel déjà vérifié"
 
 #: warehouse/accounts/views.py:586
 msgid "You can now set this email as your primary address"
@@ -3993,7 +3996,7 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
-msgstr ""
+msgstr "Sécurité"
 
 #: warehouse/templates/pages/security.html:20
 msgid "Reporting a security issue"
