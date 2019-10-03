@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-24 17:07+0000\n"
-"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
+"Last-Translator: Eray Erdin <eraygezer.94@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -1926,7 +1926,15 @@ msgid_plural ""
 " can delete your account.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          Hesabınızı kaldırmadan önce bu projeyi devretmeniz veya "
+"kaldırmanız gerekmektedir.\n"
+"        "
 msgstr[1] ""
+"\n"
+"          Hesabınızı kaldırmadan önce bu projeleri devretmeniz veya "
+"kaldırmanız gerekmektedir.\n"
+"        "
 
 #: warehouse/templates/manage/account.html:672
 #, python-format
@@ -1934,28 +1942,30 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
+"<a href=\"%(transfer_href)s\">devret</a> veya <a href=\"%(delete_href)s\""
+">kaldır"
 
 #: warehouse/templates/manage/account.html:681
 #: warehouse/templates/manage/token.html:113
 msgid "Proceed with caution!"
-msgstr ""
+msgstr "Dikkat edin!"
 
 #: warehouse/templates/manage/account.html:684
 msgid "You will not be able to recover your account after you delete it"
-msgstr ""
+msgstr "Hesabınızı kaldırdıktan sonra tekrar kurtaramazsınız"
 
 #: warehouse/templates/manage/account.html:686
 msgid "Delete your PyPI account"
-msgstr ""
+msgstr "PyPI hesabını kaldır"
 
 #: warehouse/templates/manage/documentation.html:18
 #, python-format
 msgid "Manage '%(project_name)s' documentation"
-msgstr ""
+msgstr "'%(project_name)s' dökümantasyonunu yönet"
 
 #: warehouse/templates/manage/documentation.html:25
 msgid "Destroy documentation"
-msgstr ""
+msgstr "Dökümantasyonu kaldır"
 
 #: warehouse/templates/manage/documentation.html:28
 #, python-format
@@ -1967,26 +1977,26 @@ msgstr ""
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
-msgstr ""
+msgstr "Projenin Dökümantasyonunu Kaldır"
 
 #: warehouse/templates/manage/documentation.html:35
 #: warehouse/templates/manage/release.html:110
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
-msgstr ""
+msgstr "Proje Adı"
 
 #: warehouse/templates/manage/documentation.html:39
 msgid "Project documentation"
-msgstr ""
+msgstr "Proje Dökümantasyonu"
 
 #: warehouse/templates/manage/documentation.html:41
 msgid "Uploading new documentation is no longer supported"
-msgstr ""
+msgstr "Yeni dökümantasyon yüklenmesi artık desteklenmemektedir"
 
 #: warehouse/templates/manage/history.html:20
 #, python-format
 msgid "'%(project_name)s' project history"
-msgstr ""
+msgstr "'%(project_name)s' Proje Geçmişi"
 
 #: warehouse/templates/manage/history.html:25
 msgid ""
