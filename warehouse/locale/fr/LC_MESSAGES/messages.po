@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Laurent LAPORTE <laurent.laporte.pro@gmail.com>, 2019.
 # Julia Duimovich <duimovich.julia@gmail.com>, 2019.
+# Maelle <maellevance@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 05:35+0000\n"
-"Last-Translator: Julia Duimovich <duimovich.julia@gmail.com>\n"
+"PO-Revision-Date: 2019-09-25 08:57+0000\n"
+"Last-Translator: Maelle <maellevance@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -101,7 +102,7 @@ msgstr "Code TOTP invalide."
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "Assertion WebAuthn non valide: requête malformée"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
@@ -190,7 +191,7 @@ msgstr "Jeton invalide : ce n'est pas un jeton de vérification de courriel"
 
 #: warehouse/accounts/views.py:571
 msgid "Email not found"
-msgstr ""
+msgstr "Courriel non trouvé"
 
 #: warehouse/accounts/views.py:574
 msgid "Email already verified"
@@ -202,15 +203,19 @@ msgstr ""
 
 #: warehouse/accounts/views.py:588
 msgid "This is your primary address"
-msgstr ""
+msgstr "Ceci est vôtre adresse principale"
 
 #: warehouse/accounts/views.py:593
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
+"Courriel ${email_address} verifié.\n"
+"${confirm_message}."
 
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
+"Courriel ${email_address} ajouté - consultez votre boîte mail pour le lien "
+"de vérification"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -218,19 +223,19 @@ msgstr ""
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "Vous n'êtes pas autorisé à voir cette page"
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Page non trouvée (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "Nous avez cherché partout mais nous n'avons pas pu trouver cette page"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "Et maintenant pour quelque chose<br><span>complètement différent"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
