@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-20 15:24+0000\n"
-"Last-Translator: Fabian Neumann <mail@fabianneumann.de>\n"
+"PO-Revision-Date: 2019-09-20 15:33+0000\n"
+"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -205,8 +205,8 @@ msgstr "E-Mail-Adresse ${email_address} bestätigt. ${confirm_message}."
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
-"E-Mail-Adresse ${email_address} hinzugefügt - überprüfen Sie Ihren "
-"Posteingang nach dem Bestätigungslink"
+"E-Mail-Adresse ${email_address} hinzugefügt. Bitte mit dem Bestätigungslink "
+"in der eben verschickten E-Mail bestätigen."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -230,7 +230,7 @@ msgstr "Und nun zu etwas <br><span>völlig anderem"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "Monty Python - Der Cheese-Shop-Sketch"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -372,6 +372,11 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"> donating </a> to help us build a more"
 " stable and secure platform."
 msgstr ""
+"Um eine stabilere und sicherere Plattform zu schaffen, bitte einfach <a href="
+"\"https://github.com/pypa/warehouse\" target=\"_blank\" rel=\"noopener\"> "
+"mitmachen </a> oder <a href=\"https://psfmember.org/civicrm/contribute/"
+"transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> spenden </a>. "
+"Danke."
 
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
@@ -403,6 +408,8 @@ msgstr "Der Python Package Index"
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr ""
+"Das Veröffentlichen von Python-Paketen mit dem Test-Python-Package-Index "
+"ausprobieren"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
@@ -423,7 +430,7 @@ msgstr "%(num_projects)s Projekte"
 #: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases)s releases"
-msgstr ""
+msgstr "%(num_releases)s Veröffentlichungen"
 
 #: warehouse/templates/index.html:69
 #, python-format
@@ -440,6 +447,8 @@ msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
+"Der Python Package Index (PyPI) ist ein Software-Verzeichnis der "
+"Programmiersprache Python."
 
 #: warehouse/templates/index.html:82
 msgid ""
@@ -455,11 +464,12 @@ msgstr "Mehr über die Installation von Paketen erfahren</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
-msgstr "Paket-Entwickler benutzer PyPI, um ihre Software zu verteilen."
+msgstr "Paket-Entwickler benutzen PyPI, um ihre Software zu veröffentlichen."
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr ""
+"Wie wird Python-Software für die Veröffentlichung auf PyPI vorbereitet</a>?"
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
@@ -467,19 +477,19 @@ msgstr "Angesagte Projekte"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
-msgstr ""
+msgstr "Angesagte Projekte nach Anzahl der Downloads"
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr "Neue Releases"
+msgstr "Neue Veröffentlichungen"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr "Druckfrisch: die neuesten Projekt-Releases"
+msgstr "Aktuell: die neuesten Projekt-Veröffentlichungen"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr "Diese URL ist ein API-Endpunkt zum Upload von Dateien nach PyPI."
+msgstr "Diese URL ist ein API-Endpunkt zum Hochladen von Dateien zu PyPI."
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -498,6 +508,7 @@ msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI "
 "homepage</a>."
 msgstr ""
+"Andernfalls bitte <a href=\"%(href)s\">zur PyPI-Homepage zurückkehren</a>."
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/register.html:17
@@ -508,12 +519,12 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22
 msgid "Error processing form"
-msgstr ""
+msgstr "Fehler bei der Verarbeitung der Formulardaten"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94
 msgid "Log in"
-msgstr ""
+msgstr "Einloggen"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -557,7 +568,7 @@ msgstr "(benötigt)"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr "Ihr Benutzername"
+msgstr "Benutzername"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
@@ -571,7 +582,7 @@ msgstr "Passwort anzeigen"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr "Ihr Passwort"
+msgstr "Passwort"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
@@ -580,7 +591,7 @@ msgstr "Passwort vergessen?"
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
-msgstr ""
+msgstr "Abmelden"
 
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
