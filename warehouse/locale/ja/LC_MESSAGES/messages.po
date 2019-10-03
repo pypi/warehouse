@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Michael Myers <mike.myers@trailofbits.com>, 2019.
+# komo_fr <komo.mdrms@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-20 05:34+0000\n"
-"Last-Translator: Michael Myers <mike.myers@trailofbits.com>\n"
+"PO-Revision-Date: 2019-09-24 05:35+0000\n"
+"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -67,25 +68,25 @@ msgstr "メールアドレスが無効です。もう一度やり直してくだ
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
-msgstr ""
+msgstr "このメールアドレスはすでにこのアカウントで使用されています。別のメールアドレスを使用してください。"
 
 #: warehouse/accounts/forms.py:187
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
-msgstr ""
+msgstr "このメールアドレスはすでに別のアカウントで使用されています。別のメールアドレスを使用してください。"
 
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
+msgstr "このドメインからのメールアドレスは使用できません。別のメールアドレスを使用してください。"
 
 #: warehouse/accounts/forms.py:218
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr ""
+msgstr "名前が長過ぎます。100字以下の名前を選択してください。"
 
 #: warehouse/accounts/forms.py:282
 msgid "Invalid TOTP code."
-msgstr ""
+msgstr "不正なTOTPコード"
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
