@@ -8,13 +8,14 @@
 # Kim Namjun <bunseokbot@gmail.com>, 2019.
 # Hyunwoo Park <ez.amiryo@gmail.com>, 2019.
 # Woo-Cheol Kim <wckim213@gmail.com>, 2019.
+# HyeonhoKim <jwalag87@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-29 13:08+0000\n"
-"Last-Translator: Woo-Cheol Kim <wckim213@gmail.com>\n"
+"Last-Translator: HyeonhoKim <jwalag87@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -849,6 +850,8 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
+"PyPI의 관리자들은 당신의 비밀번호가 유출되었다고 결정하였습니다. 당신과 다른 사람들을 유출의 위험으로부터 보호하기 위해, 우리는 먼저 "
+"당신의 비밀번호를 초기화하였습니다. 따라서 당신은 기존의 비밀번호로 로그인하거나 PyPI에 업로드하는 행위를 하지 못할 것입니다."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -937,6 +940,9 @@ msgid ""
 "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
 "communicate with the PyPI administrators."
 msgstr ""
+"더 많은 정보를 알고 싶을 경우, <a href=\"%(faq_url)s\">FAQ</a>를 확인하세요. 도움이 필요할 경우, <a "
+"href=\"%(email_href)s\">%(email_address)s</a>로 이메일을 보내주시면, PyPI 관리자에게 문의하실 수 "
+"있습니다."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1169,6 +1175,9 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">GoogleBigQuery</a>를 통해 당신 프로젝트의 통계 수치를 볼 수 있습니다"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1186,6 +1195,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"당신은 어떤 프로젝트도 PyPI에 업로드해본 적이 없습니다. 어떻게 시작해야하는지 배우고싶다면, <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Pythoh Packaging User "
+"Guide</a>를 확인해주세요"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -1253,6 +1265,9 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확인하세요"
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
@@ -1279,7 +1294,7 @@ msgstr "태그"
 
 #: warehouse/templates/includes/packaging/project-data.html:104
 msgid "Requires:"
-msgstr ""
+msgstr "요구사항:"
 
 #: warehouse/templates/includes/packaging/project-data.html:111
 msgid "Maintainers"
@@ -1316,17 +1331,17 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
-msgstr ""
+msgstr "확인됨"
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
 #: warehouse/templates/manage/account.html:58
 msgid "Unverified*"
-msgstr ""
+msgstr "확인되지 않음*"
 
 #: warehouse/templates/manage/account.html:48
 msgid "*Email from PyPI being treated as spam"
-msgstr ""
+msgstr "*PyPI로부터 온 이메일은 스팸으로 간주됩니다"
 
 #: warehouse/templates/manage/account.html:54
 msgid "*Hard failure during delivery"
@@ -4252,15 +4267,15 @@ msgstr ""
 
 #: warehouse/templates/search/results.html:214
 msgid "Add filter"
-msgstr ""
+msgstr "필터를 추가하세요"
 
 #: warehouse/templates/search/results.html:230
 #, python-format
 msgid "There were no results for '%(term)s'"
-msgstr ""
+msgstr "'%(term)s'의 결과는 없습니다"
 
 #: warehouse/templates/search/results.html:232
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "                  There were no results for '%(filters)s' filter\n"
@@ -4270,3 +4285,6 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
+"\n"
+"                  '%(filters)s' 필터들의 결과는 없습니다\n"
+"                "
