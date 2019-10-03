@@ -7,13 +7,14 @@
 # Hyeongdo Lee <mylovercorea@gmail.com>, 2019.
 # Kim Namjun <bunseokbot@gmail.com>, 2019.
 # Hyunwoo Park <ez.amiryo@gmail.com>, 2019.
+# Woo-Cheol Kim <wckim213@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 21:55+0000\n"
-"Last-Translator: Hyunwoo Park <ez.amiryo@gmail.com>\n"
+"PO-Revision-Date: 2019-09-29 13:08+0000\n"
+"Last-Translator: Woo-Cheol Kim <wckim213@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -910,6 +911,9 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your "
 "other passwords and get yourself familiar with good password practices."
 msgstr ""
+"계정에 다시 접근 권한을 얻기 위해서는,  PyPI에서 <a href=\"%(reset_pw_url)s\">패스워드 재설정</a>"
+"하세요.  <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> 를 방문해서 기존에 "
+"사용했던 비밀번호를 검토해보고 좋은 비밀번호를 작성하는 방법을 익히기를 추천드립니다."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
