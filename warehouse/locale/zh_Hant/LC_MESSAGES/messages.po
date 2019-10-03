@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Josix <wilson8507@gmail.com>, 2019.
+# Josix <josixwang@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Josix <wilson8507@gmail.com>\n"
+"PO-Revision-Date: 2019-09-25 21:55+0000\n"
+"Last-Translator: Josix <josixwang@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -87,15 +88,15 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "無效的 WebAuthn 斷言：負載錯誤"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "找不到使用該用戶名或電子郵件的用戶"
 
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
+msgstr "登錄嘗試失敗的次數過多。稍後再試。"
 
 #: warehouse/accounts/views.py:197 warehouse/accounts/views.py:250
 #: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
@@ -109,7 +110,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:308
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "成功的 WebAuthn 斷言"
 
 #: warehouse/accounts/views.py:387
 msgid ""
@@ -119,97 +120,106 @@ msgstr ""
 
 #: warehouse/accounts/views.py:482
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "token 過期：請求新的密碼重設連結"
 
 #: warehouse/accounts/views.py:484
+#, fuzzy
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "token 無效：請求新的密碼重置連結"
 
 #: warehouse/accounts/views.py:486 warehouse/accounts/views.py:558
+#, fuzzy
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "token 無效：為提供 token"
 
 #: warehouse/accounts/views.py:490
+#, fuzzy
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "token 無效：不是密碼重置 token"
 
 #: warehouse/accounts/views.py:495
+#, fuzzy
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "token 無效：找不到用戶"
 
 #: warehouse/accounts/views.py:502
+#, fuzzy
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr ""
+msgstr "token 無效：自請求 token 後，使用者已經登錄"
 
 #: warehouse/accounts/views.py:509
+#, fuzzy
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
+msgstr "token 無效：自請求 token 後，密碼已經更改"
 
 #: warehouse/accounts/views.py:532
 msgid "You have reset your password"
-msgstr ""
+msgstr "您已重置密碼"
 
 #: warehouse/accounts/views.py:554
+#, fuzzy
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "token 過期：請求新的電子郵件驗證連結"
 
 #: warehouse/accounts/views.py:556
+#, fuzzy
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "token 無效：請求新的電子郵件驗證連結"
 
 #: warehouse/accounts/views.py:562
+#, fuzzy
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "token 無效：不是電子郵件驗證 token"
 
 #: warehouse/accounts/views.py:571
 msgid "Email not found"
-msgstr ""
+msgstr "未找到電子郵件"
 
 #: warehouse/accounts/views.py:574
 msgid "Email already verified"
-msgstr ""
+msgstr "已驗證的電子郵件"
 
 #: warehouse/accounts/views.py:586
 msgid "You can now set this email as your primary address"
-msgstr ""
+msgstr "您現在可以將此電子郵件設定為您的主位址"
 
 #: warehouse/accounts/views.py:588
 msgid "This is your primary address"
-msgstr ""
+msgstr "這是您的主地址"
 
 #: warehouse/accounts/views.py:593
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "已驗證電子郵件地址 ${email_address} 。${confirm_message}。"
 
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr ""
+msgstr "已添加電子郵件 ${email_address} - 檢查您的電子郵件以查看驗證連結"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr ""
+msgstr "訪問被拒絕 / 禁止 （403）"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "您沒有查看此頁面的許可權"
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "未找到頁面 （404）"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "我們到處都看過，但找不到這個頁面"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "現在，對於 <br><span> 完全不同的東西"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "蒙提·派森（Monty Python） - The Cheese Shop Sketch"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -295,7 +305,7 @@ msgstr ""
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "外部連結"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
@@ -303,42 +313,42 @@ msgstr ""
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "頁面已刪除 （410）"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "您要查找的頁面已被刪除"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "內部伺服器錯誤 （500）"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "出問題了"
 
 #: warehouse/templates/500.html:22
 msgid ""
 "<p>We are experiencing technical issues that are affecting our ability to"
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
-msgstr ""
+msgstr "<p>我們遇到了影響我們為您提供本網站服務的技術問題 </p>。<p>我們意識到這個問題，並正在努力儘快解決它</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "查看我們的狀態頁面"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "在 Twitter 上查看 Python 狀態"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "錯誤代碼 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "依靠 PyPI 完成工作？"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -348,37 +358,42 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"> donating </a> to help us build a more"
 " stable and secure platform."
 msgstr ""
+"考慮 <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" rel=\""
+"noopener\"> 貢獻  </a> 或 <a href=\"https://psfmember.org/civicrm/contribute/"
+"transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> 捐贈  </a> "
+"以幫助我們構建一個更加穩定和安全的平臺。"
 
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr ""
+msgstr "搜索 PyPI"
 
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr ""
+msgstr "搜索專案"
 
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr ""
+msgstr "搜索"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr ""
+msgstr "錯誤代碼"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr ""
+msgstr "返回主頁"
 
 #: warehouse/templates/index.html:16
+#, fuzzy
 msgid "The Python Package Index"
-msgstr ""
+msgstr "Python 軟體包索引"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
-msgstr ""
+msgstr "使用測試 Python 軟體包索引（Test Python Package Index）測試 Python 軟體包發佈"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
