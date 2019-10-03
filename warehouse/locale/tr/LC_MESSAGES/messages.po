@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 17:23+0000\n"
-"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
+"PO-Revision-Date: 2019-09-24 17:29+0000\n"
+"Last-Translator: Eray Erdin <eraygezer.94@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -2044,45 +2044,48 @@ msgid ""
 "Each time you (or your collaborators) perform a security action related "
 "to this project, the action is recorded and displayed here."
 msgstr ""
+"Siz (veya diğer ilgililer) projenin güvenliğine dair bir eylem "
+"gerçekleştirdiğinizde ilgili eylem kayıt altına alınıp burada "
+"görüntülenecektir."
 
 #: warehouse/templates/manage/history.html:29
 msgid "Project created"
-msgstr ""
+msgstr "Proje Oluşturulma Tarihi"
 
 #: warehouse/templates/manage/history.html:31
 msgid "Created by:"
-msgstr ""
+msgstr "Oluşturan:"
 
 #: warehouse/templates/manage/history.html:34
 #, python-format
 msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
-msgstr ""
+msgstr "<a href=\"%(href)s\">%(version)s Sürümü</a> Oluşturulma Tarihi"
 
 #: warehouse/templates/manage/history.html:36
 #: warehouse/templates/manage/history.html:52
 msgid "Added by:"
-msgstr ""
+msgstr "Ekleyen:"
 
 #: warehouse/templates/manage/history.html:39
 #, python-format
 msgid "Release version %(version)s removed"
-msgstr ""
+msgstr "Yayınlanan %(version)s sürümü kaldırıldı"
 
 #: warehouse/templates/manage/history.html:41
 #: warehouse/templates/manage/history.html:47
 #: warehouse/templates/manage/history.html:57
 msgid "Removed by:"
-msgstr ""
+msgstr "Kaldıran:"
 
 #: warehouse/templates/manage/history.html:44
 #, python-format
 msgid "File removed from release version %(version)s"
-msgstr ""
+msgstr "%(version)s sürümünden dosya kaldırıldı"
 
 #: warehouse/templates/manage/history.html:45
 #: warehouse/templates/manage/release.html:105
 msgid "Filename:"
-msgstr ""
+msgstr "Dosya Adı:"
 
 #: warehouse/templates/manage/history.html:50
 #, python-format
@@ -2101,22 +2104,22 @@ msgstr ""
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
-msgstr ""
+msgstr "Değiştiren:"
 
 #: warehouse/templates/manage/history.html:67
 #: warehouse/templates/manage/history.html:74
 msgid "Permissions: Can upload to this project"
-msgstr ""
+msgstr "İzinler: Bu Projeye Yükleme Yapabilir"
 
 #: warehouse/templates/manage/history.html:68
 #: warehouse/templates/manage/history.html:75
 msgid "Controlled by:"
-msgstr ""
+msgstr "Denetleyen:"
 
 #: warehouse/templates/manage/history.html:85
 #, python-format
 msgid "Security history for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s Projesinin Güvenlik Geçmişi"
 
 #: warehouse/templates/manage/journal.html:20
 #, python-format
@@ -2132,6 +2135,8 @@ msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
 msgstr ""
+"Siz veya diğer ilgililer projeyi güncellediği zaman ilgili eylemler kayıt "
+"altına alınıp burada görüntülenecektir."
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
@@ -2139,61 +2144,63 @@ msgid ""
 "This feature will be deprecated in the future, replaced by the <a "
 "href=\"%(href)s\">security history page</a>."
 msgstr ""
+"Bu özellik gelecekte kaldırılıp yerine <a href=\"%(href)s\">güvenlik geçmiş "
+"sayfası</a> eklenecektir."
 
 #: warehouse/templates/manage/journal.html:32
 #, python-format
 msgid "History for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s Geçmişi"
 
 #: warehouse/templates/manage/journal.html:35
 #: warehouse/templates/manage/journal.html:44
 msgid "Action"
-msgstr ""
+msgstr "Eylem"
 
 #: warehouse/templates/manage/journal.html:36
 #: warehouse/templates/manage/journal.html:48
 msgid "Date"
-msgstr ""
+msgstr "Tarih"
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
 #: warehouse/templates/manage/roles.html:131
 msgid "User"
-msgstr ""
+msgstr "Kullanıcı"
 
 #: warehouse/templates/manage/journal.html:45
 #, python-format
 msgid "Release %(version)s:"
-msgstr ""
+msgstr "%(version)s Sürümü:"
 
 #: warehouse/templates/manage/journal.html:54
 #, python-format
 msgid "from %(ip_address)s"
-msgstr ""
+msgstr "%(ip_address)s Adresi"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
 #: warehouse/templates/manage/releases.html:71
 msgid "Manage"
-msgstr ""
+msgstr "Yönet"
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
-msgstr ""
+msgstr "Hesabınız"
 
 #: warehouse/templates/manage/manage_base.html:27
 #: warehouse/templates/manage/manage_base.html:47
 msgid "Account navigation"
-msgstr ""
+msgstr "Hesap Menüsü"
 
 #: warehouse/templates/manage/manage_base.html:105
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "Bu eylem geri alınamaz!"
 
 #: warehouse/templates/manage/manage_base.html:113
 msgid "Confirm your username to continue."
-msgstr ""
+msgstr "Devam etmek için kullanıcı adınızı doğrulayın."
 
 #: warehouse/templates/manage/manage_base.html:115
 #, python-format
@@ -2202,57 +2209,57 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:123
 msgid "Cancel"
-msgstr ""
+msgstr "İptal Et"
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
 msgid "Manage '%(project_name)s'"
-msgstr ""
+msgstr "'%(project_name)s' Projesini Yönet"
 
 #: warehouse/templates/manage/manage_project_base.html:32
 #: warehouse/templates/manage/projects.html:21
 #, python-format
 msgid "Your projects (%(project_count)s)"
-msgstr ""
+msgstr "Sizin Projeleriniz (%(project_count)s)"
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr ""
+msgstr "Projelere Geri Dön"
 
 #: warehouse/templates/manage/projects.html:31
 msgid "Sole owner"
-msgstr ""
+msgstr "Tek Sahip"
 
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
-msgstr ""
+msgstr "En son %(release_date)s tarihinde yayınlandı"
 
 #: warehouse/templates/manage/projects.html:43
 #, python-format
 msgid "Created on %(creation_date)s"
-msgstr ""
+msgstr "%(creation_date)s tarihinde oluşturuldu"
 
 #: warehouse/templates/manage/projects.html:52
 msgid "Manage this project"
-msgstr ""
+msgstr "Bu Projeyi Yönet"
 
 #: warehouse/templates/manage/projects.html:55
 msgid "You are not an owner of this project"
-msgstr ""
+msgstr "Bu projenin sahibi değilsiniz"
 
 #: warehouse/templates/manage/projects.html:62
 msgid "View this project's public page"
-msgstr ""
+msgstr "Projenin açık sayfasını görüntüle"
 
 #: warehouse/templates/manage/projects.html:65
 msgid "This project has no releases"
-msgstr ""
+msgstr "Bu proje için hiçbir sürüm yayınlanmadı"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:77
 msgid "View"
-msgstr ""
+msgstr "Görüntüle"
 
 #: warehouse/templates/manage/projects.html:74
 #, python-format
@@ -2265,13 +2272,13 @@ msgstr ""
 #: warehouse/templates/manage/release.html:18
 #, python-format
 msgid "Manage '%(project_name)s' – release version %(version)s"
-msgstr ""
+msgstr "'%(project_name)s' – %(version)s Sürümünü Yönet"
 
 #: warehouse/templates/manage/release.html:22
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr ""
+msgstr "%(version)s Sürümü"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
@@ -2280,7 +2287,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:26
 #, python-format
 msgid "All %(project_name)s releases"
-msgstr ""
+msgstr "Bütün %(project_name)s Sürümleri"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
@@ -2289,43 +2296,43 @@ msgstr ""
 #: warehouse/templates/manage/release.html:34
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s %(version)s Sürümünün Dosyaları"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
 msgid "Filename, size"
-msgstr ""
+msgstr "Dosya Adı, Boyut"
 
 #: warehouse/templates/manage/release.html:38
 #: warehouse/templates/manage/release.html:60
 msgid "Type"
-msgstr ""
+msgstr "Tür"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:64
 msgid "Python version"
-msgstr ""
+msgstr "Python Sürümü"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:68
 msgid "Upload date"
-msgstr ""
+msgstr "Yüklenme Tarihi"
 
 #: warehouse/templates/manage/release.html:55
 msgid "Download file"
-msgstr ""
+msgstr "Dosyayı İndir"
 
 #: warehouse/templates/manage/release.html:73
 msgid "View file options"
-msgstr ""
+msgstr "Dosya Ayarlarını Görüntüle"
 
 #: warehouse/templates/manage/release.html:79
 msgid "File options"
-msgstr ""
+msgstr "Dosya Ayarları"
 
 #: warehouse/templates/manage/release.html:83
 msgid "Download"
-msgstr ""
+msgstr "İndir"
 
 #: warehouse/templates/manage/release.html:89
 msgid "View Hashes"
@@ -2337,27 +2344,27 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:95
 msgid "Delete file"
-msgstr ""
+msgstr "Dosyayı Kaldır"
 
 #: warehouse/templates/manage/release.html:99
 #: warehouse/templates/manage/releases.html:85
 msgid "Delete"
-msgstr ""
+msgstr "Kaldır"
 
 #: warehouse/templates/manage/release.html:120
 msgid "Uploading new files"
-msgstr ""
+msgstr "Yeni Dosya Yükle"
 
 #: warehouse/templates/manage/release.html:122
 msgid "No files found"
-msgstr ""
+msgstr "Hiçbir dosya bulunamadı"
 
 #: warehouse/templates/manage/release.html:124
 #: warehouse/templates/manage/releases.html:109
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
-msgstr ""
+msgstr "Kapat"
 
 #: warehouse/templates/manage/release.html:125
 #, python-format
@@ -2368,12 +2375,12 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:128
 msgid "Release settings"
-msgstr ""
+msgstr "Yayınlanma Ayarları"
 
 #: warehouse/templates/manage/release.html:131
 #: warehouse/templates/manage/release.html:148
 msgid "Delete release"
-msgstr ""
+msgstr "Sürümü Kaldır"
 
 #: warehouse/templates/manage/release.html:135
 #, python-format
@@ -2388,11 +2395,19 @@ msgid_plural ""
 "%(count)s files.\n"
 "      "
 msgstr[0] ""
+"\n"
+"        Silme işlemi bu sürümle birlikte aynı zamanda %(count)s dosyayı da "
+"geri dönülemez şekilde kaldıracaktır.\n"
+"      "
 msgstr[1] ""
+"\n"
+"        Silme işlemi bu sürümle birlikte aynı zamanda %(count)s dosyayı da "
+"geri dönülemez şekilde kaldıracaktır.\n"
+"      "
 
 #: warehouse/templates/manage/release.html:141
 msgid "Deleting will irreversibly delete this release."
-msgstr ""
+msgstr "Silme işlemi bu sürümü geri dönülemez şekilde kaldıracaktır."
 
 #: warehouse/templates/manage/release.html:143
 #: warehouse/templates/manage/releases.html:92
@@ -2408,34 +2423,34 @@ msgstr ""
 #: warehouse/templates/manage/releases.html:27
 #: warehouse/templates/manage/releases.html:95
 msgid "Version"
-msgstr ""
+msgstr "Sürüm"
 
 #: warehouse/templates/manage/releases.html:18
 #, python-format
 msgid "Manage '%(project_name)s' releases"
-msgstr ""
+msgstr "'%(project_name)s' Sürümlerini Yönet"
 
 #: warehouse/templates/manage/releases.html:21
 #, python-format
 msgid "Releases (%(release_count)s)"
-msgstr ""
+msgstr "Sürümler (%(release_count)s)"
 
 #: warehouse/templates/manage/releases.html:24
 #, python-format
 msgid "Releases for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s Sürümleri"
 
 #: warehouse/templates/manage/releases.html:28
 msgid "Release date"
-msgstr ""
+msgstr "Yayınlanma Tarihi"
 
 #: warehouse/templates/manage/releases.html:29
 msgid "Files"
-msgstr ""
+msgstr "Dosyalar"
 
 #: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
-msgstr ""
+msgstr "Sürümü Yönet"
 
 #: warehouse/templates/manage/releases.html:45
 #, python-format
@@ -2448,32 +2463,38 @@ msgid_plural ""
 "              %(count)s files\n"
 "            "
 msgstr[0] ""
+"\n"
+"              %(count)s Dosya\n"
+"            "
 msgstr[1] ""
+"\n"
+"              %(count)s Dosya\n"
+"            "
 
 #: warehouse/templates/manage/releases.html:56
 msgid "No files"
-msgstr ""
+msgstr "Hiçbir dosya mevcut değil"
 
 #: warehouse/templates/manage/releases.html:61
 msgid "View release options"
-msgstr ""
+msgstr "Yayınlama Ayarlarını Görüntüler"
 
 #: warehouse/templates/manage/releases.html:67
 #, python-format
 msgid "Options for %(version)s"
-msgstr ""
+msgstr "%(version)s Ayarları"
 
 #: warehouse/templates/manage/releases.html:81
 msgid "Delete Release"
-msgstr ""
+msgstr "Sürümü Kaldır"
 
 #: warehouse/templates/manage/releases.html:105
 msgid "Creating a new release"
-msgstr ""
+msgstr "Yeni Sürüm Oluştur"
 
 #: warehouse/templates/manage/releases.html:107
 msgid "No releases found"
-msgstr ""
+msgstr "Hiçbir sürüm bulunamadı"
 
 #: warehouse/templates/manage/releases.html:110
 #, python-format
@@ -2486,7 +2507,7 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:18
 #, python-format
 msgid "Manage '%(project_name)s' collaborators"
-msgstr ""
+msgstr "'%(project_name)s' İlgililerini Yönet"
 
 #: warehouse/templates/manage/roles.html:22
 #, python-format
@@ -2498,12 +2519,12 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:25
 #: warehouse/templates/pages/help.html:472
 msgid "There are two possible roles for collaborators:"
-msgstr ""
+msgstr "İlgililer için iki olası rol mevcut:"
 
 #: warehouse/templates/manage/roles.html:27
 #: warehouse/templates/manage/roles.html:80
 msgid "Maintainer"
-msgstr ""
+msgstr "Geliştirici"
 
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/pages/help.html:473
@@ -2511,11 +2532,13 @@ msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
+"Bir pakete yeni sürümler yükleyebilir. Yeni geliştiriciler ekleyemez. Dosya, "
+"sürüm veya projeyi kaldıramaz."
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:80
 msgid "Owner"
-msgstr ""
+msgstr "Sahip"
 
 #: warehouse/templates/manage/roles.html:30
 #: warehouse/templates/pages/help.html:474
@@ -2523,52 +2546,54 @@ msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
+"Sürüm ekleyebilir. Başka ilgililer de ekleyebilir. Dosyaları, sürümleri ve "
+"tüm projeyi kaldırabilir."
 
 #: warehouse/templates/manage/roles.html:34
 #, python-format
 msgid "Users who can manage %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s Projesini Yönetebilen Kişiler"
 
 #: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/roles.html:78
 #: warehouse/templates/manage/roles.html:143
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 #: warehouse/templates/manage/roles.html:86
 msgid "Save role"
-msgstr ""
+msgstr "Rolü kaydet"
 
 #: warehouse/templates/manage/roles.html:87
 msgid "Save"
-msgstr ""
+msgstr "Kaydet"
 
 #: warehouse/templates/manage/roles.html:111
 msgid "Cannot remove yourself as owner"
-msgstr ""
+msgstr "Sahip olduğunuz için kendinizi kaldıramazsınız"
 
 #: warehouse/templates/manage/roles.html:114
 #, python-format
 msgid "Remove %(user)s from this project"
-msgstr ""
+msgstr "Projeden %(user)s adlı kullanıcıyı kaldırın"
 
 #: warehouse/templates/manage/roles.html:126
 #: warehouse/templates/manage/roles.html:154
 msgid "Add collaborator"
-msgstr ""
+msgstr "İlgili Ekle"
 
 #: warehouse/templates/manage/roles.html:136
 msgid "User's username"
-msgstr ""
+msgstr "Kullanıcının Kullanıcı Adı"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
 msgid "Manage '%(project_name)s' settings"
-msgstr ""
+msgstr "'%(project_name)s' Ayarlarını Yönet"
 
 #: warehouse/templates/manage/settings.html:21
 msgid "Project settings"
-msgstr ""
+msgstr "Proje Ayarları"
 
 #: warehouse/templates/manage/settings.html:28
 #, python-format
@@ -2605,11 +2630,11 @@ msgstr ""
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
 msgid "Delete project"
-msgstr ""
+msgstr "Projeyi Kaldır"
 
 #: warehouse/templates/manage/settings.html:57
 msgid "Deleting this project will:"
-msgstr ""
+msgstr "Bu projeyi kaldırırsanız şunlar olacaktır:"
 
 #: warehouse/templates/manage/settings.html:62
 #, python-format
@@ -2620,15 +2645,19 @@ msgid_plural ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
 " releases</a>"
 msgstr[0] ""
+"Projeyle birlikte <a href=\"%(href)s\">%(count)s sürüm</a> geri dönülemez "
+"şekilde kaldırılacaktır"
 msgstr[1] ""
+"Projeyle birlikte <a href=\"%(href)s\">%(count)s sürüm</a> geri dönülemez "
+"şekilde kaldırılacaktır"
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
-msgstr ""
+msgstr "Geri Dönüşü Olmadan Projeyi Kaldır"
 
 #: warehouse/templates/manage/settings.html:72
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
-msgstr ""
+msgstr "Proje adını"
 
 #: warehouse/templates/manage/settings.html:74
 msgid ""
