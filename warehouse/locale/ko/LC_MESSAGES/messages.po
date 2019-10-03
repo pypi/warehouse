@@ -9,13 +9,14 @@
 # Hyunwoo Park <ez.amiryo@gmail.com>, 2019.
 # Woo-Cheol Kim <wckim213@gmail.com>, 2019.
 # HyeonhoKim <jwalag87@gmail.com>, 2019.
+# Seba Kim <sebatyler@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-29 13:08+0000\n"
-"Last-Translator: HyeonhoKim <jwalag87@gmail.com>\n"
+"Last-Translator: Seba Kim <sebatyler@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -215,7 +216,7 @@ msgstr "다 둘러보았지만 이 페이지를 찾을 수 없습니다"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "그리고 지금 무언가 <br><span>완전히 다릅니다"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
