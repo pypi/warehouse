@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 21:55+0000\n"
-"Last-Translator: Tom Chen <ctchen@gmail.com>\n"
+"PO-Revision-Date: 2019-09-29 13:09+0000\n"
+"Last-Translator: Josix <josixwang@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -312,7 +312,7 @@ msgstr "外部連結"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr ""
+msgstr "查看影片文字"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
@@ -390,86 +390,85 @@ msgid "Back to the homepage"
 msgstr "返回主頁"
 
 #: warehouse/templates/index.html:16
-#, fuzzy
 msgid "The Python Package Index"
-msgstr "Python 軟體包索引"
+msgstr "Python 套件軟體索引"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
-msgstr "使用測試 Python 軟體包索引（Test Python Package Index）測試 Python 軟體包發佈"
+msgstr "使用測試 Python 套件軟體索引（Test Python Package Index）測試 Python 套件軟體發佈"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
-msgstr ""
+msgstr "使用 Python 套件軟體索引 (Python Package Index) 查找、安裝和發佈 Python 套件軟體"
 
 #: warehouse/templates/index.html:61
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr ""
+msgstr "或 <a href=\"%(href)s\"> 瀏覽專案 </a>"
 
 #: warehouse/templates/index.html:67
 #, python-format
 msgid "%(num_projects)s projects"
-msgstr ""
+msgstr "%(num_projects)s 個專案"
 
 #: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases)s releases"
-msgstr ""
+msgstr "%(num_releases)s 個發行版本"
 
 #: warehouse/templates/index.html:69
 #, python-format
 msgid "%(num_files)s files"
-msgstr ""
+msgstr "%(num_files)s 個檔案"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr ""
+msgstr "%(num_users)s 個使用者"
 
 #: warehouse/templates/index.html:80
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
-msgstr ""
+msgstr "Python 軟體包索引 （PyPI） 是 Python 程式設計語言的軟體存儲庫。"
 
 #: warehouse/templates/index.html:82
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
-msgstr ""
+msgstr "PyPI 可幫助您查找和安裝由 Python 社區開發和共享的軟體。"
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr ""
+msgstr "瞭解有關安裝套件軟體 </a>。"
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
-msgstr ""
+msgstr "套件軟體作者使用 PyPI 來分發他們的軟體。"
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
-msgstr ""
+msgstr "瞭解如何為 PyPI 打包 Python 程式碼 </a>。"
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
-msgstr ""
+msgstr "熱門專案"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
-msgstr ""
+msgstr "社群下載的熱門專案"
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr ""
+msgstr "新發行版本"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "熱門新聞：最新專案發佈"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr ""
+msgstr "此 URL 是用於將檔案上傳到 PyPI 的 API 端點。"
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -478,13 +477,15 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
+"有關將專案上傳到 PyPI 的詳細資訊，請訪問 <a href=\"%(href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\"> Python 打包使用者指南 </a>。"
 
 #: warehouse/templates/upload.html:28
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI "
 "homepage</a>."
-msgstr ""
+msgstr "否則，我們建議您 <a href=\"%(href)s\"> 轉到 PyPI 主頁 </a>。"
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/register.html:17
@@ -495,17 +496,17 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22
 msgid "Error processing form"
-msgstr ""
+msgstr "處理表單發生錯誤"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94
 msgid "Log in"
-msgstr ""
+msgstr "登錄"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
-msgstr ""
+msgstr "登錄到 %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/register.html:89
@@ -515,7 +516,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:686
 #: warehouse/templates/manage/token.html:62
 msgid "Username"
-msgstr ""
+msgstr "用戶名"
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -540,90 +541,90 @@ msgstr ""
 #: warehouse/templates/manage/token.html:80
 #: warehouse/templates/manage/token.html:97
 msgid "(required)"
-msgstr ""
+msgstr "（必填）"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr ""
+msgstr "您的用戶名"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
 msgid "Password"
-msgstr ""
+msgstr "密碼"
 
 #: warehouse/templates/accounts/login.html:76
 msgid "Show password"
-msgstr ""
+msgstr "顯示密碼"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr ""
+msgstr "您的密碼"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
-msgstr ""
+msgstr "忘記密碼？"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
-msgstr ""
+msgstr "登出"
 
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr ""
+msgstr "登出 %(account_name)s"
 
 #: warehouse/templates/accounts/logout.html:25
 msgid "Log Out"
-msgstr ""
+msgstr "登出"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
-msgstr ""
+msgstr "創建帳戶"
 
 #: warehouse/templates/accounts/register.html:30
 #, python-format
 msgid "Create an account on %(title)s"
-msgstr ""
+msgstr "在 %(title)s 上創建帳戶"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:160
 #: warehouse/templates/manage/account.html:500
 msgid "Name"
-msgstr ""
+msgstr "名字"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr ""
+msgstr "您的姓名"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
 msgid "Email address"
-msgstr ""
+msgstr "電子郵件地址"
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:351
 msgid "Your email address"
-msgstr ""
+msgstr "您的電子郵件地址"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "確認表單"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr ""
+msgstr "選擇用戶名"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:382
 msgid "Show passwords"
-msgstr ""
+msgstr "顯示密碼"
 
 #: warehouse/templates/accounts/register.html:122
 msgid "Select a password"
-msgstr ""
+msgstr "選擇密碼"
 
 #: warehouse/templates/accounts/register.html:138
 #: warehouse/templates/accounts/register.html:143
@@ -631,28 +632,28 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:69
 #: warehouse/templates/manage/account.html:413
 msgid "Confirm password"
-msgstr ""
+msgstr "確認密碼"
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
-msgstr ""
+msgstr "創建帳戶"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "重置密碼"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
-msgstr ""
+msgstr "要重置密碼，請輸入用戶名或電子郵件。"
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "用戶名或電子郵件"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "請求密碼重置"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
