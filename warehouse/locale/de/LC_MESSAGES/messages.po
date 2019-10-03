@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-09-20 15:33+0000\n"
-"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
+"Last-Translator: Fabian Neumann <mail@fabianneumann.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -596,15 +596,15 @@ msgstr "Abmelden"
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr ""
+msgstr "Als %(account_name)s abmelden"
 
 #: warehouse/templates/accounts/logout.html:25
 msgid "Log Out"
-msgstr ""
+msgstr "Abmelden"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
-msgstr ""
+msgstr "Konto erstellen"
 
 #: warehouse/templates/accounts/register.html:30
 #, python-format
@@ -615,39 +615,39 @@ msgstr ""
 #: warehouse/templates/manage/account.html:160
 #: warehouse/templates/manage/account.html:500
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr ""
+msgstr "Ihr Name"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
 msgid "Email address"
-msgstr ""
+msgstr "E-Mail-Adresse"
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:351
 msgid "Your email address"
-msgstr ""
+msgstr "Ihre E-Mail-Adresse"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "Formular bestätigen"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr ""
+msgstr "Benutzername wählen"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:382
 msgid "Show passwords"
-msgstr ""
+msgstr "Passwörter anzeigen"
 
 #: warehouse/templates/accounts/register.html:122
 msgid "Select a password"
-msgstr ""
+msgstr "Passwort auswählen"
 
 #: warehouse/templates/accounts/register.html:138
 #: warehouse/templates/accounts/register.html:143
@@ -655,28 +655,30 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:69
 #: warehouse/templates/manage/account.html:413
 msgid "Confirm password"
-msgstr ""
+msgstr "Passwort bestätigen"
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
-msgstr ""
+msgstr "Konto erstellen"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "Passwort zurücksetzen"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
 msgstr ""
+"Um das Passwort zurückzusetzen, bitte Benutzername oder E-Mail-Adresse "
+"angeben."
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "Benutzername oder E-Mail-Adresse"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "Passwort-Zurücksetzen anfordern"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
@@ -685,6 +687,7 @@ msgstr ""
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "We have sent an email to your registered email address."
 msgstr ""
+"Wir haben eine E-Mail an die von Ihnen registrierte E-Mail-Adresse geschickt."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -692,26 +695,28 @@ msgid ""
 "The email contains a link to reset your password. This link will expire "
 "in %(n_hours)s hours."
 msgstr ""
+"Diese E-Mail enthält einen Link, um Ihr Passwort zurückzusetzen. Dieser Link "
+"läuft in %(n_hours)s Stunden ab."
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
 #: warehouse/templates/pages/sitemap.html:34
 msgid "Reset your password"
-msgstr ""
+msgstr "Passwort zurücksetzen"
 
 #: warehouse/templates/accounts/reset-password.html:50
 #: warehouse/templates/manage/account.html:399
 msgid "Select a new password"
-msgstr ""
+msgstr "Neues Passwort wählen"
 
 #: warehouse/templates/accounts/reset-password.html:85
 msgid "Reset password"
-msgstr ""
+msgstr "Passwort zurücksetzen"
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
 msgid "Two-factor authentication"
-msgstr ""
+msgstr "Zwei-Faktor-Authentifizierung"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
@@ -728,7 +733,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:59
 #: warehouse/templates/pages/help.html:60
 msgid "Beta feature"
-msgstr ""
+msgstr "Beta-Feature"
 
 #: warehouse/templates/accounts/two-factor.html:40
 msgid ""
@@ -759,11 +764,11 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
-msgstr ""
+msgstr "Mit einer App authentifizieren"
 
 #: warehouse/templates/accounts/two-factor.html:88
 msgid "Enter authentication code"
-msgstr ""
+msgstr "Authentifizierungscode eingeben"
 
 #: warehouse/templates/accounts/two-factor.html:103
 msgid "Verify"
@@ -781,7 +786,7 @@ msgstr ""
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr ""
+msgstr "Ihr PyPI-Konto <strong>%(username)s</strong> wurde gelöscht."
 
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
@@ -792,6 +797,9 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
+"Falls Sie diese Änderung nicht vorgenommen haben, können Sie unter <a href=\""
+"%(href)s\">%(email_address)s</a> mit den PyPI-Administratoren in Kontakt "
+"treten."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
