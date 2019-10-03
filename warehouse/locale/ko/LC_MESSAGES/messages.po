@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Younggun Kim <iam@younggun.kim>, 2019.
 # Hyung Jin Kim <hyungjin8943@gmail.com>, 2019.
+# Hyeongdo Lee <mylovercorea@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Hyung Jin Kim <hyungjin8943@gmail.com>\n"
+"PO-Revision-Date: 2019-09-25 05:51+0000\n"
+"Last-Translator: Hyeongdo Lee <mylovercorea@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -46,11 +47,11 @@ msgstr ""
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
-msgstr ""
+msgstr "다른 계정에서 이미 사용중인 사용자 이름입니다. 다른 사용자 이름을 선택하세요."
 
 #: warehouse/accounts/forms.py:113
 msgid "The password is invalid. Try again."
-msgstr ""
+msgstr "올바른 패스워드가 아닙니다. 올바른 패스워드를 입력하세요."
 
 #: warehouse/accounts/forms.py:117
 msgid "There have been too many unsuccessful login attempts, try again later."
@@ -78,7 +79,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
+msgstr "이 도메인의 이메일 주소는 사용할 수 없습니다. 다른 이메일을 사용하세요."
 
 #: warehouse/accounts/forms.py:218
 msgid "The name is too long. Choose a name with 100 characters or less."
