@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Collaborator added notification{% endblock %}
+{% block subject %}{% trans %}Collaborator added notification{% endtrans %}{% endblock %}

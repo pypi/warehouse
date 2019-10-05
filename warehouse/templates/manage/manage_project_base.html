@@ -18,7 +18,7 @@
 {% set current_project = project %}
 {% set active_tab = active_tab|default('releases') %}
 
-{% block title %}Manage '{{ project.name }}'{% endblock %}
+{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}'{% endtrans %}{% endblock %}
 
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
@@ -29,7 +29,7 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.projects') }}">Your projects ({{ projects|length }})</a>
+            <a href="{{ request.route_path('manage.projects') }}">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</a>
           </h3>
           {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
         </div>
@@ -38,7 +38,7 @@
         <!-- mobile nav -->
         <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
           <i class="fa fa-arrow-left" aria-hidden="true"></i>
-          Back to projects
+          {% trans %}Back to projects{% endtrans %}
         </a>
         <div class="vertical-tabs__content">
           <a class="package-snippet package-snippet--margin-bottom" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">

@@ -31,22 +31,23 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.admin.flags import AdminFlag
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
 
 class TestFailedLoginView:
-    exc = TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
-    request = pretend.stub()
+    def test_too_many_failed_logins(self):
+        exc = TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
+        request = pretend.stub(localizer=pretend.stub(translate=lambda tsf: tsf()))
 
-    resp = views.failed_logins(exc, request)
+        resp = views.failed_logins(exc, request)
 
-    assert resp.status == "429 Too Many Failed Login Attempts"
-    assert resp.detail == (
-        "There have been too many unsuccessful login attempts. " "Try again later."
-    )
-    assert dict(resp.headers).get("Retry-After") == "600"
+        assert resp.status == "429 Too Many Failed Login Attempts"
+        assert resp.detail == (
+            "There have been too many unsuccessful login attempts. Try again later."
+        )
+        assert dict(resp.headers).get("Retry-After") == "600"
 
 
 class TestUserProfile:
@@ -595,7 +596,7 @@ class TestWebAuthn:
         assert request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
-        assert result == {"fail": {"errors": ["Invalid two factor token"]}}
+        assert result == {"fail": {"errors": ["Invalid or expired two factor login."]}}
 
     def test_webauthn_get_options(self, monkeypatch):
         _get_two_factor_data = pretend.call_recorder(
@@ -642,7 +643,7 @@ class TestWebAuthn:
         assert request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
-        assert result == {"fail": {"errors": ["Invalid two factor token"]}}
+        assert result == {"fail": {"errors": ["Invalid or expired two factor login."]}}
 
     def test_webauthn_validate_invalid_form(self, monkeypatch):
         _get_two_factor_data = pretend.call_recorder(
@@ -903,7 +904,9 @@ class TestRegister:
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
-        flag = db_request.db.query(AdminFlag).get("disallow-new-user-registration")
+        flag = db_request.db.query(AdminFlag).get(
+            AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION.value
+        )
         flag.enabled = True
 
         db_request.method = "POST"
@@ -927,10 +930,8 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert db_request.session.flash.calls == [
             pretend.call(
-                (
-                    "New user registration temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
-                ),
+                "New user registration temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details.",
                 queue="error",
             )
         ]
@@ -1185,7 +1186,7 @@ class TestResetPassword:
             pretend.call(ITokenService, name="password"),
         ]
 
-    def test_reset_password(self, db_request, user_service, token_service):
+    def test_reset_password(self, monkeypatch, db_request, user_service, token_service):
         user = UserFactory.create()
         db_request.method = "POST"
         db_request.POST.update({"token": "RANDOM_KEY"})
@@ -1197,6 +1198,9 @@ class TestResetPassword:
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
 
         breach_service = pretend.stub(check_password=lambda pw: False)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_password_change_email", send_email)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
         db_request.remote_addr = "0.0.0.0"
@@ -1241,6 +1245,7 @@ class TestResetPassword:
         assert user_service.update_user.calls == [
             pretend.call(user.id, password=form_obj.new_password.data)
         ]
+        assert send_email.calls == [pretend.call(db_request, user)]
         assert db_request.session.flash.calls == [
             pretend.call("You have reset your password", queue="success")
         ]
@@ -1448,8 +1453,8 @@ class TestVerifyEmail:
     @pytest.mark.parametrize(
         ("exception", "message"),
         [
-            (TokenInvalid, "Invalid token: request a new verification link"),
-            (TokenExpired, "Expired token: request a new verification link"),
+            (TokenInvalid, "Invalid token: request a new email verification link"),
+            (TokenExpired, "Expired token: request a new email verification link"),
             (TokenMissing, "Invalid token: no token supplied"),
         ],
     )

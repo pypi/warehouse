@@ -13,7 +13,7 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Manage{% endblock %}
+{% block title %}{% trans %}Manage{% endtrans %}{% endblock %}
 
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
@@ -23,19 +23,19 @@
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Your account</h3>
-          <nav aria-label="Account navigation">
+          <h3 class="sidebar-section__title">{% trans %}Your account{% endtrans %}</h3>
+          <nav aria-label="{% trans %}Account navigation{% endtrans %}">
             <ul class="vertical-tabs__list">
               <li>
-                <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
+                <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-cube" aria-hidden="true"></i>
-                  Your projects
+                  {% trans %}Your projects{% endtrans %}
                 </a>
               </li>
               <li>
-                <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block account_active %}{% endblock %}">
+                <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-cog" aria-hidden="true"></i>
-                  Account settings
+                  {% trans %}Account settings{% endtrans %}
                 </a>
               </li>
             </ul>
@@ -44,18 +44,18 @@
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <nav aria-label="Account navigation">
+        <nav aria-label="{% trans %}Account navigation{% endtrans %}">
           <ul class="vertical-tabs__list">
             <li>
-              <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% block projects_mobile_active %}{% endblock %}">
+              <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
                 <i class="fa fa-cube" aria-hidden="true"></i>
-                Your projects
+                {% trans %}Your projects{% endtrans %}
               </a>
             </li>
             <li>
-              <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% block account_mobile_active %}{% endblock %}">
+              <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
                 <i class="fa fa-cog" aria-hidden="true"></i>
-                Account settings
+                {% trans %}Account settings{% endtrans %}
               </a>
             </li>
           </ul>
@@ -90,7 +90,7 @@
     <div class="modal__content" role="dialog">
       <a href="#modal-close" data-action="click->modal-close#cancel" title="{% trans %}Close{% endtrans %}" class="modal__close">
         <i class="fa fa-times" aria-hidden="true"></i>
-        <span class="sr-only">{% trans %}close{% endtrans %}</span>
+        <span class="sr-only">{% trans %}Close{% endtrans %}</span>
       </a>
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -106,9 +106,14 @@
             {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
           </div>
           {% endif %}
-          {% set context = gettext('your') if confirm_name.lower() == gettext('username') else gettext('the') %}
           {{ extra_description if extra_description else '' }}
-          <p>{{ gettext("Confirm {context} {confirm_name} to continue.").format(context=context, confirm_name=confirm_name.lower()) }}</p>
+          <p>
+            {% if confirm_name.lower() == 'username' %}
+            {% trans %}Confirm your username to continue.{% endtrans %}
+            {% else %}
+            {% trans item=confirm_name|lower %}Confirm the {{ item }} to continue.{% endtrans %}
+            {% endif %}
+          </p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
           <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
           <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">

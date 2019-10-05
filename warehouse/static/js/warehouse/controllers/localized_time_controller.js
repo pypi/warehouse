@@ -13,6 +13,7 @@
  */
 import { Controller } from "stimulus";
 import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
+import format from "date-fns/format";
 
 export default class extends Controller {
 
@@ -29,20 +30,25 @@ export default class extends Controller {
   connect() {
     const timestamp = this.element.getAttribute("datetime");
     let localTime = this.getLocalTimeFromTimestamp(timestamp);
+    let isoDate = format(localTime, "YYYY-MM-DD HH:mm:ss");
     let startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
-    if (this.data.get("relative") == "true" && localTime > startOfDay) {
-      this.element.innerText = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
+
+    let isRelative = this.data.get("relative") === "true";
+    let showTime = this.data.get("show-time") === "true";
+    const options = { month: "short", day: "numeric", year: "numeric" };
+
+    if (isRelative && localTime > startOfDay) {
+      this.element.textContent = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
     } else {
-      const options = { month: "short", day: "numeric", year: "numeric" };
-      this.element.innerText = localTime.toLocaleDateString("en-US", options);
+      if (showTime) {
+        this.element.textContent = localTime.toLocaleTimeString("en-US", options);
+      } else {
+        this.element.textContent = localTime.toLocaleDateString("en-US", options);
+      }
     }
 
-    if(this.element.classList.contains("tooltipped")) {
-      const options = { hour12: false, timeZoneName: "short", second: "2-digit", minute: "2-digit", hour: "2-digit", month: "short", day: "numeric", year: "numeric" };
-      this.element.setAttribute("aria-label", localTime.toLocaleDateString("en-US", options));
-      this.element.setAttribute("data-original-label", localTime.toLocaleDateString("en-US", options));
-    }
-
+    this.element.setAttribute("title", isoDate);
+    this.element.setAttribute("aria-label", isoDate);
   }
 }

@@ -13,9 +13,46 @@ Building
 --------
 
 Static files should be automatically built when ``make serve`` is running;
-however, you can trigger a manual build of them by installing all of the
-dependencies using ``npm install`` and then running ``gulp dist``.
+however, you can trigger a manual build of them by installing
+`NodeJS 8.x <https://nodejs.org/en/download/releases/>`_, installing
+the dependencies using ``npm install`` and then running ``gulp dist``.
 
+If you're in a POSIX enviroment you may find
+`NVM <https://github.com/nvm-sh/nvm>`_ useful to have multiple NodeJS
+versions installed in your system.
+
+
+Tests
+-----
+
+The JavaScript codebase includes tests that can be ran via
+``make static_tests`` which is also ran with the ``make tests`` target.
+Both targets will run the tests in the Docker enviroment but they
+may also be ran locally using ``npm run test`` once NodeJS and the
+dependencies are installed as described above.
+
+JavaScript tests use the `Jest testing framework <https://jestjs.io/>`_
+along with `jest-dom <https://github.com/testing-library/jest-dom>`_
+for assertion helpers. We can invoke Jest directly specify a particular
+test suite via ``node_modules/.bin/jest tests/frontend/<TEST_FILE>.js`` or
+add any of the `Jest CLI options <https://jestjs.io/docs/en/cli>`_ .
+All tests are located in the ``tests/frontend``.
+
+`Stimulus <https://stimulusjs.org/>`_ controller tests leverage on Jest
+including `JSDOM <https://github.com/jsdom/jsdom/>`_ allowing us to
+inject the required HTML markup for Stimulus in a setup phase. After the
+setup we must manually instanciate and start a Stimulus application and
+then test the funcionality by triggering events in DOM elements and
+asserting on the effects. See existing tests the details on how to
+accomplish this.
+
+.. note:: This workflow may cause race conditions, in particular when testing
+    code in the early lifecycle events of the controllers. The application or
+    controller may not be ready by the time we reach the assertions causing
+    false negatives on the tests. In these cases it's best to keep the HTML
+    setup in a ``beforeEach`` block, even if it means repeating the setup on
+    different ``describe`` scenarios. This will ensure the application and
+    controllers are ready before the actual test is ran.
 
 Deploying
 ---------

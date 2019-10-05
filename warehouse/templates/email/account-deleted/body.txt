@@ -14,8 +14,9 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
+{% trans trimmed username=username, email_address='admin@pypi.org' %}
 Your PyPI account '{{ username }}' has been deleted.
 
-If you did not make this change, you can email admin@pypi.org to communicate
-with the PyPI administrators.
+If you did not make this change, you can email {{ email_address }} to communicate
+with the PyPI administrators.{% endtrans %}
 {% endblock %}

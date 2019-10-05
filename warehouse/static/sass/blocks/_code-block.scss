@@ -13,14 +13,18 @@
 */
 
 /*
-A custom styled code block for API tokens.
+A custom styled code block.
 
- <code class="api-token">
-   Token here
+ <code class="code-block">
+   Code here
  </code>
+
+ <pre class="code-block">
+   Code here
+ </pre>
 */
 
-.api-token {
+.code-block {
   display: block;
   padding: $spacing-unit / 2;
   margin-bottom: $spacing-unit / 2;
