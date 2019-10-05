@@ -27,11 +27,11 @@
       {% endtrans %}
     </p>
 
-    <h2>{% trans %}Top storage users{% endtrans %}</h2>
+    <h2>{% trans %}Top projects by total package size{% endtrans %}</h2>
     <p>
       {% trans trimmed %}
-        Here is a list of the top 100 packages based on sum of their
-        packages sizes (in bytes).
+        Here is a list of the top 100 projects based on the sum of their
+        packages' sizes (in bytes).
       {% endtrans %}
     </p>
 
@@ -40,7 +40,7 @@
       <thead>
         <tr>
           <th scope="col">{% trans %}Project name{% endtrans %}</th>
-          <th scope="col">{% trans %}Sum of release files (bytes){% endtrans %}</th>
+          <th scope="col">{% trans %}Sum of release files (bytes){% endtrans %} &darr;</th>
         </tr>
       </thead>
       <tbody>
