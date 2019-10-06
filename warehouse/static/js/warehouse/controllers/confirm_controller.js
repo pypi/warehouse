@@ -31,7 +31,7 @@ export default class extends Controller {
   }
 
   check() {
-    if (this.inputTarget.value == this.buttonTarget.dataset.expected) {
+    if (this.inputTarget.value.toLowerCase() === this.buttonTarget.dataset.expected.toLowerCase()) {
       this.buttonTarget.disabled = false;
     } else {
       this.buttonTarget.disabled = true;

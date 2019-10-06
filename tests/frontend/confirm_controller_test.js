@@ -78,6 +78,15 @@ describe("Confirm controller", () => {
       });
     });
 
+    describe("entering incorrect casing text", function() {
+      it("enables the button", function() {
+        fireEvent.input(document.getElementById("input-target"), { target: { value: "PACKAGE" } });
+
+        const buttonTarget = document.getElementById("button-target");
+        expect(buttonTarget).not.toHaveAttribute("disabled");
+      });
+    });
+
     describe("entering incorrect text", function() {
       it("disables the button", function() {
         fireEvent.input(document.getElementById("input-target"), { target: { value: "foobar" } });
