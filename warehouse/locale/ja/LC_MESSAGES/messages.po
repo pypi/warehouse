@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Michael Myers <mike.myers@trailofbits.com>, 2019.
 # komo_fr <komo.mdrms@gmail.com>, 2019.
+# Yuta Kanzawa <ytknzw@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-04 18:30+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"PO-Revision-Date: 2019-10-05 03:42+0000\n"
+"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -90,11 +91,11 @@ msgstr "不正なTOTPコード。"
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "無効なWebAuthnアサーション：不正なペイロード"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "そのユーザ名またはメールアドレスのユーザは見つかりませんでした"
 
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
@@ -104,21 +105,23 @@ msgstr ""
 #: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
 #: warehouse/accounts/views.py:277
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "不正または期限切れの二要素ログイン。"
 
 #: warehouse/accounts/views.py:245
 msgid "Already authenticated"
-msgstr ""
+msgstr "既に認証済みです"
 
 #: warehouse/accounts/views.py:308
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "WebAuthnアサーションに成功しました"
 
 #: warehouse/accounts/views.py:387
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
+"新規ユーザ登録が一時的に無効になっています。詳細については https://pypi.org/help#admin-intervention "
+"を参照してください。"
 
 #: warehouse/accounts/views.py:482
 msgid "Expired token: request a new password reset link"
