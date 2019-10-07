@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-05 03:57+0000\n"
-"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
+"PO-Revision-Date: 2019-10-05 06:06+0000\n"
+"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -437,7 +437,7 @@ msgstr "パッケージのインストールについて学ぶ</a>。"
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
-msgstr "パッケージの作成者は、PyPIを使ってソフトウェアを配布します。"
+msgstr "パッケージの作者は、PyPIを使ってソフトウェアを配布します。"
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
@@ -679,7 +679,7 @@ msgstr ""
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
 msgid "Two-factor authentication"
-msgstr ""
+msgstr "二要素認証"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
@@ -727,15 +727,15 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
-msgstr ""
+msgstr "アプリによる認証"
 
 #: warehouse/templates/accounts/two-factor.html:88
 msgid "Enter authentication code"
-msgstr ""
+msgstr "認証コードを入力"
 
 #: warehouse/templates/accounts/two-factor.html:103
 msgid "Verify"
-msgstr ""
+msgstr "認証"
 
 #: warehouse/templates/accounts/two-factor.html:106
 #, python-format
@@ -745,6 +745,9 @@ msgid ""
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get "
 "help</a>.</p>"
 msgstr ""
+"<p>PyPIアカウントに接続するために、認証アプリケーションを使ってコードを生成してください。本人確認のために、このコードをフォームに入力してください。"
+"</p><p>アプリケーションを紛失しましたか？うまく動作しませんか？その場合は<a href=\"%(href)s\""
+">ヘルプを参照してください</a>。</p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1295,7 +1298,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
-msgstr "検証済*"
+msgstr "確認済*"
 
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
@@ -1303,7 +1306,7 @@ msgstr "*メール配送に断続的に問題が発生すると、確認が失�
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
-msgstr "検証済"
+msgstr "確認済"
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
@@ -1521,7 +1524,7 @@ msgid ""
 msgstr ""
 "アカウントには複数のメールを関連づけることができます。アカウントの回復には任意の<span class=\"badge badge--success\""
 "><i class=\"fa fa-check\" aria-hidden=\"true\""
-"></i>検証済</span>のアドレスを使用できますが、通知を受け取れるのは<span class=\"badge\""
+"></i>確認済</span>のアドレスを使用できますが、通知を受け取れるのは<span class=\"badge\""
 ">主要</span>メールアドレスだけです。"
 
 #: warehouse/templates/manage/account.html:325
@@ -1646,7 +1649,7 @@ msgstr "APIトークンについて詳しく知る"
 
 #: warehouse/templates/manage/account.html:497
 msgid "Active API tokens for this account"
-msgstr "アカウントでアクティブな API トークン"
+msgstr "アカウントでアクティブな APIトークン"
 
 #: warehouse/templates/manage/account.html:502
 msgid "Created"
@@ -1662,7 +1665,7 @@ msgstr "APIトークンの追加"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
 "tokens to your account."
-msgstr "アカウントに API トークンを追加するには<a href=\"%(href)s\">主要メールアドレスを確認してください</a>。"
+msgstr "アカウントに APIトークンを追加するには<a href=\"%(href)s\">主要メールアドレスを確認してください</a>。"
 
 #: warehouse/templates/manage/account.html:532
 msgid "Account created"
@@ -1691,7 +1694,7 @@ msgstr "アカウントからメールアドレスが削除されました"
 
 #: warehouse/templates/manage/account.html:554
 msgid "Email verified"
-msgstr "メールアドレスが検証されました"
+msgstr "メールアドレスが確認されました"
 
 #: warehouse/templates/manage/account.html:557
 msgid "Email reverified"
@@ -1746,7 +1749,7 @@ msgstr ""
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
-msgstr ""
+msgstr "方法: 認証アプリケーション（<abbr title=\"time-based one-time password\">TOTP）"
 
 #: warehouse/templates/manage/account.html:591
 msgid "Two factor authentication removed"
@@ -2368,7 +2371,7 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:25
 #: warehouse/templates/pages/help.html:472
 msgid "There are two possible roles for collaborators:"
-msgstr "共同編集者（collaborators）には、以下の2つのロールがあります。"
+msgstr "共同編集者（collaborators）には、以下の2つの役割があります。"
 
 #: warehouse/templates/manage/roles.html:27
 #: warehouse/templates/manage/roles.html:80
@@ -2730,7 +2733,7 @@ msgid ""
 "classifiers\" to categorize each release, describing who it's for, what "
 "systems it can run on, and how mature it is."
 msgstr ""
-"各プロジェクトのメンテナは、各リリースを分類するための\"trove分類\""
+"各プロジェクトのメンテナは、各リリースを分類するための\"Trove分類\""
 "のリストをPyPIに提供し、それが誰向けのものなのか、どのシステムで実行できるのか、どの程度成熟しているのかを説明します。"
 
 #: warehouse/templates/pages/classifiers.html:23
@@ -2749,7 +2752,7 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
 "title=\"Python enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
-"プロジェクトにtrove分類を追加する方法の説明書は、<a href=\"%(ppug_href)s\" title=\"%(title)s\" "
+"プロジェクトにTrove分類を追加する方法の説明書は、<a href=\"%(ppug_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>で入手できます。もともとの分類仕様については、 <a href=\"%(pep301_href)s\" title=\"%(title)"
 "s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python enhancement "
@@ -2823,11 +2826,11 @@ msgstr "PyPI用にコードをパッケージ化して公開するには、ど�
 #: warehouse/templates/pages/help.html:52
 #: warehouse/templates/search/results.html:88
 msgid "What's a trove classifier?"
-msgstr "trove分類とは何ですか？"
+msgstr "Trove分類とは何ですか？"
 
 #: warehouse/templates/pages/help.html:54
 msgid "Why do I need a verified email address?"
-msgstr "なぜ認証済みのメールアドレスが必要なのですか？"
+msgstr "なぜ確認済みのメールアドレスが必要なのですか？"
 
 #: warehouse/templates/pages/help.html:55
 msgid "Why is PyPI telling me my password is compromised?"
@@ -2941,7 +2944,7 @@ msgstr "プロジェクトの説明を別のフォーマットでアップロー
 
 #: warehouse/templates/pages/help.html:81
 msgid "How do I request a new trove classifier?"
-msgstr "新しいtrove分類を要求するには、どうすればよいですか？"
+msgstr "新しいTrove分類を要求するには、どうすればよいですか？"
 
 #: warehouse/templates/pages/help.html:82
 msgid "Where can I report a bug or provide feedback about PyPI?"
@@ -3093,7 +3096,7 @@ msgstr "アカウント"
 msgid ""
 "Currently, PyPI requires a verified email address to perform the "
 "following operations:"
-msgstr "現在、PyPIは次の操作を実行するために検証済みのEメールアドレスを必要とします。"
+msgstr "現在、PyPIは次の操作を実行するために確認済みのメールアドレスを必要とします。"
 
 #: warehouse/templates/pages/help.html:211
 msgid "Register a new project."
@@ -3107,7 +3110,7 @@ msgstr "新しいバージョンやファイルをアップロードする。"
 msgid ""
 "The list of activities that require a verified email address is likely to"
 " grow over time."
-msgstr "検証済みのEメールアドレスを必要とするアクティビティのリストは、時間の経過とともに増える可能性があります。"
+msgstr "確認済みのメールアドレスを必要とするアクティビティのリストは、時間の経過とともに増える可能性があります。"
 
 #: warehouse/templates/pages/help.html:215
 #, python-format
@@ -3515,7 +3518,7 @@ msgstr "APIトークンを作成するには:"
 
 #: warehouse/templates/pages/help.html:406
 msgid "Verify your email address"
-msgstr "メールアドレスを検証する"
+msgstr "メールアドレスを確認する"
 
 #: warehouse/templates/pages/help.html:406
 #, python-format
@@ -3729,7 +3732,7 @@ msgid ""
 "project page."
 msgstr ""
 "プロジェクトの現在のオーナーだけが、新しいオーナーやメンテナを追加できます。もし所有権をリクエストする必要がある場合、プロジェクトの現在のオーナーに直接連"
-"絡してください。多くのプロジェクトのオーナーは、プロジェクトページの'Meta'詳細の'Author'欄に問い合わせ先を記しています。"
+"絡してください。多くのプロジェクトのオーナーは、プロジェクトページの「Meta」詳細の「作者」欄に問い合わせ先を記しています。"
 
 #: warehouse/templates/pages/help.html:478
 #, python-format
@@ -3826,7 +3829,7 @@ msgstr "PyPIで使っているメールアドレスまたはユーザ名を入�
 
 #: warehouse/templates/pages/help.html:511
 msgid "You'll receive an email with a password reset link."
-msgstr "パスワードリセットのリンクが載ったメールを受け取る。"
+msgstr "パスワード リセット リンクが載ったメールを受け取る。"
 
 #: warehouse/templates/pages/help.html:512
 #, python-format
@@ -4012,7 +4015,7 @@ msgid ""
 "rel=\"noopener\">issue tracker</a>. Include the name of the requested "
 "classifier and a brief justification of why it is important."
 msgstr ""
-"もし新しいtrove分類を要求する場合は、<a href=\"%(href)s\" title=\"%(title)s\" target=\""
+"もし新しいTrove分類を要求する場合は、<a href=\"%(href)s\" title=\"%(title)s\" target=\""
 "_blank\" rel=\"noopener\""
 ">イシュートラッカー</a>で不具合を報告してください。要求する分類の名前と、それがなぜ重要なのか正当性を簡潔に含めてください。"
 
