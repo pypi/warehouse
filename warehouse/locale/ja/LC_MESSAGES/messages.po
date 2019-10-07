@@ -7,13 +7,14 @@
 # Yuta Kanzawa <ytknzw@gmail.com>, 2019.
 # shinji uyama <uyaaan.event@gmail.com>, 2019.
 # Ryo/Liàng KAJI <kaji@code.ac.jp>, 2019.
+# Yuichi OMATA <yuichi.omata@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 03:42+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"Last-Translator: Yuichi OMATA <yuichi.omata@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -1297,7 +1298,7 @@ msgstr "検証済*"
 
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
-msgstr ""
+msgstr "*メール配送に断続的に問題が発生すると、確認が失敗する可能性があります"
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
@@ -1311,7 +1312,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:48
 msgid "*Email from PyPI being treated as spam"
-msgstr ""
+msgstr "* PyPI からのメールがスパムとして扱われる"
 
 #: warehouse/templates/manage/account.html:54
 msgid "*Hard failure during delivery"
@@ -1571,7 +1572,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:437
 msgid "Two factor authentication methods enabled"
-msgstr ""
+msgstr "2 要素認証が有効"
 
 #: warehouse/templates/manage/account.html:440
 msgid "Two factor method"
@@ -1592,11 +1593,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:449
 msgid "Remove authentication application"
-msgstr ""
+msgstr "認証アプリケーションを削除する"
 
 #: warehouse/templates/manage/account.html:450
 msgid "Remove application"
-msgstr ""
+msgstr "アプリケーションを削除"
 
 #: warehouse/templates/manage/account.html:459
 #: warehouse/templates/manage/account.html:541
@@ -1605,7 +1606,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:464
 msgid "Remove two factor security device"
-msgstr ""
+msgstr "2 要素セキュリティデバイスを削除"
 
 #: warehouse/templates/manage/account.html:465
 msgid "Remove device"
@@ -1624,7 +1625,7 @@ msgstr "このアカウントでは2要素認証が有効になっていませ�
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
 "factor authentication to your account."
-msgstr ""
+msgstr "アカウントの二要素認証を有効にするには<a href=\"%(href)s\">主要メールアドレスを確認してください</a>。"
 
 #: warehouse/templates/manage/account.html:492
 #: warehouse/templates/manage/settings.html:23
