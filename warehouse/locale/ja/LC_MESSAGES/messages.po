@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 06:55+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -215,7 +215,7 @@ msgstr "どこを探してもこのページは見つかりませんでした"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "それでは<br><span>お話変わって"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -325,7 +325,7 @@ msgstr "Internal server error (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr "何か問題が発生しました"
+msgstr "問題が発生しました"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -333,23 +333,24 @@ msgid ""
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
 msgstr ""
-"<p>このサイトの提供に技術的な問題が発生しています。</p><p>我々は問題を認識しており、できるだけ早く解決するよう取り組んでいます。</p>"
+"<p>このサイトの提供に影響のある技術的な問題が発生しています。</p><p>我々は問題を認識しており、できるだけ早く解決するよう取り組んでいます。</p"
+">"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "ステータスページを確認"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "TwitterでPythonのステータスを閲覧"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "エラーコード 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "パッケージ管理に PyPI を使っていますか？"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -359,6 +360,10 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"> donating </a> to help us build a more"
 " stable and secure platform."
 msgstr ""
+"我々がより安定で安全なプラットフォームを作れるよう、<a href=\"https://github.com/pypa/warehouse\" "
+"target=\"_blank\" rel=\"noopener\">開発参加</a>または<a href=\"https://psfmember."
+"org/civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\""
+"noopener\">寄付</a>をご検討下さい。"
 
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
@@ -3447,7 +3452,6 @@ msgid ""
 msgstr "完了するとUSBキーがPyPIアカウントに登録され、ログイン処理中に使えるようになります。"
 
 #: warehouse/templates/pages/help.html:367
-#, fuzzy
 msgid ""
 "\n"
 "          <li>Provide your username and password, as normal</li>\n"
