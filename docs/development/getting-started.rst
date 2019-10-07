@@ -58,6 +58,10 @@ you stay up-to-date with our repository:
 Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. note::
+   Do not use venv/virtualenv for configuring the development environment. 
+   Docker creates and remove venv/virtualenv as needed.
+
 Why Docker?
 ~~~~~~~~~~~
 
@@ -79,7 +83,7 @@ The best experience for building Warehouse on Windows 10 is to use the
 `Windows Subsystem for Linux`_ (WSL) in combination with both
 `Docker for Windows`_ and `Docker for Linux`_. Follow the instructions
 for both platforms, and see `Docker and Windows Subsystem
-for Linux Quirks`_ for extra configuration instructions.
+for Linux Quirks`_ for exssetra configuration instructions.
 
 .. _Docker for Mac: https://docs.docker.com/engine/installation/mac/
 .. _Docker for Windows: https://docs.docker.com/engine/installation/windows/
