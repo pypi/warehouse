@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 03:56+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"Last-Translator: Yuichi OMATA <yuichi.omata@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -1642,11 +1642,11 @@ msgstr "APIトークンは、PyPIにパッケージをアップロードする�
 
 #: warehouse/templates/manage/account.html:493
 msgid "Learn more about API tokens"
-msgstr ""
+msgstr "APIトークンについて詳しく知る"
 
 #: warehouse/templates/manage/account.html:497
 msgid "Active API tokens for this account"
-msgstr ""
+msgstr "アカウントでアクティブな API トークン"
 
 #: warehouse/templates/manage/account.html:502
 msgid "Created"
@@ -1662,7 +1662,7 @@ msgstr "APIトークンの追加"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
 "tokens to your account."
-msgstr ""
+msgstr "アカウントに API トークンを追加するには<a href=\"%(href)s\">主要メールアドレスを確認してください</a>。"
 
 #: warehouse/templates/manage/account.html:532
 msgid "Account created"
