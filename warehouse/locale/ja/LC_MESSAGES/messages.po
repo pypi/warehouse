@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 07:12+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"Last-Translator: Ryo/Liàng KAJI <kaji@code.ac.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -1987,7 +1987,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
-msgstr ""
+msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として変更"
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
