@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 03:56+0000\n"
-"Last-Translator: Yuichi OMATA <yuichi.omata@gmail.com>\n"
+"Last-Translator: shinji uyama <uyaaan.event@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -2141,7 +2141,7 @@ msgstr "'%(project_name)s' の管理 - リリースバージョン %(version)s"
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr ""
+msgstr "リリースバージョン %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
@@ -2159,7 +2159,7 @@ msgstr "リリースを表示"
 #: warehouse/templates/manage/release.html:34
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s の %(version)s のリリースファイル"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
