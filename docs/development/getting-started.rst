@@ -83,7 +83,7 @@ The best experience for building Warehouse on Windows 10 is to use the
 `Windows Subsystem for Linux`_ (WSL) in combination with both
 `Docker for Windows`_ and `Docker for Linux`_. Follow the instructions
 for both platforms, and see `Docker and Windows Subsystem
-for Linux Quirks`_ for exssetra configuration instructions.
+for Linux Quirks`_ for extra configuration instructions.
 
 .. _Docker for Mac: https://docs.docker.com/engine/installation/mac/
 .. _Docker for Windows: https://docs.docker.com/engine/installation/windows/
