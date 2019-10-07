@@ -8,13 +8,14 @@
 # shinji uyama <uyaaan.event@gmail.com>, 2019.
 # Ryo/Liàng KAJI <kaji@code.ac.jp>, 2019.
 # Yuichi OMATA <yuichi.omata@gmail.com>, 2019.
+# Masashi Kondo <m-kondo@safie.jp>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-05 03:42+0000\n"
-"Last-Translator: Yuichi OMATA <yuichi.omata@gmail.com>\n"
+"PO-Revision-Date: 2019-10-05 03:43+0000\n"
+"Last-Translator: Masashi Kondo <m-kondo@safie.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -2372,7 +2373,7 @@ msgstr "共同編集者（collaborators）には、以下の2つのロールが�
 #: warehouse/templates/manage/roles.html:27
 #: warehouse/templates/manage/roles.html:80
 msgid "Maintainer"
-msgstr ""
+msgstr "メンテナ"
 
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/pages/help.html:473
@@ -2384,7 +2385,7 @@ msgstr "パッケージのリリースのアップロードができる。共同
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:80
 msgid "Owner"
-msgstr ""
+msgstr "オーナー"
 
 #: warehouse/templates/manage/roles.html:30
 #: warehouse/templates/pages/help.html:474
@@ -2402,24 +2403,24 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:78
 #: warehouse/templates/manage/roles.html:143
 msgid "Role"
-msgstr ""
+msgstr "役割"
 
 #: warehouse/templates/manage/roles.html:86
 msgid "Save role"
-msgstr ""
+msgstr "役割を保存"
 
 #: warehouse/templates/manage/roles.html:87
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: warehouse/templates/manage/roles.html:111
 msgid "Cannot remove yourself as owner"
-msgstr ""
+msgstr "オーナーである自分自身を削除できません。"
 
 #: warehouse/templates/manage/roles.html:114
 #, python-format
 msgid "Remove %(user)s from this project"
-msgstr ""
+msgstr "このプロジェクトから %(user)s を削除する"
 
 #: warehouse/templates/manage/roles.html:126
 #: warehouse/templates/manage/roles.html:154
