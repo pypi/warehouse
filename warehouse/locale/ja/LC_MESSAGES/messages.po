@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-03 16:54+0000\n"
+"PO-Revision-Date: 2019-10-04 18:30+0000\n"
 "Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
@@ -176,7 +176,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:586
 msgid "You can now set this email as your primary address"
-msgstr "これで、このメールを主要なアドレスとして設定できるようになりました。"
+msgstr "これで、このメールを主要なアドレスとして設定できるようになります。"
 
 #: warehouse/accounts/views.py:588
 msgid "This is your primary address"
@@ -212,7 +212,7 @@ msgstr ""
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "Monty Python - The Cheese Shop Sketch"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -529,7 +529,7 @@ msgstr "(必須)"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr ""
+msgstr "あなたのユーザ名"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
@@ -543,7 +543,7 @@ msgstr "パスワードを表示"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr ""
+msgstr "あなたのパスワード"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
@@ -598,7 +598,7 @@ msgstr "確認フォーム"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr ""
+msgstr "ユーザ名を入力"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
@@ -625,34 +625,34 @@ msgstr "アカウントを作成"
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "パスワードリセット"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
-msgstr ""
+msgstr "パスワードをリセットするには、ユーザ名またはメールアドレスを入力してください。"
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "ユーザ名またはメールアドレス"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "パスワードリセットを要求"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
-msgstr ""
+msgstr "リセットのメールが送信されました"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "We have sent an email to your registered email address."
-msgstr ""
+msgstr "登録されているメールアドレスにメールを送信しました。"
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
 msgid ""
 "The email contains a link to reset your password. This link will expire "
 "in %(n_hours)s hours."
-msgstr ""
+msgstr "メールにはパスワードをリセットするためのリンクが含まれています。このリンクの有効期限は%(n_hours)s 時間です。"
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
@@ -663,7 +663,7 @@ msgstr "パスワードのリセット"
 #: warehouse/templates/accounts/reset-password.html:50
 #: warehouse/templates/manage/account.html:399
 msgid "Select a new password"
-msgstr "新パスワードを選択"
+msgstr "新しいパスワードを入力"
 
 #: warehouse/templates/accounts/reset-password.html:85
 msgid "Reset password"
@@ -961,37 +961,37 @@ msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr ""
+msgstr "メインナビゲーション"
 
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "メニューを表示"
 
 #: warehouse/templates/includes/current-user-indicator.html:24
 msgid "Main menu"
-msgstr ""
+msgstr "メインメニュー"
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
-msgstr ""
+msgstr "管理"
 
 #: warehouse/templates/includes/current-user-indicator.html:36
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
-msgstr ""
+msgstr "自分のプロジェクト"
 
 #: warehouse/templates/includes/current-user-indicator.html:42
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
-msgstr ""
+msgstr "アカウント設定"
 
 #: warehouse/templates/includes/current-user-indicator.html:48
 msgid "Public profile"
-msgstr ""
+msgstr "公開プロフィール"
 
 #: warehouse/templates/includes/current-user-indicator.html:54
 #: warehouse/templates/pages/help.html:92
@@ -1001,17 +1001,17 @@ msgstr "ヘルプ"
 
 #: warehouse/templates/includes/current-user-indicator.html:60
 msgid "Donate"
-msgstr ""
+msgstr "寄付"
 
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
-msgstr ""
+msgstr "エラー"
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
 #: warehouse/templates/includes/flash-messages.html:40
 msgid "Dismiss this notification"
-msgstr ""
+msgstr "通知を無視"
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
@@ -1031,11 +1031,11 @@ msgstr ""
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:208
 msgid "Close"
-msgstr ""
+msgstr "閉じる"
 
 #: warehouse/templates/includes/flash-messages.html:37
 msgid "Success"
-msgstr ""
+msgstr "成功"
 
 #: warehouse/templates/includes/hash-modal.html:23
 #, python-format
@@ -1043,19 +1043,21 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Hashes</a> for %(filename)s"
 msgstr ""
+"%(filename)sの<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">ハッシュ</a>"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
 msgid "Hashes for %(filename)s"
-msgstr ""
+msgstr "%(filename)sのハッシュ"
 
 #: warehouse/templates/includes/hash-modal.html:31
 msgid "Algorithm"
-msgstr ""
+msgstr "アルゴリズム"
 
 #: warehouse/templates/includes/hash-modal.html:32
 msgid "Hash digest"
-msgstr ""
+msgstr "ハッシュ値"
 
 #: warehouse/templates/includes/hash-modal.html:41
 #: warehouse/templates/includes/hash-modal.html:50
@@ -1064,7 +1066,7 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "クリップ ボードにコピー"
 
 #: warehouse/templates/includes/hash-modal.html:42
 #: warehouse/templates/includes/hash-modal.html:51
@@ -1073,11 +1075,11 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:58
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy"
-msgstr ""
+msgstr "コピー"
 
 #: warehouse/templates/includes/manage-project-button.html:16
 msgid "Manage project"
-msgstr ""
+msgstr "プロジェクトの管理"
 
 #: warehouse/templates/includes/pagination.html:21
 #: warehouse/templates/includes/pagination.html:23
@@ -1096,7 +1098,7 @@ msgstr "次"
 #: warehouse/templates/manage/release.html:133
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
-msgstr ""
+msgstr "警告"
 
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
@@ -1174,12 +1176,12 @@ msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
-msgstr ""
+msgstr "リリース"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
 #: warehouse/templates/manage/roles.html:21
 msgid "Collaborators"
-msgstr ""
+msgstr "共同編集者"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
 #: warehouse/templates/manage/account.html:525
@@ -1194,11 +1196,11 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/documentation.html:21
 msgid "Documentation"
-msgstr ""
+msgstr "ドキュメント"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #: warehouse/templates/includes/packaging/project-data.html:17
 msgid "Project links"
@@ -1210,15 +1212,15 @@ msgstr "GitHubの統計:"
 
 #: warehouse/templates/includes/packaging/project-data.html:43
 msgid "Stars:"
-msgstr ""
+msgstr "スター:"
 
 #: warehouse/templates/includes/packaging/project-data.html:52
 msgid "Forks:"
-msgstr ""
+msgstr "フォーク:"
 
 #: warehouse/templates/includes/packaging/project-data.html:61
 msgid "Open issues/PRs:"
-msgstr ""
+msgstr "オープンなissue/PR:"
 
 #: warehouse/templates/includes/packaging/project-data.html:69
 #, python-format
@@ -1238,7 +1240,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:79
 msgid "License:"
-msgstr ""
+msgstr "ライセンス:"
 
 #: warehouse/templates/includes/packaging/project-data.html:82
 #: warehouse/templates/includes/packaging/project-data.html:84
@@ -1253,7 +1255,7 @@ msgstr "メンテナ:"
 
 #: warehouse/templates/includes/packaging/project-data.html:94
 msgid "Tags"
-msgstr ""
+msgstr "タグ"
 
 #: warehouse/templates/includes/packaging/project-data.html:104
 msgid "Requires:"
@@ -1261,7 +1263,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:111
 msgid "Maintainers"
-msgstr ""
+msgstr "メンテナ"
 
 #: warehouse/templates/includes/packaging/project-data.html:113
 msgid "Avatar for {username} from gravatar.com"
@@ -1278,7 +1280,7 @@ msgstr "分類"
 #: warehouse/templates/legacy/api/simple/detail.html:20
 #, python-format
 msgid "Links for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s のリンク"
 
 #: warehouse/templates/legacy/api/simple/index.html:17
 msgid "Simple index"
@@ -1324,14 +1326,14 @@ msgstr "主要"
 
 #: warehouse/templates/manage/account.html:86
 msgid "View email options"
-msgstr ""
+msgstr "メールのオプションを表示"
 
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:184
 #: warehouse/templates/manage/release.html:74
 #: warehouse/templates/manage/releases.html:62
 msgid "Options"
-msgstr ""
+msgstr "オプション"
 
 #: warehouse/templates/manage/account.html:92
 #, python-format
@@ -1392,7 +1394,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:501
 #: warehouse/templates/manage/token.html:95
 msgid "Scope"
-msgstr ""
+msgstr "スコープ"
 
 #: warehouse/templates/manage/account.html:166
 msgid "All projects"
@@ -1405,43 +1407,43 @@ msgstr "作成日"
 #: warehouse/templates/manage/account.html:178
 #: warehouse/templates/manage/account.html:503
 msgid "Last used"
-msgstr ""
+msgstr "最後の使用"
 
 #: warehouse/templates/manage/account.html:179
 msgid "Never"
-msgstr ""
+msgstr "一度もない"
 
 #: warehouse/templates/manage/account.html:183
 msgid "View token options"
-msgstr ""
+msgstr "トークンのオプションを表示"
 
 #: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/token.html:50
 msgid "Remove token"
-msgstr ""
+msgstr "トークンの削除"
 
 #: warehouse/templates/manage/account.html:199
 msgid "View unique identifier"
-msgstr ""
+msgstr "一意な識別子を表示"
 
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account.html:209
 #: warehouse/templates/manage/token.html:53
 #: warehouse/templates/manage/token.html:54
 msgid "Remove API token"
-msgstr ""
+msgstr "APIトークンの削除"
 
 #: warehouse/templates/manage/account.html:214
 #: warehouse/templates/manage/token.html:59
 msgid ""
 "Applications or scripts using this token will no longer have access to "
 "PyPI."
-msgstr ""
+msgstr "このトークンを使っているアプリケーションやスクリプトはPyPIにアクセスできなくなります。"
 
 #: warehouse/templates/manage/account.html:227
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
-msgstr ""
+msgstr "APIトークン\"%(token_description)s\"の一意な識別子"
 
 #: warehouse/templates/manage/account.html:245
 msgid "Profile picture"
@@ -1534,7 +1536,7 @@ msgstr "旧パスワード"
 
 #: warehouse/templates/manage/account.html:375
 msgid "Old password"
-msgstr ""
+msgstr "旧パスワード"
 
 #: warehouse/templates/manage/account.html:385
 msgid "Your current password"
@@ -1546,7 +1548,7 @@ msgstr "新パスワード"
 
 #: warehouse/templates/manage/account.html:408
 msgid "Confirm new password"
-msgstr "新パスワードの確認"
+msgstr "新しいパスワードの確認"
 
 #: warehouse/templates/manage/account.html:431
 msgid "Two factor authentication (2FA)"
@@ -1568,7 +1570,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:440
 msgid "Two factor method"
-msgstr ""
+msgstr "2要素認証の方法:"
 
 #: warehouse/templates/manage/account.html:446
 #: warehouse/templates/manage/account.html:543
@@ -1602,11 +1604,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:465
 msgid "Remove device"
-msgstr ""
+msgstr "端末を削除"
 
 #: warehouse/templates/manage/account.html:471
 msgid "Device name"
-msgstr ""
+msgstr "端末名"
 
 #: warehouse/templates/manage/account.html:480
 msgid "You have not enabled two factor authentication on your account."
@@ -1641,7 +1643,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:502
 msgid "Created"
-msgstr ""
+msgstr "作成日時"
 
 #: warehouse/templates/manage/account.html:515
 #: warehouse/templates/manage/token.html:17
@@ -1665,24 +1667,24 @@ msgstr "ログイン"
 
 #: warehouse/templates/manage/account.html:537
 msgid "Two factor method:"
-msgstr "2要素認証:"
+msgstr "2要素認証の方法:"
 
 #: warehouse/templates/manage/account.html:539
 #: warehouse/templates/manage/release.html:65
 msgid "None"
-msgstr ""
+msgstr "なし"
 
 #: warehouse/templates/manage/account.html:548
 msgid "Email added to account"
-msgstr "アカウントへのメールアドレスの追加"
+msgstr "アカウントへメールアドレスが追加されました"
 
 #: warehouse/templates/manage/account.html:551
 msgid "Email removed from account"
-msgstr "アカウントからのメールアドレスの削除"
+msgstr "アカウントからメールアドレスが削除されました"
 
 #: warehouse/templates/manage/account.html:554
 msgid "Email verified"
-msgstr "メールアドレスの検証"
+msgstr "メールアドレスが検証されました"
 
 #: warehouse/templates/manage/account.html:557
 msgid "Email reverified"
@@ -1706,11 +1708,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:574
 msgid "Password reset requested"
-msgstr ""
+msgstr "パスワードリセットが要求されました"
 
 #: warehouse/templates/manage/account.html:576
 msgid "Password successfully reset"
-msgstr ""
+msgstr "パスワードのリセットが成功しました"
 
 #: warehouse/templates/manage/account.html:578
 msgid "Password successfully changed"
@@ -1746,17 +1748,17 @@ msgstr ""
 #: warehouse/templates/manage/account.html:602
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
-msgstr ""
+msgstr "APIトークンが追加されました"
 
 #: warehouse/templates/manage/account.html:604
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
-msgstr ""
+msgstr "トークン名:"
 
 #: warehouse/templates/manage/account.html:606
 msgid "Token scope: entire account"
-msgstr ""
+msgstr "トークンのスコープ: アカウント全体"
 
 #: warehouse/templates/manage/account.html:608
 #, python-format
@@ -1766,7 +1768,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:613
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
-msgstr ""
+msgstr "APIトークンが削除されました"
 
 #: warehouse/templates/manage/account.html:614
 msgid "Unique identifier:"
@@ -1783,14 +1785,14 @@ msgstr ""
 #: warehouse/templates/manage/account.html:624
 #: warehouse/templates/manage/history.html:88
 msgid "Event"
-msgstr ""
+msgstr "イベント"
 
 #: warehouse/templates/manage/account.html:625
 #: warehouse/templates/manage/account.html:633
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
 msgid "Date / time"
-msgstr ""
+msgstr "日時"
 
 #: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/account.html:637
@@ -1848,7 +1850,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:681
 #: warehouse/templates/manage/token.html:113
 msgid "Proceed with caution!"
-msgstr ""
+msgstr "慎重に進めてください！"
 
 #: warehouse/templates/manage/account.html:684
 msgid "You will not be able to recover your account after you delete it"
@@ -1965,7 +1967,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:67
 #: warehouse/templates/manage/history.html:74
 msgid "Permissions: Can upload to this project"
-msgstr ""
+msgstr "権限: このプロジェクトにアップロード可能"
 
 #: warehouse/templates/manage/history.html:68
 #: warehouse/templates/manage/history.html:75
@@ -2048,11 +2050,11 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:105
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "この操作は取り消せません！"
 
 #: warehouse/templates/manage/manage_base.html:113
 msgid "Confirm your username to continue."
-msgstr ""
+msgstr "続行するにはユーザ名を確認してください。"
 
 #: warehouse/templates/manage/manage_base.html:115
 #, python-format
@@ -2061,7 +2063,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:123
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
@@ -2178,11 +2180,11 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:73
 msgid "View file options"
-msgstr ""
+msgstr "ファイルのオプションを表示"
 
 #: warehouse/templates/manage/release.html:79
 msgid "File options"
-msgstr ""
+msgstr "ファイルのオプション"
 
 #: warehouse/templates/manage/release.html:83
 msgid "Download"
@@ -2315,7 +2317,7 @@ msgstr ""
 
 #: warehouse/templates/manage/releases.html:61
 msgid "View release options"
-msgstr ""
+msgstr "リリースのオプションを表示"
 
 #: warehouse/templates/manage/releases.html:67
 #, python-format
@@ -2504,26 +2506,26 @@ msgstr ""
 #: warehouse/templates/manage/token.html:31
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
-msgstr ""
+msgstr "\"%(macaroon_description)s\"のためのトークン"
 
 #: warehouse/templates/manage/token.html:33
 msgid "Permissions:"
-msgstr ""
+msgstr "権限:"
 
 #: warehouse/templates/manage/token.html:33
 #: warehouse/templates/manage/token.html:91
 msgid "Upload packages"
-msgstr ""
+msgstr "パッケージのアップロード"
 
 #: warehouse/templates/manage/token.html:35
 #: warehouse/templates/manage/token.html:37
 msgid "Scope:"
-msgstr ""
+msgstr "スコープ:"
 
 #: warehouse/templates/manage/token.html:35
 #: warehouse/templates/manage/token.html:102
 msgid "Entire account (all projects)"
-msgstr ""
+msgstr "アカウント全体（全プロジェクト）"
 
 #: warehouse/templates/manage/token.html:37
 #, python-format
@@ -2535,25 +2537,25 @@ msgstr ""
 msgid ""
 "For instructions on how to use this token, <a href=\"%(href)s\">visit the"
 " PyPI help page</a>."
-msgstr ""
+msgstr "このトークンの使用方法の説明は、<a href=\"%(href)s\">PyPIのヘルプページを参照してください</a>。"
 
 #: warehouse/templates/manage/token.html:44
 msgid ""
 "For security reasons this token will only appear once. <strong>Copy it "
 "now.</strong>"
-msgstr ""
+msgstr "セキュリティ上の理由により、このトークンは一度だけ表示されます。<strong>今すぐコピーしてください。</strong>"
 
 #: warehouse/templates/manage/token.html:46
 msgid "Copy token to clipboard"
-msgstr ""
+msgstr "クリップボードにトークンをコピー"
 
 #: warehouse/templates/manage/token.html:47
 msgid "Copy token"
-msgstr ""
+msgstr "トークンのコピー"
 
 #: warehouse/templates/manage/token.html:71
 msgid "Add another token"
-msgstr ""
+msgstr "他のトークンの追加"
 
 #: warehouse/templates/manage/token.html:78
 msgid "Token name"
@@ -2561,15 +2563,15 @@ msgstr ""
 
 #: warehouse/templates/manage/token.html:87
 msgid "What is this token for?"
-msgstr ""
+msgstr "このトークンは何のためのものですか？"
 
 #: warehouse/templates/manage/token.html:90
 msgid "Permissions"
-msgstr ""
+msgstr "アクセス許可"
 
 #: warehouse/templates/manage/token.html:101
 msgid "Select scope..."
-msgstr ""
+msgstr "スコープの選択..."
 
 #: warehouse/templates/manage/token.html:105
 msgid "Project:"
@@ -2579,15 +2581,15 @@ msgstr ""
 msgid ""
 "An API token scoped to your entire account will have upload permissions "
 "for all of your projects."
-msgstr ""
+msgstr "アカウント全体をスコープとするAPIトークンには、すべてのプロジェクトに対するアップロード権限が与えられます。"
 
 #: warehouse/templates/manage/token.html:117
 msgid "Add token"
-msgstr ""
+msgstr "トークンの追加"
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
-msgstr ""
+msgstr "認証アプリケーションによる2FAの設定（TOTP）"
 
 #: warehouse/templates/manage/account/totp-provision.html:32
 #, python-format
@@ -2596,57 +2598,60 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title"
 "=\"time-based one-time password\">TOTP</abbr> standard</a>."
 msgstr ""
+"PyPIでは、<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\"><abbr title=\"time-based one-time password\""
+">TOTP</abbr>標準</a>に準拠するアプリケーションに対応しています。"
 
 #: warehouse/templates/manage/account/totp-provision.html:36
 #, python-format
 msgid ""
 "Visit <a href=\"%(href)s\">PyPI's help page</a> for a list of compatible "
 "applications."
-msgstr ""
+msgstr "互換性のあるアプリケーションのリストについては、<a href=\"%(href)s\">PyPIのヘルプ・ページ</a>を参照してください。"
 
 #: warehouse/templates/manage/account/totp-provision.html:42
 msgid "Set up your application"
-msgstr ""
+msgstr "アプリケーションの設定"
 
 #: warehouse/templates/manage/account/totp-provision.html:45
 msgid "Scan the QR code with the authentication application of your choice."
-msgstr ""
+msgstr "選択した認証アプリケーションでQRコードをスキャンする。"
 
 #: warehouse/templates/manage/account/totp-provision.html:46
 msgid ""
 "For security reasons, you can only associate one authentication "
 "application per PyPI account."
-msgstr ""
+msgstr "セキュリティ上の理由から、各PyPIアカウントに関連づけられる認証アプリケーションはひとつだけです。"
 
 #: warehouse/templates/manage/account/totp-provision.html:52
 msgid "QR code for setting up an authentication application"
-msgstr ""
+msgstr "認証アプリケーション設定用のQRコード"
 
 #: warehouse/templates/manage/account/totp-provision.html:55
 msgid "<strong>No QR scanner?</strong> Manually enter the code instead:"
-msgstr ""
+msgstr "<strong>QRスキャナがありませんか？</strong> 代わりに、以下のコードを手動で入力してください:"
 
 #: warehouse/templates/manage/account/totp-provision.html:67
 msgid "Verify application"
-msgstr ""
+msgstr "アプリケーションの認証"
 
 #: warehouse/templates/manage/account/totp-provision.html:72
 msgid "Authentication code"
-msgstr ""
+msgstr "認証コード"
 
 #: warehouse/templates/manage/account/totp-provision.html:73
 msgid ""
 "To finalize the set up process, enter the authentication code provided by"
 " your application."
-msgstr ""
+msgstr "設定処理を完了するには、アプリケーションから提供された認証コードを入力してください。"
 
 #: warehouse/templates/manage/account/totp-provision.html:85
 msgid "Set up application"
-msgstr ""
+msgstr "アプリケーションの設定"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:17
 msgid "Set up 2FA with a security device (e.g. USB key)"
-msgstr ""
+msgstr "セキュリティ端末による2FAの設定（例: USBキー）"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:26
 #, python-format
@@ -2654,6 +2659,8 @@ msgid ""
 "PyPI supports any device that adheres to the <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
 msgstr ""
+"PyPIでは、<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">FIDO標準</a>に準拠する端末に対応しています。"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #, python-format
@@ -2668,25 +2675,25 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Yubikey</a>、 <a href=\"%(titan_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a>、<a "
 "href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">Thetis</a>がある。"
+"noopener\">Thetis</a>があります。"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:43
 msgid "Name your device to begin"
-msgstr ""
+msgstr "開始する端末に名前を付ける"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:48
 msgid "PyPI supports adding multiple security devices."
-msgstr ""
+msgstr "PyPIは、複数のセキュリティ端末の追加に対応しています。"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:49
 msgid ""
 "Please give this device a name. 64 characters or fewer. All Unicode is "
 "valid, including spaces."
-msgstr ""
+msgstr "この端末に64字以下で名前をつけてください。空白を含むすべてのユニコードが有効です。"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:65
 msgid "Set up security device"
-msgstr ""
+msgstr "セキュリティ端末を設定"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #, python-format
@@ -2697,12 +2704,16 @@ msgid ""
 "href=\"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">compatible browser</a>."
 msgstr ""
+"<strong>うまく動作しませんか？</strong> <a href=\"%(fido_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">FIDO仕様</a> に準拠した端末と<a href=\""
+"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">互換性のあるブラウザ</a>を使用しているか確認してください。"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:78
 msgid ""
 "Note that some older USB keys do not adhere to the FIDO standard and will"
 " not work with PyPI."
-msgstr ""
+msgstr "一部の古いUSBキーはFIDO標準に準拠しておらず、PyPIで動作しないことに注意してください。"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -2988,7 +2999,7 @@ msgstr "トラブルシューティング"
 #: warehouse/templates/pages/help.html:160
 #: warehouse/templates/pages/help.html:610
 msgid "About"
-msgstr ""
+msgstr "PyPIについて"
 
 #: warehouse/templates/pages/help.html:176
 #, python-format
@@ -3099,7 +3110,8 @@ msgid ""
 " create many accounts in an automated fashion."
 msgstr ""
 "このポリシーは、メンテナの到達可能性（reachability: 連絡がつくこと）に関する<a href=\"%(href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">PEP</abbr> "
+"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
+"enhancement proposal\">PEP</abbr> "
 "541</a>の主要ポリシーを実現可能にします。また、大量のアカウントを自動生成するようなスパム攻撃が行われる可能性を減らします。"
 
 #: warehouse/templates/pages/help.html:216
@@ -3298,7 +3310,7 @@ msgstr "認証アプリケーションでQRコードをスキャンするか、�
 msgid ""
 "Your application will generate an authentication code - use this to "
 "verify your set up on PyPI"
-msgstr "アプリケーションによって認証コードが生成される。これを使って、PyPI上での設定を検証する。"
+msgstr "アプリケーションによって認証コードが生成されるーーこれを使って、PyPI上での設定を検証する"
 
 #: warehouse/templates/pages/help.html:321
 msgid ""
@@ -3320,7 +3332,7 @@ msgstr "通常どおり、ユーザ名とパスワードを入力する"
 
 #: warehouse/templates/pages/help.html:326
 msgid "Open your authentication application to generate an authentication code"
-msgstr "認証アプリケーションを開いて認証コードを生成する。"
+msgstr "認証アプリケーションを開いて認証コードを生成する"
 
 #: warehouse/templates/pages/help.html:327
 msgid "Use this code to finish logging into PyPI"
@@ -3386,7 +3398,7 @@ msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
 msgstr ""
-"一部の古いYubicoのUSBキーは<strong>FIDO仕様に対応しておらず</strong>、PyPI上では動作しないことに注意してください。"
+"一部の古いYubicoのUSBキーは<strong>FIDO仕様に対応しておらず</strong>、PyPI上では動作しないことに注意してください"
 
 #: warehouse/templates/pages/help.html:354
 msgid "Follow these steps:"
@@ -3429,7 +3441,7 @@ msgid ""
 "          "
 msgstr ""
 "\n"
-"          <li>通常どおり、ユーザ名とパスワードを入力するl</li>\n"
+"          <li>通常どおり、ユーザ名とパスワードを入力する</li>\n"
 "          <li>USBキーを挿入してタッチし、PyPIへのログインを完了する</li>\n"
 "          "
 
@@ -3506,7 +3518,9 @@ msgstr "（ <a href=\"%(href)s\">アカウント設定</a>を確認してくだ�
 msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
 "section and select \"Add API token\""
-msgstr "アカウント設定でAPIトークンの選択に進み「APIトークンの追加（Add API token）」を選択する"
+msgstr ""
+"<a href=\"%(href)s\">アカウント設定</a>でAPIトークンの選択に進み「APIトークンの追加（Add API "
+"token）」を選択する"
 
 #: warehouse/templates/pages/help.html:410
 msgid "To use an API token:"
@@ -3563,7 +3577,7 @@ msgid ""
 "terabyte—and growing!"
 msgstr ""
 "PyPIのミラーを独自に実行する必要がある場合、お勧めの解決方法は<a href=\"%(href)s\""
-">bandersnatchプロジェクト</a>です。PyPIのミラーに必要なストレージ要件は1テラバイトを超え、さらに増大することに注意してください。"
+">bandersnatchプロジェクト</a>です。PyPIのミラーに必要なストレージ要件は1テラバイトを超え、さらに増大することに注意してください！"
 
 #: warehouse/templates/pages/help.html:436
 #, python-format
@@ -3586,7 +3600,7 @@ msgid ""
 "BigQuery</a>."
 msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">PyPIのダウンロード利用の統計は、Google BigQueryを使って分析することができます。</a>"
+">PyPIのダウンロード利用の統計は、Google BigQueryを使って分析することができます</a>。"
 
 #: warehouse/templates/pages/help.html:441
 #, python-format
@@ -3826,14 +3840,11 @@ msgid ""
 "April 2018. <a href=\"%(reason_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Learn why on the PSF blog</a>."
 msgstr ""
-"Transport Layer Security（TLS）は、<a href=\"%(announcement_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\"><a href=\"%(announcement_href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">あなたのコンピュータとPyPI間の接"
-"続をプライベートで安全であることを確実にする方法のひとつです。これは、長い間いくつかのバージョンがあった暗号化プロトコルです。PyPIは<a href="
-"\"%(announcement_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">2018年4月にTLS 1.0と1.1のサポートを停止</a>しました。<a href=\"%(reason_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">理由については、PSF "
-"blogを参照してください</a>。"
+"Transport Layer Security（TLS）は、あなたのコンピュータとPyPI間の接続をプライベートで安全であることを確実にする方法のひとつ"
+"です。これは、長い間いくつかのバージョンがあった暗号化プロトコルです。PyPIは<a href=\"%(announcement_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">2018年4月にTLS "
+"1.0と1.1のサポートを停止</a>しました。<a href=\"%(reason_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">理由については、PSF blogを参照してください</a>。"
 
 #: warehouse/templates/pages/help.html:525
 #, python-format
@@ -3956,15 +3967,15 @@ msgstr "PyPIは、以下のいずれかの理由によりこれらのエラー�
 
 #: warehouse/templates/pages/help.html:576
 msgid "Filename has been used and file exists"
-msgstr "ファイル名が既に使用されており、ファイルが存在する。"
+msgstr "ファイル名が既に使用されており、ファイルが存在する"
 
 #: warehouse/templates/pages/help.html:577
 msgid "Filename has been used but file no longer exists"
-msgstr "ファイル名が既に使用されているが、ファイルが存在しない。"
+msgstr "ファイル名が既に使用されているが、ファイルが存在しない"
 
 #: warehouse/templates/pages/help.html:578
 msgid "A file with the exact same content exists"
-msgstr "まったく同じ内容のファイルが存在する。"
+msgstr "まったく同じ内容のファイルが存在する"
 
 #: warehouse/templates/pages/help.html:580
 msgid ""
@@ -4411,7 +4422,7 @@ msgstr "PyPIについて"
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
-msgstr ""
+msgstr "スポンサー"
 
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
@@ -4465,11 +4476,11 @@ msgstr "検索結果"
 #: warehouse/templates/search/results.html:42
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
-msgstr ""
+msgstr "もしかして'<a class=\"link\" href=\"%(link)s\">%(text)s</a>'ですか？"
 
 #: warehouse/templates/search/results.html:83
 msgid "Close panel"
-msgstr ""
+msgstr "パネルを閉じる"
 
 #: warehouse/templates/search/results.html:89
 #, python-format
@@ -4478,30 +4489,32 @@ msgid ""
 "label=\"%(aria_label)s\" data-original-label=\"%(data_original_label)s\">"
 " classifier </a>"
 msgstr ""
+"<a href=\"%(href)s\" class=\"%(classes)s\" aria-label=\"%(aria_label)s\" "
+"data-original-label=\"%(data_original_label)s\">分類</a>によるフィルタ"
 
 #: warehouse/templates/search/results.html:126
 msgid "Enter a search query, or select a filter from the list of classifiers."
-msgstr ""
+msgstr "検索クエリを入力するか、分類リストからフィルタを選択してください。"
 
 #: warehouse/templates/search/results.html:127
 msgid "Enter a search query, or add a filter by clicking on the button."
-msgstr ""
+msgstr "検索クエリを入力するか、ボタンをクリックしてフィルタを追加してください。"
 
 #: warehouse/templates/search/results.html:128
 msgid "You can combine searches and classifier filters. Examples:"
-msgstr ""
+msgstr "検索と分類フィルタは組み合わせることができます。例えば、以下のとおりです。"
 
 #: warehouse/templates/search/results.html:132
 msgid "Python 3 compatible projects"
-msgstr ""
+msgstr "Python 3互換プロジェクト"
 
 #: warehouse/templates/search/results.html:137
 msgid "Sphinx extensions that have a stable/production status"
-msgstr ""
+msgstr "stable/productionステータスを持つSphinx拡張"
 
 #: warehouse/templates/search/results.html:142
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
-msgstr ""
+msgstr "OSI-approvedライセンスを持つ「グラフィック」関連のプロジェクト"
 
 #: warehouse/templates/search/results.html:159
 #, python-format
@@ -4514,6 +4527,9 @@ msgid_plural ""
 "              <strong>%(count_display)s</strong> projects\n"
 "              "
 msgstr[0] ""
+"\n"
+"              <strong>%(count_display)s</strong> projects\n"
+"              "
 
 #: warehouse/templates/search/results.html:166
 #, python-format
@@ -4533,32 +4549,32 @@ msgstr[0] ""
 
 #: warehouse/templates/search/results.html:186
 msgid "Order by"
-msgstr ""
+msgstr "ソート順:"
 
 #: warehouse/templates/search/results.html:188
 msgid "Relevance"
-msgstr ""
+msgstr "関連性"
 
 #: warehouse/templates/search/results.html:189
 msgid "Date last updated"
-msgstr ""
+msgstr "最終更新日"
 
 #: warehouse/templates/search/results.html:190
 msgid "Trending"
-msgstr ""
+msgstr "トレンド"
 
 #: warehouse/templates/search/results.html:203
 msgid "Filter"
-msgstr ""
+msgstr "フィルタ"
 
 #: warehouse/templates/search/results.html:214
 msgid "Add filter"
-msgstr ""
+msgstr "フィルタの追加"
 
 #: warehouse/templates/search/results.html:230
 #, python-format
 msgid "There were no results for '%(term)s'"
-msgstr ""
+msgstr "'%(term)s'に一致する結果はありませんでした"
 
 #: warehouse/templates/search/results.html:232
 #, python-format
@@ -4571,3 +4587,6 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
+"\n"
+"                  '%(filters)s'フィルタに一致する結果はありませんでした\n"
+"                "
