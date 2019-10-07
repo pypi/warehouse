@@ -100,7 +100,7 @@
               </li>
             </ul>
           </nav>
-          {{ confirm_modal(title, gettext("Project name"), project.name, slug, confirm_button_label=confirm_button_label, index=loop.index, extra_fields=extra_fields, extra_description=extra_description) }}
+          {{ confirm_modal(title, gettext("Project name"), project.name, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description) }}
         </td>
       </tr>
     {% endfor %}

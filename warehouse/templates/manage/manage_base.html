@@ -79,7 +79,6 @@
   slug,
   context,
   confirm_button_label=None,
-  index=None,
   extra_fields=None,
   extra_description=None,
   action=None,
@@ -87,15 +86,15 @@
   custom_warning_text="",
   confirm_string_in_title="True")
 %}
-  <div id="{{ slug }}" class="modal" data-controller="confirm">
+  <div id="{{ slug }}" class="modal" data-controller="confirm modal-close">
     <div class="modal__content" role="dialog">
+      <a href="#modal-close" data-action="click->modal-close#cancel" title="{% trans %}Close{% endtrans %}" class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">{% trans %}Close{% endtrans %}</span>
+      </a>
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         {{ extra_fields if extra_fields else '' }}
-        <a href="#modal-close" data-action="click->confirm#cancel" title="{% trans %}Close{% endtrans %}" class="modal__close">
-          <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Close{% endtrans %}</span>
-        </a>
         <div class="modal__body">
           <h3 class="modal__title">{{ title }}{% if confirm_string_in_title %} {{ confirm_string }}{% endif %}?</h3>
           {% if warning %}
@@ -117,13 +116,63 @@
           </p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
           <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
-          <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
         </div>
         <div class="modal__footer">
-          <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">{% trans %}Cancel{% endtrans %}</button>
-          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm.button" data-expected="{{ confirm_string }}">
+          <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
+          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm.button modal-close.button" data-expected="{{ confirm_string }}">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro confirm_password_modal(
+  title,
+  slug,
+  confirm_button_label=None,
+  extra_fields=None,
+  action=None,
+  warning=True,
+  custom_warning_text=""
+) %}
+  <div id="{{ slug }}" class="modal" data-controller="confirm-password modal-close">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close" data-action="click->modal-close#cancel" title="Close" class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">{% trans %}close{% endtrans %}</span>
+      </a>
+      <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        {{ extra_fields if extra_fields else '' }}
+        <div class="modal__body">
+          <h3 class="modal__title">{{ title }}</h3>
+          {% if warning %}
+          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+            <p>
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+              {% trans %}This action cannot be undone!{% endtrans %}
+            </p>
+            {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
+          </div>
+          {% endif %}
+          <p>{% trans %}Enter your password to continue.{% endtrans %}</p>
+          <div class="form-group">
+            <div class="split-layout">
+              <label for="confirm_password">Password</label>
+              <label for="show-confirm-password-{{ slug }}" class="show-password">
+                <input data-action="change->confirm-password#setPasswordVisibility" data-target="confirm-password.showPassword" id="show-confirm-password-{{ slug }}" type="checkbox">
+                {% trans %}Show password{% endtrans %}
+              </label>
+            </div>
+            <input name="confirm_password" data-action="input->confirm-password#check" data-target="confirm-password.password modal-close.input" type="password" autocomplete="off" autocorrect="off" autocapitalize="off">
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
+          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm-password.button modal-close.button"">{{ confirm_button_label }}</button>
         </div>
       </form>
     </div>
@@ -134,15 +183,27 @@
   title,
   confirm_name,
   confirm_string,
-  index=None,
   extra_fields=None,
   action=None)
 %}
-  {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
+  {% set slug = title.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
-  {{ confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=extra_fields, action=action) }}
+  {{ confirm_modal(title, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action) }}
+{% endmacro %}
+
+{% macro confirm_password_button(
+  title,
+  extra_fields=None,
+  action=None
+)
+%}
+  {% set slug = title.lower().replace(' ', '-') + '-modal' %}
+  <a href="#{{ slug }}" class="button button--danger">
+    {{ title }}
+  </a>
+  {{ confirm_password_modal(title, slug, confirm_button_label=title, extra_fields=extra_fields, action=action) }}
 {% endmacro %}
 
 {% macro form_error_anchor(form) %}

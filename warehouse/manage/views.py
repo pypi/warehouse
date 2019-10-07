@@ -45,6 +45,7 @@ from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
     ChangeRoleForm,
+    ConfirmPasswordForm,
     CreateMacaroonForm,
     CreateRoleForm,
     DeleteMacaroonForm,
@@ -309,18 +310,22 @@ class ManageAccountViews:
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST", request_param=["confirm_username"])
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_account(self):
-        username = self.request.params.get("confirm_username")
-
-        if not username:
+        confirm_password = self.request.params.get("confirm_password")
+        if not confirm_password:
             self.request.session.flash("Confirm the request", queue="error")
             return self.default_response
 
-        if username != self.request.user.username:
+        form = ConfirmPasswordForm(
+            password=confirm_password,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if not form.validate():
             self.request.session.flash(
-                f"Could not delete account - {username!r} is not the same as "
-                f"{self.request.user.username!r}",
+                f"Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
             return self.default_response
@@ -475,7 +480,7 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
-            **self.request.POST,
+            password=self.request.POST["confirm_password"],
             username=self.request.user.username,
             user_service=self.user_service,
         )
@@ -494,7 +499,7 @@ class ProvisionTOTPViews:
                 queue="success",
             )
         else:
-            self.request.session.flash("Invalid credentials", queue="error")
+            self.request.session.flash("Invalid credentials. Try again", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -636,7 +641,9 @@ class ProvisionMacaroonViews:
                 project_names=self.project_names,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
-                macaroon_service=self.macaroon_service
+                username=self.request.user.username,
+                user_service=self.user_service,
+                macaroon_service=self.macaroon_service,
             ),
         }
 
@@ -704,7 +711,11 @@ class ProvisionMacaroonViews:
     @view_config(request_method="POST", request_param=DeleteMacaroonForm.__params__)
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
-            **self.request.POST, macaroon_service=self.macaroon_service
+            password=self.request.POST["confirm_password"],
+            macaroon_id=self.request.POST["macaroon_id"],
+            macaroon_service=self.macaroon_service,
+            username=self.request.user.username,
+            user_service=self.user_service,
         )
 
         if form.validate():
@@ -735,6 +746,8 @@ class ProvisionMacaroonViews:
             self.request.session.flash(
                 f"Deleted API token '{macaroon.description}'.", queue="success"
             )
+        else:
+            self.request.session.flash("Invalid credentials. Try again", queue="error")
 
         redirect_to = self.request.referer
         if not is_safe_url(redirect_to, host=self.request.host):

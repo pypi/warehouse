@@ -92,7 +92,7 @@
             <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
             {% endset %}
 
-            {{ confirm_modal(title, gettext('Version'), release.version, slug, index=loop.index, custom_warning_text=version_warning_text, action=action) }}
+            {{ confirm_modal(title, gettext('Version'), release.version, slug, custom_warning_text=version_warning_text, action=action) }}
           </td>
         </tr>
       {% endfor %}
