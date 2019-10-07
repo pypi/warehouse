@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-05 07:11+0000\n"
-"Last-Translator: shinji uyama <uyaaan.event@gmail.com>\n"
+"PO-Revision-Date: 2019-10-05 07:12+0000\n"
+"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -622,7 +622,7 @@ msgstr "パスワードを表示"
 
 #: warehouse/templates/accounts/register.html:122
 msgid "Select a password"
-msgstr ""
+msgstr "パスワードを選択"
 
 #: warehouse/templates/accounts/register.html:138
 #: warehouse/templates/accounts/register.html:143
@@ -772,6 +772,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
+"もしあなたがこの変更を行っていない場合、<a href=\"%(href)s\">%(email_address)s</a>にメールして PyPI "
+"管理者に連絡して下さい。"
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
@@ -779,13 +781,15 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project)s by %(submitter)s."
 msgstr ""
+"%(submitter)s により、<strong>%(role)s</strong>として %(site)s のプロジェクト %(project)s "
+"に追加されました。"
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
 msgid ""
 "You are receiving this because you have been added by %(submitter)s to a "
 "project on %(site)s."
-msgstr ""
+msgstr "あなたがこのメールを受け取ったのは、%(submitter)s により %(site)s のプロジェクトに追加されたからです。"
 
 #: warehouse/templates/email/collaborator-added/body.html:26
 msgid "A new collaborator has been added to a project you own on PyPI:"
@@ -804,12 +808,12 @@ msgstr ""
 #: warehouse/templates/email/collaborator-added/body.html:31
 #, python-format
 msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr ""
+msgstr "<strong>対象プロジェクト</strong>: %(project)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:32
 #, python-format
 msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr ""
+msgstr "<strong>追加した人</strong>: %(submitter)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:36
 #, python-format
@@ -818,6 +822,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
+"もしこれが間違いであれば、<a href=\"%(href)s\">%(email_address)s</a>にメールして PyPI "
+"の管理者に連絡して下さい。"
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
