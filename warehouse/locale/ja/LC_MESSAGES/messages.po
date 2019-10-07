@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 06:07+0000\n"
-"Last-Translator: Ryo/Liàng KAJI <kaji@code.ac.jp>\n"
+"Last-Translator: Masashi Kondo <m-kondo@safie.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -333,6 +333,7 @@ msgid ""
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
 msgstr ""
+"<p>このサイトの提供に技術的な問題が発生しています。</p><p>我々は問題を認識しており、できるだけ早く解決するよう取り組んでいます。</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
@@ -2515,7 +2516,7 @@ msgstr ""
 
 #: warehouse/templates/manage/settings.html:85
 msgid "Project Name"
-msgstr ""
+msgstr "プロジェクト名"
 
 #: warehouse/templates/manage/token.html:31
 #, python-format
