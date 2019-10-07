@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-05 06:56+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"PO-Revision-Date: 2019-10-05 06:57+0000\n"
+"Last-Translator: Masashi Kondo <m-kondo@safie.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -333,8 +333,7 @@ msgid ""
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
 msgstr ""
-"<p>このサイトの提供に影響のある技術的な問題が発生しています。</p><p>我々は問題を認識しており、できるだけ早く解決するよう取り組んでいます。</p"
-">"
+"<p>このサイトの提供について技術的な問題が発生しています。</p><p>我々は問題を認識しており、できるだけ早く解決するよう取り組んでいます。</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
@@ -495,7 +494,7 @@ msgstr "それ以外の場合は、<a href=\"%(href)s\">PyPIのホームペー�
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22
 msgid "Error processing form"
-msgstr ""
+msgstr "エラー処理フォーム"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94
@@ -572,7 +571,7 @@ msgstr "ログアウト"
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr ""
+msgstr "%(account_name)s をログアウトする"
 
 #: warehouse/templates/accounts/logout.html:25
 msgid "Log Out"
@@ -595,7 +594,7 @@ msgstr "名前"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr ""
+msgstr "氏名"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
