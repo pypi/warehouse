@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 06:06+0000\n"
-"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
+"Last-Translator: shinji uyama <uyaaan.event@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -2167,7 +2167,7 @@ msgstr "%(project_name)s の %(version)s のリリースファイル"
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
 msgid "Filename, size"
-msgstr ""
+msgstr "ファイル名、サイズ"
 
 #: warehouse/templates/manage/release.html:38
 #: warehouse/templates/manage/release.html:60
@@ -2177,16 +2177,16 @@ msgstr ""
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:64
 msgid "Python version"
-msgstr ""
+msgstr "Pythonバージョン"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:68
 msgid "Upload date"
-msgstr ""
+msgstr "アップロード日"
 
 #: warehouse/templates/manage/release.html:55
 msgid "Download file"
-msgstr ""
+msgstr "ファイルをダウンロード"
 
 #: warehouse/templates/manage/release.html:73
 msgid "View file options"
@@ -2198,11 +2198,11 @@ msgstr "ファイルのオプション"
 
 #: warehouse/templates/manage/release.html:83
 msgid "Download"
-msgstr ""
+msgstr "ダウンロード"
 
 #: warehouse/templates/manage/release.html:89
 msgid "View Hashes"
-msgstr ""
+msgstr "ハッシュの表示"
 
 #: warehouse/templates/manage/release.html:94
 msgid "Delete file from"
@@ -2210,7 +2210,7 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:95
 msgid "Delete file"
-msgstr ""
+msgstr "ファイル削除"
 
 #: warehouse/templates/manage/release.html:99
 #: warehouse/templates/manage/releases.html:85
@@ -2287,21 +2287,21 @@ msgstr ""
 #: warehouse/templates/manage/releases.html:18
 #, python-format
 msgid "Manage '%(project_name)s' releases"
-msgstr ""
+msgstr "'%(project_name)s' のリリースを管理"
 
 #: warehouse/templates/manage/releases.html:21
 #, python-format
 msgid "Releases (%(release_count)s)"
-msgstr ""
+msgstr "リリース (%(release_count)s)"
 
 #: warehouse/templates/manage/releases.html:24
 #, python-format
 msgid "Releases for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s のリリース"
 
 #: warehouse/templates/manage/releases.html:28
 msgid "Release date"
-msgstr ""
+msgstr "リリース日"
 
 #: warehouse/templates/manage/releases.html:29
 msgid "Files"
@@ -2342,11 +2342,11 @@ msgstr ""
 
 #: warehouse/templates/manage/releases.html:105
 msgid "Creating a new release"
-msgstr ""
+msgstr "新しいリリースを作成"
 
 #: warehouse/templates/manage/releases.html:107
 msgid "No releases found"
-msgstr ""
+msgstr "リリースが見つかりません"
 
 #: warehouse/templates/manage/releases.html:110
 #, python-format
@@ -2355,6 +2355,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
 "User Guide</a>"
 msgstr ""
+"新しいリリースを作成する方法を学ぶには<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">Python Packaging User Guide</a>を参照してください"
 
 #: warehouse/templates/manage/roles.html:18
 #, python-format
