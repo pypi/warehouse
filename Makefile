@@ -4,7 +4,7 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
-LOCALES := $(shell find warehouse/locale -type d -depth 1 -exec basename {} \;)
+LOCALES := $(shell find warehouse/locale -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
