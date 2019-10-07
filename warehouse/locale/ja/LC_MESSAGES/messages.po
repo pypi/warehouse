@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 17:52+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"Last-Translator: Masashi Kondo <m-kondo@safie.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -59,7 +59,7 @@ msgstr "パスワードが無効です。もう一度やり直してください
 
 #: warehouse/accounts/forms.py:117
 msgid "There have been too many unsuccessful login attempts, try again later."
-msgstr "ログインの試行が失敗しすぎたので、後でもう一度やり直してください。"
+msgstr "ログインの失敗が多数発生しました。後でやり直してください。"
 
 #: warehouse/accounts/forms.py:139
 msgid "Your passwords don't match. Try again."
@@ -1647,7 +1647,7 @@ msgstr "セキュリティ端末 (<abbr title=\"web authentication\">WebAuthn</a
 
 #: warehouse/templates/manage/account.html:464
 msgid "Remove two factor security device"
-msgstr "二要素セキュリティ端末を削除"
+msgstr "二要素セキュリティ端末を削除する"
 
 #: warehouse/templates/manage/account.html:465
 msgid "Remove device"
