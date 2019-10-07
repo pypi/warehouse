@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-05 08:13+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"PO-Revision-Date: 2019-10-05 08:14+0000\n"
+"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -827,19 +827,19 @@ msgstr ""
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
-msgstr ""
+msgstr "あなたがこのメールを受け取ったのは、あなたがこのプロジェクトのオーナーだからです。"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account "
 "<strong>%(username)s</strong>."
-msgstr ""
+msgstr "あなたか誰かが、あなたの PyPI アカウント <strong>%(username)s</strong> のパスワードを変更しました。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
 msgid "What?"
-msgstr ""
+msgstr "え？"
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -850,6 +850,8 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
+"PyPI 管理者はあなたのパスワードが流出していることを特定しました。あなたと他のユーザを守るため、予防措置としてあなたのパスワードをリセットしました。"
+"現在のパスワードでは PyPI にログインしたりアップロードしたりすることはできません。"
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -861,18 +863,18 @@ msgstr "PyPI自体は侵害を受けていません。これは、PyPIとその�
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
-msgstr ""
+msgstr "何をすべきですか？"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
 msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your "
 "password</a> on PyPI."
-msgstr ""
+msgstr "あなたのアカウントへのアクセスを回復するには、 PyPI で<a href=\"%(href)s\">パスワードをリセット</a>して下さい。"
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
-msgstr ""
+msgstr "どうしたら連絡できますか？"
 
 #: warehouse/templates/email/password-compromised/body.html:41
 #, python-format
@@ -880,7 +882,7 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with"
 "\n"
 "  the PyPI administrators."
-msgstr ""
+msgstr "更に情報が必要でしたら、 %(email_address)s にメールして PyPI 管理者に連絡することができます。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
@@ -892,6 +894,8 @@ msgid ""
 "with your existing\n"
 "  password."
 msgstr ""
+"直近の PyPI へのログインまたはアップロード中に、我々はあなたのパスワードが過去に流出したデータに含まれていることを発見しました。あなたと他のユーザを"
+"守るため、予防措置としてあなたのパスワードをリセットしました。現在のパスワードでは PyPI にログインしたりアップロードしたりすることはできません。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -912,10 +916,13 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your "
 "other passwords and get yourself familiar with good password practices."
 msgstr ""
+"あなたのアカウントへのアクセスを回復するには、 PyPI で<a href=\"%(reset_pw_url)s\""
+">パスワードをリセット</a>して下さい。<a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a>にてあなたの他のパスワードを確認するとともに良いパスワードの例について学ぶこともお勧めします。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr ""
+msgstr "どのようにして分かったのですか？"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -927,6 +934,10 @@ msgid ""
 " password is compromised. The plaintext password is never stored by PyPI "
 "or sent to HaveIBeenPwned."
 msgstr ""
+"我々は<a href=\"%(have_i_been_pwned_url)s\""
+">HaveIBeenPwned</a>という無料セキュリティサービスを利用しています。あなたのパスワードを登録・認証・更新する際に、そのパスワードの "
+"SHA1 ハッシュを生成し、その最初の5文字を使ってパスワード流出の判定をしています。暗号化されていないパスワードが PyPI に保存されたり "
+"HaveIBeenPwned に送信されることは決してありません。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -935,6 +946,8 @@ msgid ""
 "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
 "communicate with the PyPI administrators."
 msgstr ""
+"更に情報が必要でしたら、<a href=\"%(faq_url)s\">FAQ</a>を参照して下さい。助けが必要でしたら、 <a href=\""
+"%(email_href)s\">%(email_address)s</a> にメールして PyPI 管理者に連絡することができます。"
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -942,13 +955,14 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
+"あなたか誰かが、あなたの PyPI アカウント <strong>%(username)s</strong> のパスワード リセットをリクエストしました。"
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
-msgstr ""
+msgstr "このリクエストを進めるには、<a href=\"%(href)s\">ここをクリックしてパスワードをリセットして下さい</a>。"
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -969,6 +983,8 @@ msgid ""
 " been changed from <code>%(old_email)s</code> to "
 "<code>%(new_email)s</code>"
 msgstr ""
+"あなたの PyPI アカウント <strong>%(username)s</strong> の主要メールアドレスは、 "
+"<code>%(old_email)s</code> から <code>%(new_email)s</code> へ変更されました"
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -976,13 +992,14 @@ msgid ""
 "Someone, perhaps you, has added this email address "
 "(<code>%(email_address)s</code>) to their PyPI account."
 msgstr ""
+"あなたか誰かが、このメールアドレス ( <code>%(email_address)s</code> )を PyPI アカウントに追加しました。"
 
 #: warehouse/templates/email/verify-email/body.html:20
 #, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>"
-msgstr ""
+msgstr "このリクエストを進めるには、<a href=\"%(href)s\">このリンクをクリックしてメールアドレスを確認して下さい</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
@@ -1128,7 +1145,7 @@ msgstr "警告"
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr ""
+msgstr "あなたの主要メールアドレス (%(email_address)s) は未確認です。"
 
 #: warehouse/templates/includes/session-notifications.html:25
 msgid "You do not have a primary email address."
@@ -1200,7 +1217,7 @@ msgstr "%(username)s はまだPyPIにプロジェクトをアップロードし�
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
-msgstr ""
+msgstr "%(project)s を管理するための情報"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
@@ -1273,7 +1290,7 @@ msgstr "ライセンス:"
 #: warehouse/templates/includes/packaging/project-data.html:82
 #: warehouse/templates/includes/packaging/project-data.html:84
 msgid "Author:"
-msgstr ""
+msgstr "作者:"
 
 #: warehouse/templates/includes/packaging/project-data.html:87
 #: warehouse/templates/includes/packaging/project-data.html:89
@@ -1287,7 +1304,7 @@ msgstr "タグ"
 
 #: warehouse/templates/includes/packaging/project-data.html:104
 msgid "Requires:"
-msgstr ""
+msgstr "必須:"
 
 #: warehouse/templates/includes/packaging/project-data.html:111
 msgid "Maintainers"
@@ -1295,7 +1312,7 @@ msgstr "メンテナ"
 
 #: warehouse/templates/includes/packaging/project-data.html:113
 msgid "Avatar for {username} from gravatar.com"
-msgstr ""
+msgstr "gravatar.com 上の {username} のアバター"
 
 #: warehouse/templates/includes/packaging/project-data.html:129
 #: warehouse/templates/pages/classifiers.html:16
@@ -1312,7 +1329,7 @@ msgstr "%(project_name)s のリンク"
 
 #: warehouse/templates/legacy/api/simple/index.html:17
 msgid "Simple index"
-msgstr ""
+msgstr "シンプルな索引"
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -1342,7 +1359,7 @@ msgstr "*配送中のハード障害"
 
 #: warehouse/templates/manage/account.html:60
 msgid "*Too many delivery problems"
-msgstr ""
+msgstr "*多数のメール配信の失敗"
 
 #: warehouse/templates/manage/account.html:64
 msgid "Unverified"
@@ -1407,7 +1424,7 @@ msgstr ""
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security "
 "device (e.g. USB key)"
-msgstr ""
+msgstr "セキュリティ端末（例えば USB キー）を用いた二要素認証を設定するには JavaScript を有効にして下さい"
 
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account/webauthn-provision.html:53
@@ -1417,6 +1434,8 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
+"セキュリティ端末（例えば USB キー）を用いた二要素認証を設定するには、<a href=\"%(href)s\" title=\"%(title)s\""
+" target=\"_blank\" rel=\"noopener\">ブラウザをアップグレード</a>して下さい"
 
 #: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/account.html:501
@@ -1755,7 +1774,7 @@ msgstr ""
 msgid ""
 "Method: Security device (<abbr title=\"web "
 "authentication\">WebAuthn</abbr>)"
-msgstr ""
+msgstr "方式: セキュリティ端末 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:585
 #: warehouse/templates/manage/account.html:595
@@ -1855,6 +1874,9 @@ msgid_plural ""
 "%(count)s projects.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          あなたのアカウントは現在 %(count)s プロジェクトにおいて<strong>唯一のオーナー</strong>となっています。\n"
+"        "
 
 #: warehouse/templates/manage/account.html:662
 msgid ""
@@ -1868,6 +1890,9 @@ msgid_plural ""
 " can delete your account.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          アカウントを削除する前に、これらのプロジェクトの所有権を移譲するかこれらのプロジェクトを削除しなければなりません。\n"
+"        "
 
 #: warehouse/templates/manage/account.html:672
 #, python-format
@@ -2111,7 +2136,7 @@ msgstr ""
 
 #: warehouse/templates/manage/projects.html:31
 msgid "Sole owner"
-msgstr ""
+msgstr "唯一のオーナー"
 
 #: warehouse/templates/manage/projects.html:36
 #, python-format
@@ -3516,7 +3541,7 @@ msgid ""
 msgstr ""
 "新しいソリューションには、生体認証（顔認証や指紋認証）スキャナとFIDO互換のクレジットカードが含まれます。また、<a href=\"%(href)s\""
 " title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">セキュリティ端末として機能する携帯電話</a>のサポートも高まっています。"
+">セキュリティ端末として機能する携帯電話</a>もますますサポートされてきています。"
 
 #: warehouse/templates/pages/help.html:389
 #, python-format
