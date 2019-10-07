@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 06:56+0000\n"
-"Last-Translator: Ryo/Liàng KAJI <kaji@code.ac.jp>\n"
+"Last-Translator: Masashi Kondo <m-kondo@safie.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -467,7 +467,7 @@ msgstr "新着: 最新のプロジェクトリリース"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr ""
+msgstr "この URL は、PyPI にファイルをアップロードするための API エンドポイントです。"
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -476,13 +476,15 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
+"PyPI へのプロジェクトのアップロードの詳細については、<a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>を参照してください。"
 
 #: warehouse/templates/upload.html:28
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI "
 "homepage</a>."
-msgstr ""
+msgstr "それ以外の場合は、<a href=\"%(href)s\">PyPIのホームページ</a>を参照することをお勧めします。"
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/register.html:17
@@ -680,7 +682,7 @@ msgstr "新しいパスワードを入力"
 
 #: warehouse/templates/accounts/reset-password.html:85
 msgid "Reset password"
-msgstr ""
+msgstr "パスワードをリセットする"
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
@@ -708,15 +710,15 @@ msgstr "ベータ機能"
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
-msgstr ""
+msgstr "セキュリティ端末を接続し、「端末で認証」ボタンをクリックします。"
 
 #: warehouse/templates/accounts/two-factor.html:43
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
-msgstr ""
+msgstr "セキュリティ端末（USBキーなど）でログインするにはJavaScriptを有効にして下さい"
 
 #: warehouse/templates/accounts/two-factor.html:52
 msgid "Authenticate with device"
-msgstr ""
+msgstr "端末で認証"
 
 #: warehouse/templates/accounts/two-factor.html:56
 #, python-format
@@ -725,11 +727,13 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device"
 " (e.g. USB key)"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">ブラウザをアップグレードして</a>セキュリティ端末（USBキーなど）でログインして下さい"
 
 #: warehouse/templates/accounts/two-factor.html:61
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
-msgstr ""
+msgstr "端末を紛失しましたか？動作がおかしい？<a href=\"%(href)s\">ヘルプ</a>を参照して下さい。"
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
@@ -1478,7 +1482,7 @@ msgid ""
 "on your primary email address"
 msgstr ""
 "主要メールアドレスに基づき<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">gravatar.com</a>を利用してプロフィール画像を作成します。"
+"\"noopener\">gravatar.com</a>を利用してプロフィール画像を作成します"
 
 #: warehouse/templates/manage/account.html:258
 msgid "Change image on gravatar.com"
@@ -1616,7 +1620,7 @@ msgstr "セキュリティ端末 (<abbr title=\"web authentication\">WebAuthn</a
 
 #: warehouse/templates/manage/account.html:464
 msgid "Remove two factor security device"
-msgstr "二要素セキュリティデバイスを削除"
+msgstr "二要素セキュリティ端末を削除"
 
 #: warehouse/templates/manage/account.html:465
 msgid "Remove device"
@@ -1755,7 +1759,8 @@ msgstr ""
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
-msgstr "方法: 認証アプリケーション（<abbr title=\"time-based one-time password\">TOTP）"
+msgstr ""
+"方法: 認証アプリケーション（<abbr title=\"time-based one-time password\">TOTP</abbr>）"
 
 #: warehouse/templates/manage/account.html:591
 msgid "Two factor authentication removed"
@@ -1796,7 +1801,7 @@ msgstr "アカウントでセキュリティ関連のアクションが発生す
 
 #: warehouse/templates/manage/account.html:622
 msgid "Recent account activity"
-msgstr ""
+msgstr "最近のアカウントアクティビティ"
 
 #: warehouse/templates/manage/account.html:624
 #: warehouse/templates/manage/history.html:88
@@ -1870,7 +1875,7 @@ msgstr "慎重に進めてください！"
 
 #: warehouse/templates/manage/account.html:684
 msgid "You will not be able to recover your account after you delete it"
-msgstr "アカウント削除後は、アカウントを回復できなくなります。"
+msgstr "アカウント削除後は、アカウントを回復できなくなります"
 
 #: warehouse/templates/manage/account.html:686
 msgid "Delete your PyPI account"
@@ -2139,7 +2144,7 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "あなたはまだ、PyPIにプロジェクトをアップロードしていません。始め方について学ぶには、<a href=\"%(href)s\" target=\""
-"_blank\" rel=\"noopener\">Python Packaging User Guide</a>を参照してください。"
+"_blank\" rel=\"noopener\">Python Packaging User Guide</a>を参照してください"
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
@@ -2468,7 +2473,7 @@ msgstr ""
 
 #: warehouse/templates/manage/settings.html:41
 msgid "Project description and sidebar"
-msgstr ""
+msgstr "プロジェクトの説明とサイドバー"
 
 #: warehouse/templates/manage/settings.html:43
 #, python-format
@@ -2485,11 +2490,19 @@ msgid ""
 "rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
 "for more help."
 msgstr ""
+"次のリリースで「 %(project_name)s 」の説明、作成者、リンク、分類、およびその他の詳細を設定するには、<a href=\""
+"%(setup_args_href)s\" rel=\"noopener\" target=\"_blank\""
+"><code>setup.py</code> ファイルにある <code>setup()</code> の引数</a>を使用します。これらのフィールドを更"
+"新すると、過去のリリースのメタデータは変更されません。さらに<strong>これらのフィールドを完全にサポートするには、<a href=\""
+"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\""
+">Twine</a>を使用してファイルをアップロードする必要があります</strong>。詳細については、<a href=\""
+"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">Python Packaging "
+"User Guide</a>を参照してください。"
 
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
 msgid "Delete project"
-msgstr ""
+msgstr "プロジェクトを削除"
 
 #: warehouse/templates/manage/settings.html:57
 msgid "Deleting this project will:"
@@ -2507,11 +2520,11 @@ msgstr[0] "プロジェクトと<a href=\"%(href)s\">%(count)s リリース</a>�
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
-msgstr ""
+msgstr "プロジェクトを完全に削除する"
 
 #: warehouse/templates/manage/settings.html:72
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
-msgstr ""
+msgstr "<strong>他の PyPI </strong>ユーザーがプロジェクト名を利用できるようにする"
 
 #: warehouse/templates/manage/settings.html:74
 msgid ""
@@ -2521,6 +2534,9 @@ msgid ""
 "unique, as they are generated by combining the project name + version "
 "number + distribution type)"
 msgstr ""
+"このユーザーは、配布ファイル名が以前にリリースされたディストリビューションのファイル名と一致しない限り、"
+"このプロジェクト名の下で新しいリリースを行うことができます (すべての PyPI "
+"配布ファイル名は、プロジェクト名とバージョン番号、配布タイプを組み合わせて生成されるため、ユニークです。)"
 
 #: warehouse/templates/manage/settings.html:85
 msgid "Project Name"
@@ -2553,7 +2569,7 @@ msgstr "アカウント全体（全プロジェクト）"
 #: warehouse/templates/manage/token.html:37
 #, python-format
 msgid "Project \"%(project)s\""
-msgstr ""
+msgstr "プロジェクト %(project)s"
 
 #: warehouse/templates/manage/token.html:40
 #, python-format
@@ -2582,7 +2598,7 @@ msgstr "他のトークンの追加"
 
 #: warehouse/templates/manage/token.html:78
 msgid "Token name"
-msgstr ""
+msgstr "トークン名"
 
 #: warehouse/templates/manage/token.html:87
 msgid "What is this token for?"
@@ -2598,7 +2614,7 @@ msgstr "スコープの選択..."
 
 #: warehouse/templates/manage/token.html:105
 msgid "Project:"
-msgstr ""
+msgstr "プロジェクト:"
 
 #: warehouse/templates/manage/token.html:114
 msgid ""
@@ -3369,7 +3385,7 @@ msgid ""
 "user."
 msgstr ""
 "セキュリティ端末とはUSBキーや、ワンタイム・パスワードを生成してブラウザに送信する<a href=\"#utfdevices\""
-">その他のデバイス</a>などのことです。このパスワードは、あなたをユーザとして認証するためにPyPIで使われます。"
+">その他の端末</a>などのことです。このパスワードは、あなたをユーザとして認証するためにPyPIで使われます。"
 
 #: warehouse/templates/pages/help.html:335
 msgid "To set up two factor authentication with a <em>USB key</em>, you'll need:"
