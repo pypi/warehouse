@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 07:12+0000\n"
-"Last-Translator: Masashi Kondo <m-kondo@safie.jp>\n"
+"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -1188,14 +1188,14 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"あなたはまだPyPIにプロジェクトをひとつもアップロードしていません。はじめ方について学ぶには、 <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"あなたはまだPyPIにプロジェクトをアップロードしていません。はじめ方について学ぶには、 <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>を参照してください"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
-msgstr ""
+msgstr "%(username)s はまだPyPIにプロジェクトをアップロードしていません。"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
@@ -1264,7 +1264,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
-msgstr ""
+msgstr "メタデータ"
 
 #: warehouse/templates/includes/packaging/project-data.html:79
 msgid "License:"
@@ -2151,7 +2151,7 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"あなたはまだ、PyPIにプロジェクトをアップロードしていません。始め方について学ぶには、<a href=\"%(href)s\" target=\""
+"あなたはまだPyPIにプロジェクトをアップロードしていません。はじめ方について学ぶには、<a href=\"%(href)s\" target=\""
 "_blank\" rel=\"noopener\">Python Packaging User Guide</a>を参照してください"
 
 #: warehouse/templates/manage/release.html:18
@@ -3772,7 +3772,7 @@ msgid ""
 "project page."
 msgstr ""
 "プロジェクトの現在のオーナーだけが、新しいオーナーやメンテナを追加できます。もし所有権をリクエストする必要がある場合、プロジェクトの現在のオーナーに直接連"
-"絡してください。多くのプロジェクトのオーナーは、プロジェクトページの「Meta」詳細の「作者」欄に問い合わせ先を記しています。"
+"絡してください。多くのプロジェクトのオーナーは、プロジェクトページの「メタデータ」詳細にある「作者」欄に問い合わせ先を記載しています。"
 
 #: warehouse/templates/pages/help.html:478
 #, python-format
