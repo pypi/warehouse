@@ -7,13 +7,14 @@
 # Maelle <maellevance@gmail.com>, 2019.
 # Xavier Fernandez <xav.fernandez@gmail.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
+# gabriel-tessier <tessier@luxeys.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-29 13:07+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2019-10-07 08:25+0000\n"
+"Last-Translator: gabriel-tessier <tessier@luxeys.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -328,7 +329,7 @@ msgstr ""
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "Lien externe"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
@@ -367,11 +368,11 @@ msgstr ""
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "Code d'erreur 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Utilisez-vous PyPI pour le travail?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -385,25 +386,25 @@ msgstr ""
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr ""
+msgstr "Chercher sur Pypi"
 
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr ""
+msgstr "Chercher des projets"
 
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr ""
+msgstr "Rechercher"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr ""
+msgstr "Code d'erreur"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr ""
+msgstr "Retour à l'accueil"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
@@ -2431,7 +2432,7 @@ msgstr ""
 
 #: warehouse/templates/manage/roles.html:136
 msgid "User's username"
-msgstr ""
+msgstr "Nom de l'utilisateur"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
