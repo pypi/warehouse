@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 06:55+0000\n"
-"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
+"Last-Translator: shinji uyama <uyaaan.event@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -2053,7 +2053,7 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:57
 #: warehouse/templates/manage/releases.html:71
 msgid "Manage"
-msgstr ""
+msgstr "管理"
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
@@ -2129,7 +2129,7 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:77
 msgid "View"
-msgstr ""
+msgstr "表示"
 
 #: warehouse/templates/manage/projects.html:74
 #, python-format
@@ -2221,7 +2221,7 @@ msgstr "ファイル削除"
 #: warehouse/templates/manage/release.html:99
 #: warehouse/templates/manage/releases.html:85
 msgid "Delete"
-msgstr ""
+msgstr "削除"
 
 #: warehouse/templates/manage/release.html:120
 msgid "Uploading new files"
@@ -2311,11 +2311,11 @@ msgstr "リリース日"
 
 #: warehouse/templates/manage/releases.html:29
 msgid "Files"
-msgstr ""
+msgstr "ファイル"
 
 #: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
-msgstr ""
+msgstr "バージョンの管理"
 
 #: warehouse/templates/manage/releases.html:45
 #, python-format
@@ -2328,10 +2328,13 @@ msgid_plural ""
 "              %(count)s files\n"
 "            "
 msgstr[0] ""
+"\n"
+"              %(count)s個のファイル\n"
+"            "
 
 #: warehouse/templates/manage/releases.html:56
 msgid "No files"
-msgstr ""
+msgstr "ファイルはありません"
 
 #: warehouse/templates/manage/releases.html:61
 msgid "View release options"
@@ -2340,11 +2343,11 @@ msgstr "リリースのオプションを表示"
 #: warehouse/templates/manage/releases.html:67
 #, python-format
 msgid "Options for %(version)s"
-msgstr ""
+msgstr "%(version)s のオプション"
 
 #: warehouse/templates/manage/releases.html:81
 msgid "Delete Release"
-msgstr ""
+msgstr "リリース削除"
 
 #: warehouse/templates/manage/releases.html:105
 msgid "Creating a new release"
