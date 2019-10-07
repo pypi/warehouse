@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 08:14+0000\n"
-"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
+"Last-Translator: Masashi Kondo <m-kondo@safie.jp>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -1630,7 +1630,7 @@ msgstr "認証アプリケーション (<abbr title=\"time-based one-time passwo
 #: warehouse/templates/manage/account.html:463
 #: warehouse/templates/manage/roles.html:117
 msgid "Remove"
-msgstr ""
+msgstr "削除"
 
 #: warehouse/templates/manage/account.html:449
 msgid "Remove authentication application"
@@ -1671,7 +1671,7 @@ msgstr "アカウントの二要素認証を有効にするには<a href=\"%(hre
 #: warehouse/templates/manage/account.html:492
 #: warehouse/templates/manage/settings.html:23
 msgid "API tokens"
-msgstr ""
+msgstr "API トークン"
 
 #: warehouse/templates/manage/account.html:493
 #: warehouse/templates/manage/settings.html:24
@@ -1763,11 +1763,11 @@ msgstr "パスワードのリセットが成功しました"
 
 #: warehouse/templates/manage/account.html:578
 msgid "Password successfully changed"
-msgstr ""
+msgstr "パスワードが正常に変更されました"
 
 #: warehouse/templates/manage/account.html:581
 msgid "Two factor authentication added"
-msgstr ""
+msgstr "二要素認証が追加されました"
 
 #: warehouse/templates/manage/account.html:584
 #: warehouse/templates/manage/account.html:594
@@ -1779,7 +1779,7 @@ msgstr "方式: セキュリティ端末 (<abbr title=\"web authentication\">Web
 #: warehouse/templates/manage/account.html:585
 #: warehouse/templates/manage/account.html:595
 msgid "Device name:"
-msgstr ""
+msgstr "端末名:"
 
 #: warehouse/templates/manage/account.html:587
 #: warehouse/templates/manage/account.html:597
@@ -1791,7 +1791,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:591
 msgid "Two factor authentication removed"
-msgstr ""
+msgstr "二要素認証が削除されました"
 
 #: warehouse/templates/manage/account.html:602
 #: warehouse/templates/manage/history.html:65
@@ -1811,7 +1811,7 @@ msgstr "トークンのスコープ: アカウント全体"
 #: warehouse/templates/manage/account.html:608
 #, python-format
 msgid "Token scope: Project %(project_name)s"
-msgstr ""
+msgstr "トークンスコープ: プロジェクト %(project_name)s"
 
 #: warehouse/templates/manage/account.html:613
 #: warehouse/templates/manage/history.html:72
@@ -1820,7 +1820,7 @@ msgstr "APIトークンが削除されました"
 
 #: warehouse/templates/manage/account.html:614
 msgid "Unique identifier:"
-msgstr ""
+msgstr "一意の識別子:"
 
 #: warehouse/templates/manage/account.html:620
 msgid "Events appear here as security-related actions occur on your account."
@@ -1859,7 +1859,7 @@ msgstr "アカウント削除"
 
 #: warehouse/templates/manage/account.html:655
 msgid "Cannot delete account"
-msgstr ""
+msgstr "アカウントを削除できません"
 
 #: warehouse/templates/manage/account.html:657
 #, python-format
@@ -1900,6 +1900,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
+"<a href=\"%(transfer_href)s\">所有権の譲渡</a>または<a href=\"%(delete_href)s\""
+">プロジェクトの削除</a>"
 
 #: warehouse/templates/manage/account.html:681
 #: warehouse/templates/manage/token.html:113
@@ -1933,7 +1935,7 @@ msgstr ""
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
-msgstr ""
+msgstr "プロジェクトのドキュメントを破棄する"
 
 #: warehouse/templates/manage/documentation.html:35
 #: warehouse/templates/manage/release.html:110
@@ -1943,11 +1945,11 @@ msgstr "プロジェクト名"
 
 #: warehouse/templates/manage/documentation.html:39
 msgid "Project documentation"
-msgstr ""
+msgstr "プロジェクトのドキュメント"
 
 #: warehouse/templates/manage/documentation.html:41
 msgid "Uploading new documentation is no longer supported"
-msgstr ""
+msgstr "新しいドキュメントのアップロードはサポートされなくなりました"
 
 #: warehouse/templates/manage/history.html:20
 #, python-format
@@ -1976,7 +1978,7 @@ msgstr "<a href=\"%(href)s\">リリースバージョン%(version)s</a>作成"
 #: warehouse/templates/manage/history.html:36
 #: warehouse/templates/manage/history.html:52
 msgid "Added by:"
-msgstr ""
+msgstr "追加者:"
 
 #: warehouse/templates/manage/history.html:39
 #, python-format
@@ -1987,7 +1989,7 @@ msgstr "リリースバージョン%(version)s削除"
 #: warehouse/templates/manage/history.html:47
 #: warehouse/templates/manage/history.html:57
 msgid "Removed by:"
-msgstr ""
+msgstr "削除者:"
 
 #: warehouse/templates/manage/history.html:44
 #, python-format
@@ -2007,7 +2009,7 @@ msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として追加"
 #: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
-msgstr ""
+msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として削除"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
@@ -2016,7 +2018,7 @@ msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として変更"
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
-msgstr ""
+msgstr "変更者:"
 
 #: warehouse/templates/manage/history.html:67
 #: warehouse/templates/manage/history.html:74
@@ -2031,7 +2033,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:85
 #, python-format
 msgid "Security history for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s のセキュリティ履歴"
 
 #: warehouse/templates/manage/journal.html:20
 #, python-format
@@ -2046,7 +2048,7 @@ msgstr "プロジェクトの履歴"
 msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
-msgstr ""
+msgstr "自分または共同編集者がこのプロジェクトを更新するたびに、アクションが記録され、ここに表示されます。"
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
@@ -2080,12 +2082,12 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:45
 #, python-format
 msgid "Release %(version)s:"
-msgstr ""
+msgstr "リリース %(version)s:"
 
 #: warehouse/templates/manage/journal.html:54
 #, python-format
 msgid "from %(ip_address)s"
-msgstr ""
+msgstr "from %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
@@ -2095,12 +2097,12 @@ msgstr "管理"
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
-msgstr ""
+msgstr "あなたのアカウント"
 
 #: warehouse/templates/manage/manage_base.html:27
 #: warehouse/templates/manage/manage_base.html:47
 msgid "Account navigation"
-msgstr ""
+msgstr "アカウントナビゲーション"
 
 #: warehouse/templates/manage/manage_base.html:105
 msgid "This action cannot be undone!"
@@ -2113,7 +2115,7 @@ msgstr "続行するにはユーザ名を確認してください。"
 #: warehouse/templates/manage/manage_base.html:115
 #, python-format
 msgid "Confirm the %(item)s to continue."
-msgstr ""
+msgstr "%(item)s を確認して続行します。"
 
 #: warehouse/templates/manage/manage_base.html:123
 msgid "Cancel"
@@ -2122,7 +2124,7 @@ msgstr "キャンセル"
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
 msgid "Manage '%(project_name)s'"
-msgstr ""
+msgstr "「 %(project_name)s 」を管理する"
 
 #: warehouse/templates/manage/manage_project_base.html:32
 #: warehouse/templates/manage/projects.html:21
@@ -2132,7 +2134,7 @@ msgstr "あなたのプロジェクト %(project_count)s"
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr ""
+msgstr "プロジェクトに戻る"
 
 #: warehouse/templates/manage/projects.html:31
 msgid "Sole owner"
@@ -2146,23 +2148,23 @@ msgstr "最終リリース日: %(release_date)s"
 #: warehouse/templates/manage/projects.html:43
 #, python-format
 msgid "Created on %(creation_date)s"
-msgstr ""
+msgstr "%(creation_date)s に作成"
 
 #: warehouse/templates/manage/projects.html:52
 msgid "Manage this project"
-msgstr ""
+msgstr "このプロジェクトを管理する"
 
 #: warehouse/templates/manage/projects.html:55
 msgid "You are not an owner of this project"
-msgstr ""
+msgstr "あなたはこのプロジェクトの所有者ではありません"
 
 #: warehouse/templates/manage/projects.html:62
 msgid "View this project's public page"
-msgstr ""
+msgstr "このプロジェクトの公開ページを見る"
 
 #: warehouse/templates/manage/projects.html:65
 msgid "This project has no releases"
-msgstr ""
+msgstr "このプロジェクトにはリリースがありません"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:77
@@ -2414,7 +2416,7 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:18
 #, python-format
 msgid "Manage '%(project_name)s' collaborators"
-msgstr ""
+msgstr "%(project_name)s の共同編集者を管理"
 
 #: warehouse/templates/manage/roles.html:22
 #, python-format
@@ -2455,7 +2457,7 @@ msgstr "リリースのアップロード、他の共同編集者の追加、フ
 #: warehouse/templates/manage/roles.html:34
 #, python-format
 msgid "Users who can manage %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s を管理できるユーザ"
 
 #: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/roles.html:78
@@ -2473,7 +2475,7 @@ msgstr "保存"
 
 #: warehouse/templates/manage/roles.html:111
 msgid "Cannot remove yourself as owner"
-msgstr "オーナーである自分自身を削除できません。"
+msgstr "オーナーである自分自身を削除できません"
 
 #: warehouse/templates/manage/roles.html:114
 #, python-format
@@ -2487,21 +2489,21 @@ msgstr "共同編集者を追加"
 
 #: warehouse/templates/manage/roles.html:136
 msgid "User's username"
-msgstr ""
+msgstr "ユーザーの名前"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
 msgid "Manage '%(project_name)s' settings"
-msgstr ""
+msgstr "%(project_name)s の設定管理"
 
 #: warehouse/templates/manage/settings.html:21
 msgid "Project settings"
-msgstr ""
+msgstr "プロジェクト設定"
 
 #: warehouse/templates/manage/settings.html:28
 #, python-format
 msgid "Create a token for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s のトークンを作成する"
 
 #: warehouse/templates/manage/settings.html:33
 #, python-format
@@ -2509,6 +2511,7 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
+"<a href=\"%(href)s\"> 主要メールアドレスを確認 </a> して、 %(project_name)s のAPIトークンを追加します。"
 
 #: warehouse/templates/manage/settings.html:41
 msgid "Project description and sidebar"
@@ -2555,7 +2558,7 @@ msgid ""
 msgid_plural ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
 " releases</a>"
-msgstr[0] "プロジェクトと<a href=\"%(href)s\">%(count)s リリース</a>を削除します"
+msgstr[0] "プロジェクトと<a href=\"%(href)s\">%(count)s リリース</a>を完全に削除します"
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
@@ -3874,7 +3877,7 @@ msgstr "どのインデックスを増やす必要があるのか（PyPI, Test P
 msgid ""
 "A brief description of your project, including the reason for the "
 "additional size."
-msgstr "プロジェクトの短い説明（追加サイズを必要とする理由を含む）"
+msgstr "プロジェクトの短い説明（追加サイズを必要とする理由を含む）。"
 
 #: warehouse/templates/pages/help.html:507
 msgid ""
@@ -4622,6 +4625,9 @@ msgid_plural ""
 "                  with the selected classifiers\n"
 "                "
 msgstr[0] ""
+"\n"
+"                  選択した分類を使用\n"
+"                "
 
 #: warehouse/templates/search/results.html:186
 msgid "Order by"
