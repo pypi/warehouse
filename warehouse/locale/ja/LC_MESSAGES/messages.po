@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
 "PO-Revision-Date: 2019-10-05 06:06+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"Last-Translator: Yuta Kanzawa <ytknzw@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -103,7 +103,7 @@ msgstr "そのユーザ名またはメールアドレスのユーザは見つか
 
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
+msgstr "ログインの失敗が多数発生しました。後でやり直してください。"
 
 #: warehouse/accounts/views.py:197 warehouse/accounts/views.py:250
 #: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
@@ -129,69 +129,69 @@ msgstr ""
 
 #: warehouse/accounts/views.py:482
 msgid "Expired token: request a new password reset link"
-msgstr "期限切れのトークン: 新しいパスワード・リセット・リンクをリクエストして下さい"
+msgstr "期限切れのトークン: 新しいパスワード リセット リンクをリクエストして下さい"
 
 #: warehouse/accounts/views.py:484
 msgid "Invalid token: request a new password reset link"
-msgstr "無効なトークン: 新しいパスワード・リセット・リンクをリクエストして下さい"
+msgstr "無効なトークン: 新しいパスワード リセット リンクをリクエストして下さい"
 
 #: warehouse/accounts/views.py:486 warehouse/accounts/views.py:558
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "無効なトークン: トークンがありません"
 
 #: warehouse/accounts/views.py:490
 msgid "Invalid token: not a password reset token"
-msgstr "無効なトークン: パスワード・リセット・トークンではありません"
+msgstr "無効なトークン: パスワード リセット トークンではありません"
 
 #: warehouse/accounts/views.py:495
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "無効なトークン: ユーザが見つかりません"
 
 #: warehouse/accounts/views.py:502
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr ""
+msgstr "無効なトークン: このトークンのリクエスト後にユーザがログインしました"
 
 #: warehouse/accounts/views.py:509
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
+msgstr "無効なトークン: このトークンのリクエスト後にパスワードが変更されました"
 
 #: warehouse/accounts/views.py:532
 msgid "You have reset your password"
-msgstr ""
+msgstr "パスワードをリセットしました"
 
 #: warehouse/accounts/views.py:554
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "期限切れのトークン: 新しいメールアドレス確認リンクをリクエストして下さい"
 
 #: warehouse/accounts/views.py:556
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "無効なトークン: 新しいメールアドレス確認リンクをリクエストして下さい"
 
 #: warehouse/accounts/views.py:562
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "無効なトークン: メールアドレス確認トークンではありません"
 
 #: warehouse/accounts/views.py:571
 msgid "Email not found"
-msgstr ""
+msgstr "メールアドレスが見つかりません"
 
 #: warehouse/accounts/views.py:574
 msgid "Email already verified"
-msgstr ""
+msgstr "メールアドレスは確認済みです"
 
 #: warehouse/accounts/views.py:586
 msgid "You can now set this email as your primary address"
-msgstr "これで、このメールを主要なアドレスとして設定できるようになります。"
+msgstr "これで、このメールを主要なアドレスとして設定できるようになります"
 
 #: warehouse/accounts/views.py:588
 msgid "This is your primary address"
-msgstr ""
+msgstr "これが主要メールアドレスです"
 
 #: warehouse/accounts/views.py:593
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "メールアドレス ${email_address} が確認されました。 ${confirm_message}。"
 
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -199,7 +199,7 @@ msgstr "メールアドレス ${email_address} が追加されました - メー
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr ""
+msgstr "アクセスが拒否されました (403)"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
@@ -211,7 +211,7 @@ msgstr "ページが見つかりません (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "どこを探してもこのページは見つかりませんでした"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
@@ -219,7 +219,7 @@ msgstr ""
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "Monty Python - The Cheese Shop Sketch"
+msgstr "モンティ・パイソン — チーズ・ショップ"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -313,7 +313,7 @@ msgstr "動画の台本を見る"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "ページが削除されました (410)"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
@@ -321,11 +321,11 @@ msgstr "お探しのページは削除されました"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "Internal server error (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "何か問題が発生しました"
 
 #: warehouse/templates/500.html:22
 msgid ""
