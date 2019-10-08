@@ -59,7 +59,7 @@ Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   Do not use venv/virtualenv for configuring the development environment. 
+   Do not use venv/virtualenv for configuring the development environment.
    Docker creates and remove venv/virtualenv as needed.
 
 Why Docker?
