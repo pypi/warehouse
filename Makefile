@@ -4,7 +4,7 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
-LOCALES := $(shell find warehouse/locale -type d -depth 1 -exec basename {} \;)
+LOCALES := $(shell find warehouse/locale -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -174,7 +174,7 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-compile-pot:
+compile-pot: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel extract \
 		-F babel.cfg \
 		--copyright-holder="PyPA" \
@@ -183,19 +183,19 @@ compile-pot:
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
-init-po:
+init-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel init \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-dir="warehouse/locale/" \
 		--locale="$(L)"
 
-update-po:
+update-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel update \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--locale="$(L)"
 
-compile-po:
+compile-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel compile \
 		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--directory="warehouse/locale/" \

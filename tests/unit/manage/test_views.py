@@ -667,8 +667,14 @@ class TestManageAccount:
         jid = JournalEntryFactory.create(submitted_by=user).id
 
         db_request.user = user
-        db_request.params = {"confirm_username": user.username}
+        db_request.params = {"confirm_password": user.password}
         db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -698,7 +704,7 @@ class TestManageAccount:
 
     def test_delete_account_no_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": ""},
+            params={"confirm_password": ""},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
@@ -716,11 +722,17 @@ class TestManageAccount:
 
     def test_delete_account_wrong_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "invalid"},
+            params={"confirm_password": "invalid"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: False)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -731,18 +743,24 @@ class TestManageAccount:
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not delete account - 'invalid' is not the same as " "'username'",
+                "Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
         ]
 
     def test_delete_account_has_active_projects(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "username"},
+            params={"confirm_password": "password"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -1081,7 +1099,7 @@ class TestProvisionTOTP:
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1124,13 +1142,13 @@ class TestProvisionTOTP:
             )
         ]
 
-    def test_delete_totp_bad_username(self, monkeypatch, db_request):
+    def test_delete_totp_bad_password(self, monkeypatch, db_request):
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1152,7 +1170,7 @@ class TestProvisionTOTP:
 
         assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
-            pretend.call("Invalid credentials", queue="error")
+            pretend.call("Invalid credentials. Try again", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -1163,7 +1181,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1470,7 +1488,7 @@ class TestProvisionMacaroonViews:
         )
 
         request = pretend.stub(
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: pretend.stub(),
                 IUserService: pretend.stub(),
@@ -1768,7 +1786,7 @@ class TestProvisionMacaroonViews:
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1776,6 +1794,8 @@ class TestProvisionMacaroonViews:
             }[interface],
             referer="/fake/safe/route",
             host=None,
+            user=pretend.stub(username=pretend.stub()),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1791,13 +1811,16 @@ class TestProvisionMacaroonViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/fake/safe/route"
         assert macaroon_service.delete_macaroon.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials. Try again", queue="error")
+        ]
 
     def test_delete_macaroon_dangerous_redirect(self, monkeypatch):
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: "/safe/route"),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1805,6 +1828,8 @@ class TestProvisionMacaroonViews:
             }[interface],
             referer="http://google.com/",
             host=None,
+            user=pretend.stub(username=pretend.stub()),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1834,7 +1859,7 @@ class TestProvisionMacaroonViews:
         )
         user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1843,7 +1868,7 @@ class TestProvisionMacaroonViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             referer="/fake/safe/route",
             host=None,
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             remote_addr="0.0.0.0",
         )
 
@@ -1893,7 +1918,7 @@ class TestProvisionMacaroonViews:
         )
         user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": pretend.stub(), "macaroon_id": pretend.stub()},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
