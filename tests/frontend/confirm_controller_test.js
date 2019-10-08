@@ -22,23 +22,18 @@ describe("Confirm controller", () => {
     document.body.innerHTML = `
   <div class="modal" data-controller="confirm">
     <div class="modal__content" role="dialog">
-        <a id="cancel" href="#modal-close" data-action="click->confirm#cancel" title="Close" class="modal__close">
-            <i class="fa fa-times" aria-hidden="true"></i>
-            <span class="sr-only">close</span>
-        </a>
-        <div class="modal__body">
-            <h3 class="modal__title">Delete package?</h3>
+      <div class="modal__body">
+        <h3 class="modal__title">Delete package?</h3>
         <p>Confirm to continue.</p>
         <label for="package">Delete</label>
         <input id="input-target" name="package" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
-            <button type="reset" data-action="click->confirm#cancel">Cancel</button>
-            <button id="button-target" data-target="confirm.button" data-expected="package" type="submit">
-                Confirm
-            </button>
-        </div>
-        </form>
+          <button id="button-target" data-target="confirm.button" data-expected="package" type="submit">
+              Confirm
+          </button>
+      </div>
+      </form>
     </div>
   </div>
     `;
@@ -57,18 +52,6 @@ describe("Confirm controller", () => {
   });
 
   describe("functionality", function() {
-    describe("clicking cancel", function() {
-      it("sets the window location, resets the input target and disables the button", function() {
-        document.getElementById("cancel").click();
-
-        expect(window.location.href).toContain("#modal-close");
-        const inputTarget = document.getElementById("input-target");
-        expect(inputTarget.value).toEqual("");
-        const buttonTarget = document.getElementById("button-target");
-        expect(buttonTarget).toHaveAttribute("disabled");
-      });
-    });
-
     describe("entering expected text", function() {
       it("enables the button", function() {
         fireEvent.input(document.getElementById("input-target"), { target: { value: "package" } });
