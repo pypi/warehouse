@@ -1,3 +1,8 @@
+|travis-badge|_
+
+.. |travis-badge| image:: https://api.travis-ci.org/pypa/warehouse.svg?branch=master
+.. _travis-badge: https://travis-ci.org/pypa/warehouse
+
 Warehouse
 =========
 
