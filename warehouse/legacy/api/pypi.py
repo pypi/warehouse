@@ -156,7 +156,6 @@ def display(request):
 
 
 @view_config(route_name="legacy.api.pypi.token.new")
-# TODO figure out best way to verify master token
 def create_token(request):
     macaroon_service = request.find_service(IMacaroonService, context=None)
     try:
@@ -168,24 +167,21 @@ def create_token(request):
         )
     except InvalidMacaroon:
         raise HTTPUnauthorized()
-    try:
-        user = macaroon_service.find_userid(
-            request.master_key
-        )  # To determine the user of the original token
-        scope = {
-            "version": 2,
-            "expiration": int(datetime.now(tz=timezone.utc).timestamp()) + 3600,
-            "permissions": {
-                "projects": [{"name": request.project_name, "version": request.version}]
-            },
-        }
-        serialized_macaroon, macaroon = macaroon_service.create_macaroon(
-            location=request.domain,  # ?
-            user_id=user,
-            description=request.description,
-            caveats=scope,
+    user = macaroon_service.find_userid(
+        request.master_key
+    )  # To determine the user of the original token
+    scope = {
+        "version": 2,
+        "expiration": int(datetime.now(tz=timezone.utc).timestamp()) + 3600,
+        "permissions": {
+            "projects": [{"name": request.project_name, "version": request.version}]
+        },
+    }
+    serialized_macaroon, macaroon = macaroon_service.create_macaroon(
+        location=request.domain,  # ?
+        user_id=user,
+        description=request.description,
+        caveats=scope,
         )
-    except InvalidMacaroon: #need to figure out why this is not catching
-        raise HTTPBadRequest()
 
     return {"upload_token": serialized_macaroon}
