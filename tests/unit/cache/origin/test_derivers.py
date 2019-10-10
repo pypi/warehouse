@@ -12,14 +12,14 @@
 
 import pretend
 
-from warehouse.cache.origin.derivers import html_cache_deriver
+from warehouse.cache.origin import derivers
 
 
 def test_no_renderer():
     view = pretend.stub()
     info = pretend.stub(options={})
 
-    assert html_cache_deriver(view, info) == view
+    assert derivers.html_cache_deriver(view, info) == view
 
 
 def test_non_html_renderer():
@@ -27,7 +27,7 @@ def test_non_html_renderer():
     renderer = pretend.stub(name="foo.txt")
     info = pretend.stub(options={"renderer": renderer})
 
-    assert html_cache_deriver(view, info) == view
+    assert derivers.html_cache_deriver(view, info) == view
 
 
 def test_no_origin_cache_found():
@@ -45,11 +45,11 @@ def test_no_origin_cache_found():
         add_response_callback=pretend.call_recorder(lambda a: None),
     )
 
-    assert html_cache_deriver(view, info)(context, request) == view_result
+    assert derivers.html_cache_deriver(view, info)(context, request) == view_result
     assert request.add_response_callback.calls == []
 
 
-def test_response_hook():
+def test_response_hook(monkeypatch):
     class Cache:
         @staticmethod
         @pretend.call_recorder
@@ -69,14 +69,17 @@ def test_response_hook():
         find_service=lambda iface: cacher, add_response_callback=callbacks.append
     )
     info = pretend.stub(options={"renderer": pretend.stub(name="foo.html")})
-    derived_view = html_cache_deriver(view, info)
+    derived_view = derivers.html_cache_deriver(view, info)
+    add_vary_callback = pretend.call_recorder(lambda a: None)
+    monkeypatch.setattr(derivers, "add_vary_callback", add_vary_callback)
 
     assert derived_view(context, request) is response
     assert view.calls == [pretend.call(context, request)]
-    assert len(callbacks) == 1
+    assert len(callbacks) == 2
 
     callbacks[0](request, response)
 
     assert cacher.cache.calls == [
         pretend.call(["all-html", "foo.html"], request, response)
     ]
+    assert add_vary_callback.calls == [pretend.call("PyPI-Locale")]
