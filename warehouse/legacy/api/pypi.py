@@ -20,6 +20,10 @@ from warehouse.macaroons.interfaces import IMacaroonService
 
 from warehouse.classifiers.models import Classifier
 
+from datetime import datetime, timezone
+
+# from warehouse.packaging.models import Project
+
 
 def _exc_with_message(exc, message):
     # The crappy old API that PyPI offered uses the status to pass down
@@ -160,7 +164,7 @@ def create_token(request):
             raw_macaroon=request.master_key,
             context="",
             principals="",
-            permissions="user",
+            permission={"version": 2, "permissions": "user"},
         )
     except InvalidMacaroon:
         raise HTTPUnauthorized()
@@ -170,9 +174,9 @@ def create_token(request):
         )  # To determine the user of the original token
         scope = {
             "version": 2,
-            "expiration": request.expiration,
+            "expiration": int(datetime.now(tz=timezone.utc).timestamp()) + 3600,
             "permissions": {
-                "projects": [{"name": request.project_name, "version": request.release}]
+                "projects": [{"name": request.project_name, "version": request.version}]
             },
         }
         serialized_macaroon, macaroon = macaroon_service.create_macaroon(
@@ -181,7 +185,7 @@ def create_token(request):
             description=request.description,
             caveats=scope,
         )
-    except ValueError or InvalidMacaroon:
+    except InvalidMacaroon: #need to figure out why this is not catching
         raise HTTPBadRequest()
 
     return {"upload_token": serialized_macaroon}
