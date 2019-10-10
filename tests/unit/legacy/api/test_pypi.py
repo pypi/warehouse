@@ -14,7 +14,7 @@ import pretend
 import pytest
 import pymacaroons
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound, HTTPUnauthorized
 
 from warehouse.legacy.api import pypi
 
@@ -232,7 +232,7 @@ class TestToken:
             {"version": 2, "permissions": "user"},
         )
         request = pretend.stub(
-            user=pretend.stub(id=pretend.stub()),
+            user=user,
             domain="fake location",
             find_service=lambda interface, **kw: {IMacaroonService: macaroon_service}[
                 interface
@@ -242,7 +242,20 @@ class TestToken:
             version=version,
             description="fake description!",
         )
-        assert pypi.create_token(request) == {} 
-        # for some reason this passes each time even though 2 test cases should not pass
-        # with pytest.raises(HTTPBadRequest):
-        #     pypi.create_token(request) # for some reason HTTPBadReq is never raised
+        assert isinstance(pypi.create_token(request), dict)
+    
+    def test_invalid_master_token(self, macaroon_service):
+        user = UserFactory.create()
+        request = pretend.stub(
+            user=user,
+            domain="fake location",
+            find_service=lambda interface, **kw: {IMacaroonService: macaroon_service}[
+                interface
+            ],
+            master_key="a fake key",
+            project_name="foo",
+            version="1.0",
+            description="fake description!",
+        )
+        with pytest.raises(HTTPUnauthorized):
+            pypi.create_token(request)
