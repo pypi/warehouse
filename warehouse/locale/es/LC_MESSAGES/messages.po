@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-11 20:40+0000\n"
-"Last-Translator: Juan Funez <juan.funez@gmail.com>\n"
+"PO-Revision-Date: 2019-10-12 03:21+0000\n"
+"Last-Translator: Katia Lira <katialira.villena@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -642,7 +642,7 @@ msgstr "Su dirección de correo"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr "Confirmar formulario"
+msgstr "Formulario de Confirmación"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
@@ -826,8 +826,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project)s by %(submitter)s."
 msgstr ""
-"%(submitter)s lo/a ha añadido como <strong>%(role)s</strong> al proyecto "
-"%(project)s en %(site)s."
+"Ha sido añadido como <strong>%(role)s</strong> al %(site)s proyecto "
+"%(project)s por %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
@@ -974,8 +974,8 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
-"El propio PyPI no ha sufrido una brecha. Esta es una medida precautoria "
-"para\n"
+"El propio PyPI no ha sufrido una brecha de seguridad. Esta es una medida "
+"preventiva para\n"
 "  reducir el riesgo de <a href=\"%(href)s\">ataques por «credential "
 "stuffing»</a>\n"
 "  que podrían perpetrarse contra PyPI y sus usuarios."
@@ -2126,7 +2126,7 @@ msgstr "Añadido por:"
 #: warehouse/templates/manage/history.html:39
 #, python-format
 msgid "Release version %(version)s removed"
-msgstr "Versión de lanzamiento %(version) eliminada"
+msgstr "Version de lanzamiento %(version)s eliminada"
 
 #: warehouse/templates/manage/history.html:41
 #: warehouse/templates/manage/history.html:47
@@ -4479,6 +4479,9 @@ msgid ""
 "PyPI, you should reach out to the maintainers of that project directly "
 "instead."
 msgstr ""
+"Si estas teniendo un problema con un paquete específico instalado desde "
+"PyPI, debes comunicarte directamente con los encargados del mantenimiento de "
+"ese proyecto."
 
 #: warehouse/templates/pages/help.html:614
 #, python-format
@@ -4489,6 +4492,11 @@ msgid ""
 "Packaging Authority (PyPA) and supported by the Python Packaging Working "
 "Group (PackagingWG)."
 msgstr ""
+"PyPI es impulsado por el proyecto Warehouse; <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Warehouse</a> es un proyecto "
+"de código abierto desarrollado bajo el paraguas de Python Packaging "
+"Authority (PyPA) y respaldado por Python Packaging Working Group "
+"(PackagingWG)."
 
 #: warehouse/templates/pages/help.html:619
 #, python-format
@@ -4498,6 +4506,10 @@ msgid ""
 "goal is to improve and maintain many of the core projects related to "
 "Python packaging."
 msgstr ""
+"El <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">PyPA</a> es un grupo independiente de desarrolladores cuyo "
+"objetivo es mejorar y mantener muchos de los proyectos centrales "
+"relacionados con el empaquetado de Python."
 
 #: warehouse/templates/pages/help.html:624
 #, python-format
@@ -4561,6 +4573,18 @@ msgid ""
 "index, consider either a <a href=\"%(mirror_href)s\">mirror</a> or a <a "
 "href=\"%(private_index_href)s\">private index</a>."
 msgstr ""
+"PyPI se almacena en caché y se distribuye a través de <abbr title=\"content "
+"delivery network\">CDN</abbr> gracias a nuestro patrocinador <a href=\""
+"%(fastly_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Fastly</a> y por lo tanto está generalmente disponible a nivel mundial. Sin "
+"embargo, el sitio es mantenido principalmente por voluntarios, no "
+"proporcionamos ningún Acuerdo de Nivel de Servicio específico y, como podría "
+"esperarse de un sistema distribuido gigante, las cosas pueden y a veces "
+"salen mal. Ver <a href=\"%(status_page_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">nuestra página de estado</a> para reportes e "
+"incidentes actuales y pasados. Si tiene requisitos de alta disponibilidad "
+"para su índice de paquete, considerar ya sea un <a href=\"%(mirror_href)s\""
+">espejo</a> o un <a href=\"%(private_index_href)s\">índice privado</a>."
 
 #: warehouse/templates/pages/help.html:657
 #, python-format
@@ -4575,7 +4599,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:662
 msgid "Financial:"
-msgstr ""
+msgstr "Financiero:"
 
 #: warehouse/templates/pages/help.html:662
 #, python-format
@@ -4615,6 +4639,14 @@ msgid ""
 "rel=\"noopener\">'Good first issue'</a> label – we recommend you start "
 "here."
 msgstr ""
+"Si tienes habilidades en Python, ElasticSearch, HTML, SCSS, JavaScript o "
+"SQLAlchemy, lea nuestra <a href=\"%(getting_started_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">guía de \"Por dónde empezar\"</a>, "
+"después mira el <a href=\"%(issue_tracker_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">rastreador de problemas</a>. Hemos creado "
+"una etiqueta <a href=\"%(good_first_issue_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">'Buen primer problema'</a> - recomendamos "
+"empieces por ahí."
 
 #: warehouse/templates/pages/help.html:673
 #, python-format
@@ -4625,6 +4657,11 @@ msgid ""
 " you're interested in working on a particular issue, leave a comment and "
 "we can guide you through the contribution process."
 msgstr ""
+"Los problemos están agrupados en <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">metas</a>; trabajar en problemas de la "
+"meta actual es una excelente manera de ayudar a impulsar el proyecto. Si te "
+"interesa trabajar en algún problema en particular, deja un comentario y "
+"podemos guiarte en todo e proceso de contribución."
 
 #: warehouse/templates/pages/help.html:680
 msgid "Stay updated:"
@@ -4639,6 +4676,12 @@ msgid ""
 "href=\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">PyPA Dev message group</a>."
 msgstr ""
+"También puedes seguir el desarrollo de algun proyecto en la <a href=\""
+"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">\n"
+"lista de correo distutils-sig</a> y el <a href=\"%(message_group_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">grupo de mensajes "
+"PyPA Dev</a>."
 
 #: warehouse/templates/pages/help.html:691
 #, python-format
@@ -4653,6 +4696,14 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a> feeds for "
 "the \"pypi\" label."
 msgstr ""
+"Los cambios a PyPI generalmente se anuncián en <a href=\"%(mailing_list_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">la lista de "
+"correos pypi-announce </a> y el <a href=\"%(blog_href)s\" title=\"%(title)s\""
+" target=\"_blank\" rel=\"noopener\">blog de la PSF</a> bajo la etiqueta \""
+"pypi\". El blog de la PSF también tiene <a href=\"%(atom_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Atom</a> y feed <a href=\""
+"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a>"
+" para la etiqueta \"pypi\"."
 
 #: warehouse/templates/pages/help.html:701
 msgid ""
@@ -4661,10 +4712,14 @@ msgid ""
 "probably work fine, but it's new and less tested than other site "
 "functionality."
 msgstr ""
+"Cuando los mantenedores de Warehouse están implementando nuevas funciones, "
+"al principio las marcamos con un pequeño símbolo de \"función beta\" para "
+"decir: esto probablemente funcione bien, pero es nuevo y no ha sido probado "
+"como otras funciones del sitio."
 
 #: warehouse/templates/pages/help.html:702
 msgid "Currently, the following features are in beta:"
-msgstr ""
+msgstr "Actualmente, las siguientes funciones están en beta:"
 
 #: warehouse/templates/pages/help.html:711
 #, python-format
@@ -4724,6 +4779,14 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">join the distutils-sig mailing "
 "list</a>."
 msgstr ""
+"<a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Python Packaging Authority (PyPA)</a> es un grupo de trabajo que "
+"trabaja en conjunto para mejorar el empaque de Python. Si quisieras ponerte "
+"en contacto con un desarrollador principal de empaques, puedes usar <a href="
+"\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">#"
+"pypa en IRC (freenode)</a>, o <a href=\"%(mailing_list_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">únite a la lista de correos "
+"de distutils-sig </a>."
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
@@ -4738,6 +4801,8 @@ msgid ""
 "We take security very seriously and ask that you follow our security "
 "policy carefully."
 msgstr ""
+"Nos tomamos muy en serio la seguridad y te pedimos que sigas cuidadosamente "
+"nuestra política de seguridad."
 
 #: warehouse/templates/pages/security.html:24
 msgid "Important!"
@@ -4749,18 +4814,21 @@ msgid ""
 "<strong>DO NOT</strong> report the issue in any public forum, including "
 "(but not limited to):"
 msgstr ""
+"Si crees que has identificado un problema de seguridad con Warehouse, "
+"<strong>NO</strong> reportes el problema en un foro público, incluidos (pero "
+"no limitados a):"
 
 #: warehouse/templates/pages/security.html:27
 msgid "Our GitHub issue tracker"
-msgstr ""
+msgstr "Nuestro rastreador de problemas en GitHub"
 
 #: warehouse/templates/pages/security.html:28
 msgid "Official or unofficial chat channels"
-msgstr ""
+msgstr "Canales de chat oficiales o no oficiales"
 
 #: warehouse/templates/pages/security.html:29
 msgid "Official or unofficial mailing lists"
-msgstr ""
+msgstr "Listas de correo oficiales o no oficiales"
 
 #: warehouse/templates/pages/security.html:35
 #, python-format
@@ -4768,6 +4836,9 @@ msgid ""
 "Instead, email <a href=\"%(href)s\">security at python dot org</a> "
 "directly, providing as much relevant information as possible."
 msgstr ""
+"En su lugar, envíe un email a <a href=\"%(href)s\">security arroba python "
+"punto org</a> directamente, proporcionando tanta información relevante como "
+"sea posible."
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
@@ -4776,22 +4847,29 @@ msgid ""
 "available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">at the Python Security page</a>."
 msgstr ""
+"Los mensajes se pueden encriptar opcionalmente con GPG usando huellas "
+"digitales clave disponibles <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">en la página de seguridad de Python</a>."
 
 #: warehouse/templates/pages/security.html:38
 msgid "What happens next?"
-msgstr ""
+msgstr "¿Qué pasa después?"
 
 #: warehouse/templates/pages/security.html:40
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
+"Una vez que enviaste un problema por correo electrónico, recibiras acuse de "
+"recibido dentro de 48 horas."
 
 #: warehouse/templates/pages/security.html:41
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
+"Dependiendo de la acción que se tomará, puede ser que recibas correos "
+"electrónicos de seguimiento."
 
 #: warehouse/templates/pages/security.html:44
 msgid "This security policy was last updated on March 14, 2018."
@@ -4864,13 +4942,15 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:30
 msgid "Top storage users"
-msgstr ""
+msgstr "Principales usuarios de almacenamiento"
 
 #: warehouse/templates/pages/stats.html:32
 msgid ""
 "Here is a list of the top 100 packages based on sum of their packages "
 "sizes (in bytes)."
 msgstr ""
+"Aquí hay una lista de los primeros 100 paquetes según la suma del tamaño de "
+"sus paquete (en bytes)."
 
 #: warehouse/templates/pages/stats.html:39
 msgid "Statistics by project"
@@ -4878,11 +4958,11 @@ msgstr "Estadísticas por proyecto"
 
 #: warehouse/templates/pages/stats.html:43
 msgid "Sum of release files (bytes)"
-msgstr ""
+msgstr "Suma de archivos de liberación (en bytes)"
 
 #: warehouse/templates/pages/stats.html:48
 msgid "All of PyPI"
-msgstr ""
+msgstr "Todo de PyPI"
 
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:123
@@ -4906,14 +4986,21 @@ msgid ""
 "label=\"%(aria_label)s\" data-original-label=\"%(data_original_label)s\">"
 " classifier </a>"
 msgstr ""
+"Filtra por <a href=\"%(href)s\" class=\"%(classes)s\" aria-label=\""
+"%(aria_label)s\" data-original-label=\"%(data_original_label)s\"> "
+"clasificador </a>"
 
 #: warehouse/templates/search/results.html:126
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
+"Ingrese una consulta de búsqueda o seleccione un filtro de la lista de "
+"clasificadores."
 
 #: warehouse/templates/search/results.html:127
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
+"Ingresa una consulta de búsqueda o agrega un filtro haciendo clic en el "
+"botón."
 
 #: warehouse/templates/search/results.html:128
 msgid "You can combine searches and classifier filters. Examples:"
