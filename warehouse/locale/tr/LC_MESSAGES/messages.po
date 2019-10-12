@@ -6,13 +6,14 @@
 # Eray Erdin <eraygezer.94@gmail.com>, 2019.
 # Behcet <behcet.senturk@protonmail.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
+# Çağıl <cagilulusahin@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-29 15:42+0000\n"
-"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
+"PO-Revision-Date: 2019-10-10 20:48+0000\n"
+"Last-Translator: Çağıl <cagilulusahin@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -3207,11 +3208,11 @@ msgstr "PyPI'yı kimler sürdürüyor?"
 
 #: warehouse/templates/pages/help.html:85
 msgid "What powers PyPI?"
-msgstr ""
+msgstr "PyPI'n gücü nereden geliyor?"
 
 #: warehouse/templates/pages/help.html:86
 msgid "Can I depend on PyPI being available?"
-msgstr ""
+msgstr "PYPI'nın kullanılabilir olmasına güvenebilir miyim?"
 
 #: warehouse/templates/pages/help.html:87
 msgid "How can I contribute to PyPI?"
@@ -3289,6 +3290,26 @@ msgid ""
 "href=\"%(wheel_href)s\">wheel</a>.</p>\n"
 "        "
 msgstr ""
+"\n"
+"          <p>PyPI'de bulunan yazılımları tanımlamak için \"project\" (proje)"
+", \"release\" (sürüm), \"file\" (dosya) ve \"package\" (paket) gibi bir dizi "
+"terim kullanıyoruz. Bazen bu terimler kafa karıştırıcı olabilir, çünkü başka "
+"içeriklerde farklı şeyleri tanımlamak için kullanılabilirler. PyPI'da "
+"bunları şu şekilde kullanıyoruz:</p>\n"
+"          <p>PY'daki bir \"proje\", sürümler ve dosyalar ve bunlar hakkında "
+"bilgiler koleksiyonuna verilen isimdir. PyPI'daki projeler Python "
+"topluluğunun diğer üyeleri tarafından  hazırlanır ve paylaşılır; böylece "
+"bunları kullanabilirsiniz. </p>           \n"
+"          <p> PyPI'deki bir \"sürüm\" bir projenin belirli bir sürümüdür. "
+"Örneğin, <a href=\"%(requests_href)s\"> requests </a> projesinde, \"requests "
+"2.10\" ve \"requests 1.2.1\" gibi birçok sürüm bulunur. Bir sürüm bir veya "
+"birden fazla \"dosyadan\" oluşur. </p>\n"
+"           <p> PyPI'de \"paket\" olarak da bilinen bir \"dosya\", indirip "
+"yükleyebileceğiniz bir şeydir. Farklı donanım, işletim sistemleri ve dosya "
+"biçimleri nedeniyle, bir sürümün içinde kaynak kodu veya binary bir <a href="
+"\"%(wheel_href)s\">wheel</a> gibi arşivler içeren çeşitli dosyalar (paketler)"
+"  bulunabilir. </p>\n"
+"        "
 
 #: warehouse/templates/pages/help.html:185
 #, python-format
@@ -3368,6 +3389,11 @@ msgid ""
 "maintainer reachability. It also reduces the viability of spam attacks to"
 " create many accounts in an automated fashion."
 msgstr ""
+"Bu politika, geliştirici erişilebilirliği ile ilgili olan <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> <abbr title=\""
+"Python güçlendirme teklifi\">PEP</abbr> 541</a> 'nin temel politikasını "
+"uygulamamızı sağlayacak. Ayrıca, otomatik olarak bir çok hesap oluşturmaya "
+"yönelik spam saldırılarının uygulanabilirliğini de azaltacak."
 
 #: warehouse/templates/pages/help.html:216
 #, python-format
