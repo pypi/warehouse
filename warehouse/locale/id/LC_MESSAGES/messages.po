@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
-"PO-Revision-Date: 2019-10-10 01:42+0000\n"
-"Last-Translator: yafiabiyyu <luckyveri3@gmail.com>\n"
+"PO-Revision-Date: 2019-10-10 13:28+0000\n"
+"Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -402,36 +402,34 @@ msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Atau <a href=\"%(href)s\"> jelajahi proyek </a>"
 
 #: warehouse/templates/index.html:67
-#, fuzzy, python-format
+#, python-format
 msgid "%(num_projects)s projects"
-msgstr "% (num_projects) proyek"
+msgstr "%(num_projects)s proyek"
 
 #: warehouse/templates/index.html:68
-#, fuzzy, python-format
+#, python-format
 msgid "%(num_releases)s releases"
-msgstr "% (num_releases) rilis"
+msgstr "%(num_releases)s rilis"
 
 #: warehouse/templates/index.html:69
-#, fuzzy, python-format
+#, python-format
 msgid "%(num_files)s files"
-msgstr "% (num_files) s file"
+msgstr "%(num_files)s berkas"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr "% (num_users)s pengguna"
+msgstr "%(num_users)s pengguna"
 
 #: warehouse/templates/index.html:80
-#, fuzzy
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
-"The Python Package index (PyPI) adalah repositori dari perangkat lunak untuk "
+"Python Package index (PyPI) adalah repositori dari perangkat lunak untuk "
 "bahasa pemrograman Python."
 
 #: warehouse/templates/index.html:82
-#, fuzzy
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
@@ -449,9 +447,8 @@ msgstr ""
 "Penulis paket menggunakan PyPI untuk mendistribusikan perangkat lunak mereka."
 
 #: warehouse/templates/index.html:87
-#, fuzzy
 msgid "Learn how to package your Python code for PyPI</a>."
-msgstr "Pelajari cara mengemas kode Python Anda untuk PyPI </a>."
+msgstr "Pelajari cara mengemas kode Python Anda untuk PyPI</a>."
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
@@ -466,12 +463,10 @@ msgid "New releases"
 msgstr "Rilis baru"
 
 #: warehouse/templates/index.html:109
-#, fuzzy
 msgid "Hot off the press: the newest project releases"
-msgstr "Hot off the press: rilis proyek terbaru"
+msgstr "Terbaru dari pers: rilis proyek terbaru"
 
 #: warehouse/templates/upload.html:25
-#, fuzzy
 msgid "This URL is an API endpoint for uploading files to PyPI."
 msgstr "URL ini adalah Endpoint API untuk mengunggah file ke PyPI."
 
