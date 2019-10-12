@@ -8,13 +8,14 @@
 # Xavier Fernandez <xav.fernandez@gmail.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # gabriel-tessier <tessier@luxeys.com>, 2019.
+# Matthieu Melot <matthieu.melot@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-07 08:25+0000\n"
-"Last-Translator: gabriel-tessier <tessier@luxeys.com>\n"
+"PO-Revision-Date: 2019-10-08 16:35+0000\n"
+"Last-Translator: Matthieu Melot <matthieu.melot@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -243,7 +244,7 @@ msgstr "Et maintenant pour quelque chose<br><span>complètement différent"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "Monty Python, le sketch de la fromagerie"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -333,7 +334,7 @@ msgstr "Lien externe"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr ""
+msgstr "Voir la transcription de la vidéo"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
@@ -357,14 +358,17 @@ msgid ""
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
 msgstr ""
+"<p>Nous éprouvons des difficultés techniques qui nous empêchent de vous "
+"servir ce site.</p><p>Nous sommes au courant du problème et nous travaillons "
+"à sa résolution la plus rapide possible.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Consultez notre page de statut"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Voir le statut de Python sur Twitter"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
@@ -372,7 +376,7 @@ msgstr "Code d'erreur 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr "Utilisez-vous PyPI pour le travail?"
+msgstr "Utilisez-vous PyPI pour le travail ?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -382,11 +386,16 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"> donating </a> to help us build a more"
 " stable and secure platform."
 msgstr ""
+"Considérez <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
+"rel=\"noopener\"> une contribution </a> ou<a href=\"https://psfmember.org/"
+"civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\""
+"noopener\"> un don</a> pour nous aider à construire une plateforme plus "
+"stable et plus sûre."
 
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr "Chercher sur Pypi"
+msgstr "Chercher sur PyPI"
 
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
@@ -408,80 +417,91 @@ msgstr "Retour à l'accueil"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr ""
+msgstr "Le catalogue des paquets Python"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr ""
+"Essayer de publier des paquets Python avec le catalogue de test des paquets "
+"Python"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
+"Cherchez, installez et publiez des paquets Python avec le catalogue des "
+"paquets Python"
 
 #: warehouse/templates/index.html:61
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr ""
+msgstr "Ou bien <a href=\"%(href)s\">explorez les projets</a>"
 
 #: warehouse/templates/index.html:67
 #, python-format
 msgid "%(num_projects)s projects"
-msgstr ""
+msgstr "%(num_projects)s projets"
 
 #: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases)s releases"
-msgstr ""
+msgstr "%(num_releases)s versions publiées"
 
 #: warehouse/templates/index.html:69
 #, python-format
 msgid "%(num_files)s files"
-msgstr ""
+msgstr "%(num_files)s fichiers"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr ""
+msgstr "%(num_users)s utilisateurs"
 
 #: warehouse/templates/index.html:80
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
+"Le catalogue des paquets Python (PyPI) est une collection de programmes pour "
+"le langage de programmation Python."
 
 #: warehouse/templates/index.html:82
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
+"PyPI vous aide à trouver et installer des logiciels développés et partagés "
+"par la communauté Python."
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr ""
+msgstr "Apprenez à installer des paquet</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
+"Les créateurs de paquets utilisent PyPI pour distribuer leurs logiciels."
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
-msgstr ""
+msgstr "Apprenez à empaqueter votre code Python pour PyPI."
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
-msgstr ""
+msgstr "Projets tendance"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
 msgstr ""
+"Projets tendances suivant le nombre de téléchargements de la part de la "
+"communauté"
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr ""
+msgstr "Nouvelles versions"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Dernières nouvelles : les projets les plus récents"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
