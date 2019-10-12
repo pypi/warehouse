@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Sviatoslav Sydorenko <wk.cvs.github@sydorenko.org.ua>, 2019.
+# okawo <okawo.198@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
-"PO-Revision-Date: 2019-10-11 10:48+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk.cvs.github@sydorenko.org.ua>\n"
+"PO-Revision-Date: 2019-10-12 11:49+0000\n"
+"Last-Translator: okawo <okawo.198@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -936,6 +937,13 @@ msgid ""
 "with your existing\n"
 "  password."
 msgstr ""
+"Коли ви нещодавно намагалися увійти або завантажити на PyPI, ми помітили що "
+"ваш пароль з'являєця\n"
+"  у публічному зломі данних. Для того щоб захистити вас та інших "
+"користувачів, ми превентивно скинули ваш\n"
+"  пароль та ви більше не зможете увійти або завантажити на PyPI "
+"використовуючи ваш існуючий\n"
+"  пароль."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -945,6 +953,9 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"Сам PyPI не зазнав злому. Це захисна міра для зниження\n"
+"  ризику  <a href=\"%(href)s\">credential stuffing</a>\n"
+"  атак на PyPI та його користувачів."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -954,6 +965,10 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your "
 "other passwords and get yourself familiar with good password practices."
 msgstr ""
+"Щоб відновити доступ до вашого акаунту, <a href=\"%(reset_pw_url)s\">скиньте "
+"ваш пароль</a> на PyPI. Ми також рекомендуємо вам відвідати <a href=\""
+"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> та перевірити ваші інші "
+"паролі і також ознайомитися з гарними практиками для паролів."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
@@ -969,6 +984,12 @@ msgid ""
 " password is compromised. The plaintext password is never stored by PyPI "
 "or sent to HaveIBeenPwned."
 msgstr ""
+"Ми користуємося безпоштовним сервісом безпеки з <a href=\""
+"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Коли реєструєте, "
+"аутентифікуєте, або змінююте ваш пароль, ми генеруємо SHA1 хеш вашого паролю "
+"і використовуємо перші 5 знаків хешу щоб вирішити чи пароль був зломаний. "
+"Просто у вигляді тексту пароль ніколи не збережений на PyPI або відісланий "
+"на HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -977,6 +998,9 @@ msgid ""
 "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
 "communicate with the PyPI administrators."
 msgstr ""
+"Щоб дізнатися більше, дивітся наш <a href=\"%(faq_url)s\">FAQ</a>. Для "
+"допомоги, ви можете надіслати email на <a href=\"%(email_href)s\""
+">%(email_address)s</a> для зв'язку з PyPI адміністраторами."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -984,6 +1008,7 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
+"Хтось, мабуть ви, зробив скид паролю для вашого PyPI акаунту '%(username)s'."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -992,7 +1017,7 @@ msgid ""
 "reset your password</a>."
 msgstr ""
 "Якщо ви бажаєте продовжити виконання цього запиту, <a href=\"%(href)s\">"
-"клікніть щоб скинути свій пароль</a>."
+"клікніть щоб скинути ваш пароль</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -1007,8 +1032,7 @@ msgstr[2] "Термін дії цього посилання збіжить за
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
-"Якщо ви не робили цього запиту, то можеште безбечно проігнотувати цього "
-"листа."
+"Якщо ви не робили цього запиту, то можеште безбечно проігнотувати цей лист."
 
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
@@ -1049,7 +1073,7 @@ msgstr "Дивитися меню"
 
 #: warehouse/templates/includes/current-user-indicator.html:24
 msgid "Main menu"
-msgstr "Основне меню"
+msgstr "Головне меню"
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -1123,11 +1147,13 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Hashes</a> for %(filename)s"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Хеши</a> для %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
 msgid "Hashes for %(filename)s"
-msgstr ""
+msgstr "Хеши для %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:31
 msgid "Algorithm"
@@ -1135,7 +1161,7 @@ msgstr "Алгоритм"
 
 #: warehouse/templates/includes/hash-modal.html:32
 msgid "Hash digest"
-msgstr ""
+msgstr "Дайджест хешів"
 
 #: warehouse/templates/includes/hash-modal.html:41
 #: warehouse/templates/includes/hash-modal.html:50
@@ -1181,7 +1207,7 @@ msgstr "Попередження"
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr ""
+msgstr "Ваш основна email адреса (%(email_address)s) не веріфікована."
 
 #: warehouse/templates/includes/session-notifications.html:25
 msgid "You do not have a primary email address."
@@ -1197,6 +1223,8 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it "
 "now for your account.</a>"
 msgstr ""
+"Дво факторна аутентифікація доступна, <a href=\"%(href)s\">увімкніть її "
+"зараз для вашого акаунту.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
@@ -1218,6 +1246,10 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Дивіться статистику ваших проектів через <a href=\"%(libs_io_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, або "
+"використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
