@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-06 03:01+0000\n"
+"PO-Revision-Date: 2019-10-10 13:28+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -2336,7 +2336,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:18
 #, python-format
 msgid "Manage '%(project_name)s' – release version %(version)s"
-msgstr ""
+msgstr "Gestionar versión %(version)s de «%(project_name)s»"
 
 #: warehouse/templates/manage/release.html:22
 #: warehouse/templates/manage/release.html:27
@@ -2442,7 +2442,7 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:128
 msgid "Release settings"
-msgstr ""
+msgstr "Configuración de versión"
 
 #: warehouse/templates/manage/release.html:131
 #: warehouse/templates/manage/release.html:148
@@ -2608,6 +2608,8 @@ msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
+"Puede cargar versiones de paquetes. No puede añadir colaboradores. No puede "
+"eliminar archivos, versiones o el proyecto mismo."
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:80
@@ -2620,6 +2622,8 @@ msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
+"Puede cargar versiones. Puede añadir otros colaboradores. Puede eliminar "
+"archivos, versiones o todo el proyecto."
 
 #: warehouse/templates/manage/roles.html:34
 #, python-format
@@ -3801,6 +3805,8 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">devices that are FIDO compliant</a>, "
 "and can therefore be used with PyPI."
 msgstr ""
+"Existe un ecosistema creciente de <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">aparatos compatibles con FIDO</a> y PyPI."
 
 #: warehouse/templates/pages/help.html:383
 #, python-format
@@ -3810,6 +3816,11 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">mobile phones to act as security devices</a>."
 msgstr ""
+"Entre algunas de las soluciones nuevas figuran escáneres biométricos ("
+"faciales y dactilares) y tarjetas de crédito habilitadas para FIDO. Además, "
+"hay una compatibilidad cada vez mayor con <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">teléfonos móviles que actúan "
+"como dispositivos de seguridad</a>."
 
 #: warehouse/templates/pages/help.html:389
 #, python-format
@@ -3819,6 +3830,11 @@ msgid ""
 "authentication\">WebAuthn</abbr> standard</a> standard</a>, PyPI users "
 "will be able to take advantage of any future developments in this field."
 msgstr ""
+"Dado que la implementación de la autenticación en dos fases de PyPI se "
+"adhiere a la <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">norma <abbr title=\"autenticación web\">WebAuthn</abbr></a>, "
+"los usuarios de PyPI podrán sacar provecho de cualquier desarrollo futuro en "
+"este terreno."
 
 #: warehouse/templates/pages/help.html:397
 msgid ""
@@ -3833,6 +3849,17 @@ msgid ""
 "token where possible.</strong></p>\n"
 "        "
 msgstr ""
+"\n"
+"          <p>Las fichas de API son una alternativa de autenticación (en "
+"sustitución de una combinación usuario/contraseña) que utilizar al <strong>"
+"cargar paquetes</strong> en PyPI.</p>\n"
+"          <p>Puede crear una ficha para toda una cuenta de PyPI, en cuyo "
+"caso la ficha funcionará en todos los proyectos asociados con la cuenta. "
+"Como alternativa, puede limitar el margen de actuación de la ficha a un "
+"proyecto determinado.</p>\n"
+"          <p><strong>Recomendamos encarecidamente que se autentique a través "
+"de una ficha de API cuando sea posible.</strong></p>\n"
+"        "
 
 #: warehouse/templates/pages/help.html:403
 msgid "To make an API token:"
@@ -3883,6 +3910,13 @@ msgid ""
 "href=\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>travis.yml</code> if you are using Travis</a>)."
 msgstr ""
+"El sitio donde deberá editar o añadir estos valores dependerá de su caso de "
+"uso particular. Por ejemplo, es posible que algunos usuarios necesiten "
+"editar <a href=\"%(pypirc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">su archivo <code>.pypirc</code></a>, mientras que otros quizás "
+"deban actualizar su archivo de configuración de CI (por ejemplo, <a href=\""
+"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><code>travis.yml</code> en el caso de Travis</a>)."
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -3890,6 +3924,9 @@ msgid ""
 "base64, and checking the output against the unique identifier displayed "
 "on PyPI."
 msgstr ""
+"Los usuarios avanzados tal vez deseen inspeccionar su ficha descodificándola "
+"con base64 y comprobando que la salida coincida con el identificador único "
+"que PyPI muestra."
 
 #: warehouse/templates/pages/help.html:430
 msgid "Yes, including RSS feeds of new packages and new releases."
@@ -3908,6 +3945,10 @@ msgid ""
 "Note that the storage requirements for a PyPI mirror would exceed 1 "
 "terabyte—and growing!"
 msgstr ""
+"Si ha de operar su propia réplica de PyPI, la solución recomendada es el <a "
+"href=\"%(href)s\">proyecto bandersnatch</a>. Observe que los requisitos de "
+"almacenamiento de una réplica de PyPI superan 1 terabyte, y esta cantidad va "
+"en aumento."
 
 #: warehouse/templates/pages/help.html:436
 #, python-format
@@ -4347,6 +4388,14 @@ msgid ""
 "Technology Fund</a> whose funding is enabling developers to improve "
 "Warehouse's security and accessibility."
 msgstr ""
+"<a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">PackagingWG</a> es un grupo de trabajo de la Python Software "
+"Foundation (PSF) cuyo objetivo es recaudar y desembolsar fondos para "
+"respaldar la mejora continua del empaquetamiento de Python. En fecha "
+"reciente hemos <a href=\"%(otf_award_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">conseguido una adjudicación del Open Technology "
+"Fund</a> cuya inversión ha permitido a los desarrolladores de Warehouse "
+"mejorar la seguridad y la accesibilidad de la plataforma."
 
 #: warehouse/templates/pages/help.html:634
 #, python-format
@@ -4356,6 +4405,10 @@ msgid ""
 "tools and services provided by our <a href=\"%(sponsors_href)s\">generous"
 " sponsors</a>."
 msgstr ""
+"PyPI funciona con <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Warehouse</a> y diversas herramientas y "
+"servicios que nos brindan nuestros <a href=\"%(sponsors_href)s\">generosos "
+"patrocinadores</a>."
 
 #: warehouse/templates/pages/help.html:641
 msgid ""
@@ -4363,6 +4416,11 @@ msgid ""
 "it has moved out of beta and replaced the old site (pypi.python.org). It "
 "is now robust, tested, and ready for expected browser and API traffic."
 msgstr ""
+"Desde el 16 de abril de 2018, PyPI.org se encuentra en estatus «de "
+"producción», lo que significa que ha finalizado su condición de «beta» y ha "
+"sustituido el sitio antiguo (pypi.python.org). Ahora es una plataforma "
+"robusta, probada y preparada para manejar el tráfico y los navegadores "
+"esperados."
 
 #: warehouse/templates/pages/help.html:643
 #, python-format
@@ -4388,6 +4446,9 @@ msgid ""
 "PyPI (also known as <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">the Warehouse project</a>)."
 msgstr ""
+"Tenemos mucho trabajo pendiente para continuar dando mantenimiento y creando "
+"mejoras para PyPI (conocido también como <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">el proyecto Warehouse</a>)."
 
 #: warehouse/templates/pages/help.html:662
 msgid "Financial:"
@@ -4399,6 +4460,8 @@ msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
 "development and maintenance</a>."
 msgstr ""
+"Agradeceremos enormemente <a href=\"%(href)s\">sus donativos para financiar "
+"el desarrollo y el mantenimiento</a>."
 
 #: warehouse/templates/pages/help.html:663
 msgid "Development:"
@@ -4411,6 +4474,10 @@ msgid ""
 "open-source developer to make a contribution – in fact, we'd love to help"
 " you make your first open source pull request!"
 msgstr ""
+"Warehouse es de código abierto; nos encantaría ver caras nuevas trabajando "
+"en el proyecto. <strong>No</strong> es necesario que cuente con experiencia "
+"de desarrollo de código abierto para contribuir: sin ir más lejos, ¡"
+"estaremos encantados de ayudarle a crear su primera <em>pull request</em>!"
 
 #: warehouse/templates/pages/help.html:665
 #, python-format
