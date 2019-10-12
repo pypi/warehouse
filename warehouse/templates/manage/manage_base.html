@@ -74,6 +74,7 @@
 
 {% macro confirm_modal(
   title,
+  label,
   confirm_name,
   confirm_string,
   slug,
@@ -108,14 +109,15 @@
           {% endif %}
           {{ extra_description if extra_description else '' }}
           <p>
-            {% if confirm_name.lower() == 'username' %}
+            {% set label_lowercase = label|lower() %}
+            {% if confirm_name == 'username' %}
             {% trans %}Confirm your username to continue.{% endtrans %}
             {% else %}
-            {% trans item=confirm_name|lower %}Confirm the {{ item }} to continue.{% endtrans %}
+            {% trans %}Confirm the {{ label_lowercase }} to continue.{% endtrans %}
             {% endif %}
           </p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
-          <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
+          <label for="{{ slug }}-{{ name }}">{{ label }}</label>
           <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
         </div>
         <div class="modal__footer">
