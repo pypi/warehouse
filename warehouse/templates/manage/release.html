@@ -139,7 +139,7 @@
         Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.
       {% endtrans %}
     </p>
-    {{ confirm_button(gettext("Delete release"), gettext("Version"), release.version) }}
+    {{ confirm_button(gettext("Delete release"), gettext("Version"), "version", release.version) }}
   </div>
 
   {% if files %}

@@ -183,16 +183,17 @@
 
 {% macro confirm_button(
   title,
+  label,
   confirm_name,
   confirm_string,
   extra_fields=None,
   action=None)
 %}
-  {% set slug = title.lower().replace(' ', '-') + '-modal' %}
+  {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
-  {{ confirm_modal(title, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action) }}
+  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action) }}
 {% endmacro %}
 
 {% macro confirm_password_button(
