@@ -404,7 +404,7 @@ away your builds + ``docker`` containers and start again:
 Compilation errors in non-Docker development
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-While Warehouse is designed to be developed in using Docker in certain
+While Warehouse is designed to be developed in using Docker, in certain
 situations you may be tempted to install Warehouse's requirements in your
 system of virtual environment. This is discouraged and may result in
 compilation errors due to your system not including libraries
