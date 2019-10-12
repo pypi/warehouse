@@ -213,9 +213,7 @@
       {% set token_warning_text %}
         <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
       {% endset %}
-
-      {{ confirm_modal(title=title, confirm_name=gettext("Username"), confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
-
+      {{ confirm_password_modal(title=title, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, custom_warning_text=token_warning_text) }}
       {# modal to view token ID #}
       <div id="view-identifier--{{ macaroon.id }}" class="modal">
         <div class="modal__content" role="dialog">
@@ -444,8 +442,8 @@
               <a href="#disable-totp" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
               {% set title=gettext("Remove authentication application") %}
               {% set confirm_button_label=gettext("Remove application") %}
-              {% set action="/manage/account/totp-provision" %}
-              {{ confirm_modal(title=title, confirm_name=gettext("Username"), confirm_string=user.username, confirm_button_label=confirm_button_label, slug="disable-totp", action=action, warning=False, confirm_string_in_title=False) }}
+              {% set action=request.route_path('manage.account.totp-provision') %}
+              {{ confirm_password_modal(title=title, action=action, slug="disable-totp", warning=False, confirm_button_label=confirm_button_label) }}
             </td>
           </tr>
           {% endif %}
@@ -464,7 +462,7 @@
               {% set extra_fields %}
                 <input type="text" name="label" value="{{ credential.label }}" hidden>
               {% endset %}
-              {{ confirm_modal(title=title, confirm_name=gettext("Device name"), confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+              {{ confirm_modal(title=title, label=gettext("Device name"), confirm_name="device_name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
             </td>
           </tr>
           {% endfor %}
@@ -679,7 +677,7 @@
         <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
         {% trans %}You will not be able to recover your account after you delete it{% endtrans %}
       </p>
-      {{ confirm_button(gettext("Delete your PyPI account"), gettext("Username"), user.username) }}
+      {{ confirm_password_button(gettext("Delete your PyPI account")) }}
       {% endif %}
     </div>
   </section>

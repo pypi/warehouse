@@ -6,13 +6,14 @@
 # Eray Erdin <eraygezer.94@gmail.com>, 2019.
 # Behcet <behcet.senturk@protonmail.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
+# Çağıl <cagilulusahin@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-29 15:42+0000\n"
-"Last-Translator: BTaskaya <btaskaya33@gmail.com>\n"
+"PO-Revision-Date: 2019-10-12 11:49+0000\n"
+"Last-Translator: Behcet <behcet.senturk@protonmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -1484,7 +1485,7 @@ msgid ""
 "device (e.g. USB key)"
 msgstr ""
 "Güvenlik cihazı (örneğin USB anahtarı) ile <abbr title=\"two factor "
-"authentication\">2 aşamalı kimlik doğrulama</abbr> ekleyin"
+"authentication\">2FA</abbr> ekleyin"
 
 #: warehouse/templates/manage/account.html:145
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -3033,6 +3034,7 @@ msgstr ""
 "noopener\">hesap kurtma kurtarma kodlarını</a> geliştirmeyi planlıyor."
 
 #: warehouse/templates/pages/help.html:39
+#, fuzzy
 msgid ""
 "\n"
 "        In the short term, we recommend that all PyPI users set up "
@@ -3043,6 +3045,13 @@ msgid ""
 "key).\n"
 "      "
 msgstr ""
+"\n"
+"        Sonuç olarak tüm PyPI kullanıcılarına <em>her iki</em> 2-aşamalı "
+"kimlik\n"
+"        doğrulama metodunu da - kimlik doğrulama uygulaması <em>ve</em>\n"
+"        ve güvenlik cihazı (ör. USB anahtar) - kullanmalarını tavsiye "
+"ediyoruz.\n"
+"      "
 
 #: warehouse/templates/pages/help.html:49
 msgid "What's a package, project, or release?"
@@ -3207,11 +3216,11 @@ msgstr "PyPI'yı kimler sürdürüyor?"
 
 #: warehouse/templates/pages/help.html:85
 msgid "What powers PyPI?"
-msgstr ""
+msgstr "PyPI'n gücü nereden geliyor?"
 
 #: warehouse/templates/pages/help.html:86
 msgid "Can I depend on PyPI being available?"
-msgstr ""
+msgstr "PYPI'nın kullanılabilir olmasına güvenebilir miyim?"
 
 #: warehouse/templates/pages/help.html:87
 msgid "How can I contribute to PyPI?"
@@ -3289,6 +3298,26 @@ msgid ""
 "href=\"%(wheel_href)s\">wheel</a>.</p>\n"
 "        "
 msgstr ""
+"\n"
+"          <p>PyPI'de bulunan yazılımları tanımlamak için \"project\" (proje)"
+", \"release\" (sürüm), \"file\" (dosya) ve \"package\" (paket) gibi bir dizi "
+"terim kullanıyoruz. Bazen bu terimler kafa karıştırıcı olabilir, çünkü başka "
+"içeriklerde farklı şeyleri tanımlamak için kullanılabilirler. PyPI'da "
+"bunları şu şekilde kullanıyoruz:</p>\n"
+"          <p>PY'daki bir \"proje\", sürümler ve dosyalar ve bunlar hakkında "
+"bilgiler koleksiyonuna verilen isimdir. PyPI'daki projeler Python "
+"topluluğunun diğer üyeleri tarafından  hazırlanır ve paylaşılır; böylece "
+"bunları kullanabilirsiniz. </p>           \n"
+"          <p> PyPI'deki bir \"sürüm\" bir projenin belirli bir sürümüdür. "
+"Örneğin, <a href=\"%(requests_href)s\"> requests </a> projesinde, \"requests "
+"2.10\" ve \"requests 1.2.1\" gibi birçok sürüm bulunur. Bir sürüm bir veya "
+"birden fazla \"dosyadan\" oluşur. </p>\n"
+"           <p> PyPI'de \"paket\" olarak da bilinen bir \"dosya\", indirip "
+"yükleyebileceğiniz bir şeydir. Farklı donanım, işletim sistemleri ve dosya "
+"biçimleri nedeniyle, bir sürümün içinde kaynak kodu veya binary bir <a href="
+"\"%(wheel_href)s\">wheel</a> gibi arşivler içeren çeşitli dosyalar (paketler)"
+"  bulunabilir. </p>\n"
+"        "
 
 #: warehouse/templates/pages/help.html:185
 #, python-format
@@ -3368,15 +3397,24 @@ msgid ""
 "maintainer reachability. It also reduces the viability of spam attacks to"
 " create many accounts in an automated fashion."
 msgstr ""
+"Bu politika, geliştirici erişilebilirliği ile ilgili olan <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> <abbr title=\""
+"Python güçlendirme teklifi\">PEP</abbr> 541</a> 'nin temel politikasını "
+"uygulamamızı sağlayacak. Ayrıca, otomatik olarak bir çok hesap oluşturmaya "
+"yönelik spam saldırılarının uygulanabilirliğini de azaltacak."
 
 #: warehouse/templates/pages/help.html:216
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "You can manage your account's email addresses in your <a "
 "href=\"%(href)s\">account settings</a>. This also allows for sending a "
 "new confirmation email for users who signed up in the past, before we "
 "began enforcing this policy."
 msgstr ""
+"Hesabınıza tanımlı e-posta adreslerini <a href=\"%(href)s\">hesap "
+"ayarları</a> bölümünden yönetebilirsiniz. Bu, bu politikayı uygulamaya "
+"başlamadan önce kaydolan kullanıcılar için yeni bir onay e-postası "
+"göndermemize imkan sağlar."
 
 #: warehouse/templates/pages/help.html:219
 #, python-format
@@ -3405,7 +3443,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:254
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "<p> Two factor authentication (2FA) makes your account more secure by "
 "requiring two things in order to log in: <em>something you know</em> and "
@@ -3422,6 +3460,21 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">discuss.python.org</a>.</p>"
 msgstr ""
+"<p> 2-aşamalı kimlik doğrulama (2FA) hesabınızda oturum açarken, fazladan "
+"iki şey isteyerek hesabınızı daha güvenli hale getirir: <em>bildiğiniz bir "
+"şey</em> ve <em>size ait olan bir şey</em>. </p> <p> \"Bildiğiniz bir şey\" "
+"kavramı PyPI için kullanıcı adınız ve parolanız iken, \"size ait olan bir "
+"şey\" kavramı <a href=\"#totp\">geçici kod üreten bir kimlik doğrulama "
+"uygulaması</a>, yahut <a href=\"#utfkey\">güvenlik cihazı</a> (genelde USB "
+"anahtar) olabilir. </p> <p> PyPI hesabınızda 2-aşamalı kimlik doğrulama "
+"sistemi kullanmanızı önemle tavsiye ediyoruz. </p> <p> Tarayıcı üzerinden "
+"oturum açma işlemi sırasında 2-aşamalı kimlik doğrulama sistemini kuran "
+"kullanıcılardan ayarladıkları ikinci kimlik doğrulama faktörü istenecektir. "
+"Paket yükleme sırasında (şimdilik) 2-aşamalı kimlik doğrulama sistemi "
+"kullanılmamaktadır. </p> <p>Gelişmeleri ve geliştirmeleri <abbr title=\"2-"
+"aşamalı kimlik doğrulama\">2FA</abbr> üzerinden takip edebilirsiniz <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">discuss.python.org</a>.</p>"
 
 #: warehouse/templates/pages/help.html:281
 #, python-format
@@ -3431,6 +3484,10 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"><abbr title=\"time-based one-time "
 "password\">TOTP</abbr> standard</a>."
 msgstr ""
+"PyPI kullanıcıları <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\"><abbr title=\"zaman bazlı tek seferlik parola\">TOTP</abbr>"
+" standardı</a>' nı destekleyen herhangi bir kimlik doğrulama uygulaması ile "
+"2-aşamalı kimlik doğrulama sistemini kurabilirler ."
 
 #: warehouse/templates/pages/help.html:282
 msgid ""
@@ -3438,6 +3495,9 @@ msgid ""
 "applications generate a regularly changing authentication code to use "
 "when logging into your account."
 msgstr ""
+"<abbr title=\"zaman bazlı tek seferlik parola\">TOTP</abbr> standardına "
+"sahip kimlik doğrulama uygulamaları, hesabınıza girerken kullanabileceğiniz "
+"sürekli değişen kimlik doğrulama kodları üretirler."
 
 #: warehouse/templates/pages/help.html:283
 msgid ""
@@ -3445,6 +3505,9 @@ msgid ""
 "open standard, there are many applications that are compatible with your "
 "PyPI account. Popular applications include:"
 msgstr ""
+"<abbr title=\"zaman bazlı tek seferlik parola\">TOTP</abbr> bir açık "
+"standart olduğu için, PyPI hesabınız ile uyumlu bir çok uygulama mevcut. "
+"Popüler uygulamalar:"
 
 #: warehouse/templates/pages/help.html:286
 #, python-format
@@ -3454,6 +3517,9 @@ msgid ""
 "href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">iOS</a>"
 msgstr ""
+"<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">iOS</a> için Google Authenticator"
 
 #: warehouse/templates/pages/help.html:289
 #: warehouse/templates/pages/help.html:291
@@ -3470,6 +3536,9 @@ msgid ""
 "href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">iOS</a>"
 msgstr ""
+"<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
 
 #: warehouse/templates/pages/help.html:299
 #: warehouse/templates/pages/help.html:300
@@ -3558,7 +3627,7 @@ msgstr "PyPI hesabınıza bir sonraki girişinizde şunları yapmanız gerekecek
 
 #: warehouse/templates/pages/help.html:325
 msgid "Provide your username and password, as normal"
-msgstr ""
+msgstr "Normal bir şekilde kullanıcı adı ve parolanızı girin"
 
 #: warehouse/templates/pages/help.html:326
 msgid "Open your authentication application to generate an authentication code"
@@ -3605,6 +3674,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO U2F "
 "specification</a>:"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"FIDO U2F özelliği</a>' ne uygun bir USB anahtar kullanmak için:"
 
 #: warehouse/templates/pages/help.html:342
 #, python-format
@@ -3615,6 +3686,11 @@ msgid ""
 "rel=\"noopener\">Google Titan</a> and <a href=\"%(thetis_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
+"Popüler anahtarlar: <a href=\"%(yubikey_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> and <a href="
+"\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Thetis</a>."
 
 #: warehouse/templates/pages/help.html:349
 msgid ""
@@ -3629,6 +3705,7 @@ msgid "Follow these steps:"
 msgstr "Aşağıdaki adımları takip edin:"
 
 #: warehouse/templates/pages/help.html:356
+#, fuzzy
 msgid ""
 "\n"
 "          <li>Log in to your PyPI account, go to your account settings, "
@@ -3641,6 +3718,16 @@ msgid ""
 "browser</li>\n"
 "          "
 msgstr ""
+"\n"
+"          <li>PyPI hesabınıza girin, hesap ayarlarına gidin, ve \"Güvenlik "
+"cihazı (örneğin USB anahtarı) ile <abbr title=\"two factor authentication\""
+">2FA</abbr> ekleyin\" seçeneğini seçin</li>\n"
+"          <li>Sonra anahtara bir isim verin.Bu gerekli çünkü hesabınıza "
+"birden fazla güvenlik cihazı ekleyebilirsiniz.</li>\n"
+"          <li>\"Güvenlik cihazını ayarla\" butonuna tıklayın</li>\n"
+"          <li>Tarayıcınızda gösterildiği şekilde USB anahtarı yerleştirin ve "
+"dokunun</li>\n"
+"          "
 
 #: warehouse/templates/pages/help.html:363
 msgid ""
@@ -3651,6 +3738,7 @@ msgstr ""
 "USB anahtarınızı PyPI hesabınızda oturum açarken kullanabiliyor olacaksınız."
 
 #: warehouse/templates/pages/help.html:367
+#, fuzzy
 msgid ""
 "\n"
 "          <li>Provide your username and password, as normal</li>\n"
@@ -3658,6 +3746,11 @@ msgid ""
 "PyPI</li>\n"
 "          "
 msgstr ""
+"\n"
+"          <li>Normal bir şekilde kullanıcı adı ve parolanızı girin</li>\n"
+"          <li>PyPI hesabınızda oturum açma işlemini USB anahtarınızı "
+"yerleştirip dokunarak tamamlayın</li>\n"
+"          "
 
 #: warehouse/templates/pages/help.html:378
 #, python-format

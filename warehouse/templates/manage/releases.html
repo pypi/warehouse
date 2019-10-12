@@ -79,7 +79,8 @@
                 </li>
                 <li>
                   {% set title = gettext("Delete Release") %}
-                  {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
+                  {% set confirm_name = "delete_release" %}
+                  {% set slug = confirm_name + '-modal-{}'.format(loop.index) %}
                   <a href="#{{ slug }}" class="dropdown__link">
                     <i class="fa fa-trash-alt" aria-hidden="true"></i>
                     {% trans %}Delete{% endtrans %}
@@ -92,7 +93,7 @@
             <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
             {% endset %}
 
-            {{ confirm_modal(title, gettext('Version'), release.version, slug, index=loop.index, custom_warning_text=version_warning_text, action=action) }}
+            {{ confirm_modal(title, gettext('Version'), 'version', release.version, slug, custom_warning_text=version_warning_text, action=action) }}
           </td>
         </tr>
       {% endfor %}

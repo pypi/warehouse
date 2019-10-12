@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # oon arfiandwi <oon.arfiandwi@gmail.com>, 2019.
+# yafiabiyyu <luckyveri3@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
-"PO-Revision-Date: 2019-10-03 16:51+0000\n"
+"PO-Revision-Date: 2019-10-10 13:28+0000\n"
 "Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
@@ -362,106 +363,112 @@ msgstr ""
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr ""
+msgstr "Cari PyPI"
 
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr ""
+msgstr "Cari proyek"
 
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr ""
+msgstr "Cari"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr ""
+msgstr "Kode kesalahan"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr ""
+msgstr "Kembali ke beranda"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr ""
+msgstr "Python Package Index"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
-msgstr ""
+msgstr "Test Python paket penerbitan dengan Test Python paket index"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
+"Temukan, instal, dan publikasikan paket Python dengan Indeks Paket Python"
 
 #: warehouse/templates/index.html:61
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr ""
+msgstr "Atau <a href=\"%(href)s\"> jelajahi proyek </a>"
 
 #: warehouse/templates/index.html:67
 #, python-format
 msgid "%(num_projects)s projects"
-msgstr ""
+msgstr "%(num_projects)s proyek"
 
 #: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases)s releases"
-msgstr ""
+msgstr "%(num_releases)s rilis"
 
 #: warehouse/templates/index.html:69
 #, python-format
 msgid "%(num_files)s files"
-msgstr ""
+msgstr "%(num_files)s berkas"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr ""
+msgstr "%(num_users)s pengguna"
 
 #: warehouse/templates/index.html:80
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
+"Python Package index (PyPI) adalah repositori dari perangkat lunak untuk "
+"bahasa pemrograman Python."
 
 #: warehouse/templates/index.html:82
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
+"PyPI membantu Anda menemukan dan menginstal perangkat lunak yang "
+"dikembangkan dan dibagikan oleh komunitas Python."
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr ""
+msgstr "Pelajari tentang cara menginstal paket</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
+"Penulis paket menggunakan PyPI untuk mendistribusikan perangkat lunak mereka."
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
-msgstr ""
+msgstr "Pelajari cara mengemas kode Python Anda untuk PyPI</a>."
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
-msgstr ""
+msgstr "Proyek yang sedang tren"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
-msgstr ""
+msgstr "Tren proyek yang diunduh oleh komunitas"
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr ""
+msgstr "Rilis baru"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Terbaru dari pers: rilis proyek terbaru"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr ""
+msgstr "URL ini adalah Endpoint API untuk mengunggah file ke PyPI."
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -2396,7 +2403,7 @@ msgstr ""
 
 #: warehouse/templates/manage/roles.html:136
 msgid "User's username"
-msgstr ""
+msgstr "Nama pengguna dari pengguna"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format

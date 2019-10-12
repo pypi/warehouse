@@ -16,17 +16,18 @@
 import { Controller } from "stimulus";
 
 export default class extends Controller {
-  static targets = [ "input", "button" ]
+  static targets = [ "button", "password", "showPassword" ]
 
   connect() {
     this.buttonTarget.disabled = true;
+    this.setPasswordVisibility();
+  }
+
+  setPasswordVisibility() {
+    this.passwordTarget.type = this.showPasswordTarget.checked ? "text" : "password";
   }
 
   check() {
-    if (this.inputTarget.value.toLowerCase() === this.buttonTarget.dataset.expected.toLowerCase()) {
-      this.buttonTarget.disabled = false;
-    } else {
-      this.buttonTarget.disabled = true;
-    }
+    this.buttonTarget.disabled = this.passwordTarget.value.trim() === "";
   }
 }

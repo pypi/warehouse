@@ -327,8 +327,7 @@
       </div>
     </footer>
 
-    <!-- TODO: Remove this check once a non-English translation is available. -->
-    {% if KNOWN_LOCALES|length > 1 %}
+
     <div class="language-switcher">
       <form action="{{ request.route_path('locale') }}">
         <ul>
@@ -340,7 +339,7 @@
         </ul>
       </form>
     </div>
-    {% endif %}
+
 
     {% include "warehouse:templates/includes/sponsors.html" %}
 
