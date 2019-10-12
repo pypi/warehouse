@@ -6,13 +6,14 @@
 # Fabian Neumann <mail@fabianneumann.de>, 2019.
 # Laurent LAPORTE <laurent.laporte.pro@gmail.com>, 2019.
 # Steffen Schröder <st.schroeder@gmail.com>, 2019.
+# Jan Willhaus <mail@janwillhaus.de>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-11 20:21+0000\n"
-"Last-Translator: Steffen Schröder <st.schroeder@gmail.com>\n"
+"PO-Revision-Date: 2019-10-12 11:49+0000\n"
+"Last-Translator: Jan Willhaus <mail@janwillhaus.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -59,7 +60,8 @@ msgstr "Das Passwort ist ungültig. Bitte erneut versuchen."
 
 #: warehouse/accounts/forms.py:117
 msgid "There have been too many unsuccessful login attempts, try again later."
-msgstr "Es gab zu viele erfolglose Anmeldeversuche. Bitte erneut versuchen."
+msgstr ""
+"Es gab zu viele erfolglose Anmeldeversuche. Bitte später erneut versuchen."
 
 #: warehouse/accounts/forms.py:139
 msgid "Your passwords don't match. Try again."
@@ -88,8 +90,8 @@ msgstr ""
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"Bitte keine E-Mail-Adresse von dieser Domain verwenden. Bitte eine andere E"
-"-Mail-Adresse verwenden."
+"E-Mail-Adressen dieser Domain können nicht verwendet werden. Bitte eine "
+"andere E-Mail-Adresse verwenden."
 
 #: warehouse/accounts/forms.py:218
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -922,8 +924,8 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your "
 "password</a> on PyPI."
 msgstr ""
-"Sie können wieder auf Ihr Konto zugreifen, sobald Sie ihr <a href=\"%(href)"
-"s\">Passwort zurückgesetzt haben</a>."
+"Sie können wieder auf Ihr Konto zugreifen, wenn Sie das <a href=\"%(href)s\">"
+"Passwort zurücksetzen</a>."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
@@ -936,8 +938,8 @@ msgid ""
 "\n"
 "  the PyPI administrators."
 msgstr ""
-"Für weitere Informationen senden Sie bitte eine  E-Mail an die PyPI-"
-"Administratoren an %(email_address)s."
+"Für weitere Informationen kontaktieren Sie bitte die PyPI-Administratoren "
+"per an %(email_address)s."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
@@ -950,15 +952,15 @@ msgid ""
 "  password."
 msgstr ""
 "Während Ihres letzten Anmelde- oder Hochladeversuches haben wir bemerkt, "
-"dass das\n"
+"dass Ihr\n"
 "  Passwort in den Daten von veröffentlichten Datenpannen zu finden ist. Um "
 "Sie und andere\n"
 "  Benutzer zu schützen, haben wir Ihr Passwort vorsorglich zurückgesetzt. "
-"Sie  können das\n"
+"Sie können das\n"
 "  alte Passwort nicht mehr zum Anmelden oder  Hochladen bei PyPI verwenden."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the\n"
@@ -966,7 +968,7 @@ msgid ""
 "  attacks against PyPI and its users."
 msgstr ""
 "PyPI selbst wurde nicht Opfer einer Datenpanne. Dies ist eine "
-"Vorsichtsmaßnahme um das \n"
+"Vorsichtsmaßnahme, um das \n"
 "  Risiko von <a href=\"%(href)s\">Credential Stuffing-Angriffen</a> \n"
 "  gegen PyPi und seine Nutzer zu reduzieren."
 
@@ -978,10 +980,15 @@ msgid ""
 "href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your "
 "other passwords and get yourself familiar with good password practices."
 msgstr ""
+"Um den Zugang zu Ihrem Konto zurück zu erhalten, <a href=\"%(reset_pw_url)s\""
+">setzen Sie Ihr PyPI-Passwort zurück</a>. Weiterhin empfehlen wir, dass Sie <"
+"a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> besuchen, Ihre "
+"anderen Passwörter überprüfen und sich mit Praktiken für sichere Passwörter "
+"vertraut machen."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr "Woher wisst Ihr das?"
+msgstr "Woher wissen Sie das?"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -993,6 +1000,12 @@ msgid ""
 " password is compromised. The plaintext password is never stored by PyPI "
 "or sent to HaveIBeenPwned."
 msgstr ""
+"Wir verwenden das kostenlose Angebot von <a href=\"%(have_i_been_pwned_url)"
+"s\">HaveIBeenPwned</a>.  Wenn Sie sich registrieren, authentifizieren oder "
+"ihr Passwort aktualisieren, erzeugen wir einen SHA1-Hashwert Ihres Passworts "
+"und benutzen die ersten 5 Zeichen des Hashwerts, um festzustellen, ob Ihr "
+"Passwort kompromittiert wurde. Das Klartextpasswort wird nie von PyPI "
+"gespeichert oder and HaveIBeenPwned gesendet."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -1001,6 +1014,10 @@ msgid ""
 "you can email <a href=\"%(email_href)s\">%(email_address)s</a> to "
 "communicate with the PyPI administrators."
 msgstr ""
+"Weitere Informationen finden Sie in unseren <a href=\"%(faq_url)s\">FAQ</a>. "
+"Für weitere Hilfe können Sie eine E-Mail an <a href=\"%(email_href)s\""
+">%(email_address)s</a> senden, um mit den PyPI-Administratoren Kontakt "
+"aufzunehmen."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1009,7 +1026,7 @@ msgid ""
 "account '%(username)s'."
 msgstr ""
 "Jemand, möglicherweise Sie selbst, hat eine Anfrage zum Zurücksetzen des "
-"Passwort des PyPI-Konto „%(username)s“ gestellt."
+"Passwort des PyPI-Kontos „%(username)s“ gestellt."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -1017,7 +1034,7 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
-"Wenn Sie mit dem Zurücksetzen des Passwortes fortfahren wollen, <a href=\""
+"Wenn Sie mit dem Zurücksetzen des Passwortes fortfahren möchten, <a href=\""
 "%(href)s\">klicken Sie bitte hier</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
@@ -1042,6 +1059,8 @@ msgid ""
 " been changed from <code>%(old_email)s</code> to "
 "<code>%(new_email)s</code>"
 msgstr ""
+"Die primäre E-Mail-Adresse für Ihr PyPI-Konto <strong>%(username)s</strong> "
+"wurde von <code>%(old_email)s</code> zu <code>%(new_email)s</code> geändert"
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1049,6 +1068,8 @@ msgid ""
 "Someone, perhaps you, has added this email address "
 "(<code>%(email_address)s</code>) to their PyPI account."
 msgstr ""
+"Jemand, möglicherweise Sie selbst, hat diese E-Mail-Adresse "
+"(<code>%(email_address)s</code>) zu seinem PyPI-Konto hinzugefügt."
 
 #: warehouse/templates/email/verify-email/body.html:20
 #, python-format
@@ -1056,8 +1077,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>"
 msgstr ""
-"Wenn Sie fortfahren wollen, <a href=\"%(href)s\">klicken Sie auf diesen Link "
-"um ihre E-Mail Adresse zu verifizieren</a>"
+"Wenn Sie fortfahren möchten, <a href=\"%(href)s\">klicken Sie hier, um ihre "
+"E-Mail Adresse zu verifizieren</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
@@ -1073,21 +1094,21 @@ msgstr "Hauptmenü"
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 #: warehouse/templates/includes/current-user-indicator.html:36
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
-msgstr "Eigene Projekte"
+msgstr "Ihre Projekte"
 
 #: warehouse/templates/includes/current-user-indicator.html:42
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
-msgstr "Konto-Einstellungen"
+msgstr "Kontoeinstellungen"
 
 #: warehouse/templates/includes/current-user-indicator.html:48
 msgid "Public profile"
@@ -1166,7 +1187,7 @@ msgstr "Hashwert"
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
-msgstr "Zur Zwischenablage kopieren"
+msgstr "In die Zwischenablage kopieren"
 
 #: warehouse/templates/includes/hash-modal.html:42
 #: warehouse/templates/includes/hash-modal.html:51
@@ -1184,12 +1205,12 @@ msgstr "Projekt verwalten"
 #: warehouse/templates/includes/pagination.html:21
 #: warehouse/templates/includes/pagination.html:23
 msgid "Previous"
-msgstr ""
+msgstr "Vorherige"
 
 #: warehouse/templates/includes/pagination.html:48
 #: warehouse/templates/includes/pagination.html:50
 msgid "Next"
-msgstr ""
+msgstr "Nächste"
 
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:683
@@ -1242,6 +1263,10 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Besuchen Sie <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">Libraries.io</a> oder benutzen Sie <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</a>, um "
+"Statistiken für Ihre Projekte zu sehen"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1251,6 +1276,10 @@ msgid ""
 "rel=\"noopener\">Libraries.io</a>, or by using <a href=\"%(gbq_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Besuchen Sie <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">Libraries.io</a> oder benutzen Sie <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</a>, um "
+"Statistiken für %(username)ss Projekte zu sehen"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1259,6 +1288,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"Sie haben noch keine Projekte zu PyPI hochgeladen. Besuchen Sie den<a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
+"Packaging User Guide</a>, um zu erfahren, wie Sie damit beginnen können"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -1268,7 +1300,7 @@ msgstr "%(username)s hat bisher keine Projekte zu PyPI hochgeladen."
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
-msgstr ""
+msgstr "Navigation zur Verwaltung von %(project)s"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
@@ -1287,7 +1319,7 @@ msgstr "Sicherheitsverlauf"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
 msgid "Journal"
-msgstr ""
+msgstr "Journal"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/documentation.html:21
@@ -1316,7 +1348,7 @@ msgstr "Forks:"
 
 #: warehouse/templates/includes/packaging/project-data.html:61
 msgid "Open issues/PRs:"
-msgstr ""
+msgstr "Offene Issues/Pull Requests:"
 
 #: warehouse/templates/includes/packaging/project-data.html:69
 #, python-format
@@ -1326,10 +1358,14 @@ msgid ""
 "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">Google BigQuery</a>"
 msgstr ""
+"Besuchen Sie <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">Libraries.io</a> oder benutzen Sie <a href=\""
+"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</a>, um "
+"Statistiken für dieses Projekt zu sehen"
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
-msgstr ""
+msgstr "Meta"
 
 #: warehouse/templates/includes/packaging/project-data.html:79
 msgid "License:"
@@ -1344,7 +1380,7 @@ msgstr "Autor:"
 #: warehouse/templates/includes/packaging/project-data.html:89
 #: warehouse/templates/pages/help.html:473
 msgid "Maintainer:"
-msgstr ""
+msgstr "Betreuer:"
 
 #: warehouse/templates/includes/packaging/project-data.html:94
 msgid "Tags"
@@ -1356,7 +1392,7 @@ msgstr "Benötigt:"
 
 #: warehouse/templates/includes/packaging/project-data.html:111
 msgid "Maintainers"
-msgstr ""
+msgstr "Betreuer"
 
 #: warehouse/templates/includes/packaging/project-data.html:113
 msgid "Avatar for {username} from gravatar.com"
@@ -1377,7 +1413,7 @@ msgstr "Links für %(project_name)s"
 
 #: warehouse/templates/legacy/api/simple/index.html:17
 msgid "Simple index"
-msgstr ""
+msgstr "Einfacher Index"
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -1386,6 +1422,8 @@ msgstr "Verifiziert*"
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
 msgstr ""
+"*Vorübergehende Zustellschwierigkeiten können zum Verlust der Verifikation "
+"führen"
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
@@ -1419,7 +1457,7 @@ msgstr "Primär"
 
 #: warehouse/templates/manage/account.html:86
 msgid "View email options"
-msgstr ""
+msgstr "E-Mail-Optionen anzeigen"
 
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:184
@@ -1487,6 +1525,9 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Aktualisieren Sie ihren Browser</a>, um Zwei-Faktor-Authentifizierung mit "
+"einem Sicherheitsgerät (z.B. USB-Schlüssel) einzurichten"
 
 #: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/account.html:501
@@ -1522,7 +1563,7 @@ msgstr "Token entfernen"
 
 #: warehouse/templates/manage/account.html:199
 msgid "View unique identifier"
-msgstr ""
+msgstr "Eindeutige Kennung anzeigen"
 
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account.html:209
@@ -1543,7 +1584,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:227
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
-msgstr ""
+msgstr "Eindeutige Kennung für API-Token %(token_description)s"
 
 #: warehouse/templates/manage/account.html:245
 msgid "Profile picture"
@@ -1583,6 +1624,8 @@ msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
 "changed."
 msgstr ""
+"Wird im <a href=\"%(href)s\">öffentlichen Profil</a> angezeigt. Kann nicht "
+"geändert werden."
 
 #: warehouse/templates/manage/account.html:289
 msgid "Full name"
@@ -1590,7 +1633,7 @@ msgstr "Voller Name"
 
 #: warehouse/templates/manage/account.html:294
 msgid "No name set"
-msgstr ""
+msgstr "Kein Name angegeben"
 
 #: warehouse/templates/manage/account.html:299
 #, python-format
@@ -1603,7 +1646,7 @@ msgstr "Konto aktualisieren"
 
 #: warehouse/templates/manage/account.html:312
 msgid "Account emails"
-msgstr ""
+msgstr "E-Mail-Adressen des Kontos"
 
 #: warehouse/templates/manage/account.html:314
 msgid ""
@@ -1799,7 +1842,7 @@ msgstr "E-Mail bestätigt"
 
 #: warehouse/templates/manage/account.html:557
 msgid "Email reverified"
-msgstr ""
+msgstr "E-Mail-Adresse erneut bestätigt"
 
 #: warehouse/templates/manage/account.html:561
 msgid "Primary email changed"
@@ -1967,7 +2010,15 @@ msgid_plural ""
 " can delete your account.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          Sie müssen dieses Projekt übertragen oder löschen, um Ihr Konto zu "
+"löschen.\n"
+"        "
 msgstr[1] ""
+"\n"
+"          Sie müssen diese Projekte übertragen oder löschen, um Ihr Konto zu "
+"löschen.\n"
+"        "
 
 #: warehouse/templates/manage/account.html:672
 #, python-format
@@ -2007,6 +2058,9 @@ msgid ""
 "href=\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as "
 "uploading new documentation is no longer supported."
 msgstr ""
+"Sie können das LÖSCHEN von unter <a href=\"%(url)s\">%(url)s</a> gehosteter "
+"Dokumentation <strong>nicht</strong> rückgängig machen, da das Hochladen "
+"neuer Dokumentation nicht mehr unterstützt wird."
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
@@ -2036,6 +2090,9 @@ msgid ""
 "Each time you (or your collaborators) perform a security action related "
 "to this project, the action is recorded and displayed here."
 msgstr ""
+"Immer wenn Sie (oder andere Projektbeteiligte) sicherheitsrelevante "
+"Änderungen am Projekt vornehmen, werden diese aufgezeichnet und hier "
+"angezeigt."
 
 #: warehouse/templates/manage/history.html:29
 msgid "Project created"
@@ -2087,11 +2144,14 @@ msgstr ""
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> wurde als %(role_name)s vom Projekt "
+"entfernt"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> wurde zum %(role_name)s des Projekts"
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
@@ -2105,7 +2165,7 @@ msgstr "Berechtigungen: Kann zu diesem Projekt hochladen"
 #: warehouse/templates/manage/history.html:68
 #: warehouse/templates/manage/history.html:75
 msgid "Controlled by:"
-msgstr ""
+msgstr "Überprüft von:"
 
 #: warehouse/templates/manage/history.html:85
 #, python-format
@@ -2115,17 +2175,19 @@ msgstr "Sicherheitsverlauf für %(project_name)s"
 #: warehouse/templates/manage/journal.html:20
 #, python-format
 msgid "'%(project_name)s' project journal"
-msgstr ""
+msgstr "'%(project_name)s' Projekt-Journal"
 
 #: warehouse/templates/manage/journal.html:23
 msgid "Project journal"
-msgstr ""
+msgstr "Projekt-Journal"
 
 #: warehouse/templates/manage/journal.html:25
 msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
 msgstr ""
+"Immer wenn Sie oder andere Projektbeteiligte das Projekt aktualisieren, wird "
+"dies aufgezeichnet und hier angezeigt."
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
@@ -2133,11 +2195,13 @@ msgid ""
 "This feature will be deprecated in the future, replaced by the <a "
 "href=\"%(href)s\">security history page</a>."
 msgstr ""
+"Diese Funktion wird in Zukunft nicht mehr zu Verfügung stehen und wurde "
+"durch den <a href=\"%(href)s\">Sicherheitsverlauf</a> ersetzt."
 
 #: warehouse/templates/manage/journal.html:32
 #, python-format
 msgid "History for %(project_name)s"
-msgstr ""
+msgstr "Verlauf für %(project_name)s"
 
 #: warehouse/templates/manage/journal.html:35
 #: warehouse/templates/manage/journal.html:44
@@ -2174,12 +2238,12 @@ msgstr "Verwalten"
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
-msgstr ""
+msgstr "Ihr Konto"
 
 #: warehouse/templates/manage/manage_base.html:27
 #: warehouse/templates/manage/manage_base.html:47
 msgid "Account navigation"
-msgstr ""
+msgstr "Kontonavigation"
 
 #: warehouse/templates/manage/manage_base.html:105
 msgid "This action cannot be undone!"
@@ -2192,7 +2256,7 @@ msgstr "Zum Fortfahren Benutzername bestätigen."
 #: warehouse/templates/manage/manage_base.html:115
 #, python-format
 msgid "Confirm the %(item)s to continue."
-msgstr ""
+msgstr "Bestätigen Sie das %(item)s, um fortzufahren."
 
 #: warehouse/templates/manage/manage_base.html:123
 msgid "Cancel"
@@ -2207,11 +2271,11 @@ msgstr "'%(project_name)s' verwalten"
 #: warehouse/templates/manage/projects.html:21
 #, python-format
 msgid "Your projects (%(project_count)s)"
-msgstr ""
+msgstr "Ihre Projekte (%(project_count)s)"
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr ""
+msgstr "Zurück zu den Projekten"
 
 #: warehouse/templates/manage/projects.html:31
 msgid "Sole owner"
@@ -2233,7 +2297,7 @@ msgstr "Dieses Projekt verwalten"
 
 #: warehouse/templates/manage/projects.html:55
 msgid "You are not an owner of this project"
-msgstr ""
+msgstr "Sie sind kein Besitzer dieses Projekts"
 
 #: warehouse/templates/manage/projects.html:62
 msgid "View this project's public page"
@@ -2255,6 +2319,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"Sie haben noch keine Projekte zu PyPI hochgeladen. Besuchen Sie den<a href=\""
+"%(href)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+", um zu erfahren, wie Sie damit beginnen können"
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
@@ -2269,7 +2336,7 @@ msgstr "Version %(version)s veröffentlichen"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Breadcrumb"
 
 #: warehouse/templates/manage/release.html:26
 #, python-format
@@ -2311,11 +2378,11 @@ msgstr "Datei herunterladen"
 
 #: warehouse/templates/manage/release.html:73
 msgid "View file options"
-msgstr ""
+msgstr "Dateioptionen ansehen"
 
 #: warehouse/templates/manage/release.html:79
 msgid "File options"
-msgstr ""
+msgstr "Dateioptionen"
 
 #: warehouse/templates/manage/release.html:83
 msgid "Download"
@@ -2408,6 +2475,10 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
+"Es wird nicht möglich sein, eine neue Distribution des gleichen Typs mit der "
+"gleichen Versionsnummer erneut hochzuladen. Erstellen Sie stattdessen eine "
+"neue Veröffentlichung oder eine <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Nachveröffentlichung</a>."
 
 #: warehouse/templates/manage/release.html:148
 #: warehouse/templates/manage/releases.html:27
@@ -2472,7 +2543,7 @@ msgstr "Veröffentlichungseinstellungen ansehen"
 #: warehouse/templates/manage/releases.html:67
 #, python-format
 msgid "Options for %(version)s"
-msgstr ""
+msgstr "Optionen für %(version)s"
 
 #: warehouse/templates/manage/releases.html:81
 msgid "Delete Release"
@@ -2493,11 +2564,14 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
 "User Guide</a>"
 msgstr ""
+"Erfahren Sie im <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Python Packaging User Guide</a> mehr zum Erstellen neue "
+"Veröffentlichungen"
 
 #: warehouse/templates/manage/roles.html:18
 #, python-format
 msgid "Manage '%(project_name)s' collaborators"
-msgstr ""
+msgstr "Projektbeteiligte von '%(project_name)s' verwalten"
 
 #: warehouse/templates/manage/roles.html:22
 #, python-format
@@ -2505,6 +2579,8 @@ msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s"
 msgstr ""
+"Auf dieser Seite können Sie festlegen, welche PyPI-Benutzer Ihnen bei der "
+"Verwaltung von %(project_name)s helfen können"
 
 #: warehouse/templates/manage/roles.html:25
 #: warehouse/templates/pages/help.html:472
@@ -2514,7 +2590,7 @@ msgstr "Es gibt zwei mögliche Rollen für Mitarbeiter:"
 #: warehouse/templates/manage/roles.html:27
 #: warehouse/templates/manage/roles.html:80
 msgid "Maintainer"
-msgstr ""
+msgstr "Betreuer"
 
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/pages/help.html:473
@@ -2522,6 +2598,8 @@ msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
+"Kann Veröffentlichungen hochladen. Kann Mitarbeiter hinzufügen. Kann weder "
+"Dateien, Veröffentlichungen oder noch das gesamte Projekt löschen."
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:80
@@ -2558,7 +2636,7 @@ msgstr "Speichern"
 
 #: warehouse/templates/manage/roles.html:111
 msgid "Cannot remove yourself as owner"
-msgstr ""
+msgstr "Sie können sich als Besitzer nicht selbst entfernen"
 
 #: warehouse/templates/manage/roles.html:114
 #, python-format
@@ -2572,7 +2650,7 @@ msgstr "Mitarbeiter hinzufügen"
 
 #: warehouse/templates/manage/roles.html:136
 msgid "User's username"
-msgstr ""
+msgstr "Benutzername des Nutzers"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
@@ -2616,6 +2694,16 @@ msgid ""
 "rel=\"noopener\" target=\"_blank\">the Python Packaging User Guide</a> "
 "for more help."
 msgstr ""
+"Um die Beschreibung, Autoren, Links und Kategorien und andere Details der "
+"nächsten Veröffentlichung von '%(project_name)s' zu setzen, benutzen Sie die "
+"<a href=\"%(setup_args_href)s\" rel=\"noopener\" target=\"_blank\""
+"><code>setup()</code>-Argumente in Ihrer <code>setup.py</code>-Datei</a>.  "
+"Änderungen an diesen Feldern hat keine Auswirkungen auf bereits bestehende "
+"Veröffentlichungen. Zudem <strong>müssen</strong> Sie die Dateien mit <a "
+"href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> "
+"hochladen, um die volle Unterstützung dieser Felder zu gewährleisten. "
+"Erfahren Sie mehr dazu im <a href=\"%(distribution_href)s\" rel=\"noopener\" "
+"target=\"_blank\">Python Packaging User Guide</a>."
 
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
@@ -2886,12 +2974,19 @@ msgid ""
 "href=\"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">compatible browser</a>."
 msgstr ""
+"<strong>Funktioniert nicht?</strong> Stellen Sie sicher, dass Ihr Gerät den <"
+"a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">FIDO-Spezifikationen</a> entspricht und verwenden Sie einen <a "
+"href=\"%(mozilla_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">kompatiblen Browser</a>."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:78
 msgid ""
 "Note that some older USB keys do not adhere to the FIDO standard and will"
 " not work with PyPI."
 msgstr ""
+"Beachten Sie, dass einige ältere USB-Schlüssel nicht dem FIDO-Standard "
+"entsprechen und nicht mit PyPI funktionieren."
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -2899,12 +2994,17 @@ msgid ""
 "classifiers\" to categorize each release, describing who it's for, what "
 "systems it can run on, and how mature it is."
 msgstr ""
+"Die Betreuer eines Projekts verwenden eine Liste von Kategorien, um eine "
+"Veröffentlichung einzuordnen; um anzugeben für wen sie bestimmt ist, auf "
+"welchen Systemen sie eingesetzt werden kann und wie ausgereift sie ist."
 
 #: warehouse/templates/pages/classifiers.html:23
 msgid ""
 "These standardized classifiers can then be used by community members to "
 "find projects based on their desired criteria."
 msgstr ""
+"Mit Hilfe dieser standardisierten Kategorien können Mitglieder der Community "
+"Projekte nach ihren Kriterien suchen."
 
 #: warehouse/templates/pages/classifiers.html:25
 #, python-format
@@ -2916,10 +3016,16 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
 "title=\"Python enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
+"Anweisungen zum Hinzufügen von Kategorien zu einem Projekt sind im <a href=\""
+"%(ppug_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Packaging User Guide</a> zu finden. Die Spezifikation der Kategorien "
+"ist Teil von <a href=\"%(pep301_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\"><abbr title=\"Python enhancement proposal\""
+">PEP</abbr> 301</a>."
 
 #: warehouse/templates/pages/classifiers.html:31
 msgid "List of classifiers"
-msgstr ""
+msgstr "Liste der Kategorien"
 
 #: warehouse/templates/pages/help.html:19
 #: warehouse/templates/pages/help.html:30
@@ -2950,6 +3056,13 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">account recovery codes</a> to address "
 "this issue."
 msgstr ""
+"Wenn Sie %(method)s verlieren und sich nicht mehr anmelden können, kann das "
+"PyPI-Team Ihnen momentan <strong>nicht</strong> helfen, wieder Zugriff zu "
+"erlangen. Wir haben vor eine <a href=\"%(policy_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Richtlinie zur manuellen "
+"Kontowiederherstellung</a> zu entwickeln und <a href=\"%(recovery_codes_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Codes für die "
+"Kontowiederherstellung</a> zu implementieren, um dieses Problem zu beheben."
 
 #: warehouse/templates/pages/help.html:39
 msgid ""
@@ -2962,6 +3075,12 @@ msgid ""
 "key).\n"
 "      "
 msgstr ""
+"\n"
+"        Wir empfehlen allen PyPI-Nutzern kurzfristig <em>beide</em> "
+"unterstützen Methoden der Zwei-Faktor-Authentifizierung einzurichten – eine "
+"Authenticator-Applikation <em>und</em> ein Sicherheitsgerät (z.B. einen USB-"
+"Schlüssel).\n"
+"      "
 
 #: warehouse/templates/pages/help.html:49
 msgid "What's a package, project, or release?"
@@ -2978,7 +3097,7 @@ msgstr "Wie bündle und veröffentliche ich meinen Quellcode für PyPI?"
 #: warehouse/templates/pages/help.html:52
 #: warehouse/templates/search/results.html:88
 msgid "What's a trove classifier?"
-msgstr ""
+msgstr "Was ist eine Kategorie?"
 
 #: warehouse/templates/pages/help.html:54
 msgid "Why do I need a verified email address?"
@@ -2999,16 +3118,24 @@ msgid ""
 "(<abbr title=\"time-based one-time password\">TOTP</abbr>) work? How do I"
 " set it up on PyPI?"
 msgstr ""
+"Wie funktioniert die Zwei-Faktor-Authentifizierung mit einer Authenticator-"
+"Applikation (<abbr title=\"time-based one-time password\">TOTP</abbr>)? Wie "
+"kann ich sie bei PyPI einrichten?"
 
 #: warehouse/templates/pages/help.html:58
 msgid ""
 "How does two factor authentication with a security device (e.g. USB key) "
 "work? How do I set it up on PyPI?"
 msgstr ""
+"Wie funktioniert die Zwei-Faktor-Authentifizierung mit einem "
+"Sicherheitsgerät (z.B. einem USB-Schlüssel)? Wie kann ich es bei PyPI "
+"einrichten?"
 
 #: warehouse/templates/pages/help.html:59
 msgid "What devices (other than a USB key) can I use as a security device?"
 msgstr ""
+"Welche Geräte (von einem USB-Schlüssel abgesehen) kann ich als "
+"Sicherheitsgerät verwenden?"
 
 #: warehouse/templates/pages/help.html:60
 msgid "How can I use API tokens to authenticate with PyPI?"
@@ -3046,6 +3173,8 @@ msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch "
 "URL\" errors during <code>pip install</code>?"
 msgstr ""
+"Warum erhalte ich die Fehlermeldungen \"No matching distribution found\" "
+"oder \"Could not fetch URL\" beim Ausführen von <code>pip install</code>?"
 
 #: warehouse/templates/pages/help.html:69
 msgid "I am having trouble using the PyPI website. Can you help me?"
@@ -3069,6 +3198,8 @@ msgstr "Wieso wurde mein Paket oder meine Benutzer-Registrierung blockiert?"
 #: warehouse/templates/pages/help.html:73
 msgid "How do I get a file size limit exemption or increase for my project?"
 msgstr ""
+"Wie erhalte ich eine Ausnahme von der Dateigrößenlimitierung  oder erhöhe "
+"diese für mein Projekt?"
 
 #: warehouse/templates/pages/help.html:75
 msgid ""
@@ -3103,7 +3234,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:81
 msgid "How do I request a new trove classifier?"
-msgstr ""
+msgstr "Wie kann ich eine neue Kategorie anfragen?"
 
 #: warehouse/templates/pages/help.html:82
 msgid "Where can I report a bug or provide feedback about PyPI?"
@@ -3157,7 +3288,7 @@ msgstr "Mein Konto"
 #: warehouse/templates/pages/help.html:123
 #: warehouse/templates/pages/help.html:427
 msgid "Integrating"
-msgstr ""
+msgstr "Integration"
 
 #: warehouse/templates/pages/help.html:133
 #: warehouse/templates/pages/help.html:454
@@ -3197,6 +3328,27 @@ msgid ""
 "href=\"%(wheel_href)s\">wheel</a>.</p>\n"
 "        "
 msgstr ""
+"\n"
+"          <p>Wir benutzen eine Reihe von Begriffen wie \"Projekt\", \""
+"Veröffentlichung\", \"Datei\" und \"Paket\", um die auf PyPI verfügbare "
+"Software zu beschreiben. Diese Begriffe können manchmal verwirrend sein, "
+"weil sie in andere Kontexten andere Dinge beschreiben. So benutzen wir sie "
+"auf PyPI:</p>\n"
+"<p>Ein \"Projekt\" bei PyPI ist der Begriff für eine Sammlung von "
+"Veröffentlichungen und Dateien und den dazugehörigen Informationen. Projekte "
+"bei PyPI werden von anderen Mitgliedern der Python-Community erstellt und "
+"geteilt damit Sie sie nutzen können.</p>\n"
+"<p>Eine \"Veröffentlichung\" bei PyPI ist eine konkrete Version eines "
+"Projekts. Zum Beispiel hat das <a href=\"%(requests_href)s\">requests</a>-"
+"Projekt eine ganze Reihe von Veröffentlichungen, wie \"requests 2.10\" und \""
+"requests 1.2.1\". Eine Veröffentlichung umfasst eine oder mehrere \"Dateien\""
+".</p>\n"
+"<p>Eine \"Datei\" bei PyPI, auch \"Paket\" genannt, können Sie herunterladen "
+"und installieren. Wegen sich unterscheidender Hardware, Betriebssystemen und "
+"Dateiformaten, kann eine Veröffentlichung mehrere Dateien (Pakete) "
+"enthalten, wie zum Beispiel eine Archivdatei mit Quellcode oder ein binäres <"
+"a href=\"%(wheel_href)s\">wheel</a>.</p>\n"
+"        "
 
 #: warehouse/templates/pages/help.html:185
 #, python-format
@@ -3207,6 +3359,11 @@ msgid ""
 "href=\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
+"Besuchen Sie die <a href=\"%(installation_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Installationsanleitung </a> im <a href=\""
+"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Packaging User Guide</a>, um zu erfahren, wie Sie Dateien von PyPU "
+"installieren können."
 
 #: warehouse/templates/pages/help.html:192
 #, python-format
@@ -3217,6 +3374,11 @@ msgid ""
 "tutorial</a> on the <a href=\"%(user_guide_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
+"Um zu erfahren, wie Sie Ihr Python-Projekt konfigurieren, verpacken und "
+"verteilen, lesen Sie das <a href=\"%(packaging_tutorial_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Packaging-Tutorial</a> im <a "
+"href=\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Python Packaging User Guide</a>."
 
 #: warehouse/templates/pages/help.html:199
 #, python-format
@@ -3225,6 +3387,9 @@ msgid ""
 "href=\"%(href)s\">the classifiers page</a> for more information, as well "
 "as a list of valid classifiers."
 msgstr ""
+"Kategorien werden verwendet, um Projekte auf PyPI einzuordnen. Auf der <a "
+"href=\"%(href)s\">Kategorienseite</a> finden Sie weitere Informationen und "
+"eine Liste der verfügbaren Kategorien."
 
 #: warehouse/templates/pages/help.html:206
 msgid "My account"
@@ -3263,6 +3428,12 @@ msgid ""
 "maintainer reachability. It also reduces the viability of spam attacks to"
 " create many accounts in an automated fashion."
 msgstr ""
+"Diese Richtlinie wird es ermöglichen, eine wichtige Vorgabe aus <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
+"title=\"Python enhancement proposal\">PEP</abbr> 541</a> bezüglich der "
+"Erreichbarkeit von Betreuern umzusetzen. Sie erschwert zudem die "
+"Durchführbarkeit von Spam-Angriffen, bei denen automatisiert eine Vielzahl "
+"von Konten erstellt werden."
 
 #: warehouse/templates/pages/help.html:216
 #, python-format
@@ -3272,6 +3443,10 @@ msgid ""
 "new confirmation email for users who signed up in the past, before we "
 "began enforcing this policy."
 msgstr ""
+"Sie können die E-Mail-Adressen ihres Kontos in den <a href=\"%(href)s\""
+">Kontoeinstellungen</a> verwalten. Dort können auch Bestätigungs-E-Mails für "
+"Nutzer versendet werden, die sich von der Umsetzung dieser Richtilinie "
+"registriert haben."
 
 #: warehouse/templates/pages/help.html:219
 #, python-format
@@ -3317,6 +3492,21 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">discuss.python.org</a>.</p>"
 msgstr ""
+"<p>Zwei-Faktor-Authentifizierung (2FA) erhöht die Sicherheit Ihres Kontos, "
+"indem zwei Dinge für die Anmeldung angefordert werden: <em>etwas, das Sie "
+"wissen</em> und <em>etwas, das Sie besitzen</em>.</p><p>Bei PyPI ist \""
+"etwas, das Sie wissen\" Ihr Benutzername und Ihr Password, während \"etwas, "
+"das Sie besitzen\" eine <a href=\"#totp\">Applikation zum Generieren "
+"zeitbegrenzt gültiger Codes</a>, oder ein <a href=\"#utfkey\""
+">Sicherheitsgerät</a> (in der Regel ein USB-Schlüssel) sein kann.</p><p>Es "
+"wird dringend empfohlen die Zwei-Faktor-Authentifizierung für Ihr PyPI-Konto "
+"einzurichten.</p><p>Benutzer, die die Zwei-Faktor-Authentifizierung "
+"eingerichtet haben, werden bei der Anmeldung aufgefordert, ihren zweiten "
+"Faktor zur Verifikation anzugeben. Dies betrifft nur die Anmeldung über den "
+"Web-Browser und (noch) nicht zum Hochladen von Paketen.</p><p>Die "
+"Verbesserung von <abbr title=\"two factor authentication\">2FA</abbr> können "
+"Sie auf <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">discuss.python.org</a> verfolgen.</p>"
 
 #: warehouse/templates/pages/help.html:281
 #, python-format
@@ -3326,6 +3516,10 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"><abbr title=\"time-based one-time "
 "password\">TOTP</abbr> standard</a>."
 msgstr ""
+"PyPI-Benutzer können die Zwei-Faktor-Authentifizierung mit Hilfe einer "
+"Authenticator-Applikation einrichten, die den <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"time-based one-"
+"time password\">TOTP</abbr>-Standard</a> unterstützt."
 
 #: warehouse/templates/pages/help.html:282
 msgid ""
@@ -3374,6 +3568,9 @@ msgid ""
 "href=\"%(ios_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">iOS</a>"
 msgstr ""
+"Duo Mobile für <a href=\"%(android_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">Android</a> oder <a href=\"%(ios_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/pages/help.html:299
 #: warehouse/templates/pages/help.html:300
@@ -3398,12 +3595,16 @@ msgid ""
 "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
 "authentication application:"
 msgstr ""
+"Um <abbr title=\"two factor authentication\">2FA</abbr> mit einer "
+"Authenticator-Applikation einzurichten:"
 
 #: warehouse/templates/pages/help.html:314
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>) application"
 msgstr ""
+"Öffnen Sie eine Authenticator-Applikation (<abbr title=\"time-based one-time "
+"password\">TOTP</abbr>)"
 
 #: warehouse/templates/pages/help.html:315
 msgid ""
@@ -3411,12 +3612,17 @@ msgid ""
 "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 "authentication application\""
 msgstr ""
+"Melden Sie sich in Ihrem PyPI-Konto an, öffnen Sie die Kontoeinstellungen "
+"und wählen Sie \"<abbr title=\"two factor authentication\">2FA</abbr> mit "
+"Authenticator-Applikation hinzufügen\""
 
 #: warehouse/templates/pages/help.html:316
 msgid ""
 "PyPI will generate a secret key, specific to your account. This is "
 "displayed as a QR code, and as a text code."
 msgstr ""
+"PyPI wird einen kontospezifischen geheimen Schlüssel generieren. Dieser wird "
+"als QR-Code und als Text-Code angezeigt."
 
 #: warehouse/templates/pages/help.html:317
 msgid ""
@@ -3424,12 +3630,17 @@ msgid ""
 "manually. The method of input will depend on the application you have "
 "chosen."
 msgstr ""
+"Scannen Sie den QR-Code mit Ihrer Authenticator-Applikation, oder geben Sie "
+"ihn manuell ein. Die Eingabemethode hängt von der von Ihnen gewählten "
+"Anwendung ab."
 
 #: warehouse/templates/pages/help.html:318
 msgid ""
 "Your application will generate an authentication code - use this to "
 "verify your set up on PyPI"
 msgstr ""
+"Ihre Applikation generiert einen Authentifizierungscode – verwenden Sie "
+"diesen, um Ihre Einrichtung in PyPI zu überprüfen"
 
 #: warehouse/templates/pages/help.html:321
 msgid ""
@@ -3437,23 +3648,28 @@ msgid ""
 "allowing your application to generate valid authentication codes for your"
 " PyPI account."
 msgstr ""
+"Der PyPI-Server und Ihre Applikation teilen sich nun Ihren PyPI-"
+"Geheimschlüssel, sodass Ihre Applikation gültige Authentifizierungscodes für "
+"Ihr PyPI-Konto generieren kann."
 
 #: warehouse/templates/pages/help.html:323
 #: warehouse/templates/pages/help.html:365
 msgid "Next time you log in to PyPI you'll need to:"
-msgstr ""
+msgstr "Wenn Sie sich das nächste Mal bei PyPI anmelden, müssen Sie:"
 
 #: warehouse/templates/pages/help.html:325
 msgid "Provide your username and password, as normal"
-msgstr ""
+msgstr "Wie gewohnt Ihren Benutzernamen und Ihr Password angeben"
 
 #: warehouse/templates/pages/help.html:326
 msgid "Open your authentication application to generate an authentication code"
 msgstr ""
+"Ihre Authenticator-Applikation öffnen, um einen Authentifikations-Code zu "
+"generieren"
 
 #: warehouse/templates/pages/help.html:327
 msgid "Use this code to finish logging into PyPI"
-msgstr ""
+msgstr "Diesen Code verwenden, um die PyPI-Anmeldung abzuschließen"
 
 #: warehouse/templates/pages/help.html:333
 msgid ""
@@ -3462,10 +3678,15 @@ msgid ""
 "the browser. This password is then used by PyPI to authenticate you as a "
 "user."
 msgstr ""
+"Ein Sicherheitsgerät ist ein USB-Schlüssel oder ein <a href=\"#utfdevices\">"
+"anderes Gerät</a>, um Einmalpasswörter zu generieren und diese an Ihren "
+"Browser zu senden. Das Passwort authentisiert sie als PyPI-Nutzer."
 
 #: warehouse/templates/pages/help.html:335
 msgid "To set up two factor authentication with a <em>USB key</em>, you'll need:"
 msgstr ""
+"Um die Zwei-Faktor-Authentifizierung mit einem <em>USB-Schlüssel</em> "
+"einzurichten, benötigen Sie:"
 
 #: warehouse/templates/pages/help.html:337
 #, python-format
@@ -3475,10 +3696,14 @@ msgid ""
 "authentication\">WebAuthn</abbr> and PublicKeyCredential</a>, as this is "
 "the standard implemented by PyPI."
 msgstr ""
+"Einen <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Browser mit Unterstützung für <abbr title=\"web authentication\""
+">WebAuthn</abbr> und PublicKeyCredential</a> benutzen, welcher der Standard "
+"ist, den PyPI implementiert."
 
 #: warehouse/templates/pages/help.html:338
 msgid "To be running JavaScript on your browser"
-msgstr ""
+msgstr "In Ihrem Browser JavaScript zulassen"
 
 #: warehouse/templates/pages/help.html:339
 #, python-format
@@ -3487,6 +3712,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO U2F "
 "specification</a>:"
 msgstr ""
+"Einen USB-Schlüssel verwenden, welcher der <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO-U2F-Spezifikation</a> "
+"entspricht:"
 
 #: warehouse/templates/pages/help.html:342
 #, python-format
@@ -3497,16 +3725,24 @@ msgid ""
 "rel=\"noopener\">Google Titan</a> and <a href=\"%(thetis_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Thetis</a>."
 msgstr ""
+"Beliebte Schlüssel sind <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> und <"
+"a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Thetis</a>."
 
 #: warehouse/templates/pages/help.html:349
 msgid ""
 "Note that some older Yubico USB keys <strong>do not follow the FIDO "
 "specification</strong>, and will therefore not work with PyPI"
 msgstr ""
+"Beachten Sie, dass einige ältere USB-Schlüssel von Yubico <strong>nicht der "
+"FIDO-Spezifikation</strong> entsprechen und deshalb nicht mit PyPI "
+"funktionieren"
 
 #: warehouse/templates/pages/help.html:354
 msgid "Follow these steps:"
-msgstr ""
+msgstr "Führen Sie die folgenden Schritte aus:"
 
 #: warehouse/templates/pages/help.html:356
 msgid ""
@@ -3521,12 +3757,25 @@ msgid ""
 "browser</li>\n"
 "          "
 msgstr ""
+"\n"
+"          <li>Melden Sie sich mit ihrem PyPI-Konto an, öffnen Sie die "
+"Kontoeinstellungen und wählen Sie \"<abbr title=\"two factor authentication\""
+">2FA</abbr> mit einem SIcherheitsgerät (z.B. USB-Schlüssel) hinzufügen\"</li>"
+"\n"
+"<li>Benennen Sie den Schlüssel. Dies ist erforderlich, da Sie mehrere "
+"Sicherheitsgeräte zu Ihrem Konto hinzufügen können.</li>\n"
+"<li>Klicken Sie auf \"Sicherheitsgerät einrichten\"</li>\n"
+"<li>Stecken Sie Ihren USB-Schlüssel ein und berühren Sie ihn nach Anweisung "
+"Ihres Browsers</li>\n"
+"          "
 
 #: warehouse/templates/pages/help.html:363
 msgid ""
 "Once complete, your USB key will be registered to your PyPI account and "
 "can be used during the log in process."
 msgstr ""
+"Nach Abschluss wird der USB-Schlüssel mit Ihrem PyPI-Konto verknüpft und can "
+"bei der Anmeldung verwendet werden."
 
 #: warehouse/templates/pages/help.html:367
 msgid ""
@@ -3536,6 +3785,11 @@ msgid ""
 "PyPI</li>\n"
 "          "
 msgstr ""
+"\n"
+"          <li>Wie gewohnt Ihren Benutzernamen und Ihr Passwort angeben</li>\n"
+"<li>Ihren USB-Schlüssel einstecken und berühren, um die Anmeldung "
+"abzuschließen</li>\n"
+"          "
 
 #: warehouse/templates/pages/help.html:378
 #, python-format
@@ -3544,6 +3798,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">devices that are FIDO compliant</a>, "
 "and can therefore be used with PyPI."
 msgstr ""
+"Es gibt eine wachsendes Ökosystem von <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Geräten, die FIDO-zertifiziert "
+"sind</a> und daher mit PyPI genutzt werden können."
 
 #: warehouse/templates/pages/help.html:383
 #, python-format
@@ -3588,7 +3845,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:406
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
-msgstr ""
+msgstr "(Überprüfen Sie Ihre <a href=\"%(href)s\">Kontoeinstellungen</a>)"
 
 #: warehouse/templates/pages/help.html:407
 #, python-format
@@ -3596,20 +3853,24 @@ msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
 "section and select \"Add API token\""
 msgstr ""
+"Öffnen Sie den Abschnitt API-Token in Ihren <a href=\"%(href)s\""
+">Kontoeinstellungen</a> und wählen Sie \"API-Token hinzufügen\""
 
 #: warehouse/templates/pages/help.html:410
 msgid "To use an API token:"
-msgstr ""
+msgstr "So verwenden Sie ein API-Token:"
 
 #: warehouse/templates/pages/help.html:413
 msgid "Set your username to <code>__token__</code>"
-msgstr ""
+msgstr "Setzen Sie Ihren Benutzernamen auf <code>__token__</code>"
 
 #: warehouse/templates/pages/help.html:414
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> "
 "prefix"
 msgstr ""
+"Setzen Sie Ihr Passwort auf den Token-Wert, einschließlich des Präfixes "
+"<code>pypi-</code>"
 
 #: warehouse/templates/pages/help.html:418
 #, python-format
@@ -3791,6 +4052,10 @@ msgid ""
 "href=\"%(href)s\">readme_renderer</a>, which is the same description "
 "renderer used by PyPI."
 msgstr ""
+"PyPI wird das Hochladen ablehnen, wenn die Beschreibung nicht dargestellt "
+"werden kann. Um die Beschreibung lokal zu validieren, können Sie <a href=\""
+"%(href)s\">readme_renderer</a> benutzen, den auch PyPI zur Darstellung "
+"verwendet."
 
 #: warehouse/templates/pages/help.html:487
 #, python-format
@@ -3807,11 +4072,11 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:495
 msgid "A link to your project on PyPI (or Test PyPI)"
-msgstr ""
+msgstr "Ein Link zu Ihrem Projekt auf PyPI (oder Test-PyPI)"
 
 #: warehouse/templates/pages/help.html:496
 msgid "The size of your release, in megabytes"
-msgstr ""
+msgstr "Die Größe der Veröffentlichung, in Megabytes"
 
 #: warehouse/templates/pages/help.html:497
 msgid "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
@@ -4523,7 +4788,13 @@ msgid_plural ""
 "                  with the selected classifiers\n"
 "                "
 msgstr[0] ""
+"\n"
+"                  mit der ausgewählten Kategorie\n"
+"                "
 msgstr[1] ""
+"\n"
+"                  mit den ausgewählten Kategorien\n"
+"                "
 
 #: warehouse/templates/search/results.html:186
 msgid "Order by"
@@ -4539,7 +4810,7 @@ msgstr "Zuletzt aktualisiert"
 
 #: warehouse/templates/search/results.html:190
 msgid "Trending"
-msgstr ""
+msgstr "Angesagt"
 
 #: warehouse/templates/search/results.html:203
 msgid "Filter"
