@@ -11,13 +11,14 @@
 # HyeonhoKim <jwalag87@gmail.com>, 2019.
 # Seba Kim <sebatyler@gmail.com>, 2019.
 # MinGyo Jung <jmg7173@gmail.com>, 2019.
+# Bae KwonHan <darjeeling@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-03 16:52+0000\n"
-"Last-Translator: MinGyo Jung <jmg7173@gmail.com>\n"
+"PO-Revision-Date: 2019-10-10 01:42+0000\n"
+"Last-Translator: Bae KwonHan <darjeeling@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -3385,7 +3386,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:406
 msgid "Verify your email address"
-msgstr ""
+msgstr "이메일 주소 검증"
 
 #: warehouse/templates/pages/help.html:406
 #, python-format
