@@ -109,11 +109,10 @@
           {% endif %}
           {{ extra_description if extra_description else '' }}
           <p>
-            {% set label_lowercase = label|lower() %}
             {% if confirm_name == 'username' %}
             {% trans %}Confirm your username to continue.{% endtrans %}
             {% else %}
-            {% trans %}Confirm the {{ label_lowercase }} to continue.{% endtrans %}
+            {% trans item=label|lower %}Confirm the {{ item }} to continue.{% endtrans %}
             {% endif %}
           </p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
