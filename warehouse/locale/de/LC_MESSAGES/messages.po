@@ -5,13 +5,14 @@
 # Jannis Leidel <jannis@leidel.info>, 2019.
 # Fabian Neumann <mail@fabianneumann.de>, 2019.
 # Laurent LAPORTE <laurent.laporte.pro@gmail.com>, 2019.
+# Steffen Schröder <st.schroeder@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-10 20:48+0000\n"
-"Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
+"PO-Revision-Date: 2019-10-11 20:21+0000\n"
+"Last-Translator: Steffen Schröder <st.schroeder@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -957,13 +958,17 @@ msgstr ""
 "  alte Passwort nicht mehr zum Anmelden oder  Hochladen bei PyPI verwenden."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the\n"
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"PyPI selbst wurde nicht Opfer einer Datenpanne. Dies ist eine "
+"Vorsichtsmaßnahme um das \n"
+"  Risiko von <a href=\"%(href)s\">Credential Stuffing-Angriffen</a> \n"
+"  gegen PyPi und seine Nutzer zu reduzieren."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -1051,6 +1056,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this"
 " link to verify your email address</a>"
 msgstr ""
+"Wenn Sie fortfahren wollen, <a href=\"%(href)s\">klicken Sie auf diesen Link "
+"um ihre E-Mail Adresse zu verifizieren</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
@@ -1196,11 +1203,11 @@ msgstr "Warnung"
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr ""
+msgstr "Ihre primäre E-Mail-Adresse (%(email_address)s), ist unbestätigt."
 
 #: warehouse/templates/includes/session-notifications.html:25
 msgid "You do not have a primary email address."
-msgstr ""
+msgstr "Sie haben keine primäre E-Mail-Adresse."
 
 #: warehouse/templates/includes/session-notifications.html:28
 msgid "Verify your email or add a new address."
