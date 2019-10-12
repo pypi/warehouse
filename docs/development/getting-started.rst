@@ -401,6 +401,23 @@ away your builds + ``docker`` containers and start again:
 ``docker volume rm $(docker volume ls -q --filter dangling=true)``
 
 
+Compilation errors in non-Docker development
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+While Warehouse is designed to be developed in using Docker in certain
+situations you may be tempted to install Warehouse's requirements in your
+system of virtual environment. This is discouraged and may result in
+compilation errors due to your system not including libraries
+or binaries required by some of Warehouse's dependencies.
+
+An example of such dependency is
+`psycopg2 <http://initd.org/psycopg/docs/install.html#prerequisites>`_
+which requires PostgreSQL binaries and will fail if not present.
+
+If there's a specific use case you think requires development outside
+Docker please raise an issue in
+`Warehouse's issue tracker <https://github.com/pypa/warehouse/issues>`_.
+
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
 
