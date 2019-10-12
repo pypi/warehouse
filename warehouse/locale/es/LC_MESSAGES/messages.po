@@ -5,13 +5,14 @@
 # Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2019.
 # Alan Velasco <AlanVelasco.A@gmail.com>, 2019.
 # Katia Lira <katialira.villena@gmail.com>, 2019.
+# Juan Funez <juan.funez@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-11 10:48+0000\n"
-"Last-Translator: Katia Lira <katialira.villena@gmail.com>\n"
+"PO-Revision-Date: 2019-10-11 20:40+0000\n"
+"Last-Translator: Juan Funez <juan.funez@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -4464,6 +4465,13 @@ msgid ""
 " for issues with the software that runs PyPI. Before writing a new issue,"
 " first check that a similar issue does not already exist."
 msgstr ""
+"Si esta encontrando problemas con PyPI, comentarios "
+"<strong>constructivos</strong>  e informes de error son bienvenidos en "
+"nuestro <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">sitio de seguimiento de errores</a>. Por favor, tenga presente "
+"que este sitio es para seguimiento de errores solamente relacionado com el "
+"software utilizado para PyPI. Antes de crear un nuevo reporte de error, "
+"verifique antes si ya no existe."
 
 #: warehouse/templates/pages/help.html:605
 msgid ""
