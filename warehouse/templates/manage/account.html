@@ -462,7 +462,7 @@
               {% set extra_fields %}
                 <input type="text" name="label" value="{{ credential.label }}" hidden>
               {% endset %}
-              {{ confirm_modal(title=title, confirm_name=gettext("Device name"), confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+              {{ confirm_modal(title=title, label=gettext("Device name"), confirm_name="device_name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
             </td>
           </tr>
           {% endfor %}
