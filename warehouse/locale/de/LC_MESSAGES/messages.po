@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Jannis Leidel <jannis@leidel.info>, 2019.
 # Fabian Neumann <mail@fabianneumann.de>, 2019.
+# Laurent LAPORTE <laurent.laporte.pro@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-24 20:27+0000\n"
-"Last-Translator: Fabian Neumann <mail@fabianneumann.de>\n"
+"PO-Revision-Date: 2019-10-10 13:28+0000\n"
+"Last-Translator: Laurent LAPORTE <laurent.laporte.pro@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -633,7 +634,7 @@ msgstr "E-Mail-Adresse"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr "Formular bestätigen"
+msgstr "Bestätigungsformular"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"

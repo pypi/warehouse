@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-08 16:35+0000\n"
-"Last-Translator: Matthieu Melot <matthieu.melot@gmail.com>\n"
+"PO-Revision-Date: 2019-10-10 13:28+0000\n"
+"Last-Translator: Laurent LAPORTE <laurent.laporte.pro@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -506,6 +506,8 @@ msgstr "Dernières nouvelles : les projets les plus récents"
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
 msgstr ""
+"Cette URL est un point d’accès à l’API pour télécharger des fichiers sur "
+"PyPI."
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -514,6 +516,9 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>."
 msgstr ""
+"Pour plus d’informations à propos du téléchargement des projets sur PyPI, "
+"consultez le <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Python Packaging User Guide</a>."
 
 #: warehouse/templates/upload.html:28
 #, python-format
@@ -521,6 +526,8 @@ msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI "
 "homepage</a>."
 msgstr ""
+"Sinon, nous vous suggérons de <a href=\"%(href)s\">consulter la page d’"
+"accueil de PyPI</a>."
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/register.html:17
@@ -531,17 +538,17 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22
 msgid "Error processing form"
-msgstr ""
+msgstr "Erreur de traitement du formulaire"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94
 msgid "Log in"
-msgstr ""
+msgstr "Se connecter"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
-msgstr ""
+msgstr "Se connecter à %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/register.html:89
@@ -551,7 +558,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:686
 #: warehouse/templates/manage/token.html:62
 msgid "Username"
-msgstr ""
+msgstr "Nom d’utilisateur"
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -576,90 +583,91 @@ msgstr ""
 #: warehouse/templates/manage/token.html:80
 #: warehouse/templates/manage/token.html:97
 msgid "(required)"
-msgstr ""
+msgstr "(obligatoire)"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr ""
+msgstr "Votre nom d’utilisateur"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
 msgid "Password"
-msgstr ""
+msgstr "Mot de passe"
 
 #: warehouse/templates/accounts/login.html:76
 msgid "Show password"
-msgstr ""
+msgstr "Voir le mot de passe"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr ""
+msgstr "Votre mot de passe"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
-msgstr ""
+msgstr "Mot de passe oublié ?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
-msgstr ""
+msgstr "Se déconnecter"
 
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr ""
+msgstr "Se déconnecter de %(account_name)s"
 
 #: warehouse/templates/accounts/logout.html:25
 msgid "Log Out"
-msgstr ""
+msgstr "Se déconnecter"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
-msgstr ""
+msgstr "Créer un compte"
 
 #: warehouse/templates/accounts/register.html:30
 #, python-format
 msgid "Create an account on %(title)s"
-msgstr ""
+msgstr "Créer un compte sur %(title)s"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:160
 #: warehouse/templates/manage/account.html:500
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr ""
+msgstr "Votre nom"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
 msgid "Email address"
-msgstr ""
+msgstr "Adresse e-mail"
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:351
 msgid "Your email address"
-msgstr ""
+msgstr "Votre adresse e-mail"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "Formulaire de confirmation"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr ""
+msgstr "Sélectionnez un nom d'utilisateur"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:382
+#, fuzzy
 msgid "Show passwords"
-msgstr ""
+msgstr "Afficher les mots du passe"
 
 #: warehouse/templates/accounts/register.html:122
 msgid "Select a password"
-msgstr ""
+msgstr "Choisissez un mot de passe"
 
 #: warehouse/templates/accounts/register.html:138
 #: warehouse/templates/accounts/register.html:143
@@ -667,36 +675,39 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:69
 #: warehouse/templates/manage/account.html:413
 msgid "Confirm password"
-msgstr ""
+msgstr "Confirmez le mot de passe"
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
-msgstr ""
+msgstr "Créer le compte"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "Réinitialisation du mot de passe"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
 msgstr ""
+"Pour réinitialiser votre mot de passe, entrez votre nom d‘utilisateur ou "
+"votre e-mail."
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "Nom d’utilisateur ou adresse e-mail"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "Demander la réinitialisation du mot de passe"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
-msgstr ""
+msgstr "E-mail de réinitialisation envoyé"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "We have sent an email to your registered email address."
 msgstr ""
+"Nous avons envoyé un e-mail à votre adresse électronique d’enregistrement."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -704,30 +715,33 @@ msgid ""
 "The email contains a link to reset your password. This link will expire "
 "in %(n_hours)s hours."
 msgstr ""
+"L’e-mail contient un lien pour réinitialiser votre mot de passe. Ce lien "
+"expirera dans %(n_hours)s heures."
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
 #: warehouse/templates/pages/sitemap.html:34
 msgid "Reset your password"
-msgstr ""
+msgstr "Réinitialiser votre mot de passe"
 
 #: warehouse/templates/accounts/reset-password.html:50
 #: warehouse/templates/manage/account.html:399
 msgid "Select a new password"
-msgstr ""
+msgstr "Sélectionnez un nouveau mot de passe"
 
 #: warehouse/templates/accounts/reset-password.html:85
 msgid "Reset password"
-msgstr ""
+msgstr "Réinitialiser le mot de passe"
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
 msgid "Two-factor authentication"
-msgstr ""
+msgstr "Authentification à deux facteurs"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
 msgstr ""
+"Authentification avec un périphérique de sécurité (par exemple, clé USB)"
 
 #: warehouse/templates/accounts/two-factor.html:37
 #: warehouse/templates/manage/account.html:460
@@ -740,13 +754,15 @@ msgstr ""
 #: warehouse/templates/pages/help.html:59
 #: warehouse/templates/pages/help.html:60
 msgid "Beta feature"
-msgstr ""
+msgstr "En version bêta"
 
 #: warehouse/templates/accounts/two-factor.html:40
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
 msgstr ""
+"Connectez votre périphérique de sécurité et cliquez sur le bouton « S’"
+"authentifier avec le périphérique »."
 
 #: warehouse/templates/accounts/two-factor.html:43
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
@@ -754,7 +770,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:52
 msgid "Authenticate with device"
-msgstr ""
+msgstr "S’authentifier avec le périphérique"
 
 #: warehouse/templates/accounts/two-factor.html:56
 #, python-format
@@ -763,6 +779,9 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device"
 " (e.g. USB key)"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Mettez à jour votre navigateur</a> pour vous connecter avec un "
+"dispositif de sécurité (ex. clé USB)"
 
 #: warehouse/templates/accounts/two-factor.html:61
 #, python-format
