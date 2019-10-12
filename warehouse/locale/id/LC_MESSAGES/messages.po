@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # oon arfiandwi <oon.arfiandwi@gmail.com>, 2019.
+# yafiabiyyu <luckyveri3@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
-"PO-Revision-Date: 2019-10-06 03:00+0000\n"
-"Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
+"PO-Revision-Date: 2019-10-10 01:42+0000\n"
+"Last-Translator: yafiabiyyu <luckyveri3@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -388,7 +389,7 @@ msgstr "Python Package Index"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
-msgstr ""
+msgstr "Test Python paket penerbitan dengan Test Python paket index"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
@@ -401,40 +402,46 @@ msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Atau <a href=\"%(href)s\"> jelajahi proyek </a>"
 
 #: warehouse/templates/index.html:67
-#, python-format
+#, fuzzy, python-format
 msgid "%(num_projects)s projects"
-msgstr ""
+msgstr "% (num_projects) proyek"
 
 #: warehouse/templates/index.html:68
-#, python-format
+#, fuzzy, python-format
 msgid "%(num_releases)s releases"
-msgstr ""
+msgstr "% (num_releases) rilis"
 
 #: warehouse/templates/index.html:69
-#, python-format
+#, fuzzy, python-format
 msgid "%(num_files)s files"
-msgstr ""
+msgstr "% (num_files) s file"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr ""
+msgstr "% (num_users)s pengguna"
 
 #: warehouse/templates/index.html:80
+#, fuzzy
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
+"The Python Package index (PyPI) adalah repositori dari perangkat lunak untuk "
+"bahasa pemrograman Python."
 
 #: warehouse/templates/index.html:82
+#, fuzzy
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
+"PyPI membantu Anda menemukan dan menginstal perangkat lunak yang "
+"dikembangkan dan dibagikan oleh komunitas Python."
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr ""
+msgstr "Pelajari tentang cara menginstal paket</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
@@ -442,8 +449,9 @@ msgstr ""
 "Penulis paket menggunakan PyPI untuk mendistribusikan perangkat lunak mereka."
 
 #: warehouse/templates/index.html:87
+#, fuzzy
 msgid "Learn how to package your Python code for PyPI</a>."
-msgstr ""
+msgstr "Pelajari cara mengemas kode Python Anda untuk PyPI </a>."
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
@@ -458,12 +466,14 @@ msgid "New releases"
 msgstr "Rilis baru"
 
 #: warehouse/templates/index.html:109
+#, fuzzy
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Hot off the press: rilis proyek terbaru"
 
 #: warehouse/templates/upload.html:25
+#, fuzzy
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr ""
+msgstr "URL ini adalah Endpoint API untuk mengunggah file ke PyPI."
 
 #: warehouse/templates/upload.html:26
 #, python-format
