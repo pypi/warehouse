@@ -133,7 +133,7 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.username(placeholder=gettext("User's username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"user-errors"}) }}
+      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"user-errors"}) }}
       <div id="user-errors">
         {{ field_errors(form.username) }}
       </div>
