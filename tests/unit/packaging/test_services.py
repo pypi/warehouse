@@ -20,8 +20,10 @@ import pytest
 
 from zope.interface.verify import verifyClass
 
+from warehouse.packaging import services
 from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.services import (
+    DualFileStorage,
     GCSFileStorage,
     LocalDocsStorage,
     LocalFileStorage,
@@ -285,7 +287,7 @@ class TestGCSFileStorage:
             find_service=pretend.call_recorder(lambda name: service),
             registry=pretend.stub(settings={"files.bucket": "froblob"}),
         )
-        storage = GCSFileStorage.create_service(None, request)
+        GCSFileStorage.create_service(None, request)
 
         assert request.find_service.calls == [pretend.call(name="gcloud.gcs")]
         assert service.get_bucket.calls == [pretend.call("froblob")]
@@ -353,6 +355,134 @@ class TestGCSFileStorage:
 
         assert blob.metadata == meta
         assert blob.patch.calls == [pretend.call()]
+
+
+class TestDualFileStorage:
+    def test_verify_service(self):
+        assert verifyClass(IFileStorage, DualFileStorage)
+
+    def test_basic_init(self):
+        bucket = pretend.stub()
+        storage = DualFileStorage(bucket)
+        assert storage.bucket is bucket
+
+    def test_create_service(self, monkeypatch):
+        def proxy_factory(a):
+            return pretend.call(a)
+
+        monkeypatch.setattr(services, "ProxyFactory", proxy_factory)
+        request = pretend.stub(
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+            services=pretend.stub(
+                register_factory=pretend.call_recorder(lambda factory, name: None)
+            ),
+        )
+        storage = DualFileStorage.create_service(None, request)
+
+        assert request.services.register_factory.calls == [
+            pretend.call(
+                pretend.call(S3FileStorage.create_service), name="primary-file-backend"
+            ),
+            pretend.call(
+                pretend.call(GCSFileStorage.create_service),
+                name="secondary-file-backend",
+            ),
+        ]
+        assert storage.request == request
+
+    def test_gets_file_raises(self):
+        storage = DualFileStorage(None)
+
+        with pytest.raises(NotImplementedError):
+            storage.get("file.txt")
+
+    def test_stores_file(self, tmpdir, monkeypatch):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        def proxy_factory(a):
+            return pretend.call(a)
+
+        monkeypatch.setattr(services, "ProxyFactory", proxy_factory)
+
+        primary_service = pretend.stub(
+            store=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        secondary_service = pretend.stub(
+            store=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        registered_services = {
+            "primary-file-backend": primary_service,
+            "secondary-file-backend": secondary_service,
+        }
+        request = pretend.stub(
+            find_service=pretend.call_recorder(
+                lambda name: registered_services.get(name)
+            ),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+            services=pretend.stub(
+                register_factory=pretend.call_recorder(lambda factory, name: None)
+            ),
+        )
+        storage = DualFileStorage.create_service(None, request)
+        meta = pretend.stub()
+        storage.store("foo/bar.txt", filename, meta=meta)
+
+        assert request.find_service.calls == [
+            pretend.call(name="primary-file-backend"),
+            pretend.call(name="secondary-file-backend"),
+        ]
+        assert primary_service.store.calls == [
+            pretend.call("foo/bar.txt", filename, meta=meta)
+        ]
+        assert secondary_service.store.calls == [
+            pretend.call("foo/bar.txt", filename, meta=meta)
+        ]
+
+    def test_succeeds_if_secondary_fails(self, tmpdir, monkeypatch):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        def proxy_factory(a):
+            return pretend.call(a)
+
+        monkeypatch.setattr(services, "ProxyFactory", proxy_factory)
+
+        primary_service = pretend.stub(
+            store=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        secondary_service = pretend.stub(
+            store=pretend.call_recorder(pretend.raiser(Exception))
+        )
+        registered_services = {
+            "primary-file-backend": primary_service,
+            "secondary-file-backend": secondary_service,
+        }
+        request = pretend.stub(
+            find_service=pretend.call_recorder(
+                lambda name: registered_services.get(name)
+            ),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+            services=pretend.stub(
+                register_factory=pretend.call_recorder(lambda factory, name: None)
+            ),
+        )
+        storage = DualFileStorage.create_service(None, request)
+        meta = pretend.stub()
+        storage.store("foo/bar.txt", filename, meta=meta)
+
+        assert request.find_service.calls == [
+            pretend.call(name="primary-file-backend"),
+            pretend.call(name="secondary-file-backend"),
+        ]
+        assert primary_service.store.calls == [
+            pretend.call("foo/bar.txt", filename, meta=meta)
+        ]
+        assert secondary_service.store.calls == [
+            pretend.call("foo/bar.txt", filename, meta=meta)
+        ]
 
 
 class TestS3DocsStorage:

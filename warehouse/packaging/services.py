@@ -16,6 +16,7 @@ import warnings
 
 import botocore.exceptions
 
+from pyramid_services import ProxyFactory
 from zope.interface import implementer
 
 from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
@@ -193,3 +194,43 @@ class GCSFileStorage(GenericFileStorage):
         if meta is not None:
             blob.metadata = meta
             blob.patch()
+
+
+@implementer(IFileStorage)
+class DualFileStorage(GenericFileStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        prefix = request.registry.settings.get("files.prefix")
+
+        # Register the primary and secondary service factories
+        request.services.register_factory(
+            ProxyFactory(S3FileStorage.create_service), name="primary-file-backend"
+        )
+        request.services.register_factory(
+            ProxyFactory(GCSFileStorage.create_service), name="secondary-file-backend"
+        )
+
+        # Instanciate the instance of the service and attach the request object
+        service_instance = cls(None, prefix=prefix)
+        service_instance.request = request
+        return service_instance
+
+    def get(self, path):
+        # Note: this is not actually used in production, instead our CDN is
+        # configured to connect directly to our storage bucket. See:
+        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
+        raise NotImplementedError
+
+    def store(self, path, file_path, *, meta=None):
+        # Get the primary and secondary storage services
+        primary_service = self.request.find_service(name="primary-file-backend")
+        secondary_service = self.request.find_service(name="secondary-file-backend")
+
+        # This must succeed
+        primary_service.store(path, file_path, meta=meta)
+
+        # This can fail
+        try:
+            secondary_service.store(path, file_path, meta=meta)
+        except Exception:
+            pass
