@@ -84,19 +84,10 @@ class LocalDocsStorage:
             pass
 
 
-@implementer(IFileStorage)
-class S3FileStorage:
+class GenericFileStorage:
     def __init__(self, bucket, *, prefix=None):
         self.bucket = bucket
         self.prefix = prefix
-
-    @classmethod
-    def create_service(cls, context, request):
-        session = request.find_service(name="aws.session")
-        s3 = session.resource("s3")
-        bucket = s3.Bucket(request.registry.settings["files.bucket"])
-        prefix = request.registry.settings.get("files.prefix")
-        return cls(bucket, prefix=prefix)
 
     def _get_path(self, path):
         # Legacy paths will have a first directory of something like 2.7, we
@@ -112,7 +103,21 @@ class S3FileStorage:
 
         return path
 
+
+@implementer(IFileStorage)
+class S3FileStorage(GenericFileStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        session = request.find_service(name="aws.session")
+        s3 = session.resource("s3")
+        bucket = s3.Bucket(request.registry.settings["files.bucket"])
+        prefix = request.registry.settings.get("files.prefix")
+        return cls(bucket, prefix=prefix)
+
     def get(self, path):
+        # Note: this is not actually used in production, instead our CDN is
+        # configured to connect directly to our storage bucket. See:
+        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
         try:
             return self.bucket.Object(self._get_path(path)).get()["Body"]
         except botocore.exceptions.ClientError as exc:
