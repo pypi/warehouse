@@ -166,3 +166,30 @@ class S3DocsStorage:
             self.s3_client.delete_objects(
                 Bucket=self.bucket_name, Delete={"Objects": keys_to_delete}
             )
+
+
+@implementer(IFileStorage)
+class GCSFileStorage(GenericFileStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        storage_client = request.find_service(name="gcloud.gcs")
+        bucket_name = request.registry.settings["files.bucket"]
+        bucket = storage_client.get_bucket(bucket_name)
+        prefix = request.registry.settings.get("files.prefix")
+
+        return cls(bucket, prefix=prefix)
+
+    def get(self, path):
+        # Note: this is not actually used in production, instead our CDN is
+        # configured to connect directly to our storage bucket. See:
+        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
+        raise NotImplementedError
+
+    def store(self, path, file_path, *, meta=None):
+        path = self._get_path(path)
+        blob = self.bucket.blob(path)
+        blob.upload_from_filename(file_path)
+
+        if meta is not None:
+            blob.metadata = meta
+            blob.patch()

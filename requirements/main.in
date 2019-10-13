@@ -15,6 +15,7 @@ elasticsearch>=6.0.0,<7.0.0
 elasticsearch_dsl>=6.0.0,<7.0.0
 first
 google-cloud-bigquery
+google-cloud-storage
 hiredis
 html5lib
 itsdangerous
