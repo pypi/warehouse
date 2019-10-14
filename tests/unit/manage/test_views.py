@@ -59,12 +59,13 @@ class TestManageAccount:
         user_service = pretend.stub()
         name = pretend.stub()
         user_id = pretend.stub()
+        is_email_private = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name, id=user_id),
+            user=pretend.stub(name=name, id=user_id, is_email_private=is_email_private),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -90,7 +91,9 @@ class TestManageAccount:
         }
         assert view.request == request
         assert view.user_service == user_service
-        assert save_account_cls.calls == [pretend.call(name=name)]
+        assert save_account_cls.calls == [
+            pretend.call(name=name, is_email_private=is_email_private)
+        ]
         assert add_email_cls.calls == [
             pretend.call(user_id=user_id, user_service=user_service)
         ]
@@ -147,7 +150,7 @@ class TestManageAccount:
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
-            POST={"name": "new name"},
+            POST={"name": "new name", "is_private_email": "y"},
             user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
@@ -172,7 +175,7 @@ class TestManageAccount:
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
-            POST={"name": "new name"},
+            POST={"name": "new name", "is_private_email": "y"},
             user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,

@@ -303,6 +303,21 @@
             Displayed on your <a href="{{ href }}">public profile</a>
           {% endtrans %}
         </p>
+        <label class="form-group__label" for="is_email_private">
+          {% trans %}️Keep my email address private{% endtrans %}
+          {% if save_account_form.name.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+          {{ save_account_form.is_email_private(class_="form-group__input", **{"aria-describedby":"is-email-private-errors"}) }}
+        </label>
+        <div id="is-email-private-errors">
+          {{ field_errors(save_account_form.is_email_private) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+            We won't show your primary email on your <a href="{{ href }}">public profile</a>
+          {% endtrans %}
+        </p>
       </div>
       <input value="{% trans %}Update account{% endtrans %}" class="button button--primary" type="submit">
     </form>

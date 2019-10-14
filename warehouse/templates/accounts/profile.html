@@ -33,6 +33,13 @@
               &nbsp;&nbsp;
               <span class="break">{{ user.username }}</span>
             </p>
+            {% if not user.is_email_private %}
+            <p>
+              <i class="fa fa-envelope" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Email{% endtrans %}</span>
+              &nbsp;&nbsp;{{ user.primary_email.email }}
+            </p>
+            {% endif %}
             {% if user.date_joined %}
             <p>
               <i class="fa fa-calendar-alt" aria-hidden="true"></i>

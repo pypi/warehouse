@@ -127,7 +127,10 @@ class ManageAccountViews:
     @property
     def default_response(self):
         return {
-            "save_account_form": SaveAccountForm(name=self.request.user.name),
+            "save_account_form": SaveAccountForm(
+                is_email_private=self.request.user.is_email_private,
+                name=self.request.user.name,
+            ),
             "add_email_form": AddEmailForm(
                 user_service=self.user_service, user_id=self.request.user.id
             ),
@@ -141,7 +144,7 @@ class ManageAccountViews:
     def manage_account(self):
         return self.default_response
 
-    @view_config(request_method="POST", request_param=SaveAccountForm.__params__)
+    @view_config(request_method="POST", request_param=["name"])
     def save_account(self):
         form = SaveAccountForm(self.request.POST)
 

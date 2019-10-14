@@ -81,6 +81,7 @@ class User(SitemapMixin, db.Model):
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
+    is_email_private = Column(Boolean, nullable=False, server_default=sql.true())
 
     totp_secret = Column(Binary(length=20), nullable=True)
     last_totp_value = Column(String, nullable=True)
