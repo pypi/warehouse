@@ -3,13 +3,15 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Albert Tugushev <albert@tugushev.ru>, 2019.
+# Sebastian Witowski <sebawitowski@yahoo.com>, 2019.
+# Irina Saribekova <irina.saribekova@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 21:55+0000\n"
-"Last-Translator: Albert Tugushev <albert@tugushev.ru>\n"
+"PO-Revision-Date: 2019-10-13 12:28+0000\n"
+"Last-Translator: Irina Saribekova <irina.saribekova@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -39,6 +41,9 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
+"Имя пользователя является недействительным. Имена пользователей должны "
+"состоять из букв, цифр, точек, дефисов и подчеркнутостей. А также должны "
+"начать и закончить с письмом или номером. Выберите другое имя пользователя."
 
 #: warehouse/accounts/forms.py:90
 msgid ""
@@ -104,17 +109,17 @@ msgstr "Пользователь с таким именем или адресо�
 
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
+msgstr "Слишком много неудачных попыток входа. Попробуйте позже."
 
 #: warehouse/accounts/views.py:197 warehouse/accounts/views.py:250
 #: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
 #: warehouse/accounts/views.py:277
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "Недействительный или истекший двухфакторный логин."
 
 #: warehouse/accounts/views.py:245
 msgid "Already authenticated"
-msgstr ""
+msgstr "Уже подтверждён"
 
 #: warehouse/accounts/views.py:308
 msgid "Successful WebAuthn assertion"
@@ -125,92 +130,105 @@ msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
+"Регистрация нового пользователя временно отключена. Больше информации здесь: "
+"https://pypi.org/help#admin-intervention"
 
 #: warehouse/accounts/views.py:482
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Истекший знак: запросите новую ссылку сброса пароля"
 
 #: warehouse/accounts/views.py:484
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Недействительный знак: запросите новую ссылку сброса пароля"
 
 #: warehouse/accounts/views.py:486 warehouse/accounts/views.py:558
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Недействительный знак: знак не предоставлен"
 
 #: warehouse/accounts/views.py:490
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Недействительный знак: не является знаком сброса пароля"
 
 #: warehouse/accounts/views.py:495
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "Недействительный знак: пользователь не найден"
 
 #: warehouse/accounts/views.py:502
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
+"Недействительный знак: пользователь вошел в систему с момента запроса этого "
+"знака"
 
 #: warehouse/accounts/views.py:509
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Недействительный знак: пароль уже был изменен с момента запроса этого знака"
 
 #: warehouse/accounts/views.py:532
 msgid "You have reset your password"
-msgstr ""
+msgstr "Вы сбросили ваш пароль"
 
 #: warehouse/accounts/views.py:554
 msgid "Expired token: request a new email verification link"
 msgstr ""
+"Знак с истекшим сроком действия: запросите  новую ссылку для верификации "
+"электронной почты"
 
 #: warehouse/accounts/views.py:556
 msgid "Invalid token: request a new email verification link"
 msgstr ""
+"Недействительный знак: запросите новую ссылку для верификации электронной "
+"почты"
 
 #: warehouse/accounts/views.py:562
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "Недействительный знак: не знак верификации электронной почты"
 
 #: warehouse/accounts/views.py:571
 msgid "Email not found"
-msgstr ""
+msgstr "Электронная почта не найдена"
 
 #: warehouse/accounts/views.py:574
 msgid "Email already verified"
-msgstr ""
+msgstr "Электронная почта  уже подтверждена"
 
 #: warehouse/accounts/views.py:586
 msgid "You can now set this email as your primary address"
 msgstr ""
+"Теперь вы можете установить этот адрес электронной почты в качестве "
+"основного адреса"
 
 #: warehouse/accounts/views.py:588
 msgid "This is your primary address"
-msgstr ""
+msgstr "Это ваш основной адрес"
 
 #: warehouse/accounts/views.py:593
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "Электронная почта ${email_address} подтверждена. ${confirm_message}."
 
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
+"Электронная почта ${email_address} добавлена - проверьте свою почту на "
+"наличие ссылки подтверждения"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr ""
+msgstr "Доступ отклонен/ Запрещено (403)"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "У вас нет разрешения на просмотр этой страницы"
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Страница не найдена (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "Мы везде посмотрели, но не могли найти эту страницу"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
@@ -218,7 +236,7 @@ msgstr ""
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "Monty Python - The Cheese Shop Sketch (Эскиз сырного магазина)"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -304,27 +322,27 @@ msgstr ""
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "Внешняя ссылка"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr ""
+msgstr "Смотреть расшифровку видео"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "Страница удалена (410)"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "Страница, которую вы ищете, удалена"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "Внутренняя ошибка сервера (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "Что-то пошло не так"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -332,22 +350,25 @@ msgid ""
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
 msgstr ""
+"<p>У нас возникают технические проблемы, влияющие на нашу способность "
+"обслуживать ваш сайт.</p> <p> Мы знаем о проблеме и работаем над ее "
+"скорейшим решением.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Проверьте нашу страницу статуса"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Посмотреть статус Python в Twitter"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "Код ошибки 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Положитесь на PyPI, чтобы выполнить свою работу?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -357,41 +378,50 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"> donating </a> to help us build a more"
 " stable and secure platform."
 msgstr ""
+"Рассмотрите <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
+"rel=\"noopener\"> содействие</a> или <a href=\"https://psfmember.org/civicrm/"
+"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
+"пожертвование</a> чтобы помочь нам строить более стабильную и безопасную "
+"платформу."
 
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr ""
+msgstr "Поиск PyPI"
 
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr ""
+msgstr "Поиск проектов"
 
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr ""
+msgstr "Поиск"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr ""
+msgstr "Код ошибки"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr ""
+msgstr "Вернуться на главную страницу"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr ""
+msgstr "The Python Package Index (Каталог пакетов Python)"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr ""
+"Тестовая публикация пакета Python с помощью Test Python Package Index ("
+"тестового каталога пакетов Python)"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
+"Найти, установить и опубликовать пакеты Python с Python Package Index ("
+"каталогом пакетов Python)"
 
 #: warehouse/templates/index.html:61
 #, python-format

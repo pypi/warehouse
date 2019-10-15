@@ -3,31 +3,36 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Dustin Ingram <dustin.ingram@gmail.com>, 2019.
+# Sebastian Witowski <sebawitowski@yahoo.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2019-10-15 14:07+0000\n"
+"Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
+">\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
 msgid "No user found with that username"
-msgstr ""
+msgstr "Nie znaleziono użytkownika o tej nazwie"
 
 #: warehouse/accounts/forms.py:50
 msgid "TOTP code must be ${totp_length} digits."
-msgstr ""
+msgstr "Kod TOTP musi mieć ${totp_length} cyfr."
 
 #: warehouse/accounts/forms.py:70
 msgid "Choose a username with 50 characters or less."
-msgstr ""
+msgstr "Wybierz nazwę użytkownika składającą się z maksymalnie 50 znaków."
 
 #: warehouse/accounts/forms.py:76
 msgid ""
@@ -35,174 +40,191 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
+"Nazwa użytkownika jest nieprawidłowa. Nazwy użytkowników muszą składać się z "
+"liter, cyfr, kropek, myślników i znaków podkreślenia. Muszą również zaczynać "
+"się i kończyć literą lub cyfrą. Wybierz inną nazwę użytkownika."
 
 #: warehouse/accounts/forms.py:90
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
+"Ta nazwa użytkownika jest już używana przez inne konto. Wybierz inną nazwę "
+"użytkownika."
 
 #: warehouse/accounts/forms.py:113
 msgid "The password is invalid. Try again."
-msgstr ""
+msgstr "Hasło jest nieprawidłowe Spróbuj ponownie."
 
 #: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
+msgstr "Podjęto zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."
 
 #: warehouse/accounts/forms.py:139
 msgid "Your passwords don't match. Try again."
-msgstr ""
+msgstr "Twoje hasła się nie zgadzają. Spróbuj ponownie."
 
 #: warehouse/accounts/forms.py:170
 msgid "The email address isn't valid. Try again."
-msgstr ""
+msgstr "Adres e-mail jest nieprawidłowy. Spróbuj ponownie."
 
 #: warehouse/accounts/forms.py:180
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
+"Ten adres e-mail jest już używany przez to konto. Użyj innego adresu e-mail."
 
 #: warehouse/accounts/forms.py:187
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
+"Ten adres e-mail jest już używany przez inne konto. Użyj innego adresu "
+"e-mail."
 
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
+msgstr "Nie możesz użyć adresu e-mail z tej domeny. Użyj innego adresu e-mail."
 
 #: warehouse/accounts/forms.py:218
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr ""
+msgstr "Nazwa jest za długa. Wybierz nazwę zawierającą maksymalnie 100 znaków."
 
 #: warehouse/accounts/forms.py:282
 msgid "Invalid TOTP code."
-msgstr ""
+msgstr "Nieprawidłowy kod TOTP."
 
 #: warehouse/accounts/forms.py:299
+#, fuzzy
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "Nieprawidłowe potwierdzenie WebAuthn: Zły ładunek"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "Nie znaleziono użytkownika z tą nazwą użytkownika lub adresem e-mail."
 
 #: warehouse/accounts/views.py:201 warehouse/accounts/views.py:254
 #: warehouse/accounts/views.py:255 warehouse/accounts/views.py:280
 #: warehouse/accounts/views.py:281
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "Niepoprawne lub wygasłe logowanie dwuskładnikowe."
 
 #: warehouse/accounts/views.py:249
 msgid "Already authenticated"
-msgstr ""
+msgstr "Już uwierzytelnione"
 
 #: warehouse/accounts/views.py:312
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "Pomyślne potwierdzenie WebAuthn"
 
 #: warehouse/accounts/views.py:391
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
+"Rejestracja nowych użytkowników tymczasowo wyłączona. Zobacz https://pypi."
+"org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
 #: warehouse/accounts/views.py:486
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Wygasł token: poproś o nowy link do resetowania hasła"
 
 #: warehouse/accounts/views.py:488
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Nieprawidłowy token: poproś o nowy link do resetowania hasła"
 
 #: warehouse/accounts/views.py:490 warehouse/accounts/views.py:565
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Nieprawidłowy token: nie podano tokena"
 
 #: warehouse/accounts/views.py:494
+#, fuzzy
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Nieprawidłowy token: to nie jest token do resetowania hasła"
 
 #: warehouse/accounts/views.py:499
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "Nieprawidłowy token: nie znaleziono użytkownika"
 
 #: warehouse/accounts/views.py:506
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
+"Nieprawidłowy token: użytkownik zalogował się odkąd ten token został zażądany"
 
 #: warehouse/accounts/views.py:513
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Nieprawidłowy token: hasło zostało już zmienione od momentu zażądania tego "
+"tokenu"
 
 #: warehouse/accounts/views.py:539
 msgid "You have reset your password"
-msgstr ""
+msgstr "Zresetowałeś swoje hasło"
 
 #: warehouse/accounts/views.py:561
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "Wygasł token: poproś o nowy link weryfikacyjny e-mail"
 
 #: warehouse/accounts/views.py:563
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "Nieprawidłowy token: poproś o nowy link weryfikacyjny e-mail"
 
 #: warehouse/accounts/views.py:569
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "Nieprawidłowy token: to nie jest token do weryfikacji e-mail"
 
 #: warehouse/accounts/views.py:578
 msgid "Email not found"
-msgstr ""
+msgstr "Email nie znaleziony"
 
 #: warehouse/accounts/views.py:581
 msgid "Email already verified"
-msgstr ""
+msgstr "Email już zweryfikowany"
 
 #: warehouse/accounts/views.py:593
 msgid "You can now set this email as your primary address"
-msgstr ""
+msgstr "Możesz teraz ustawić ten e-mail jako swój główny adres"
 
 #: warehouse/accounts/views.py:595
 msgid "This is your primary address"
-msgstr ""
+msgstr "To jest twój główny adres"
 
 #: warehouse/accounts/views.py:600
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "Adres e-mail $ {email_address} zweryfikowany. $ {confirm_message}."
 
 #: warehouse/manage/views.py:168
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
+"Dodano adres e-mail ${email_address} - sprawdź swoją skrzynkę pocztową, aby "
+"uzyskać link weryfikacyjny"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr ""
+msgstr "Odmowa dostępu / Zabroniony (403)"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "Nie masz uprawnień do wyświetlenia tej strony"
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Nie znaleziono strony (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "Szukaliśmy wszędzie, ale nie mogliśmy znaleźć tej strony"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "A teraz coś <br><span>zupełnie innego"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "Monty Python - Szkic sklepu z serami"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -288,27 +310,27 @@ msgstr ""
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "Link zewnętrzny"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr ""
+msgstr "Zobacz transkrypcję wideo"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "Strona usunięta (410)"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "Strona, której szukasz, została usunięta"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "Wewnętrzny błąd serwera (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "Coś poszło nie tak"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -316,22 +338,25 @@ msgid ""
 " serve you this site.</p> <p>We are aware of the problem and are working "
 "to resolve it as soon as possible.</p>"
 msgstr ""
+"<p>Doświadczamy problemów technicznych, które wpływają na naszą zdolność do "
+"obsługi tej witryny. </p> <p>Jesteśmy świadomi problemu i pracujemy nad jego "
+"jak najszybszym rozwiązaniem.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Sprawdź naszą stronę ze statusem"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Wyświetl status Python na Twitterze"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr ""
+msgstr "Kod błędu 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Polegasz na PyPI, aby wykonać swoją pracę?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -345,25 +370,25 @@ msgstr ""
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr ""
+msgstr "Szukaj na PyPI"
 
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr ""
+msgstr "Szukaj projektów"
 
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr ""
+msgstr "Szukaj"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr ""
+msgstr "Kod błędu"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr ""
+msgstr "Powrót do strony głównej"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
