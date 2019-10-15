@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-12 11:49+0000\n"
+"PO-Revision-Date: 2019-10-13 12:28+0000\n"
 "Last-Translator: Jan Willhaus <mail@janwillhaus.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
@@ -957,7 +957,7 @@ msgstr ""
 "Sie und andere\n"
 "  Benutzer zu schützen, haben wir Ihr Passwort vorsorglich zurückgesetzt. "
 "Sie können das\n"
-"  alte Passwort nicht mehr zum Anmelden oder  Hochladen bei PyPI verwenden."
+"  alte Passwort nicht mehr zum Anmelden oder Hochladen bei PyPI verwenden."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -3078,8 +3078,8 @@ msgstr ""
 "\n"
 "        Wir empfehlen allen PyPI-Nutzern kurzfristig <em>beide</em> "
 "unterstützen Methoden der Zwei-Faktor-Authentifizierung einzurichten – eine "
-"Authenticator-Applikation <em>und</em> ein Sicherheitsgerät (z.B. einen USB-"
-"Schlüssel).\n"
+"Authentifizierungsanwendung <em>und</em> ein Sicherheitsgerät (z.B. einen "
+"USB-Schlüssel).\n"
 "      "
 
 #: warehouse/templates/pages/help.html:49
@@ -3118,9 +3118,9 @@ msgid ""
 "(<abbr title=\"time-based one-time password\">TOTP</abbr>) work? How do I"
 " set it up on PyPI?"
 msgstr ""
-"Wie funktioniert die Zwei-Faktor-Authentifizierung mit einer Authenticator-"
-"Applikation (<abbr title=\"time-based one-time password\">TOTP</abbr>)? Wie "
-"kann ich sie bei PyPI einrichten?"
+"Wie funktioniert die Zwei-Faktor-Authentifizierung mit einer "
+"Authentifizierungsanwendung (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)? Wie kann ich sie bei PyPI einrichten?"
 
 #: warehouse/templates/pages/help.html:58
 msgid ""
@@ -3517,7 +3517,7 @@ msgid ""
 "password\">TOTP</abbr> standard</a>."
 msgstr ""
 "PyPI-Benutzer können die Zwei-Faktor-Authentifizierung mit Hilfe einer "
-"Authenticator-Applikation einrichten, die den <a href=\"%(href)s\" title=\""
+"Authentifizierungsanwendung einrichten, die den <a href=\"%(href)s\" title=\""
 "%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"time-based one-"
 "time password\">TOTP</abbr>-Standard</a> unterstützt."
 
@@ -3596,15 +3596,15 @@ msgid ""
 "authentication application:"
 msgstr ""
 "Um <abbr title=\"two factor authentication\">2FA</abbr> mit einer "
-"Authenticator-Applikation einzurichten:"
+"Authentifizierungsanwendung einzurichten:"
 
 #: warehouse/templates/pages/help.html:314
 msgid ""
 "Open an authentication (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>) application"
 msgstr ""
-"Öffnen Sie eine Authenticator-Applikation (<abbr title=\"time-based one-time "
-"password\">TOTP</abbr>)"
+"Öffnen Sie eine Authentifizierungsanwendung (<abbr title=\"time-based one-"
+"time password\">TOTP</abbr>)"
 
 #: warehouse/templates/pages/help.html:315
 msgid ""
@@ -3614,7 +3614,7 @@ msgid ""
 msgstr ""
 "Melden Sie sich in Ihrem PyPI-Konto an, öffnen Sie die Kontoeinstellungen "
 "und wählen Sie \"<abbr title=\"two factor authentication\">2FA</abbr> mit "
-"Authenticator-Applikation hinzufügen\""
+"Authentifizierungsanwendung hinzufügen\""
 
 #: warehouse/templates/pages/help.html:316
 msgid ""
@@ -3630,7 +3630,7 @@ msgid ""
 "manually. The method of input will depend on the application you have "
 "chosen."
 msgstr ""
-"Scannen Sie den QR-Code mit Ihrer Authenticator-Applikation, oder geben Sie "
+"Scannen Sie den QR-Code mit Ihrer Authentifizierungsanwendung oder geben Sie "
 "ihn manuell ein. Die Eingabemethode hängt von der von Ihnen gewählten "
 "Anwendung ab."
 
@@ -3845,7 +3845,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:406
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
-msgstr "(Überprüfen Sie Ihre <a href=\"%(href)s\">Kontoeinstellungen</a>)"
+msgstr "(überprüfen Sie Ihre <a href=\"%(href)s\">Kontoeinstellungen</a>)"
 
 #: warehouse/templates/pages/help.html:407
 #, python-format
