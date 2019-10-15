@@ -20,6 +20,7 @@ KNOWN_LOCALES = {
     "fr": "French",
     "ja": "Japanese",
     "pt_BR": "Portuguese (Brazil)",
+    "uk": "Ukrainian",
 }
 
 LOCALE_ATTR = "_LOCALE_"
