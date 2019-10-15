@@ -22,7 +22,6 @@ from warehouse.classifiers.models import Classifier
 
 from datetime import datetime, timezone
 
-# from warehouse.packaging.models import Project
 
 
 def _exc_with_message(exc, message):
@@ -178,10 +177,10 @@ def create_token(request):
         },
     }
     serialized_macaroon, macaroon = macaroon_service.create_macaroon(
-        location=request.domain,  # ?
+        location=request.domain,
         user_id=user,
         description=request.description,
         caveats=scope,
-        )
+    )
 
     return {"upload_token": serialized_macaroon}
