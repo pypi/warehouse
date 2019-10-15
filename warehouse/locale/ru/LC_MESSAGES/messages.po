@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Albert Tugushev <albert@tugushev.ru>, 2019.
+# Sebastian Witowski <sebawitowski@yahoo.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 21:55+0000\n"
-"Last-Translator: Albert Tugushev <albert@tugushev.ru>\n"
+"PO-Revision-Date: 2019-10-13 12:28+0000\n"
+"Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -39,6 +40,9 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
+"Имя пользователя является недействительным. Имена пользователей должны "
+"состоять из букв, цифр, точек, дефисов и подчеркнутостей. А также должны "
+"начать и закончить с письмом или номером. Выберите другое имя пользователя."
 
 #: warehouse/accounts/forms.py:90
 msgid ""
@@ -104,7 +108,7 @@ msgstr "Пользователь с таким именем или адресо�
 
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
+msgstr "Слишком много неудачных попыток входа. Попробуйте позже."
 
 #: warehouse/accounts/views.py:197 warehouse/accounts/views.py:250
 #: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
