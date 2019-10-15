@@ -8,15 +8,16 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-12 14:34+0200\n"
-"PO-Revision-Date: 2019-10-11 13:24+0000\n"
+"PO-Revision-Date: 2019-10-12 17:26+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
+"warehouse/pt_BR/>\n"
 "Language: pt_BR\n"
-"Language-Team: Portuguese (Brazil) "
-"<https://hosted.weblate.org/projects/pypa/warehouse/pt_BR/>\n"
-"Plural-Forms: nplurals=2; plural=n > 1\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 3.9-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -671,7 +672,7 @@ msgstr "E-mail de redefinição enviado"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "An email has been sent to your registered email address."
-msgstr ""
+msgstr "Um e-mail foi enviado para seu endereço de e-mail registrado."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -2242,11 +2243,11 @@ msgstr "Cancelar"
 
 #: warehouse/templates/manage/manage_base.html:145
 msgid "close"
-msgstr ""
+msgstr "fechar"
 
 #: warehouse/templates/manage/manage_base.html:161
 msgid "Enter your password to continue."
-msgstr ""
+msgstr "Insira sua senha para continuar."
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
@@ -2788,16 +2789,16 @@ msgstr "Copiar token"
 
 #: warehouse/templates/manage/token.html:65
 msgid "Using this token"
-msgstr ""
+msgstr "Usando este token"
 
 #: warehouse/templates/manage/token.html:67
 msgid "To use this API token:"
-msgstr ""
+msgstr "Para usar um token de API:"
 
 #: warehouse/templates/manage/token.html:70
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
-msgstr ""
+msgstr "Definir seu nome de usuário para <code>%(token)s</code>"
 
 #: warehouse/templates/manage/token.html:71
 #, python-format
@@ -2805,6 +2806,8 @@ msgid ""
 "Set your password to the token value, including the "
 "<code>%(prefix)s</code> prefix"
 msgstr ""
+"Definir sua senha para o valor do token, incluindo o prefixo "
+"<code>%(prefix)s</code>"
 
 #: warehouse/templates/manage/token.html:77
 #, python-format
@@ -2813,6 +2816,9 @@ msgid ""
 "your projects to PyPI, set up your <code>%(filename)s</code> file like "
 "this:"
 msgstr ""
+"Por exemplo, se você está usando <a href=\"%(href)s\">Twine</a> para enviar "
+"seus projetos para o PyPI, configure seu arquivo <code>%(filename)s</code> "
+"para algo como isso:"
 
 #: warehouse/templates/manage/token.html:87
 #, python-format
@@ -2821,16 +2827,21 @@ msgid ""
 "multiple projects to PyPI, you can set up your <code>%(filename)s</code> "
 "file like this:"
 msgstr ""
+"Por exemplo, se você está usando <a href=\"%(href)s\">Twine</a> para enviar "
+"vários projetos para o PyPI, você pode configurar seu arquivo "
+"<code>%(filename)s</code> para algo como:"
 
 #: warehouse/templates/manage/token.html:94
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as "
 "the default"
 msgstr ""
+"um token de escopo do usuário ou um token de escopo de projeto que você "
+"deseja definir como o padrão"
 
 #: warehouse/templates/manage/token.html:98
 msgid "a project token"
-msgstr ""
+msgstr "um token de projeto"
 
 #: warehouse/templates/manage/token.html:100
 #, python-format
@@ -2838,6 +2849,8 @@ msgid ""
 "You can then use <code>%(command)s</code> to switch to the correct token "
 "when uploading to PyPI."
 msgstr ""
+"Você pode usar <code>%(command)s</code> para trocar para o token correto ao "
+"enviar para PyPI."
 
 #: warehouse/templates/manage/token.html:106
 #, python-format
@@ -2845,6 +2858,8 @@ msgid ""
 "For further instructions on how to use this token, <a "
 "href=\"%(href)s\">visit the PyPI help page</a>."
 msgstr ""
+"Para mais instruções sobre como usar este token, <a href=\"%(href)s\">visite "
+"a página de ajuda do PyPI</a>."
 
 #: warehouse/templates/manage/token.html:114
 msgid "Add another token"
@@ -2875,6 +2890,8 @@ msgid ""
 "An API token scoped to your entire account will have upload permissions "
 "for all of your current and future projects."
 msgstr ""
+"Um token de API com escopo para toda a sua conta terá permissões de envio "
+"para todos os seus projetos atuais e futuros."
 
 #: warehouse/templates/manage/token.html:160
 msgid "Add token"
@@ -3884,6 +3901,10 @@ msgid ""
 "authentication\">WebAuthn</abbr> standard</a>, PyPI users will be able to"
 " take advantage of any future developments in this field."
 msgstr ""
+"Como a implementação de dois fatores do PyPI segue o <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">padrão <abbr title=\""
+"autenticação web\">WebAuthn</abbr></a>, usuários do PyPI serão capazes de "
+"tirar proveito de qualquer futuro desenvolvimentos nesta área."
 
 #: warehouse/templates/pages/help.html:397
 msgid ""
@@ -5021,7 +5042,7 @@ msgstr "Fecha o painel"
 #: warehouse/templates/search/results.html:87
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
-msgstr ""
+msgstr "Filtrar por <a href=\"%(href)s\">classificador</a>"
 
 #: warehouse/templates/search/results.html:118
 msgid "Enter a search query, or select a filter from the list of classifiers."
@@ -5200,4 +5221,3 @@ msgstr[1] ""
 #~ "class=\"%(classes)s\" aria-label=\"%(aria_label)s\" "
 #~ "data-original-label=\"%(data_original_label)s\"> "
 #~ "classificador </a>"
-
