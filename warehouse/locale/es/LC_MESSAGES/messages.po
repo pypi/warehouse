@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-12 03:21+0000\n"
-"Last-Translator: Katia Lira <katialira.villena@gmail.com>\n"
+"PO-Revision-Date: 2019-10-15 14:07+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -642,7 +642,7 @@ msgstr "Su dirección de correo"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr "Formulario de Confirmación"
+msgstr "Formulario de confirmación"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
@@ -2126,7 +2126,7 @@ msgstr "Añadido por:"
 #: warehouse/templates/manage/history.html:39
 #, python-format
 msgid "Release version %(version)s removed"
-msgstr "Version de lanzamiento %(version)s eliminada"
+msgstr "Versión de lanzamiento %(version)s eliminada"
 
 #: warehouse/templates/manage/history.html:41
 #: warehouse/templates/manage/history.html:47
@@ -2648,7 +2648,7 @@ msgstr "Guardar"
 
 #: warehouse/templates/manage/roles.html:111
 msgid "Cannot remove yourself as owner"
-msgstr "No puedes eliminarte como dueño"
+msgstr "No puede eliminarse como propietario"
 
 #: warehouse/templates/manage/roles.html:114
 #, python-format
@@ -3186,8 +3186,8 @@ msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch "
 "URL\" errors during <code>pip install</code>?"
 msgstr ""
-"¿Por qué recibo errores «No se encontró ninguna distribución correspondiente»"
-" o «No se pudo recuperar el URL» al ejecutar <code>pip install</code>?"
+"¿Por qué recibo errores «No se encontró ninguna distribución coincidente» o «"
+"No se pudo recuperar el URL» al ejecutar <code>pip install</code>?"
 
 #: warehouse/templates/pages/help.html:69
 msgid "I am having trouble using the PyPI website. Can you help me?"
@@ -4031,9 +4031,9 @@ msgid ""
 " title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">our status "
 "page</a>."
 msgstr ""
-"Para estadísticas recientes sobre tiempo de actividad y rendimiento, ver <a "
+"Para estadísticas recientes sobre tiempo de actividad y rendimiento, vea <a "
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"nuestra pagina de estado</a>."
+"nuestra página de estado</a>."
 
 #: warehouse/templates/pages/help.html:457
 #, python-format
@@ -4113,10 +4113,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">creating a workflow</a> which will be "
 "documented here."
 msgstr ""
-"<abbr title=\"Propuesta de mejora de Python\">PEP</abbr> 541 ha sido "
-"aceptado, y PyPI está <a href=\"%(href)s\" title=\"%(title)s\" target=\""
-"_blank\" rel=\"noopener\">creando un flujo de trabajo</a> que será "
-"documentado aquí."
+"<abbr title=\"Propuesta de mejora de Python\">PEP</abbr> 541 se ha aceptado, "
+"y PyPI está <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">creando un flujo de trabajo</a> que se documentará aquí."
 
 #: warehouse/templates/pages/help.html:474
 msgid "Owner:"
@@ -4234,7 +4233,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:509
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
-msgstr "Dirígete a <a href=\"%(href)s\">restablecer tu contraseña</a>."
+msgstr "Diríjase a <a href=\"%(href)s\">Restablecimiento de contraseña</a>."
 
 #: warehouse/templates/pages/help.html:510
 msgid "Enter the email address or username you used for PyPI and submit the form."
@@ -4284,10 +4283,10 @@ msgid ""
 "URL</code> error, try adding <code>-v</code> to the command to get more "
 "information:"
 msgstr ""
-"Si estas teniendo problemas con <code>%(command)s</code> y recibes un error "
-"<code>No se encontró una distribución coincidente</code> o <code>\n"
-"No se pudo recuperar la URL</code>, intenta añadir <code>-v</code> al "
-"comando para obtener más información:"
+"Si tiene problemas con <code>%(command)s</code> y recibe un error <code>No "
+"se encontró ninguna distribución coincidente</code> o <code>No se pudo "
+"recuperar el URL</code>, intente añadir <code>-v</code> a la orden para "
+"obtener más información:"
 
 #: warehouse/templates/pages/help.html:527
 msgid ""
@@ -4355,8 +4354,8 @@ msgid ""
 " GitHub</a>, so we can try to fix the problem, for you and others."
 msgstr ""
 "Si tiene un problema de accesibilidad, <a href=\"%(href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">reportalo en GitHub</a>, para que "
-"intentemos resolver el problema, para ti y para otros."
+"s\" target=\"_blank\" rel=\"noopener\">infórmenos de ello en GitHub</a>, de "
+"modo que podamos intentar resolverlo, para usted y para otros."
 
 #: warehouse/templates/pages/help.html:554
 #, python-format
@@ -4465,13 +4464,13 @@ msgid ""
 " for issues with the software that runs PyPI. Before writing a new issue,"
 " first check that a similar issue does not already exist."
 msgstr ""
-"Si esta encontrando problemas con PyPI, comentarios "
-"<strong>constructivos</strong>  e informes de error son bienvenidos en "
-"nuestro <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">sitio de seguimiento de errores</a>. Por favor, tenga presente "
-"que este sitio es para seguimiento de errores solamente relacionado com el "
-"software utilizado para PyPI. Antes de crear un nuevo reporte de error, "
-"verifique antes si ya no existe."
+"Si está encontrando problemas con PyPI, recibimos de buen grado comentarios "
+"<strong>constructivos</strong> e informes de error en nuestro <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">sitio de "
+"seguimiento de errores</a>. Tenga presente que este sitio es para "
+"seguimiento de errores relacionados solo con el «software» utilizado para "
+"PyPI. Antes de crear un informe de error error, verifique antes si no existe "
+"ya."
 
 #: warehouse/templates/pages/help.html:605
 msgid ""
@@ -4479,9 +4478,9 @@ msgid ""
 "PyPI, you should reach out to the maintainers of that project directly "
 "instead."
 msgstr ""
-"Si estas teniendo un problema con un paquete específico instalado desde "
-"PyPI, debes comunicarte directamente con los encargados del mantenimiento de "
-"ese proyecto."
+"Si ha experimentado un problema con un paquete específico instalado desde "
+"PyPI, debe comunicarse directamente con los responsables del mantenimiento "
+"de ese proyecto."
 
 #: warehouse/templates/pages/help.html:614
 #, python-format
@@ -4639,14 +4638,14 @@ msgid ""
 "rel=\"noopener\">'Good first issue'</a> label – we recommend you start "
 "here."
 msgstr ""
-"Si tienes habilidades en Python, ElasticSearch, HTML, SCSS, JavaScript o "
+"Si tiene habilidades en Python, ElasticSearch, HTML, SCSS, JavaScript o "
 "SQLAlchemy, lea nuestra <a href=\"%(getting_started_href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">guía de \"Por dónde empezar\"</a>, "
-"después mira el <a href=\"%(issue_tracker_href)s\" title=\"%(title)s\" "
+"s\" target=\"_blank\" rel=\"noopener\">guía de «Por dónde empezar»</a>; "
+"después mire el <a href=\"%(issue_tracker_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">rastreador de problemas</a>. Hemos creado "
 "una etiqueta <a href=\"%(good_first_issue_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">'Buen primer problema'</a> - recomendamos "
-"empieces por ahí."
+"target=\"_blank\" rel=\"noopener\">«Buen primer problema»</a>; recomendamos "
+"que empiece por ahí."
 
 #: warehouse/templates/pages/help.html:673
 #, python-format
@@ -4696,14 +4695,14 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a> feeds for "
 "the \"pypi\" label."
 msgstr ""
-"Los cambios a PyPI generalmente se anuncián en <a href=\"%(mailing_list_href)"
+"Los cambios a PyPI generalmente se anuncian en <a href=\"%(mailing_list_href)"
 "s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">la lista de "
-"correos pypi-announce </a> y el <a href=\"%(blog_href)s\" title=\"%(title)s\""
-" target=\"_blank\" rel=\"noopener\">blog de la PSF</a> bajo la etiqueta \""
-"pypi\". El blog de la PSF también tiene <a href=\"%(atom_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">Atom</a> y feed <a href=\""
+"correos pypi-announce</a> y el <a href=\"%(blog_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">blog de la PSF</a> bajo la etiqueta «pypi»"
+". El blog de la PSF también cuenta con suministros <a href=\"%(atom_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Atom</a> y <a href=\""
 "%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a>"
-" para la etiqueta \"pypi\"."
+" para la etiqueta «pypi»."
 
 #: warehouse/templates/pages/help.html:701
 msgid ""
@@ -4712,10 +4711,10 @@ msgid ""
 "probably work fine, but it's new and less tested than other site "
 "functionality."
 msgstr ""
-"Cuando los mantenedores de Warehouse están implementando nuevas funciones, "
-"al principio las marcamos con un pequeño símbolo de \"función beta\" para "
-"decir: esto probablemente funcione bien, pero es nuevo y no ha sido probado "
-"como otras funciones del sitio."
+"Cuando los mantenedores de Warehouse implementamos funciones nuevas, al "
+"principio las marcamos con un pequeño símbolo de «función beta» para decirle:"
+" esto probablemente funcione bien, pero es nuevo y no se ha probado con el "
+"mismo rigor que otras funciones del sitio."
 
 #: warehouse/templates/pages/help.html:702
 msgid "Currently, the following features are in beta:"
@@ -4781,12 +4780,12 @@ msgid ""
 msgstr ""
 "<a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
 "noopener\">Python Packaging Authority (PyPA)</a> es un grupo de trabajo que "
-"trabaja en conjunto para mejorar el empaque de Python. Si quisieras ponerte "
-"en contacto con un desarrollador principal de empaques, puedes usar <a href="
-"\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">#"
-"pypa en IRC (freenode)</a>, o <a href=\"%(mailing_list_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">únite a la lista de correos "
-"de distutils-sig </a>."
+"trabaja en conjunto para mejorar el empaque de Python. Para ponerse en "
+"contacto con un desarrollador principal de empaques, conéctese a <a href=\""
+"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa "
+"en IRC (freenode)</a> o <a href=\"%(mailing_list_href)s\" title=\"%(title)s\""
+" target=\"_blank\" rel=\"noopener\">únase a la lista de correos distutils-"
+"sig</a>."
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
@@ -4801,8 +4800,8 @@ msgid ""
 "We take security very seriously and ask that you follow our security "
 "policy carefully."
 msgstr ""
-"Nos tomamos muy en serio la seguridad y te pedimos que sigas cuidadosamente "
-"nuestra política de seguridad."
+"Nos tomamos muy en serio la seguridad y le pedimos que siga cuidadosamente "
+"nuestra normativa de seguridad."
 
 #: warehouse/templates/pages/security.html:24
 msgid "Important!"
@@ -4814,9 +4813,8 @@ msgid ""
 "<strong>DO NOT</strong> report the issue in any public forum, including "
 "(but not limited to):"
 msgstr ""
-"Si crees que has identificado un problema de seguridad con Warehouse, "
-"<strong>NO</strong> reportes el problema en un foro público, incluidos (pero "
-"no limitados a):"
+"Si cree que ha identificado un problema de seguridad con Warehouse, "
+"<strong>NO</strong> informe del problema en un foro público, entre otros:"
 
 #: warehouse/templates/pages/security.html:27
 msgid "Our GitHub issue tracker"
@@ -4836,9 +4834,9 @@ msgid ""
 "Instead, email <a href=\"%(href)s\">security at python dot org</a> "
 "directly, providing as much relevant information as possible."
 msgstr ""
-"En su lugar, envíe un email a <a href=\"%(href)s\">security arroba python "
-"punto org</a> directamente, proporcionando tanta información relevante como "
-"sea posible."
+"En su lugar, envíe un mensaje (en inglés) a <a href=\"%(href)s\">security "
+"arroba python punto org</a> directamente, proporcionando tanta información "
+"relevante como sea posible."
 
 #: warehouse/templates/pages/security.html:36
 #, python-format
@@ -4847,9 +4845,9 @@ msgid ""
 "available <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">at the Python Security page</a>."
 msgstr ""
-"Los mensajes se pueden encriptar opcionalmente con GPG usando huellas "
-"digitales clave disponibles <a href=\"%(href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">en la página de seguridad de Python</a>."
+"Los mensajes se pueden cifrar opcionalmente con GPG usando huellas digitales "
+"clave disponibles <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">en la página de seguridad de Python</a>."
 
 #: warehouse/templates/pages/security.html:38
 msgid "What happens next?"
@@ -4860,16 +4858,16 @@ msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
-"Una vez que enviaste un problema por correo electrónico, recibiras acuse de "
-"recibido dentro de 48 horas."
+"Una vez que haya enviado un problema por correo electrónico, recibirá acuse "
+"de recibido en un plazo de 48 horas."
 
 #: warehouse/templates/pages/security.html:41
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
-"Dependiendo de la acción que se tomará, puede ser que recibas correos "
-"electrónicos de seguimiento."
+"Dependiendo de la acción que se tomará, puede ser que reciba mensajes de "
+"seguimiento por correo."
 
 #: warehouse/templates/pages/security.html:44
 msgid "This security policy was last updated on March 14, 2018."
@@ -4958,7 +4956,7 @@ msgstr "Estadísticas por proyecto"
 
 #: warehouse/templates/pages/stats.html:43
 msgid "Sum of release files (bytes)"
-msgstr "Suma de archivos de liberación (en bytes)"
+msgstr "Suma de archivos de publicación (en bytes)"
 
 #: warehouse/templates/pages/stats.html:48
 msgid "All of PyPI"
@@ -4999,8 +4997,7 @@ msgstr ""
 #: warehouse/templates/search/results.html:127
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
-"Ingresa una consulta de búsqueda o agrega un filtro haciendo clic en el "
-"botón."
+"Ingrese una consulta de búsqueda o agregue un filtro pulsando en el botón."
 
 #: warehouse/templates/search/results.html:128
 msgid "You can combine searches and classifier filters. Examples:"

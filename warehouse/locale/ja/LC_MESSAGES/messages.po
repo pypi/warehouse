@@ -14,15 +14,16 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-12 14:34+0200\n"
-"PO-Revision-Date: 2019-10-05 17:53+0000\n"
-"Last-Translator: Ryo/Liàng KAJI <kaji@code.ac.jp>\n"
+"PO-Revision-Date: 2019-10-13 12:29+0000\n"
+"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
+"ja/>\n"
 "Language: ja\n"
-"Language-Team: Japanese "
-"<https://hosted.weblate.org/projects/pypa/warehouse/ja/>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 3.9-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -650,7 +651,7 @@ msgstr "リセットのメールが送信されました"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "An email has been sent to your registered email address."
-msgstr ""
+msgstr "登録されたメールアドレスにメールを送信しました。"
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -2122,11 +2123,11 @@ msgstr "キャンセル"
 
 #: warehouse/templates/manage/manage_base.html:145
 msgid "close"
-msgstr ""
+msgstr "閉じる"
 
 #: warehouse/templates/manage/manage_base.html:161
 msgid "Enter your password to continue."
-msgstr ""
+msgstr "続行するにはパスワードを入力してください。"
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
@@ -2635,23 +2636,23 @@ msgstr "トークンのコピー"
 
 #: warehouse/templates/manage/token.html:65
 msgid "Using this token"
-msgstr ""
+msgstr "このトークンを使用する"
 
 #: warehouse/templates/manage/token.html:67
 msgid "To use this API token:"
-msgstr ""
+msgstr "このAPIトークンを使うには:"
 
 #: warehouse/templates/manage/token.html:70
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
-msgstr ""
+msgstr "usernameに<code>%(token)s</code>を設定する"
 
 #: warehouse/templates/manage/token.html:71
 #, python-format
 msgid ""
 "Set your password to the token value, including the "
 "<code>%(prefix)s</code> prefix"
-msgstr ""
+msgstr "passwordに<code>%(prefix)s</code>を含むトークン値を設定する"
 
 #: warehouse/templates/manage/token.html:77
 #, python-format
@@ -2660,6 +2661,8 @@ msgid ""
 "your projects to PyPI, set up your <code>%(filename)s</code> file like "
 "this:"
 msgstr ""
+"例えば、<a href=\"%(href)s\""
+">Twine</a>を使ってプロジェクトをPyPIにアップロードする場合、次のように<code>%(filename)s</code>を設定してください:"
 
 #: warehouse/templates/manage/token.html:87
 #, python-format
@@ -2668,30 +2671,32 @@ msgid ""
 "multiple projects to PyPI, you can set up your <code>%(filename)s</code> "
 "file like this:"
 msgstr ""
+"例えば、<a href=\"%(href)s\">Twine</a>を使ってプロジェクトをPyPIにアップロードする場合、次のように<code>%(fil"
+"ename)s</code>を設定することができます:"
 
 #: warehouse/templates/manage/token.html:94
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as "
 "the default"
-msgstr ""
+msgstr "デフォルトとして設定したいユーザー・スコープ・トークンまたはプロジェクト・スコープ・トークンのどちらか"
 
 #: warehouse/templates/manage/token.html:98
 msgid "a project token"
-msgstr ""
+msgstr "プロジェクト・トークン"
 
 #: warehouse/templates/manage/token.html:100
 #, python-format
 msgid ""
 "You can then use <code>%(command)s</code> to switch to the correct token "
 "when uploading to PyPI."
-msgstr ""
+msgstr "これで、PyPにアップロードするときに<code>%(command)s</code>を使って正しいトークンに切り替えることができます。"
 
 #: warehouse/templates/manage/token.html:106
 #, python-format
 msgid ""
 "For further instructions on how to use this token, <a "
 "href=\"%(href)s\">visit the PyPI help page</a>."
-msgstr ""
+msgstr "このトークンの使い方に関するより知りたければ、<a href=\"%(href)s\">PyPIのヘルプページ</a>を参照してください。"
 
 #: warehouse/templates/manage/token.html:114
 msgid "Add another token"
@@ -2721,7 +2726,7 @@ msgstr "プロジェクト:"
 msgid ""
 "An API token scoped to your entire account will have upload permissions "
 "for all of your current and future projects."
-msgstr ""
+msgstr "アカウント全体を対象範囲とするAPIトークンには、現在および将来のすべてのプロジェクトに対するアップロード権限が与えられます。"
 
 #: warehouse/templates/manage/token.html:160
 msgid "Add token"
@@ -3017,9 +3022,8 @@ msgid ""
 "Why am I getting \"No matching distribution found\" or \"Could not fetch "
 "URL\" errors during <code>pip install</code>?"
 msgstr ""
-"なぜ、<code>pipインストール</code>の実行中に「一致するディストリビューションが見つかりません（No matching "
-"distribution found）」または「URLを取得できませんでした（Could not fetch "
-"URL）」というエラーが表示されるのですか？"
+"なぜ、<code>pip install</code>の実行中に「一致するディストリビューションが見つかりません（No matching "
+"distribution found）」または「URLを取得できませんでした（Could not fetch URL）」というエラーが表示されるのですか？"
 
 #: warehouse/templates/pages/help.html:69
 msgid "I am having trouble using the PyPI website. Can you help me?"
@@ -3612,6 +3616,10 @@ msgid ""
 "authentication\">WebAuthn</abbr> standard</a>, PyPI users will be able to"
 " take advantage of any future developments in this field."
 msgstr ""
+"PyPIの2要素実装はWebAuthn標準に準拠しているため、PyPIユーザーはこの分野における将来の開発を利用することができます。\n"
+"PyPIの二要素の実装は<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\"><abbr title=\"web authentication\""
+">WebAuthn</abbr>標準</a>に準拠しているため、PyPIユーザはこの分野における将来的な開発の恩恵を受けることができます。"
 
 #: warehouse/templates/pages/help.html:397
 msgid ""
@@ -4610,7 +4618,7 @@ msgstr "パネルを閉じる"
 #: warehouse/templates/search/results.html:87
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
-msgstr ""
+msgstr "<a href=\"%(href)s\">分類</a>によるフィルタ"
 
 #: warehouse/templates/search/results.html:118
 msgid "Enter a search query, or select a filter from the list of classifiers."
@@ -4762,4 +4770,3 @@ msgstr[0] ""
 #~ "<a href=\"%(href)s\" class=\"%(classes)s\" aria-"
 #~ "label=\"%(aria_label)s\" data-original-"
 #~ "label=\"%(data_original_label)s\">分類</a>によるフィルタ"
-

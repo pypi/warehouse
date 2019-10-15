@@ -6,13 +6,14 @@
 # Dario Vinella <d.vinella@gmail.com>, 2019.
 # Paolo Melchiorre <paolo@melchiorre.org>, 2019.
 # Sozzo Marcello <marcello.sozzo@unisalento.it>, 2019.
+# Mirco Grillo <mirco.grillomg@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-25 21:55+0000\n"
-"Last-Translator: Sozzo Marcello <marcello.sozzo@unisalento.it>\n"
+"PO-Revision-Date: 2019-10-13 12:29+0000\n"
+"Last-Translator: Mirco Grillo <mirco.grillomg@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "it/>\n"
 "Language: it\n"
@@ -90,6 +91,8 @@ msgstr ""
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
+"Non puoi utilizzare un indirizzo email da questo dominio.\n"
+"Scegli una email differente."
 
 #: warehouse/accounts/forms.py:218
 msgid "The name is too long. Choose a name with 100 characters or less."
@@ -101,7 +104,7 @@ msgstr "Codice TOTP non valido."
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "WebAuthn invalida: Payload malformato"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
@@ -110,60 +113,68 @@ msgstr "Non trovo un utente con quel nome o indirizzo e-mail"
 #: warehouse/accounts/views.py:60
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
+"Ci sono stati troppi tentativi di login errati.\n"
+"Prova di nuovo più tardi."
 
 #: warehouse/accounts/views.py:197 warehouse/accounts/views.py:250
 #: warehouse/accounts/views.py:251 warehouse/accounts/views.py:276
 #: warehouse/accounts/views.py:277
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "Login a due fattori non valido o scaduto."
 
 #: warehouse/accounts/views.py:245
 msgid "Already authenticated"
-msgstr ""
+msgstr "Già autenticato"
 
 #: warehouse/accounts/views.py:308
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "WebAuthn corretta"
 
 #: warehouse/accounts/views.py:387
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
+"La registrazione di un nuovo utente è temporaneamente disabilitata.\n"
+"Controlla su https://pypi.org/help#admin-intervention per i dettagli."
 
 #: warehouse/accounts/views.py:482
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Token scaduto: richiedi un nuovo link di reset per la password"
 
 #: warehouse/accounts/views.py:484
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Token non valido: richiedi un nuovo link per reimpostare la password"
 
 #: warehouse/accounts/views.py:486 warehouse/accounts/views.py:558
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Token non valido: nessun token fornito"
 
 #: warehouse/accounts/views.py:490
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Token non valido: non è un token per il reset della password"
 
 #: warehouse/accounts/views.py:495
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "Token non valido: utente non trovato"
 
 #: warehouse/accounts/views.py:502
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
+"Token non valido: l'utente è già stato loggato da quando questo token è "
+"stato richiesto"
 
 #: warehouse/accounts/views.py:509
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
+"Token non valido: la password è stata già cambiata da quando questo token è "
+"stato richiesto"
 
 #: warehouse/accounts/views.py:532
 msgid "You have reset your password"
-msgstr ""
+msgstr "Hai reimpostato la tua password"
 
 #: warehouse/accounts/views.py:554
 msgid "Expired token: request a new email verification link"

@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-12 11:49+0000\n"
+"PO-Revision-Date: 2019-10-13 12:28+0000\n"
 "Last-Translator: Behcet <behcet.senturk@protonmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
@@ -3768,6 +3768,10 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">mobile phones to act as security devices</a>."
 msgstr ""
+"Ortaya çıkan çözümler arasında biyometrik (yüz ve parmak izi) tarayıcılar ve "
+"FIDO uyumlu kredi kartları yer almaktadır. Ayrıca <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">güvenlik cihazı gibi "
+"davranan mobil telefonlar</a>' a da artan bir destek bulunmakta."
 
 #: warehouse/templates/pages/help.html:389
 #, python-format
@@ -3777,6 +3781,11 @@ msgid ""
 "authentication\">WebAuthn</abbr> standard</a> standard</a>, PyPI users "
 "will be able to take advantage of any future developments in this field."
 msgstr ""
+"PyPI' ın 2-aşamalı kimlik doğrulama implementasyonu <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"web "
+"authentication\">WebAuthn</abbr> standard</a> standard</a>' ını izlediği "
+"için, PyPI kullanıcıları bu alanda ortaya çıkan her tür yenilik ve avantaja "
+"sahip olacaklardır."
 
 #: warehouse/templates/pages/help.html:397
 msgid ""
@@ -3791,19 +3800,30 @@ msgid ""
 "token where possible.</strong></p>\n"
 "        "
 msgstr ""
+"\n"
+"          <p>PyPI' a <strong>paket yüklerken</strong> normal yöntemler ile ("
+"kullanıcı adı ve parola) kimlik doğrulamaya alternatif olarak API "
+"belirteçleri kullanabilirsiniz.</p>\n"
+"          <p>PyPI hesabınızın tamamını kapsayıcı bir belirteç "
+"oluşturabilirsiniz, bu durumda belirteç hesabınızla ilişkili tüm projeler "
+"için çalışacaktır. Buna alternatif olarak sadece belirli projeler için "
+"çalışacak kısıtlı bir kapsama sahip belirteçler de oluşturabilirsiniz.</p>\n"
+"          <p><strong>Kimlik doğrulama sırasında eğer mümkünse API "
+"belirteçleri kullanmanızı tavsiye ediyoruz.</strong></p>\n"
+"        "
 
 #: warehouse/templates/pages/help.html:403
 msgid "To make an API token:"
-msgstr ""
+msgstr "API belirteci oluşturmak için:"
 
 #: warehouse/templates/pages/help.html:406
 msgid "Verify your email address"
-msgstr ""
+msgstr "E-posta adresinizi doğrulayın"
 
 #: warehouse/templates/pages/help.html:406
 #, python-format
 msgid "(check your <a href=\"%(href)s\">account settings</a>)"
-msgstr ""
+msgstr "(<a href=\"%(href)s\">hesap ayarlarınızı</a> kontrol edin)"
 
 #: warehouse/templates/pages/help.html:407
 #, python-format
@@ -3811,20 +3831,23 @@ msgid ""
 "In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
 "section and select \"Add API token\""
 msgstr ""
+"<a href=\"%(href)s\">Hesap ayarları</a>' nızda iken, API beliteçleri "
+"bölümüne gidin ve \"API belirteci ekle\"' yi seçin"
 
 #: warehouse/templates/pages/help.html:410
 msgid "To use an API token:"
-msgstr ""
+msgstr "API beliteci kullanmak için:"
 
 #: warehouse/templates/pages/help.html:413
 msgid "Set your username to <code>__token__</code>"
-msgstr ""
+msgstr "Kullanıcı adınızı <code>__token__</code> olarak belirtin"
 
 #: warehouse/templates/pages/help.html:414
 msgid ""
 "Set your password to the token value, including the <code>pypi-</code> "
 "prefix"
 msgstr ""
+"Parolanızı <code>pypi-</code> ön eki ile beraber belitecin değerine ayarlayın"
 
 #: warehouse/templates/pages/help.html:418
 #, python-format
@@ -3837,6 +3860,13 @@ msgid ""
 "href=\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>travis.yml</code> if you are using Travis</a>)."
 msgstr ""
+"Bu değerleri düzenlediğiniz yer, kullanım alışkanlığınıza göre değişiklik "
+"gösterebilir. Örneğin, bazı kullanıcılar <a href=\"%(pypirc_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>.pypirc</code> "
+"dosyalarını </a> düzenlemeleri gerekirken, öbür kullanıcıların CI "
+"konfigürasyon dosyalarını güncellemeleri gerekebilir (örneğin <a href=\""
+"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><code>travis.yml</code>  şayet Travis kullanıyorsanız </a>)."
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -3844,6 +3874,9 @@ msgid ""
 "base64, and checking the output against the unique identifier displayed "
 "on PyPI."
 msgstr ""
+"Bazı ileri seviye kullanıcılar sahip oldukları belirteci base64 fonksiyonu "
+"ile çözüp, çıktıyı PyPI' da görüntülenen eşsiz tanımlayıcı ile "
+"karşılaştırarak incelemek isteyebilir."
 
 #: warehouse/templates/pages/help.html:430
 msgid "Yes, including RSS feeds of new packages and new releases."
@@ -3854,16 +3887,20 @@ msgid "See the API reference."
 msgstr "API referansına bakın."
 
 #: warehouse/templates/pages/help.html:433
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "If you need to run your own mirror of PyPI, the <a "
 "href=\"%(href)s\">bandersnatch project</a> is the recommended solution. "
 "Note that the storage requirements for a PyPI mirror would exceed 1 "
 "terabyte—and growing!"
 msgstr ""
+"PyPI' ın kendinize ait bir kopyası ile çalışmak istiyorsanız, <a href=\""
+"%(href)s\">bandersnatch projesi</a> iyi bir çözüm olabilir. Yalnı unutmayın "
+"ki PyPI' ın bir kopyası 1 terabyte' ı geçecektir. Üstelik her an büyümeye de "
+"devam ediyor!"
 
 #: warehouse/templates/pages/help.html:436
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "PyPI itself does not offer a way to get notified when a project uploads "
 "new releases. However, there are several third-party services that offer "
@@ -3871,6 +3908,11 @@ msgid ""
 "vulnerabilities listed as <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">GitHub apps</a>."
 msgstr ""
+"PyPI bir projenin yeni sürümü yüklendiğini haberdar etmek için bildirim "
+"hizmeti sağlamamaktadır. Yine de, bazı üçüncü-parti servisler <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">GitHub "
+"uygulamaları</a> olarak listelenen proje sürümleri ve açıklar için geniş ve "
+"detaylı bir izleme ve bildirim hizmeti sağlamaktadır."
 
 #: warehouse/templates/pages/help.html:439
 #, python-format
@@ -3910,37 +3952,52 @@ msgstr ""
 "sayfamıza</a> göz atabilirsiniz."
 
 #: warehouse/templates/pages/help.html:457
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "PyPI does not support publishing private packages. If you need to publish"
 " your private package to a package index, the recommended solution is to "
 "run your own deployment of the <a href=\"%(href)s\">devpi project</a>."
 msgstr ""
+"PyPI ile özel(private) paketler yayınlayamazsınız. Eğer özel paketinizi "
+"paket indeksine yayınlamak istiyorsanız, tavsiye ettiğimiz çözüm tüm <a href="
+"\"%(href)s\">devpi projesi</a>' ni kendi kullanımınız için özel olarak "
+"ayaklandırmanızdır."
 
 #: warehouse/templates/pages/help.html:460
+#, fuzzy
 msgid ""
 "Your publishing tool may return an error that your new project can't be "
 "created with your desired name, despite no evidence of a project or "
 "release of the same name on PyPI. Currently, there are three primary "
 "reasons this may occur:"
 msgstr ""
+"Yayımlama aracınız, yeni projeniz için belirlediğiniz ismin, PyPI üzerinde o "
+"isme sahip herhangi bir proje yahut proje sürümü olmamasına rağmen, "
+"kullanılamayacağına dair bir hata dönebilir. (Şu anki sisteme göre) Böyle "
+"bir duruma neden olabilecek üç şey var:"
 
 #: warehouse/templates/pages/help.html:462
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Standard "
 "Library</a> module from any major version from 2.5 to present."
 msgstr ""
+"Projenin ismi ile ana sürüm 2.5 ya da daha yeni bir href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Standard Library</a> "
+"modülü ile çakışıyor."
 
 #: warehouse/templates/pages/help.html:463
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "The project name has been explicitly prohibited by the PyPI "
 "administrators. For example, <code>%(incorrect_code)s</code> is a common "
 "typo for <code>%(correct_code)s</code>, and should not surprise the user "
 "with a malicious package."
 msgstr ""
+"Proje ismi PyPI yöneticileri tarafından yasaklanmıştır. Örnek olarak, "
+"<code>%(incorrect_code)s</code>  <code>%(correct_code)s</code> için genel "
+"bir yazım hatasıdır, ve kötü amaçlı bir paket kullanıcıyı şaşırtmamalıdır."
 
 #: warehouse/templates/pages/help.html:464
 msgid ""
@@ -3968,6 +4025,9 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">creating a workflow</a> which will be "
 "documented here."
 msgstr ""
+"<abbr title=\"Python enhancement proposal\">PEP</abbr> 541 kabul edildi, ve "
+"PyPI burada dökümante edilecek bir <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">iş akışı oluşturdu</a> ."
 
 #: warehouse/templates/pages/help.html:474
 msgid "Owner:"
@@ -3981,11 +4041,18 @@ msgid ""
 "their contact details in the 'Author' field of the 'Meta' details on the "
 "project page."
 msgstr ""
+"Bir kullanıcıyı projeye sahip ya da geliştirici olarak ekleme yetkisi, "
+"sadece projenin o anki sahibine aittir. Bir projeye sahiplik için başvurmak "
+"istiyorsanız bunu direk projenin şuan ki sahiplerine yapmalısınız. Proje "
+"sahipleri genelde iletişim bilgilerini proje sayfasında ki 'Meta' "
+"detaylarının 'Author' alanında paylaşıyorlar."
 
 #: warehouse/templates/pages/help.html:478
 #, python-format
 msgid "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
 msgstr ""
+"Eğer sahip yanıt vermiyorsa, şuraya <a href=\"%(href)s\">%(anchor_text)s</a> "
+"bakın"
 
 #: warehouse/templates/pages/help.html:481
 #, python-format
@@ -4005,6 +4072,9 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
 "available formats."
 msgstr ""
+"Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+"Guide</a>' na bakınız."
 
 #: warehouse/templates/pages/help.html:483
 #, python-format
@@ -4027,10 +4097,17 @@ msgid ""
 "href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">file an issue</a> and tell us:</p>"
 msgstr ""
+"Dosya boyutu sınırını aştığı için projenizin yeni sürümünü PyPI' a "
+"yükleyemiyorsanız, bazen sizin için bu sınırı arttırabiliriz. Önce "
+"projenizin en azından bir sürümünün dosya boyutu limitinin <em>altında</em> "
+"kaldığına emin olun (a <a href=\"%(dev_release_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">gelişimsel sürüm versiyon numarası</a> "
+"yeterli). Sonra, <a href=\"%(file_issue_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">sorun bildir</a> ile bize şunları bildirin:</p>"
 
 #: warehouse/templates/pages/help.html:495
 msgid "A link to your project on PyPI (or Test PyPI)"
-msgstr ""
+msgstr "PyPI (yahut Test PyPI) üzerinde projenize doğru bir bağlantı"
 
 #: warehouse/templates/pages/help.html:496
 msgid "The size of your release, in megabytes"
@@ -4039,18 +4116,25 @@ msgstr "Paket sürümünün megabyte cinsinden büyüklüğü"
 #: warehouse/templates/pages/help.html:497
 msgid "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
+"(PyPI, Test PyPI yahut her ikisi) için hangi dizin/dizinler' de artışa "
+"ihtiyacınız var"
 
 #: warehouse/templates/pages/help.html:498
 msgid ""
 "A brief description of your project, including the reason for the "
 "additional size."
 msgstr ""
+"Ek dosya boyutunun nedeni de dahil olmak üzere projeniz hakkında kısa bir "
+"açıklama."
 
 #: warehouse/templates/pages/help.html:507
 msgid ""
 "If you've forgotten your PyPI password but you remember your email "
 "address or username, follow these steps to reset your password:"
 msgstr ""
+"Eğer PyPI parolanızı unuttunuz ama e-posta adresinizi yahut kullanıcı "
+"isminizi hatırlıyorsanız, şu adımları takip ederek parolanızı "
+"sıfırlayabilirsiniz:"
 
 #: warehouse/templates/pages/help.html:509
 #, python-format
@@ -4068,12 +4152,15 @@ msgid "You'll receive an email with a password reset link."
 msgstr "Parola sıfırlama linki içeren bir e-posta alacaksınız."
 
 #: warehouse/templates/pages/help.html:512
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "If you no longer have access to the email address associated with your "
 "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">file an issue on our tracker</a>."
 msgstr ""
+"Eğer hesabınızla ilişkili olan e-posta adresinize artık erişiminiz yok ise, <"
+"a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"sorun bildir ile bize bildirin</a>."
 
 #: warehouse/templates/pages/help.html:518
 #, python-format
@@ -4086,6 +4173,15 @@ msgid ""
 "April 2018. <a href=\"%(reason_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Learn why on the PSF blog</a>."
 msgstr ""
+"Transport Layer Security, yahut kısa ismi ile TLS, PyPI ile bilgisayarınız "
+"arasında ki bağlantının güvenli olduğundan emin olmamız için gereken "
+"şeylerden biridir. Bir tür şifreleme protokolü olan TLS' in zaman içinde bir "
+"kaç sürümü yayınlanmıştır. PyPI <a href=\"%(announcement_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">TLS' in 1.0 ve 1.1 sürümleri "
+"için olan desteğini</a> in April 2018 itibari ile kesmiştir. <a href=\""
+"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Konu hakkında detaylı bilgiler öğrenmek için PSF bloğuna göz "
+"atabilirsiniz</a>."
 
 #: warehouse/templates/pages/help.html:525
 #, python-format
@@ -4095,14 +4191,24 @@ msgid ""
 "URL</code> error, try adding <code>-v</code> to the command to get more "
 "information:"
 msgstr ""
+"Eğer <code>%(command)s</code> komutu ile ilgili bir sorununuz varsa ve <code>"
+"Eşleşen dağıtım bulunamadı</code> yahut <code>URL alınamadı</code> hatası "
+"alıyorsanız, durum ile ilgili daha fazla bilgi öğrenmek için komuta "
+"<code>-v</code> ' ı eklemeyi deneyin:"
 
 #: warehouse/templates/pages/help.html:527
+#, fuzzy
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
 "<code>TLSV1_ALERT_PROTOCOL_VERSION</code>, you need to be connecting to "
 "PyPI with a newer TLS support library."
 msgstr ""
+"Eğer <code>SSL sertifikası onaylanırken pronlem oluştu</code> yahut <code>"
+"tlsv1 alert protocol version</code> yahut "
+"<code>TLSV1_ALERT_PROTOCOL_VERSION</code> gibi bir hata görüyorsanız, PyPI' "
+"a daha güncel bir TLS sürümüne sahip yardımcı bir kütüphane ile bağlanmayı "
+"deneyin."
 
 #: warehouse/templates/pages/help.html:528
 msgid ""
@@ -4111,6 +4217,10 @@ msgid ""
 "OS vendor, or an intermediate distributor), and the installed versions of"
 " Python, <code>setuptools</code>, and <code>pip</code>."
 msgstr ""
+"Yapmanız gereken bazı spesifik adımlar, işletim sisteminizin sürümü yahut "
+"orijinal Python kurulumunuzun nereden yapıldığı (python.org, işletim sistemi "
+"sağlayıcınız, yahut ara dağıtıcı), ve Python'un yüklü sürümleri, "
+"<code>setuptools</code>, ve<code>pip</code>' e göre değişiklik gösterebilir."
 
 #: warehouse/templates/pages/help.html:530
 #, python-format
@@ -4124,6 +4234,14 @@ msgid ""
 "python-help mailing list</a>, including your OS and installation details "
 "and the output of <code>%(command)s</code>."
 msgstr ""
+"Yardım için <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\"> <code>#pypa</code> Freenode üzerinde ki IRC kanalı</a>' a "
+"gidin, <a href=\"%(issue_tracker_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">pypa/packaging-problems/issues</a> üzerinde bir "
+"sorun bildirin, yahut <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">python-help e-posta listesine</a>, "
+"işletim sisteminiz, kurulum detaylarınız ve <code>%(command)s</code>' unuzun "
+"çıktısı ile ileti gönderin."
 
 #: warehouse/templates/pages/help.html:541
 #, python-format
@@ -4157,6 +4275,12 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">use twine to upload your project to PyPI</a>."
 msgstr ""
+"PyPI' ın önceki sürümlerinde, geliştiriciler tarayıcı üzerinde bulunun bir "
+"form yardımı ile tarayıcı üzerinden PyPI' a proje sürümü "
+"yükleyebiliyorlardı. Bu özellik PyPI' ın yeni sürümü ile birlikte tavsiye "
+"edilmeyen bir özellik haline geldi– biz bunun yerine <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> projenizi PyPI' a "
+"yüklemeniz için twine kullanmanızı öneriyoruz.</a>."
 
 #: warehouse/templates/pages/help.html:563
 msgid ""
@@ -4177,6 +4301,12 @@ msgid ""
 "rel=\"noopener\">our status page</a> for more details, as we'll likely "
 "have updated it with reasoning for the intervention."
 msgstr ""
+"PyPI yöneticileri spamlar yüzünden iyice bunalmış bir hale gelince "
+"<strong>yahut</strong> PyPI' a özel daha farklı bir tehdit olduğuna karar "
+"verdiklerinde, PyPI' a yeni kullanıcı kaydını ve/ya da yeni proje kaydını "
+"durdurabilirler. Bu gibi durumlarda muhtemelen o anki müdahalenin sebebi ile "
+"güncelleyeceğimiz <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">durum sayfamız</a>' ı kontrol edin."
 
 #: warehouse/templates/pages/help.html:574
 msgid "PyPI will return these errors for one of these reasons:"
@@ -4210,6 +4340,10 @@ msgid ""
 "perform and check your upload first</a>, before uploading to <a "
 "href=\"%(pypi_href)s\">pypi.org</a>."
 msgstr ""
+"Bu gibi durumlardan kaçınmak için, <a href=\"%(pypi_href)s\">pypi.org</a>' a "
+"direkt yükleme yapmadan önce, <a href=\"%(test_pypi_href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">Test PyPI' ı kullanarak yükleme yapın "
+"ve yüklemenizi kontrol edin</a>."
 
 #: warehouse/templates/pages/help.html:589
 #, python-format
