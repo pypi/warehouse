@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
-"PO-Revision-Date: 2019-10-15 22:27+0000\n"
-"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
+"PO-Revision-Date: 2019-10-15 23:07+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -1427,9 +1427,8 @@ msgid "*Email from PyPI being treated as spam"
 msgstr "*Електронний лист від PyPI сприймається як спам"
 
 #: warehouse/templates/manage/account.html:54
-#, fuzzy
 msgid "*Hard failure during delivery"
-msgstr "*Тяжкий збій під час доставки"
+msgstr "*Невиправний збій під час доставки"
 
 #: warehouse/templates/manage/account.html:60
 msgid "*Too many delivery problems"
@@ -1774,7 +1773,7 @@ msgid ""
 "packages to PyPI."
 msgstr ""
 "API-токени забезпечують альтернативний спосіб автентифікації під час "
-"завантаження до PyPI."
+"завантаження пакунків до PyPI."
 
 #: warehouse/templates/manage/account.html:489
 msgid "Learn more about API tokens"
@@ -2087,7 +2086,7 @@ msgid ""
 "Each time you (or your collaborators) perform a security action related "
 "to this project, the action is recorded and displayed here."
 msgstr ""
-"Щоразу коли ви (або ж ваші поплічники) виконуєте дію, пов'язану з безпекою, "
+"Щоразу, коли ви (або ж ваші поплічники) виконуєте дію, пов'язану з безпекою, "
 "у цьому проекті, то вона записується і відображається тут."
 
 #: warehouse/templates/manage/history.html:29
@@ -2177,8 +2176,8 @@ msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
 msgstr ""
-"Щоразу коли ви чи ваші поплічники оновлюєте цей проект, ця дія записується і "
-"відображається тут."
+"Щоразу, коли ви чи ваші поплічники оновлюєте цей проект, ця дія записується "
+"і відображається тут."
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
@@ -2310,7 +2309,7 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"Ви не ще завантажили жодного проекту до PyPI. Аби дізнатися звідки почати, "
+"Ви не ще завантажили жодного проекту до PyPI. Аби дізнатися, звідки почати, "
 "відвідайте <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">"
 "користувацьке керівництво з пакування Python</a>"
 
@@ -2413,7 +2412,7 @@ msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\""
 " target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"Дізнатися як завантажувати файли в <a href=\"%(href)s\" title=\"%(title)s\" "
+"Дізнатися, як завантажувати файли в <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">користувацькому керівництві з пакування "
 "Python</a>"
 
@@ -2560,9 +2559,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
 "User Guide</a>"
 msgstr ""
-"Дізнатися як створити новий випуск у <a href=\"%(href)s\" title=\"%(title)s\""
-" target=\"_blank\" rel=\"noopener\">користувацькому керівництві з пакування "
-"Python</a>"
+"Дізнатися, як створити новий випуск у <a href=\"%(href)s\" title=\"%(title)"
+"s\" target=\"_blank\" rel=\"noopener\">користувацькому керівництві з "
+"пакування Python</a>"
 
 #: warehouse/templates/manage/roles.html:18
 #, python-format
@@ -2575,7 +2574,7 @@ msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s"
 msgstr ""
-"Використовуйте цю сторінку, аби керувати тим які користувачі PyPI можуть "
+"Використовуйте цю сторінку, аби контролювати те, які користувачі PyPI можуть "
 "допомагати вам керувати %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:25
@@ -2586,7 +2585,7 @@ msgstr "Поплічники можуть належати до однієї з 
 #: warehouse/templates/manage/roles.html:27
 #: warehouse/templates/manage/roles.html:80
 msgid "Maintainer"
-msgstr "Поплічник"
+msgstr "Мейнтейнер"
 
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/pages/help.html:473
@@ -2609,7 +2608,7 @@ msgid ""
 "releases, or the entire project."
 msgstr ""
 "Може завантажувати випуски для пакунку. Може додавати інших поплічників. "
-"Може видаляти файли, випуски чи ввесь проект."
+"Може видаляти файли, випуски чи увесь проект."
 
 #: warehouse/templates/manage/roles.html:34
 #, python-format
@@ -3054,7 +3053,7 @@ msgid ""
 "classifiers\" to categorize each release, describing who it's for, what "
 "systems it can run on, and how mature it is."
 msgstr ""
-"Поплічники кожного проекту надають PyPI перелік «trove-класифікаторів» щоб "
+"Мейнтейнери кожного проекту надають PyPI перелік «trove-класифікаторів», щоб "
 "категоризувати кожен випуск, описуючи для кого він, на яких системах може "
 "запускатися і наскільки він зрілий."
 
