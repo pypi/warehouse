@@ -166,6 +166,7 @@ def opensearchxml(request):
             keys=["all-projects", "trending"],
         )
     ],
+    has_translations=True,
 )
 def index(request):
     project_ids = [
