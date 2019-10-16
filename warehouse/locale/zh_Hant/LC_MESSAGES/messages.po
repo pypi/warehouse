@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-09-29 13:09+0000\n"
+"PO-Revision-Date: 2019-10-16 12:51+0000\n"
 "Last-Translator: Josix <josixwang@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -656,43 +656,46 @@ msgid "Request password reset"
 msgstr "請求密碼重置"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
+#, fuzzy
 msgid "Reset email sent"
-msgstr ""
+msgstr "重置電子郵件已發送"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "We have sent an email to your registered email address."
-msgstr ""
+msgstr "我們已向您發送一封電子郵件到您註冊的電子郵件地址。"
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
 msgid ""
 "The email contains a link to reset your password. This link will expire "
 "in %(n_hours)s hours."
-msgstr ""
+msgstr "電子郵件包含重置密碼的連結。此連結將在 %(n_hours)s 小時後過期。"
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
 #: warehouse/templates/pages/sitemap.html:34
 msgid "Reset your password"
-msgstr ""
+msgstr "重置您的密碼"
 
 #: warehouse/templates/accounts/reset-password.html:50
 #: warehouse/templates/manage/account.html:399
+#, fuzzy
 msgid "Select a new password"
-msgstr ""
+msgstr "選擇新密碼"
 
 #: warehouse/templates/accounts/reset-password.html:85
 msgid "Reset password"
-msgstr ""
+msgstr "重置密碼"
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
+#, fuzzy
 msgid "Two-factor authentication"
-msgstr ""
+msgstr "雙重身份驗證"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
-msgstr ""
+msgstr "使用安全設備進行身份驗證（例如 USB 金鑰）"
 
 #: warehouse/templates/accounts/two-factor.html:37
 #: warehouse/templates/manage/account.html:460
@@ -705,21 +708,22 @@ msgstr ""
 #: warehouse/templates/pages/help.html:59
 #: warehouse/templates/pages/help.html:60
 msgid "Beta feature"
-msgstr ""
+msgstr "測試版功能"
 
 #: warehouse/templates/accounts/two-factor.html:40
+#, fuzzy
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
-msgstr ""
+msgstr "連接您的安全設備，然後按一下\"使用設備進行身份驗證\"按鈕。"
 
 #: warehouse/templates/accounts/two-factor.html:43
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
-msgstr ""
+msgstr "啟用 JavaScript 以使用安全設備登錄（例如 USB 金鑰）"
 
 #: warehouse/templates/accounts/two-factor.html:52
 msgid "Authenticate with device"
-msgstr ""
+msgstr "使用設備進行身份驗證"
 
 #: warehouse/templates/accounts/two-factor.html:56
 #, python-format
@@ -728,37 +732,41 @@ msgid ""
 "rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device"
 " (e.g. USB key)"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\"> 升級瀏覽器 </a> 以使用安全設備登錄（例如 USB 金鑰）"
 
 #: warehouse/templates/accounts/two-factor.html:61
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
-msgstr ""
+msgstr "丟失設備？不運作？ <a href=\"%(href)s\"> 尋求説明 </a>。"
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
-msgstr ""
+msgstr "使用應用進行身份驗證"
 
 #: warehouse/templates/accounts/two-factor.html:88
 msgid "Enter authentication code"
-msgstr ""
+msgstr "輸入身份驗證代碼"
 
 #: warehouse/templates/accounts/two-factor.html:103
 msgid "Verify"
-msgstr ""
+msgstr "驗證"
 
 #: warehouse/templates/accounts/two-factor.html:106
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "<p>Generate a code using the authentication application connected to your"
 " PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get "
 "help</a>.</p>"
 msgstr ""
+"<p>使用連接到 PyPI 帳戶的身份驗證應用程式生成代碼。在表單中輸入此代碼以驗證您的身份 </p>。<p> 丟失了您的應用？ <a href=\""
+"%(href)s\"> 不運作？尋求説明 </a>.</p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr ""
+msgstr "您的 PyPI 帳戶 <strong>%(username)s</strong> 已被刪除。"
 
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
@@ -769,6 +777,8 @@ msgid ""
 "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
+"如果您未進行此更改，則可以通過電子郵件發送<a href=\"%(href)s\">%(email_address)s<a href=\"%(href)"
+"s\"> %(email_address)s </a>與 PyPI 管理員進行溝通。"
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format

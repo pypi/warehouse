@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-15 14:07+0000\n"
+"PO-Revision-Date: 2019-10-16 04:39+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -4960,7 +4960,7 @@ msgstr "Suma de archivos de publicación (en bytes)"
 
 #: warehouse/templates/pages/stats.html:48
 msgid "All of PyPI"
-msgstr "Todo de PyPI"
+msgstr "Todo PyPI"
 
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:123
@@ -4984,7 +4984,7 @@ msgid ""
 "label=\"%(aria_label)s\" data-original-label=\"%(data_original_label)s\">"
 " classifier </a>"
 msgstr ""
-"Filtra por <a href=\"%(href)s\" class=\"%(classes)s\" aria-label=\""
+"Filtrar por <a href=\"%(href)s\" class=\"%(classes)s\" aria-label=\""
 "%(aria_label)s\" data-original-label=\"%(data_original_label)s\"> "
 "clasificador </a>"
 
