@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-19 12:10-0400\n"
-"PO-Revision-Date: 2019-10-13 12:28+0000\n"
+"PO-Revision-Date: 2019-10-16 15:21+0000\n"
 "Last-Translator: Irina Saribekova <irina.saribekova@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
 "4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -100,8 +100,9 @@ msgid "Invalid TOTP code."
 msgstr "Неверный TOTP-код."
 
 #: warehouse/accounts/forms.py:299
+#, fuzzy
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "Недопустимое значение WebAuthn: Ошибка загрузки"
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
@@ -123,7 +124,7 @@ msgstr "Уже подтверждён"
 
 #: warehouse/accounts/views.py:308
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "Успешное утверждение WebAuthn"
 
 #: warehouse/accounts/views.py:387
 msgid ""
@@ -232,7 +233,7 @@ msgstr "Мы везде посмотрели, но не могли найти э
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "И теперь для чего-то <br><span>совсем другое"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -426,55 +427,62 @@ msgstr ""
 #: warehouse/templates/index.html:61
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr ""
+msgstr "Или <a href=\"%(href)s\">просматривать проекты</a>"
 
 #: warehouse/templates/index.html:67
 #, python-format
 msgid "%(num_projects)s projects"
-msgstr ""
+msgstr "%(num_projects)s проекты"
 
 #: warehouse/templates/index.html:68
 #, python-format
 msgid "%(num_releases)s releases"
-msgstr ""
+msgstr "%(num_releases)s релизы"
 
 #: warehouse/templates/index.html:69
 #, python-format
 msgid "%(num_files)s files"
-msgstr ""
+msgstr "%(num_files)s файлы"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr ""
+msgstr "%(num_users)s пользователей"
 
 #: warehouse/templates/index.html:80
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
+"Python Package Index (PyPI) - это хранилище программного обеспечения для "
+"языка программирования Python."
 
 #: warehouse/templates/index.html:82
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
+"PyPI помогает найти и установить программное обеспечение, разработанное и "
+"разделяемое сообществом Python."
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr ""
+msgstr "Подробнее об установке пакетов</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
+"Авторы пакета используют PyPI для распространения своего программного "
+"обеспечения."
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
-msgstr ""
+msgstr "Узнайте, как упаковать код Python для PyPI</a>."
 
 #: warehouse/templates/index.html:97
+#, fuzzy
 msgid "Trending projects"
-msgstr ""
+msgstr "Трендовые проекты"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
