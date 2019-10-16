@@ -5,13 +5,14 @@
 # Sviatoslav Sydorenko <wk.cvs.github@sydorenko.org.ua>, 2019.
 # okawo <okawo.198@gmail.com>, 2019.
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2019.
+# Alex Solonenko <alex.solonencko@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
 "PO-Revision-Date: 2019-10-15 22:27+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -926,7 +927,7 @@ msgid ""
 "\n"
 "  the PyPI administrators."
 msgstr ""
-"Щоб дізнатися більше, ви можете написати листа на %(email_address)s аби "
+"Щоб дізнатися більше, ви можете написати листа на %(email_address)s, аби "
 "зв'язатися з\n"
 "  адміністраторами PyPI."
 
@@ -1004,7 +1005,7 @@ msgid ""
 msgstr ""
 "Щоб дізнатися більше, дивітся наші <a href=\"%(faq_url)s\">ЧаПи</a>. Щоб "
 "одержати допомогу, ви можете надіслати листа на <a href=\"%(email_href)s\""
-">%(email_address)s</a> щоб зв'язатись із адміністраторами PyPI."
+">%(email_address)s</a>, щоб зв'язатись із адміністраторами PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1220,7 +1221,7 @@ msgstr "У вас немає основної електронної адрес�
 
 #: warehouse/templates/includes/session-notifications.html:28
 msgid "Verify your email or add a new address."
-msgstr "Підтвердіть свою електронну адресу."
+msgstr "Підтвердіть свою електронну адресу або додайте нову."
 
 #: warehouse/templates/includes/session-notifications.html:37
 #, python-format
@@ -1426,6 +1427,7 @@ msgid "*Email from PyPI being treated as spam"
 msgstr "*Електронний лист від PyPI сприймається як спам"
 
 #: warehouse/templates/manage/account.html:54
+#, fuzzy
 msgid "*Hard failure during delivery"
 msgstr "*Тяжкий збій під час доставки"
 
