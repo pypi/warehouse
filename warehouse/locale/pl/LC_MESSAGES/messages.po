@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
-"PO-Revision-Date: 2019-10-15 14:07+0000\n"
+"PO-Revision-Date: 2019-10-16 04:39+0000\n"
 "Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
@@ -366,6 +366,11 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\"> donating </a> to help us build a more"
 " stable and secure platform."
 msgstr ""
+"Rozważ <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" rel=\""
+"noopener\"> pomoc przy projekcie </a> lub <a href=\"https://psfmember.org/"
+"civicrm/contribute/transact?reset\" target=\"_blank\" rel=\"noopener\"> "
+"dotację </a>, aby pomóc nam zbudować bardziej stabilną i bezpieczną "
+"platformę."
 
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
@@ -395,65 +400,74 @@ msgid "The Python Package Index"
 msgstr ""
 
 #: warehouse/templates/index.html:43
+#, fuzzy
 msgid "Test Python package publishing with the Test Python Package Index"
 msgstr ""
+"Przetestuj publikowanie pakietów Pythona za pomocą Test Python Package Index"
 
 #: warehouse/templates/index.html:45
+#, fuzzy
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
+"Znajdź, zainstaluj i opublikuj pakiety Python za pomocą Python Package Index"
 
 #: warehouse/templates/index.html:61
 #, python-format
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgstr ""
+msgstr "Lub <a href=\"%(href)s\">przeglądaj projekty</a>"
 
 #: warehouse/templates/index.html:67
 #, python-format
 msgid "%(num_projects)s projects"
-msgstr ""
+msgstr "%(num_projects)s projektów"
 
 #: warehouse/templates/index.html:68
-#, python-format
+#, fuzzy, python-format
 msgid "%(num_releases)s releases"
-msgstr ""
+msgstr "%(num_releases)s wydań"
 
 #: warehouse/templates/index.html:69
 #, python-format
 msgid "%(num_files)s files"
-msgstr ""
+msgstr "%(num_files)s plików"
 
 #: warehouse/templates/index.html:70
 #, python-format
 msgid "%(num_users)s users"
-msgstr ""
+msgstr "%(num_users)s użytkowników"
 
 #: warehouse/templates/index.html:80
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
 msgstr ""
+"Python Package Index (PyPI) jest repozytorium oprogramowania dla języka "
+"programowania Python."
 
 #: warehouse/templates/index.html:82
+#, fuzzy
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
+"PyPI pomaga znaleźć i zainstalować oprogramowanie opracowane i udostępnione "
+"przez społeczność Python."
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr ""
+msgstr "Dowiedz się więcej o instalowaniu pakietów</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
-msgstr ""
+msgstr "Autorzy pakietów używają PyPI do dystrybucji swojego oprogramowania."
 
 #: warehouse/templates/index.html:87
 msgid "Learn how to package your Python code for PyPI</a>."
-msgstr ""
+msgstr "Dowiedz się, jak spakować kod Python dla PyPI </a>."
 
 #: warehouse/templates/index.html:97
 msgid "Trending projects"
-msgstr ""
+msgstr "Popularne projekty"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
