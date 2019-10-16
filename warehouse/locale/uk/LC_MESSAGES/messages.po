@@ -12,7 +12,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-09-26 11:23-0400\n"
 "PO-Revision-Date: 2019-10-15 23:07+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -3277,6 +3277,7 @@ msgid "What collaborator roles are available for a project on PyPI?"
 msgstr "Які ролі поплічників доступні для проекту на PyPI?"
 
 #: warehouse/templates/pages/help.html:79
+#, fuzzy
 msgid "How do I become a owner/maintainer of a project on PyPI?"
 msgstr "Як мені стати власником/поплічником проекту на PyPI?"
 
