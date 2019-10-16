@@ -22,9 +22,9 @@ argon2-cffi==19.1.0 \
     --hash=sha256:fbae1d08b52f9a791500c650ab51ba00e374eaeccb5dbaa41b99dab4fd4115e8 \
     --hash=sha256:fe91e3bd95aeae70366693dcc970db03a71619d19df6fbaabf662c3b3c54cdf8 \
     --hash=sha256:fec86ee6f913154846171f66ee30c893c0cde3d434911f8b31c1f84a9aea410e
-asn1crypto==0.24.0 \
-    --hash=sha256:2f1adbb7546ed199e3c90ef23ec95c5cf3585bac7d11fb7eb562a3fe89c64e87 \
-    --hash=sha256:9d5c20441baf0cb60a4ac34cc447c6c189024b6b4c6cd7877034f4965c464e49
+asn1crypto==1.2.0 \
+    --hash=sha256:7bb1cc02a5620b3d72da4ba070bda2f44f0e61b44dee910a302eddff802b6fb5 \
+    --hash=sha256:87620880a477123e01177a1f73d0f327210b43a3cdbd714efcd2fa49a8d7b384
 attrs==19.1.0 \
     --hash=sha256:69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79 \
     --hash=sha256:f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399
