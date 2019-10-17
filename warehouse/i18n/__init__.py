@@ -16,6 +16,7 @@ from babel.core import Locale
 from pyramid import viewderivers
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
 from pyramid.threadlocal import get_current_request
+
 from warehouse.cache.http import add_vary
 
 KNOWN_LOCALES = {

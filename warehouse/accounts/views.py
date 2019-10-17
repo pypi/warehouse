@@ -58,7 +58,7 @@ from warehouse.utils.http import is_safe_url
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
 
-@view_config(context=TooManyFailedLogins)
+@view_config(context=TooManyFailedLogins, has_translations=True)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
         _("There have been too many unsuccessful login attempts. Try again later."),
@@ -80,6 +80,7 @@ def failed_logins(exc, request):
     decorator=[
         origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
+    has_translations=True,
 )
 def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):
@@ -102,6 +103,7 @@ def profile(user, request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginForm):
     # TODO: Logging in should reset request.user
@@ -190,6 +192,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.authenticated_userid is not None:
@@ -377,6 +380,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
