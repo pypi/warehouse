@@ -246,6 +246,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     request_method="GET",
     route_name="accounts.webauthn-authenticate.options",
     renderer="json",
+    has_translations=True,
 )
 def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
@@ -272,6 +273,7 @@ def webauthn_authentication_options(request):
     request_param=WebAuthnAuthenticationForm.__params__,
     route_name="accounts.webauthn-authenticate.validate",
     renderer="json",
+    has_translations=True,
 )
 def webauthn_authentication_validate(request):
     if request.authenticated_userid is not None:
@@ -470,6 +472,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def reset_password(request, _form_class=ResetPasswordForm):
     if request.authenticated_userid is not None:
@@ -549,7 +552,10 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
 
 @view_config(
-    route_name="accounts.verify-email", uses_session=True, permission="manage:user"
+    route_name="accounts.verify-email",
+    uses_session=True,
+    permission="manage:user",
+    has_translations=True,
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
