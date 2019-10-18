@@ -28,6 +28,7 @@ from warehouse import views
 from warehouse.views import (
     classifiers,
     current_user_indicator,
+    faq,
     flash_messages,
     forbidden,
     forbidden_include,
@@ -39,8 +40,11 @@ from warehouse.views import (
     opensearchxml,
     robotstxt,
     search,
+    security,
     service_unavailable,
     session_notifications,
+    sitemap,
+    sponsors,
     stats,
 )
 
@@ -169,6 +173,26 @@ class TestServiceUnavailableView:
         assert resp.status_code == 503
         assert resp.content_type == "text/html"
         assert resp.body == b"A 503 Error"
+
+
+def test_sitemap(pyramid_request):
+    assert sitemap(pyramid_request) == {}
+    assert pyramid_request.response.content_type == "text/html"
+
+
+def test_help(pyramid_request):
+    assert faq(pyramid_request) == {}
+    assert pyramid_request.response.content_type == "text/html"
+
+
+def test_security(pyramid_request):
+    assert security(pyramid_request) == {}
+    assert pyramid_request.response.content_type == "text/html"
+
+
+def test_sponsors(pyramid_request):
+    assert sponsors(pyramid_request) == {}
+    assert pyramid_request.response.content_type == "text/html"
 
 
 def test_robotstxt(pyramid_request):

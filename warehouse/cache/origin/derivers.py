@@ -12,7 +12,6 @@
 
 import functools
 
-from warehouse.cache.http import add_vary_callback
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
@@ -29,9 +28,6 @@ def html_cache_deriver(view, info):
                 request.add_response_callback(
                     functools.partial(cacher.cache, ["all-html", renderer.name])
                 )
-                # This is a custom header set in our VCL based on the _LOCALE_
-                # cookie value
-                request.add_response_callback(add_vary_callback("PyPI-Locale"))
 
             return view(context, request)
 

@@ -11,8 +11,79 @@
 # limitations under the License.
 
 import pretend
+import pytest
+
+from pyramid import viewderivers
+from pyramid.i18n import Localizer
 
 from warehouse import i18n
+
+
+class TestInvalidLocalizer:
+    @pytest.mark.parametrize(
+        "method",
+        [
+            # Our custom methods.
+            "pluralize",
+            "translate",
+        ],
+    )
+    def test_methods_raise(self, method):
+        localizer = i18n.InvalidLocalizer()
+        with pytest.raises(RuntimeError):
+            getattr(localizer, method)()
+
+    @pytest.mark.parametrize("name", ["locale_name"])
+    def test_propery_raises(self, name):
+        localizer = i18n.InvalidLocalizer()
+        with pytest.raises(RuntimeError):
+            getattr(localizer, name)
+
+
+class TestTranslatedView:
+    def test_has_options(self):
+        assert set(i18n.translated_view.options) == {"has_translations"}
+
+    @pytest.mark.parametrize("has_translations", [False, None])
+    def test_invalid_localizer(self, has_translations):
+        context = pretend.stub()
+        request = pretend.stub(localizer=pretend.stub())
+        response = pretend.stub()
+
+        @pretend.call_recorder
+        def view(context, request):
+            assert isinstance(request.localizer, i18n.InvalidLocalizer)
+            return response
+
+        info = pretend.stub(options={}, exception_only=False)
+        if has_translations is not None:
+            info.options["has_translations"] = has_translations
+        derived_view = i18n.translated_view(view, info)
+
+        assert derived_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+
+    def test_valid_localizer(self, monkeypatch):
+        add_vary_cb = pretend.call_recorder(lambda fn: fn)
+        add_vary = pretend.call_recorder(lambda vary: add_vary_cb)
+        monkeypatch.setattr(i18n, "add_vary", add_vary)
+
+        context = pretend.stub()
+        request = pretend.stub(localizer=Localizer(locale_name="en", translations=[]))
+        response = pretend.stub()
+
+        @pretend.call_recorder
+        def view(context, request):
+            assert isinstance(request.localizer, Localizer)
+            return response
+
+        info = pretend.stub(options={"has_translations": True})
+        derived_view = i18n.translated_view(view, info)
+
+        assert derived_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+        assert add_vary.calls == [pretend.call("PyPI-Locale")]
+        assert add_vary_cb.calls == [pretend.call(view)]
 
 
 def test_sets_locale(monkeypatch):
@@ -69,6 +140,7 @@ def test_includeme():
         set_locale_negotiator=pretend.call_recorder(lambda f: None),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         get_settings=lambda: config_settings,
+        add_view_deriver=pretend.call_recorder(lambda f, over, under: None),
     )
 
     i18n.includeme(config)
@@ -77,6 +149,11 @@ def test_includeme():
     assert config.set_locale_negotiator.calls == [pretend.call(i18n._negotiate_locale)]
     assert config.add_request_method.calls == [
         pretend.call(i18n._locale, name="locale", reify=True)
+    ]
+    assert config.add_view_deriver.calls == [
+        pretend.call(
+            i18n.translated_view, over="rendered_view", under=viewderivers.INGRESS
+        )
     ]
     assert config_settings == {
         "jinja2.filters": {
