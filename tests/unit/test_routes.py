@@ -81,10 +81,6 @@ def test_routes(warehouse):
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),
-        pretend.call("sitemap", "/sitemap/", domain=warehouse),
-        pretend.call("help", "/help/", domain=warehouse),
-        pretend.call("security", "/security/", domain=warehouse),
-        pretend.call("sponsors", "/sponsors/", domain=warehouse),
         pretend.call(
             "includes.current-user-indicator",
             "/_includes/current-user-indicator/",
@@ -329,6 +325,15 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("legacy.docs", docs_route_url),
+    ]
+
+    assert config.add_template_view.calls == [
+        pretend.call("sitemap", "/sitemap/", "pages/sitemap.html"),
+        pretend.call("help", "/help/", "pages/help.html"),
+        pretend.call("security", "/security/", "pages/security.html"),
+        pretend.call(
+            "sponsors", "/sponsors/", "warehouse:templates/pages/sponsors.html"
+        ),
     ]
 
     assert config.add_redirect.calls == [

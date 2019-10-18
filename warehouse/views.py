@@ -122,34 +122,6 @@ def service_unavailable(exc, request):
     return httpexception_view(HTTPServiceUnavailable(), request)
 
 
-@view_config(route_name="sitemap", renderer="pages/sitemap.html", has_translations=True)
-def sitemap(request):
-    return {}
-
-
-@view_config(route_name="help", renderer="pages/help.html", has_translations=True)
-def faq(request):
-    return {}
-
-
-@view_config(
-    route_name="security", renderer="pages/security.html", has_translations=True
-)
-def security(request):
-    return {}
-
-
-@view_config(
-    route_name="sponsors",
-    # Use the full resource path here to make it able to be overridden by
-    # pypi-theme.
-    renderer="warehouse:templates/pages/sponsors.html",
-    has_translations=True,
-)
-def sponsors(request):
-    return {}
-
-
 @view_config(
     route_name="robots.txt",
     renderer="robots.txt",
