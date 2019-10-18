@@ -34,15 +34,25 @@ def includeme(config):
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
-    config.add_template_view("sitemap", "/sitemap/", "pages/sitemap.html")
-    config.add_template_view("help", "/help/", "pages/help.html")
-    config.add_template_view("security", "/security/", "pages/security.html")
+    config.add_template_view(
+        "sitemap", "/sitemap/", "pages/sitemap.html", view_kw={"has_translations": True}
+    )
+    config.add_template_view(
+        "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+    )
+    config.add_template_view(
+        "security",
+        "/security/",
+        "pages/security.html",
+        view_kw={"has_translations": True},
+    )
     config.add_template_view(
         "sponsors",
         "/sponsors/",
         # Use the full resource path here to make it able to be overridden by
         # pypi-theme.
         "warehouse:templates/pages/sponsors.html",
+        view_kw={"has_translations": True},
     )
 
     # Our legal policies
