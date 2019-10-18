@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-16 11:27-0400\n"
+"POT-Creation-Date: 2019-10-17 13:29-0400\n"
 "PO-Revision-Date: 2019-10-12 11:50+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
@@ -114,21 +114,21 @@ msgstr "Assertion WebAuthn non valide : requête malformée"
 msgid "No user found with that username or email"
 msgstr "Aucun utilisateur trouvé pour ce nom d’utilisateur ou e-mail"
 
-#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:254
-#: warehouse/accounts/views.py:255 warehouse/accounts/views.py:280
-#: warehouse/accounts/views.py:281
+#: warehouse/accounts/views.py:204 warehouse/accounts/views.py:258
+#: warehouse/accounts/views.py:259 warehouse/accounts/views.py:285
+#: warehouse/accounts/views.py:286
 msgid "Invalid or expired two factor login."
 msgstr "Connexion à deux facteurs invalide ou expirée."
 
-#: warehouse/accounts/views.py:249
+#: warehouse/accounts/views.py:253
 msgid "Already authenticated"
 msgstr "Déjà authentifié"
 
-#: warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:317
 msgid "Successful WebAuthn assertion"
 msgstr "Assertion WebAuthn réussie"
 
-#: warehouse/accounts/views.py:391
+#: warehouse/accounts/views.py:397
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -136,36 +136,36 @@ msgstr ""
 "L’enregistrement d’un nouvel utilisateur est temporairement désactivé. Voir "
 "https://pypi.org/help#admin-intervention pour plus de détails."
 
-#: warehouse/accounts/views.py:486
+#: warehouse/accounts/views.py:493
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "Jeton expiré : demandez un nouveau lien de réinitialisation de mot de passe"
 
-#: warehouse/accounts/views.py:488
+#: warehouse/accounts/views.py:495
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 "Jeton invalide : demandez un nouveau lien de réinitialisation de mot de passe"
 
-#: warehouse/accounts/views.py:490 warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
 msgid "Invalid token: no token supplied"
 msgstr "Jeton invalide : aucun jeton fourni"
 
-#: warehouse/accounts/views.py:494
+#: warehouse/accounts/views.py:501
 msgid "Invalid token: not a password reset token"
 msgstr ""
 "Jeton invalide : ce n’est pas un jeton de réinitialisation de mot de passe"
 
-#: warehouse/accounts/views.py:499
+#: warehouse/accounts/views.py:506
 msgid "Invalid token: user not found"
 msgstr "Jeton invalide : utilisateur introuvable"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:513
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Jeton invalide : l’utilisateur s’est connecté depuis que ce jeton a été "
 "demandé"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:520
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -173,46 +173,46 @@ msgstr ""
 "Jeton invalide : mot de passe a déjà été changé depuis que ce jeton a été "
 "demandé"
 
-#: warehouse/accounts/views.py:539
+#: warehouse/accounts/views.py:546
 msgid "You have reset your password"
 msgstr "Vous avez réinitialisé votre mot de passe"
 
-#: warehouse/accounts/views.py:561
+#: warehouse/accounts/views.py:571
 msgid "Expired token: request a new email verification link"
 msgstr "Jeton expiré : demandez un nouveau lien de vérification d'e-mail"
 
-#: warehouse/accounts/views.py:563
+#: warehouse/accounts/views.py:573
 msgid "Invalid token: request a new email verification link"
 msgstr "Jeton invalide : demandez un nouveau lien de vérification d'e-mail"
 
-#: warehouse/accounts/views.py:569
+#: warehouse/accounts/views.py:579
 msgid "Invalid token: not an email verification token"
 msgstr "Jeton invalide : ce n'est pas un jeton de vérification d'e-mail"
 
-#: warehouse/accounts/views.py:578
+#: warehouse/accounts/views.py:588
 msgid "Email not found"
 msgstr "E-mail non trouvé"
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:591
 msgid "Email already verified"
 msgstr "E-mail déjà vérifié"
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:603
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Vous pouvez dorénavant configurer cet e-mail comme votre adresse principale"
 
-#: warehouse/accounts/views.py:595
+#: warehouse/accounts/views.py:605
 msgid "This is your primary address"
 msgstr "Ceci est votre adresse principale"
 
-#: warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:610
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "E-mail ${email_address} verifié.\n"
 "${confirm_message}."
 
-#: warehouse/manage/views.py:169
+#: warehouse/manage/views.py:170
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} ajouté - consultez votre boîte mail pour le lien de "
@@ -805,7 +805,7 @@ msgstr "Se connecter à %(title)s"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:269
-#: warehouse/templates/manage/roles.html:136
+#: warehouse/templates/manage/roles.html:140
 msgid "Username"
 msgstr "Nom d’utilisateur"
 
@@ -827,8 +827,8 @@ msgstr "Nom d’utilisateur"
 #: warehouse/templates/manage/account.html:404
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:133
-#: warehouse/templates/manage/roles.html:145
+#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:149
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
@@ -1710,16 +1710,6 @@ msgstr "Avatar de {username} via gravatar.com"
 msgid "Classifiers"
 msgstr "Classificateurs"
 
-#: warehouse/templates/legacy/api/simple/detail.html:17
-#: warehouse/templates/legacy/api/simple/detail.html:20
-#, python-format
-msgid "Links for %(project_name)s"
-msgstr "Liens pour %(project_name)s"
-
-#: warehouse/templates/legacy/api/simple/index.html:17
-msgid "Simple index"
-msgstr "Index simple"
-
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
 msgstr "Vérifié*"
@@ -2027,7 +2017,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:117
+#: warehouse/templates/manage/roles.html:121
 msgid "Remove"
 msgstr "Supprimer"
 
@@ -2513,7 +2503,7 @@ msgstr "Date"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:131
+#: warehouse/templates/manage/roles.html:135
 msgid "User"
 msgstr "Utilisateur"
 
@@ -2897,7 +2887,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "Il y a deux rôles possibles pour les collaborateurs :"
 
 #: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "Mainteneur"
 
@@ -2911,7 +2902,8 @@ msgstr ""
 "collaborateurs. Ne peut pas supprimer de fichiers, versions ou le projet."
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:84
 msgid "Owner"
 msgstr "Propriétaire"
 
@@ -2930,30 +2922,30 @@ msgid "Users who can manage %(project_name)s"
 msgstr "Utilisateurs pouvant gérer %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:78
-#: warehouse/templates/manage/roles.html:143
+#: warehouse/templates/manage/roles.html:82
+#: warehouse/templates/manage/roles.html:147
 msgid "Role"
 msgstr "Rôle"
 
-#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:90
 msgid "Save role"
 msgstr "Enregistrer le rôle"
 
-#: warehouse/templates/manage/roles.html:87
+#: warehouse/templates/manage/roles.html:91
 msgid "Save"
 msgstr "Enregistrer"
 
-#: warehouse/templates/manage/roles.html:111
+#: warehouse/templates/manage/roles.html:115
 msgid "Cannot remove yourself as owner"
 msgstr "Vous ne pouvez pas vous supprimer vous-même en tant que propriétaire"
 
-#: warehouse/templates/manage/roles.html:114
+#: warehouse/templates/manage/roles.html:118
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "Supprimer %(user)s de ce projet"
 
-#: warehouse/templates/manage/roles.html:126
-#: warehouse/templates/manage/roles.html:154
+#: warehouse/templates/manage/roles.html:130
+#: warehouse/templates/manage/roles.html:158
 msgid "Add collaborator"
 msgstr "Ajouter un collaborateur"
 
@@ -5617,6 +5609,12 @@ msgstr[1] ""
 "\n"
 "                  Aucun résultat pour les filtres '%(filters)s'\n"
 "                "
+
+#~ msgid "Links for %(project_name)s"
+#~ msgstr "Liens pour %(project_name)s"
+
+#~ msgid "Simple index"
+#~ msgstr "Index simple"
 
 #~ msgid ""
 #~ "There have been too many unsuccessful login attempts, try again later."

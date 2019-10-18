@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-16 11:27-0400\n"
+"POT-Creation-Date: 2019-10-17 13:29-0400\n"
 "PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -19,8 +19,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
-"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
@@ -106,21 +106,21 @@ msgstr "Недійсна перевірка WebAuthn: Неправильний �
 msgid "No user found with that username or email"
 msgstr "Користувача з таким ім'ям чи електронною адресою не знайдено"
 
-#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:254
-#: warehouse/accounts/views.py:255 warehouse/accounts/views.py:280
-#: warehouse/accounts/views.py:281
+#: warehouse/accounts/views.py:204 warehouse/accounts/views.py:258
+#: warehouse/accounts/views.py:259 warehouse/accounts/views.py:285
+#: warehouse/accounts/views.py:286
 msgid "Invalid or expired two factor login."
 msgstr "Двофакторний вхід недійсний або термін його дії збіг."
 
-#: warehouse/accounts/views.py:249
+#: warehouse/accounts/views.py:253
 msgid "Already authenticated"
 msgstr "Уже аутентифіковано"
 
-#: warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:317
 msgid "Successful WebAuthn assertion"
 msgstr "Перевірка WebAuthn успішна"
 
-#: warehouse/accounts/views.py:391
+#: warehouse/accounts/views.py:397
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -128,78 +128,78 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:486
+#: warehouse/accounts/views.py:493
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "Час дії токена завершився: здійсніть запит нового посилання для скидання "
 "пароля"
 
-#: warehouse/accounts/views.py:488
+#: warehouse/accounts/views.py:495
 msgid "Invalid token: request a new password reset link"
 msgstr "Недійсний токен: здійсніть запит нового посилання для скидання пароля"
 
-#: warehouse/accounts/views.py:490 warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
 msgid "Invalid token: no token supplied"
 msgstr "Недійсний токен: токен не вказано"
 
-#: warehouse/accounts/views.py:494
+#: warehouse/accounts/views.py:501
 msgid "Invalid token: not a password reset token"
 msgstr "Недійсний токен: не є токеном для скидання пароля"
 
-#: warehouse/accounts/views.py:499
+#: warehouse/accounts/views.py:506
 msgid "Invalid token: user not found"
 msgstr "Недійсний токен: користувача не знайдено"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:513
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Недійсний токен: користувач здійснив вхід з моменту запиту цього токена"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:520
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Недійсний токен: пароль уже було змінено з моменту запиту цього токена"
 
-#: warehouse/accounts/views.py:539
+#: warehouse/accounts/views.py:546
 msgid "You have reset your password"
 msgstr "Ви скинули свій пароль"
 
-#: warehouse/accounts/views.py:561
+#: warehouse/accounts/views.py:571
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "Час дії токена збіг: здійсніть запит нового посилання для підтвердження "
 "електронної адреси"
 
-#: warehouse/accounts/views.py:563
+#: warehouse/accounts/views.py:573
 msgid "Invalid token: request a new email verification link"
 msgstr "Недійсний токен: здійсніть запит нового посилання для скидання пароля"
 
-#: warehouse/accounts/views.py:569
+#: warehouse/accounts/views.py:579
 msgid "Invalid token: not an email verification token"
 msgstr "Недійсний токен: не є токеном для підтвердження електронної адреси"
 
-#: warehouse/accounts/views.py:578
+#: warehouse/accounts/views.py:588
 msgid "Email not found"
 msgstr "Електронної адреси не знайдено"
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:591
 msgid "Email already verified"
 msgstr "Електронну адресу підтверджено"
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:603
 msgid "You can now set this email as your primary address"
 msgstr "Тепер ви можете встановити цю електронну адресу основною"
 
-#: warehouse/accounts/views.py:595
+#: warehouse/accounts/views.py:605
 msgid "This is your primary address"
 msgstr "Це ваша основна адреса"
 
-#: warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:610
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Електронну адресу ${email_address} підтверджено. ${confirm_message}."
 
-#: warehouse/manage/views.py:169
+#: warehouse/manage/views.py:170
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Електронну адресу ${email_address} додано — знайдіть посилання-підтвердження "
@@ -764,7 +764,7 @@ msgstr "Увійти до %(title)s"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:269
-#: warehouse/templates/manage/roles.html:136
+#: warehouse/templates/manage/roles.html:140
 msgid "Username"
 msgstr "Ім'я користувача"
 
@@ -786,8 +786,8 @@ msgstr "Ім'я користувача"
 #: warehouse/templates/manage/account.html:404
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:133
-#: warehouse/templates/manage/roles.html:145
+#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:149
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
@@ -1647,16 +1647,6 @@ msgstr "Аватар {username} із gravatar.com"
 msgid "Classifiers"
 msgstr "Класифікатори"
 
-#: warehouse/templates/legacy/api/simple/detail.html:17
-#: warehouse/templates/legacy/api/simple/detail.html:20
-#, python-format
-msgid "Links for %(project_name)s"
-msgstr "Посилання для %(project_name)s"
-
-#: warehouse/templates/legacy/api/simple/index.html:17
-msgid "Simple index"
-msgstr "Спрощений реєстр"
-
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
 msgstr "Підтверджено*"
@@ -1962,7 +1952,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:117
+#: warehouse/templates/manage/roles.html:121
 msgid "Remove"
 msgstr "Видалити"
 
@@ -2453,7 +2443,7 @@ msgstr "Дата"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:131
+#: warehouse/templates/manage/roles.html:135
 msgid "User"
 msgstr "Користувач"
 
@@ -2841,7 +2831,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "Поплічники можуть належати до однієї з двох ролей:"
 
 #: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "Доглядач"
 
@@ -2855,7 +2846,8 @@ msgstr ""
 "може видаляти файли, випуски чи проект."
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:84
 msgid "Owner"
 msgstr "Власник"
 
@@ -2874,30 +2866,30 @@ msgid "Users who can manage %(project_name)s"
 msgstr "Користувачі, які можуть керувати %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:78
-#: warehouse/templates/manage/roles.html:143
+#: warehouse/templates/manage/roles.html:82
+#: warehouse/templates/manage/roles.html:147
 msgid "Role"
 msgstr "Роль"
 
-#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:90
 msgid "Save role"
 msgstr "Зберегти роль"
 
-#: warehouse/templates/manage/roles.html:87
+#: warehouse/templates/manage/roles.html:91
 msgid "Save"
 msgstr "Зберегти"
 
-#: warehouse/templates/manage/roles.html:111
+#: warehouse/templates/manage/roles.html:115
 msgid "Cannot remove yourself as owner"
 msgstr "Неможливо видалити себе як власника"
 
-#: warehouse/templates/manage/roles.html:114
+#: warehouse/templates/manage/roles.html:118
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "Видалити %(user)s з цього проекта"
 
-#: warehouse/templates/manage/roles.html:126
-#: warehouse/templates/manage/roles.html:154
+#: warehouse/templates/manage/roles.html:130
+#: warehouse/templates/manage/roles.html:158
 msgid "Add collaborator"
 msgstr "Додати поплічника"
 
@@ -3400,8 +3392,8 @@ msgid ""
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
 "Завантажте файл для своєї платформи. Якщо ви не впевнені який обрати, "
-"дізнайтеся більше про <a href=\"%(href)s\" title=\"%(title)s\" target=\""
-"_blank\" rel=\"noopener\">встановлення пакунків</a>."
+"дізнайтеся більше про <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">встановлення пакунків</a>."
 
 #: warehouse/templates/packaging/detail.html:282
 #, python-format
@@ -4330,9 +4322,9 @@ msgid ""
 "\"noopener\"><code>.travis.yml</code> if you are using Travis</a>)."
 msgstr ""
 "Те, де ви редагуєте чи додаєте ці значення, залежатиме від вашої особистої "
-"ситуації. Наприклад, деякі користувачі можуть мати необхідність редагувати <"
-"a href=\"%(pypirc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">свій файл <code>.pypirc</code></a>, а от інші потребуватимуть "
+"ситуації. Наприклад, деякі користувачі можуть мати необхідність редагувати "
+"<a href=\"%(pypirc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">свій файл <code>.pypirc</code></a>, а от інші потребуватимуть "
 "оновити файли налаштувань своїх CI (напр. <a href=\"%(travis_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>.travis.yml</code>, "
 "якщо ви користуєтесь Travis</a>)."
@@ -5446,6 +5438,12 @@ msgstr[2] ""
 "\n"
 "                  Немає результатів для '%(filters)s' фільтрів\n"
 "                "
+
+#~ msgid "Links for %(project_name)s"
+#~ msgstr "Посилання для %(project_name)s"
+
+#~ msgid "Simple index"
+#~ msgstr "Спрощений реєстр"
 
 #~ msgid "User's username"
 #~ msgstr "Ім'я користувача"
