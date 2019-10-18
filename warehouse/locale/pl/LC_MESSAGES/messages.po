@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-16 04:39+0000\n"
+"PO-Revision-Date: 2019-10-18 15:26+0000\n"
 "Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.9\n"
+"X-Generator: Weblate 3.9.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -416,7 +416,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
-msgstr ""
+msgstr "Zaloguj się"
 
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
@@ -703,33 +703,40 @@ msgstr "Popularne projekty"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
-msgstr ""
+msgstr "Popularne projekty pobrane przez użytkowników"
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr ""
+msgstr "Nowe wersje"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Prosto z pieca: najnowsze wersje pakietów"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
 msgstr ""
+"Ten adres URL jest punktem końcowym interfejsu API do przekazywania plików "
+"do PyPI."
 
 #: warehouse/templates/upload.html:26
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "For more information on uploading projects to PyPI, visit the <a href="
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
+"Aby uzyskać więcej informacji na temat przesyłania projektów do PyPI, "
+"odwiedź <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Podręcznik użytkownika Python Packaging</a> ."
 
 #: warehouse/templates/upload.html:28
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
+"W przeciwnym razie zalecamy <a href=\"%(href)s\">przejście do strony głównej "
+"PyPI</a>."
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/register.html:17
@@ -740,12 +747,12 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22
 msgid "Error processing form"
-msgstr ""
+msgstr "Błąd podczas przetwarzania formularza"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
-msgstr ""
+msgstr "Zaloguj się do %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
@@ -753,7 +760,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:269
 #: warehouse/templates/manage/roles.html:136
 msgid "Username"
-msgstr ""
+msgstr "Nazwa użytkownika"
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -778,44 +785,44 @@ msgstr ""
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
-msgstr ""
+msgstr "(wymagane)"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr ""
+msgstr "Twoja nazwa użytkownika"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
 msgid "Password"
-msgstr ""
+msgstr "Hasło"
 
 #: warehouse/templates/accounts/login.html:76
 #: warehouse/templates/manage/manage_base.html:168
 msgid "Show password"
-msgstr ""
+msgstr "Pokaż hasło"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr ""
+msgstr "Twoje hasło"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
-msgstr ""
+msgstr "Zapomniałeś hasła?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
-msgstr ""
+msgstr "Wyloguj się"
 
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr ""
+msgstr "Wyloguj się z %(account_name)s"
 
 #: warehouse/templates/accounts/logout.html:25
 msgid "Log Out"
-msgstr ""
+msgstr "Wyloguj się"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -870,50 +877,50 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
-msgstr ""
+msgstr "Utwórz konto"
 
 #: warehouse/templates/accounts/register.html:30
 #, python-format
 msgid "Create an account on %(title)s"
-msgstr ""
+msgstr "Utwórz konto na %(title)s"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:160
 #: warehouse/templates/manage/account.html:494
 msgid "Name"
-msgstr ""
+msgstr "Nazwa"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr ""
+msgstr "Twoje imię"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
 msgid "Email address"
-msgstr ""
+msgstr "Adres email"
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:349
 msgid "Your email address"
-msgstr ""
+msgstr "Twój adres e-mail"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "Potwierdź formularz"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr ""
+msgstr "Wybierz nazwę użytkownika"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:376
 msgid "Show passwords"
-msgstr ""
+msgstr "Pokaż hasła"
 
 #: warehouse/templates/accounts/register.html:120
 msgid "Select a password"
-msgstr ""
+msgstr "Wybierz hasło"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
@@ -921,28 +928,29 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:66
 #: warehouse/templates/manage/account.html:407
 msgid "Confirm password"
-msgstr ""
+msgstr "Potwierdź hasło"
 
 #: warehouse/templates/accounts/register.html:159
 msgid "Create account"
-msgstr ""
+msgstr "Utwórz konto"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "Zresetowanie hasła"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
 msgstr ""
+"Aby zresetować hasło, wprowadź swoją nazwę użytkownika lub adres e-mail."
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "Nazwa użytkownika lub adres e-mail"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "Poproś o zresetowanie hasła"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
