@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-13 12:29+0000\n"
+"POT-Creation-Date: 2019-10-17 13:29-0400\n"
+"PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: Mariam Maarouf <mariam.mrf@hotmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -104,21 +104,21 @@ msgstr "توكيد WebAuthn غير صالح: حمولة سيئة"
 msgid "No user found with that username or email"
 msgstr "لا يوجد مستخدم بهذا الاسم أو البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:254
-#: warehouse/accounts/views.py:255 warehouse/accounts/views.py:280
-#: warehouse/accounts/views.py:281
+#: warehouse/accounts/views.py:204 warehouse/accounts/views.py:258
+#: warehouse/accounts/views.py:259 warehouse/accounts/views.py:285
+#: warehouse/accounts/views.py:286
 msgid "Invalid or expired two factor login."
 msgstr "تسجيل دخول ثنائي العامل غير صالح أو منتهي الصلاحية."
 
-#: warehouse/accounts/views.py:249
+#: warehouse/accounts/views.py:253
 msgid "Already authenticated"
 msgstr "موثق بالفعل"
 
-#: warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:317
 msgid "Successful WebAuthn assertion"
 msgstr "توكيد WebAuthn ناجح"
 
-#: warehouse/accounts/views.py:391
+#: warehouse/accounts/views.py:397
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -126,73 +126,73 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:486
+#: warehouse/accounts/views.py:493
 msgid "Expired token: request a new password reset link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:488
+#: warehouse/accounts/views.py:495
 msgid "Invalid token: request a new password reset link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:490 warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
 msgid "Invalid token: no token supplied"
 msgstr "رمز غير صحيح: لا يوجد رمز"
 
-#: warehouse/accounts/views.py:494
+#: warehouse/accounts/views.py:501
 msgid "Invalid token: not a password reset token"
 msgstr "رمز غير صحيح: ليس رمزاً لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:499
+#: warehouse/accounts/views.py:506
 msgid "Invalid token: user not found"
 msgstr "رمز غير صحيح: لم يتم العثور على المستخدم"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:513
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "رمز غير صحيح: المستخدم سجل الدخول منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:520
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "رمز غير صحيح: كلمة السر تغيرت بالفعل منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:539
+#: warehouse/accounts/views.py:546
 msgid "You have reset your password"
 msgstr "لقد قمت بتغيير كلمة السر الخاصة بك"
 
-#: warehouse/accounts/views.py:561
+#: warehouse/accounts/views.py:571
 msgid "Expired token: request a new email verification link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:563
+#: warehouse/accounts/views.py:573
 msgid "Invalid token: request a new email verification link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:569
+#: warehouse/accounts/views.py:579
 msgid "Invalid token: not an email verification token"
 msgstr "رمز غير صحيح: ليس رمزاً لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:578
+#: warehouse/accounts/views.py:588
 msgid "Email not found"
 msgstr "لم يتم العثور على البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:591
 msgid "Email already verified"
 msgstr "تم تأكيد البريد الاليكتروني بالفعل"
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:603
 msgid "You can now set this email as your primary address"
 msgstr "تستطيع الآن استخدام هذا البريد الاليكتروني كبريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:595
+#: warehouse/accounts/views.py:605
 msgid "This is your primary address"
 msgstr "هذا بريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:610
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "تم تأكيد البريد الاليكتروني ${email_address}. ${confirm_message}."
 
-#: warehouse/manage/views.py:169
+#: warehouse/manage/views.py:170
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "تم إضافة البريد الاليكتروني ${email_address} - برجاء التحقق من بريدك "
@@ -393,8 +393,9 @@ msgstr "تغيير كلمة السر"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
+#, fuzzy
 msgid "Main navigation"
-msgstr ""
+msgstr "التنقل الرئيسي"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:257
@@ -423,7 +424,7 @@ msgstr ""
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "رؤية القائمة"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
@@ -432,7 +433,7 @@ msgstr ""
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
 msgid "Main menu"
-msgstr ""
+msgstr "القائمة الرئيسية"
 
 #: warehouse/templates/base.html:79 warehouse/templates/index.html:80
 msgid ""
@@ -747,7 +748,7 @@ msgstr "تسجيل الدخول الى %(title)s"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:269
-#: warehouse/templates/manage/roles.html:136
+#: warehouse/templates/manage/roles.html:140
 msgid "Username"
 msgstr "اسم المستخدم"
 
@@ -769,8 +770,8 @@ msgstr "اسم المستخدم"
 #: warehouse/templates/manage/account.html:404
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:133
-#: warehouse/templates/manage/roles.html:145
+#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:149
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
@@ -1087,27 +1088,27 @@ msgstr ""
 
 #: warehouse/templates/email/collaborator-added/body.html:26
 msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr ""
+msgstr "تم إضافة متعاون جديد لمشروع تملكه على PyPI:"
 
 #: warehouse/templates/email/collaborator-added/body.html:29
 #, python-format
 msgid "<strong>Username</strong>: %(username)s"
-msgstr ""
+msgstr "<strong>اسم المستخدم</strong>: %(username)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:30
 #, python-format
 msgid "<strong>Role</strong>: %(role)s"
-msgstr ""
+msgstr "<strong>الدور</strong>: %(role)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:31
 #, python-format
 msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr ""
+msgstr "<strong>متعاون في</strong>: %(project)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:32
 #, python-format
 msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr ""
+msgstr "<strong>تمت الإضافة من قبل</strong>: %(submitter)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:36
 #, python-format
@@ -1115,10 +1116,12 @@ msgid ""
 "If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
 "a> to communicate with the PyPI administrators."
 msgstr ""
+"إذا كانت هذه غلطة، يمكنك مراسلة <a href=\"%(href)s\">%(email_address)s</a> "
+"للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
-msgstr ""
+msgstr "تتلقى هذا البريد الإلكتروني لأتك أحد أصحاب هذا المشروع."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1126,11 +1129,13 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
+"أحد ما، ربما أنت، غير كلمة السر لحساب PyPI  الخاص بك <strong>%(username)s</"
+"strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
 msgid "What?"
-msgstr ""
+msgstr "ماذا؟"
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -1140,6 +1145,9 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
+"مديري PyPI توصلوا لأن كلمة السر الخاص بك تم إختراقها. من\n"
+"أجل حمايتك وحماية الآخرين، قمنا بتغيير كلمة السر الخاصة بك ولن\n"
+"يمكنك تسجيل الدخول أو الرفع الى PyPI بكلمة السر السابقة."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -1147,11 +1155,13 @@ msgid ""
 "reduce the\n"
 "  risk for PyPI and its users."
 msgstr ""
+"لم يتم إختراق PyPI نفسه. هذا إجراء وقائي لتقليل\n"
+"الخطر لPyPI ومستخدمينه."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
-msgstr ""
+msgstr "ماذا يجب أن أفعل؟"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -1159,10 +1169,12 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
+"لإستعادة الوصول الى حسابك، برجاء <a href=\"%(href)s\">تغيير كلمة السر الخاصة "
+"بك</a> على PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
-msgstr ""
+msgstr "كيف يمكنني التواصل معكم؟"
 
 #: warehouse/templates/email/password-compromised/body.html:41
 #, python-format
@@ -1170,6 +1182,8 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with\n"
 "  the PyPI administrators."
 msgstr ""
+"لمزيد من المعلومات، يمكنك مراسلة %(email_address)s للتواصل مع\n"
+"مديري PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
@@ -1181,6 +1195,11 @@ msgid ""
 "your existing\n"
 "  password."
 msgstr ""
+"خلال محاولة مؤخرة لتسجيل الدخول أو الرفع لPyPI، لاحظنا أن كلمة السر الخاصة "
+"بك\n"
+"متواجدة في اختراقات بيانات علنية. لحمايتك وحماية المستخدمين الآخرين، قمنا "
+"بتغيير\n"
+"كلمة السر الخاصة بك ولن يمكنك تسجيل الدخول أو الرفع لPyPI بكلمة السر السابقة."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -1190,6 +1209,9 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"لم يتم إختراق PyPI نفسه. هذا إجراء وقائي لتقليل خطر\n"
+"<a href=\"%(href)s\">هجوم حشو بيانات الإعتماد</a>\n"
+"ضد PyPI ومستخدمينه."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -1199,10 +1221,15 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
+"لاستعادة الوصول الى حسابك، برجاء <a href=\"%(reset_pw_url)s\">تغيير كلمة "
+"السر الخاصة بك</a> على PyPI. نوصي أيضاً بزيارة <a href="
+"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> والتأكد من كلمات السر "
+"الأخرى الخاصة بك بالإضافة الى تعريف نفسك على الممارسات الجيدة الحاصة بكلمات "
+"السر."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr ""
+msgstr "كيف تعرفون هذا؟"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -1213,6 +1240,11 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
+"نستخدم خدمة أمان مجانية من <a href=\"%(have_i_been_pwned_url)s"
+"\">HaveIBeenPwned</a>.  عند تسجيل، تصديق، أو تغيير كلمة السر الخاصة بك، نولد "
+"رمز هاش SHA1 منها ونستخدم أول 5 حروف من الرمز لمعرفة إذا كانت كلمة السر تم "
+"إختراقها أو لا. كلمة السر نفسها كنص لا يتم تسجيلها أبداً على PyPI أو إرسالها "
+"لHaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -1221,6 +1253,9 @@ msgid ""
 "can email <a href=\"%(email_href)s\">%(email_address)s</a> to communicate "
 "with the PyPI administrators."
 msgstr ""
+"لمزيد من المعلومات، يرجى قراءة <a href=\"%(faq_url)s\">الأسئلة الأكثر شيوعاً</"
+"a>. للمساعدة، يمكنك مراسلة <a href=\"%(email_href)s\">%(email_address)s</a> "
+"للتواصل مع مديري PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1228,6 +1263,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
+"أحد ما، ربما أنت، طلب تغيير كلمة السر الخاصة بحساب PyPI الخاص بك "
+"\"%(username)s\"."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -1235,23 +1272,25 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
+"إذا كنت تريد المتابعة في هذا الطلب، <a href=\"%(href)s\">اضغط هنا لتغيير "
+"كلمة السر الخاصة بك</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
 #, python-format
 msgid "This link will expire in %(n_hours)s hour."
 msgid_plural "This link will expire in %(n_hours)s hours."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "هذا الرابط انتهت صلاحيته."
+msgstr[1] "هذا الرابط سوف تنتهي صلاحيته خلال ساعة."
+msgstr[2] "هذا الرابط سوف تنتهي صلاحيته خلال ساعتين."
+msgstr[3] "هذا الرابط سوف تنتهي صلاحيته خلال  %(n_hours)s ساعات."
+msgstr[4] "هذا الرابط سوف تنتهي صلاحيته خلال %(n_hours)s ساعة."
+msgstr[5] "هذا الرابط سوف تنتهي صلاحيته خلال %(n_hours)s ساعة."
 
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
-msgstr ""
+msgstr "إذا لم تقم بتقديم هذا الطلب، يمكنك تجاهل هذه الرسالة بأمان."
 
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
@@ -1259,6 +1298,9 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
+"البريد الاليكتروني الر ئيسي لحساب PyPI الخاص بك <strong>%(username)s</"
+"strong> تم تغييره من <code>%(old_email)s</code> الى <code>%(new_email)s</"
+"code>"
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1266,6 +1308,8 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
+"أحد ما، ربما أنت، قام بإضافة هذا البريد الاليكتروني (<code>"
+"%(email_address)s</code>) الى حساب PyPI الخاص به."
 
 #: warehouse/templates/email/verify-email/body.html:20
 #, python-format
@@ -1273,24 +1317,26 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>"
 msgstr ""
+"إذا كنت تريد المتابعة في هذا الطلب، <a href=\"%(href)s\">اضغط هنا لتأكيد "
+"البريد الاليكتروني الخاص بك</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
-msgstr ""
+msgstr "الإدارة"
 
 #: warehouse/templates/includes/current-user-indicator.html:36
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
-msgstr ""
+msgstr "مشروعاتك"
 
 #: warehouse/templates/includes/current-user-indicator.html:42
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
-msgstr ""
+msgstr "إعدادات الحساب"
 
 #: warehouse/templates/includes/current-user-indicator.html:48
 msgid "Public profile"
@@ -1548,16 +1594,6 @@ msgstr ""
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
-msgstr ""
-
-#: warehouse/templates/legacy/api/simple/detail.html:17
-#: warehouse/templates/legacy/api/simple/detail.html:20
-#, python-format
-msgid "Links for %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/legacy/api/simple/index.html:17
-msgid "Simple index"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:33
@@ -1839,7 +1875,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:117
+#: warehouse/templates/manage/roles.html:121
 msgid "Remove"
 msgstr ""
 
@@ -2284,7 +2320,7 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:131
+#: warehouse/templates/manage/roles.html:135
 msgid "User"
 msgstr ""
 
@@ -2642,7 +2678,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr ""
 
@@ -2654,7 +2691,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:84
 msgid "Owner"
 msgstr ""
 
@@ -2671,30 +2709,30 @@ msgid "Users who can manage %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:78
-#: warehouse/templates/manage/roles.html:143
+#: warehouse/templates/manage/roles.html:82
+#: warehouse/templates/manage/roles.html:147
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:90
 msgid "Save role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:87
+#: warehouse/templates/manage/roles.html:91
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:111
+#: warehouse/templates/manage/roles.html:115
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:114
+#: warehouse/templates/manage/roles.html:118
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:126
-#: warehouse/templates/manage/roles.html:154
+#: warehouse/templates/manage/roles.html:130
+#: warehouse/templates/manage/roles.html:158
 msgid "Add collaborator"
 msgstr ""
 
