@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-10 13:28+0000\n"
+"PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -375,16 +375,16 @@ msgstr ""
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
-msgstr ""
+msgstr "Kekuatan kata sandi:"
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr ""
+msgstr "Kolom kata sandi kosong"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr ""
+msgstr "Navigasi utama"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:257
@@ -392,23 +392,23 @@ msgstr ""
 #: warehouse/templates/pages/help.html:92
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr ""
+msgstr "Tolong"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:60
 msgid "Donate"
-msgstr ""
+msgstr "Donasi"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
-msgstr ""
+msgstr "Masuk"
 
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Daftar"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
@@ -500,10 +500,8 @@ msgid "Help navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "Pelajari tentang cara menginstal paket</a>."
+msgstr "Menginstal paket"
 
 #: warehouse/templates/base.html:261
 msgid "Uploading packages"
@@ -834,10 +832,8 @@ msgid_plural ""
 msgstr[0] ""
 
 #: warehouse/templates/accounts/profile.html:59
-#, fuzzy
-#| msgid "Search projects"
 msgid "No projects"
-msgstr "Cari proyek"
+msgstr "Tidak ada proyek"
 
 #: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/manage/projects.html:36
@@ -3060,10 +3056,8 @@ msgid "This version"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:264
-#, fuzzy
-#| msgid "New releases"
 msgid "pre-release"
-msgstr "Rilis baru"
+msgstr "Pra-rilis"
 
 #: warehouse/templates/packaging/detail.html:279
 #, python-format
