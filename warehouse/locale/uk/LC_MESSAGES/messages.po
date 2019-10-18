@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-16 12:51+0000\n"
+"PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
@@ -19,8 +19,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
@@ -387,18 +387,16 @@ msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"Оберіть надійний пароль, який містить літери (великі й маленькі), числа та "
+"особливі символи. Уникайте загальних слів та повторень."
 
 #: warehouse/templates/base.html:27
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password strength:"
-msgstr "Скидання пароля"
+msgstr "Надійність пароля:"
 
 #: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password field is empty"
-msgstr "Скидання пароля"
+msgstr "Поле пароля порожнє"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -436,7 +434,7 @@ msgstr "Дивитися меню"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -452,22 +450,20 @@ msgstr ""
 "програмування Python."
 
 #: warehouse/templates/base.html:95
-#, fuzzy
-#| msgid "Date last updated"
 msgid "RSS: 40 latest updates"
-msgstr "Датою останнього оновлення"
+msgstr "RSS: 40 останніх оновлень"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 найновіших пакунків"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "Перескочити до основного вмісту"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "Перемкнутися на мобільну версію"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -484,6 +480,7 @@ msgstr "Попередження"
 #: warehouse/templates/base.html:161
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
+"Ви використовуєте непідтримуваний браузер, оновіть його до новішої версії."
 
 #: warehouse/templates/base.html:170
 msgid ""
@@ -491,12 +488,17 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"Ви використовуєте TestPyPI — це окремий екземпляр реєстру Python-пакунків, "
+"який надає вам можливість спробувати засоби і процеси, не впливаючи на "
+"справжній реєстр."
 
 #: warehouse/templates/base.html:180
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
+"Деякі функції можуть не працювати без JavaScript. Будь ласка, спробуйте "
+"увімкнути його, якщо у вас виникнуть проблеми."
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
@@ -517,139 +519,113 @@ msgid "Search"
 msgstr "Шукати"
 
 #: warehouse/templates/base.html:258
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Help navigation"
-msgstr "Основна навігація"
+msgstr "Навігація допомоги"
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "Дізнайтеся про встановлення пакунків</a>."
+msgstr "Встановлення пакунків"
 
 #: warehouse/templates/base.html:261
-#, fuzzy
-#| msgid "Upload packages"
 msgid "Uploading packages"
-msgstr "Завантажувати пакунки"
+msgstr "Завантаження пакунків"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
-msgstr ""
+msgstr "Керівництво користувача"
 
 #: warehouse/templates/base.html:263
 msgid "FAQs"
-msgstr ""
+msgstr "ЧаПи"
 
 #: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Про PyPI"
 
 #: warehouse/templates/base.html:270
-#, fuzzy
-#| msgid "Account navigation"
 msgid "About PyPI navigation"
-msgstr "Навігація облікового запису"
+msgstr "Про навігація по PyPI"
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPI у Twitter"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "Панель інфраструктури"
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
-msgstr ""
+msgstr "Утримання імен у реєстрі пакунків"
 
 #: warehouse/templates/base.html:275
-#, fuzzy
-#| msgid "Sponsors"
 msgid "Our sponsors"
-msgstr "Спонсори"
+msgstr "Наші спонсори"
 
 #: warehouse/templates/base.html:281
-#, fuzzy
-#| msgid "How can I contribute to PyPI?"
 msgid "Contributing to PyPI"
-msgstr "Як я можу зробити вклад у PyPI?"
+msgstr "Здійснення вкладу до PyPI"
 
 #: warehouse/templates/base.html:282
-#, fuzzy
-#| msgid "Account navigation"
 msgid "How to contribute navigation"
-msgstr "Навігація облікового запису"
+msgstr "Навігація того як робити вклади"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "Вади і відгук"
 
 #: warehouse/templates/base.html:285
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "Зробіть внесок на GitHub"
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
-msgstr ""
+msgstr "Перекладайте PyPI"
 
 #: warehouse/templates/base.html:287
-#, fuzzy
-#| msgid "Development:"
 msgid "Development credits"
-msgstr "Розробка:"
+msgstr "Подяки розробникам"
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Використання PyPI"
 
 #: warehouse/templates/base.html:294
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Using PyPI navigation"
-msgstr "Основна навігація"
+msgstr "Навігація про використання PyPI"
 
 #: warehouse/templates/base.html:296
 msgid "Code of conduct"
-msgstr ""
+msgstr "Кодекс честі"
 
 #: warehouse/templates/base.html:297
-#, fuzzy
-#| msgid "Reporting a security issue"
 msgid "Report security issue"
-msgstr "Надсилання звіту про проблему безпеки"
+msgstr "Звітувати про проблему безпеки"
 
 #: warehouse/templates/base.html:298
-#, fuzzy
-#| msgid "Security policy"
 msgid "Privacy policy"
-msgstr "Політика безпеки"
+msgstr "Політика приватності"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Умови використання"
 
 #: warehouse/templates/base.html:309
-#, fuzzy
-#| msgid "Status"
 msgid "Status: "
-msgstr "Статус"
+msgstr "Статус: "
 
 #: warehouse/templates/base.html:310
 msgid "all systems operational"
-msgstr ""
+msgstr "усі системи працюють"
 
 #: warehouse/templates/base.html:314
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
+msgstr "Розробляється та доглядається спільнотою Python, для спільноти Python."
 
 #: warehouse/templates/base.html:316
-#, fuzzy
-#| msgid "Donate"
 msgid "Donate today!"
-msgstr "Пожертвувати"
+msgstr "Пожертвуйте сьогодні!"
 
 #: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
@@ -657,7 +633,7 @@ msgstr "Мапа сайту"
 
 #: warehouse/templates/base.html:325
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "Перемкнутися на настільну версію"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -855,10 +831,9 @@ msgid "Log Out"
 msgstr "Вийти"
 
 #: warehouse/templates/accounts/profile.html:16
-#, fuzzy, python-format
-#| msgid "Select a username"
+#, python-format
 msgid "Profile of %(username)s"
-msgstr "Оберіть ім'я користувача"
+msgstr "Профіль %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:244
@@ -867,27 +842,16 @@ msgid "Avatar for {user} from gravatar.com"
 msgstr "Аватар для {user} із gravatar.com"
 
 #: warehouse/templates/accounts/profile.html:38
-#, fuzzy
-#| msgid "Date Joined"
 msgid "Date joined"
 msgstr "Дата приєднання"
 
 #: warehouse/templates/accounts/profile.html:39
-#, fuzzy, python-format
-#| msgid "Created on %(creation_date)s"
+#, python-format
 msgid "Joined on %(start_date)s"
-msgstr "Створено %(creation_date)s"
+msgstr "Приєднується %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:53
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              %(count)s file\n"
-#| "            "
-#| msgid_plural ""
-#| "\n"
-#| "              %(count)s files\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            %(count)s project\n"
@@ -898,22 +862,20 @@ msgid_plural ""
 "          "
 msgstr[0] ""
 "\n"
-"              %(count)s файл\n"
-"            "
+"            %(count)s проект\n"
+"          "
 msgstr[1] ""
 "\n"
-"              %(count)s файли\n"
-"            "
+"            %(count)s проекти\n"
+"          "
 msgstr[2] ""
 "\n"
-"              %(count)s файлів\n"
-"            "
+"            %(count)s проектів\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:59
-#, fuzzy
-#| msgid "Your projects"
 msgid "No projects"
-msgstr "Ваші проекти"
+msgstr "Жодних проектів"
 
 #: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/manage/projects.html:36
@@ -922,10 +884,9 @@ msgid "Last released on %(release_date)s"
 msgstr "Востаннє опубліковано %(release_date)s"
 
 #: warehouse/templates/accounts/profile.html:76
-#, fuzzy, python-format
-#| msgid "%(username)s has not uploaded any projects to PyPI, yet."
+#, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr "%(username)s ще не завантажував(-ла) жодних проектів до PyPI."
+msgstr "%(user)s ще не завантажував(-ла) жодних проектів до PyPI"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -2541,16 +2502,12 @@ msgid "Cancel"
 msgstr "Скасувати"
 
 #: warehouse/templates/manage/manage_base.html:146
-#, fuzzy
-#| msgid "Close"
 msgid "close"
-msgstr "Закрити"
+msgstr "закрити"
 
 #: warehouse/templates/manage/manage_base.html:162
-#, fuzzy
-#| msgid "Confirm your username to continue."
 msgid "Enter your password to continue."
-msgstr "Підтвердіть своє ім'я користувача, щоб продовжити."
+msgstr "Введіть свій пароль, щоб продовжити."
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
@@ -3342,159 +3299,128 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:103
 msgid "Copy PIP instructions"
-msgstr ""
+msgstr "Скопіювати інструкції для PIP"
 
 #: warehouse/templates/packaging/detail.html:112
-#, fuzzy, python-format
-#| msgid "Release version %(version)s"
+#, python-format
 msgid "Stable version available (%(version)s)"
-msgstr "Версія випуску %(version)s"
+msgstr "Доступна стабільна версія (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:116
-#, fuzzy, python-format
-#| msgid "Release version %(version)s"
+#, python-format
 msgid "Newer version available (%(version)s)"
-msgstr "Версія випуску %(version)s"
+msgstr "Доступна новіша версія (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:120
-#, fuzzy
-#| msgid "Manage version"
 msgid "Latest version"
-msgstr "Керувати версією"
+msgstr "Найновіша версія"
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released on %(release_date)s"
+#, python-format
 msgid "Last released: %(release_date)s"
-msgstr "Востаннє опубліковано %(release_date)s"
+msgstr "Востаннє опубліковано: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
-#, fuzzy
-#| msgid "Project description and sidebar"
 msgid "No project description provided"
-msgstr "Опис проекту і бокова панель"
+msgstr "Опис проекту не надано"
 
 #: warehouse/templates/packaging/detail.html:149
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Navigation"
-msgstr "Основна навігація"
+msgstr "Навігація"
 
 #: warehouse/templates/packaging/detail.html:150
 #: warehouse/templates/packaging/detail.html:180
-#, fuzzy, python-format
-#| msgid "Navigation for managing %(project)s"
+#, python-format
 msgid "Navigation for %(project)s"
-msgstr "Навігація для керування %(project)s"
+msgstr "Навігація для %(project)s"
 
 #: warehouse/templates/packaging/detail.html:153
 #: warehouse/templates/packaging/detail.html:183
 msgid "Project description. Focus will be moved to the description."
-msgstr ""
+msgstr "Опис проекту. Фокус перейде на опис."
 
 #: warehouse/templates/packaging/detail.html:155
 #: warehouse/templates/packaging/detail.html:185
 #: warehouse/templates/packaging/detail.html:213
-#, fuzzy
-#| msgid "Project description and sidebar"
 msgid "Project description"
-msgstr "Опис проекту і бокова панель"
+msgstr "Опис проекту"
 
 #: warehouse/templates/packaging/detail.html:159
 #: warehouse/templates/packaging/detail.html:195
 msgid "Release history. Focus will be moved to the history panel."
-msgstr ""
+msgstr "Історія випусків. Фокус перейде на панель історії."
 
 #: warehouse/templates/packaging/detail.html:161
 #: warehouse/templates/packaging/detail.html:197
 #: warehouse/templates/packaging/detail.html:235
-#, fuzzy
-#| msgid "Releases"
 msgid "Release history"
-msgstr "Випуски"
+msgstr "Історія випусків"
 
 #: warehouse/templates/packaging/detail.html:166
 #: warehouse/templates/packaging/detail.html:202
 msgid "Download files. Focus will be moved to the project files."
-msgstr ""
+msgstr "Завантажити файли. Фокус перейде на файли проекту."
 
 #: warehouse/templates/packaging/detail.html:168
 #: warehouse/templates/packaging/detail.html:204
 #: warehouse/templates/packaging/detail.html:278
-#, fuzzy
-#| msgid "Download"
 msgid "Download files"
-msgstr "Завантажити"
+msgstr "Завантаження файлів"
 
 #: warehouse/templates/packaging/detail.html:189
 msgid "Project details. Focus will be moved to the project details."
-msgstr ""
+msgstr "Деталі проекту. Фокус перейде на деталі проекту."
 
 #: warehouse/templates/packaging/detail.html:191
 #: warehouse/templates/packaging/detail.html:227
-#, fuzzy
-#| msgid "Project settings"
 msgid "Project details"
-msgstr "Налаштування проекту"
+msgstr "Деталі проекту"
 
 #: warehouse/templates/packaging/detail.html:220
 msgid "The author of this package has not provided a project description"
-msgstr ""
+msgstr "Автор цього пакунка не надав опису проекту"
 
 #: warehouse/templates/packaging/detail.html:236
-#, fuzzy
-#| msgid "Release settings"
 msgid "Release notifications"
-msgstr "Налаштування публікації"
+msgstr "Сповіщення про публікації"
 
 #: warehouse/templates/packaging/detail.html:247
-#, fuzzy
-#| msgid "Python version"
 msgid "This version"
-msgstr "Версія Python"
+msgstr "Ця версія"
 
 #: warehouse/templates/packaging/detail.html:264
-#, fuzzy
-#| msgid "New releases"
 msgid "pre-release"
-msgstr "Нові випуски"
+msgstr "попередні випуски"
 
 #: warehouse/templates/packaging/detail.html:279
-#, fuzzy, python-format
-#| msgid ""
-#| "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">our status page</"
-#| "a>."
+#, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
 "learn more about <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
-"Щоб дізнатися найновішу статистику щодо тривалості роботи й продуктивності, "
-"дивіться <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">нашу сторінку статусу</a>."
+"Завантажте файл для своєї платформи. Якщо ви не впевнені який обрати, "
+"дізнайтеся більше про <a href=\"%(href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">встановлення пакунків</a>."
 
 #: warehouse/templates/packaging/detail.html:282
-#, fuzzy, python-format
-#| msgid "Manage '%(project_name)s' – release version %(version)s"
+#, python-format
 msgid "Files for %(project_name)s, version %(version)s"
-msgstr "Керувати «%(project_name)s» — версія випуску %(version)s"
+msgstr "Файли для %(project_name)s, версія %(version)s"
 
 #: warehouse/templates/packaging/detail.html:286
 #: warehouse/templates/packaging/detail.html:303
 msgid "File type"
-msgstr ""
+msgstr "Тип файлу"
 
 #: warehouse/templates/packaging/detail.html:289
 #: warehouse/templates/packaging/detail.html:319
-#, fuzzy
-#| msgid "View Hashes"
 msgid "Hashes"
-msgstr "Переглянути хеші"
+msgstr "Хеші"
 
 #: warehouse/templates/packaging/detail.html:321
 msgid "View <span>hashes</span>"
-msgstr ""
+msgstr "Переглянути <span>хеші</span>"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -4394,15 +4320,7 @@ msgstr ""
 "<code>pypi-</code>"
 
 #: warehouse/templates/pages/help.html:418
-#, fuzzy, python-format
-#| msgid ""
-#| "Where you edit or add these values will depend on your individual use "
-#| "case. For example, some users may need to edit <a href=\"%(pypirc_href)s"
-#| "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">their <code>."
-#| "pypirc</code> file</a>, while others may need to update their CI "
-#| "configuration file (e.g. <a href=\"%(travis_href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\"><code>travis.yml</code> if you are "
-#| "using Travis</a>)."
+#, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
 "For example, some users may need to edit <a href=\"%(pypirc_href)s\" title="
@@ -4412,9 +4330,9 @@ msgid ""
 "\"noopener\"><code>.travis.yml</code> if you are using Travis</a>)."
 msgstr ""
 "Те, де ви редагуєте чи додаєте ці значення, залежатиме від вашої особистої "
-"ситуації. Наприклад, деякі користувачі можуть мати необхідність редагувати "
-"<a href=\"%(pypirc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">свій файл <code>.pypirc</code></a>, а от інші потребуватимуть "
+"ситуації. Наприклад, деякі користувачі можуть мати необхідність редагувати <"
+"a href=\"%(pypirc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">свій файл <code>.pypirc</code></a>, а от інші потребуватимуть "
 "оновити файли налаштувань своїх CI (напр. <a href=\"%(travis_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\"><code>.travis.yml</code>, "
 "якщо ви користуєтесь Travis</a>)."
