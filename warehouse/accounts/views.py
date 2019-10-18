@@ -328,6 +328,7 @@ def webauthn_authentication_validate(request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: Logging out should reset request.user
@@ -436,6 +437,7 @@ def register(request, _form_class=RegistrationForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.authenticated_userid is not None:
@@ -686,6 +688,7 @@ def _login_user(request, userid, two_factor_method=None):
     context=User,
     renderer="includes/accounts/profile-callout.html",
     uses_session=True,
+    has_translations=True,
 )
 def profile_callout(user, request):
     return {"user": user}
@@ -696,6 +699,7 @@ def profile_callout(user, request):
     context=User,
     renderer="includes/accounts/profile-actions.html",
     uses_session=True,
+    has_translations=True,
 )
 def edit_profile_button(user, request):
     return {"user": user}
