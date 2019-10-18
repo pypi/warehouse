@@ -12,13 +12,14 @@
 # Seba Kim <sebatyler@gmail.com>, 2019.
 # MinGyo Jung <jmg7173@gmail.com>, 2019.
 # Bae KwonHan <darjeeling@gmail.com>, 2019.
+# Hwan Kim <ihwan01@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-10 01:42+0000\n"
-"Last-Translator: Bae KwonHan <darjeeling@gmail.com>\n"
+"PO-Revision-Date: 2019-10-17 10:13+0000\n"
+"Last-Translator: Hwan Kim <ihwan01@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -26,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -383,19 +384,15 @@ msgstr ""
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
-msgstr ""
+msgstr "강력한 암호를 사용해주세요. 평범한 단어나 중복된 단어를 피하시고, 영어 대/소문자, 숫자, 특수문자등을 사용하세요."
 
 #: warehouse/templates/base.html:27
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password strength:"
-msgstr "패스워드 재설정"
+msgstr "비밀번호 강도"
 
 #: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password field is empty"
-msgstr "패스워드 재설정"
+msgstr "비밀번호 필드가 비어있습니다."
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -425,7 +422,7 @@ msgstr "로그인"
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "가입하기"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
@@ -434,7 +431,7 @@ msgstr "보기 메뉴"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "메뉴"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -451,19 +448,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 최근 40개의 업데이트"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 최근 40개의 패키지"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "메인 컨텐츠로 가기"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "모바일 버전으로 전환"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -479,7 +476,7 @@ msgstr "경고"
 
 #: warehouse/templates/base.html:161
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr ""
+msgstr "현재 지원되지 않는 브라우저를 사용하고 계십니다. 새로운 버전으로 업그레이드 하세요."
 
 #: warehouse/templates/base.html:170
 msgid ""
