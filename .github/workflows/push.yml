@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install ${{ matrix.node-version }}
-        apt-get install build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev libjpeg-dev
+        sudo apt-get install build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev libjpeg-dev
         python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
         npm install
