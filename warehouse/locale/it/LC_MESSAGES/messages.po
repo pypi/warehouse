@@ -7,13 +7,14 @@
 # Paolo Melchiorre <paolo@melchiorre.org>, 2019.
 # Sozzo Marcello <marcello.sozzo@unisalento.it>, 2019.
 # Mirco Grillo <mirco.grillomg@gmail.com>, 2019.
+# Sree P <sreeprasad285@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-13 12:29+0000\n"
-"Last-Translator: Mirco Grillo <mirco.grillomg@gmail.com>\n"
+"PO-Revision-Date: 2019-10-18 15:26+0000\n"
+"Last-Translator: Sree P <sreeprasad285@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "it/>\n"
 "Language: it\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -793,7 +794,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
-msgstr ""
+msgstr "Non ricordi password?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/includes/current-user-indicator.html:68
@@ -870,7 +871,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:160
 #: warehouse/templates/manage/account.html:494
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
