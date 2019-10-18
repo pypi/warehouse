@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-13 12:29+0000\n"
+"PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -386,19 +386,15 @@ msgstr ""
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
-msgstr ""
+msgstr "文字（大文字と小文字）、数字、特殊文字を含んだ強力なパスワードを入力してください。一般的な単語や繰り返しは避けてください。"
 
 #: warehouse/templates/base.html:27
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password strength:"
-msgstr "パスワードリセット"
+msgstr "パスワードの強度:"
 
 #: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password field is empty"
-msgstr "パスワードリセット"
+msgstr "パスワード欄が空です"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -436,7 +432,7 @@ msgstr "メニューを表示"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "メニュー"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -452,22 +448,20 @@ msgstr ""
 "ポジトリです。"
 
 #: warehouse/templates/base.html:95
-#, fuzzy
-#| msgid "Date last updated"
 msgid "RSS: 40 latest updates"
-msgstr "最終更新日"
+msgstr "RSS: 40の最新アップデート"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40の新しいパッケージ"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "メインコンテンツにスキップ"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "モバイル版に切替"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -483,7 +477,7 @@ msgstr "警告"
 
 #: warehouse/templates/base.html:161
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr ""
+msgstr "サポートされていないブラウザを使用しています。新しいバージョンにアップグレードしてください。"
 
 #: warehouse/templates/base.html:170
 msgid ""
@@ -491,12 +485,14 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"TestPyPIを使用しています - これはPython Package "
+"Indexの独立したインスタンスで、実際のインデックスに影響を与えずにツールの配布やプロセスを試すことができます。"
 
 #: warehouse/templates/base.html:180
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
-msgstr ""
+msgstr "一部の機能は、JavaScriptなしでは動作しない場合があります。問題が発生した場合は、有効にしてみてください。"
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
@@ -517,139 +513,113 @@ msgid "Search"
 msgstr "検索"
 
 #: warehouse/templates/base.html:258
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Help navigation"
-msgstr "メインナビゲーション"
+msgstr "ヘルプナビゲーション"
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "パッケージのインストールについて学ぶ</a>。"
+msgstr "パッケージのインストール</a>"
 
 #: warehouse/templates/base.html:261
-#, fuzzy
-#| msgid "Upload packages"
 msgid "Uploading packages"
 msgstr "パッケージのアップロード"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
-msgstr ""
+msgstr "ユーザガイド"
 
 #: warehouse/templates/base.html:263
 msgid "FAQs"
-msgstr ""
+msgstr "よくある質問"
 
 #: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "PyPIについて"
 
 #: warehouse/templates/base.html:270
-#, fuzzy
-#| msgid "Account navigation"
 msgid "About PyPI navigation"
-msgstr "アカウントナビゲーション"
+msgstr "PyPIのナビゲーション"
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPIのTwitterアカウント"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "インフラ・ダッシュボード"
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
-msgstr ""
+msgstr "パッケージ・インデックス名の維持"
 
 #: warehouse/templates/base.html:275
-#, fuzzy
-#| msgid "Sponsors"
 msgid "Our sponsors"
 msgstr "スポンサー"
 
 #: warehouse/templates/base.html:281
-#, fuzzy
-#| msgid "How can I contribute to PyPI?"
 msgid "Contributing to PyPI"
-msgstr "PyPIに貢献するには、どうすればよいですか？"
+msgstr "PyPIへの貢献"
 
 #: warehouse/templates/base.html:282
-#, fuzzy
-#| msgid "Account navigation"
 msgid "How to contribute navigation"
-msgstr "アカウントナビゲーション"
+msgstr "貢献する方法のナビゲーション"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "バグ報告とフィードバック"
 
 #: warehouse/templates/base.html:285
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "GitHub上で貢献する"
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
-msgstr ""
+msgstr "PyPIを翻訳する"
 
 #: warehouse/templates/base.html:287
-#, fuzzy
-#| msgid "Development:"
 msgid "Development credits"
-msgstr "開発:"
+msgstr "開発のクレジット"
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "PyPIの利用"
 
 #: warehouse/templates/base.html:294
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Using PyPI navigation"
-msgstr "メインナビゲーション"
+msgstr "PyPI利用のナビゲーション"
 
 #: warehouse/templates/base.html:296
 msgid "Code of conduct"
-msgstr ""
+msgstr "行動規範"
 
 #: warehouse/templates/base.html:297
-#, fuzzy
-#| msgid "Reporting a security issue"
 msgid "Report security issue"
-msgstr "セキュリティ問題の報告"
+msgstr "セキュリティ問題を報告する"
 
 #: warehouse/templates/base.html:298
-#, fuzzy
-#| msgid "Security policy"
 msgid "Privacy policy"
-msgstr "セキュリティポリシー"
+msgstr "プライバシー・ポリシー"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "利用規約"
 
 #: warehouse/templates/base.html:309
-#, fuzzy
-#| msgid "Status"
 msgid "Status: "
-msgstr "ステータス"
+msgstr "ステータス: "
 
 #: warehouse/templates/base.html:310
 msgid "all systems operational"
-msgstr ""
+msgstr "全システム稼働"
 
 #: warehouse/templates/base.html:314
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
+msgstr "PythonコミュニティによるPythonコミュニティのための開発と保守。"
 
 #: warehouse/templates/base.html:316
-#, fuzzy
-#| msgid "Donate"
 msgid "Donate today!"
-msgstr "寄付"
+msgstr "今すぐ寄付を！"
 
 #: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
@@ -657,7 +627,7 @@ msgstr "サイトマップ"
 
 #: warehouse/templates/base.html:325
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "デスクトップ版に切替"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -852,10 +822,9 @@ msgid "Log Out"
 msgstr "ログアウト"
 
 #: warehouse/templates/accounts/profile.html:16
-#, fuzzy, python-format
-#| msgid "Select a username"
+#, python-format
 msgid "Profile of %(username)s"
-msgstr "ユーザ名を入力"
+msgstr "%(username)s のプロフィール"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:244
@@ -864,27 +833,16 @@ msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com上の {user} のアバター"
 
 #: warehouse/templates/accounts/profile.html:38
-#, fuzzy
-#| msgid "Date Joined"
 msgid "Date joined"
 msgstr "登録日"
 
 #: warehouse/templates/accounts/profile.html:39
-#, fuzzy, python-format
-#| msgid "Created on %(creation_date)s"
+#, python-format
 msgid "Joined on %(start_date)s"
-msgstr "%(creation_date)s に作成"
+msgstr "%(start_date)s に登録"
 
 #: warehouse/templates/accounts/profile.html:53
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              %(count)s file\n"
-#| "            "
-#| msgid_plural ""
-#| "\n"
-#| "              %(count)s files\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            %(count)s project\n"
@@ -895,14 +853,12 @@ msgid_plural ""
 "          "
 msgstr[0] ""
 "\n"
-"              %(count)s個のファイル\n"
-"            "
+"            %(count)s 個のプロジェクト\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:59
-#, fuzzy
-#| msgid "Your projects"
 msgid "No projects"
-msgstr "自分のプロジェクト"
+msgstr "プロジェクト無し"
 
 #: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/manage/projects.html:36
@@ -911,10 +867,9 @@ msgid "Last released on %(release_date)s"
 msgstr "最終リリース日: %(release_date)s"
 
 #: warehouse/templates/accounts/profile.html:76
-#, fuzzy, python-format
-#| msgid "%(username)s has not uploaded any projects to PyPI, yet."
+#, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr "%(username)s はまだPyPIにプロジェクトをアップロードしていません。"
+msgstr "%(user)s はまだPyPIにプロジェクトをアップロードしていません"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -3262,159 +3217,127 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:103
 msgid "Copy PIP instructions"
-msgstr ""
+msgstr "PyPIの手順をコピー"
 
 #: warehouse/templates/packaging/detail.html:112
-#, fuzzy, python-format
-#| msgid "Release version %(version)s"
+#, python-format
 msgid "Stable version available (%(version)s)"
-msgstr "リリースバージョン %(version)s"
+msgstr "使用可能な安定バージョン %(version)s"
 
 #: warehouse/templates/packaging/detail.html:116
-#, fuzzy, python-format
-#| msgid "Release version %(version)s"
+#, python-format
 msgid "Newer version available (%(version)s)"
-msgstr "リリースバージョン %(version)s"
+msgstr "利用可能な新しいバージョン %(version)s"
 
 #: warehouse/templates/packaging/detail.html:120
-#, fuzzy
-#| msgid "Manage version"
 msgid "Latest version"
-msgstr "バージョンの管理"
+msgstr "最新バージョン"
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released on %(release_date)s"
+#, python-format
 msgid "Last released: %(release_date)s"
 msgstr "最終リリース日: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
-#, fuzzy
-#| msgid "Project description and sidebar"
 msgid "No project description provided"
-msgstr "プロジェクトの説明とサイドバー"
+msgstr "プロジェクトの説明はありません"
 
 #: warehouse/templates/packaging/detail.html:149
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Navigation"
-msgstr "メインナビゲーション"
+msgstr "ナビゲーション"
 
 #: warehouse/templates/packaging/detail.html:150
 #: warehouse/templates/packaging/detail.html:180
-#, fuzzy, python-format
-#| msgid "Navigation for managing %(project)s"
+#, python-format
 msgid "Navigation for %(project)s"
-msgstr "%(project)s を管理するための情報"
+msgstr "%(project)s のナビゲーション"
 
 #: warehouse/templates/packaging/detail.html:153
 #: warehouse/templates/packaging/detail.html:183
 msgid "Project description. Focus will be moved to the description."
-msgstr ""
+msgstr "プロジェクトの説明。フォーカスが説明に移動します。"
 
 #: warehouse/templates/packaging/detail.html:155
 #: warehouse/templates/packaging/detail.html:185
 #: warehouse/templates/packaging/detail.html:213
-#, fuzzy
-#| msgid "Project description and sidebar"
 msgid "Project description"
-msgstr "プロジェクトの説明とサイドバー"
+msgstr "プロジェクトの説明"
 
 #: warehouse/templates/packaging/detail.html:159
 #: warehouse/templates/packaging/detail.html:195
 msgid "Release history. Focus will be moved to the history panel."
-msgstr ""
+msgstr "リリース履歴。フォーカスが履歴パネルに移動します。"
 
 #: warehouse/templates/packaging/detail.html:161
 #: warehouse/templates/packaging/detail.html:197
 #: warehouse/templates/packaging/detail.html:235
-#, fuzzy
-#| msgid "Releases"
 msgid "Release history"
-msgstr "リリース"
+msgstr "リリース履歴"
 
 #: warehouse/templates/packaging/detail.html:166
 #: warehouse/templates/packaging/detail.html:202
 msgid "Download files. Focus will be moved to the project files."
-msgstr ""
+msgstr "ファイルのダウンロード。フォーカスがプロジェクトファイルに移動します。"
 
 #: warehouse/templates/packaging/detail.html:168
 #: warehouse/templates/packaging/detail.html:204
 #: warehouse/templates/packaging/detail.html:278
-#, fuzzy
-#| msgid "Download file"
 msgid "Download files"
 msgstr "ファイルをダウンロード"
 
 #: warehouse/templates/packaging/detail.html:189
 msgid "Project details. Focus will be moved to the project details."
-msgstr ""
+msgstr "プロジェクト詳細。フォーカスがプロジェクト詳細に移動します。"
 
 #: warehouse/templates/packaging/detail.html:191
 #: warehouse/templates/packaging/detail.html:227
-#, fuzzy
-#| msgid "Project settings"
 msgid "Project details"
-msgstr "プロジェクト設定"
+msgstr "プロジェクト詳細"
 
 #: warehouse/templates/packaging/detail.html:220
 msgid "The author of this package has not provided a project description"
-msgstr ""
+msgstr "このパッケージの作者はプロジェクトの説明を提供していません"
 
 #: warehouse/templates/packaging/detail.html:236
-#, fuzzy
-#| msgid "Release settings"
 msgid "Release notifications"
-msgstr "リリース設定"
+msgstr "リリース通知"
 
 #: warehouse/templates/packaging/detail.html:247
-#, fuzzy
-#| msgid "Python version"
 msgid "This version"
-msgstr "Pythonバージョン"
+msgstr "このバージョン"
 
 #: warehouse/templates/packaging/detail.html:264
-#, fuzzy
-#| msgid "New releases"
 msgid "pre-release"
-msgstr "新着リリース"
+msgstr "プレリリース"
 
 #: warehouse/templates/packaging/detail.html:279
-#, fuzzy, python-format
-#| msgid ""
-#| "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">our status page</"
-#| "a>."
+#, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
 "learn more about <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
-"アップタイムとパフォーマンスに関する最近の統計情報については、<a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ステータ"
-"スページ</a>を参照してください。"
+"あなたのプラットフォームに合ったファイルをダウンロードします。詳しくは<a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">パッケージのインストール</a>を参照してください。"
 
 #: warehouse/templates/packaging/detail.html:282
-#, fuzzy, python-format
-#| msgid "Manage '%(project_name)s' – release version %(version)s"
+#, python-format
 msgid "Files for %(project_name)s, version %(version)s"
-msgstr "'%(project_name)s' の管理 - リリースバージョン %(version)s"
+msgstr "%(project_name)s のファイル - バージョン %(version)s"
 
 #: warehouse/templates/packaging/detail.html:286
 #: warehouse/templates/packaging/detail.html:303
 msgid "File type"
-msgstr ""
+msgstr "ファイルタイプ"
 
 #: warehouse/templates/packaging/detail.html:289
 #: warehouse/templates/packaging/detail.html:319
-#, fuzzy
-#| msgid "View Hashes"
 msgid "Hashes"
-msgstr "ハッシュの表示"
+msgstr "ハッシュ"
 
 #: warehouse/templates/packaging/detail.html:321
 msgid "View <span>hashes</span>"
-msgstr ""
+msgstr "<span>ハッシュ</span>を見る"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -4306,15 +4229,7 @@ msgid ""
 msgstr "パスワードに、<code>pypi-</code>接頭辞を含むトークン値を設定する"
 
 #: warehouse/templates/pages/help.html:418
-#, fuzzy, python-format
-#| msgid ""
-#| "Where you edit or add these values will depend on your individual use "
-#| "case. For example, some users may need to edit <a href=\"%(pypirc_href)s"
-#| "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">their <code>."
-#| "pypirc</code> file</a>, while others may need to update their CI "
-#| "configuration file (e.g. <a href=\"%(travis_href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\"><code>travis.yml</code> if you are "
-#| "using Travis</a>)."
+#, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
 "For example, some users may need to edit <a href=\"%(pypirc_href)s\" title="
@@ -4323,13 +4238,11 @@ msgid ""
 "<a href=\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\"><code>.travis.yml</code> if you are using Travis</a>)."
 msgstr ""
-"これらの値を編集・追加する場所は、個々のユースケースによって異なります。例え"
-"ば、一部のユーザは<a href=\"%(pypirc_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\"><code>.pypirc</code>ファイル</a>を編集する必要が"
-"あるかもしれません。あるいは他のユーザは、CIの設定ファイル（例: <a href="
-"\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Travisを使っている場合は<code>travis.yml</code></a>）を更新する必要がある"
-"かもしれません。"
+"これらの値を編集・追加する場所は、個々のユースケースによって異なります。例えば、一部のユーザは<a href=\"%(pypirc_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+"><code>.pypirc</code>ファイル</a>を編集する必要があるかもしれません。あるいは他のユーザは、CIの設定ファイル（例: <a "
+"href=\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Travisを使っている場合は<code>.travis.yml</code></a>）を更新する必要があるかもしれません。"
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
