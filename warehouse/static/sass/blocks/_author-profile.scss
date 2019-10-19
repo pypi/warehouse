@@ -62,7 +62,7 @@
 
   &__name {
     @include h2;
-    overflow: hidden;
+    overflow: auto;
     padding: 0 0 $spacing-unit / 2;
 
     @media only screen and (max-width: $desktop) {
