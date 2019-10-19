@@ -37,7 +37,10 @@
             <p>
               <i class="fa fa-envelope" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Email{% endtrans %}</span>
-              &nbsp;&nbsp;{{ user.primary_email.email }}
+              &nbsp;&nbsp;
+              <a href="mailto:{{ user.primary_email.email }}">
+                  {{ user.primary_email.email }}
+              </a>
             </p>
             {% endif %}
             {% if user.date_joined %}
