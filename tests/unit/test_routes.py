@@ -328,11 +328,26 @@ def test_routes(warehouse):
     ]
 
     assert config.add_template_view.calls == [
-        pretend.call("sitemap", "/sitemap/", "pages/sitemap.html"),
-        pretend.call("help", "/help/", "pages/help.html"),
-        pretend.call("security", "/security/", "pages/security.html"),
         pretend.call(
-            "sponsors", "/sponsors/", "warehouse:templates/pages/sponsors.html"
+            "sitemap",
+            "/sitemap/",
+            "pages/sitemap.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+        ),
+        pretend.call(
+            "security",
+            "/security/",
+            "pages/security.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "sponsors",
+            "/sponsors/",
+            "warehouse:templates/pages/sponsors.html",
+            view_kw={"has_translations": True},
         ),
     ]
 
