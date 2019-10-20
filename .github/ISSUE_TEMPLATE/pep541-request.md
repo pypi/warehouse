@@ -1,7 +1,7 @@
 ---
 name: PEP 541 Request
 about: You want to claim or flag a project in accordance to PEP 541
-labels: pep 541
+labels: PEP 541
 
 ---
 
