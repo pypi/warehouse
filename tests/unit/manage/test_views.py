@@ -150,7 +150,7 @@ class TestManageAccount:
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
-            POST={"name": "new name", "is_private_email": "y"},
+            POST={"name": "new name", "is_email_private": "y"},
             user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
@@ -175,7 +175,7 @@ class TestManageAccount:
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
-            POST={"name": "new name", "is_private_email": "y"},
+            POST={"name": "new name", "is_email_private": "y"},
             user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
