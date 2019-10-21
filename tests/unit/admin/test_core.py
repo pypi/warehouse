@@ -57,6 +57,7 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
             uses_session=True,
             require_csrf=True,
             require_methods=False,
+            has_translations=True,
         ),
         pretend.call(
             accounts_views.logout,
@@ -65,5 +66,6 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
             uses_session=True,
             require_csrf=True,
             require_methods=False,
+            has_translations=True,
         ),
     ]
