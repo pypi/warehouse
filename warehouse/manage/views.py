@@ -106,6 +106,7 @@ def user_projects(request):
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
+    has_translations=True,
 )
 class ManageAccountViews:
     def __init__(self, request):
@@ -368,6 +369,7 @@ class ManageAccountViews:
     require_methods=False,
     permission="manage:user",
     http_cache=0,
+    has_translations=True,
 )
 class ProvisionTOTPViews:
     def __init__(self, request):
@@ -510,6 +512,7 @@ class ProvisionTOTPViews:
     require_methods=False,
     permission="manage:user",
     http_cache=0,
+    has_translations=True,
 )
 class ProvisionWebAuthnViews:
     def __init__(self, request):
@@ -620,6 +623,7 @@ class ProvisionWebAuthnViews:
     permission="manage:user",
     renderer="manage/token.html",
     route_name="manage.account.token",
+    has_translations=True,
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -760,6 +764,7 @@ class ProvisionMacaroonViews:
     renderer="manage/projects.html",
     uses_session=True,
     permission="manage:user",
+    has_translations=True,
 )
 def manage_projects(request):
     def _key(project):
@@ -788,6 +793,7 @@ def manage_projects(request):
     renderer="manage/settings.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_settings(project, request):
     return {"project": project}
@@ -799,6 +805,7 @@ def manage_project_settings(project, request):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
@@ -825,6 +832,7 @@ def delete_project(project, request):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -843,6 +851,7 @@ def destroy_project_docs(project, request):
     renderer="manage/releases.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_releases(project, request):
     # Get the counts for all the files for this project, grouped by the
@@ -886,6 +895,7 @@ def manage_project_releases(project, request):
     require_csrf=True,
     require_methods=False,
     permission="manage:project",
+    has_translations=True,
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -1060,6 +1070,7 @@ class ManageProjectRelease:
     uses_session=True,
     require_methods=False,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -1162,6 +1173,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -1265,6 +1277,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def delete_project_role(project, request):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -1317,6 +1330,7 @@ def delete_project_role(project, request):
     renderer="manage/history.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_history(project, request):
     try:
@@ -1350,6 +1364,7 @@ def manage_project_history(project, request):
     renderer="manage/journal.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_journal(project, request):
     try:
@@ -1383,6 +1398,7 @@ def manage_project_journal(project, request):
     renderer="manage/documentation.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_documentation(project, request):
     return {"project": project}

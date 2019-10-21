@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-16 04:39+0000\n"
+"POT-Creation-Date: 2019-10-17 13:29-0400\n"
+"PO-Revision-Date: 2019-10-18 15:26+0000\n"
 "Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.9\n"
+"X-Generator: Weblate 3.9.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -105,21 +105,21 @@ msgstr "Nieprawidłowe potwierdzenie WebAuthn: Zły ładunek"
 msgid "No user found with that username or email"
 msgstr "Nie znaleziono użytkownika z tą nazwą użytkownika lub adresem e-mail."
 
-#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:254
-#: warehouse/accounts/views.py:255 warehouse/accounts/views.py:280
-#: warehouse/accounts/views.py:281
+#: warehouse/accounts/views.py:204 warehouse/accounts/views.py:258
+#: warehouse/accounts/views.py:259 warehouse/accounts/views.py:285
+#: warehouse/accounts/views.py:286
 msgid "Invalid or expired two factor login."
 msgstr "Niepoprawne lub wygasłe logowanie dwuskładnikowe."
 
-#: warehouse/accounts/views.py:249
+#: warehouse/accounts/views.py:253
 msgid "Already authenticated"
 msgstr "Już uwierzytelnione"
 
-#: warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:317
 msgid "Successful WebAuthn assertion"
 msgstr "Pomyślne potwierdzenie WebAuthn"
 
-#: warehouse/accounts/views.py:391
+#: warehouse/accounts/views.py:397
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -127,33 +127,33 @@ msgstr ""
 "Rejestracja nowych użytkowników tymczasowo wyłączona. Zobacz https://pypi."
 "org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
-#: warehouse/accounts/views.py:486
+#: warehouse/accounts/views.py:493
 msgid "Expired token: request a new password reset link"
 msgstr "Wygasł token: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:488
+#: warehouse/accounts/views.py:495
 msgid "Invalid token: request a new password reset link"
 msgstr "Nieprawidłowy token: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:490 warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
 msgid "Invalid token: no token supplied"
 msgstr "Nieprawidłowy token: nie podano tokena"
 
-#: warehouse/accounts/views.py:494
+#: warehouse/accounts/views.py:501
 #, fuzzy
 msgid "Invalid token: not a password reset token"
 msgstr "Nieprawidłowy token: to nie jest token do resetowania hasła"
 
-#: warehouse/accounts/views.py:499
+#: warehouse/accounts/views.py:506
 msgid "Invalid token: user not found"
 msgstr "Nieprawidłowy token: nie znaleziono użytkownika"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:513
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Nieprawidłowy token: użytkownik zalogował się odkąd ten token został zażądany"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:520
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -161,43 +161,43 @@ msgstr ""
 "Nieprawidłowy token: hasło zostało już zmienione od momentu zażądania tego "
 "tokenu"
 
-#: warehouse/accounts/views.py:539
+#: warehouse/accounts/views.py:546
 msgid "You have reset your password"
 msgstr "Zresetowałeś swoje hasło"
 
-#: warehouse/accounts/views.py:561
+#: warehouse/accounts/views.py:571
 msgid "Expired token: request a new email verification link"
 msgstr "Wygasł token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:563
+#: warehouse/accounts/views.py:573
 msgid "Invalid token: request a new email verification link"
 msgstr "Nieprawidłowy token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:569
+#: warehouse/accounts/views.py:579
 msgid "Invalid token: not an email verification token"
 msgstr "Nieprawidłowy token: to nie jest token do weryfikacji e-mail"
 
-#: warehouse/accounts/views.py:578
+#: warehouse/accounts/views.py:588
 msgid "Email not found"
 msgstr "Email nie znaleziony"
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:591
 msgid "Email already verified"
 msgstr "Email już zweryfikowany"
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:603
 msgid "You can now set this email as your primary address"
 msgstr "Możesz teraz ustawić ten e-mail jako swój główny adres"
 
-#: warehouse/accounts/views.py:595
+#: warehouse/accounts/views.py:605
 msgid "This is your primary address"
 msgstr "To jest twój główny adres"
 
-#: warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:610
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Adres e-mail $ {email_address} zweryfikowany. $ {confirm_message}."
 
-#: warehouse/manage/views.py:169
+#: warehouse/manage/views.py:170
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Dodano adres e-mail ${email_address} - sprawdź swoją skrzynkę pocztową, aby "
@@ -416,7 +416,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
-msgstr ""
+msgstr "Zaloguj się"
 
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
@@ -703,33 +703,40 @@ msgstr "Popularne projekty"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
-msgstr ""
+msgstr "Popularne projekty pobrane przez użytkowników"
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr ""
+msgstr "Nowe wersje"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Prosto z pieca: najnowsze wersje pakietów"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
 msgstr ""
+"Ten adres URL jest punktem końcowym interfejsu API do przekazywania plików "
+"do PyPI."
 
 #: warehouse/templates/upload.html:26
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "For more information on uploading projects to PyPI, visit the <a href="
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
+"Aby uzyskać więcej informacji na temat przesyłania projektów do PyPI, "
+"odwiedź <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Podręcznik użytkownika Python Packaging</a> ."
 
 #: warehouse/templates/upload.html:28
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
+"W przeciwnym razie zalecamy <a href=\"%(href)s\">przejście do strony głównej "
+"PyPI</a>."
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/register.html:17
@@ -740,20 +747,20 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22
 msgid "Error processing form"
-msgstr ""
+msgstr "Błąd podczas przetwarzania formularza"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
-msgstr ""
+msgstr "Zaloguj się do %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:269
-#: warehouse/templates/manage/roles.html:136
+#: warehouse/templates/manage/roles.html:140
 msgid "Username"
-msgstr ""
+msgstr "Nazwa użytkownika"
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -773,49 +780,49 @@ msgstr ""
 #: warehouse/templates/manage/account.html:404
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:133
-#: warehouse/templates/manage/roles.html:145
+#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:149
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
-msgstr ""
+msgstr "(wymagane)"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr ""
+msgstr "Twoja nazwa użytkownika"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
 msgid "Password"
-msgstr ""
+msgstr "Hasło"
 
 #: warehouse/templates/accounts/login.html:76
 #: warehouse/templates/manage/manage_base.html:168
 msgid "Show password"
-msgstr ""
+msgstr "Pokaż hasło"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr ""
+msgstr "Twoje hasło"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
-msgstr ""
+msgstr "Zapomniałeś hasła?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
-msgstr ""
+msgstr "Wyloguj się"
 
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr ""
+msgstr "Wyloguj się z %(account_name)s"
 
 #: warehouse/templates/accounts/logout.html:25
 msgid "Log Out"
-msgstr ""
+msgstr "Wyloguj się"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -870,50 +877,50 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
-msgstr ""
+msgstr "Utwórz konto"
 
 #: warehouse/templates/accounts/register.html:30
 #, python-format
 msgid "Create an account on %(title)s"
-msgstr ""
+msgstr "Utwórz konto na %(title)s"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:160
 #: warehouse/templates/manage/account.html:494
 msgid "Name"
-msgstr ""
+msgstr "Nazwa"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr ""
+msgstr "Twoje imię"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
 msgid "Email address"
-msgstr ""
+msgstr "Adres email"
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:349
 msgid "Your email address"
-msgstr ""
+msgstr "Twój adres e-mail"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "Potwierdź formularz"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr ""
+msgstr "Wybierz nazwę użytkownika"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:376
 msgid "Show passwords"
-msgstr ""
+msgstr "Pokaż hasła"
 
 #: warehouse/templates/accounts/register.html:120
 msgid "Select a password"
-msgstr ""
+msgstr "Wybierz hasło"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
@@ -921,28 +928,29 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:66
 #: warehouse/templates/manage/account.html:407
 msgid "Confirm password"
-msgstr ""
+msgstr "Potwierdź hasło"
 
 #: warehouse/templates/accounts/register.html:159
 msgid "Create account"
-msgstr ""
+msgstr "Utwórz konto"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "Zresetowanie hasła"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
 msgstr ""
+"Aby zresetować hasło, wprowadź swoją nazwę użytkownika lub adres e-mail."
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "Nazwa użytkownika lub adres e-mail"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "Poproś o zresetowanie hasła"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
@@ -1532,16 +1540,6 @@ msgstr ""
 msgid "Classifiers"
 msgstr ""
 
-#: warehouse/templates/legacy/api/simple/detail.html:17
-#: warehouse/templates/legacy/api/simple/detail.html:20
-#, python-format
-msgid "Links for %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/legacy/api/simple/index.html:17
-msgid "Simple index"
-msgstr ""
-
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
 msgstr ""
@@ -1821,7 +1819,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:117
+#: warehouse/templates/manage/roles.html:121
 msgid "Remove"
 msgstr ""
 
@@ -2260,7 +2258,7 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:131
+#: warehouse/templates/manage/roles.html:135
 msgid "User"
 msgstr ""
 
@@ -2612,7 +2610,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr ""
 
@@ -2624,7 +2623,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:84
 msgid "Owner"
 msgstr ""
 
@@ -2641,30 +2641,30 @@ msgid "Users who can manage %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:78
-#: warehouse/templates/manage/roles.html:143
+#: warehouse/templates/manage/roles.html:82
+#: warehouse/templates/manage/roles.html:147
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:90
 msgid "Save role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:87
+#: warehouse/templates/manage/roles.html:91
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:111
+#: warehouse/templates/manage/roles.html:115
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:114
+#: warehouse/templates/manage/roles.html:118
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:126
-#: warehouse/templates/manage/roles.html:154
+#: warehouse/templates/manage/roles.html:130
+#: warehouse/templates/manage/roles.html:158
 msgid "Add collaborator"
 msgstr ""
 

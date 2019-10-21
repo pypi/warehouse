@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-16 11:27-0400\n"
+"POT-Creation-Date: 2019-10-17 13:29-0400\n"
 "PO-Revision-Date: 2019-10-16 12:51+0000\n"
 "Last-Translator: Josix <josixwang@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
@@ -99,103 +99,103 @@ msgstr "無效的 WebAuthn 斷言：負載錯誤"
 msgid "No user found with that username or email"
 msgstr "找不到使用該用戶名或電子郵件的用戶"
 
-#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:254
-#: warehouse/accounts/views.py:255 warehouse/accounts/views.py:280
-#: warehouse/accounts/views.py:281
+#: warehouse/accounts/views.py:204 warehouse/accounts/views.py:258
+#: warehouse/accounts/views.py:259 warehouse/accounts/views.py:285
+#: warehouse/accounts/views.py:286
 msgid "Invalid or expired two factor login."
 msgstr "兩階段驗證登入失效或過期。"
 
-#: warehouse/accounts/views.py:249
+#: warehouse/accounts/views.py:253
 msgid "Already authenticated"
 msgstr "已經身份驗證過"
 
-#: warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:317
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 斷言"
 
-#: warehouse/accounts/views.py:391
+#: warehouse/accounts/views.py:397
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/accounts/views.py:486
+#: warehouse/accounts/views.py:493
 msgid "Expired token: request a new password reset link"
 msgstr "token 過期：請求新的密碼重設連結"
 
-#: warehouse/accounts/views.py:488
+#: warehouse/accounts/views.py:495
 #, fuzzy
 msgid "Invalid token: request a new password reset link"
 msgstr "token 無效：請求新的密碼重置連結"
 
-#: warehouse/accounts/views.py:490 warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
 #, fuzzy
 msgid "Invalid token: no token supplied"
 msgstr "token 無效：為提供 token"
 
-#: warehouse/accounts/views.py:494
+#: warehouse/accounts/views.py:501
 #, fuzzy
 msgid "Invalid token: not a password reset token"
 msgstr "token 無效：不是密碼重置 token"
 
-#: warehouse/accounts/views.py:499
+#: warehouse/accounts/views.py:506
 #, fuzzy
 msgid "Invalid token: user not found"
 msgstr "token 無效：找不到用戶"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:513
 #, fuzzy
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "token 無效：自請求 token 後，使用者已經登錄"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:520
 #, fuzzy
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "token 無效：自請求 token 後，密碼已經更改"
 
-#: warehouse/accounts/views.py:539
+#: warehouse/accounts/views.py:546
 msgid "You have reset your password"
 msgstr "您已重置密碼"
 
-#: warehouse/accounts/views.py:561
+#: warehouse/accounts/views.py:571
 #, fuzzy
 msgid "Expired token: request a new email verification link"
 msgstr "token 過期：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:563
+#: warehouse/accounts/views.py:573
 #, fuzzy
 msgid "Invalid token: request a new email verification link"
 msgstr "token 無效：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:569
+#: warehouse/accounts/views.py:579
 #, fuzzy
 msgid "Invalid token: not an email verification token"
 msgstr "token 無效：不是電子郵件驗證 token"
 
-#: warehouse/accounts/views.py:578
+#: warehouse/accounts/views.py:588
 msgid "Email not found"
 msgstr "未找到電子郵件"
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:591
 msgid "Email already verified"
 msgstr "已驗證的電子郵件"
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:603
 msgid "You can now set this email as your primary address"
 msgstr "您現在可以將此電子郵件設定為您的主位址"
 
-#: warehouse/accounts/views.py:595
+#: warehouse/accounts/views.py:605
 msgid "This is your primary address"
 msgstr "這是您的主地址"
 
-#: warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:610
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "已驗證電子郵件地址 ${email_address} 。${confirm_message}。"
 
-#: warehouse/manage/views.py:169
+#: warehouse/manage/views.py:170
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "已添加電子郵件 ${email_address} - 檢查您的電子郵件以查看驗證連結"
 
@@ -747,7 +747,7 @@ msgstr "登錄到 %(title)s"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:269
-#: warehouse/templates/manage/roles.html:136
+#: warehouse/templates/manage/roles.html:140
 msgid "Username"
 msgstr "用戶名"
 
@@ -769,8 +769,8 @@ msgstr "用戶名"
 #: warehouse/templates/manage/account.html:404
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:133
-#: warehouse/templates/manage/roles.html:145
+#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:149
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
@@ -1539,16 +1539,6 @@ msgstr ""
 msgid "Classifiers"
 msgstr ""
 
-#: warehouse/templates/legacy/api/simple/detail.html:17
-#: warehouse/templates/legacy/api/simple/detail.html:20
-#, python-format
-msgid "Links for %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/legacy/api/simple/index.html:17
-msgid "Simple index"
-msgstr ""
-
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
 msgstr ""
@@ -1828,7 +1818,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:117
+#: warehouse/templates/manage/roles.html:121
 msgid "Remove"
 msgstr ""
 
@@ -2263,7 +2253,7 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:131
+#: warehouse/templates/manage/roles.html:135
 msgid "User"
 msgstr ""
 
@@ -2611,7 +2601,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr ""
 
@@ -2623,7 +2614,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:84
 msgid "Owner"
 msgstr ""
 
@@ -2640,30 +2632,30 @@ msgid "Users who can manage %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:78
-#: warehouse/templates/manage/roles.html:143
+#: warehouse/templates/manage/roles.html:82
+#: warehouse/templates/manage/roles.html:147
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:90
 msgid "Save role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:87
+#: warehouse/templates/manage/roles.html:91
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:111
+#: warehouse/templates/manage/roles.html:115
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:114
+#: warehouse/templates/manage/roles.html:118
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:126
-#: warehouse/templates/manage/roles.html:154
+#: warehouse/templates/manage/roles.html:130
+#: warehouse/templates/manage/roles.html:158
 msgid "Add collaborator"
 msgstr ""
 

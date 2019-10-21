@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-16 11:27-0400\n"
-"PO-Revision-Date: 2019-10-12 17:26+0000\n"
+"POT-Creation-Date: 2019-10-17 13:29-0400\n"
+"PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.9\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -106,21 +106,21 @@ msgstr "Asserção inválida do WebAuthn: Carga incorreta"
 msgid "No user found with that username or email"
 msgstr "Nenhum usuário encontrado com esse nome de usuário ou e-mail"
 
-#: warehouse/accounts/views.py:201 warehouse/accounts/views.py:254
-#: warehouse/accounts/views.py:255 warehouse/accounts/views.py:280
-#: warehouse/accounts/views.py:281
+#: warehouse/accounts/views.py:204 warehouse/accounts/views.py:258
+#: warehouse/accounts/views.py:259 warehouse/accounts/views.py:285
+#: warehouse/accounts/views.py:286
 msgid "Invalid or expired two factor login."
 msgstr "Autenticação de dois fatores inválida ou expirada."
 
-#: warehouse/accounts/views.py:249
+#: warehouse/accounts/views.py:253
 msgid "Already authenticated"
 msgstr "Já autenticado"
 
-#: warehouse/accounts/views.py:312
+#: warehouse/accounts/views.py:317
 msgid "Successful WebAuthn assertion"
 msgstr "Asserção WebAuthn bem-sucedida"
 
-#: warehouse/accounts/views.py:391
+#: warehouse/accounts/views.py:397
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -128,75 +128,75 @@ msgstr ""
 "Novo registro de usuário desativado temporariamente. Consulte https://pypi."
 "org/help#admin-intervention para obter detalhes."
 
-#: warehouse/accounts/views.py:486
+#: warehouse/accounts/views.py:493
 msgid "Expired token: request a new password reset link"
 msgstr "Token expirado: solicite um novo link de redefinição de senha"
 
-#: warehouse/accounts/views.py:488
+#: warehouse/accounts/views.py:495
 msgid "Invalid token: request a new password reset link"
 msgstr "Token inválido: solicite um novo link de redefinição de senha"
 
-#: warehouse/accounts/views.py:490 warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
 msgid "Invalid token: no token supplied"
 msgstr "Token inválido: nenhum token fornecido"
 
-#: warehouse/accounts/views.py:494
+#: warehouse/accounts/views.py:501
 msgid "Invalid token: not a password reset token"
 msgstr "Token inválido: não é um token de redefinição de senha"
 
-#: warehouse/accounts/views.py:499
+#: warehouse/accounts/views.py:506
 msgid "Invalid token: user not found"
 msgstr "Token inválido: usuário não encontrado"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:513
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Token inválido: o usuário já entrou desde que esse token foi solicitado"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:520
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Token inválido: a senha já foi alterada desde que esse token foi solicitado"
 
-#: warehouse/accounts/views.py:539
+#: warehouse/accounts/views.py:546
 msgid "You have reset your password"
 msgstr "Você redefiniu sua senha"
 
-#: warehouse/accounts/views.py:561
+#: warehouse/accounts/views.py:571
 msgid "Expired token: request a new email verification link"
 msgstr "Token expirado: solicite um novo link de verificação de e-mail"
 
-#: warehouse/accounts/views.py:563
+#: warehouse/accounts/views.py:573
 msgid "Invalid token: request a new email verification link"
 msgstr "Token inválido: solicite um novo link de verificação de e-mail"
 
-#: warehouse/accounts/views.py:569
+#: warehouse/accounts/views.py:579
 msgid "Invalid token: not an email verification token"
 msgstr "Token inválido: não é um token de verificação de e-mail"
 
-#: warehouse/accounts/views.py:578
+#: warehouse/accounts/views.py:588
 msgid "Email not found"
 msgstr "E-mail não encontrado"
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:591
 msgid "Email already verified"
 msgstr "E-mail já verificado"
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:603
 msgid "You can now set this email as your primary address"
 msgstr "Agora você pode definir este e-mail como seu endereço principal"
 
-#: warehouse/accounts/views.py:595
+#: warehouse/accounts/views.py:605
 msgid "This is your primary address"
 msgstr "Este é o seu endereço principal"
 
-#: warehouse/accounts/views.py:600
+#: warehouse/accounts/views.py:610
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Endereço de e-mail ${email_address} verificado. ${confirm_message}."
 
-#: warehouse/manage/views.py:169
+#: warehouse/manage/views.py:170
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} adicionado - verifique seu e-mail para um link de "
@@ -384,18 +384,16 @@ msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"Escolha uma senha forte que contenha letras (maiúsculas e minúsculas), "
+"números e caracteres especiais. Evite palavras comuns ou repetição."
 
 #: warehouse/templates/base.html:27
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password strength:"
-msgstr "Redefinir senha"
+msgstr "Força da senha:"
 
 #: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password field is empty"
-msgstr "Redefinir senha"
+msgstr "O campo da senha está vazio"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -433,7 +431,7 @@ msgstr "Ver menu"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -449,22 +447,20 @@ msgstr ""
 "de programação Python."
 
 #: warehouse/templates/base.html:95
-#, fuzzy
-#| msgid "Date last updated"
 msgid "RSS: 40 latest updates"
-msgstr "Data da última atualização"
+msgstr "RSS: Últimas 40 atualizações"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 pacotes mais novos"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "Pular para o conteúdo principal"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "Mudar para versão móvel"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -481,6 +477,8 @@ msgstr "Aviso"
 #: warehouse/templates/base.html:161
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
+"Você está usando um navegador incompatível, atualize para uma versão mais "
+"nova."
 
 #: warehouse/templates/base.html:170
 msgid ""
@@ -488,12 +486,17 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"Você está usando TestPyPI – uma instância separada do Python Package Index "
+"que lhe permite tentar ferramentas de distribuição e processos sem afetar o "
+"índice real."
 
 #: warehouse/templates/base.html:180
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
+"Alguns recursos podem não funcionar sem JavaScript. Tente habilitá-lo se "
+"você encontrar problemas."
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
@@ -514,139 +517,114 @@ msgid "Search"
 msgstr "Pesquisar"
 
 #: warehouse/templates/base.html:258
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Help navigation"
-msgstr "Navegação principal"
+msgstr "Navegação de ajuda"
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "Saiba mais sobre a instalação de pacotes</a>."
+msgstr "Instalando pacotes"
 
 #: warehouse/templates/base.html:261
-#, fuzzy
-#| msgid "Upload packages"
 msgid "Uploading packages"
-msgstr "Enviar pacotes"
+msgstr "Enviando pacotes"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
-msgstr ""
+msgstr "Guia de usuário"
 
 #: warehouse/templates/base.html:263
 msgid "FAQs"
-msgstr ""
+msgstr "FAQs"
 
 #: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Sobre o PyPI"
 
 #: warehouse/templates/base.html:270
-#, fuzzy
-#| msgid "Account navigation"
 msgid "About PyPI navigation"
-msgstr "Navegação da conta"
+msgstr "Sobre a navegação do PyPI"
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPI no Twitter"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "Painel de infraestrutura"
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
-msgstr ""
+msgstr "Retenção de nome de índice de pacote"
 
 #: warehouse/templates/base.html:275
-#, fuzzy
-#| msgid "Sponsors"
 msgid "Our sponsors"
-msgstr "Patrocinadores"
+msgstr "Nossos patrocinadores"
 
 #: warehouse/templates/base.html:281
-#, fuzzy
-#| msgid "How can I contribute to PyPI?"
 msgid "Contributing to PyPI"
-msgstr "Como posso contribuir para o PyPI?"
+msgstr "Contribuindo para o PyPI"
 
 #: warehouse/templates/base.html:282
-#, fuzzy
-#| msgid "Account navigation"
 msgid "How to contribute navigation"
-msgstr "Navegação da conta"
+msgstr "Como contribuir para navegação"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "Bugs e feedback"
 
 #: warehouse/templates/base.html:285
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "Contribuir no GitHub"
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
-msgstr ""
+msgstr "Traduzir o PyPI"
 
 #: warehouse/templates/base.html:287
-#, fuzzy
-#| msgid "Development:"
 msgid "Development credits"
-msgstr "Desenvolvimento:"
+msgstr "Créditos por desenvolvimento"
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Usando o PyPI"
 
 #: warehouse/templates/base.html:294
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Using PyPI navigation"
-msgstr "Navegação principal"
+msgstr "Usando a navegação do PyPI"
 
 #: warehouse/templates/base.html:296
 msgid "Code of conduct"
-msgstr ""
+msgstr "Código de conduta"
 
 #: warehouse/templates/base.html:297
-#, fuzzy
-#| msgid "Reporting a security issue"
 msgid "Report security issue"
-msgstr "Relatando um problema de segurança"
+msgstr "Relatar problema de segurança"
 
 #: warehouse/templates/base.html:298
-#, fuzzy
-#| msgid "Security policy"
 msgid "Privacy policy"
-msgstr "Política de segurança"
+msgstr "Política de privacidade"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Termos de uso"
 
 #: warehouse/templates/base.html:309
-#, fuzzy
-#| msgid "Status"
 msgid "Status: "
-msgstr "Status"
+msgstr "Status: "
 
 #: warehouse/templates/base.html:310
 msgid "all systems operational"
-msgstr ""
+msgstr "todos os sistemas estão operacionais"
 
 #: warehouse/templates/base.html:314
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
+"Desenvolvido e mantido pela comunidade Python, para a comunidade Python."
 
 #: warehouse/templates/base.html:316
-#, fuzzy
-#| msgid "Donate"
 msgid "Donate today!"
-msgstr "Doar"
+msgstr "Doe hoje!"
 
 #: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
@@ -654,7 +632,7 @@ msgstr "Mapa do site"
 
 #: warehouse/templates/base.html:325
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "Mudar para versão desktop"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -780,7 +758,7 @@ msgstr "Entrar em %(title)s"
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:269
-#: warehouse/templates/manage/roles.html:136
+#: warehouse/templates/manage/roles.html:140
 msgid "Username"
 msgstr "Nome de usuário"
 
@@ -802,8 +780,8 @@ msgstr "Nome de usuário"
 #: warehouse/templates/manage/account.html:404
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:133
-#: warehouse/templates/manage/roles.html:145
+#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:149
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
@@ -847,10 +825,9 @@ msgid "Log Out"
 msgstr "Sair"
 
 #: warehouse/templates/accounts/profile.html:16
-#, fuzzy, python-format
-#| msgid "Select a username"
+#, python-format
 msgid "Profile of %(username)s"
-msgstr "Selecione um nome de usuário"
+msgstr "Perfil de %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:244
@@ -859,27 +836,16 @@ msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar para {user} do gravatar.com"
 
 #: warehouse/templates/accounts/profile.html:38
-#, fuzzy
-#| msgid "Date Joined"
 msgid "Date joined"
 msgstr "Data de entrada"
 
 #: warehouse/templates/accounts/profile.html:39
-#, fuzzy, python-format
-#| msgid "Created on %(creation_date)s"
+#, python-format
 msgid "Joined on %(start_date)s"
-msgstr "Criado em %(creation_date)s"
+msgstr "Entrou em %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:53
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              %(count)s file\n"
-#| "            "
-#| msgid_plural ""
-#| "\n"
-#| "              %(count)s files\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            %(count)s project\n"
@@ -890,18 +856,16 @@ msgid_plural ""
 "          "
 msgstr[0] ""
 "\n"
-"              %(count)s arquivo\n"
-"            "
+"            %(count)s projeto\n"
+"          "
 msgstr[1] ""
 "\n"
-"              %(count)s arquivos\n"
-"            "
+"            %(count)s projetos\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:59
-#, fuzzy
-#| msgid "Your projects"
 msgid "No projects"
-msgstr "Seus projetos"
+msgstr "Nenhum projeto"
 
 #: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/manage/projects.html:36
@@ -910,10 +874,9 @@ msgid "Last released on %(release_date)s"
 msgstr "Último lançamento em %(release_date)s"
 
 #: warehouse/templates/accounts/profile.html:76
-#, fuzzy, python-format
-#| msgid "%(username)s has not uploaded any projects to PyPI, yet."
+#, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr "%(username)s ainda não carregou nenhum projeto ao PyPI."
+msgstr "%(user)s ainda não carregou nenhum projeto ao PyPI"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -1671,16 +1634,6 @@ msgstr "Avatar para {username} do gravatar.com"
 msgid "Classifiers"
 msgstr "Classificadores"
 
-#: warehouse/templates/legacy/api/simple/detail.html:17
-#: warehouse/templates/legacy/api/simple/detail.html:20
-#, python-format
-msgid "Links for %(project_name)s"
-msgstr "Links para %(project_name)s"
-
-#: warehouse/templates/legacy/api/simple/index.html:17
-msgid "Simple index"
-msgstr "Índice simples"
-
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
 msgstr "Verificado*"
@@ -1985,7 +1938,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:117
+#: warehouse/templates/manage/roles.html:121
 msgid "Remove"
 msgstr "Remover"
 
@@ -2468,7 +2421,7 @@ msgstr "Data"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:131
+#: warehouse/templates/manage/roles.html:135
 msgid "User"
 msgstr "Usuário"
 
@@ -2847,7 +2800,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "Há duas funções possíveis para colaboradores:"
 
 #: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "Mantenedor"
 
@@ -2861,7 +2815,8 @@ msgstr ""
 "colaboradores. Não consegue excluir arquivos, lançamentos ou o projeto."
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:84
 msgid "Owner"
 msgstr "Proprietário"
 
@@ -2880,30 +2835,30 @@ msgid "Users who can manage %(project_name)s"
 msgstr "Usuários que podem gerenciar %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:78
-#: warehouse/templates/manage/roles.html:143
+#: warehouse/templates/manage/roles.html:82
+#: warehouse/templates/manage/roles.html:147
 msgid "Role"
 msgstr "Função"
 
-#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:90
 msgid "Save role"
 msgstr "Salvar função"
 
-#: warehouse/templates/manage/roles.html:87
+#: warehouse/templates/manage/roles.html:91
 msgid "Save"
 msgstr "Salvar"
 
-#: warehouse/templates/manage/roles.html:111
+#: warehouse/templates/manage/roles.html:115
 msgid "Cannot remove yourself as owner"
 msgstr "Não é possível remover a si próprio como proprietário"
 
-#: warehouse/templates/manage/roles.html:114
+#: warehouse/templates/manage/roles.html:118
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "Remover %(user)s deste projeto"
 
-#: warehouse/templates/manage/roles.html:126
-#: warehouse/templates/manage/roles.html:154
+#: warehouse/templates/manage/roles.html:130
+#: warehouse/templates/manage/roles.html:158
 msgid "Add collaborator"
 msgstr "Adicionar colaborador"
 
@@ -3308,159 +3263,129 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:103
 msgid "Copy PIP instructions"
-msgstr ""
+msgstr "Copiar instruções PIP"
 
 #: warehouse/templates/packaging/detail.html:112
-#, fuzzy, python-format
-#| msgid "Release version %(version)s"
+#, python-format
 msgid "Stable version available (%(version)s)"
-msgstr "Versão de lançamento %(version)s"
+msgstr "Versão estável disponível (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:116
-#, fuzzy, python-format
-#| msgid "Release version %(version)s"
+#, python-format
 msgid "Newer version available (%(version)s)"
-msgstr "Versão de lançamento %(version)s"
+msgstr "Versão mais nova disponível (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:120
-#, fuzzy
-#| msgid "Manage version"
 msgid "Latest version"
-msgstr "Gerenciar versão"
+msgstr "Versão mais recente"
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released on %(release_date)s"
+#, python-format
 msgid "Last released: %(release_date)s"
-msgstr "Último lançamento em %(release_date)s"
+msgstr "Último lançamento: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
-#, fuzzy
-#| msgid "Project description and sidebar"
 msgid "No project description provided"
-msgstr "Descrição do projeto e barra lateral"
+msgstr "Nenhuma descrição do projeto fornecida"
 
 #: warehouse/templates/packaging/detail.html:149
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Navigation"
-msgstr "Navegação principal"
+msgstr "Navegação"
 
 #: warehouse/templates/packaging/detail.html:150
 #: warehouse/templates/packaging/detail.html:180
-#, fuzzy, python-format
-#| msgid "Navigation for managing %(project)s"
+#, python-format
 msgid "Navigation for %(project)s"
-msgstr "Navegação para gerenciar %(project)s"
+msgstr "Navegação para %(project)s"
 
 #: warehouse/templates/packaging/detail.html:153
 #: warehouse/templates/packaging/detail.html:183
 msgid "Project description. Focus will be moved to the description."
-msgstr ""
+msgstr "Descrição do projeto. O foco será movido para a descrição."
 
 #: warehouse/templates/packaging/detail.html:155
 #: warehouse/templates/packaging/detail.html:185
 #: warehouse/templates/packaging/detail.html:213
-#, fuzzy
-#| msgid "Project description and sidebar"
 msgid "Project description"
-msgstr "Descrição do projeto e barra lateral"
+msgstr "Descrição do projeto"
 
 #: warehouse/templates/packaging/detail.html:159
 #: warehouse/templates/packaging/detail.html:195
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
+"Histórico de lançamentos. O foco será movido para o painel de histórico."
 
 #: warehouse/templates/packaging/detail.html:161
 #: warehouse/templates/packaging/detail.html:197
 #: warehouse/templates/packaging/detail.html:235
-#, fuzzy
-#| msgid "Releases"
 msgid "Release history"
-msgstr "Lançamentos"
+msgstr "Histórico de lançamentos"
 
 #: warehouse/templates/packaging/detail.html:166
 #: warehouse/templates/packaging/detail.html:202
 msgid "Download files. Focus will be moved to the project files."
-msgstr ""
+msgstr "Baixar arquivos. O foco será movido para os arquivos de projeto."
 
 #: warehouse/templates/packaging/detail.html:168
 #: warehouse/templates/packaging/detail.html:204
 #: warehouse/templates/packaging/detail.html:278
-#, fuzzy
-#| msgid "Download file"
 msgid "Download files"
-msgstr "Baixar arquivo"
+msgstr "Baixar arquivos"
 
 #: warehouse/templates/packaging/detail.html:189
 msgid "Project details. Focus will be moved to the project details."
-msgstr ""
+msgstr "Detalhes do projeto. O foco será movido para os detalhes do projeto."
 
 #: warehouse/templates/packaging/detail.html:191
 #: warehouse/templates/packaging/detail.html:227
-#, fuzzy
-#| msgid "Project settings"
 msgid "Project details"
-msgstr "Configurações do projeto"
+msgstr "Detalhes do projeto"
 
 #: warehouse/templates/packaging/detail.html:220
 msgid "The author of this package has not provided a project description"
-msgstr ""
+msgstr "O autor deste pacote não forneceu uma descrição do projeto"
 
 #: warehouse/templates/packaging/detail.html:236
-#, fuzzy
-#| msgid "Release settings"
 msgid "Release notifications"
-msgstr "Configurações de lançamento"
+msgstr "Notificações de lançamento"
 
 #: warehouse/templates/packaging/detail.html:247
-#, fuzzy
-#| msgid "Python version"
 msgid "This version"
-msgstr "Versão do python"
+msgstr "Essa versão"
 
 #: warehouse/templates/packaging/detail.html:264
-#, fuzzy
-#| msgid "New releases"
 msgid "pre-release"
-msgstr "Novos lançamentos"
+msgstr "pré-lançamento"
 
 #: warehouse/templates/packaging/detail.html:279
-#, fuzzy, python-format
-#| msgid ""
-#| "For recent statistics on uptime and performance, see <a href=\"%(href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">our status page</"
-#| "a>."
+#, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
 "learn more about <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">installing packages</a>."
 msgstr ""
-"Para estatísticas recentes sobre tempo de atividade e desempenho, consulte "
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">nossa página de status</a>."
+"Baixe o arquivo para sua plataforma. Se você não tem certeza qual escolher, "
+"saiba mais sobre <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">instalação de pacotes</a>."
 
 #: warehouse/templates/packaging/detail.html:282
-#, fuzzy, python-format
-#| msgid "Manage '%(project_name)s' – release version %(version)s"
+#, python-format
 msgid "Files for %(project_name)s, version %(version)s"
-msgstr "Gerenciar \"%(project_name)s\" – versão de lançamento %(version)s"
+msgstr "Arquivos para \"%(project_name)s\", versão %(version)s"
 
 #: warehouse/templates/packaging/detail.html:286
 #: warehouse/templates/packaging/detail.html:303
 msgid "File type"
-msgstr ""
+msgstr "Tipo de arquivo"
 
 #: warehouse/templates/packaging/detail.html:289
 #: warehouse/templates/packaging/detail.html:319
-#, fuzzy
-#| msgid "View Hashes"
 msgid "Hashes"
-msgstr "Ver hashes"
+msgstr "Hashes"
 
 #: warehouse/templates/packaging/detail.html:321
 msgid "View <span>hashes</span>"
-msgstr ""
+msgstr "Ver <span>hashes</span>"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -4365,15 +4290,7 @@ msgstr ""
 "code>"
 
 #: warehouse/templates/pages/help.html:418
-#, fuzzy, python-format
-#| msgid ""
-#| "Where you edit or add these values will depend on your individual use "
-#| "case. For example, some users may need to edit <a href=\"%(pypirc_href)s"
-#| "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">their <code>."
-#| "pypirc</code> file</a>, while others may need to update their CI "
-#| "configuration file (e.g. <a href=\"%(travis_href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\"><code>travis.yml</code> if you are "
-#| "using Travis</a>)."
+#, python-format
 msgid ""
 "Where you edit or add these values will depend on your individual use case. "
 "For example, some users may need to edit <a href=\"%(pypirc_href)s\" title="
@@ -4388,7 +4305,7 @@ msgstr ""
 "\">seu arquivo <code>.pypirc</code></a>, enquanto outros podem precisar "
 "atualizar seu arquivo de configuração de CI (por exemplo, <a href="
 "\"%(travis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\"><code>travis.yml</code> se você estiver usando Travis</a>)."
+"\"><code>.travis.yml</code> se você estiver usando Travis</a>)."
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -5513,6 +5430,12 @@ msgstr[1] ""
 "\n"
 "                  Nenhuma ocorrência para os filtros \"%(filters)s\"\n"
 "                "
+
+#~ msgid "Links for %(project_name)s"
+#~ msgstr "Links para %(project_name)s"
+
+#~ msgid "Simple index"
+#~ msgstr "Índice simples"
 
 #~ msgid "User's username"
 #~ msgstr "Nome de usuário do usuário"

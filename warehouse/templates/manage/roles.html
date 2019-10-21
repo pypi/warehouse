@@ -67,7 +67,11 @@
         </th>
         <td>
         {% if role.user == request.user %}
-          {{ role.role_name }}
+          {% if role.role_name == "Owner" %}
+              {% trans %}Owner{% endtrans %}
+          {% elif role.role_name == "Maintainer" %}
+              {% trans %}Maintainer{% endtrans %}
+          {% endif %}
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
