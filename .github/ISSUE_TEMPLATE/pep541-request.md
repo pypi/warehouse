@@ -15,7 +15,7 @@ the possible outcomes.
 
 **Project to be claimed**
 <!--
-Provide the name of the package and ideally a link to its
+Provide the name of the package and a link to its
 PyPI page, i.e. https://pypi.org/project/<PROJECT>
  -->
 
