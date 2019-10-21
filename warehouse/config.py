@@ -100,12 +100,14 @@ def commit_veto(request, response):
         return True
 
 
-def template_view(config, name, route, template, route_kw=None):
+def template_view(config, name, route, template, route_kw=None, view_kw=None):
     if route_kw is None:
         route_kw = {}
+    if view_kw is None:
+        view_kw = {}
 
     config.add_route(name, route, **route_kw)
-    config.add_view(renderer=template, route_name=name)
+    config.add_view(renderer=template, route_name=name, **view_kw)
 
 
 def maybe_set(settings, name, envvar, coercer=None, default=None):

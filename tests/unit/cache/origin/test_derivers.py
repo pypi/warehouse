@@ -49,7 +49,7 @@ def test_no_origin_cache_found():
     assert request.add_response_callback.calls == []
 
 
-def test_response_hook(monkeypatch):
+def test_response_hook():
     class Cache:
         @staticmethod
         @pretend.call_recorder
@@ -70,16 +70,13 @@ def test_response_hook(monkeypatch):
     )
     info = pretend.stub(options={"renderer": pretend.stub(name="foo.html")})
     derived_view = derivers.html_cache_deriver(view, info)
-    add_vary_callback = pretend.call_recorder(lambda a: None)
-    monkeypatch.setattr(derivers, "add_vary_callback", add_vary_callback)
 
     assert derived_view(context, request) is response
     assert view.calls == [pretend.call(context, request)]
-    assert len(callbacks) == 2
+    assert len(callbacks) == 1
 
     callbacks[0](request, response)
 
     assert cacher.cache.calls == [
         pretend.call(["all-html", "foo.html"], request, response)
     ]
-    assert add_vary_callback.calls == [pretend.call("PyPI-Locale")]

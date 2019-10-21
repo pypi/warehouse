@@ -50,6 +50,7 @@ def add_policy_view(config, name, filename):
         markdown_view_factory(filename=filename),
         route_name="policy.{}".format(name),
         renderer="policy.html",
+        has_translations=True,
     )
 
 

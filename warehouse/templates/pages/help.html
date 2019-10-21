@@ -416,7 +416,7 @@
 
         <p>
           {% trans trimmed pypirc_href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account', travis_href='https://docs.travis-ci.com/user/deployment/pypi/', title=gettext('External link') %}
-          Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="{{ pypirc_href }}" title="{{ title }}" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="{{ travis_href }}" title="{{ title }}" target="_blank" rel="noopener"><code>travis.yml</code> if you are using Travis</a>).
+          Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="{{ pypirc_href }}" title="{{ title }}" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="{{ travis_href }}" title="{{ title }}" target="_blank" rel="noopener"><code>.travis.yml</code> if you are using Travis</a>).
           {% endtrans %}
         </p>
         <p>{% trans %}Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.{% endtrans %}</p>
