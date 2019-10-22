@@ -15,6 +15,8 @@ from datetime import datetime, timezone
 import pretend
 import pytest
 
+import pymacaroons
+
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 
 from warehouse.macaroons.caveats import (
@@ -25,6 +27,9 @@ from warehouse.macaroons.caveats import (
     V2Caveat,
     Verifier,
 )
+
+from warehouse.macaroons.interfaces import IMacaroonService
+from ...common.db.accounts import UserFactory
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
@@ -232,6 +237,22 @@ class TestV1Caveat:
 
         assert caveat(predicate) is True
 
+    @pytest.mark.parametrize(
+        ["predicate", "valid"],
+        [
+            ('{"version": 2, "permissions": "user"}', True),
+            ('{"version": 2, "permissions": "user", "used": true}', False),
+        ],
+    )
+    def test_verify_one_time_token_caveat(self, predicate, valid):
+        verifier = pretend.stub()
+        caveat = TopLevelCaveat(verifier)
+        if not valid:
+            with pytest.raises(InvalidMacaroon):
+                caveat(predicate)
+        else:
+            assert caveat(predicate)
+
 
 class TestVerifier:
     def test_creation(self):
@@ -261,3 +282,28 @@ class TestVerifier:
         with pytest.raises(InvalidMacaroon):
             verifier.verify(key)
         assert verify.calls == [pretend.call(macaroon, key)]
+
+    @pytest.mark.parametrize(
+        "predicate",
+        [
+            {"version": 2, "permissions": "user"},
+            {"version": 2, "permissions": {"projects": [{"name": "bar"}]}},
+            {"version": 2, "permissions": "user", "used": "true"},
+        ],
+    )
+    def test_verify_one_time_token(self, macaroon_service, predicate):
+        project = ProjectFactory.create(name="bar")
+        macaroon_obj = pymacaroons.Macaroon(
+            location="fake location",
+            identifier="identifier",
+            key="key",
+            version=pymacaroons.MACAROON_V2,
+        )
+        macaroon = macaroon_obj
+        context = project
+        principals = pretend.stub()
+        permission = predicate
+        key = "key"
+        verifier = Verifier(macaroon, context, principals, permission)
+
+        assert verifier.verify(key)
