@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-17 13:29-0400\n"
+"POT-Creation-Date: 2019-10-18 13:36-0400\n"
 "PO-Revision-Date: 2019-10-18 15:26+0000\n"
 "Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
@@ -119,7 +119,7 @@ msgstr "Już uwierzytelnione"
 msgid "Successful WebAuthn assertion"
 msgstr "Pomyślne potwierdzenie WebAuthn"
 
-#: warehouse/accounts/views.py:397
+#: warehouse/accounts/views.py:398
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -127,33 +127,33 @@ msgstr ""
 "Rejestracja nowych użytkowników tymczasowo wyłączona. Zobacz https://pypi."
 "org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
-#: warehouse/accounts/views.py:493
+#: warehouse/accounts/views.py:495
 msgid "Expired token: request a new password reset link"
 msgstr "Wygasł token: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:495
+#: warehouse/accounts/views.py:497
 msgid "Invalid token: request a new password reset link"
 msgstr "Nieprawidłowy token: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
+#: warehouse/accounts/views.py:499 warehouse/accounts/views.py:577
 msgid "Invalid token: no token supplied"
 msgstr "Nieprawidłowy token: nie podano tokena"
 
-#: warehouse/accounts/views.py:501
+#: warehouse/accounts/views.py:503
 #, fuzzy
 msgid "Invalid token: not a password reset token"
 msgstr "Nieprawidłowy token: to nie jest token do resetowania hasła"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:508
 msgid "Invalid token: user not found"
 msgstr "Nieprawidłowy token: nie znaleziono użytkownika"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:515
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Nieprawidłowy token: użytkownik zalogował się odkąd ten token został zażądany"
 
-#: warehouse/accounts/views.py:520
+#: warehouse/accounts/views.py:522
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -161,39 +161,39 @@ msgstr ""
 "Nieprawidłowy token: hasło zostało już zmienione od momentu zażądania tego "
 "tokenu"
 
-#: warehouse/accounts/views.py:546
+#: warehouse/accounts/views.py:548
 msgid "You have reset your password"
 msgstr "Zresetowałeś swoje hasło"
 
-#: warehouse/accounts/views.py:571
+#: warehouse/accounts/views.py:573
 msgid "Expired token: request a new email verification link"
 msgstr "Wygasł token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:573
+#: warehouse/accounts/views.py:575
 msgid "Invalid token: request a new email verification link"
 msgstr "Nieprawidłowy token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:581
 msgid "Invalid token: not an email verification token"
 msgstr "Nieprawidłowy token: to nie jest token do weryfikacji e-mail"
 
-#: warehouse/accounts/views.py:588
+#: warehouse/accounts/views.py:590
 msgid "Email not found"
 msgstr "Email nie znaleziony"
 
-#: warehouse/accounts/views.py:591
+#: warehouse/accounts/views.py:593
 msgid "Email already verified"
 msgstr "Email już zweryfikowany"
 
-#: warehouse/accounts/views.py:603
+#: warehouse/accounts/views.py:605
 msgid "You can now set this email as your primary address"
 msgstr "Możesz teraz ustawić ten e-mail jako swój główny adres"
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:607
 msgid "This is your primary address"
 msgstr "To jest twój główny adres"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:612
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Adres e-mail $ {email_address} zweryfikowany. $ {confirm_message}."
 

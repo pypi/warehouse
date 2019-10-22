@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-17 13:29-0400\n"
+"POT-Creation-Date: 2019-10-18 13:36-0400\n"
 "PO-Revision-Date: 2019-10-16 12:51+0000\n"
 "Last-Translator: Josix <josixwang@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
@@ -113,85 +113,85 @@ msgstr "已經身份驗證過"
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 斷言"
 
-#: warehouse/accounts/views.py:397
+#: warehouse/accounts/views.py:398
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/accounts/views.py:493
+#: warehouse/accounts/views.py:495
 msgid "Expired token: request a new password reset link"
 msgstr "token 過期：請求新的密碼重設連結"
 
-#: warehouse/accounts/views.py:495
+#: warehouse/accounts/views.py:497
 #, fuzzy
 msgid "Invalid token: request a new password reset link"
 msgstr "token 無效：請求新的密碼重置連結"
 
-#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
+#: warehouse/accounts/views.py:499 warehouse/accounts/views.py:577
 #, fuzzy
 msgid "Invalid token: no token supplied"
 msgstr "token 無效：為提供 token"
 
-#: warehouse/accounts/views.py:501
+#: warehouse/accounts/views.py:503
 #, fuzzy
 msgid "Invalid token: not a password reset token"
 msgstr "token 無效：不是密碼重置 token"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:508
 #, fuzzy
 msgid "Invalid token: user not found"
 msgstr "token 無效：找不到用戶"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:515
 #, fuzzy
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "token 無效：自請求 token 後，使用者已經登錄"
 
-#: warehouse/accounts/views.py:520
+#: warehouse/accounts/views.py:522
 #, fuzzy
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "token 無效：自請求 token 後，密碼已經更改"
 
-#: warehouse/accounts/views.py:546
+#: warehouse/accounts/views.py:548
 msgid "You have reset your password"
 msgstr "您已重置密碼"
 
-#: warehouse/accounts/views.py:571
+#: warehouse/accounts/views.py:573
 #, fuzzy
 msgid "Expired token: request a new email verification link"
 msgstr "token 過期：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:573
+#: warehouse/accounts/views.py:575
 #, fuzzy
 msgid "Invalid token: request a new email verification link"
 msgstr "token 無效：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:581
 #, fuzzy
 msgid "Invalid token: not an email verification token"
 msgstr "token 無效：不是電子郵件驗證 token"
 
-#: warehouse/accounts/views.py:588
+#: warehouse/accounts/views.py:590
 msgid "Email not found"
 msgstr "未找到電子郵件"
 
-#: warehouse/accounts/views.py:591
+#: warehouse/accounts/views.py:593
 msgid "Email already verified"
 msgstr "已驗證的電子郵件"
 
-#: warehouse/accounts/views.py:603
+#: warehouse/accounts/views.py:605
 msgid "You can now set this email as your primary address"
 msgstr "您現在可以將此電子郵件設定為您的主位址"
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:607
 msgid "This is your primary address"
 msgstr "這是您的主地址"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:612
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "已驗證電子郵件地址 ${email_address} 。${confirm_message}。"
 
