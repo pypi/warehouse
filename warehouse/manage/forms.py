@@ -189,7 +189,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope", "expiration"]
+    __params__ = ["description", "token_scope", "expiration", "used"]
 
     description = wtforms.StringField(
         validators=[

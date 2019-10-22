@@ -23,7 +23,6 @@ from warehouse.classifiers.models import Classifier
 from datetime import datetime, timezone
 
 
-
 def _exc_with_message(exc, message):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.

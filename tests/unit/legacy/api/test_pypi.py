@@ -14,7 +14,12 @@ import pretend
 import pytest
 import pymacaroons
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound, HTTPUnauthorized
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPUnauthorized,
+)
 
 from warehouse.legacy.api import pypi
 
@@ -218,8 +223,7 @@ class TestDisplay:
 
 class TestToken:
     @pytest.mark.parametrize(
-        ("project_name", "version", "valid"),
-        [("foo", "1.0", True)],
+        ("project_name", "version"), [("foo", "1.0")]
     )
     def test_token_creation(
         self, db_request, macaroon_service, project_name, version, valid
@@ -243,7 +247,7 @@ class TestToken:
             description="fake description!",
         )
         assert isinstance(pypi.create_token(request), dict)
-    
+
     def test_invalid_master_token(self, macaroon_service):
         user = UserFactory.create()
         request = pretend.stub(
