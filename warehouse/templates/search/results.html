@@ -69,6 +69,7 @@
 
 
 {% block search_form_extra_inputs -%}
+  <input type="hidden" name="o" value="{{ order }}">
   {%- for classifier in applied_filters %}
   <input name="c" type="hidden" value="{{ classifier|e }}">
   {%- endfor -%}

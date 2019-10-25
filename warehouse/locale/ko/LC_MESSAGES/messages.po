@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-17 13:29-0400\n"
+"POT-Creation-Date: 2019-10-18 13:36-0400\n"
 "PO-Revision-Date: 2019-10-18 15:26+0000\n"
 "Last-Translator: Hyunwoo Park <ez.amiryo@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
@@ -125,7 +125,7 @@ msgstr "이미 인증됨"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 승인 성공"
 
-#: warehouse/accounts/views.py:397
+#: warehouse/accounts/views.py:398
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -133,69 +133,69 @@ msgstr ""
 "새 사용자 등록이 잠시 불가능한 상태입니다. https://pypi.org/help#admin-"
 "intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/accounts/views.py:493
+#: warehouse/accounts/views.py:495
 msgid "Expired token: request a new password reset link"
 msgstr "만료된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:495
+#: warehouse/accounts/views.py:497
 msgid "Invalid token: request a new password reset link"
 msgstr "잘못된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:497 warehouse/accounts/views.py:575
+#: warehouse/accounts/views.py:499 warehouse/accounts/views.py:577
 msgid "Invalid token: no token supplied"
 msgstr "잘못된 토큰: 토큰이 제공되지 않음"
 
-#: warehouse/accounts/views.py:501
+#: warehouse/accounts/views.py:503
 msgid "Invalid token: not a password reset token"
 msgstr "잘못된 토큰: 암호 재설정 토큰이 아님"
 
-#: warehouse/accounts/views.py:506
+#: warehouse/accounts/views.py:508
 msgid "Invalid token: user not found"
 msgstr "잘못된 토큰: 사용자 없음"
 
-#: warehouse/accounts/views.py:513
+#: warehouse/accounts/views.py:515
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 사용자가 로그인함"
 
-#: warehouse/accounts/views.py:520
+#: warehouse/accounts/views.py:522
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 패스워드가 변경됨"
 
-#: warehouse/accounts/views.py:546
+#: warehouse/accounts/views.py:548
 msgid "You have reset your password"
 msgstr "패스워드를 재설정해야 합니다"
 
-#: warehouse/accounts/views.py:571
+#: warehouse/accounts/views.py:573
 msgid "Expired token: request a new email verification link"
 msgstr "만료된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:573
+#: warehouse/accounts/views.py:575
 msgid "Invalid token: request a new email verification link"
 msgstr "잘못된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:581
 msgid "Invalid token: not an email verification token"
 msgstr "잘못된 토큰: 이메일 확인 토큰이 아님"
 
-#: warehouse/accounts/views.py:588
+#: warehouse/accounts/views.py:590
 msgid "Email not found"
 msgstr "이메일을 찾을 수 없음"
 
-#: warehouse/accounts/views.py:591
+#: warehouse/accounts/views.py:593
 msgid "Email already verified"
 msgstr "이미 확인된 이메일"
 
-#: warehouse/accounts/views.py:603
+#: warehouse/accounts/views.py:605
 msgid "You can now set this email as your primary address"
 msgstr "이 이메일을 기본 이메일 주소로 지정할 수 있습니다"
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:607
 msgid "This is your primary address"
 msgstr "기본 이메일 주소입니다"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:612
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "이메일 주소 ${email_address}가 확인되었습니다. ${confirm_message}."
 

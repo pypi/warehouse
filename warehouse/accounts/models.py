@@ -98,7 +98,7 @@ class User(SitemapMixin, db.Model):
     )
 
     events = orm.relationship(
-        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=False
+        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
     def record_event(self, *, tag, ip_address, additional):

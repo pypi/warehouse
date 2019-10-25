@@ -137,7 +137,7 @@ class Project(SitemapMixin, db.Model):
     )
 
     events = orm.relationship(
-        "ProjectEvent", backref="project", cascade="all, delete-orphan", lazy=False
+        "ProjectEvent", backref="project", cascade="all, delete-orphan", lazy=True
     )
 
     def __getitem__(self, version):
