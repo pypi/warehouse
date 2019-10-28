@@ -528,9 +528,9 @@ stdlib-list==0.5.0 \
 structlog==19.1.0 \
     --hash=sha256:5feae03167620824d3ae3e8915ea8589fc28d1ad6f3edf3cc90ed7c7cb33fab5 \
     --hash=sha256:db441b81c65b0f104a7ce5d86c5432be099956b98b8a2c8be0b3fb3a7a0b1536
-tenacity==5.1.1 \
-    --hash=sha256:6a7511a59145c2e319b7d04ddd93c12d48cc3d3c8fa42c2846d33a620ee91f57 \
-    --hash=sha256:a4eb168dbf55ed2cae27e7c6b2bd48ab54dabaf294177d998330cf59f294c112
+tenacity==5.1.4 \
+    --hash=sha256:378a54a58fa1f3ec0df9cb3a19afb714f701f528ce2a37202e2de8b2867c8bc1 \
+    --hash=sha256:e8db193a7245c55e01480b31a71174dbfdefeee2ad40713798721bd2a7def481
 transaction==2.4.0 \
     --hash=sha256:726059c461b9ec4e69e5bead6680667a3db01bf2adf901f23e4031228a0f9f9f \
     --hash=sha256:b96a5e9aaa73f905759bc9ccf0021bf4864c01ac36666e0d28395e871f6d584a
