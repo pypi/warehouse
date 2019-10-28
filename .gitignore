@@ -21,6 +21,9 @@ node_modules/
 dev/example.sql
 dev/prod.sql
 dev/prod.sql.xz
+dev/notdatadog.py
+dev/smtp.py
+docs/conf.py
 ./data/
 
 warehouse/.commit
