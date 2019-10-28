@@ -226,7 +226,7 @@ class TestToken:
         ("project_name", "version"), [("foo", "1.0")]
     )
     def test_token_creation(
-        self, db_request, macaroon_service, project_name, version, valid
+        self, db_request, macaroon_service, project_name, version,
     ):
         user = UserFactory.create()
         master_key, macaroon = macaroon_service.create_macaroon(
