@@ -85,8 +85,9 @@
 
               <li>
                 {% set title = gettext("Delete file from") %}
+                {% set confirm_name = "delete_file_from" %}
                 {% set confirm_button_label = gettext("Delete file") %}
-                {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
+                {% set slug = confirm_name.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
                 <a href="#{{ slug }}" class="dropdown__link">
                   <i class="fa fa-trash-alt" aria-hidden="true"></i>
                   {% trans %}Delete{% endtrans %}
@@ -100,7 +101,7 @@
               </li>
             </ul>
           </nav>
-          {{ confirm_modal(title, gettext("Project name"), project.name, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description) }}
+          {{ confirm_modal(title, gettext("Project name"), "project_name", project.name, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description) }}
         </td>
       </tr>
     {% endfor %}
@@ -138,7 +139,7 @@
         Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.
       {% endtrans %}
     </p>
-    {{ confirm_button(gettext("Delete release"), gettext("Version"), release.version) }}
+    {{ confirm_button(gettext("Delete release"), gettext("Version"), "version", release.version) }}
   </div>
 
   {% if files %}

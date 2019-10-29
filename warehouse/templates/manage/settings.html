@@ -82,6 +82,6 @@
       </li>
     </ul>
     {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
-    {{ confirm_button(gettext("Delete project"), gettext("Project Name"), project.name, action=action) }}
+    {{ confirm_button(gettext("Delete project"), gettext("Project Name"), "project_name", project.name, action=action) }}
   </div>
 {% endblock %}

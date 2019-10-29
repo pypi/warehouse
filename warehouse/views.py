@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import collections
 import re
 
@@ -166,6 +167,7 @@ def opensearchxml(request):
             keys=["all-projects", "trending"],
         )
     ],
+    has_translations=True,
 )
 def index(request):
     project_ids = [
@@ -250,7 +252,9 @@ def locale(request):
     return resp
 
 
-@view_config(route_name="classifiers", renderer="pages/classifiers.html")
+@view_config(
+    route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
+)
 def classifiers(request):
     classifiers = (
         request.db.query(Classifier.classifier)
@@ -272,6 +276,7 @@ def classifiers(request):
             keys=["all-projects"],
         )
     ],
+    has_translations=True,
 )
 def search(request):
     metrics = request.find_service(IMetricsService, context=None)
@@ -395,6 +400,7 @@ def search(request):
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
+    has_translations=True,
 )
 @view_config(
     route_name="stats.json",
@@ -432,6 +438,7 @@ def stats(request):
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
     uses_session=True,
+    has_translations=True,
 )
 def current_user_indicator(request):
     return {}
@@ -441,6 +448,7 @@ def current_user_indicator(request):
     route_name="includes.flash-messages",
     renderer="includes/flash-messages.html",
     uses_session=True,
+    has_translations=True,
 )
 def flash_messages(request):
     return {}
@@ -450,6 +458,7 @@ def flash_messages(request):
     route_name="includes.session-notifications",
     renderer="includes/session-notifications.html",
     uses_session=True,
+    has_translations=True,
 )
 def session_notifications(request):
     return {}
