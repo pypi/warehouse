@@ -144,6 +144,7 @@ def json_release(release, request):
                 #       here to consider it no longer in use.
                 "downloads": -1,
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                "upload_time_iso_8601": f.upload_time.isoformat() + "Z",
                 "url": request.route_url("packaging.file", path=f.path),
                 "requires_python": r.requires_python if r.requires_python else None,
             }
