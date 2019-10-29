@@ -201,6 +201,20 @@ def send_added_as_collaborator_email(request, user, *, submitter, project_name, 
     return {"project": project_name, "submitter": submitter.username, "role": role}
 
 
+@_email("2fa-added")
+def send_2fa_added_email(request, user, method):
+    # TODO: trans the pretty_methods
+    pretty_methods = {'totp': 'TOTP', 'webauthn': 'WebAuthn'}
+    return {"method": pretty_methods[method], "username": user.username}
+
+
+@_email("2fa-removed")
+def send_2fa_removed_email(request, user, method):
+    # TODO: trans the pretty_methods
+    pretty_methods = {'totp': 'TOTP', 'webauthn': 'WebAuthn'}
+    return {"method": pretty_methods[method], "username": user.username}
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

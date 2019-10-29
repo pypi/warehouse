@@ -462,6 +462,9 @@ class ProvisionTOTPViews:
                 "Authentication application successfully set up", queue="success"
             )
 
+            # we'll need this to email the user once the transaction is committed
+            self.request.db.info['request'] = self.request
+
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         return {**self.default_response, "provision_totp_form": form}
@@ -500,6 +503,9 @@ class ProvisionTOTPViews:
                 "Remember to remove PyPI from your application.",
                 queue="success",
             )
+
+            # we'll need this to email the user once the transaction is committed
+            self.request.db.info['request'] = self.request
         else:
             self.request.session.flash("Invalid credentials. Try again", queue="error")
 
@@ -575,6 +581,10 @@ class ProvisionWebAuthnViews:
             self.request.session.flash(
                 "Security device successfully set up", queue="success"
             )
+
+            # we'll need this to email the user once the transaction is committed
+            self.request.db.info['request'] = self.request
+
             return {"success": "Security device successfully set up"}
 
         errors = [
@@ -610,6 +620,9 @@ class ProvisionWebAuthnViews:
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
+
+            # we'll need this to email the user once the transaction is committed
+            self.request.db.info['request'] = self.request
         else:
             self.request.session.flash("Invalid credentials", queue="error")
 
