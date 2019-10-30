@@ -16,7 +16,7 @@ import pretend
 import pytest
 import transaction
 
-from celery import Celery
+from celery import Celery, Task
 from pyramid import scripting
 from pyramid_retry import RetryableException
 
@@ -77,17 +77,7 @@ class TestWarehouseTask:
 
     def test_without_request(self, monkeypatch):
         async_result = pretend.stub()
-        super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: async_result)
-        )
-        real_super = __builtins__["super"]
-        inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
-
-        def fake_super(*args, **kwargs):
-            if not args and not kwargs:
-                return inner_super(*args, **kwargs)
-            else:
-                return real_super(*args, **kwargs)
+        apply_async = pretend.call_recorder(lambda *a, **kw: async_result)
 
         get_current_request = pretend.call_recorder(lambda: None)
         monkeypatch.setattr(tasks, "get_current_request", get_current_request)
@@ -95,27 +85,16 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(Task, "apply_async", apply_async)
 
         assert task.apply_async() is async_result
 
-        assert super_class.apply_async.calls == [pretend.call()]
+        assert apply_async.calls == [pretend.call(task)]
         assert get_current_request.calls == [pretend.call()]
-        assert inner_super.calls == [pretend.call()]
 
     def test_request_without_tm(self, monkeypatch):
         async_result = pretend.stub()
-        super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: async_result)
-        )
-        real_super = __builtins__["super"]
-        inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
-
-        def fake_super(*args, **kwargs):
-            if not args and not kwargs:
-                return inner_super(*args, **kwargs)
-            else:
-                return real_super(*args, **kwargs)
+        apply_async = pretend.call_recorder(lambda *a, **kw: async_result)
 
         request = pretend.stub()
         get_current_request = pretend.call_recorder(lambda: request)
@@ -124,13 +103,12 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(Task, "apply_async", apply_async)
 
         assert task.apply_async() is async_result
 
-        assert super_class.apply_async.calls == [pretend.call()]
+        assert apply_async.calls == [pretend.call(task)]
         assert get_current_request.calls == [pretend.call()]
-        assert inner_super.calls == [pretend.call()]
 
     def test_request_after_commit(self, monkeypatch):
         manager = pretend.stub(
@@ -160,29 +138,19 @@ class TestWarehouseTask:
         args = [pretend.stub(), pretend.stub()]
         kwargs = {"foo": pretend.stub(), "bar": pretend.stub()}
 
-        super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        real_super = __builtins__["super"]
-        inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
-
-        def fake_super(*args, **kwargs):
-            if not args and not kwargs:
-                return inner_super(*args, **kwargs)
-            else:
-                return real_super(*args, **kwargs)
+        apply_async = pretend.call_recorder(lambda *a, **kw: None)
 
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(Task, "apply_async", apply_async)
 
         task._after_commit_hook(success, *args, **kwargs)
 
         if success:
-            assert inner_super.calls == [pretend.call()]
+            assert apply_async.calls == [pretend.call(task, *args, **kwargs)]
         else:
-            assert inner_super.calls == []
+            assert apply_async.calls == []
 
     def test_creates_request(self, monkeypatch):
         registry = pretend.stub()
