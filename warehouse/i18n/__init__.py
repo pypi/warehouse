@@ -21,11 +21,11 @@ from warehouse.cache.http import add_vary
 
 KNOWN_LOCALES = {
     "en": "English",
-    "es": "Spanish",
-    "fr": "French",
-    "ja": "Japanese",
-    "pt_BR": "Portuguese (Brazil)",
-    "uk": "Ukrainian",
+    "es": "Español",
+    "fr": "Français",
+    "ja": "日本語",
+    "pt_BR": "Português (do Brasil)",
+    "uk": "Українська",
 }
 
 LOCALE_ATTR = "_LOCALE_"
