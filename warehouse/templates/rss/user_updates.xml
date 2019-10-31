@@ -1,0 +1,13 @@
+{% extends "base.xml" %}
+{% block title %}{{ user.name }} recent updates{% endblock %}
+{% block description %}Recent updates from {{ user.name }} to the Python Package Index{% endblock %}
+{% block items -%}
+  {% for release in latest_releases %}
+    <item>
+      <title>{{ release.project.name }} {{ release.version }}</title>
+      <link>{{ request.route_url('packaging.release', name=release.project.normalized_name, version=release.version) }}</link>
+      <description>{{ release.summary }}</description>
+      <pubDate>{{ release.created|format_rfc822_datetime() }}</pubDate>
+    </item>
+  {%- endfor %}
+{%- endblock %}

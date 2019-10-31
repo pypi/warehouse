@@ -276,6 +276,13 @@ def includeme(config):
     # RSS
     config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
+    config.add_route(
+        "rss.user_updates",
+        "/user/{username}/updates.xml",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+        domain=warehouse,
+    )
 
     # Legacy URLs
     config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)

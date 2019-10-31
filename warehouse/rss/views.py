@@ -13,6 +13,7 @@
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
+from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
 from warehouse.xml import XML_CSP
@@ -72,3 +73,34 @@ def rss_packages(request):
     )
 
     return {"newest_projects": newest_projects}
+
+
+@view_config(
+    route_name="rss.user_updates",
+    context=User,
+    renderer="rss/user_updates.xml",
+    decorator=[
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            keys=["all-projects"],
+        )
+    ],
+)
+def rss_user_updates(user, request):
+    request.response.content_type = "text/xml"
+
+    request.find_service(name="csp").merge(XML_CSP)
+
+    latest_releases = (
+        request.db.query(Release)
+        .join(Project)
+        .filter(Project.users.any(username=user.username))
+        .options(joinedload(Release.project))
+        .order_by(Release.created.desc())
+        .limit(40)
+        .all()
+    )
+
+    return {"latest_releases": latest_releases, "user": user}
