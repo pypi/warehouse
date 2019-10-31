@@ -39,6 +39,12 @@
               &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined on {{ start_date }}{% endtrans %}
             </p>
             {% endif %}
+            {% if projects %}
+            <p>
+              <i class="fa fa-rss" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}RSS Feed{% endtrans %}</span>
+              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_updates', username=user.username) }}">{% trans %}Recent updates{% endtrans %}</a></p>
+            {% endif %}
           </div>
           {% csi request.route_path("includes.profile-actions", username=user.username) %}
           {% endcsi %}
