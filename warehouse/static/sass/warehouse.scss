@@ -137,6 +137,10 @@
   word-break: break-all;
 }
 
+.ellipsized {
+  @include ellipsis;
+}
+
 // COLORS
 // Make text or icons red to draw attention
 .danger {

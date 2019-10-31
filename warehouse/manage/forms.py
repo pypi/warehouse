@@ -63,7 +63,7 @@ class ChangeRoleForm(RoleNameMixin, forms.Form):
 
 class SaveAccountForm(forms.Form):
 
-    __params__ = ["is_email_private", "name"]
+    __params__ = ["name"]
 
     is_email_private = wtforms.BooleanField()
     name = wtforms.StringField()

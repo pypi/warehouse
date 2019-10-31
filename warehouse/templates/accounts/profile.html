@@ -38,7 +38,7 @@
               <i class="fa fa-envelope" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Email{% endtrans %}</span>
               &nbsp;&nbsp;
-              <a href="mailto:{{ user.primary_email.email }}">
+              <a class="ellipsized" href="mailto:{{ user.primary_email.email }}">
                   {{ user.primary_email.email }}
               </a>
             </p>
