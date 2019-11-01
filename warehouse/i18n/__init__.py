@@ -19,6 +19,9 @@ from pyramid.threadlocal import get_current_request
 
 from warehouse.cache.http import add_vary
 
+
+# https://github.com/django/django/blob/master/django/conf/locale/__init__.py
+
 KNOWN_LOCALES = {
     "en": "English",
     "es": "Español",
