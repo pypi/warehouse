@@ -173,9 +173,9 @@ cssutils==1.0.2 \
 datadog==0.30.0 \
     --hash=sha256:07c053e39c6509023d69bc2f3b8e3d5d101b4e75baf2da2b9fc707391c3e773d \
     --hash=sha256:bbfd8c3a13e87b9c15fb982dff269b983ad9fb5ab610e7f17d92b0bc001fbe0f
-decorator==4.4.0 \
-    --hash=sha256:86156361c50488b84a3f148056ea716ca587df2f0de1d34750d35c21312725de \
-    --hash=sha256:f069f3a01830ca754ba5258fde2278454a0b5b79e0d7f5c13b3b97e57d4acff6
+decorator==4.4.1 \
+    --hash=sha256:54c38050039232e1db4ad7375cfce6748d7b41c29e95a081c8a6d2c30364a2ce \
+    --hash=sha256:5d19b92a3c8f7f101c8dd86afd86b0f061a8ce4540ab8cd401fa2542756bce6d
 disposable-email-domains==0.0.55 \
     --hash=sha256:500997ede1674ef459ea90dc728ac2b9f1f97f1700b9a65961fc8f73cbd6751f \
     --hash=sha256:e4b0359c9319a8d407bb6b06cea88a46ccbef5b0347ce931d5665e8c9b394b3c
