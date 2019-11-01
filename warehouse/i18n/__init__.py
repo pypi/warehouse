@@ -19,15 +19,14 @@ from pyramid.threadlocal import get_current_request
 
 from warehouse.cache.http import add_vary
 
-
+# Taken from:
 # https://github.com/django/django/blob/master/django/conf/locale/__init__.py
-
 KNOWN_LOCALES = {
     "en": "English",
-    "es": "Español",
-    "fr": "Français",
+    "es": "español",
+    "fr": "français",
     "ja": "日本語",
-    "pt_BR": "Português (do Brasil)",
+    "pt_BR": "Português Brasileiro",
     "uk": "Українська",
 }
 
