@@ -5,13 +5,14 @@
 # Josix <wilson8507@gmail.com>, 2019.
 # Josix <josixwang@gmail.com>, 2019.
 # Tom Chen <ctchen@gmail.com>, 2019.
+# Allan Nordhøy <epost@anotheragency.no>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-10-16 12:51+0000\n"
-"Last-Translator: Josix <josixwang@gmail.com>\n"
+"PO-Revision-Date: 2019-10-29 18:48+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9\n"
+"X-Generator: Weblate 3.9.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -1058,9 +1059,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
-"如果您未進行此更改，則可以通過電子郵件發送<a href=\"%(href)s\">"
-"%(email_address)s<a href=\"%(href)s\"> %(email_address)s </a>與 PyPI 管理員進"
-"行溝通。"
+"如果您未進行此更改，則可以通過電子郵件發送<a href=\"%(href)s\">%(email_address)s</a>與 PyPI "
+"管理員進行溝通。"
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
