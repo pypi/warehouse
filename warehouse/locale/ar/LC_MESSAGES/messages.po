@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Mariam Maarouf <mariam.mrf@hotmail.com>, 2019.
+# Sayed A Omar <devsayed1@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-10-17 10:13+0000\n"
-"Last-Translator: Mariam Maarouf <mariam.mrf@hotmail.com>\n"
+"PO-Revision-Date: 2019-10-25 21:06+0000\n"
+"Last-Translator: Sayed A Omar <devsayed1@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 3.9\n"
+"X-Generator: Weblate 3.9.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -378,6 +379,8 @@ msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"اختر كلمة مرور تحتوى على حروف كبيره وصغيره , ارقام و رموز خاصة. تجنب الكلمات "
+"الشائعه و المتكرره."
 
 #: warehouse/templates/base.html:27
 #, fuzzy
@@ -403,12 +406,12 @@ msgstr "التنقل الرئيسي"
 #: warehouse/templates/pages/help.html:92
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr ""
+msgstr "مساعده"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:60
 msgid "Donate"
-msgstr ""
+msgstr "تبرع"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
@@ -419,7 +422,7 @@ msgstr "تسجيل الدخول"
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "تسجيل"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
@@ -428,7 +431,7 @@ msgstr "رؤية القائمة"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "قائمة"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -451,11 +454,11 @@ msgstr ""
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "انتقال الى المحتوى الرئيسي"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "تحويل الى اصدار الموبايل"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -467,11 +470,11 @@ msgstr ""
 #: warehouse/templates/manage/release.html:127
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
-msgstr ""
+msgstr "تحذير"
 
 #: warehouse/templates/base.html:161
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr ""
+msgstr "انت تستخدم متصفح غير مدعوم, قم بالترقيه الى اصدار احدث."
 
 #: warehouse/templates/base.html:170
 msgid ""
