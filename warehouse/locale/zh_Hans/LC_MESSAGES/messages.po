@@ -5,13 +5,14 @@
 # 王赛 <wangsai@bootcss.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # liushuyu011 <liushuyu011@gmail.com>, 2019.
+# Jesse201147 <tjx201147@163.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-10-23 13:46+0000\n"
-"Last-Translator: liushuyu011 <liushuyu011@gmail.com>\n"
+"PO-Revision-Date: 2019-11-01 10:52+0000\n"
+"Last-Translator: Jesse201147 <tjx201147@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -375,10 +376,8 @@ msgid "Password strength:"
 msgstr "密码强度："
 
 #: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password field is empty"
-msgstr "重置密码"
+msgstr "密码是空的"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -466,7 +465,7 @@ msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
-msgstr ""
+msgstr "您正在使用TestPyPI – Python包索引的单独实例，可让您尝试分发工具包并且不会影响实际索引."
 
 #: warehouse/templates/base.html:180
 msgid ""
