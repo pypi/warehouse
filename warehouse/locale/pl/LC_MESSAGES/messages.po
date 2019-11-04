@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-10-18 15:26+0000\n"
+"PO-Revision-Date: 2019-10-27 05:58+0000\n"
 "Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
@@ -951,11 +951,11 @@ msgstr "Poproś o zresetowanie hasła"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
-msgstr ""
+msgstr "Wysłano wiadomość e-mail resetującą hasło"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "An email has been sent to your registered email address."
-msgstr ""
+msgstr "Wiadomość e-mail została wysłana na Twój zarejestrowany adres e-mail."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
