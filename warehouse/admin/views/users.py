@@ -217,6 +217,7 @@ def user_delete(request):
     route_name="admin.user.reset_password",
     require_methods=["POST"],
     permission="admin",
+    has_translations=True,
     uses_session=True,
     require_csrf=True,
 )
