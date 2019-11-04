@@ -5,22 +5,23 @@
 # Albert Tugushev <albert@tugushev.ru>, 2019.
 # Sebastian Witowski <sebawitowski@yahoo.com>, 2019.
 # Irina Saribekova <irina.saribekova@gmail.com>, 2019.
+# Andrey Smelter <andrey.smelter@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-10-16 15:21+0000\n"
-"Last-Translator: Irina Saribekova <irina.saribekova@gmail.com>\n"
+"PO-Revision-Date: 2019-11-04 14:25+0000\n"
+"Last-Translator: Andrey Smelter <andrey.smelter@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.9\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -393,14 +394,16 @@ msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"Выберите пароль, который содержит буквы (заглавные и строчные), цифры и "
+"специальные символы. Избегайте простых слов или повторения."
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
-msgstr ""
+msgstr "Надёжность пароля:"
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr ""
+msgstr "Поле пароля не заполнено"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -413,23 +416,23 @@ msgstr ""
 #: warehouse/templates/pages/help.html:92
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr ""
+msgstr "Помощь"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:60
 msgid "Donate"
-msgstr ""
+msgstr "Пожертвовать"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
-msgstr ""
+msgstr "Войти"
 
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Зарегистрироваться"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
@@ -438,12 +441,12 @@ msgstr ""
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
 msgid "Main menu"
-msgstr ""
+msgstr "Главное меню"
 
 #: warehouse/templates/base.html:79 warehouse/templates/index.html:80
 msgid ""
@@ -455,7 +458,7 @@ msgstr ""
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 40 последних обновлений"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
@@ -467,7 +470,7 @@ msgstr ""
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "Перейти на мобильную версию"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -479,11 +482,12 @@ msgstr ""
 #: warehouse/templates/manage/release.html:127
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
-msgstr ""
+msgstr "Предупреждение"
 
 #: warehouse/templates/base.html:161
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
+"Вы используете неподдерживаемый браузер, обновите его до более новой версии."
 
 #: warehouse/templates/base.html:170
 msgid ""
@@ -491,12 +495,17 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"Вы используете TestPyPI – изолированная версия Python Package Index, которая "
+"позволяет вам попробовать инструменты распространения программного "
+"обеспечения и рабочие процессы, не влияя на реальный PyPI."
 
 #: warehouse/templates/base.html:180
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
+"Некоторые функции могут не работать без JavaScript. Пожалуйста, попробуйте "
+"включить его, если у вас возникнут проблемы."
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
@@ -521,26 +530,24 @@ msgid "Help navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "Подробнее об установке пакетов</a>."
+msgstr "Установка пакетов"
 
 #: warehouse/templates/base.html:261
 msgid "Uploading packages"
-msgstr ""
+msgstr "Загрузка пакетов"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
-msgstr ""
+msgstr "Руководство пользователя"
 
 #: warehouse/templates/base.html:263
 msgid "FAQs"
-msgstr ""
+msgstr "Часто задаваемые вопросы"
 
 #: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "О PyPI"
 
 #: warehouse/templates/base.html:270
 msgid "About PyPI navigation"
@@ -548,23 +555,23 @@ msgstr ""
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPI в Twitter"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "Панель мониторинга инфраструктуры"
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
-msgstr ""
+msgstr "Сохранение имени пакета"
 
 #: warehouse/templates/base.html:275
 msgid "Our sponsors"
-msgstr ""
+msgstr "Наши спонсоры"
 
 #: warehouse/templates/base.html:281
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "Принять участие в разработке PyPI"
 
 #: warehouse/templates/base.html:282
 msgid "How to contribute navigation"
@@ -572,15 +579,15 @@ msgstr ""
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "Программные ошибки и обратная связь"
 
 #: warehouse/templates/base.html:285
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "Принять участие в разработке на GitHub"
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
-msgstr ""
+msgstr "Перевод PyPI"
 
 #: warehouse/templates/base.html:287
 msgid "Development credits"
@@ -588,7 +595,7 @@ msgstr ""
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr ""
+msgstr "Использование PyPI"
 
 #: warehouse/templates/base.html:294
 msgid "Using PyPI navigation"
@@ -596,44 +603,44 @@ msgstr ""
 
 #: warehouse/templates/base.html:296
 msgid "Code of conduct"
-msgstr ""
+msgstr "Правила поведения"
 
 #: warehouse/templates/base.html:297
 msgid "Report security issue"
-msgstr ""
+msgstr "Сообщить о проблеме безопасности"
 
 #: warehouse/templates/base.html:298
 msgid "Privacy policy"
-msgstr ""
+msgstr "Политика конфиденциальности"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "Условия пользования"
 
 #: warehouse/templates/base.html:309
 msgid "Status: "
-msgstr ""
+msgstr "Статус: "
 
 #: warehouse/templates/base.html:310
 msgid "all systems operational"
-msgstr ""
+msgstr "все системы в рабочем состоянии"
 
 #: warehouse/templates/base.html:314
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
+msgstr "Разработано и поддерживается сообществом Python для сообщества Python."
 
 #: warehouse/templates/base.html:316
 msgid "Donate today!"
-msgstr ""
+msgstr "Пожертвуйте сегодня!"
 
 #: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr ""
+msgstr "Карта сайта"
 
 #: warehouse/templates/base.html:325
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "Перейти на настольную версию"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -699,7 +706,7 @@ msgstr "Подробнее об установке пакетов</a>."
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
-"Авторы пакета используют PyPI для распространения своего программного "
+"Авторы пакетов используют PyPI для распространения своего программного "
 "обеспечения."
 
 #: warehouse/templates/index.html:87
@@ -707,25 +714,24 @@ msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Узнайте, как упаковать код Python для PyPI</a>."
 
 #: warehouse/templates/index.html:97
-#, fuzzy
 msgid "Trending projects"
-msgstr "Трендовые проекты"
+msgstr "Популярные проекты"
 
 #: warehouse/templates/index.html:98
 msgid "Trending projects as downloaded by the community"
-msgstr ""
+msgstr "Популярные проекты по статистике загрузок сообществом"
 
 #: warehouse/templates/index.html:108
 msgid "New releases"
-msgstr ""
+msgstr "Новые версии"
 
 #: warehouse/templates/index.html:109
 msgid "Hot off the press: the newest project releases"
-msgstr ""
+msgstr "Свеженькое: новейшие версии проектов"
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
-msgstr ""
+msgstr "Этот URL-адрес является точкой выхода API для загрузки файлов в PyPI."
 
 #: warehouse/templates/upload.html:26
 #, python-format
@@ -734,12 +740,17 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
 "Packaging User Guide</a>."
 msgstr ""
+"Чтобы узнать больше о загрузке проектов в PyPI, посетите <a href=\"%(href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> Пользовательское "
+"руководство по созданию пакетов Python</a>."
 
 #: warehouse/templates/upload.html:28
 #, python-format
 msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
+"Иначе, советуем вам <a href=\"%(href)s\"> перейти на главную страницу PyPI "
+"</a>."
 
 #: warehouse/templates/accounts/login.html:17
 #: warehouse/templates/accounts/register.html:17
@@ -750,12 +761,12 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22
 msgid "Error processing form"
-msgstr ""
+msgstr "Ошибка обработки формы"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
-msgstr ""
+msgstr "Войти в %(title)s"
 
 #: warehouse/templates/accounts/login.html:49
 #: warehouse/templates/accounts/profile.html:32
@@ -763,7 +774,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:269
 #: warehouse/templates/manage/roles.html:140
 msgid "Username"
-msgstr ""
+msgstr "Имя пользователя"
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -788,61 +799,61 @@ msgstr ""
 #: warehouse/templates/manage/token.html:123
 #: warehouse/templates/manage/token.html:140
 msgid "(required)"
-msgstr ""
+msgstr "(обязательный)"
 
 #: warehouse/templates/accounts/login.html:54
 msgid "Your username"
-msgstr ""
+msgstr "Ваше имя пользователя"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
 msgid "Password"
-msgstr ""
+msgstr "Пароль"
 
 #: warehouse/templates/accounts/login.html:76
 #: warehouse/templates/manage/manage_base.html:168
 msgid "Show password"
-msgstr ""
+msgstr "Показать пароль"
 
 #: warehouse/templates/accounts/login.html:79
 msgid "Your password"
-msgstr ""
+msgstr "Ваш пароль"
 
 #: warehouse/templates/accounts/login.html:97
 msgid "Forgot password?"
-msgstr ""
+msgstr "Забыли пароль?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
-msgstr ""
+msgstr "Выйти"
 
 #: warehouse/templates/accounts/logout.html:19
 #, python-format
 msgid "Log out of %(account_name)s"
-msgstr ""
+msgstr "Выйти из %(account_name)s"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
 msgid "Profile of %(username)s"
-msgstr ""
+msgstr "Профиль %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:244
 #: warehouse/templates/manage/roles.html:56
 msgid "Avatar for {user} from gravatar.com"
-msgstr ""
+msgstr "Аватар для {user} с gravatar.com"
 
 #: warehouse/templates/accounts/profile.html:38
 msgid "Date joined"
-msgstr ""
+msgstr "Дата регистрации"
 
 #: warehouse/templates/accounts/profile.html:39
 #, python-format
 msgid "Joined on %(start_date)s"
-msgstr ""
+msgstr "Зарегистрировался %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:53
 #, python-format
@@ -855,14 +866,21 @@ msgid_plural ""
 "            %(count)s projects\n"
 "          "
 msgstr[0] ""
+"\n"
+"            %(count)s проект\n"
+"          "
 msgstr[1] ""
+"\n"
+"            %(count)s  проекты\n"
+"          "
 msgstr[2] ""
+"\n"
+"            %(count)s проектов\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:59
-#, fuzzy
-#| msgid "Search projects"
 msgid "No projects"
-msgstr "Поиск проектов"
+msgstr "Проекты не найдены"
 
 #: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/manage/projects.html:36
@@ -873,54 +891,54 @@ msgstr ""
 #: warehouse/templates/accounts/profile.html:76
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr ""
+msgstr "%(user)s еще не загрузил(-а) никаких проектов в PyPI"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
-msgstr ""
+msgstr "Создать учетную запись"
 
 #: warehouse/templates/accounts/register.html:30
 #, python-format
 msgid "Create an account on %(title)s"
-msgstr ""
+msgstr "Создать учетную запись на %(title)s"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:160
 #: warehouse/templates/manage/account.html:494
 msgid "Name"
-msgstr ""
+msgstr "Имя"
 
 #: warehouse/templates/accounts/register.html:50
 msgid "Your name"
-msgstr ""
+msgstr "Ваше имя"
 
 #: warehouse/templates/accounts/register.html:64
 #: warehouse/templates/manage/account.html:328
 msgid "Email address"
-msgstr ""
+msgstr "Адрес электронной почты"
 
 #: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:349
 msgid "Your email address"
-msgstr ""
+msgstr "Ваш электронный адрес"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "Форма подтверждения"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
-msgstr ""
+msgstr "Выберите имя пользователя"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:376
 msgid "Show passwords"
-msgstr ""
+msgstr "Показать пароли"
 
 #: warehouse/templates/accounts/register.html:120
 msgid "Select a password"
-msgstr ""
+msgstr "Выберите пароль"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
@@ -928,36 +946,36 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:66
 #: warehouse/templates/manage/account.html:407
 msgid "Confirm password"
-msgstr ""
+msgstr "Подтвердите пароль"
 
 #: warehouse/templates/accounts/register.html:159
 msgid "Create account"
-msgstr ""
+msgstr "Создать учетную запись"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "Сброс пароля"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
-msgstr ""
+msgstr "Чтобы сбросить пароль, введите имя пользователя или электронный адрес."
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "Имя пользователя или адрес электронной почты"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "Запросить сброс пароля"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
-msgstr ""
+msgstr "Сообщение о сбросе отправлено по электронной почте"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "An email has been sent to your registered email address."
-msgstr ""
+msgstr "Сообщение отправлено на ваш электронный адрес."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -965,30 +983,32 @@ msgid ""
 "The email contains a link to reset your password. This link will expire in "
 "%(n_hours)s hours."
 msgstr ""
+"Сообщение содержит ссылку для сброса пароля. Срок действия ссылки истечёт "
+"через %(n_hours)s часов."
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
 #: warehouse/templates/pages/sitemap.html:34
 msgid "Reset your password"
-msgstr ""
+msgstr "Сброс пароля"
 
 #: warehouse/templates/accounts/reset-password.html:48
 #: warehouse/templates/manage/account.html:393
 msgid "Select a new password"
-msgstr ""
+msgstr "Выберите новый пароль"
 
 #: warehouse/templates/accounts/reset-password.html:82
 msgid "Reset password"
-msgstr ""
+msgstr "Сбросить пароль"
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
 msgid "Two-factor authentication"
-msgstr ""
+msgstr "Двухфакторная аутентификация"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
-msgstr ""
+msgstr "Авторизуйтесь с помощью устройства безопасности (например, USB-ключа)"
 
 #: warehouse/templates/accounts/two-factor.html:37
 #: warehouse/templates/manage/account.html:454
@@ -1001,21 +1021,25 @@ msgstr ""
 #: warehouse/templates/pages/help.html:59
 #: warehouse/templates/pages/help.html:60
 msgid "Beta feature"
-msgstr ""
+msgstr "Бета-функция"
 
 #: warehouse/templates/accounts/two-factor.html:40
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
 msgstr ""
+"Подключите устройство безопасности и кликните на кнопку «Авторизоваться с "
+"помощью устройства»."
 
 #: warehouse/templates/accounts/two-factor.html:43
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
 msgstr ""
+"Разрешите JavaScript для входа в систему с помощью устройства безопасности ("
+"например, USB-ключа)"
 
 #: warehouse/templates/accounts/two-factor.html:52
 msgid "Authenticate with device"
-msgstr ""
+msgstr "Авторизуйтесь с помощью устройства"
 
 #: warehouse/templates/accounts/two-factor.html:56
 #, python-format
@@ -1023,23 +1047,27 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
+"Чтобы войти с помощью устройства безопасности (например, USB-ключа) <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s\">"
+"обновите свой веб-браузер</a>"
 
 #: warehouse/templates/accounts/two-factor.html:61
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
 msgstr ""
+"Потеряли устройство? Не работает? <a href=\"%(href)s\">Получите помощь</a>."
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
-msgstr ""
+msgstr "Авторизуйтесь с помощью приложения"
 
 #: warehouse/templates/accounts/two-factor.html:88
 msgid "Enter authentication code"
-msgstr ""
+msgstr "Введите код аутентификации"
 
 #: warehouse/templates/accounts/two-factor.html:103
 msgid "Verify"
-msgstr ""
+msgstr "Подтвердить"
 
 #: warehouse/templates/accounts/two-factor.html:106
 #, python-format
@@ -1048,11 +1076,14 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
+"<p>Создайте код с помощью приложения аутентификации, подключенного к вашей "
+"учетной записи на PyPI.</p> <p>Потеряли своё приложение? Не работает? <a "
+"href=\"%(href)s\">Получите помощь</a>.</p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr ""
+msgstr "Ваша учетная запись <strong>%(username)s</strong> была удалена из PyPI."
 
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
@@ -1062,6 +1093,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
+"Если вы не делали этого изменения, вы можете написать письмо на <a href=\""
+"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
@@ -1069,6 +1102,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project)s by %(submitter)s."
 msgstr ""
+"Вы были добавлены в %(site)s проект %(project)s в качестве "
+"<strong>%(role)s</strong> при помощи %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
@@ -1076,30 +1111,34 @@ msgid ""
 "You are receiving this because you have been added by %(submitter)s to a "
 "project on %(site)s."
 msgstr ""
+"Вы получаете это сообщение, потому что %(submitter)s добавил вас в проект на "
+"%(site)s."
 
 #: warehouse/templates/email/collaborator-added/body.html:26
 msgid "A new collaborator has been added to a project you own on PyPI:"
 msgstr ""
+"Новый соавтор был добавлен в проект, владельцем которого являетесь вы на "
+"PyPI:"
 
 #: warehouse/templates/email/collaborator-added/body.html:29
 #, python-format
 msgid "<strong>Username</strong>: %(username)s"
-msgstr ""
+msgstr "<strong>Имя пользователя</strong>: %(username)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:30
 #, python-format
 msgid "<strong>Role</strong>: %(role)s"
-msgstr ""
+msgstr "<strong>Роль</strong>: %(role)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:31
 #, python-format
 msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr ""
+msgstr "<strong>Соавтор в</strong>: %(project)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:32
 #, python-format
 msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr ""
+msgstr "<strong>Добавлен</strong>: %(submitter)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:36
 #, python-format
@@ -1107,10 +1146,12 @@ msgid ""
 "If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
 "a> to communicate with the PyPI administrators."
 msgstr ""
+"Если это было ошибкой, вы можете отправить письмо на <a href=\"%(href)s\""
+">%(email_address)s</a>, чтобы связаться с администраторами PyPI."
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
-msgstr ""
+msgstr "Вы получили это, поскольку вы владелец этого проекта."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1118,11 +1159,13 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
+"Кто-то, возможно вы, сменил пароль к учетной записи "
+"<strong>%(username)s</strong> на PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
 msgid "What?"
-msgstr ""
+msgstr "Что?"
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -1132,6 +1175,12 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
+"Администраторы PyPI выяснили, что ваш пароль скомпрометирован. Чтобы\n"
+"  защитить вас и других пользователей, мы превентивно сбросили ваш пароль, и "
+"вы\n"
+"  больше не сможете войти или загружать в PyPI с помощью своего "
+"существующего\n"
+"  пароля."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -1139,11 +1188,13 @@ msgid ""
 "reduce the\n"
 "  risk for PyPI and its users."
 msgstr ""
+"PyPI не был взломан. Это защитная мера, направленная на уменьшение\n"
+"  риска для PyPI и его пользователей."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
-msgstr ""
+msgstr "Что мне делать?"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -1151,10 +1202,12 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
+"Чтобы восстановить доступ к учетной записи, <a href=\"%(href)s\">сбросьте "
+"пароль</a> на PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
-msgstr ""
+msgstr "Как я могу связаться с вами?"
 
 #: warehouse/templates/email/password-compromised/body.html:41
 #, python-format
@@ -1162,6 +1215,9 @@ msgid ""
 "For more information, you can email %(email_address)s to communicate with\n"
 "  the PyPI administrators."
 msgstr ""
+"Чтобы узнать больше, вы можете написать письмо на %(email_address)s, чтобы "
+"связаться с\n"
+"  администраторами PyPI."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
@@ -1173,6 +1229,13 @@ msgid ""
 "your existing\n"
 "  password."
 msgstr ""
+"Во время вашей последней попытки войти или загрузить в PyPI, мы заметили, "
+"что ваш пароль появляется\n"
+"  в публичных источниках данных. Чтобы защитить вас и других пользователей, "
+"мы превентивно сбросили ваш\n"
+"  пароль, и вы больше не сможете войти в систему или загрузить в PyPI с "
+"помощью существующего\n"
+"  пароля."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -1182,6 +1245,10 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"PyPI не был взломан. Это защитная мера для снижения\n"
+"   риска атак <a href=\"%(href)s\">подстановки учетных данных (credential "
+"stuffing)</a>\n"
+"   на PyPI и его пользователей."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -1191,10 +1258,14 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
+"Чтобы восстановить доступ к учетной записи, <a href=\"%(reset_pw_url)s\">"
+"сбросьте ваш пароль</a> на PyPI. Мы также рекомендуем вам перейти к <a href="
+"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> и проверить ваши пароли, а "
+"также ознакомиться с методами создания надежных паролей."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr ""
+msgstr "Откуда вам это известно?"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -1205,6 +1276,12 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
+"Мы используем бесплатный сервис безопасности от <a href=\""
+"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. При регистрации, "
+"аутентификации или обновлении пароля мы генерируем хэш SHA1 вашего пароля и "
+"используем первые 5 символов хэша, чтобы решить, скомпрометирован ли пароль. "
+"Открытый текстовый пароль никогда не сохраняется на PyPI и не отправляется в "
+"HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -1213,6 +1290,10 @@ msgid ""
 "can email <a href=\"%(email_href)s\">%(email_address)s</a> to communicate "
 "with the PyPI administrators."
 msgstr ""
+"Чтобы узнать больше, ознакомьтесь с разделом <a href=\"%(faq_url)s\">FAQ</a>"
+". Чтобы получить помощь, вы можете отправить письмо на <a href=\""
+"%(email_href)s\">%(email_address)s</a>, чтобы связаться с администраторами "
+"PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1220,6 +1301,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
+"Кто-то, возможно, вы, сделал запрос на сброс пароля для вашей учетной записи "
+"'%(username)s' на PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -1227,6 +1310,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
+"Если вы хотите продолжить выполнение этого запроса, <a href=\"%(href)s\">"
+"нажмите, чтобы сбросить пароль</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -1241,6 +1326,7 @@ msgstr[2] ""
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
+"Если вы не делали этого запроса, то можете проигнорировать это сообщение."
 
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
@@ -1248,6 +1334,9 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
+"Основной адрес электронной почты для вашей учетной записи "
+"<strong>%(username)s</strong> на PyPI был изменен с "
+"<code>%(old_email)s</code> на <code>%(new_email)s</code>"
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1265,35 +1354,35 @@ msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
-msgstr ""
+msgstr "Администратор"
 
 #: warehouse/templates/includes/current-user-indicator.html:36
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
-msgstr ""
+msgstr "Ваши проекты"
 
 #: warehouse/templates/includes/current-user-indicator.html:42
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
-msgstr ""
+msgstr "Настройки учётной записи"
 
 #: warehouse/templates/includes/current-user-indicator.html:48
 msgid "Public profile"
-msgstr ""
+msgstr "Публичный профиль"
 
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
-msgstr ""
+msgstr "Ошибка"
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
 #: warehouse/templates/includes/flash-messages.html:40
 msgid "Dismiss this notification"
-msgstr ""
+msgstr "Скрыть уведомление"
 
 #: warehouse/templates/includes/flash-messages.html:22
 #: warehouse/templates/includes/flash-messages.html:29
@@ -1313,11 +1402,11 @@ msgstr ""
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
 msgid "Close"
-msgstr ""
+msgstr "Закрыть"
 
 #: warehouse/templates/includes/flash-messages.html:37
 msgid "Success"
-msgstr ""
+msgstr "Успех"
 
 #: warehouse/templates/includes/hash-modal.html:23
 #, python-format
@@ -1325,19 +1414,21 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Hashes</a> for %(filename)s"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Хэши</a> для %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
 msgid "Hashes for %(filename)s"
-msgstr ""
+msgstr "Хэши для %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:31
 msgid "Algorithm"
-msgstr ""
+msgstr "Алгоритм"
 
 #: warehouse/templates/includes/hash-modal.html:32
 msgid "Hash digest"
-msgstr ""
+msgstr "Хэш-дайджест"
 
 #: warehouse/templates/includes/hash-modal.html:41
 #: warehouse/templates/includes/hash-modal.html:50
@@ -1347,7 +1438,7 @@ msgstr ""
 #: warehouse/templates/packaging/detail.html:101
 #: warehouse/templates/pages/classifiers.html:37
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Скопировать в буфер обмена"
 
 #: warehouse/templates/includes/hash-modal.html:42
 #: warehouse/templates/includes/hash-modal.html:51
@@ -1356,34 +1447,34 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:58
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy"
-msgstr ""
+msgstr "Скопировать"
 
 #: warehouse/templates/includes/manage-project-button.html:16
 msgid "Manage project"
-msgstr ""
+msgstr "Управление проектом"
 
 #: warehouse/templates/includes/pagination.html:21
 #: warehouse/templates/includes/pagination.html:23
 msgid "Previous"
-msgstr ""
+msgstr "Предыдущая"
 
 #: warehouse/templates/includes/pagination.html:48
 #: warehouse/templates/includes/pagination.html:50
 msgid "Next"
-msgstr ""
+msgstr "Следующая"
 
 #: warehouse/templates/includes/session-notifications.html:23
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
-msgstr ""
+msgstr "Ваш основной адрес электронной почты %(email_address)s не подтверждён."
 
 #: warehouse/templates/includes/session-notifications.html:25
 msgid "You do not have a primary email address."
-msgstr ""
+msgstr "У вас нет основного адреса электронной почты."
 
 #: warehouse/templates/includes/session-notifications.html:28
 msgid "Verify your email or add a new address."
-msgstr ""
+msgstr "Подтвердите свою электронную почту или добавьте новый адрес."
 
 #: warehouse/templates/includes/session-notifications.html:37
 #, python-format
@@ -1391,10 +1482,12 @@ msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it now "
 "for your account.</a>"
 msgstr ""
+"Доступна двухфакторная аутентификация, <a href=\"%(href)s\">включите ее "
+"сейчас для своей учетной записи.</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:16
 msgid "Edit profile"
-msgstr ""
+msgstr "Редактировать профиль"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:19
 #: warehouse/templates/includes/accounts/profile-actions.html:28
@@ -1402,7 +1495,7 @@ msgstr ""
 #: warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
-msgstr ""
+msgstr "Статистика"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #, python-format
@@ -1412,6 +1505,10 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
 "BigQuery</a>"
 msgstr ""
+"Смотрите статистику своих проектов на <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, или с "
+"помощью <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
+"BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1421,6 +1518,10 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
 "BigQuery</a>"
 msgstr ""
+"Смотрите статистику проектов %(username)s на <a href=\"%(libs_io_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, или "
+"с помощью <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
+"BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1438,7 +1539,7 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
-msgstr ""
+msgstr "Навигация для управления %(project)s"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
@@ -1447,26 +1548,26 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
 #: warehouse/templates/manage/roles.html:21
 msgid "Collaborators"
-msgstr ""
+msgstr "Соавторы"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
 #: warehouse/templates/manage/account.html:519
 #: warehouse/templates/manage/history.html:23
 msgid "Security history"
-msgstr ""
+msgstr "История безопасности"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
 msgid "Journal"
-msgstr ""
+msgstr "Журнал"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/documentation.html:21
 msgid "Documentation"
-msgstr ""
+msgstr "Документация"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #: warehouse/templates/includes/packaging/project-data.html:17
 msgid "Project links"
