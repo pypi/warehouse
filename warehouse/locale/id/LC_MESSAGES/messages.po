@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-10-17 10:13+0000\n"
+"PO-Revision-Date: 2019-10-26 06:00+0000\n"
 "Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9\n"
+"X-Generator: Weblate 3.9.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -874,7 +874,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "Konfirmasikan formulir"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
@@ -884,7 +884,7 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:376
 msgid "Show passwords"
-msgstr ""
+msgstr "Perlihatkan kata sandi"
 
 #: warehouse/templates/accounts/register.html:120
 msgid "Select a password"
@@ -900,7 +900,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:159
 msgid "Create account"
-msgstr ""
+msgstr "Buat Akun"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
@@ -947,7 +947,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/reset-password.html:82
 msgid "Reset password"
-msgstr ""
+msgstr "Setel ulang kata sandi"
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
@@ -2337,7 +2337,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr ""
+msgstr "Rilis versi %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
@@ -3585,7 +3585,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:326
 msgid "Open your authentication application to generate an authentication code"
-msgstr ""
+msgstr "Buka aplikasi otentikasi Anda untuk menghasilkan kode otentikasi"
 
 #: warehouse/templates/pages/help.html:327
 msgid "Use this code to finish logging into PyPI"
@@ -4051,6 +4051,11 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">use "
 "twine to upload your project to PyPI</a>."
 msgstr ""
+"Dalam versi PyPI sebelumnya, pengelola mungkin dapat mengunggah rilis ke "
+"PyPI menggunakan formulir di browser web. Fitur ini sudah tidak digunakan "
+"lagi dengan versi baru PyPI - kami malah menyarankan Anda untuk <a href=\""
+"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
+"menggunakan acuan ini untuk unggah proyek Anda ke PyPI </a>."
 
 #: warehouse/templates/pages/help.html:563
 msgid ""
