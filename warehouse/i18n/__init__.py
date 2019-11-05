@@ -28,6 +28,7 @@ KNOWN_LOCALES = {
     "ja": "日本語",
     "pt_BR": "Português Brasileiro",
     "uk": "Українська",
+    "el": "Ελληνικά",
 }
 
 LOCALE_ATTR = "_LOCALE_"
