@@ -4,13 +4,15 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # 王赛 <wangsai@bootcss.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
+# liushuyu011 <liushuyu011@gmail.com>, 2019.
+# Jesse201147 <tjx201147@163.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-18 13:36-0400\n"
-"PO-Revision-Date: 2019-09-29 13:09+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"POT-Creation-Date: 2019-10-22 12:45-0400\n"
+"PO-Revision-Date: 2019-11-01 10:52+0000\n"
+"Last-Translator: Jesse201147 <tjx201147@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -18,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -367,19 +369,15 @@ msgstr ""
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
-msgstr ""
+msgstr "输入一个含有字母（大写和小写都有的），数字和特殊符号的高强度密码。避免输入常用词句和重复字符。"
 
 #: warehouse/templates/base.html:27
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password strength:"
-msgstr "重置密码"
+msgstr "密码强度："
 
 #: warehouse/templates/base.html:30
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password field is empty"
-msgstr "重置密码"
+msgstr "密码是空的"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -408,7 +406,7 @@ msgstr "登录"
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "注册"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
@@ -417,7 +415,7 @@ msgstr "查看菜单"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "菜单"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -432,19 +430,19 @@ msgstr "Python 包索引 （PyPI） 是 Python 编程语言的软件存储库。
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS：最新的 40 个更新"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS：最新的 40 个软件包"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "跳转到主要内容"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "切换到手机版本"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -460,14 +458,14 @@ msgstr "警告"
 
 #: warehouse/templates/base.html:161
 msgid "You are using an unsupported browser, upgrade to a newer version."
-msgstr ""
+msgstr "您正在使用不受支持的浏览器访问此站，请更新您的浏览器。"
 
 #: warehouse/templates/base.html:170
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
-msgstr ""
+msgstr "您正在使用TestPyPI – Python包索引的单独实例，可让您尝试分发工具包并且不会影响实际索引."
 
 #: warehouse/templates/base.html:180
 msgid ""
@@ -494,16 +492,12 @@ msgid "Search"
 msgstr "搜索"
 
 #: warehouse/templates/base.html:258
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Help navigation"
-msgstr "主导航"
+msgstr "帮助导航"
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "了解如何安装软件包</a>。"
+msgstr "安装软件包"
 
 #: warehouse/templates/base.html:261
 #, fuzzy
@@ -513,25 +507,23 @@ msgstr "上传软件包"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
-msgstr ""
+msgstr "用户指南"
 
 #: warehouse/templates/base.html:263
 msgid "FAQs"
-msgstr ""
+msgstr "常见问题"
 
 #: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "关于 PyPI"
 
 #: warehouse/templates/base.html:270
-#, fuzzy
-#| msgid "Account navigation"
 msgid "About PyPI navigation"
-msgstr "帐户导航"
+msgstr "关于 PyPI 导航"
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPI 的 Twitter 页面"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
@@ -543,7 +535,7 @@ msgstr ""
 
 #: warehouse/templates/base.html:275
 msgid "Our sponsors"
-msgstr ""
+msgstr "我们的赞助商"
 
 #: warehouse/templates/base.html:281
 #, fuzzy
@@ -567,7 +559,7 @@ msgstr ""
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
-msgstr ""
+msgstr "翻译 PyPI"
 
 #: warehouse/templates/base.html:287
 msgid "Development credits"
@@ -575,7 +567,7 @@ msgstr ""
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr ""
+msgstr "使用 PyPI"
 
 #: warehouse/templates/base.html:294
 #, fuzzy
@@ -588,28 +580,24 @@ msgid "Code of conduct"
 msgstr ""
 
 #: warehouse/templates/base.html:297
-#, fuzzy
-#| msgid "Set up security device"
 msgid "Report security issue"
-msgstr "设置安全设备"
+msgstr "报告安全问题"
 
 #: warehouse/templates/base.html:298
 msgid "Privacy policy"
-msgstr ""
+msgstr "隐私政策"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr ""
 
 #: warehouse/templates/base.html:309
-#, fuzzy
-#| msgid "Status"
 msgid "Status: "
-msgstr "状态"
+msgstr "状态： "
 
 #: warehouse/templates/base.html:310
 msgid "all systems operational"
-msgstr ""
+msgstr "所有系统工作正常"
 
 #: warehouse/templates/base.html:314
 msgid ""
@@ -617,18 +605,16 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/base.html:316
-#, fuzzy
-#| msgid "Donate"
 msgid "Donate today!"
-msgstr "捐赠"
+msgstr "立即捐款！"
 
 #: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr ""
+msgstr "网站地图"
 
 #: warehouse/templates/base.html:325
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "切换到桌面版本"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -802,6 +788,7 @@ msgid "Forgot password?"
 msgstr "忘记密码了？"
 
 #: warehouse/templates/accounts/logout.html:16
+#: warehouse/templates/accounts/logout.html:25
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
 msgstr "登出"
@@ -811,15 +798,10 @@ msgstr "登出"
 msgid "Log out of %(account_name)s"
 msgstr "%(account_name)s 登出"
 
-#: warehouse/templates/accounts/logout.html:25
-msgid "Log Out"
-msgstr "登出"
-
 #: warehouse/templates/accounts/profile.html:16
-#, fuzzy, python-format
-#| msgid "Select a username"
+#, python-format
 msgid "Profile of %(username)s"
-msgstr "选择用户名"
+msgstr "%(username)s 的档案"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:244
@@ -828,16 +810,13 @@ msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com 上 {user} 的头像"
 
 #: warehouse/templates/accounts/profile.html:38
-#, fuzzy
-#| msgid "Date Joined"
 msgid "Date joined"
 msgstr "加入日期"
 
 #: warehouse/templates/accounts/profile.html:39
-#, fuzzy, python-format
-#| msgid "Created on %(creation_date)s"
+#, python-format
 msgid "Joined on %(start_date)s"
-msgstr "创建于 %(creation_date)s"
+msgstr "%(start_date)s 加入"
 
 #: warehouse/templates/accounts/profile.html:53
 #, python-format
@@ -850,12 +829,13 @@ msgid_plural ""
 "            %(count)s projects\n"
 "          "
 msgstr[0] ""
+"\n"
+"            %(count)s 个项目\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:59
-#, fuzzy
-#| msgid "Your projects"
 msgid "No projects"
-msgstr "您的项目"
+msgstr "没有项目"
 
 #: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/manage/projects.html:36
@@ -864,10 +844,9 @@ msgid "Last released on %(release_date)s"
 msgstr "上次发布于 %(release_date)s"
 
 #: warehouse/templates/accounts/profile.html:76
-#, fuzzy, python-format
-#| msgid "%(username)s has not uploaded any projects to PyPI, yet."
+#, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr "%(username)s 尚未将任何项目上载到 PyPI。"
+msgstr "%(user)s 尚未上传任何项目到 PyPI"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -950,8 +929,6 @@ msgid "Reset email sent"
 msgstr "重置密码的电子邮件已发送"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-#, fuzzy
-#| msgid "We have sent an email to your registered email address."
 msgid "An email has been sent to your registered email address."
 msgstr "我们已向您发送了一封电子邮件到您注册的电子邮件地址。"
 
@@ -1336,7 +1313,7 @@ msgstr "关闭此通知"
 #: warehouse/templates/manage/releases.html:110
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
-#: warehouse/templates/search/results.html:200
+#: warehouse/templates/search/results.html:201
 msgid "Close"
 msgstr "关闭"
 
@@ -2113,6 +2090,9 @@ msgid_plural ""
 "can delete your account.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          在删除您的帐号前，您必须将这些项目转移给他人或删除。\n"
+"        "
 
 #: warehouse/templates/manage/account.html:666
 #, python-format
@@ -2120,6 +2100,7 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
+"<a href=\"%(transfer_href)s\">转移</a>或者<a href=\"%(delete_href)s\">删除</a>"
 
 #: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/token.html:156
@@ -2344,16 +2325,12 @@ msgid "Cancel"
 msgstr "取消"
 
 #: warehouse/templates/manage/manage_base.html:146
-#, fuzzy
-#| msgid "Close"
 msgid "close"
 msgstr "关闭"
 
 #: warehouse/templates/manage/manage_base.html:162
-#, fuzzy
-#| msgid "Confirm your username to continue."
 msgid "Enter your password to continue."
-msgstr "确认您的用户名以继续。"
+msgstr "输入您的密码以继续。"
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
@@ -2761,7 +2738,7 @@ msgid ""
 msgid_plural ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
 "releases</a>"
-msgstr[0] ""
+msgstr[0] "彻底删除此项目和其 <a href=\"%(href)s\">%(count)s 个释出版本</a>"
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
@@ -2828,21 +2805,17 @@ msgid "Copy token"
 msgstr "复制令牌"
 
 #: warehouse/templates/manage/token.html:65
-#, fuzzy
-#| msgid "What is this token for?"
 msgid "Using this token"
-msgstr "这个令牌是做什么用的？"
+msgstr "使用此令牌"
 
 #: warehouse/templates/manage/token.html:67
-#, fuzzy
-#| msgid "To use an API token:"
 msgid "To use this API token:"
-msgstr "如需使用 API 令牌："
+msgstr "如需使用此 API 令牌："
 
 #: warehouse/templates/manage/token.html:70
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
-msgstr ""
+msgstr "请将您的用户名设为 <code>%(token)s</code>"
 
 #: warehouse/templates/manage/token.html:71
 #, python-format
@@ -4594,8 +4567,8 @@ msgid "All of PyPI"
 msgstr ""
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:115
-#: warehouse/templates/search/results.html:213
+#: warehouse/templates/search/results.html:116
+#: warehouse/templates/search/results.html:214
 msgid "Search results"
 msgstr ""
 
@@ -4604,41 +4577,41 @@ msgstr ""
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr ""
 
-#: warehouse/templates/search/results.html:83
+#: warehouse/templates/search/results.html:84
 msgid "Close panel"
 msgstr ""
 
-#: warehouse/templates/search/results.html:87
+#: warehouse/templates/search/results.html:88
 #, fuzzy, python-format
 #| msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "或 <a href=\"%(href)s\">个浏览项目</a>"
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:119
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:120
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
 
-#: warehouse/templates/search/results.html:120
+#: warehouse/templates/search/results.html:121
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr ""
 
-#: warehouse/templates/search/results.html:124
+#: warehouse/templates/search/results.html:125
 msgid "Python 3 compatible projects"
 msgstr ""
 
-#: warehouse/templates/search/results.html:129
+#: warehouse/templates/search/results.html:130
 msgid "Sphinx extensions that have a stable/production status"
 msgstr ""
 
-#: warehouse/templates/search/results.html:134
+#: warehouse/templates/search/results.html:135
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr ""
 
-#: warehouse/templates/search/results.html:151
+#: warehouse/templates/search/results.html:152
 #, python-format
 msgid ""
 "\n"
@@ -4650,12 +4623,12 @@ msgid_plural ""
 "              "
 msgstr[0] ""
 
-#: warehouse/templates/search/results.html:158
+#: warehouse/templates/search/results.html:159
 #, python-format
 msgid "for \"%(term)s\""
 msgstr ""
 
-#: warehouse/templates/search/results.html:162
+#: warehouse/templates/search/results.html:163
 msgid ""
 "\n"
 "                  with the selected classifier\n"
@@ -4666,36 +4639,36 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 
-#: warehouse/templates/search/results.html:178
+#: warehouse/templates/search/results.html:179
 msgid "Order by"
 msgstr ""
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:181
 msgid "Relevance"
 msgstr ""
 
-#: warehouse/templates/search/results.html:181
+#: warehouse/templates/search/results.html:182
 msgid "Date last updated"
 msgstr ""
 
-#: warehouse/templates/search/results.html:182
+#: warehouse/templates/search/results.html:183
 msgid "Trending"
 msgstr ""
 
-#: warehouse/templates/search/results.html:195
+#: warehouse/templates/search/results.html:196
 msgid "Filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:206
+#: warehouse/templates/search/results.html:207
 msgid "Add filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:223
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr ""
 
-#: warehouse/templates/search/results.html:224
+#: warehouse/templates/search/results.html:225
 #, python-format
 msgid ""
 "\n"
@@ -4706,6 +4679,9 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
+
+#~ msgid "Log Out"
+#~ msgstr "登出"
 
 #~ msgid "Links for %(project_name)s"
 #~ msgstr "%(project_name)s 项目的相关链接"
