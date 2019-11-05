@@ -104,9 +104,9 @@ psutil==5.6.4 \
 py==1.8.0 \
     --hash=sha256:64f65755aee5b381cea27766a3a147c3f15b9b6b9ac88676de66ba2ae36793fa \
     --hash=sha256:dc639b046a6e2cff5bbe40194ad65936d6ba360b52b3c3fe1d08a82dd50b5e53
-pyparsing==2.4.2 \
-    --hash=sha256:6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80 \
-    --hash=sha256:d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4
+pyparsing==2.4.3 \
+    --hash=sha256:0961bf3429691b9cd7e3695a37ee8bc18e95c56ac1271dc2bbc41697062d1b6d \
+    --hash=sha256:8997c62f779045b07273e124bbe1d03e2eebb9a38a7ef0798fea4bae72b4b6a3
 pytest-postgresql==2.2.1 \
     --hash=sha256:6f5c63e779184f27b124afa2e249a3d1df3349a3c025adad48351225ae3a7577
 pytest==5.2.2 \
