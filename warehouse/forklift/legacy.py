@@ -1009,12 +1009,12 @@ def file_upload(request):
         if rendered is None:
             if form.description_content_type.data:
                 message = (
-                    "The description failed to render "
+                    "The readme failed to render "
                     "for '{description_content_type}'."
                 ).format(description_content_type=description_content_type)
             else:
                 message = (
-                    "The description failed to render "
+                    "The readme failed to render "
                     "in the default format of reStructuredText."
                 )
             raise _exc_with_message(

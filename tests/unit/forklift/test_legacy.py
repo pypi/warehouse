@@ -1015,13 +1015,13 @@ class TestFileUpload:
             (
                 "text/x-rst",
                 ".. invalid-directive::",
-                "400 The description failed to render for 'text/x-rst'. "
+                "400 The readme failed to render for 'text/x-rst'. "
                 "See /the/help/url/ for more information.",
             ),
             (
                 "",
                 ".. invalid-directive::",
-                "400 The description failed to render in the default format "
+                "400 The readme failed to render in the default format "
                 "of reStructuredText. "
                 "See /the/help/url/ for more information.",
             ),
