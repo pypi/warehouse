@@ -1009,8 +1009,7 @@ def file_upload(request):
         if rendered is None:
             if form.description_content_type.data:
                 message = (
-                    "The readme failed to render "
-                    "for '{description_content_type}'."
+                    "The readme failed to render " "for '{description_content_type}'."
                 ).format(description_content_type=description_content_type)
             else:
                 message = (
