@@ -76,7 +76,7 @@ class RedisLru(object):
 
     def purge(self, tag):
         try:
-            keys = self.conn.scan_iter(":".join([self.name, tag, "*"]))
+            keys = self.conn.scan_iter(":".join([self.name, tag, "*"]), count=1000)
             pipeline = self.conn.pipeline()
             for key in keys:
                 pipeline.delete(key)
