@@ -117,7 +117,7 @@ gulp.task("dist:js", () => {
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(uglify(
       // We don't care about IE6-8 so there's no reason to have
-      // uglify contain to maintain compatability for it.
+      // uglify contain to maintain compatibility for it.
       { compress: { ie8: false }, mangle: { ie8: false } }
     ))
     .pipe(sourcemaps.write("."))
