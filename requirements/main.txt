@@ -547,9 +547,9 @@ transaction==2.4.0 \
 translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4
-typeguard==2.6.0 \
-    --hash=sha256:7d6e2a09f8d257bcda49e6178fc08c518fb530f259a5443f3bcf422713dca6bf \
-    --hash=sha256:9d7877004f4ed39e2381612bbb7a56ec4386da3fa405a0ada10e8baaefbcbc56
+typeguard==2.6.1 \
+    --hash=sha256:4eac42db71c511944d9ec3dd3ea751a95587b6028fccdd538721eda4c7be2c2f \
+    --hash=sha256:cf2009021c029a34a7673f2ba7946ca27b8e680c799ae1991882b429dcad2e36
 urllib3==1.25.7 \
     --hash=sha256:a8a318824cc77d1fd4b2bec2ded92646630d7fe8619497b142c84a9e6f5a7293 \
     --hash=sha256:f3c5fd51747d450d4dcf6f923c81f78f811aab8205fda64b0aba34a4e48b0745
