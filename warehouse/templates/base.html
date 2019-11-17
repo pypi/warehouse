@@ -92,8 +92,10 @@
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
 
+    {% block rss %}
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
+    {% endblock %}
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}

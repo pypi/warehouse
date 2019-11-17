@@ -73,6 +73,31 @@ def test_rss_packages(db_request):
     assert db_request.response.content_type == "text/xml"
 
 
+def test_rss_project_releases(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project = ProjectFactory.create()
+
+    release1 = ReleaseFactory.create(project=project)
+    release1.created = datetime.date(2019, 1, 1)
+    release2 = ReleaseFactory.create(project=project)
+    release2.created = datetime.date(2019, 1, 2)
+    release3 = ReleaseFactory.create(project=project)
+    release3.created = datetime.date(2019, 1, 3)
+
+    assert rss.rss_project_releases(project, db_request) == {
+        "project": project,
+        "latest_releases": [release3, release2, release1],
+    }
+    assert db_request.response.content_type == "text/xml"
+
+
 def test_format_author(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(

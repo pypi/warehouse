@@ -85,6 +85,10 @@
 
 {% block description %}{{ release.summary }}{% endblock %}
 
+{% block rss -%}
+<link rel="alternate" type="application/rss+xml" title="{% trans project_name=release.project.name %}RSS: latest releases for {{ project_name }}{% endtrans %}" href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">
+{%- endblock %}
+
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
 {% block content %}

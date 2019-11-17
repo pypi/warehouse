@@ -283,6 +283,14 @@ def test_routes(warehouse):
         pretend.call("ses.hook", "/_/ses-hook/", domain=warehouse),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
+        pretend.call(
+            "rss.project.releases",
+            "/rss/{name}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/",
+            read_only=True,
+            domain=warehouse,
+        ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
