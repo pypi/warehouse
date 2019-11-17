@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE rss PUBLIC "-//Netscape Communications//DTD RSS 0.91//EN" "http://www.rssboard.org/rss-0.91.dtd">
-<rss version="0.91">
+<rss version="2.0">
   <channel>
     <title>{% block title %}{% endblock %}</title>
     <link>{% block channel_link %}{{ request.route_url('index') }}{% endblock %}</link>
