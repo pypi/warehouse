@@ -13,9 +13,8 @@
 from datetime import datetime, timezone
 
 import pretend
-import pytest
-
 import pymacaroons
+import pytest
 
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 

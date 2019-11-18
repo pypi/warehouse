@@ -21,10 +21,10 @@ from pyramid.httpexceptions import (
 )
 
 from warehouse.legacy.api import pypi
-
-from ....common.db.classifiers import ClassifierFactory
-from ....common.db.accounts import UserFactory
 from warehouse.macaroons.interfaces import IMacaroonService
+
+from ....common.db.accounts import UserFactory
+from ....common.db.classifiers import ClassifierFactory
 
 
 def test_exc_with_message():

@@ -10,17 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
+from datetime import datetime, timezone
+
+from pyramid.httpexceptions import (
+    HTTPGone,
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPUnauthorized,
+)
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
 
-from pyramid.httpexceptions import HTTPUnauthorized
+from warehouse.classifiers.models import Classifier
 from warehouse.macaroons.caveats import InvalidMacaroon
 from warehouse.macaroons.interfaces import IMacaroonService
-
-from warehouse.classifiers.models import Classifier
-
-from datetime import datetime, timezone
 
 
 def _exc_with_message(exc, message):
