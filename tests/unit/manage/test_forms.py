@@ -172,6 +172,19 @@ class TestDeleteTOTPForm:
 
         assert form.user_service is user_service
 
+    def test_validate_confirm_password(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+        )
+        form = forms.DeleteTOTPForm(
+            username="username", user_service=user_service, password="password"
+        )
+
+        assert form.validate()
+
 
 class TestProvisionWebAuthnForm:
     def test_creation(self):
@@ -515,16 +528,26 @@ class TestCreateMacaroonForm:
 class TestDeleteMacaroonForm:
     def test_creation(self):
         macaroon_service = pretend.stub()
-        form = forms.DeleteMacaroonForm(macaroon_service=macaroon_service)
+        user_service = pretend.stub()
+        form = forms.DeleteMacaroonForm(
+            macaroon_service=macaroon_service, user_service=user_service
+        )
 
         assert form.macaroon_service is macaroon_service
+        assert form.user_service is user_service
 
     def test_validate_macaroon_id_invalid(self):
         macaroon_service = pretend.stub(
             find_macaroon=pretend.call_recorder(lambda id: None)
         )
+        user_service = pretend.stub(
+            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
+        )
         form = forms.DeleteMacaroonForm(
-            data={"macaroon_id": pretend.stub()}, macaroon_service=macaroon_service
+            data={"macaroon_id": pretend.stub(), "password": "password"},
+            macaroon_service=macaroon_service,
+            user_service=user_service,
+            username="username",
         )
 
         assert not form.validate()
@@ -534,8 +557,14 @@ class TestDeleteMacaroonForm:
         macaroon_service = pretend.stub(
             find_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
+        user_service = pretend.stub(
+            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
+        )
         form = forms.DeleteMacaroonForm(
-            data={"macaroon_id": pretend.stub()}, macaroon_service=macaroon_service
+            data={"macaroon_id": pretend.stub(), "password": "password"},
+            macaroon_service=macaroon_service,
+            username="username",
+            user_service=user_service,
         )
 
         assert form.validate()

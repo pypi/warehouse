@@ -34,17 +34,17 @@ export default class extends Controller {
     let startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 
-    let isRelative = this.data.get("relative") == "true";
-    let showTime = this.data.get("show-time") == "true";
+    let isRelative = this.data.get("relative") === "true";
+    let showTime = this.data.get("show-time") === "true";
     const options = { month: "short", day: "numeric", year: "numeric" };
 
     if (isRelative && localTime > startOfDay) {
-      this.element.innerText = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
+      this.element.textContent = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
     } else {
       if (showTime) {
-        this.element.innerText = localTime.toLocaleTimeString("en-US", options);
+        this.element.textContent = localTime.toLocaleTimeString("en-US", options);
       } else {
-        this.element.innerText = localTime.toLocaleDateString("en-US", options);
+        this.element.textContent = localTime.toLocaleDateString("en-US", options);
       }
     }
 

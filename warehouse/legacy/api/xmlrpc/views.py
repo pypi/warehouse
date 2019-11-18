@@ -450,6 +450,7 @@ def release_urls(request, package_name: str, version: str):
             "digests": {"md5": f.md5_digest, "sha256": f.sha256_digest},
             "has_sig": f.has_signature,
             "upload_time": f.upload_time.isoformat() + "Z",
+            "upload_time_iso_8601": f.upload_time.isoformat() + "Z",
             "comment_text": f.comment_text,
             # TODO: Remove this once we've had a long enough time with it
             #       here to consider it no longer in use.

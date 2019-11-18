@@ -46,7 +46,11 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_email_verification_email, send_password_reset_email
+from warehouse.email import (
+    send_email_verification_email,
+    send_password_change_email,
+    send_password_reset_email,
+)
 from warehouse.i18n import localize as _
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
@@ -54,10 +58,10 @@ from warehouse.utils.http import is_safe_url
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
 
-@view_config(context=TooManyFailedLogins)
+@view_config(context=TooManyFailedLogins, has_translations=True)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        _("There have been too many unsuccessful login attempts. " "Try again later."),
+        _("There have been too many unsuccessful login attempts. Try again later."),
         retry_after=exc.resets_in.total_seconds(),
     )
 
@@ -76,6 +80,7 @@ def failed_logins(exc, request):
     decorator=[
         origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
+    has_translations=True,
 )
 def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):
@@ -98,6 +103,7 @@ def profile(user, request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginForm):
     # TODO: Logging in should reset request.user
@@ -186,6 +192,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.authenticated_userid is not None:
@@ -239,6 +246,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     request_method="GET",
     route_name="accounts.webauthn-authenticate.options",
     renderer="json",
+    has_translations=True,
 )
 def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
@@ -265,6 +273,7 @@ def webauthn_authentication_options(request):
     request_param=WebAuthnAuthenticationForm.__params__,
     route_name="accounts.webauthn-authenticate.validate",
     renderer="json",
+    has_translations=True,
 )
 def webauthn_authentication_validate(request):
     if request.authenticated_userid is not None:
@@ -319,6 +328,7 @@ def webauthn_authentication_validate(request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: Logging out should reset request.user
@@ -373,6 +383,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
@@ -426,6 +437,7 @@ def register(request, _form_class=RegistrationForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.authenticated_userid is not None:
@@ -462,6 +474,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def reset_password(request, _form_class=ResetPasswordForm):
     if request.authenticated_userid is not None:
@@ -528,6 +541,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
             user.id, tag="account:password:reset", ip_address=request.remote_addr
         )
 
+        # Send password change email
+        send_password_change_email(request, user)
+
         # Flash a success message
         request.session.flash(_("You have reset your password"), queue="success")
 
@@ -538,7 +554,10 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
 
 @view_config(
-    route_name="accounts.verify-email", uses_session=True, permission="manage:user"
+    route_name="accounts.verify-email",
+    uses_session=True,
+    permission="manage:user",
+    has_translations=True,
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
@@ -669,6 +688,7 @@ def _login_user(request, userid, two_factor_method=None):
     context=User,
     renderer="includes/accounts/profile-callout.html",
     uses_session=True,
+    has_translations=True,
 )
 def profile_callout(user, request):
     return {"user": user}
@@ -679,6 +699,7 @@ def profile_callout(user, request):
     context=User,
     renderer="includes/accounts/profile-actions.html",
     uses_session=True,
+    has_translations=True,
 )
 def edit_profile_button(user, request):
     return {"user": user}

@@ -1186,7 +1186,7 @@ class TestResetPassword:
             pretend.call(ITokenService, name="password"),
         ]
 
-    def test_reset_password(self, db_request, user_service, token_service):
+    def test_reset_password(self, monkeypatch, db_request, user_service, token_service):
         user = UserFactory.create()
         db_request.method = "POST"
         db_request.POST.update({"token": "RANDOM_KEY"})
@@ -1198,6 +1198,9 @@ class TestResetPassword:
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
 
         breach_service = pretend.stub(check_password=lambda pw: False)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_password_change_email", send_email)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
         db_request.remote_addr = "0.0.0.0"
@@ -1242,6 +1245,7 @@ class TestResetPassword:
         assert user_service.update_user.calls == [
             pretend.call(user.id, password=form_obj.new_password.data)
         ]
+        assert send_email.calls == [pretend.call(db_request, user)]
         assert db_request.session.flash.calls == [
             pretend.call("You have reset your password", queue="success")
         ]

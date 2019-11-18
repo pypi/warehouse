@@ -146,4 +146,18 @@
   &--success {
     background-color: $success-color;
   }
+
+  &--survey {
+    background-color: $warning-background-color;
+    color: $warning-color;
+    border-color: darken($primary-color, 10);
+
+    a {
+      color: $warning-color;
+    }
+
+    .button {
+      color: $white;
+    }
+  }
 }

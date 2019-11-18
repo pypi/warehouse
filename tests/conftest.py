@@ -26,11 +26,7 @@ import webtest as _webtest
 
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
-from pytest_postgresql.factories import (
-    drop_postgresql_database,
-    get_config,
-    init_postgresql_database,
-)
+from pytest_postgresql.factories import DatabaseJanitor, get_config
 from sqlalchemy import event
 
 from warehouse import admin, config, static
@@ -131,17 +127,19 @@ def database(request):
     pg_db = config.get("db", "tests")
     pg_version = config.get("version", 10.1)
 
+    janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
+
     # In case the database already exists, possibly due to an aborted test run,
     # attempt to drop it before creating
-    drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_version)
+    janitor.drop()
 
     # Create our Database.
-    init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
+    janitor.init()
 
     # Ensure our database gets deleted.
     @request.addfinalizer
     def drop_database():
-        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_version)
+        janitor.drop()
 
     return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
 

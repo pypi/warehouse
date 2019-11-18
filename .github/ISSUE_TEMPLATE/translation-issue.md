@@ -1,8 +1,7 @@
 ---
 name: Translation issue
-about: Report a poor translation, poor source content, or ask for more
-information when making a translation
-
+about: Report a poor translation, poor source content, or ask for more information when making a translation
+labels: i18n, translation
 ---
 
 <!-- Uncomment the section most relevant to your issue -->

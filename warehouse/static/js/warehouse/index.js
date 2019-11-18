@@ -14,7 +14,7 @@
 // The nature of the web being what it is, we often will need to use Polyfills
 // to get support for what we want. This will pull in babel-polyfill which will
 // ensure we have an ES6 like environment.
-import "babel-polyfill";
+import "@babel/polyfill";
 
 // Import stimulus
 import "@stimulus/polyfills";
