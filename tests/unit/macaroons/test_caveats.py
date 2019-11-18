@@ -28,9 +28,6 @@ from warehouse.macaroons.caveats import (
     Verifier,
 )
 
-from warehouse.macaroons.interfaces import IMacaroonService
-from ...common.db.accounts import UserFactory
-
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 

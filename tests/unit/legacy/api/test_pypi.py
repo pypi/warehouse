@@ -12,7 +12,6 @@
 
 import pretend
 import pytest
-import pymacaroons
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -26,8 +25,6 @@ from warehouse.legacy.api import pypi
 from ....common.db.classifiers import ClassifierFactory
 from ....common.db.accounts import UserFactory
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.macaroons import services
-from warehouse.macaroons.models import Macaroon
 
 
 def test_exc_with_message():

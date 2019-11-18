@@ -14,7 +14,7 @@ from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
 
-from pyramid.httpexceptions import HTTPUnauthorized, HTTPBadRequest
+from pyramid.httpexceptions import HTTPUnauthorized
 from warehouse.macaroons.caveats import InvalidMacaroon
 from warehouse.macaroons.interfaces import IMacaroonService
 
