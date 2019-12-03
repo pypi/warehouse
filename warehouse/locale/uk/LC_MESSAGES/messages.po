@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-18 13:36-0400\n"
+"POT-Creation-Date: 2019-10-22 12:45-0400\n"
 "PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -817,6 +817,7 @@ msgid "Forgot password?"
 msgstr "Забули пароль?"
 
 #: warehouse/templates/accounts/logout.html:16
+#: warehouse/templates/accounts/logout.html:25
 #: warehouse/templates/includes/current-user-indicator.html:68
 msgid "Log out"
 msgstr "Вийти"
@@ -825,10 +826,6 @@ msgstr "Вийти"
 #, python-format
 msgid "Log out of %(account_name)s"
 msgstr "Вийти з %(account_name)s"
-
-#: warehouse/templates/accounts/logout.html:25
-msgid "Log Out"
-msgstr "Вийти"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -1400,7 +1397,7 @@ msgstr "Сховати сповіщення"
 #: warehouse/templates/manage/releases.html:110
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
-#: warehouse/templates/search/results.html:200
+#: warehouse/templates/search/results.html:201
 msgid "Close"
 msgstr "Закрити"
 
@@ -5294,8 +5291,8 @@ msgid "All of PyPI"
 msgstr "Увесь PyPI"
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:115
-#: warehouse/templates/search/results.html:213
+#: warehouse/templates/search/results.html:116
+#: warehouse/templates/search/results.html:214
 msgid "Search results"
 msgstr "Результати пошуку"
 
@@ -5304,40 +5301,40 @@ msgstr "Результати пошуку"
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr "Ви мали на увазі «<a class=\"link\" href=\"%(link)s\">%(text)s</a>»?"
 
-#: warehouse/templates/search/results.html:83
+#: warehouse/templates/search/results.html:84
 msgid "Close panel"
 msgstr "Закрити панель"
 
-#: warehouse/templates/search/results.html:87
+#: warehouse/templates/search/results.html:88
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr "Фільтрувати за <a href=\"%(href)s\">класифікатором</a>"
 
-#: warehouse/templates/search/results.html:118
+#: warehouse/templates/search/results.html:119
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr "Введіть пошуковий запит або оберіть фільтр із переліку класифікаторів."
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:120
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr "Введіть пошуковий запит або додайте фільтр кліком по кнопці."
 
-#: warehouse/templates/search/results.html:120
+#: warehouse/templates/search/results.html:121
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr "Ви можете комбінувати пошуки та фільтри класифікаторів. Приклади:"
 
-#: warehouse/templates/search/results.html:124
+#: warehouse/templates/search/results.html:125
 msgid "Python 3 compatible projects"
 msgstr "Проекти, які сумісні з Python 3"
 
-#: warehouse/templates/search/results.html:129
+#: warehouse/templates/search/results.html:130
 msgid "Sphinx extensions that have a stable/production status"
 msgstr "Розширення Sphinx, що мають статус стабільних/продакшн"
 
-#: warehouse/templates/search/results.html:134
+#: warehouse/templates/search/results.html:135
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr "Проекти, пов'язані із «графікою» із ліцензіями, які схвалені OSI"
 
-#: warehouse/templates/search/results.html:151
+#: warehouse/templates/search/results.html:152
 #, python-format
 msgid ""
 "\n"
@@ -5360,12 +5357,12 @@ msgstr[2] ""
 "              <strong>%(count_display)s</strong> проектів\n"
 "              "
 
-#: warehouse/templates/search/results.html:158
+#: warehouse/templates/search/results.html:159
 #, python-format
 msgid "for \"%(term)s\""
 msgstr "для «%(term)s»"
 
-#: warehouse/templates/search/results.html:162
+#: warehouse/templates/search/results.html:163
 msgid ""
 "\n"
 "                  with the selected classifier\n"
@@ -5387,36 +5384,36 @@ msgstr[2] ""
 "                  із обраними класифікаторами\n"
 "                "
 
-#: warehouse/templates/search/results.html:178
+#: warehouse/templates/search/results.html:179
 msgid "Order by"
 msgstr "Впорядкувати за"
 
-#: warehouse/templates/search/results.html:180
+#: warehouse/templates/search/results.html:181
 msgid "Relevance"
 msgstr "Доречністю"
 
-#: warehouse/templates/search/results.html:181
+#: warehouse/templates/search/results.html:182
 msgid "Date last updated"
 msgstr "Датою останнього оновлення"
 
-#: warehouse/templates/search/results.html:182
+#: warehouse/templates/search/results.html:183
 msgid "Trending"
 msgstr "Трендом"
 
-#: warehouse/templates/search/results.html:195
+#: warehouse/templates/search/results.html:196
 msgid "Filter"
 msgstr "Фільтр"
 
-#: warehouse/templates/search/results.html:206
+#: warehouse/templates/search/results.html:207
 msgid "Add filter"
 msgstr "Додати фільтр"
 
-#: warehouse/templates/search/results.html:222
+#: warehouse/templates/search/results.html:223
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr "Немає результатів для «%(term)s»"
 
-#: warehouse/templates/search/results.html:224
+#: warehouse/templates/search/results.html:225
 #, python-format
 msgid ""
 "\n"
@@ -5438,6 +5435,9 @@ msgstr[2] ""
 "\n"
 "                  Немає результатів для '%(filters)s' фільтрів\n"
 "                "
+
+#~ msgid "Log Out"
+#~ msgstr "Вийти"
 
 #~ msgid "Links for %(project_name)s"
 #~ msgstr "Посилання для %(project_name)s"

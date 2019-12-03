@@ -465,8 +465,7 @@
         </ul>
 
         <h3 id="project-name-claim">{{ project_name_claim() }}</h3>
-        <p>{% trans href='https://www.python.org/dev/peps/pep-0541/', title=gettext('External link') %}There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development per <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 541</a>.{% endtrans %}</p>
-        <p>{% trans href='https://github.com/pypa/warehouse/issues/1506', title=gettext('External link') %}<abbr title="Python enhancement proposal">PEP</abbr> 541 has been accepted, and PyPI is <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">creating a workflow</a> which will be documented here.{% endtrans %}</p>
+        <p>{% trans href='https://www.python.org/dev/peps/pep-0541/#how-to-request-a-name-transfer', title=gettext('External link') %}Follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">"How to request a name transfer"</a> section of <abbr title="Python enhancement proposal">PEP</abbr> 541.{% endtrans %}</p>
 
         <h3 id="collaborator-roles">{{ collaborator_roles() }}</h3>
         <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
@@ -484,7 +483,7 @@
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
         <p>
-          {% trans trimmed dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypa/warehouse/issues/new', title=gettext('External link') %}
+          {% trans trimmed dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
             If you can't upload your project's release to PyPI because you're hitting the upload file size limit,
             we can sometimes increase your limit. Make sure you've uploaded at least one release
             for the project that's <em>under</em> the limit
@@ -509,7 +508,7 @@
           <li>{% trans href=request.route_path('accounts.reset-password') %}Go to <a href="{{ href }}">reset your password</a>.{% endtrans %}</li>
           <li>{% trans %}Enter the email address or username you used for PyPI and submit the form.{% endtrans %}</li>
           <li>{% trans %}You'll receive an email with a password reset link.{% endtrans %}</li>
-          <li>{% trans href='https://github.com/pypa/warehouse/issues', title=gettext('External link') %}If you no longer have access to the email address associated with your account, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a>.{% endtrans %}</li>
+          <li>{% trans href='https://github.com/pypa/pypi-support/issues/new', title=gettext('External link') %}If you no longer have access to the email address associated with your account, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a>.{% endtrans %}</li>
         </ol>
         {{ code_of_conduct() }}
 
