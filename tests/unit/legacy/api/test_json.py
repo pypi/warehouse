@@ -13,10 +13,12 @@
 from collections import OrderedDict
 
 import pretend
+import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
+from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
@@ -474,3 +476,61 @@ class TestJSONReleaseSlash:
             )
         ]
         assert resp.headers["Location"] == "/project/the-redirect"
+
+
+class TestCreateToken:
+    def test_create_token_unauthenticated(self):
+        request = pretend.stub(
+            response=pretend.stub(status_code=None), authenticated_userid=None
+        )
+
+        resp = json.create_token(request)
+        assert resp == {"success": False, "message": "invalid authentication token"}
+        assert request.response.status_code == 400
+
+    def test_create_token_bad_payload(self):
+        request = pretend.stub(
+            response=pretend.stub(status_code=None),
+            authenticated_userid="fake_id",
+            json_body="invalid json",
+        )
+
+        resp = json.create_token(request)
+        assert resp == {"success": False, "message": "invalid payload"}
+        assert request.response.status_code == 400
+
+    def test_create_token_payload_not_a_dict(self):
+        request = pretend.stub(
+            response=pretend.stub(status_code=None),
+            authenticated_userid="fake_id",
+            json_body=[],
+        )
+
+        resp = json.create_token(request)
+        assert resp == {"success": False, "message": "invalid payload"}
+        assert request.response.status_code == 400
+
+    def test_create_token_invalid_form(self, monkeypatch):
+        request = pretend.stub(
+            response=pretend.stub(status_code=None),
+            authenticated_userid="fake_id",
+            find_service=pretend.call_recorder(lambda *a, **kw: pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), projects=pretend.stub()),
+            json_body={},
+        )
+        create_macaroon_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+            errors=pretend.stub(values=pretend.call_recorder(lambda: [["fake error"]])),
+        )
+        create_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: create_macaroon_obj
+        )
+        monkeypatch.setattr(json, "CreateMacaroonForm", create_macaroon_cls)
+
+        resp = json.create_token(request)
+        assert resp == {"success": False, "message": "fake error"}
+        assert request.response.status_code == 400
+
+    def test_create_token(self, monkeypatch):
+        # TODO(ww)
+        pass
