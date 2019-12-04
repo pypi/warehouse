@@ -130,10 +130,6 @@ class TopLevelCaveat(Caveat):
         except ValueError:
             raise InvalidMacaroon("malformed predicate")
 
-        used = data.get("used")
-        if used is True:
-            raise InvalidMacaroon("invalid token")
-
         version = data.get("version")
         if version is None:
             raise InvalidMacaroon("malformed version")
@@ -160,12 +156,6 @@ class Verifier:
         self.verifier.satisfy_general(TopLevelCaveat(self))
 
         try:
-            verified = self.verifier.verify(self.macaroon, key)
-            p = self.permission.get("permissions")
-            if p == "user":
-                used = self.permission.get("used")
-                if used is None:
-                    self.macaroon.add_first_party_caveat(json.dumps({"used": "true"}))
-            return verified
+            return self.verifier.verify(self.macaroon, key)
         except pymacaroons.exceptions.MacaroonInvalidSignatureException:
             raise InvalidMacaroon("invalid macaroon signature")

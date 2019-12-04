@@ -194,7 +194,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope", "expiration", "used"]
+    __params__ = ["description", "token_scope", "expiration"]
 
     description = wtforms.StringField(
         validators=[
@@ -258,6 +258,7 @@ class CreateMacaroonForm(forms.Form):
 
         try:
             scope_kind, scope_value = scope_kind.split(":", 1)
+            scope_values = scope_value.split(",")
         except ValueError:
             raise wtforms.ValidationError(f"Unknown token scope: {scope}")
 
@@ -266,8 +267,8 @@ class CreateMacaroonForm(forms.Form):
 
         self.validated_scope = {"projects": []}
         for project in self.all_projects:
-            if scope_value == project.normalized_name:
-                project_scope = {"name": scope_value}
+            if project.normalized_name in scope_values:
+                project_scope = {"name": project.normalized_name}
                 all_versions = [version[0] for version in project.all_versions]
                 if self.validated_project_version:
                     if self.validated_project_version in all_versions:
@@ -278,7 +279,9 @@ class CreateMacaroonForm(forms.Form):
                 self.validated_scope["projects"].append(project_scope)
                 return
 
-        raise wtforms.ValidationError(f"Unknown or invalid project name: {scope_value}")
+        raise wtforms.ValidationError(
+            f"Unknown or invalid project name(s): {scope_value}"
+        )
 
     def validate_expiration(self, field):
         if not field.data:

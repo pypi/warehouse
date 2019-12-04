@@ -12,13 +12,18 @@
 
 from collections import OrderedDict
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently,
+    HTTPNotFound,
+)
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
+from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.manage.forms import CreateMacaroonForm
 from warehouse.packaging.models import File, Project, Release
 
 # Generate appropriate CORS headers for the JSON endpoint.
@@ -205,3 +210,82 @@ def json_release_slash(release, request):
         ),
         headers=_CORS_HEADERS,
     )
+
+
+@view_config(
+    route_name="legacy.api.json.token.new",
+    renderer="json",
+    require_methods=["POST"],
+    uses_session=True,
+    permission="manage:user",
+    require_csrf=False,
+)
+def create_token(request):
+    def _fail(message):
+        request.response.status_code = 400
+        return {"success": False, "message": message}
+
+    if request.authenticated_userid is None:
+        return _fail("invalid authentication token")
+
+    # Sanity-check our JSON payload. Ideally this would be done in a form,
+    # but WTForms isn't well equipped to handle JSON bodies.
+    try:
+        payload = request.json_body
+        if not isinstance(payload, dict):
+            raise ValueError
+    except Exception:
+        return _fail("invalid payload")
+
+    macaroon_service = request.find_service(IMacaroonService, context=None)
+
+    form = CreateMacaroonForm(
+        **payload,
+        user_id=request.user.id,
+        macaroon_service=macaroon_service,
+        all_projects=request.user.projects,
+    )
+    if not form.validate():
+        errors = "\n".join(
+            [str(error) for error_list in form.errors.values() for error in error_list]
+        )
+        return _fail(errors)
+
+    serialized_macaroon, _ = macaroon_service.create_macaroon(
+        location=request.domain,
+        user_id=request.user.id,
+        description=form.description.data,
+        caveats=form.validated_caveats,
+    )
+    request.user.record_event(
+        tag="account:api_token:added",
+        ip_address=request.remote_addr,
+        additional={
+            "description": form.description.data,
+            "caveats": form.validated_caveats,
+        },
+    )
+
+    permissions = form.validated_caveats["permissions"]
+    if "projects" in permissions:
+        project_names = [project["name"] for project in permissions["projects"]]
+        projects = [
+            project
+            for project in request.user.projects
+            if project.normalized_name in project_names
+        ]
+        for project in projects:
+            # NOTE: We don't disclose the full caveats for this token
+            # to the project event log, since the token could also
+            # have access to projects that this project's owner
+            # isn't aware of.
+            project.record_event(
+                tag="project:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": form.description.data,
+                    "user": request.user.username,
+                },
+            )
+
+    return {"success": True, "token": serialized_macaroon}

@@ -66,9 +66,9 @@ class DatabaseMacaroonService:
 
         return dm
 
-    def find_userid(self, raw_macaroon):
+    def find_user(self, raw_macaroon):
         """
-        Returns the id of the user associated with the given raw (serialized)
+        Returns the user model associated with the given raw (serialized)
         macaroon.
         """
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
@@ -85,7 +85,16 @@ class DatabaseMacaroonService:
         if dm is None:
             return None
 
-        return dm.user.id
+        return dm.user
+
+    def find_userid(self, raw_macaroon):
+        """
+        Returns the id of the user associated with the given raw (serialized)
+        macaroon.
+        """
+        user = self.find_user(raw_macaroon)
+        if user is not None:
+            return user.id
 
     def verify(self, raw_macaroon, context, principals, permission):
         """

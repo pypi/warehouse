@@ -10,20 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timezone
-
 from pyramid.httpexceptions import (
     HTTPGone,
     HTTPMovedPermanently,
     HTTPNotFound,
-    HTTPUnauthorized,
 )
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
 
 from warehouse.classifiers.models import Classifier
-from warehouse.macaroons.caveats import InvalidMacaroon
-from warehouse.macaroons.interfaces import IMacaroonService
 
 
 def _exc_with_message(exc, message):
@@ -154,35 +149,3 @@ def display(request):
             request.route_path("packaging.release", name=name, version=version)
         )
     return HTTPMovedPermanently(request.route_path("packaging.project", name=name))
-
-
-@view_config(route_name="legacy.api.pypi.token.new")
-def create_token(request):
-    macaroon_service = request.find_service(IMacaroonService, context=None)
-    try:
-        macaroon_service.verify(
-            raw_macaroon=request.master_key,
-            context="",
-            principals="",
-            permission={"version": 2, "permissions": "user"},
-        )
-    except InvalidMacaroon:
-        raise HTTPUnauthorized()
-    user = macaroon_service.find_userid(
-        request.master_key
-    )  # To determine the user of the original token
-    scope = {
-        "version": 2,
-        "expiration": int(datetime.now(tz=timezone.utc).timestamp()) + 3600,
-        "permissions": {
-            "projects": [{"name": request.project_name, "version": request.version}]
-        },
-    }
-    serialized_macaroon, macaroon = macaroon_service.create_macaroon(
-        location=request.domain,
-        user_id=user,
-        description=request.description,
-        caveats=scope,
-    )
-
-    return {"upload_token": serialized_macaroon}

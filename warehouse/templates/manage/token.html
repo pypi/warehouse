@@ -155,7 +155,7 @@
       </div>
       <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
         <h3 class="callout-block__heading">{% trans %}Proceed with caution!{% endtrans %}</h3>
-        <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your current and future projects.{% endtrans %}</p>
+        <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your current and future projects, and will be able to create additional tokens.{% endtrans %}</p>
       </div>
 
       {% set token_scope = create_macaroon_form.token_scope.data %}
