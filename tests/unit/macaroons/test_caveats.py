@@ -237,7 +237,7 @@ class TestV1Caveat:
         ["predicate", "valid"],
         [
             ('{"version": 2, "permissions": "user"}', True),
-            ('{"version": 2, "permissions": "user", "used": true}', False),
+            ('{"version": 2, "permissions": "user"}', False),
         ],
     )
     def test_verify_one_time_token_caveat(self, predicate, valid):
@@ -284,7 +284,7 @@ class TestVerifier:
         [
             {"version": 2, "permissions": "user"},
             {"version": 2, "permissions": {"projects": [{"name": "bar"}]}},
-            {"version": 2, "permissions": "user", "used": "true"},
+            {"version": 2, "permissions": "user"},
         ],
     )
     def test_verify_one_time_token(self, macaroon_service, predicate):
