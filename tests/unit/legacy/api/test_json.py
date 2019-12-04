@@ -13,12 +13,10 @@
 from collections import OrderedDict
 
 import pretend
-import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
-from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
@@ -531,6 +529,105 @@ class TestCreateToken:
         assert resp == {"success": False, "message": "fake error"}
         assert request.response.status_code == 400
 
-    def test_create_token(self, monkeypatch):
-        # TODO(ww)
-        pass
+    def test_create_token_user_scoped(self, monkeypatch):
+        macaroon_service = pretend.stub(
+            create_macaroon=pretend.call_recorder(
+                lambda *a, **kw: ("fake_token", pretend.stub())
+            )
+        )
+        request = pretend.stub(
+            domain=pretend.stub(),
+            remote_addr=pretend.stub(),
+            response=pretend.stub(status_code=None),
+            authenticated_userid="fake_id",
+            find_service=pretend.call_recorder(lambda *a, **kw: macaroon_service),
+            user=pretend.stub(
+                id=pretend.stub(),
+                projects=pretend.stub(),
+                record_event=pretend.call_recorder(lambda *a, **kw: pretend.stub()),
+            ),
+            json_body={},
+        )
+        create_macaroon_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            description=pretend.stub(data="fake description"),
+            validated_caveats={"permissions": "user"},
+        )
+        create_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: create_macaroon_obj
+        )
+        monkeypatch.setattr(json, "CreateMacaroonForm", create_macaroon_cls)
+
+        resp = json.create_token(request)
+        assert resp == {"success": True, "token": "fake_token"}
+        assert request.user.record_event.calls == [
+            pretend.call(
+                tag="account:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": "fake description",
+                    "caveats": {"permissions": "user"},
+                },
+            )
+        ]
+
+    def test_create_token_project_scoped(self, monkeypatch):
+        macaroon_service = pretend.stub(
+            create_macaroon=pretend.call_recorder(
+                lambda *a, **kw: ("fake_token", pretend.stub())
+            )
+        )
+        request = pretend.stub(
+            domain=pretend.stub(),
+            remote_addr=pretend.stub(),
+            response=pretend.stub(status_code=None),
+            authenticated_userid="fake_id",
+            find_service=pretend.call_recorder(lambda *a, **kw: macaroon_service),
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                projects=[
+                    pretend.stub(
+                        normalized_name="fakeproject",
+                        record_event=pretend.call_recorder(
+                            lambda *a, **kw: pretend.stub()
+                        ),
+                    )
+                ],
+                record_event=pretend.call_recorder(lambda *a, **kw: pretend.stub()),
+            ),
+            json_body={},
+        )
+        create_macaroon_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            description=pretend.stub(data="fake description"),
+            validated_caveats={"permissions": {"projects": [{"name": "fakeproject"}]}},
+        )
+        create_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: create_macaroon_obj
+        )
+        monkeypatch.setattr(json, "CreateMacaroonForm", create_macaroon_cls)
+
+        resp = json.create_token(request)
+        assert resp == {"success": True, "token": "fake_token"}
+        assert request.user.record_event.calls == [
+            pretend.call(
+                tag="account:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": "fake description",
+                    "caveats": {"permissions": {"projects": [{"name": "fakeproject"}]}},
+                },
+            )
+        ]
+        for project in request.user.projects:
+            assert project.record_event.calls == [
+                pretend.call(
+                    tag="project:api_token:added",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "description": "fake description",
+                        "user": request.user.username,
+                    },
+                )
+            ]
