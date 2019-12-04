@@ -322,9 +322,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "legacy.api.json.token.new",
-        "/pypi/create_token/",
-        domain=warehouse,
+        "legacy.api.json.token.new", "/pypi/create_token/", domain=warehouse
     )
 
     # Legacy Action URLs
