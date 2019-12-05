@@ -425,7 +425,9 @@ class TestCreateMacaroonForm:
         )
 
         assert not form.validate()
-        assert form.token_scope.errors.pop() == "Unknown or invalid project name: foo"
+        assert (
+            form.token_scope.errors.pop() == "Unknown or invalid project name(s): foo"
+        )
 
     def test_validate_token_scope_valid_project(self, db_request):
         project = ProjectFactory(name="foo")
@@ -462,7 +464,8 @@ class TestCreateMacaroonForm:
         )
         assert not form.validate()
         assert (
-            form.token_scope.errors.pop() == "Unknown or invalid project name: foobar"
+            form.token_scope.errors.pop()
+            == "Unknown or invalid project name(s): foobar"
         )
 
     def test_validate_token_scope_invalid_release(self):
