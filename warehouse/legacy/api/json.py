@@ -12,10 +12,7 @@
 
 from collections import OrderedDict
 
-from pyramid.httpexceptions import (
-    HTTPMovedPermanently,
-    HTTPNotFound,
-)
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound

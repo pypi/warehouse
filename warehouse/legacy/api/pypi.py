@@ -10,11 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import (
-    HTTPGone,
-    HTTPMovedPermanently,
-    HTTPNotFound,
-)
+from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
 
