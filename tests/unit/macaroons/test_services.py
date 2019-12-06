@@ -119,7 +119,7 @@ class TestDatabaseMacaroonService:
 
     def test_verify_invalid_macaroon(self, monkeypatch, user_service, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
+        raw_macaroon, db_macaroon = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
@@ -134,7 +134,7 @@ class TestDatabaseMacaroonService:
         with pytest.raises(services.InvalidMacaroon):
             macaroon_service.verify(raw_macaroon, context, principals, permissions)
         assert verifier_cls.calls == [
-            pretend.call(mock.ANY, context, principals, permissions)
+            pretend.call(mock.ANY, db_macaroon, context, principals, permissions)
         ]
 
     def test_verify_malformed_macaroon(self, macaroon_service):
@@ -143,7 +143,7 @@ class TestDatabaseMacaroonService:
 
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
+        raw_macaroon, db_macaroon = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
@@ -157,7 +157,7 @@ class TestDatabaseMacaroonService:
 
         assert macaroon_service.verify(raw_macaroon, context, principals, permissions)
         assert verifier_cls.calls == [
-            pretend.call(mock.ANY, context, principals, permissions)
+            pretend.call(mock.ANY, db_macaroon, context, principals, permissions)
         ]
 
     def test_delete_macaroon(self, user_service, macaroon_service):

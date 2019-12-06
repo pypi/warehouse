@@ -527,6 +527,17 @@ class TestCreateMacaroonForm:
             expiration = expiration.astimezone(timezone.utc)
             assert form.validated_caveats["expiration"] == int(expiration.timestamp())
 
+    def test_validate_assigns_onetime(self):
+        form = forms.CreateMacaroonForm(
+            data={"description": "dummy", "token_scope": "scope:user", "onetime": True},
+            user_id=pretend.stub(),
+            macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
+            all_projects=pretend.stub(),
+        )
+
+        assert form.validate()
+        assert form.validated_caveats["onetime"]
+
 
 class TestDeleteMacaroonForm:
     def test_creation(self):

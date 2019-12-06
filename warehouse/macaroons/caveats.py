@@ -103,6 +103,10 @@ class V2Caveat(Caveat):
         raise InvalidMacaroon("project-scoped token matches no projects")
 
     def verify(self, predicate):
+        onetime = predicate.get("onetime", False)
+        if onetime and self.verifier.database_macaroon.last_used is not None:
+            raise InvalidMacaroon("token can't be reused")
+
         expiration = predicate.get("expiration")
         if expiration is not None:
             self.verify_expiration(expiration)
@@ -145,8 +149,9 @@ class TopLevelCaveat(Caveat):
 
 
 class Verifier:
-    def __init__(self, macaroon, context, principals, permission):
+    def __init__(self, macaroon, database_macaroon, context, principals, permission):
         self.macaroon = macaroon
+        self.database_macaroon = database_macaroon
         self.context = context
         self.principals = principals
         self.permission = permission
@@ -156,6 +161,8 @@ class Verifier:
         self.verifier.satisfy_general(TopLevelCaveat(self))
 
         try:
-            return self.verifier.verify(self.macaroon, key)
+            self.verifier.verify(self.macaroon, key)
+            self.database_macaroon.last_used = datetime.now()
+            return True
         except pymacaroons.exceptions.MacaroonInvalidSignatureException:
             raise InvalidMacaroon("invalid macaroon signature")

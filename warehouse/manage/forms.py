@@ -194,7 +194,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
 
 class CreateMacaroonForm(forms.Form):
-    __params__ = ["description", "token_scope", "expiration"]
+    __params__ = ["description", "token_scope", "expiration", "onetime"]
 
     description = wtforms.StringField(
         validators=[
@@ -212,6 +212,8 @@ class CreateMacaroonForm(forms.Form):
     )
 
     expiration = wtforms.DateTimeField()
+
+    onetime = wtforms.BooleanField()
 
     def __init__(self, *args, user_id, macaroon_service, all_projects, **kwargs):
         super().__init__(*args, **kwargs)
@@ -311,6 +313,8 @@ class CreateMacaroonForm(forms.Form):
         self.validated_caveats = {"version": 2, "permissions": self.validated_scope}
         if self.validated_expiration is not None:
             self.validated_caveats["expiration"] = self.validated_expiration
+        if self.onetime.data:
+            self.validated_caveats["onetime"] = True
         return res
 
 

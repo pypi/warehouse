@@ -41,7 +41,7 @@ class TestCaveat:
             caveat(pretend.stub())
 
 
-class TestV1Caveat:
+class TestTopLevelCaveat:
     @pytest.mark.parametrize(
         ["predicate", "valid"],
         [
@@ -65,6 +65,8 @@ class TestV1Caveat:
         else:
             assert caveat(predicate)
 
+
+class TestV1Caveat:
     @pytest.mark.parametrize(
         "predicate", [{}, {"permissions": None}, {"permissions": {"projects": None}}]
     )
@@ -233,15 +235,29 @@ class TestV1Caveat:
         assert caveat(predicate) is True
 
 
+class TestV2Caveat:
+    def test_onetime_caveat(self):
+        predicate = {"version": 2, "permissions": "user", "onetime": True}
+        verifier = pretend.stub(
+            database_macaroon=pretend.stub(last_used=pretend.stub())
+        )
+        caveat = V2Caveat(verifier)
+
+        with pytest.raises(InvalidMacaroon):
+            caveat(predicate)
+
+
 class TestVerifier:
     def test_creation(self):
         macaroon = pretend.stub()
+        db_macaroon = pretend.stub()
         context = pretend.stub()
         principals = pretend.stub()
         permission = pretend.stub()
-        verifier = Verifier(macaroon, context, principals, permission)
+        verifier = Verifier(macaroon, db_macaroon, context, principals, permission)
 
         assert verifier.macaroon is macaroon
+        assert verifier.database_macaroon is db_macaroon
         assert verifier.context is context
         assert verifier.principals is principals
         assert verifier.permission is permission
@@ -251,13 +267,26 @@ class TestVerifier:
             pretend.raiser(MacaroonInvalidSignatureException)
         )
         macaroon = pretend.stub()
+        db_macaroon = pretend.stub()
         context = pretend.stub()
         principals = pretend.stub()
         permission = pretend.stub()
         key = pretend.stub()
-        verifier = Verifier(macaroon, context, principals, permission)
+        verifier = Verifier(macaroon, db_macaroon, context, principals, permission)
 
         monkeypatch.setattr(verifier.verifier, "verify", verify)
         with pytest.raises(InvalidMacaroon):
             verifier.verify(key)
         assert verify.calls == [pretend.call(macaroon, key)]
+
+    def test_verify_updates_last_used(self, monkeypatch):
+        db_macaroon = pretend.stub(last_used=None)
+        verifier = Verifier(
+            pretend.stub(), db_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
+        )
+
+        monkeypatch.setattr(verifier.verifier, "satisfy_general", lambda c: None)
+        monkeypatch.setattr(verifier.verifier, "verify", lambda *a: True)
+
+        assert verifier.verify(pretend.stub())
+        assert verifier.database_macaroon.last_used is not None

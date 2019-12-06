@@ -117,9 +117,8 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroon("deleted or nonexistent macaroon")
 
-        verifier = Verifier(m, context, principals, permission)
+        verifier = Verifier(m, dm, context, principals, permission)
         if verifier.verify(dm.key):
-            dm.last_used = datetime.datetime.now()
             return True
 
         raise InvalidMacaroon("invalid macaroon")

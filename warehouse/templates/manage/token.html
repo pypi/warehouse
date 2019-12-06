@@ -129,9 +129,15 @@
         </div>
         <p id="description-help-text" class="form-group__help-text">{% trans %}What is this token for?{% endtrans %}</p>
       </div>
+
       <div class="form-group">
-        <span class="form-group__label">{% trans %}Permissions{% endtrans %}</span>
-        <p class="form-group__text">{% trans %}Upload packages{% endtrans %}</p>
+        <label for="onetime" class="form-group__label">
+          {% trans %}Single-use{% endtrans %}
+        </label>
+        <input type="checkbox" name="onetime" id="onetime" class="form-group__input">
+        <div id="onetime-errors">
+          {{ field_errors(create_macaroon_form.onetime) }}
+        </div>
       </div>
 
       <div class="form-group">
@@ -167,7 +173,7 @@
           {% endif %}
         </label>
         <input type="text" name="project_version" id="project_version" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.project_version.data or ""}}">
-        <div id="token-name-errors">
+        <div id="project-release-errors">
           {{ field_errors(create_macaroon_form.project_version) }}
         </div>
       </div>
@@ -180,7 +186,7 @@
           {% endif %}
         </label>
         <input type="datetime-local" name="expiration" id="expiration" class="form-group__input" aria-describedby="token-name-errors expiration-help-text" value="{{ create_macaroon_form.expiration.data or ""}}">
-        <div id="token-name-errors">
+        <div id="expiration-errors">
           {{ field_errors(create_macaroon_form.expiration) }}
         </div>
       </div>
