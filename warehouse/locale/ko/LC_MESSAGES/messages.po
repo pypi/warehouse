@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-22 12:45-0400\n"
+"POT-Creation-Date: 2019-11-05 10:17-0500\n"
 "PO-Revision-Date: 2019-10-26 06:00+0000\n"
 "Last-Translator: Min ho Kim <minho42@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
@@ -233,13 +233,13 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:56
-#: warehouse/templates/base.html:260 warehouse/templates/base.html:261
-#: warehouse/templates/base.html:262 warehouse/templates/base.html:272
-#: warehouse/templates/base.html:273 warehouse/templates/base.html:274
-#: warehouse/templates/base.html:285 warehouse/templates/base.html:286
-#: warehouse/templates/base.html:287 warehouse/templates/base.html:296
-#: warehouse/templates/base.html:298 warehouse/templates/base.html:309
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:269 warehouse/templates/base.html:270
+#: warehouse/templates/base.html:271 warehouse/templates/base.html:281
+#: warehouse/templates/base.html:282 warehouse/templates/base.html:283
+#: warehouse/templates/base.html:294 warehouse/templates/base.html:295
+#: warehouse/templates/base.html:296 warehouse/templates/base.html:305
+#: warehouse/templates/base.html:307 warehouse/templates/base.html:318
+#: warehouse/templates/base.html:327
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -404,7 +404,7 @@ msgid "Main navigation"
 msgstr "메인 내비게이션"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:257
+#: warehouse/templates/base.html:266
 #: warehouse/templates/includes/current-user-indicator.html:54
 #: warehouse/templates/pages/help.html:92
 #: warehouse/templates/pages/sitemap.html:27
@@ -466,7 +466,7 @@ msgid "Switch to mobile version"
 msgstr "모바일 버전으로 전환"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
-#: warehouse/templates/base.html:178
+#: warehouse/templates/base.html:187
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:677
 #: warehouse/templates/manage/documentation.html:27
@@ -492,7 +492,7 @@ msgstr ""
 "TestPyPI를 사용중입니다 – 분리된 파이썬 패키지 인덱스 인스턴스를 통해 실제 인"
 "덱스에 영향을 미치지 않고 배포 도구와 프로세스를 사용해볼 수 있습니다."
 
-#: warehouse/templates/base.html:180
+#: warehouse/templates/base.html:189
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -500,140 +500,140 @@ msgstr ""
 "일부 기능은 자바스크립트 없이는 작동하지 않을 수 있습니다. 문제가 발생할 경"
 "우 활성화하세요."
 
-#: warehouse/templates/base.html:213 warehouse/templates/base.html:234
+#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
 msgstr "PyPI 검색"
 
-#: warehouse/templates/base.html:214 warehouse/templates/base.html:235
+#: warehouse/templates/base.html:223 warehouse/templates/base.html:244
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
 msgstr "프로젝트 검색"
 
-#: warehouse/templates/base.html:218 warehouse/templates/base.html:239
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
 msgstr "검색"
 
-#: warehouse/templates/base.html:258
+#: warehouse/templates/base.html:267
 #, fuzzy
 msgid "Help navigation"
 msgstr "메인 내비게이션"
 
-#: warehouse/templates/base.html:260
+#: warehouse/templates/base.html:269
 msgid "Installing packages"
 msgstr "패키지 설치하기"
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:270
 msgid "Uploading packages"
 msgstr "패키지 업로드하기"
 
-#: warehouse/templates/base.html:262
+#: warehouse/templates/base.html:271
 msgid "User guide"
 msgstr "사용자 가이드"
 
-#: warehouse/templates/base.html:263
+#: warehouse/templates/base.html:272
 msgid "FAQs"
 msgstr "자주 하는 질문"
 
-#: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:278 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "PyPI에 대하여"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:279
 msgid "About PyPI navigation"
 msgstr "PyPI에 관한 내비게이션"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:281
 msgid "PyPI on Twitter"
 msgstr "PyPI 트위터"
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:282
 msgid "Infrastructure dashboard"
 msgstr "인프라스트럭쳐 대시보드"
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:283
 msgid "Package index name retention"
 msgstr "패키지 인덱스 이름 보존정책"
 
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:284
 msgid "Our sponsors"
 msgstr "후원사"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:290
 msgid "Contributing to PyPI"
 msgstr "PyPI에 기여하기"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:291
 msgid "How to contribute navigation"
 msgstr "PyPI에 기여하기 내비게이션"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:293
 msgid "Bugs and feedback"
 msgstr "버그와 피드백"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:294
 msgid "Contribute on GitHub"
 msgstr "GitHub에서 기여하기"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:295
 msgid "Translate PyPI"
 msgstr "PyPI 번역"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:296
 msgid "Development credits"
 msgstr "개발자 목록"
 
-#: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:302 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "PyPI 사용하기"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:303
 msgid "Using PyPI navigation"
 msgstr "PyPI 내비게이션 사용하기"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:305
 msgid "Code of conduct"
 msgstr "행동 강령"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:306
 msgid "Report security issue"
 msgstr "보안 문제점 제보"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:307
 msgid "Privacy policy"
 msgstr "개인정보 보호정책"
 
-#: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:308 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "이용 약관"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:318
 msgid "Status: "
 msgstr "상태: "
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:319
 msgid "all systems operational"
 msgstr "모든 시스템 이상 없음"
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:323
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "파이썬 커뮤니티를 위해, 파이썬 커뮤니티에 의해 개발되어 관리되고 있습니다."
 
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:325
 msgid "Donate today!"
 msgstr "오늘 바로 후원하기!"
 
-#: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:328 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "사이트맵"
 
-#: warehouse/templates/base.html:325
+#: warehouse/templates/base.html:334
 msgid "Switch to desktop version"
 msgstr "데스크탑 버전으로 전환"
 
@@ -1205,9 +1205,10 @@ msgid ""
 "your existing\n"
 "  password."
 msgstr ""
-"최근 PyPI에 로그인하거나 업로드를 시도하는 동안, 공개된 정보 유출 자료에 귀하의 비밀번호가 포함된 걸 발견했습니다. 귀하와 다른 "
-"사용자를 보호하기 위해, 당사는 귀하의 비밀번호를 우선적으로 초기화하였고 기존의 비밀번호로는 더 이상 PyPI에 로그인하거나 업로드를 할 "
-"수 없습니다."
+"최근 PyPI에 로그인하거나 업로드를 시도하는 동안, 공개된 정보 유출 자료에 귀하"
+"의 비밀번호가 포함된 걸 발견했습니다. 귀하와 다른 사용자를 보호하기 위해, 당"
+"사는 귀하의 비밀번호를 우선적으로 초기화하였고 기존의 비밀번호로는 더 이상 "
+"PyPI에 로그인하거나 업로드를 할 수 없습니다."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
 #, python-format
@@ -1217,8 +1218,8 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
-"PyPI 자체는 유출을 당하지 않았습니다. 이는 <a href=\"%(href)s\">크리덴셜 스터핑</a> 공격으로부터 PyPI와 "
-"사용자의 위험을 줄이려는 보호대책입니다."
+"PyPI 자체는 유출을 당하지 않았습니다. 이는 <a href=\"%(href)s\">크리덴셜 스터"
+"핑</a> 공격으로부터 PyPI와 사용자의 위험을 줄이려는 보호대책입니다."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -2244,7 +2245,9 @@ msgstr "'%(project_name)s' 프로젝트 이력"
 msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this project, the action is recorded and displayed here."
-msgstr "귀하 (또는 공동 작업자)가 이 프로젝트에서 보안 관련 작업을 수행할 때마다, 그 작업이 기록되고 여기에 표시됩니다."
+msgstr ""
+"귀하 (또는 공동 작업자)가 이 프로젝트에서 보안 관련 작업을 수행할 때마다, 그 "
+"작업이 기록되고 여기에 표시됩니다."
 
 #: warehouse/templates/manage/history.html:29
 msgid "Project created"
@@ -2338,14 +2341,18 @@ msgstr "프로젝트 저널"
 msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
-msgstr "귀하 (또는 공동 작업자)가 이 프로젝트 갱신할 때마다, 그 작업이 기록되고 여기에 표시됩니다."
+msgstr ""
+"귀하 (또는 공동 작업자)가 이 프로젝트 갱신할 때마다, 그 작업이 기록되고 여기"
+"에 표시됩니다."
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
 msgid ""
 "This feature will be deprecated in the future, replaced by the <a href="
 "\"%(href)s\">security history page</a>."
-msgstr "이 기능은 향후 사용되지 않을 것이며 <a href=\"%(href)s\">보안 기록 페이지</a>로 대체될 것입니다."
+msgstr ""
+"이 기능은 향후 사용되지 않을 것이며 <a href=\"%(href)s\">보안 기록 페이지</a>"
+"로 대체될 것입니다."
 
 #: warehouse/templates/manage/journal.html:32
 #, python-format
@@ -2477,8 +2484,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
 msgstr ""
-"아직 PyPI에 어떤 프로젝트도 업로드 하지 않았습니다. 시작하는 방법을 알아보려면 <a href=\"%(href)s\" target=\""
-"_blank\" rel=\"noopener\">파이썬 패키징 사용자 가이드</a>를 방문하십시오."
+"아직 PyPI에 어떤 프로젝트도 업로드 하지 않았습니다. 시작하는 방법을 알아보려"
+"면 <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">파이썬 패키징 사용"
+"자 가이드</a>를 방문하십시오."
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
@@ -2611,7 +2619,8 @@ msgid_plural ""
 "      "
 msgstr[0] ""
 "\n"
-"        삭제 시 %(count)s 개의 파일들과 함께 이 릴리스는 복구할 수없이 삭제됩니다.\n"
+"        삭제 시 %(count)s 개의 파일들과 함께 이 릴리스는 복구할 수없이 삭제됩"
+"니다.\n"
 "      "
 
 #: warehouse/templates/manage/release.html:135
@@ -4544,7 +4553,8 @@ msgstr "보안 문제 보고"
 msgid ""
 "We take security very seriously and ask that you follow our security policy "
 "carefully."
-msgstr "보안을 매우 중요하게 생각하며 보안 정책을 신중하게 준수할 것을 요청합니다."
+msgstr ""
+"보안을 매우 중요하게 생각하며 보안 정책을 신중하게 준수할 것을 요청합니다."
 
 #: warehouse/templates/pages/security.html:24
 msgid "Important!"
@@ -4557,8 +4567,8 @@ msgid ""
 "NOT</strong> report the issue in any public forum, including (but not "
 "limited to):"
 msgstr ""
-"Warehouse 에 관한 보안 이슈를 발견했을 경우, <strong>절대</strong> 관련 이슈를 다음과 같은 공개된 포럼에 "
-"발표하지 않아야 합니다."
+"Warehouse 에 관한 보안 이슈를 발견했을 경우, <strong>절대</strong> 관련 이슈"
+"를 다음과 같은 공개된 포럼에 발표하지 않아야 합니다."
 
 #: warehouse/templates/pages/security.html:27
 msgid "Our GitHub issue tracker"
@@ -4645,7 +4655,9 @@ msgid ""
 "We all love stats, so here are some useful statistics about PyPI. The "
 "statistics page is cached for 24 hours, so don't expect the numbers to be "
 "realtime."
-msgstr "PyPI에 관한 유용한 통계자료 . 통계 페이지는 24시간 동안 캐시가되어 실시간 정보가 아닐수 있습니다."
+msgstr ""
+"PyPI에 관한 유용한 통계자료 . 통계 페이지는 24시간 동안 캐시가되어 실시간 정"
+"보가 아닐수 있습니다."
 
 #: warehouse/templates/pages/stats.html:30
 msgid "Top storage users"
