@@ -29,6 +29,7 @@ KNOWN_LOCALES = {
     "pt_BR": "Português Brasileiro",
     "uk": "Українська",
     "el": "Ελληνικά",
+    "de": "Deutsch",
 }
 
 LOCALE_ATTR = "_LOCALE_"
