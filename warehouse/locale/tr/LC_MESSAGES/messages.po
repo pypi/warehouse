@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-11-05 10:17-0500\n"
-"PO-Revision-Date: 2019-10-24 14:21+0000\n"
+"PO-Revision-Date: 2019-11-11 07:06+0000\n"
 "Last-Translator: Behcet <behcet.senturk@protonmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -4351,8 +4351,9 @@ msgstr ""
 "karşılaştırarak incelemek isteyebilir."
 
 #: warehouse/templates/pages/help.html:430
+#, fuzzy
 msgid "Yes, including RSS feeds of new packages and new releases."
-msgstr ""
+msgstr "Yeni paketlerin ve yeni sürümlerin RSS beslemeleri ile beraber evet."
 
 #: warehouse/templates/pages/help.html:430
 msgid "See the API reference."
@@ -4484,6 +4485,11 @@ msgid ""
 "rel=\"noopener\"><abbr title=\"Python enhancement proposal\">PEP</abbr> 541</"
 "a>."
 msgstr ""
+"An itibari ile tüm taraflar için açık ve adil olan bu idari görevi "
+"gerçekleştirebilen herhangi bir süreç bulunmamaktadır. Lakin bir tanesi <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><"
+"abbr title=\"Python enhancement proposal\">PEP</abbr> 541</a> uyarınca "
+"geliştirilmektedir."
 
 #: warehouse/templates/pages/help.html:469
 #, python-format
@@ -4532,6 +4538,12 @@ msgid ""
 "set the <code>long_description_content_type</code> in <code>setup.py</code> "
 "to the alternate format."
 msgstr ""
+"Varsayılan olarak yükleme işleminin açıklaması <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">reStructuredText</a> ile "
+"işlenir. Şayet açıklama Markdown gibi farklı bir formatta ise, bir paket "
+"<code>setup.py</code> içerisinde ki "
+"<code>long_description_content_type</code> 'u ilgili alternatif formata "
+"ayarlayabilir."
 
 #: warehouse/templates/pages/help.html:482
 #, python-format
@@ -4551,6 +4563,9 @@ msgid ""
 "description locally for validity, you may use <a href=\"%(href)s"
 "\">readme_renderer</a>, which is the same description renderer used by PyPI."
 msgstr ""
+"Eğer açıklama işlenemez ise yükleme PyPI tarafından reddedilecektir. "
+"Açklamanın işlenebilirliğini yerel olarak test etmek için PyPI tarafından da "
+"kullanılan <a href=\"%(href)s\">readme_renderer</a> 'yı kullanabilirsiniz."
 
 #: warehouse/templates/pages/help.html:487
 #, python-format
@@ -4749,6 +4764,7 @@ msgstr ""
 "yüklemeniz için twine kullanmanızı öneriyoruz.</a>."
 
 #: warehouse/templates/pages/help.html:563
+#, fuzzy
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -4756,6 +4772,11 @@ msgid ""
 "related to projects and has a generally solid search reputation, it is a "
 "prime target."
 msgstr ""
+"Spammerlar, Aramam Motoru Optimize yemleme, dolandırıcılık ve kimlik-avı "
+"amaçlı içeriklerini siteye yerleştirmeyi umarak PyPI' ı düzenli olarak "
+"ziyaret ederler. Şayet PyPI, projeler ile ilgili uzun açıklamalar ve diğer "
+"verilerin dizinine izin verdiği için Spammer' lara göre uygun ve öncelikli "
+"hedeflerden biridir."
 
 #: warehouse/templates/pages/help.html:565
 #, python-format
@@ -4835,6 +4856,8 @@ msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
 msgstr ""
+"PyPI' den yüklenen belirli bir paketle ilgili bir sorun yaşıyorsanız, "
+"öncelikli olarak paketin geliştiricilerine ulaşmanız gerekmektedir."
 
 #: warehouse/templates/pages/help.html:614
 #, python-format
@@ -4907,7 +4930,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:662
 msgid "Financial:"
-msgstr ""
+msgstr "Finansal:"
 
 #: warehouse/templates/pages/help.html:662
 #, python-format
@@ -5019,28 +5042,29 @@ msgstr ""
 "Başka bir şey mi arıyorsunuz? Belki aşağıdaki linkler işinize yarayabilir:"
 
 #: warehouse/templates/pages/help.html:726
+#, fuzzy
 msgid "Python Packaging User Guide"
-msgstr ""
+msgstr "Python Paketleme Kullanıcı Kılavuzu"
 
 #: warehouse/templates/pages/help.html:727
 msgid "Python documentation"
-msgstr ""
+msgstr "Python dokümantasyonu"
 
 #: warehouse/templates/pages/help.html:728
 msgid "(main Python website)"
-msgstr ""
+msgstr "(resmi Python web sitesi)"
 
 #: warehouse/templates/pages/help.html:729
 msgid "Python community page"
-msgstr ""
+msgstr "Python topluluk sayfası"
 
 #: warehouse/templates/pages/help.html:729
 msgid "(lists IRC channels, mailing lists, etc.)"
-msgstr ""
+msgstr "(IRC kanallarının listeleri, e-posta listeleri, vb.)"
 
 #: warehouse/templates/pages/help.html:732
 msgid "Contact"
-msgstr ""
+msgstr "İletişim"
 
 #: warehouse/templates/pages/help.html:734
 #, python-format
@@ -5056,21 +5080,23 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
-msgstr ""
+msgstr "Güvenlik"
 
 #: warehouse/templates/pages/security.html:20
 msgid "Reporting a security issue"
-msgstr ""
+msgstr "Bir güvenlik sorunu bildirme"
 
 #: warehouse/templates/pages/security.html:22
 msgid ""
 "We take security very seriously and ask that you follow our security policy "
 "carefully."
 msgstr ""
+"Güvelik konusuna büyük önem veriyoruz ve güvenlik politikamızı dikkatle "
+"takip etmenizi istiyoruz."
 
 #: warehouse/templates/pages/security.html:24
 msgid "Important!"
-msgstr ""
+msgstr "Önemli!"
 
 #: warehouse/templates/pages/security.html:24
 msgid ""
@@ -5080,16 +5106,17 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/security.html:27
+#, fuzzy
 msgid "Our GitHub issue tracker"
-msgstr ""
+msgstr "GitHub sorun izleyicimiz"
 
 #: warehouse/templates/pages/security.html:28
 msgid "Official or unofficial chat channels"
-msgstr ""
+msgstr "Resmi yahut gayri resmi sohbet kanalları"
 
 #: warehouse/templates/pages/security.html:29
 msgid "Official or unofficial mailing lists"
-msgstr ""
+msgstr "Resmi yahut gayri resmi e-posta listeleri"
 
 #: warehouse/templates/pages/security.html:35
 #, python-format
@@ -5108,19 +5135,23 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:38
 msgid "What happens next?"
-msgstr ""
+msgstr "Sonra ne var?"
 
 #: warehouse/templates/pages/security.html:40
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
+"Bir sorunu e-posta ile bildirdikten sonra, 48 saat içerisinde geri bildirim "
+"alırsınız."
 
 #: warehouse/templates/pages/security.html:41
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
+"Alınan aksiyona bağlı olarak size gönderilen ilk e-postadan sonra onu takip "
+"eden başka e-postalar alabilirsiniz."
 
 #: warehouse/templates/pages/security.html:44
 msgid "This security policy was last updated on March 14, 2018."
@@ -5226,11 +5257,11 @@ msgstr "Bir arama sorgusu girin yahut düğmeye tıklayarak bir filtre ekleyin."
 
 #: warehouse/templates/search/results.html:121
 msgid "You can combine searches and classifier filters. Examples:"
-msgstr ""
+msgstr "Aramaları ve sınıflandırıcı filtrelerini birleştirebilirsiniz. Örneğin:"
 
 #: warehouse/templates/search/results.html:125
 msgid "Python 3 compatible projects"
-msgstr ""
+msgstr "Python 3 uyumlu projeler"
 
 #: warehouse/templates/search/results.html:130
 msgid "Sphinx extensions that have a stable/production status"
@@ -5256,7 +5287,7 @@ msgstr[1] ""
 #: warehouse/templates/search/results.html:159
 #, python-format
 msgid "for \"%(term)s\""
-msgstr ""
+msgstr "\"%(term)s\" için"
 
 #: warehouse/templates/search/results.html:163
 msgid ""
@@ -5271,16 +5302,17 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/search/results.html:179
+#, fuzzy
 msgid "Order by"
-msgstr ""
+msgstr "sırala"
 
 #: warehouse/templates/search/results.html:181
 msgid "Relevance"
-msgstr ""
+msgstr "İlgi"
 
 #: warehouse/templates/search/results.html:182
 msgid "Date last updated"
-msgstr ""
+msgstr "Son güncellenen tarih"
 
 #: warehouse/templates/search/results.html:183
 msgid "Trending"
@@ -5288,16 +5320,16 @@ msgstr ""
 
 #: warehouse/templates/search/results.html:196
 msgid "Filter"
-msgstr ""
+msgstr "Filtre"
 
 #: warehouse/templates/search/results.html:207
 msgid "Add filter"
-msgstr ""
+msgstr "Filtre ekle"
 
 #: warehouse/templates/search/results.html:223
 #, python-format
 msgid "There were no results for '%(term)s'"
-msgstr ""
+msgstr "'%(term)s' için bir sonuç bulunamadı"
 
 #: warehouse/templates/search/results.html:225
 #, python-format
