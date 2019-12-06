@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-09-24 05:35+0000\n"
+"PO-Revision-Date: 2019-11-05 15:55+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/pypa/"
 "warehouse/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -128,19 +128,20 @@ msgstr ""
 
 #: warehouse/accounts/views.py:495
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Utløpt symbol: Forespør en ny passordstilbakestillingslenke"
 
 #: warehouse/accounts/views.py:497
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Ugyldig symbol: Forespør en ny passordstilbakestillingslenke"
 
 #: warehouse/accounts/views.py:499 warehouse/accounts/views.py:577
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Ugyldig symbol: Inget symbol angitt"
 
 #: warehouse/accounts/views.py:503
+#, fuzzy
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Ugyldig symbol: Ikke et passordstilbakestillingssymbol"
 
 #: warehouse/accounts/views.py:508
 #, fuzzy
@@ -174,12 +175,14 @@ msgid "Invalid token: not an email verification token"
 msgstr ""
 
 #: warehouse/accounts/views.py:590
+#, fuzzy
 msgid "Email not found"
-msgstr ""
+msgstr "E-postadresse ble ikke funnet"
 
 #: warehouse/accounts/views.py:593
+#, fuzzy
 msgid "Email already verified"
-msgstr ""
+msgstr "E-postadresse allerede bekreftet"
 
 #: warehouse/accounts/views.py:605
 msgid "You can now set this email as your primary address"
@@ -207,7 +210,7 @@ msgstr ""
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Siden ble ikke funnet (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
@@ -313,7 +316,7 @@ msgstr ""
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "Ekstern lenke"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
@@ -333,7 +336,7 @@ msgstr ""
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "Noe gikk galt"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -344,11 +347,12 @@ msgstr ""
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Sjekk vår statusside"
 
 #: warehouse/templates/500.html:29
+#, fuzzy
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Vis Python-status på Twitter"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
@@ -356,7 +360,7 @@ msgstr "Feilkode 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Stol på at PyPI for jobben gjort?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -365,6 +369,11 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
+"Overvei å <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
+"rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
+"civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\""
+"noopener\">donere </a> for å hjelpe oss å bygge en mer stabil og sikrere "
+"plattform."
 
 #: warehouse/templates/base.html:24
 msgid ""
@@ -411,7 +420,7 @@ msgstr "Logg inn"
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Registrer"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
@@ -420,7 +429,7 @@ msgstr "Vis meny"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "Meny"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -435,19 +444,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 40 seneste oppdateringer"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 nyeste pakker"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "Hopp til hovedinnhold"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "Bytt til mobilversjonen"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
 #: warehouse/templates/base.html:178
@@ -504,7 +513,7 @@ msgstr "Hovednavigasjon"
 
 #: warehouse/templates/base.html:260
 msgid "Installing packages"
-msgstr ""
+msgstr "Installasjon av pakker"
 
 #: warehouse/templates/base.html:261
 #, fuzzy
@@ -514,15 +523,15 @@ msgstr "Last opp pakker"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
-msgstr ""
+msgstr "Brukerveiledning"
 
 #: warehouse/templates/base.html:263
 msgid "FAQs"
-msgstr ""
+msgstr "O-S-S"
 
 #: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "Om PyPI"
 
 #: warehouse/templates/base.html:270
 #, fuzzy
@@ -532,11 +541,11 @@ msgstr "Kontonavigasjon"
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPI på Twitter"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "Infrastrukturoversikt"
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
@@ -544,11 +553,11 @@ msgstr ""
 
 #: warehouse/templates/base.html:275
 msgid "Our sponsors"
-msgstr ""
+msgstr "Våre sponsorer"
 
 #: warehouse/templates/base.html:281
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "Bidra til PyPI"
 
 #: warehouse/templates/base.html:282
 #, fuzzy
@@ -558,23 +567,23 @@ msgstr "Kontonavigasjon"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "Feil og tilbakemeldinger"
 
 #: warehouse/templates/base.html:285
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "Bidra på GitHub"
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
-msgstr ""
+msgstr "Oversett PyPI"
 
 #: warehouse/templates/base.html:287
 msgid "Development credits"
-msgstr ""
+msgstr "Utviklingsanerkjennelse"
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr ""
+msgstr "Bruk av PyPI"
 
 #: warehouse/templates/base.html:294
 #, fuzzy
@@ -594,11 +603,11 @@ msgstr "Sett opp sikkerhetsenhet"
 
 #: warehouse/templates/base.html:298
 msgid "Privacy policy"
-msgstr ""
+msgstr "Personvernspraksis"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "Bruksvilkår"
 
 #: warehouse/templates/base.html:309
 #, fuzzy
@@ -1070,6 +1079,7 @@ msgstr ""
 #: warehouse/templates/email/collaborator-added/body.html:26
 msgid "A new collaborator has been added to a project you own on PyPI:"
 msgstr ""
+"En ny samarbeidspartner har blitt lagt til et prosjekt du eiere på PyPI:"
 
 #: warehouse/templates/email/collaborator-added/body.html:29
 #, python-format
@@ -1084,12 +1094,12 @@ msgstr "<strong>Rolle</strong>: %(role)s"
 #: warehouse/templates/email/collaborator-added/body.html:31
 #, python-format
 msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr ""
+msgstr "<strong>Bidragsyter i</strong>: %(project)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:32
 #, python-format
 msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr ""
+msgstr "<strong>Lagt til av</strong>: %(submitter)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:36
 #, python-format
@@ -1133,7 +1143,7 @@ msgstr ""
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
-msgstr ""
+msgstr "Hva skal jeg gjøre?"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -1141,6 +1151,8 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
+"For å få tilgang til kontoen din igjen, <a href=\"%(href)s\">tilbakestill "
+"passordet ditt</a> på PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
@@ -1184,7 +1196,7 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr ""
+msgstr "Hvordan vet du dette?"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
