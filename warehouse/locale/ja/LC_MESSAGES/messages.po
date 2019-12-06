@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-22 12:45-0400\n"
+"POT-Creation-Date: 2019-11-05 10:17-0500\n"
 "PO-Revision-Date: 2019-10-17 10:13+0000\n"
 "Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -234,13 +234,13 @@ msgstr "モンティ・パイソン — チーズ・ショップ"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:56
-#: warehouse/templates/base.html:260 warehouse/templates/base.html:261
-#: warehouse/templates/base.html:262 warehouse/templates/base.html:272
-#: warehouse/templates/base.html:273 warehouse/templates/base.html:274
-#: warehouse/templates/base.html:285 warehouse/templates/base.html:286
-#: warehouse/templates/base.html:287 warehouse/templates/base.html:296
-#: warehouse/templates/base.html:298 warehouse/templates/base.html:309
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:269 warehouse/templates/base.html:270
+#: warehouse/templates/base.html:271 warehouse/templates/base.html:281
+#: warehouse/templates/base.html:282 warehouse/templates/base.html:283
+#: warehouse/templates/base.html:294 warehouse/templates/base.html:295
+#: warehouse/templates/base.html:296 warehouse/templates/base.html:305
+#: warehouse/templates/base.html:307 warehouse/templates/base.html:318
+#: warehouse/templates/base.html:327
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -404,7 +404,7 @@ msgid "Main navigation"
 msgstr "メインナビゲーション"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:257
+#: warehouse/templates/base.html:266
 #: warehouse/templates/includes/current-user-indicator.html:54
 #: warehouse/templates/pages/help.html:92
 #: warehouse/templates/pages/sitemap.html:27
@@ -466,7 +466,7 @@ msgid "Switch to mobile version"
 msgstr "モバイル版に切替"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
-#: warehouse/templates/base.html:178
+#: warehouse/templates/base.html:187
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:677
 #: warehouse/templates/manage/documentation.html:27
@@ -493,7 +493,7 @@ msgstr ""
 "で、実際のインデックスに影響を与えずにツールの配布やプロセスを試すことができ"
 "ます。"
 
-#: warehouse/templates/base.html:180
+#: warehouse/templates/base.html:189
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -501,138 +501,138 @@ msgstr ""
 "一部の機能は、JavaScriptなしでは動作しない場合があります。問題が発生した場合"
 "は、有効にしてみてください。"
 
-#: warehouse/templates/base.html:213 warehouse/templates/base.html:234
+#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
 msgstr "PyPIを検索"
 
-#: warehouse/templates/base.html:214 warehouse/templates/base.html:235
+#: warehouse/templates/base.html:223 warehouse/templates/base.html:244
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
 msgstr "プロジェクトを検索"
 
-#: warehouse/templates/base.html:218 warehouse/templates/base.html:239
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
 msgstr "検索"
 
-#: warehouse/templates/base.html:258
+#: warehouse/templates/base.html:267
 msgid "Help navigation"
 msgstr "ヘルプナビゲーション"
 
-#: warehouse/templates/base.html:260
+#: warehouse/templates/base.html:269
 msgid "Installing packages"
 msgstr "パッケージのインストール</a>"
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:270
 msgid "Uploading packages"
 msgstr "パッケージのアップロード"
 
-#: warehouse/templates/base.html:262
+#: warehouse/templates/base.html:271
 msgid "User guide"
 msgstr "ユーザガイド"
 
-#: warehouse/templates/base.html:263
+#: warehouse/templates/base.html:272
 msgid "FAQs"
 msgstr "よくある質問"
 
-#: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:278 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "PyPIについて"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:279
 msgid "About PyPI navigation"
 msgstr "PyPIのナビゲーション"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:281
 msgid "PyPI on Twitter"
 msgstr "PyPIのTwitterアカウント"
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:282
 msgid "Infrastructure dashboard"
 msgstr "インフラ・ダッシュボード"
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:283
 msgid "Package index name retention"
 msgstr "パッケージ・インデックス名の維持"
 
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:284
 msgid "Our sponsors"
 msgstr "スポンサー"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:290
 msgid "Contributing to PyPI"
 msgstr "PyPIへの貢献"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:291
 msgid "How to contribute navigation"
 msgstr "貢献する方法のナビゲーション"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:293
 msgid "Bugs and feedback"
 msgstr "バグ報告とフィードバック"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:294
 msgid "Contribute on GitHub"
 msgstr "GitHub上で貢献する"
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:295
 msgid "Translate PyPI"
 msgstr "PyPIを翻訳する"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:296
 msgid "Development credits"
 msgstr "開発のクレジット"
 
-#: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:302 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "PyPIの利用"
 
-#: warehouse/templates/base.html:294
+#: warehouse/templates/base.html:303
 msgid "Using PyPI navigation"
 msgstr "PyPI利用のナビゲーション"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:305
 msgid "Code of conduct"
 msgstr "行動規範"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:306
 msgid "Report security issue"
 msgstr "セキュリティ問題を報告する"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:307
 msgid "Privacy policy"
 msgstr "プライバシー・ポリシー"
 
-#: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:308 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "利用規約"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:318
 msgid "Status: "
 msgstr "ステータス: "
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:319
 msgid "all systems operational"
 msgstr "全システム稼働"
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:323
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "PythonコミュニティによるPythonコミュニティのための開発と保守。"
 
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:325
 msgid "Donate today!"
 msgstr "今すぐ寄付を！"
 
-#: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:328 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "サイトマップ"
 
-#: warehouse/templates/base.html:325
+#: warehouse/templates/base.html:334
 msgid "Switch to desktop version"
 msgstr "デスクトップ版に切替"
 
