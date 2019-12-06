@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-11-05 10:17-0500\n"
-"PO-Revision-Date: 2019-10-22 12:51+0000\n"
+"PO-Revision-Date: 2019-11-27 10:37+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -4536,7 +4536,8 @@ msgstr ""
 #, python-format
 msgid ""
 "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
-msgstr "Si el dueño no contesta, ver <a href=\"%(href)s\">%(anchor_text)s</a>"
+msgstr ""
+"Si el propietario no contesta, vea <a href=\"%(href)s\">%(anchor_text)s</a>"
 
 #: warehouse/templates/pages/help.html:481
 #, python-format
@@ -4547,12 +4548,11 @@ msgid ""
 "set the <code>long_description_content_type</code> in <code>setup.py</code> "
 "to the alternate format."
 msgstr ""
-"Por defecto, la descripción de una carga se representará con <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">reStructuredText</a>. Si la descripción está en un formato alterno como "
-"Markdown, un paquete puede establecer el "
-"<code>long_description_content_type</code> en <code>setup.py</code> al "
-"formato alternativo."
+"De manera predeterminada, la descripción de una carga se representará con <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">reStructuredText</a>. Si la descripción está en un formato alterno como "
+"Markdown, un paquete puede establecer el formato alternativo en la clave "
+"<code>long_description_content_type</code> de <code>setup.py</code>."
 
 #: warehouse/templates/pages/help.html:482
 #, python-format
@@ -4561,9 +4561,9 @@ msgid ""
 "\"noopener\">Python Packaging User Guide</a> for details on the available "
 "formats."
 msgstr ""
-"Referirse a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">la Guía del usuario de Python Packaging</a> para detalles de "
-"los formatos disponibles."
+"Consulte el <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">manual de uso del empaquetamiento de Python</a> para conocer "
+"detalles sobre los formatos disponibles."
 
 #: warehouse/templates/pages/help.html:483
 #, python-format
@@ -4572,9 +4572,10 @@ msgid ""
 "description locally for validity, you may use <a href=\"%(href)s"
 "\">readme_renderer</a>, which is the same description renderer used by PyPI."
 msgstr ""
-"PyPI rechazará cargas si la descripción no se procesa. Para revisar la "
-"descripción local para validar, puedes usar <a href=\"%(href)s"
-"\">readme_renderer</a>, que es la misma descripción procesada usada por PyPI."
+"PyPI rechazará cargas si la descripción no puede representarse. Para revisar "
+"la validez de la descripción localmente, puede emplear <a href=\"%(href)s\""
+">readme_renderer</a>, que es el mismo procesador de descripciones que PyPI "
+"usa."
 
 #: warehouse/templates/pages/help.html:487
 #, python-format
@@ -4608,7 +4609,8 @@ msgstr "El tamaño de su versión, en megabytes"
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
-"Para qué índice / índices necesitas el aumento (PyPI, Test PyPI, o los dos)"
+"Para qué índice o índices necesita el aumento (PyPI, Entorno de pruebas de "
+"PyPI o ambos)"
 
 #: warehouse/templates/pages/help.html:498
 msgid ""
