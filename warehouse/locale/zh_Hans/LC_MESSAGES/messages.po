@@ -6,13 +6,14 @@
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # liushuyu011 <liushuyu011@gmail.com>, 2019.
 # Jesse201147 <tjx201147@163.com>, 2019.
+# 谭九鼎 <109224573@qq.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-11-05 10:17-0500\n"
-"PO-Revision-Date: 2019-11-01 10:52+0000\n"
-"Last-Translator: Jesse201147 <tjx201147@163.com>\n"
+"PO-Revision-Date: 2019-11-24 15:22+0000\n"
+"Last-Translator: 谭九鼎 <109224573@qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -1963,7 +1964,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:568
 msgid "Password reset requested"
-msgstr "密码重置请求已提交。"
+msgstr "密码重置请求已提交"
 
 #: warehouse/templates/manage/account.html:570
 msgid "Password successfully reset"
