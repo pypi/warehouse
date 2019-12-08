@@ -56,12 +56,14 @@ def test_includeme(forklift_domain, monkeypatch):
                 "/",
                 "upload.html",
                 route_kw={"domain": forklift_domain},
+                view_kw={"has_translations": True},
             ),
             pretend.call(
                 "forklift.legacy.invalid_request",
                 "/legacy/",
                 "upload.html",
                 route_kw={"domain": "upload.pypi.io"},
+                view_kw={"has_translations": True},
             ),
         ]
     else:

@@ -39,6 +39,7 @@ from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
@@ -102,6 +103,13 @@ _allowed_platforms = {
     "manylinux1_i686",
     "manylinux2010_x86_64",
     "manylinux2010_i686",
+    "manylinux2014_x86_64",
+    "manylinux2014_i686",
+    "manylinux2014_aarch64",
+    "manylinux2014_armv7l",
+    "manylinux2014_ppc64",
+    "manylinux2014_ppc64le",
+    "manylinux2014_s390x",
     "linux_armv6l",
     "linux_armv7l",
 }
@@ -250,11 +258,6 @@ def _validate_legacy_dist_req(requirement):
     if req.url is not None:
         raise wtforms.validators.ValidationError(
             "Can't have direct dependency: {!r}".format(requirement)
-        )
-
-    if any(packaging.version.Version(spec.version).local for spec in req.specifier):
-        raise wtforms.validators.ValidationError(
-            "Can't have dependency with local version: {!r}".format(requirement)
         )
 
 
@@ -730,12 +733,22 @@ def _no_deprecated_classifiers(request):
     uses_session=True,
     require_csrf=False,
     require_methods=["POST"],
+    has_translations=True,
 )
 def file_upload(request):
     # If we're in read-only mode, let upload clients know
-    if request.flags.enabled("read-only"):
+    if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
             HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
+        )
+
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
+        raise _exc_with_message(
+            HTTPForbidden,
+            "New uploads are temporarily disabled. "
+            "See {projecthelp} for details".format(
+                projecthelp=request.help_url(_anchor="admin-intervention")
+            ),
         )
 
     # Log an attempt to upload
@@ -855,7 +868,7 @@ def file_upload(request):
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
         # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if request.flags.enabled("disallow-new-project-registration"):
+        if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
             raise _exc_with_message(
                 HTTPForbidden,
                 (
@@ -940,6 +953,21 @@ def file_upload(request):
                 submitted_by=request.user,
                 submitted_from=request.remote_addr,
             )
+        )
+
+        project.record_event(
+            tag="project:create",
+            ip_address=request.remote_addr,
+            additional={"created_by": request.user.username},
+        )
+        project.record_event(
+            tag="project:role:add",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": "Owner",
+                "target_user": request.user.username,
+            },
         )
 
     # Check that the user has permission to do things to this project, if this
@@ -1080,6 +1108,15 @@ def file_upload(request):
                 submitted_by=request.user,
                 submitted_from=request.remote_addr,
             )
+        )
+
+        project.record_event(
+            tag="project:release:add",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "canonical_version": release.canonical_version,
+            },
         )
 
     # TODO: We need a better solution to this than to just do it inline inside

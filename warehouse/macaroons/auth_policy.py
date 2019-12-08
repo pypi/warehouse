@@ -38,7 +38,7 @@ def _extract_basic_macaroon(auth):
     except ValueError:
         return None
 
-    if auth_method != "@token":
+    if auth_method != "__token__":
         return None
 
     return auth

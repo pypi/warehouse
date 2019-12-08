@@ -30,23 +30,23 @@ const populateWebAuthnErrorList = (errors) => {
   });
 };
 
-const doWebAuthn = (buttonId, func) => {
+const doWebAuthn = (formId, func) => {
   if (!window.PublicKeyCredential) {
     return;
   }
 
-  const webAuthnButton = document.getElementById(buttonId);
-  if (webAuthnButton === null) {
+  const webAuthnForm = document.getElementById(formId);
+  if (webAuthnForm === null) {
     return null;
   }
 
-  const csrfToken = webAuthnButton.getAttribute("csrf-token");
-  if (csrfToken === null) {
-    return;
-  }
-
+  const webAuthnButton = webAuthnForm.querySelector("button[type=submit]");
   webAuthnButton.disabled = false;
-  webAuthnButton.addEventListener("click", async () => { func(csrfToken); });
+
+  webAuthnForm.addEventListener("submit", async() => {
+    func(webAuthnButton.value);
+    event.preventDefault();
+  });
 };
 
 const hexEncode = (buf) => {
@@ -181,7 +181,7 @@ export const GuardWebAuthn = () => {
 };
 
 export const ProvisionWebAuthn = () => {
-  doWebAuthn("webauthn-provision-begin", async (csrfToken) => {
+  doWebAuthn("webauthn-provision-form", async (csrfToken) => {
     const label = document.getElementById("webauthn-provision-label").value;
 
     const resp = await fetch(
@@ -213,7 +213,7 @@ export const ProvisionWebAuthn = () => {
 };
 
 export const AuthenticateWebAuthn = () => {
-  doWebAuthn("webauthn-auth-begin", async (csrfToken) => {
+  doWebAuthn("webauthn-auth-form", async (csrfToken) => {
     const resp = await fetch(
       "/account/webauthn-authenticate/options" + window.location.search, {
         cache: "no-cache",

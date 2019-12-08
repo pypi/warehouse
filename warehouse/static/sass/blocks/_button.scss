@@ -33,16 +33,15 @@
 
 .button {
   position: relative;
-  font-size: $button-font-size;
   font-weight: $bold-font-weight;
   cursor: pointer;
   padding: 8.5px ($spacing-unit / 2);
   background-color: transparent;
   color: lighten($text-color, 10);
-  line-height: 19px;
-  border: 2px solid darken($base-grey, 10);
+  border: 1px solid $accessible-border-color;
   border-radius: 3px;
   display: inline-block;
+  text-align: center;
   @include link-without-underline;
 
   i.fa {
@@ -50,20 +49,18 @@
     top: 2px;
   }
 
-  &:focus,
   &:hover,
-  &:active {
+  &:active,
+  &:focus {
     border-color: $primary-color;
     color: darken($primary-color, 10);
     z-index: index($z-index-scale, "active-button"); // Needed for button groups
     outline: none;
   }
 
-  @include link-focus;
-
   &--small {
     font-size: $small-font-size;
-    padding: 4px 8px;
+    padding: 6px 8px;
   }
 
   &--primary {
@@ -72,13 +69,19 @@
     color: $white;
     z-index: index($z-index-scale, "primary-button"); // Needed for button groups
 
-    &:focus,
     &:hover,
-    &:active {
+    &:active,
+    &:focus {
       border-color: darken($primary-color, 10);
       background-color: darken($primary-color, 9);
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
+    }
+
+    &:active,
+    &:focus {
+      border-color: $white;
+      @include link-focus-state($primary-color);
     }
   }
 
@@ -95,13 +98,19 @@
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
     }
+
+    &:active,
+    &:focus {
+      border-color: $white;
+      @include link-focus-state($danger-color);
+    }
   }
 
   &[disabled],
   &--disabled {
     cursor: not-allowed;
     background-color: darken($background-color, 5%);
-    border: 2px solid darken($background-color, 5%);
+    border-color: darken($background-color, 5%);
     color: darken($background-color, 12%);
     text-decoration: line-through;
     pointer-events: none;
@@ -110,14 +119,14 @@
     &:hover,
     &:active {
       background-color: darken($background-color, 5%);
-      border: 2px solid darken($background-color, 5%);
+      border-color: darken($background-color, 5%);
       color: darken($background-color, 12%);
       outline: none;
     }
   }
 
   &--switch-to-desktop {
-    border: 2px solid transparentize($white, 0.3);
+    border-color: transparentize($white, 0.3);
     color: $white;
     margin: $spacing-unit auto 0;
 
@@ -131,7 +140,6 @@
 
   &--switch-to-mobile {
     font-size: 500%;
-    line-height: 1.2;
     padding: 40px;
     height: auto;
     margin: 25px;

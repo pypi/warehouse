@@ -63,7 +63,6 @@
   &__name {
     @include h2;
     overflow: hidden;
-    text-overflow: ellipsis;
     padding: 0 0 $spacing-unit / 2;
 
     @media only screen and (max-width: $desktop) {

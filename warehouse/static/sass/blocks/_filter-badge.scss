@@ -23,9 +23,9 @@
     <span class="filter-badge__description">
       // filter description here
     </span>
-    <a class="filter-badge__remove-button">
+    <button type="button" class="filter-badge__remove-button">
       // close icon here
-    </a>
+    </button>
   </div>
 */
 
@@ -43,7 +43,7 @@
   &__icon {
     display: table-cell;
     padding: 6px 0 6px 6px;
-    color: darken($primary-color, 10%);
+    color: $white;
     vertical-align: middle;
   }
 
@@ -65,5 +65,7 @@
       color: $white;
       background-color: darken($primary-color, 5%);
     }
+
+    @include link-focus-state($white);
   }
 }

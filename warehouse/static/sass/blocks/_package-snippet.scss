@@ -32,17 +32,22 @@
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;
 
-  &,
-  &:hover {
-    // Use png fallback
-    background: $white url("../images/white-cube.png") no-repeat 0 50%;
-    // Or svg if the browser supports it
-    background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
-    background-position: 20px;
+  @media only screen and (max-width: $tablet) {
+    padding: $spacing-unit / 2;
+  }
+
+  @media only screen and (min-width: $tablet + 1px) {
+    &,
+    &:hover {
+      // Use png fallback
+      background: $white url("../images/white-cube.png") no-repeat 0 50%;
+      // Or svg if the browser supports it
+      background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
+      background-position: 20px;
+    }
   }
 
   &__title {
-    @include add-ellipsis;
     @include h3;
     padding-bottom: 0;
     display: block;
@@ -56,7 +61,6 @@
   }
 
   &__meta {
-    font-size: 16px;
     padding: 1px 0 2px;
   }
 
@@ -65,10 +69,10 @@
   }
 
   &__released {
-    font-size: 1rem;
     font-weight: $base-font-weight;
     float: right;
     color: $text-color;
+    font-size: 1rem;
 
     @media only screen and (max-width: $tablet) {
       float: none;
@@ -77,9 +81,7 @@
   }
 
   &__description {
-    @include add-ellipsis;
     clear: both;
-    font-size: 1rem;
     color: $text-color;
   }
 
@@ -90,7 +92,7 @@
   }
 
   &__buttons {
-    width: 170px;
+    flex-shrink: 0;
 
     .button {
       display: inline-block;

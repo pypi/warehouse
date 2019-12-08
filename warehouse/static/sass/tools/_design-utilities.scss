@@ -37,50 +37,22 @@
   transition: opacity 0.3s;
 }
 
-@mixin table {
-  @include card;
-  @include border-width(1px null);
-  border-collapse: collapse;
-  border-spacing: 0;
-  text-align: left;
-  margin: 25px 0 0 0;
-  font-size: $small-font-size;
-  width: 100%;
+@mixin dismiss-button {
+  background: transparent;
+  border: 0;
+  position: absolute;
+  top: 16px;
+  right: 15px;
+  font-size: 18px;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  text-align: center;
+  background-image: none;
 
-  tr {
-    border-bottom: 1px solid $border-color;
+  &:hover,
+  &:active {
+    background-image: none;
   }
-
-  th,
-  td {
-    margin: 0;
-    border: 0;
-    padding: 10px 7px;
-    border-right: 1px solid $border-color;
-  }
-
-  thead tr {
-    background-color: $white;
-
-    th {
-      vertical-align: bottom;
-      font-weight: $bold-font-weight;
-    }
-  }
-
-  tbody {
-    tr {
-      background-color: darken($background-color, 0.75);
-    }
-
-    tr:nth-child(even) {
-      background-color: darken($background-color, 2);
-    }
-  }
-}
-
-@mixin add-ellipsis {
-  @include ellipsis;
-  padding-left: 1px;
-  padding-right: 1px;
 }

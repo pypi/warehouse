@@ -44,7 +44,7 @@ tt {
   background-color: lighten($base-grey, 5);
   border: 1px solid $border-color;
   padding: 0 2px 1px 2px;
-  font-size: 85%;
+  font-size: 0.85rem;
   color: lighten($text-color, 15);
 }
 
@@ -111,13 +111,12 @@ a {
   background-repeat: repeat-x;
   background-size: 100% 1.5px;
   @include primary-underlined-link;
-  @include link-focus;
 
   // Add 'external link' icon to most external links
-  &[target="_blank"]:not(.tooltipped):not(.sponsors__sponsor) {
+  &[target="_blank"]:not(.copy-tooltip):not(.sponsors__sponsor) {
     &::after {
       white-space: nowrap;
-      font-size: 80%;
+      font-size: 0.8rem;
       font-family: "Font Awesome 5 Free";
       font-weight: 900;
       content: "\f35d";
@@ -131,7 +130,7 @@ a {
   // Add 'email' icon to email links
   &[href^="mailto:"] {
     &::after {
-      font-size: 90%;
+      font-size: 0.9rem;
       font-family: "Font Awesome 5 Free";
       font-weight: 400;
       content: "\f0e0";
@@ -145,7 +144,7 @@ a {
   // Handle badges and code in links nicely
   .badge {
     position: relative;
-    top: -1px;
+    top: -3px;
   }
 
   code,
@@ -153,7 +152,7 @@ a {
   pre,
   samp,
   tt {
-    font-size: 70%;
+    font-size: 0.7rem;
     position: relative;
     top: -2px;
     padding: 0 2px;
@@ -162,12 +161,18 @@ a {
 
 button {
   @include link-without-underline;
-  @include link-focus;
+  @include link-focus-state($primary-color);
 }
 
 @include selection {
   color: darken($primary-color, 15);
   background: $highlight-color;
+}
+
+abbr[title] {
+  border-bottom: 0;
+  text-decoration: underline dotted;
+  cursor: help;
 }
 
 // VERTICAL RHYTHM

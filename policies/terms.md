@@ -1,4 +1,4 @@
-# Terms of Use
+# Terms of use
 
 By registering to upload materials to PyPI, I agree and affirmatively
 acknowledge the following:

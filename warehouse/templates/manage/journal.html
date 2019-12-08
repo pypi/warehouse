@@ -1,0 +1,61 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_project_base.html" %}
+
+{% import "warehouse:templates/includes/pagination.html" as pagination %}
+
+{% set active_tab = 'journal' %}
+
+{% block title %}{% trans project_name=project.name %}'{{ project_name }}' project journal{% endtrans %}{% endblock %}
+
+{% block main %}
+  <h2>{% trans %}Project journal{% endtrans %}</h2>
+
+  <p>{% trans %}Each time you or your collaborators update this project, the action is recorded and displayed here.{% endtrans %}</p>
+
+  <div class="callout-block callout-block--warning no-top-margin">
+    <p>{% trans href=request.route_path('manage.project.history', project_name=project.normalized_name) %}This feature will be deprecated in the future, replaced by the <a href="{{ href }}">security history page</a>.{% endtrans %}
+  </div>
+
+  <table class="table table--history">
+    <caption class="sr-only">{% trans project_name=project.name %}History for {{ project_name }}{% endtrans %}</caption>
+    <thead>
+      <tr>
+        <th scope="col">{% trans %}Action{% endtrans %}</th>
+        <th scope="col">{% trans %}Date{% endtrans %}</th>
+        <th scope="col">{% trans %}User{% endtrans %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for journal in journals %}
+      <tr>
+        <th scope="row">
+          <span class="table__mobile-label">{% trans %}Action{% endtrans %}</span>
+          {% if journal.version %} {% trans version=journal.version %}Release {{ version }}:{% endtrans %} {% endif %}{{ journal.action }}
+        </th>
+        <td>
+          <span class="table__mobile-label">{% trans %}Date{% endtrans %}</span>
+          {{ humanize(journal.submitted_date, time="true") }}
+        </td>
+        <td>
+          <span class="table__mobile-label">{% trans %}User{% endtrans %}</span>
+          {{ journal.submitted_by.username }}
+          <span class="table__ip">{% trans ip_address=journal.submitted_from %}from {{ ip_address }}{% endtrans %}</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {{ pagination.paginate(journals) }}
+{% endblock %}

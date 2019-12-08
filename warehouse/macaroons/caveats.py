@@ -42,7 +42,7 @@ class V1Caveat(Caveat):
             )
 
         project = self.verifier.context
-        if project.name in projects:
+        if project.normalized_name in projects:
             return True
 
         raise InvalidMacaroon("project-scoped token matches no projects")

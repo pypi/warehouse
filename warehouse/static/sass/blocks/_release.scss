@@ -47,10 +47,17 @@
     width: 110px;
     display: table-cell;
     vertical-align: middle;
-    text-align: right;
+    text-align: center;
+
+    & > .badge {
+      float: right;
+    }
 
     @media screen and (max-width: $tablet) {
-      text-align: left;
+      & > .badge {
+        float: left;
+        margin-right: 10px;
+      }
     }
 
     @media screen and (max-width: $mobile) {
@@ -95,9 +102,8 @@
   }
 
   &__version {
-    @include add-ellipsis;
     padding-bottom: 0;
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: $bold-font-weight;
   }
 

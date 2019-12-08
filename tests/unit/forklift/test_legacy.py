@@ -31,7 +31,7 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
-from warehouse.admin.flags import AdminFlag
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
@@ -155,7 +155,8 @@ class TestValidation:
         assert validator.calls == [pretend.call(datum) for datum in data]
 
     @pytest.mark.parametrize(
-        "requirement", ["foo (>=1.0)", "foo", "foo2", "foo-bar", "foo_bar"]
+        "requirement",
+        ["foo (>=1.0)", "foo", "foo2", "foo-bar", "foo_bar", "foo == 2.*"],
     )
     def test_validate_legacy_dist_req_valid(self, requirement):
         legacy._validate_legacy_dist_req(requirement)
@@ -170,7 +171,6 @@ class TestValidation:
             "_foo",
             "_foo (>=1.0)",
             "name @ https://github.com/pypa",
-            "test-pypi-version-specifier-dep==0.0.1+cuda9",
         ],
     )
     def test_validate_legacy_dist_req_invalid(self, requirement):
@@ -753,6 +753,25 @@ class TestIsDuplicateFile:
 
 
 class TestFileUpload:
+    def test_fails_disallow_new_upload(self, pyramid_config, pyramid_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+        pyramid_request.flags = pretend.stub(
+            enabled=lambda value: value == AdminFlagValue.DISALLOW_NEW_UPLOAD
+        )
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(pyramid_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 New uploads are temporarily disabled. "
+            "See /the/help/url/ for details"
+        )
+
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1118,7 +1137,9 @@ class TestFileUpload:
     def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
         admin_flag = (
             db_request.db.query(AdminFlag)
-            .filter(AdminFlag.id == "disallow-new-project-registration")
+            .filter(
+                AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION.value
+            )
             .first()
         )
         admin_flag.enabled = True
@@ -2229,6 +2250,13 @@ class TestFileUpload:
             "manylinux1_x86_64",
             "manylinux2010_i686",
             "manylinux2010_x86_64",
+            "manylinux2014_i686",
+            "manylinux2014_x86_64",
+            "manylinux2014_aarch64",
+            "manylinux2014_armv7l",
+            "manylinux2014_ppc64",
+            "manylinux2014_ppc64le",
+            "manylinux2014_s390x",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
             # A real tag used by e.g. some numpy wheels

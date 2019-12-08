@@ -16,7 +16,10 @@
   A form field, with label, input, and help text.
 
   <div class="form-group">
-    <label class="form-group__label" for="myinput">Label here</label>
+    <label class="form-group__label" for="myinput">
+      Label here
+      <span class="form-group__required"(required)</span>
+    </label>
     <input class="form-group__input" id="myinput" />
     <p class="form-group__text">When a field is not editable, you can use me instead</p>
     <p class="form-group__help-text">Some help text here</p>
@@ -30,18 +33,27 @@
   &__label {
     display: block;
     font-weight: bold;
-    margin-bottom: 7px;
+  }
+
+  &__label:not(:first-child) {
+    margin-top: 7px;
+  }
+
+  &__required {
+    font-size: $small-font-size;
+    font-weight: normal;
   }
 
   #{$all-text-inputs}.form-group__input,
   select.form-group__input {
     display: block;
     width: 350px;
+    margin-top: 4px;
     max-width: 100%;
   }
 
   &__text {
-    font-size: 20px;
+    font-size: $input-font-size;
     padding: 4px 0 8px;
   }
 
@@ -51,31 +63,5 @@
     width: 350px;
     max-width: 100%;
     font-size: $small-font-size;
-  }
-
-  &__horizontal {
-    display: flex;
-  }
-
-  &__horizontal-left {
-    display: inline-block;
-    max-width: 100%;
-  }
-
-  &__horizontal-right {
-    margin-left: 10px;
-    display: inline-block;
-    max-width: 100%;
-  }
-
-  @media only screen and (max-width: $small-tablet) {
-    &__horizontal {
-      flex-wrap: wrap;
-    }
-
-    &__horizontal-right {
-      margin-left: 0;
-      margin-top: 10px;
-    }
   }
 }

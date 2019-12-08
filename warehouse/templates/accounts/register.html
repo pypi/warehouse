@@ -14,8 +14,8 @@
 {% extends "base.html" %}
 
 {% block title %}
-  {% if form.errors %}Error processing form –{% endif %}
-  Register
+  {% if form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
+  {% trans %}Create an account{% endtrans %}
 {% endblock %}
 
 {% block content %}
@@ -25,9 +25,9 @@
     {% set title = "PyPI" %}
   {% endif %}
 
-  <section class="horizontal-section">
+  <div class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">Create an account on {{ title }}</h1>
+      <h1 class="page-title">{% trans title=title %}Create an account on {{ title }}{% endtrans %}</h1>
 
       <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match password-strength-gauge password-breach">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -41,80 +41,112 @@
         {% endif %}
 
         <div class="form-group">
-          <label for="full_name" class="form-group__label">Name</label>
-          {{ form.full_name(placeholder="Your name", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
-          {% if form.full_name.errors %}
-          <ul id="name-errors" class="form-errors" role="alert">
-            {% for error in form.full_name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          <label for="full_name" class="form-group__label">
+            {% trans %}Name{% endtrans %}
+            {% if form.full_name.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.full_name(placeholder=gettext("Your name"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"name-errors"}) }}
+          <div id="name-errors">
+            {% if form.full_name.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.full_name.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="email" class="form-group__label">Email address</label>
-          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
-          {% if form.email.errors %}
-          <ul id="email-errors" class="form-errors" role="alert">
-            {% for error in form.email.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          <label for="email" class="form-group__label">
+            {% trans %}Email address{% endtrans %}
+            {% if form.email.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"email-errors"}) }}
+          <div id="email-errors">
+            {% if form.email.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.email.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         {# The following is a honeypot field and is hidden from the user #}
         <div class="form-group confirm-form">
-          <label for="confirm_form" class="form-group__label">Confirm form</label>
+          <label for="confirm_form" class="form-group__label">{% trans %}Confirm form{% endtrans %}</label>
           {{ form.confirm_form(class="form-group__input", **{'aria-hidden':'true'}) }}
         </div>
 
         <div class="form-group">
-          <label for="username" class="form-group__label">Username</label>
-          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
-          {% if form.username.errors %}
-          <ul id="username-errors" class="form-errors" role="alert">
-            {% for error in form.username.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          <label for="username" class="form-group__label">
+            {% trans %}Username{% endtrans %}
+            {% if form.username.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.username(placeholder=gettext("Select a username"), autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"username-errors"}) }}
+          <div id="username-errors">
+            {% if form.username.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.username.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div>
           <div class="form-group">
             <div class="split-layout">
-              <label for="password" class="form-group__label">Password</label>
+              <label for="new_password" class="form-group__label">
+                {% trans %}Password{% endtrans %}
+                {% if form.new_password.flags.required %}
+                <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+                {% endif %}
+              </label>
               <label for="show-password">
                 <input data-action="change->password#togglePasswords" data-target="password.showPassword"
-                  id="show-password" type="checkbox">&nbsp;Show passwords
+                  id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
               </label>
             </div>
-            {# the password field needs to be wrapped in a div to properly place tooltips #}
-            <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password password-breach.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check", **{"aria-describedby":"password-errors password-strength"}) }}
+            {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password password-breach.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check", **{"aria-describedby":"password-errors password-strength"}) }}
+            <div id="password-errors">
+              {% if form.new_password.errors %}
+              <ul class="form-errors" role="alert">
+                {% for error in form.new_password.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
             </div>
-            {% if form.new_password.errors %}
-            <ul id="password-errors" class="form-errors" role="alert">
-              {% for error in form.new_password.errors %}
-              <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
             {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
           </div>
 
           <div class="form-group">
-            <label for="password_confirm" class="form-group__label">Confirm password</label>
-            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
-            {% if form.password_confirm.errors %}
-            <ul id="password-confirm-errors" class="form-errors" role="alert">
-              {% for error in form.password_confirm.errors %}
-              <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
+            <label for="password_confirm" class="form-group__label">
+              {% trans %}Confirm password{% endtrans %}
+              {% if form.password_confirm.flags.required %}
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              {% endif %}
+            </label>
+            {{ form.password_confirm(placeholder=gettext("Confirm password"), required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
+            <div id="password-confirm-errors">
+              {% if form.password_confirm.errors %}
+              <ul class="form-errors" role="alert">
+                {% for error in form.password_confirm.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
           </div>
         </div>
 
@@ -125,10 +157,10 @@
           </ul>
         </div>
 
-        <input type="submit" value="Create account" class="button button--primary" data-target="password-match.submit">
+        <input type="submit" value="{% trans %}Create account{% endtrans %}" class="button button--primary" data-target="password-match.submit">
       </form>
     </div>
-  </section>
+  </div>
 {% endblock %}
 
 {% block extra_js %}

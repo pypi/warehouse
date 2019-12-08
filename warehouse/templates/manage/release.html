@@ -15,88 +15,93 @@
 
 {% set active_tab = 'releases' %}
 
-{% block title %}Manage '{{ project.name }}' release{% endblock %}
+{% block title %}{% trans project_name=project.name, version=release.version %}Manage '{{ project_name }}' – release version {{ version }}{% endtrans %}{% endblock %}
 
 {% block main %}
   <div class="heading-wsubtitle heading-wsubtitle--in-content">
-    <h2 class="heading-wsubtitle__heading">Release version {{ release.version }}</h2>
+    <h2 class="heading-wsubtitle__heading">{% trans version=release.version %}Release version {{ version }}{% endtrans %}</h2>
 
-    <ul role="navigation" aria-label="Breadcrumb" class="heading-wsubtitle__subtitle breadcrumbs">
-      <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name }} releases</a></li>
-      <li class="breadcrumbs__breadcrumb">Release version {{ release.version }} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">view release</a></li>
-    </ul>
+    <nav aria-label="{% trans %}Breadcrumb{% endtrans %}" class="breadcrumbs">
+      <ul class="heading-wsubtitle__subtitle">
+        <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans project_name=project.name %}All {{ project_name }} releases{% endtrans %}</a></li>
+        <li class="breadcrumbs__breadcrumb">{% trans version=release.version %}Release version {{ version }}{% endtrans %} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">{% trans %}view release{% endtrans %}</a></li>
+      </ul>
+    </nav>
   </div>
 
   {% if files %}
-  <table class="table table--light table--files">
-    <caption class="sr-only">Files for release {{ release.version }} of {{ project.name }}</caption>
+  <table class="table table--files">
+    <caption class="sr-only">{% trans version=release.version, project_name=project.name %}Files for release {{ version }} of {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
-        <th scope="col" class="table__name">Filename, size</th>
-        <th scope="col" class="table__type">Type</th>
-        <th scope="col" class="table__version">Python version</th>
-        <th scope="col" class="table__upload">Upload date</th>
+        <th scope="col">{% trans %}Filename, size{% endtrans %}</th>
+        <th scope="col">{% trans %}Type{% endtrans %}</th>
+        <th scope="col">{% trans %}Python version{% endtrans %}</th>
+        <th scope="col">{% trans %}Upload date{% endtrans %}</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
     {% for file in files %}
       <tr>
-        <th scope="row" class="table__name">
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}"
-            {% if file.comment_text %}
-              class="tooltipped tooltipped-e"
-              aria-label="{{ file.comment_text|truncate(60, True) }}"
-              data-original-label="{{ file.comment_text|truncate(60, True) }}"
-            {% endif %}
-            title="Download file">
-            {{ file.filename }}</a>
+        <th scope="row">
+          <span class="table__mobile-label">{% trans %}Filename, size{% endtrans %}</span>
+          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </th>
-        <td class="table__type">{{ file.packagetype|format_package_type }}</td>
-        <td class="table__version">{{ file.python_version if file.python_version != 'source' else 'None' }}</td>
-        <td class="table__upload">{{ file.upload_time|format_date() }}</td>
-        <td class="table__options">
-          <nav class="dropdown dropdown--with-icons pull-right">
-            <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
-              Options
+        <td>
+          <span class="table__mobile-label">{% trans %}Type{% endtrans %}</span>
+          {{ file.packagetype|format_package_type }}
+        </td>
+        <td>
+          <span class="table__mobile-label">{% trans %}Python version{% endtrans %}</span>
+          {{ file.python_version if file.python_version != 'source' else gettext('None') }}
+        </td>
+        <td>
+          <span class="table__mobile-label">{% trans %}Upload date{% endtrans %}</span>
+          {{ humanize(file.upload_time) }}
+        </td>
+        <td class="table__align-right">
+          <nav class="dropdown dropdown--with-icons">
+            <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View file options{% endtrans %}">
+              {% trans %}Options{% endtrans %}
               <span class="dropdown__trigger-caret">
                 <i class="fa fa-caret-down" aria-hidden="true"></i>
-                <span class="sr-only">view submenu</span>
               </span>
             </button>
-            <ul class="dropdown__content">
+            <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}File options{% endtrans %}">
               <li>
                 <a href="{{ request.route_url('packaging.file', path=file.path) }}" class="dropdown__link">
                   <i class="fa fa-download" aria-hidden="true"></i>
-                  Download
+                  {% trans %}Download{% endtrans %}
                 </a>
               </li>
               <li>
-                <a href="#copy-hash-modal-{{ loop.index }}" class="dropdown__link">
+                <a href="#copy-hash-modal-{{ file.id }}" class="dropdown__link">
                   <i class="fa fa-hashtag" aria-hidden="true"></i>
-                  View Hashes
+                  {% trans %}View Hashes{% endtrans %}
                 </a>
               </li>
 
               <li>
-                {% set title = "Delete file from" %}
-                {% set confirm_button_label = "Delete file" %}
-                {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
+                {% set title = gettext("Delete file from") %}
+                {% set confirm_name = "delete_file_from" %}
+                {% set confirm_button_label = gettext("Delete file") %}
+                {% set slug = confirm_name.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
                 <a href="#{{ slug }}" class="dropdown__link">
                   <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                  Delete
+                  {% trans %}Delete{% endtrans %}
                 </a>
                 {% set extra_fields %}
                   <input name="file_id" type="hidden" value="{{ file.id }}">
                 {% endset %}
                 {% set extra_description %}
-                  <p><strong>Filename:</strong> {{ file.filename }}</p>
+                  <p><strong>{% trans %}Filename:{% endtrans %}</strong> {{ file.filename }}</p>
                 {% endset %}
               </li>
             </ul>
           </nav>
-          {{ confirm_modal(title, "Project name", project.name, slug, confirm_button_label=confirm_button_label, index=loop.index, extra_fields=extra_fields, extra_description=extra_description) }}
+          {{ confirm_modal(title, gettext("Project name"), "project_name", project.name, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description) }}
         </td>
       </tr>
     {% endfor %}
@@ -106,91 +111,40 @@
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="uploading">
     {% if files %}
-    <h3>Uploading new files</h3>
+    <h3>{% trans %}Uploading new files{% endtrans %}</h3>
     {% else %}
-    <h3>No files found</h3>
+    <h3>{% trans %}No files found{% endtrans %}</h3>
     {% endif %}
-    <p>Learn how to upload files on the <a href="https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi" title="External link" target="_blank" rel="noopener">Python Packaging User Guide</a></p>
-    <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi', title=gettext('External link') %}Learn how to upload files on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
   </div>
 
-  <h3>Release settings</h3>
+  <h3>{% trans %}Release settings{% endtrans %}</h3>
 
   <div class="callout-block callout-block--danger">
-    <h3>Delete release</h3>
+    <h3>{% trans %}Delete release{% endtrans %}</h3>
     <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
     {% if files %}
-      Deleting will irreversibly delete this release along with {{ files|length() }}
       {% trans count=files|length %}
-        file.
+        Deleting will irreversibly delete this release along with {{ count }} file.
       {% pluralize %}
-        files.
+        Deleting will irreversibly delete this release along with {{ count }} files.
       {% endtrans %}
     {% else %}
-      Deleting will irreversibly delete this release.
+      {% trans %}Deleting will irreversibly delete this release.{% endtrans %}
     {% endif %}
-      You will not be able to re-upload a new distribution of the same type with the same version number.
-      Consider making a new release or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases" title="External link" target="_blank" rel="noopener">post release</a> instead.
+      {% trans trimmed href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}
+        You will not be able to re-upload a new distribution of the same type with the same version number.
+        Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.
+      {% endtrans %}
     </p>
-    {{ confirm_button("Delete release", "Version", release.version) }}
+    {{ confirm_button(gettext("Delete release"), gettext("Version"), "version", release.version) }}
   </div>
 
   {% if files %}
   {% for file in files %}
-  <div id="copy-hash-modal-{{ loop.index }}" class="modal modal--wide">
-    <div class="modal__content" role="dialog">
-      <a href="#modal-close" title="Close" class="modal__close">
-        <i class="fa fa-times" aria-hidden="true"></i>
-        <span class="sr-only">close</span>
-      </a>
-      <div class="modal__body">
-        <h3 class="modal__title">Hashes for {{ file.filename }}</h3>
-        <table class="table table--light table--hashes">
-          <caption class="sr-only">Hashes for {{ file.filename }}</caption>
-          <thead>
-            <tr>
-              <th scope="col" class="table__algorithm">Algorithm</th>
-              <th scope="col" class="table__hash">Hash digest</th>
-              <th class="table__copy"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row" class="table__algorithm">SHA256</th>
-              <td class="table__hash"><code>{{ file.sha256_digest }}</code></td>
-              <td class="table__copy">
-                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
-                  Copy
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td class="table__algorithm">MD5</td>
-              <td class="table__hash"><code>{{ file.md5_digest }}</code></td>
-              <td class="table__copy">
-                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
-                  Copy
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td class="table__algorithm">BLAKE2-256</td>
-              <td class="table__hash"><code>{{ file.blake2_256_digest }}</code></td>
-              <td class="table__copy">
-                <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
-                  Copy
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="modal__footer">
-        <a href="#modal-close" class="button button--primary modal__action">Close</a>
-      </div>
-    </div>
-  </div>
+  {% include "warehouse:templates/includes/hash-modal.html" %}
   {% endfor %}
   {% endif %}
 {% endblock %}

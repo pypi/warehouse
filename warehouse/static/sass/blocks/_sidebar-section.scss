@@ -30,11 +30,13 @@
   border-bottom: 2px solid $border-color;
 
   .sidebar-section__title {
-    font-size: 18px;
+    font-size: 1.1rem;
   }
 
   .sidebar-section__user-gravatar {
     @include link-without-underline;
+    @include link-focus-state($primary-color);
+
   }
 
   &:last-of-type {
@@ -46,6 +48,32 @@
   &__maintainer {
     display: flex;
     align-items: center;
+
+    &:not(:last-of-type) {
+      margin-bottom: 5px;
+    }
+
+    a {
+      @include link-without-underline;
+      @include link-focus-state($primary-color);
+    }
+  }
+
+  &__classifiers {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    li {
+      margin: 0;
+      padding: 0;
+      margin-top: $spacing-unit / 2;
+
+      &:first-of-type,
+      ul li {
+        margin-top: 0;
+      }
+    }
   }
 
   &__user-gravatar {
@@ -68,6 +96,11 @@
     word-wrap: break-word;
     display: inline-block;
     max-width: calc(100% - 60px);
+    text-decoration: none;
+    background-position: 0 1.15em;
+    background-repeat: repeat-x;
+    background-size: 100% 1.5px;
+    @include primary-underlined-link;
 
     @media only screen and (max-width: $desktop) {
       max-width: calc(100% - 50px);

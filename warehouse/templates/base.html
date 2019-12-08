@@ -12,14 +12,8 @@
  # limitations under the License.
 -#}
 
-{% macro humanize(timestamp) -%}
-<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="true">
-  {{ timestamp|format_date()}}
-</time>
-{%- endmacro %}
-
-{% macro localize(timestamp) -%}
-<time class="tooltipped tooltipped-s -js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time">
+{% macro humanize(timestamp, relative="true", time="false") -%}
+<time datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="{{ relative }}" data-localized-time-show-time="{{ time }}">
   {{ timestamp|format_date()}}
 </time>
 {%- endmacro %}
@@ -27,13 +21,13 @@
 {% macro password_strength_gauge(data_target=None) -%}
 <div id="password-strength">
   <p class="form-group__help-text">
-    Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
+    {% trans %}Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.{% endtrans %}
   </p>
   <p class="form-group__help-text">
-    <strong>Password strength:</strong>
+    <strong>{% trans %}Password strength:{% endtrans %}</strong>
     <span class="password-strength">
       <span class="password-strength__gauge"{% if data_target %} data-target="{{ data_target }}"{% endif %}>
-        <span class="sr-only">Password field is empty</span>
+        <span class="sr-only">{% trans %}Password field is empty{% endtrans %}</span>
       </span>
     </span>
   </p>
@@ -41,12 +35,30 @@
 {%- endmacro %}
 
 {% macro main_navigation_logged_out() -%}
-<nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall" aria-label="Main navigation">
-  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
-  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.org">Donate</a>
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log in</a>
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
-</nav>
+<div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+  <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
+    <ul>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a></li>
+      <li class="horizontal-menu__item"><a href="https://donate.pypi.org" class="horizontal-menu__link">{% trans %}Donate{% endtrans %}</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.login') }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.register') }}" class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a></li>
+    </ul>
+  </nav>
+  <nav class="dropdown dropdown--on-menu hidden show-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
+    <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View menu{% endtrans %}">
+      {% trans %}Menu{% endtrans %}
+      <span class="dropdown__trigger-caret">
+        <i class="fa fa-caret-down" aria-hidden="true"></i>
+      </span>
+    </button>
+    <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
+      <li><a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a></li>
+      <li><a class="dropdown__link" href="https://donate.pypi.org">{% trans %}Donate{% endtrans %}</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('accounts.login') }}">{% trans %}Log in{% endtrans %}</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('accounts.register') }}">{% trans %}Register{% endtrans %}</a></li>
+    </ul>
+  </nav>
+</div>
 {%- endmacro %}
 
 <!DOCTYPE html>
@@ -64,14 +76,14 @@
     {% endif %}
 
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
-    <meta name="description" content="{% block description %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endblock %}">
+    <meta name="description" content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
 
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/brands.css') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic%7CSource+Code+Pro:500">
     <noscript>
       <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
     </noscript>
@@ -80,8 +92,8 @@
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
 
-    <link rel="alternate" type="application/rss+xml" title="RSS: 40 latest updates" href="{{ request.route_path('rss.updates') }}">
-    <link rel="alternate" type="application/rss+xml" title="RSS: 40 newest packages" href="{{ request.route_path('rss.packages') }}">
+    <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
+    <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}
@@ -132,30 +144,30 @@
     {% block body %}
 
     <!-- Accessibility: this link should always be the first piece of content inside the body-->
-    <a href="#content" class="skip-to-content">Skip to main content</a>
+    <a href="#content" class="skip-to-content">{% trans %}Skip to main content{% endtrans %}</a>
 
     <button type="button" class="button button--primary button--switch-to-mobile hidden" data-target="viewport-toggle.switchToMobile" data-action="viewport-toggle#switchToMobile">
-      Switch to mobile version
+      {% trans %}Switch to mobile version{% endtrans %}
     </button>
 
-    <section id="sticky-notifications" class="stick-to-top js-stick-to-top">
+    <div id="sticky-notifications" class="stick-to-top js-stick-to-top">
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
         </span>
-        <span class="notification-bar__message">You are using an unsupported browser, upgrade to a newer version.</span>
+        <span class="notification-bar__message">{% trans %}You are using an unsupported browser, upgrade to a newer version.{% endtrans %}</span>
       </div>
       <![endif]-->
       {% if testPyPI %}
       <div class="notification-bar notification-bar--warning" role="status">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
         </span>
-        <span class="notification-bar__message">You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
+        <span class="notification-bar__message">{% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}</span>
       </div>
       {% endif %}
       <noscript>
@@ -163,12 +175,12 @@
         {# TODO: This should be removed once GH-3828 is fixed. #}
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-          <span class="sr-only">Warning:</span>
+          <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
         </span>
-        <span class="notification-bar__message">Some features may not work without JavaScript. Please try enabling it if you encounter problems.</span>
+        <span class="notification-bar__message">{% trans %}Some features may not work without JavaScript. Please try enabling it if you encounter problems.{% endtrans %}</span>
       </div>
       </noscript>
-    </section>
+    </div>
 
     {% block flash_messages %}
       {% csi request.route_path("includes.flash-messages") %}
@@ -198,12 +210,12 @@
             </div>
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}" role="search">
-              <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+              <label for="search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
               {% block search_form_extra_inputs %}{% endblock %}
               <button type="submit" class="search-form__button">
                 <i class="fa fa-search" aria-hidden="true"></i>
-                <span class="sr-only">Search</span>
+                <span class="sr-only">{% trans %}Search{% endtrans %}</span>
               </button>
             </form>
           </div>
@@ -217,17 +229,17 @@
     </header>
 
     {% block mobile_search %}
-    <section class="mobile-search">
+    <div class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}" role="search">
-        <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
+        <label for="mobile-search" class="sr-only">{% trans %}Search PyPI{% endtrans %}</label>
+        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="{% trans %}Search projects{% endtrans %}" value="{{ term }}" autocomplete="off" autocapitalize="off" spellcheck="false">
         {{ self.search_form_extra_inputs() }}
         <button type="submit" class="search-form__button">
           <i class="fa fa-search" aria-hidden="true"></i>
-          <span class="sr-only">Search</span>
+          <span class="sr-only">{% trans %}Search{% endtrans %}</span>
         </button>
       </form>
-    </section>
+    </div>
     {% endblock mobile_search %}
 
     <main id="content">
@@ -235,73 +247,99 @@
       {% endblock content %}
     </main>
 
-    <footer class="footer" role="contentinfo">
+    <footer class="footer">
       <div class="footer__logo">
-        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="Logo" class="-js-white-cube">
+        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="" class="-js-white-cube">
       </div>
 
       <div class="footer__menus">
-        <ul class="footer__menu">
-          <li>
-            <h2>Help</h2>
-          </li>
-          <li><a href="https://packaging.python.org/installing/" title="External link" target="_blank" rel="noopener">Installing packages</a></li>
-          <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="External link" target="_blank" rel="noopener">Uploading packages</a></li>
-          <li><a href="https://packaging.python.org/" title="External link" target="_blank" rel="noopener">User guide</a></li>
-          <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
-        </ul>
-        <ul class="footer__menu">
-          <li>
-            <h2>About PyPI</h2>
-          </li>
-          <li><a href="https://twitter.com/PyPI" title="External link" target="_blank" rel="noopener">PyPI on Twitter</a></li>
-          <li><a href="https://dtdg.co/pypi" title="External link" target="_blank" rel="noopener">Infrastructure dashboard</a></li>
-          <li><a href="https://www.python.org/dev/peps/pep-0541/" title="External link" target="_blank" rel="noopener">Package index name retention</a></li>
-          <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
-        </ul>
+        <div class="footer__menu">
+          <h2>{% trans %}Help{% endtrans %}</h2>
+          <nav aria-label="{% trans %}Help navigation{% endtrans %}">
+            <ul>
+              <li><a href="https://packaging.python.org/installing/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Installing packages{% endtrans %}</a></li>
+              <li><a href="https://packaging.python.org/tutorials/packaging-projects/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Uploading packages{% endtrans %}</a></li>
+              <li><a href="https://packaging.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}User guide{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('help')}}">{% trans %}FAQs{% endtrans %}</a></li>
+            </ul>
+          </nav>
+        </div>
 
+        <div class="footer__menu">
+          <h2>{% trans %}About PyPI{% endtrans %}</h2>
+          <nav aria-label="{% trans %}About PyPI navigation{% endtrans %}">
+            <ul>
+              <li><a href="https://twitter.com/PyPI" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}PyPI on Twitter{% endtrans %}</a></li>
+              <li><a href="https://dtdg.co/pypi" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Infrastructure dashboard{% endtrans %}</a></li>
+              <li><a href="https://www.python.org/dev/peps/pep-0541/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Package index name retention{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('sponsors') }}">{% trans %}Our sponsors{% endtrans %}</a></li>
+            </ul>
+          </nav>
+        </div>
 
-        <ul class="footer__menu">
-          <li>
-            <h2>Contributing to PyPI</h2>
-          </li>
-          <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
-          <li><a href="https://github.com/pypa/warehouse" title="External link" target="_blank" rel="noopener">Contribute on GitHub</a></li>
-          <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="External link" target="_blank" rel="noopener">Development credits</a></li>
-        </ul>
-        <ul class="footer__menu">
-          <li>
-            <h2>Using PyPI</h2>
-          </li>
-          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="External link" target="_blank" rel="noopener">Code of conduct</a></li>
-          <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
-          <li><a href="https://www.python.org/privacy/" title="External link" target="_blank" rel="noopener">Privacy policy</a></li>
-          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
-        </ul>
+        <div class="footer__menu">
+          <h2>{% trans %}Contributing to PyPI{% endtrans %}</h2>
+          <nav aria-label="{% trans %}How to contribute navigation{% endtrans %}">
+            <ul>
+              <li><a href="{{ request.route_path('help')}}#feedback">{% trans %}Bugs and feedback{% endtrans %}</a></li>
+              <li><a href="https://github.com/pypa/warehouse" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Contribute on GitHub{% endtrans %}</a></li>
+              <li><a href="https://hosted.weblate.org/projects/pypa/warehouse/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Translate PyPI{% endtrans %}</a></li>
+              <li><a href="https://github.com/pypa/warehouse/graphs/contributors" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Development credits{% endtrans %}</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="footer__menu">
+          <h2>{% trans %}Using PyPI{% endtrans %}</h2>
+          <nav aria-label="{% trans %}Using PyPI navigation{% endtrans %}">
+            <ul>
+              <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Code of conduct{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a></li>
+              <li><a href="https://www.python.org/privacy/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Privacy policy{% endtrans %}</a></li>
+              <li><a href="{{ request.route_path('policy.terms-of-use') }}">{% trans %}Terms of use{% endtrans %}</a></li>
+            </ul>
+          </nav>
+        </div>
       </div>
 
       <hr class="footer__divider">
 
       <div class="footer__text">
         {% if request.registry.settings.get("statuspage.url") %}
-        <p>Status: <a href="https://status.python.org/" title="External link" target="_blank" rel="noopener">
-          <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a>
+        <p>{% trans %}Status: {% endtrans %}<a href="https://status.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
         </p>
         {% endif %}
         <p>
-          Developed and maintained by the Python community, for the Python community.
+          {% trans %}Developed and maintained by the Python community, for the Python community.{% endtrans %}
           <br>
-          <a href="https://donate.pypi.org">Donate today!</a>
+          <a href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="External link" target="_blank" rel="noopener">Python Software Foundation</a></p>
+        <p>© {{ now()|format_date('yyyy') }} <a href="https://www.python.org/psf/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">Python Software Foundation</a><br>
+          <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+        </p>
       </div>
 
       <div class="centered hide-on-desktop">
         <button type="button" class="button button--switch-to-desktop hidden" data-target="viewport-toggle.switchToDesktop" data-action="viewport-toggle#switchToDesktop">
-          Desktop version
+          {% trans %}Switch to desktop version{% endtrans %}
         </button>
       </div>
     </footer>
+
+
+    <div class="language-switcher">
+      <form action="{{ request.route_path('locale') }}">
+        <ul>
+          {% for locale, language in KNOWN_LOCALES.items() %}
+          <li>
+            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
+          </li>
+          {% endfor %}
+        </ul>
+      </form>
+    </div>
+
 
     {% include "warehouse:templates/includes/sponsors.html" %}
 

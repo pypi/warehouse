@@ -32,7 +32,7 @@ class RegistrationRejectedException(Exception):
 WebAuthnCredential = pywebauthn.WebAuthnCredential
 
 
-def _get_webauthn_users(user, *, icon_url, rp_id):
+def _get_webauthn_users(user, *, rp_id):
     """
     Returns a webauthn.WebAuthnUser instance corresponding
     to the given user model, with properties suitable for
@@ -43,7 +43,7 @@ def _get_webauthn_users(user, *, icon_url, rp_id):
             str(user.id),
             user.username,
             user.name,
-            icon_url,
+            None,
             credential.credential_id,
             credential.public_key,
             credential.sign_count,
@@ -74,25 +74,25 @@ def generate_webauthn_challenge():
     return _webauthn_b64encode(os.urandom(32)).decode()
 
 
-def get_credential_options(user, *, challenge, rp_name, rp_id, icon_url):
+def get_credential_options(user, *, challenge, rp_name, rp_id):
     """
     Returns a dictionary of options for credential creation
     on the client side.
     """
     options = pywebauthn.WebAuthnMakeCredentialOptions(
-        challenge, rp_name, rp_id, str(user.id), user.username, user.name, icon_url
+        challenge, rp_name, rp_id, str(user.id), user.username, user.name, None
     )
 
     return options.registration_dict
 
 
-def get_assertion_options(user, *, challenge, icon_url, rp_id):
+def get_assertion_options(user, *, challenge, rp_id):
     """
     Returns a dictionary of options for assertion retrieval
     on the client side.
     """
     options = pywebauthn.WebAuthnAssertionOptions(
-        _get_webauthn_users(user, icon_url=icon_url, rp_id=rp_id), challenge
+        _get_webauthn_users(user, rp_id=rp_id), challenge
     )
 
     return options.assertion_dict
@@ -120,7 +120,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
         raise RegistrationRejectedException(str(e))
 
 
-def verify_assertion_response(assertion, *, challenge, user, origin, icon_url, rp_id):
+def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
     """
     Validates the challenge and assertion information
     sent from the client during authentication.
@@ -128,7 +128,7 @@ def verify_assertion_response(assertion, *, challenge, user, origin, icon_url, r
     Returns an updated signage count on success.
     Raises AuthenticationRejectedException on failure.
     """
-    webauthn_users = _get_webauthn_users(user, icon_url=icon_url, rp_id=rp_id)
+    webauthn_users = _get_webauthn_users(user, rp_id=rp_id)
     cred_ids = [cred.credential_id for cred in webauthn_users]
     encoded_challenge = _webauthn_b64encode(challenge.encode()).decode()
 

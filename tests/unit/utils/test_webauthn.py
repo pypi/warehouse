@@ -80,12 +80,11 @@ def test_verify_assertion_response(monkeypatch):
         challenge="not_a_real_challenge",
         user=not_a_real_user,
         origin="fake_origin",
-        icon_url="fake_icon_url",
         rp_id="fake_rp_id",
     )
 
     assert get_webauthn_users.calls == [
-        pretend.call(not_a_real_user, icon_url="fake_icon_url", rp_id="fake_rp_id")
+        pretend.call(not_a_real_user, rp_id="fake_rp_id")
     ]
     assert assertion_cls.calls == [
         pretend.call(
@@ -117,6 +116,5 @@ def test_verify_assertion_response_failure(monkeypatch):
             challenge="not_a_real_challenge",
             user=pretend.stub(),
             origin="fake_origin",
-            icon_url="fake_icon_url",
             rp_id="fake_rp_id",
         )

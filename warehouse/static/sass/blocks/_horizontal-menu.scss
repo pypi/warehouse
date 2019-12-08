@@ -15,9 +15,16 @@
 /*
   A menu where the links stack horizontally.
 
-  <nav class="horizontal-menu">
-    <a class="horizontal-menu__link">A horizontal link</a>
+  <nav class="horizontal-menu" aria-label="my label">
+    <ul>
+      <li class="horizontal-menu__item">
+        <a class="horizontal-menu__link">A horizontal link</a>
+      </li>
+    </ul>
   </nav>
+
+  Accessibility:
+    - Describe the menu with aria-label
 
   Modifiers:
     - tall: Adds extra padding to the menu items
@@ -25,21 +32,27 @@
 */
 
 .horizontal-menu {
+  ul,
+  li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__item {
+    display: inline;
+  }
+
   &__link {
     text-decoration: none;
     display: inline-block;
     padding: 8px 10px;
     @include link-without-underline;
+    @include link-focus-state($white);
 
     &--with-icon {
       .fa {
         margin-right: 3px;
-      }
-    }
-
-    &--remove-on-mobile {
-      @media only screen and (max-width: $mobile) {
-        display: none;
       }
     }
   }
@@ -51,8 +64,6 @@
       &:hover {
         text-decoration-color: $transparent-white;
       }
-
-      @include link-focus;
     }
   }
 

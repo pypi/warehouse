@@ -13,41 +13,49 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Stats{% endblock %}
+{% block title %}{% trans %}Statistics{% endtrans %}{% endblock %}
 
 {% block content %}
-<section class="horizontal-section">
+<div class="horizontal-section">
   <div class="narrow-container">
-    <h1 class="page-title">PyPI Stats</h1>
-      <p>
+    <h1 class="page-title">{% trans %}PyPI statistics{% endtrans %}</h1>
+    <p>
+      {% trans trimmed %}
         We all love stats, so here are some useful statistics about PyPI.
         The statistics page is cached for 24 hours, so don't expect the
         numbers to be realtime.
-      </p>
+      {% endtrans %}
+    </p>
 
-      <h2>Top Storage Users</h2>
-      <p>Here is a list of the top 100 packages based on sum of their
-      packages sizes (in bytes).</p>
+    <h2>{% trans %}Top storage users{% endtrans %}</h2>
+    <p>
+      {% trans trimmed %}
+        Here is a list of the top 100 packages based on sum of their
+        packages sizes (in bytes).
+      {% endtrans %}
+    </p>
 
-      <table id="all_pypi">
+    <table class="table">
+      <caption class="sr-only">{% trans %}Statistics by project{% endtrans %}</caption>
+      <thead>
         <tr>
-          <td>All of PyPI: </td>
+          <th scope="col">{% trans %}Project name{% endtrans %}</th>
+          <th scope="col">{% trans %}Sum of release files (bytes){% endtrans %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">{% trans %}All of PyPI{% endtrans %}</th>
           <td>{{ total_packages_size|filesizeformat() }}</td>
         </tr>
-      </table>
-      <br>
-      <table id="top_packages">
-        <tr>
-          <th>Package Name</th>
-          <th>Sum of Release Files (bytes)</th>
-        <tr>
         {% for pkg_name, pkg_data in top_packages.items() %}
-          <tr>
-            <td>{{ pkg_name }}</td>
-            <td>{{ pkg_data["size"]|filesizeformat() }}</td>
-          <tr>
+        <tr>
+          <th scope="row">{{ pkg_name }}</th>
+          <td>{{ pkg_data["size"]|filesizeformat() }}</td>
+        </tr>
         {% endfor %}
-      </table>
+      </tbody>
+    </table>
   </div>
-</section>
+</div>
 {% endblock %}

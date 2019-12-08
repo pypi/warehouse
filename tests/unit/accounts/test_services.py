@@ -370,16 +370,36 @@ class TestDatabaseUserService:
         )
         assert user_service.has_webauthn(user.id)
 
-    @pytest.mark.parametrize("valid", [True, False])
-    def test_check_totp_value(self, user_service, monkeypatch, valid):
+    def test_get_last_totp_value(self, user_service):
+        user = UserFactory.create()
+        assert user_service.get_last_totp_value(user.id) is None
+
+        user_service.update_user(user.id, last_totp_value="123456")
+        assert user_service.get_last_totp_value(user.id) == "123456"
+
+    @pytest.mark.parametrize(
+        ("last_totp_value", "valid"),
+        ([None, True], ["000000", True], ["000000", False]),
+    )
+    def test_check_totp_value(self, user_service, monkeypatch, last_totp_value, valid):
         verify_totp = pretend.call_recorder(lambda *a: valid)
         monkeypatch.setattr(otp, "verify_totp", verify_totp)
 
         user = UserFactory.create()
-        user_service.update_user(user.id, totp_secret=b"foobar")
+        user_service.update_user(
+            user.id, last_totp_value=last_totp_value, totp_secret=b"foobar"
+        )
         user_service.add_email(user.id, "foo@bar.com", primary=True, verified=True)
 
         assert user_service.check_totp_value(user.id, b"123456") == valid
+
+    def test_check_totp_value_reused(self, user_service):
+        user = UserFactory.create()
+        user_service.update_user(
+            user.id, last_totp_value="123456", totp_secret=b"foobar"
+        )
+
+        assert not user_service.check_totp_value(user.id, b"123456")
 
     def test_check_totp_value_no_secret(self, user_service):
         user = UserFactory.create()
@@ -425,23 +445,44 @@ class TestDatabaseUserService:
             ),
         ]
 
+    def test_check_totp_value_invalid_secret(self, user_service):
+        user = UserFactory.create()
+        limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
+        )
+        user_service.ratelimiters["user"] = limiter
+        user_service.ratelimiters["global"] = limiter
+
+        valid = user_service.check_totp_value(user.id, b"123456")
+
+        assert not valid
+        assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
+
+    def test_check_totp_value_invalid_totp(self, user_service, monkeypatch):
+        user = UserFactory.create()
+        limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
+        )
+        user_service.get_totp_secret = lambda uid: "secret"
+        monkeypatch.setattr(otp, "verify_totp", lambda secret, value: False)
+        user_service.ratelimiters["user"] = limiter
+        user_service.ratelimiters["global"] = limiter
+
+        valid = user_service.check_totp_value(user.id, b"123456")
+
+        assert not valid
+        assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
+
     @pytest.mark.parametrize(
-        ("challenge", "rp_name", "rp_id", "icon_url"),
-        (
-            ["fake_challenge", "fake_rp_name", "fake_rp_id", "fake_icon_url"],
-            [None, None, None, None],
-        ),
+        ("challenge", "rp_name", "rp_id"),
+        (["fake_challenge", "fake_rp_name", "fake_rp_id"], [None, None, None]),
     )
     def test_get_webauthn_credential_options(
-        self, user_service, challenge, rp_name, rp_id, icon_url
+        self, user_service, challenge, rp_name, rp_id
     ):
         user = UserFactory.create()
         options = user_service.get_webauthn_credential_options(
-            user.id,
-            challenge=challenge,
-            rp_name=rp_name,
-            rp_id=rp_id,
-            icon_url=icon_url,
+            user.id, challenge=challenge, rp_name=rp_name, rp_id=rp_id
         )
 
         assert options["user"]["id"] == str(user.id)
@@ -450,11 +491,7 @@ class TestDatabaseUserService:
         assert options["challenge"] == challenge
         assert options["rp"]["name"] == rp_name
         assert options["rp"]["id"] == rp_id
-
-        if icon_url:
-            assert options["user"]["icon"] == icon_url
-        else:
-            assert "icon" not in options["user"]
+        assert "icon" not in options["user"]
 
     def test_get_webauthn_assertion_options(self, user_service):
         user = UserFactory.create()
@@ -467,10 +504,7 @@ class TestDatabaseUserService:
         )
 
         options = user_service.get_webauthn_assertion_options(
-            user.id,
-            challenge="fake_challenge",
-            icon_url="fake_icon_url",
-            rp_id="fake_rp_id",
+            user.id, challenge="fake_challenge", rp_id="fake_rp_id"
         )
 
         assert options["challenge"] == "fake_challenge"
@@ -550,7 +584,6 @@ class TestDatabaseUserService:
             pretend.stub(),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert updated_sign_count == 2

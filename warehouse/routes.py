@@ -27,20 +27,32 @@ def includeme(config):
 
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
+    config.add_route("locale", "/locale/", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
-    config.add_template_view("help", "/help/", "pages/help.html")
-    config.add_template_view("security", "/security/", "pages/security.html")
+    config.add_template_view(
+        "sitemap", "/sitemap/", "pages/sitemap.html", view_kw={"has_translations": True}
+    )
+    config.add_template_view(
+        "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+    )
+    config.add_template_view(
+        "security",
+        "/security/",
+        "pages/security.html",
+        view_kw={"has_translations": True},
+    )
     config.add_template_view(
         "sponsors",
         "/sponsors/",
         # Use the full resource path here to make it able to be overridden by
         # pypi-theme.
         "warehouse:templates/pages/sponsors.html",
+        view_kw={"has_translations": True},
     )
 
     # Our legal policies
@@ -228,6 +240,13 @@ def includeme(config):
     config.add_route(
         "manage.project.history",
         "/manage/project/{project_name}/history/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.journal",
+        "/manage/project/{project_name}/journal/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

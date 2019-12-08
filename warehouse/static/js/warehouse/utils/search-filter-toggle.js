@@ -30,8 +30,22 @@ export default () => {
   };
 
   const toggleAccordion = (event) => {
-    var element = event.currentTarget.parentElement;
-    element.classList.toggle("accordion--closed");
+    var trigger = event.currentTarget;
+    if (trigger.getAttribute("aria-expanded") === "true") {
+      trigger.setAttribute("aria-expanded", "false");
+    } else {
+      trigger.setAttribute("aria-expanded", "true");
+    }
+
+    var accordion = trigger.parentElement;
+    accordion.classList.toggle("accordion--closed");
+
+    var accordionContent = trigger.nextElementSibling;
+    if (accordionContent.getAttribute("aria-hidden") === "true") {
+      accordionContent.setAttribute("aria-hidden", "false");
+    } else {
+      accordionContent.setAttribute("aria-hidden", "true");
+    }
   };
 
   for (var trigger of document.querySelectorAll(".-js-accordion-trigger")) {

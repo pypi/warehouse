@@ -254,7 +254,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.password_confirm.errors.pop() == "This field is required."
 
-    def test_passwords_mismatch_error(self):
+    def test_passwords_mismatch_error(self, pyramid_config):
         user_service = pretend.stub(
             find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
         )
@@ -266,7 +266,7 @@ class TestRegistrationForm:
 
         assert not form.validate()
         assert (
-            form.password_confirm.errors.pop()
+            str(form.password_confirm.errors.pop())
             == "Your passwords don't match. Try again."
         )
 
@@ -299,7 +299,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.email.errors.pop() == "This field is required."
 
-    def test_invalid_email_error(self):
+    def test_invalid_email_error(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"email": "bad"},
             user_service=pretend.stub(
@@ -309,7 +309,9 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.email.errors.pop() == "The email address isn't valid. Try again."
+        assert (
+            str(form.email.errors.pop()) == "The email address isn't valid. Try again."
+        )
 
     def test_exotic_email_success(self):
         form = forms.RegistrationForm(
@@ -323,7 +325,7 @@ class TestRegistrationForm:
         form.validate()
         assert len(form.email.errors) == 0
 
-    def test_email_exists_error(self):
+    def test_email_exists_error(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"email": "foo@bar.com"},
             user_service=pretend.stub(
@@ -334,12 +336,12 @@ class TestRegistrationForm:
 
         assert not form.validate()
         assert (
-            form.email.errors.pop()
+            str(form.email.errors.pop())
             == "This email address is already being used by another account. "
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self):
+    def test_blacklisted_email_error(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(
@@ -350,12 +352,12 @@ class TestRegistrationForm:
 
         assert not form.validate()
         assert (
-            form.email.errors.pop()
+            str(form.email.errors.pop())
             == "You can't use an email address from this domain. Use a "
             "different email."
         )
 
-    def test_username_exists(self):
+    def test_username_exists(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"username": "foo"},
             user_service=pretend.stub(
@@ -365,13 +367,13 @@ class TestRegistrationForm:
         )
         assert not form.validate()
         assert (
-            form.username.errors.pop()
+            str(form.username.errors.pop())
             == "This username is already being used by another account. "
             "Choose a different username."
         )
 
     @pytest.mark.parametrize("username", ["_foo", "bar_", "foo^bar"])
-    def test_username_is_valid(self, username):
+    def test_username_is_valid(self, username, pyramid_config):
         form = forms.RegistrationForm(
             data={"username": username},
             user_service=pretend.stub(
@@ -381,7 +383,7 @@ class TestRegistrationForm:
         )
         assert not form.validate()
         assert (
-            form.username.errors.pop() == "The username is invalid. Usernames "
+            str(form.username.errors.pop()) == "The username is invalid. Usernames "
             "must be composed of letters, numbers, "
             "dots, hyphens and underscores. And must "
             "also start and finish with a letter or number. "
@@ -423,7 +425,7 @@ class TestRegistrationForm:
             "compromised and cannot be used."
         )
 
-    def test_name_too_long(self):
+    def test_name_too_long(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"full_name": "hello " * 50},
             user_service=pretend.stub(
@@ -433,7 +435,7 @@ class TestRegistrationForm:
         )
         assert not form.validate()
         assert (
-            form.full_name.errors.pop()
+            str(form.full_name.errors.pop())
             == "The name is too long. Choose a name with 100 characters or less."
         )
 
@@ -493,7 +495,7 @@ class TestResetPasswordForm:
         assert not form.validate()
         assert form.password_confirm.errors.pop() == "This field is required."
 
-    def test_passwords_mismatch_error(self):
+    def test_passwords_mismatch_error(self, pyramid_config):
         form = forms.ResetPasswordForm(
             data={
                 "new_password": "password",
@@ -507,7 +509,7 @@ class TestResetPasswordForm:
 
         assert not form.validate()
         assert (
-            form.password_confirm.errors.pop()
+            str(form.password_confirm.errors.pop())
             == "Your passwords don't match. Try again."
         )
 
@@ -578,7 +580,7 @@ class TestTOTPAuthenticationForm:
 
         assert form.user_service is user_service
 
-    def test_totp_secret_exists(self):
+    def test_totp_secret_exists(self, pyramid_config):
         form = forms.TOTPAuthenticationForm(
             data={"totp_value": ""}, user_id=pretend.stub(), user_service=pretend.stub()
         )
@@ -591,7 +593,7 @@ class TestTOTPAuthenticationForm:
             user_service=pretend.stub(check_totp_value=lambda *a: True),
         )
         assert not form.validate()
-        assert form.totp_value.errors.pop() == "TOTP code must be 6 digits."
+        assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
 
         form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
@@ -599,7 +601,7 @@ class TestTOTPAuthenticationForm:
             user_service=pretend.stub(check_totp_value=lambda *a: False),
         )
         assert not form.validate()
-        assert form.totp_value.errors.pop() == "Invalid TOTP code."
+        assert str(form.totp_value.errors.pop()) == "Invalid TOTP code."
 
         form = forms.TOTPAuthenticationForm(
             data={"totp_value": "123456"},
@@ -615,7 +617,6 @@ class TestWebAuthnAuthenticationForm:
         user_service = pretend.stub()
         challenge = pretend.stub()
         origin = pretend.stub()
-        icon_url = pretend.stub()
         rp_id = pretend.stub()
 
         form = forms.WebAuthnAuthenticationForm(
@@ -623,24 +624,25 @@ class TestWebAuthnAuthenticationForm:
             user_service=user_service,
             challenge=challenge,
             origin=origin,
-            icon_url=icon_url,
             rp_id=rp_id,
         )
 
         assert form.challenge is challenge
 
-    def test_credential_bad_payload(self):
+    def test_credential_bad_payload(self, pyramid_config):
         form = forms.WebAuthnAuthenticationForm(
             credential="not valid json",
             user_id=pretend.stub(),
             user_service=pretend.stub(),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert not form.validate()
-        assert form.credential.errors.pop() == "Invalid WebAuthn assertion: Bad payload"
+        assert (
+            str(form.credential.errors.pop())
+            == "Invalid WebAuthn assertion: Bad payload"
+        )
 
     def test_credential_invalid(self):
         form = forms.WebAuthnAuthenticationForm(
@@ -653,7 +655,6 @@ class TestWebAuthnAuthenticationForm:
             ),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert not form.validate()
@@ -670,7 +671,6 @@ class TestWebAuthnAuthenticationForm:
             ),
             challenge=pretend.stub(),
             origin=pretend.stub(),
-            icon_url=pretend.stub(),
             rp_id=pretend.stub(),
         )
         assert form.validate()
