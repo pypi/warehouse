@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-10-22 12:45-0400\n"
-"PO-Revision-Date: 2019-09-24 05:35+0000\n"
+"POT-Creation-Date: 2019-11-05 10:17-0500\n"
+"PO-Revision-Date: 2019-12-01 07:59+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/pypa/"
 "warehouse/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -128,19 +128,20 @@ msgstr ""
 
 #: warehouse/accounts/views.py:495
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "Utløpt symbol: Forespør en ny passordstilbakestillingslenke"
 
 #: warehouse/accounts/views.py:497
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "Ugyldig symbol: Forespør en ny passordstilbakestillingslenke"
 
 #: warehouse/accounts/views.py:499 warehouse/accounts/views.py:577
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "Ugyldig symbol: Inget symbol angitt"
 
 #: warehouse/accounts/views.py:503
+#, fuzzy
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "Ugyldig symbol: Ikke et passordstilbakestillingssymbol"
 
 #: warehouse/accounts/views.py:508
 #, fuzzy
@@ -174,12 +175,14 @@ msgid "Invalid token: not an email verification token"
 msgstr ""
 
 #: warehouse/accounts/views.py:590
+#, fuzzy
 msgid "Email not found"
-msgstr ""
+msgstr "E-postadresse ble ikke funnet"
 
 #: warehouse/accounts/views.py:593
+#, fuzzy
 msgid "Email already verified"
-msgstr ""
+msgstr "E-postadresse allerede bekreftet"
 
 #: warehouse/accounts/views.py:605
 msgid "You can now set this email as your primary address"
@@ -207,7 +210,7 @@ msgstr ""
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr ""
+msgstr "Siden ble ikke funnet (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
@@ -224,13 +227,13 @@ msgstr ""
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:56
-#: warehouse/templates/base.html:260 warehouse/templates/base.html:261
-#: warehouse/templates/base.html:262 warehouse/templates/base.html:272
-#: warehouse/templates/base.html:273 warehouse/templates/base.html:274
-#: warehouse/templates/base.html:285 warehouse/templates/base.html:286
-#: warehouse/templates/base.html:287 warehouse/templates/base.html:296
-#: warehouse/templates/base.html:298 warehouse/templates/base.html:309
-#: warehouse/templates/base.html:318
+#: warehouse/templates/base.html:269 warehouse/templates/base.html:270
+#: warehouse/templates/base.html:271 warehouse/templates/base.html:281
+#: warehouse/templates/base.html:282 warehouse/templates/base.html:283
+#: warehouse/templates/base.html:294 warehouse/templates/base.html:295
+#: warehouse/templates/base.html:296 warehouse/templates/base.html:305
+#: warehouse/templates/base.html:307 warehouse/templates/base.html:318
+#: warehouse/templates/base.html:327
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -313,7 +316,7 @@ msgstr ""
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "Ekstern lenke"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
@@ -321,19 +324,19 @@ msgstr ""
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr ""
+msgstr "Siden er fjernet (410)"
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "Siden du ser etter har blitt fjernet"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr ""
+msgstr "Intern tjenerfeil (500)"
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "Noe gikk galt"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -344,11 +347,12 @@ msgstr ""
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "Sjekk vår statusside"
 
 #: warehouse/templates/500.html:29
+#, fuzzy
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "Vis Python-status på Twitter"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
@@ -356,7 +360,7 @@ msgstr "Feilkode 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "Stol på at PyPI for jobben gjort?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -365,6 +369,10 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
+"Overvei å <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
+"rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
+"civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener"
+"\">donere </a> for å hjelpe oss å bygge en mer stabil og sikrere plattform."
 
 #: warehouse/templates/base.html:24
 msgid ""
@@ -390,7 +398,7 @@ msgid "Main navigation"
 msgstr "Hovednavigasjon"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:257
+#: warehouse/templates/base.html:266
 #: warehouse/templates/includes/current-user-indicator.html:54
 #: warehouse/templates/pages/help.html:92
 #: warehouse/templates/pages/sitemap.html:27
@@ -411,7 +419,7 @@ msgstr "Logg inn"
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "Registrer"
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
@@ -420,7 +428,7 @@ msgstr "Vis meny"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "Meny"
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:24
@@ -435,22 +443,22 @@ msgstr ""
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 40 seneste oppdateringer"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 nyeste pakker"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "Hopp til hovedinnhold"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
-msgstr ""
+msgstr "Bytt til mobilversjonen"
 
 #: warehouse/templates/base.html:159 warehouse/templates/base.html:168
-#: warehouse/templates/base.html:178
+#: warehouse/templates/base.html:187
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:677
 #: warehouse/templates/manage/documentation.html:27
@@ -472,160 +480,163 @@ msgid ""
 "the real index."
 msgstr ""
 
-#: warehouse/templates/base.html:180
+#: warehouse/templates/base.html:189
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
 
-#: warehouse/templates/base.html:213 warehouse/templates/base.html:234
+#: warehouse/templates/base.html:222 warehouse/templates/base.html:243
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
+#, fuzzy
 msgid "Search PyPI"
-msgstr ""
+msgstr "Søk i PyPI"
 
-#: warehouse/templates/base.html:214 warehouse/templates/base.html:235
+#: warehouse/templates/base.html:223 warehouse/templates/base.html:244
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
+#, fuzzy
 msgid "Search projects"
-msgstr ""
+msgstr "Søk i prosjekter"
 
-#: warehouse/templates/base.html:218 warehouse/templates/base.html:239
+#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
 msgstr "Søk"
 
-#: warehouse/templates/base.html:258
+#: warehouse/templates/base.html:267
 #, fuzzy
 #| msgid "Main navigation"
 msgid "Help navigation"
 msgstr "Hovednavigasjon"
 
-#: warehouse/templates/base.html:260
+#: warehouse/templates/base.html:269
 msgid "Installing packages"
-msgstr ""
+msgstr "Installasjon av pakker"
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:270
 #, fuzzy
 #| msgid "Upload packages"
 msgid "Uploading packages"
 msgstr "Last opp pakker"
 
-#: warehouse/templates/base.html:262
+#: warehouse/templates/base.html:271
 msgid "User guide"
-msgstr ""
+msgstr "Brukerveiledning"
 
-#: warehouse/templates/base.html:263
+#: warehouse/templates/base.html:272
 msgid "FAQs"
-msgstr ""
+msgstr "O-S-S"
 
-#: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:278 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "Om PyPI"
 
-#: warehouse/templates/base.html:270
+#: warehouse/templates/base.html:279
 #, fuzzy
 #| msgid "Account navigation"
 msgid "About PyPI navigation"
 msgstr "Kontonavigasjon"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:281
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "PyPI på Twitter"
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:282
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "Infrastrukturoversikt"
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:283
 msgid "Package index name retention"
 msgstr ""
 
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:284
 msgid "Our sponsors"
-msgstr ""
+msgstr "Våre sponsorer"
 
-#: warehouse/templates/base.html:281
+#: warehouse/templates/base.html:290
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "Bidra til PyPI"
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:291
 #, fuzzy
 #| msgid "Account navigation"
 msgid "How to contribute navigation"
 msgstr "Kontonavigasjon"
 
-#: warehouse/templates/base.html:284
+#: warehouse/templates/base.html:293
 msgid "Bugs and feedback"
-msgstr ""
-
-#: warehouse/templates/base.html:285
-msgid "Contribute on GitHub"
-msgstr ""
-
-#: warehouse/templates/base.html:286
-msgid "Translate PyPI"
-msgstr ""
-
-#: warehouse/templates/base.html:287
-msgid "Development credits"
-msgstr ""
-
-#: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
-msgid "Using PyPI"
-msgstr ""
+msgstr "Feil og tilbakemeldinger"
 
 #: warehouse/templates/base.html:294
+msgid "Contribute on GitHub"
+msgstr "Bidra på GitHub"
+
+#: warehouse/templates/base.html:295
+msgid "Translate PyPI"
+msgstr "Oversett PyPI"
+
+#: warehouse/templates/base.html:296
+msgid "Development credits"
+msgstr "Utviklingsanerkjennelse"
+
+#: warehouse/templates/base.html:302 warehouse/templates/pages/sitemap.html:23
+msgid "Using PyPI"
+msgstr "Bruk av PyPI"
+
+#: warehouse/templates/base.html:303
 #, fuzzy
 #| msgid "Main navigation"
 msgid "Using PyPI navigation"
 msgstr "Hovednavigasjon"
 
-#: warehouse/templates/base.html:296
+#: warehouse/templates/base.html:305
+#, fuzzy
 msgid "Code of conduct"
-msgstr ""
+msgstr "Oppførselskodeks"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:306
 #, fuzzy
 #| msgid "Set up security device"
 msgid "Report security issue"
 msgstr "Sett opp sikkerhetsenhet"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:307
 msgid "Privacy policy"
-msgstr ""
+msgstr "Personvernspraksis"
 
-#: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:308 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "Bruksvilkår"
 
-#: warehouse/templates/base.html:309
+#: warehouse/templates/base.html:318
 #, fuzzy
 #| msgid "Status"
 msgid "Status: "
 msgstr "Status"
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:319
 msgid "all systems operational"
 msgstr ""
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:323
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 
-#: warehouse/templates/base.html:316
+#: warehouse/templates/base.html:325
 #, fuzzy
 #| msgid "Donate"
 msgid "Donate today!"
 msgstr "Doner"
 
-#: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:328 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr ""
 
-#: warehouse/templates/base.html:325
+#: warehouse/templates/base.html:334
 msgid "Switch to desktop version"
 msgstr ""
 
@@ -943,7 +954,7 @@ msgstr "E-post for gjenoppretting sendt"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "An email has been sent to your registered email address."
-msgstr ""
+msgstr "En e-post har blitt sendt til din registrerte e-postadresse."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -1011,11 +1022,16 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
+"s\">Oppgrader nettleseren din</a> for å logge inn med en sikkerhetsenhet ("
+"f.eks. USB-nøkkel)"
 
 #: warehouse/templates/accounts/two-factor.html:61
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
 msgstr ""
+"Har du mistet enheten din? Virker den ikke? <a href=\"%(href)s\">Få hjelp "
+"her</a>."
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
@@ -1066,10 +1082,13 @@ msgid ""
 "You are receiving this because you have been added by %(submitter)s to a "
 "project on %(site)s."
 msgstr ""
+"Du mottar dette fordi du har blitt lagt til av %(submitter)s i et prosjekt "
+"på %(site)s."
 
 #: warehouse/templates/email/collaborator-added/body.html:26
 msgid "A new collaborator has been added to a project you own on PyPI:"
 msgstr ""
+"En ny samarbeidspartner har blitt lagt til et prosjekt du eiere på PyPI:"
 
 #: warehouse/templates/email/collaborator-added/body.html:29
 #, python-format
@@ -1084,23 +1103,25 @@ msgstr "<strong>Rolle</strong>: %(role)s"
 #: warehouse/templates/email/collaborator-added/body.html:31
 #, python-format
 msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr ""
+msgstr "<strong>Bidragsyter i</strong>: %(project)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:32
 #, python-format
 msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr ""
+msgstr "<strong>Lagt til av</strong>: %(submitter)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
 "a> to communicate with the PyPI administrators."
 msgstr ""
+"Hvis dette skjedde i villrede, kan du sende en e-post til <a href=\"%(href)"
+"s\">%(email_address)s</a> for å kommunisere med PyPI-administratorene."
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
-msgstr ""
+msgstr "Du mottar dette fordi du eier prosjektet."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1108,6 +1129,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
+"Noen, kanskje deg, har endret passordet på din PyPI-konto "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1133,7 +1156,7 @@ msgstr ""
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
-msgstr ""
+msgstr "Hva skal jeg gjøre?"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -1141,6 +1164,8 @@ msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your password</"
 "a> on PyPI."
 msgstr ""
+"For å få tilgang til kontoen din igjen, <a href=\"%(href)s\">tilbakestill "
+"passordet ditt</a> på PyPI."
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
@@ -1184,7 +1209,7 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr ""
+msgstr "Hvordan vet du dette?"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -1210,6 +1235,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
+"Noen, kanskje deg, har utført en passordsforespørsel for din PyPI-konto \""
+"%(username)s\"."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -1217,19 +1244,23 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
+"Hvis du ønsker dette, <a href=\"%(href)s\">klikk her for å tilbakestille "
+"passordet ditt</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
 #, python-format
 msgid "This link will expire in %(n_hours)s hour."
 msgid_plural "This link will expire in %(n_hours)s hours."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Denne lenken utløper om %(n_hours)s time."
+msgstr[1] "Denne lenken utløper om %(n_hours)s timer."
 
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
+"Hvis du ikke anmodet denne forespørselen, kan du trygt ignorere denne "
+"e-posten."
 
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
@@ -1509,7 +1540,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:94
 msgid "Tags"
-msgstr ""
+msgstr "Etiketter"
 
 #: warehouse/templates/includes/packaging/project-data.html:104
 msgid "Requires:"
@@ -1587,23 +1618,24 @@ msgstr ""
 #: warehouse/templates/manage/account.html:98
 #: warehouse/templates/manage/account.html:100
 msgid "Resend verification email"
-msgstr ""
+msgstr "Send e-post for bekreftelse på ny"
 
 #: warehouse/templates/manage/account.html:110
 msgid "Set this email address as primary"
-msgstr ""
+msgstr "Sett dette som primær e-postadresse"
 
 #: warehouse/templates/manage/account.html:112
 msgid "Set as primary"
-msgstr ""
+msgstr "Sett som primær"
 
 #: warehouse/templates/manage/account.html:122
 msgid "Remove this email address"
-msgstr ""
+msgstr "Fjern denne e-postadressen"
 
 #: warehouse/templates/manage/account.html:124
+#, fuzzy
 msgid "Remove email"
-msgstr ""
+msgstr "Fjern e-post"
 
 #: warehouse/templates/manage/account.html:139
 msgid ""
@@ -1922,38 +1954,43 @@ msgid "Primary email changed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:557
+#, fuzzy
 msgid "Old primary email:"
-msgstr ""
+msgstr "Gammel primær e-postadresse:"
 
 #: warehouse/templates/manage/account.html:558
+#, fuzzy
 msgid "New primary email:"
-msgstr ""
+msgstr "Ny primær e-postadresse:"
 
 #: warehouse/templates/manage/account.html:561
 msgid "Primary email set"
-msgstr ""
+msgstr "Primær e-postadresse satt"
 
 #: warehouse/templates/manage/account.html:568
 msgid "Password reset requested"
 msgstr "Passordstilbakestilling forespurt"
 
 #: warehouse/templates/manage/account.html:570
+#, fuzzy
 msgid "Password successfully reset"
-msgstr ""
+msgstr "Passord tilbakestilt"
 
 #: warehouse/templates/manage/account.html:572
+#, fuzzy
 msgid "Password successfully changed"
-msgstr ""
+msgstr "Passord endret"
 
 #: warehouse/templates/manage/account.html:575
 msgid "Two factor authentication added"
-msgstr ""
+msgstr "To-faktoridentitetsbekreftelse lagt til"
 
 #: warehouse/templates/manage/account.html:578
 #: warehouse/templates/manage/account.html:588
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
+"Metode: Sikkerhetsenhet (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:579
 #: warehouse/templates/manage/account.html:589
@@ -1998,39 +2035,45 @@ msgstr "API-symbol fjernet"
 
 #: warehouse/templates/manage/account.html:608
 msgid "Unique identifier:"
-msgstr ""
+msgstr "Unik identifikator:"
 
 #: warehouse/templates/manage/account.html:614
+#, fuzzy
 msgid "Events appear here as security-related actions occur on your account."
 msgstr ""
+"Hendelser vises her så snart sikkerhetsrelaterte handlinger gjøres på "
+"kontoen din."
 
 #: warehouse/templates/manage/account.html:616
 msgid "Recent account activity"
-msgstr ""
+msgstr "Nylig kontoaktivitet"
 
 #: warehouse/templates/manage/account.html:618
 #: warehouse/templates/manage/history.html:88
 msgid "Event"
-msgstr ""
+msgstr "Hendelse"
 
 #: warehouse/templates/manage/account.html:619
 #: warehouse/templates/manage/account.html:627
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
 msgid "Date / time"
-msgstr ""
+msgstr "Dato / tid"
 
 #: warehouse/templates/manage/account.html:620
 #: warehouse/templates/manage/account.html:631
 #: warehouse/templates/manage/history.html:90
 #: warehouse/templates/manage/history.html:102
 msgid "IP address"
-msgstr ""
+msgstr "IP-adresse"
 
 #: warehouse/templates/manage/account.html:639
+#, fuzzy
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
+"Hendelser vises her så snart sikkerhetsrelaterte handlinger utføres på "
+"kontoen din."
 
 #: warehouse/templates/manage/account.html:646
 msgid "Delete account"
