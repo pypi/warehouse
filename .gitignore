@@ -8,6 +8,7 @@
 .coverage
 .state
 .idea
+.vscode
 
 docs/_build/
 build/
