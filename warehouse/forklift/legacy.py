@@ -71,7 +71,7 @@ def namespace_stdlib_list(module_list):
             yield ".".join(parts[: i + 1])
 
 
-STDLIB_PROHIBITTED = {
+STDLIB_PROHIBITED = {
     packaging.utils.canonicalize_name(s.rstrip("-_.").lstrip("-_."))
     for s in chain.from_iterable(
         namespace_stdlib_list(stdlib_list.stdlib_list(version))
@@ -898,7 +898,7 @@ def file_upload(request):
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
-        if packaging.utils.canonicalize_name(form.name.data) in STDLIB_PROHIBITTED:
+        if packaging.utils.canonicalize_name(form.name.data) in STDLIB_PROHIBITED:
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
