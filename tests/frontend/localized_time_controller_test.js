@@ -20,7 +20,7 @@ import LocalizedTimeController from "../../warehouse/static/js/warehouse/control
 describe("Localized time controller", () => {
   describe("not relative and not showing time", () => {
     beforeEach(() => {
-      document.documentElement.lang = 'en';
+      document.documentElement.lang = "en";
       document.body.innerHTML = `
       <time
         id="element"
