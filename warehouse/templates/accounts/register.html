@@ -153,7 +153,9 @@
         <div class="form-group">
           <ul class="form-errors">
             <li data-target="password-match.matchMessage" class="hidden"></li>
-            <li data-target="password-breach.message" class="hidden"></li>
+            <li data-target="password-breach.message" class="hidden">
+              {{ gettext("This password appears in a security breach or has been compromised and cannot be used. Please refer to the <a href=\"/help/#compromised-password\">FAQ</a> for more information.") }}
+            </li>
           </ul>
         </div>
 

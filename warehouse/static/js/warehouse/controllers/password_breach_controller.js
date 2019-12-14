@@ -20,16 +20,23 @@ export default class extends Controller {
 
   connect() {
     this.check = debounce(this.check, 1000);
+    this._lastCheckedPassword = null;
   }
 
   check() {
-    if (this.passwordTarget.value.length > 2) {
-      this.checkPassword(this.passwordTarget.value).catch(
-        _e => {  // eslint-disable-line no-unused-vars
-          this.hideMessage();  // default to hiding the message on errors
-        }
-      );
+    if (this.passwordTarget.value !== this._lastCheckedPassword) {
+      this.hideMessage();
+      if (this.passwordTarget.value.length > 2) {
+        this._lastCheckedPassword = this.passwordTarget.value;
+        return this.checkPassword(this.passwordTarget.value).catch(
+          e => {
+            console.error(e);
+            this.hideMessage();  // default to hiding the message on errors
+          }
+        );
+      }
     }
+    return null;
   }
 
   async checkPassword(password) {
@@ -94,9 +101,6 @@ export default class extends Controller {
   }
 
   showMessage() {
-    const msg = "This password appears in a security breach or has been compromised and cannot be used. \
-      Please refer to the <a href=\"/help/#compromised-password\">FAQ</a> for more information.";
-    this.messageTarget.innerHTML = msg;
     this.messageTarget.classList.remove("hidden");
   }
 
