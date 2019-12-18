@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # bkaskar <roypbc@yahoo.com>, 2019.
+# Michal Čihař <michal@cihar.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-12 09:58+0000\n"
-"Last-Translator: bkaskar <roypbc@yahoo.com>\n"
+"PO-Revision-Date: 2019-12-15 22:20+0000\n"
+"Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
 "\n"
 "Language: hi\n"
@@ -2478,7 +2479,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr "रिलीज संस्करण %(संस्करण)बहु व."
+msgstr "रिलीज संस्करण %(version)s व."
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
