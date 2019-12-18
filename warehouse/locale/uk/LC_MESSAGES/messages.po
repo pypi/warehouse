@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-13 13:45+0000\n"
-"Last-Translator: Roksolana <roksolana.d22@gmail.com>\n"
+"PO-Revision-Date: 2019-12-15 22:20+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -1600,7 +1600,7 @@ msgstr ""
 "Переглядайте статистику для цього проекта на <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> або "
 "використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
-"Google BigQuery</a>"
+"наш публічний набір даних на Google BigQuery</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
@@ -4370,19 +4370,15 @@ msgstr ""
 "\">GitHub-застосунків</a>."
 
 #: warehouse/templates/pages/help.html:439
-#, fuzzy, python-format
-#| msgid ""
-#| "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">analyze PyPI download usage statistics via Google BigQuery</"
-#| "a>."
+#, python-format
 msgid ""
 "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">analyze PyPI download usage statistics via our public dataset "
 "on Google BigQuery</a>."
 msgstr ""
-"Ви можете <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">аналізувати статистику використання завантажень з PyPI за "
-"допомогою Google BigQuery</a>."
+"Ви можете <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">аналізувати статистику використання завантажень з PyPI за "
+"допомогою нашого публічного набору даних на Google BigQuery</a>."
 
 #: warehouse/templates/pages/help.html:441
 #, python-format
@@ -4473,19 +4469,16 @@ msgstr ""
 "створив жодних випусків."
 
 #: warehouse/templates/pages/help.html:468
-#, fuzzy, python-format
-#| msgid ""
-#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
-#| "available formats."
+#, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">\"How to request a name transfer\"</a> section of <abbr title="
 "\"Python enhancement proposal\">PEP</abbr> 541."
 msgstr ""
-"Зверніться до <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">користувацького керівництва з пакування Python</a>, щоб "
-"дізнатися більше про доступні формати."
+"Слідуйте інструкціям секції <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">«Як попросити перенесення імені» (\"How to "
+"request a name transfer\")</a> <abbr title=\"Пропозиція покращення Python ("
+"Python enhancement proposal)\">PEP</abbr> 541."
 
 #: warehouse/templates/pages/help.html:473
 msgid "Owner:"
