@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-13 01:12+0000\n"
-"Last-Translator: Roksolana <roksolana.d22@gmail.com>\n"
+"PO-Revision-Date: 2019-12-13 13:45+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -1495,22 +1495,17 @@ msgid "Statistics"
 msgstr "Статистика"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
-#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-#| "BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"Дивіться статистику своїх проектів на <a href=\"%(libs_io_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, або за "
-"допомогою <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-"BigQuery</a>"
+"Дивіться статистику своїх проектів на <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, або за "
+"допомогою <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашого "
+"відкритого набору даних на Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -3649,8 +3644,6 @@ msgid "What collaborator roles are available for a project on PyPI?"
 msgstr "Які ролі поплічників доступні для проекту на PyPI?"
 
 #: warehouse/templates/pages/help.html:79
-#, fuzzy
-#| msgid "How do I become a owner/maintainer of a project on PyPI?"
 msgid "How do I become an owner/maintainer of a project on PyPI?"
 msgstr "Як мені стати власником/доглядачем проекту на PyPI?"
 
