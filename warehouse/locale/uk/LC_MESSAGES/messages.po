@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
 "PO-Revision-Date: 2019-12-13 13:45+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"Last-Translator: Roksolana <roksolana.d22@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -1590,12 +1590,7 @@ msgid "Open issues/PRs:"
 msgstr "Відкриті іш'ю/PR:"
 
 #: warehouse/templates/includes/packaging/project-data.html:69
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
-#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-#| "BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
@@ -1604,8 +1599,8 @@ msgid ""
 msgstr ""
 "Переглядайте статистику для цього проекта на <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> або "
-"використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">Google BigQuery</a>"
+"використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">"
+"Google BigQuery</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
