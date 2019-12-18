@@ -7,13 +7,14 @@
 # liushuyu011 <liushuyu011@gmail.com>, 2019.
 # Jesse201147 <tjx201147@163.com>, 2019.
 # 谭九鼎 <109224573@qq.com>, 2019.
+# zhaoying <zhaoying1258@qq.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-11-24 15:22+0000\n"
-"Last-Translator: 谭九鼎 <109224573@qq.com>\n"
+"PO-Revision-Date: 2019-12-18 17:18+0000\n"
+"Last-Translator: zhaoying <zhaoying1258@qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -1726,12 +1727,12 @@ msgstr "删除 API 令牌"
 #: warehouse/templates/manage/token.html:59
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
-msgstr ""
+msgstr "使用此token的应用程序或脚本将不再有权访问PyPI。"
 
 #: warehouse/templates/manage/account.html:225
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
-msgstr ""
+msgstr "API token的唯一标识符 \"%(token_description)s\""
 
 #: warehouse/templates/manage/account.html:243
 msgid "Profile picture"
@@ -1744,6 +1745,8 @@ msgid ""
 "\"noopener\">gravatar.com</a> to generate your profile picture based on your "
 "primary email address"
 msgstr ""
+"我们使用<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">gravatar.com</a>来根据您的主要电子邮件地址生成个人资料图片"
 
 #: warehouse/templates/manage/account.html:256
 msgid "Change image on gravatar.com"
@@ -1761,7 +1764,7 @@ msgstr "加入日期"
 #, python-format
 msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be changed."
-msgstr ""
+msgstr "显示在您的 <a href=\"%(href)s\">公开资料</a>。无法更改。"
 
 #: warehouse/templates/manage/account.html:289
 msgid "Full name"
@@ -1774,7 +1777,7 @@ msgstr "未设置名称"
 #: warehouse/templates/manage/account.html:299
 #, python-format
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
-msgstr ""
+msgstr "显示在您的<a href=\"%(href)s\">公开资料</a>"
 
 #: warehouse/templates/manage/account.html:304
 msgid "Update account"
