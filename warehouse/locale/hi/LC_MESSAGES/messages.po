@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-15 22:20+0000\n"
-"Last-Translator: Michal Čihař <michal@cihar.com>\n"
+"PO-Revision-Date: 2019-12-16 20:06+0000\n"
+"Last-Translator: bkaskar <roypbc@yahoo.com>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
 "\n"
 "Language: hi\n"
@@ -1728,6 +1728,8 @@ msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
 msgstr ""
+"सुरक्षा उपकरण द्वारा <abbr title=\"two factor authentication\">द्वी-करक "
+"प्रमाणीकरण</abbr> जोड़ें (उदा। USB कुंजी)"
 
 #: warehouse/templates/manage/account.html:145
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1735,6 +1737,8 @@ msgid ""
 "Enable JavaScript to set up two factor authentication with a security "
 "device (e.g. USB key)"
 msgstr ""
+"सुरक्षा उपकरण (उदा। USB कुंजी) द्वारा द्वी-करक प्रमाणीकरण स्थापित करने हेतु "
+"जावास्क्रिप्ट सक्रिय करें"
 
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account/webauthn-provision.html:53
@@ -1744,50 +1748,53 @@ msgid ""
 "rel=\"noopener\">Upgrade your browser</a> to set up two factor "
 "authentication with a security device (e.g. USB key)"
 msgstr ""
+"सुरक्षा उपकरण (उदा। USB कुंजी) द्वारा द्वी-करक प्रमाणीकरण स्थापित करने हेतु <"
+"a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">अपने ब्राउज़र को अपग्रेड</a> करें"
 
 #: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/account.html:495
 #: warehouse/templates/manage/token.html:138
 msgid "Scope"
-msgstr ""
+msgstr "क्षेत्र"
 
 #: warehouse/templates/manage/account.html:166
 msgid "All projects"
-msgstr ""
+msgstr "सभी परियोजनाएं"
 
 #: warehouse/templates/manage/account.html:174
 #: warehouse/templates/manage/account.html:496
 msgid "Created"
-msgstr ""
+msgstr "बनाया"
 
 #: warehouse/templates/manage/account.html:178
 #: warehouse/templates/manage/account.html:497
 msgid "Last used"
-msgstr ""
+msgstr "अन्तः उपयोगित"
 
 #: warehouse/templates/manage/account.html:179
 msgid "Never"
-msgstr ""
+msgstr "कभी नहीं"
 
 #: warehouse/templates/manage/account.html:183
 msgid "View token options"
-msgstr ""
+msgstr "टोकन विकल्प देखें"
 
 #: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/token.html:50
 msgid "Remove token"
-msgstr ""
+msgstr "टोकन निकालें"
 
 #: warehouse/templates/manage/account.html:199
 msgid "View unique identifier"
-msgstr ""
+msgstr "अद्वितीय पहचानकर्ता देखें"
 
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account.html:209
 #: warehouse/templates/manage/token.html:53
 #: warehouse/templates/manage/token.html:54
 msgid "Remove API token"
-msgstr ""
+msgstr "API टोकन निकालें"
 
 #: warehouse/templates/manage/account.html:214
 #: warehouse/templates/manage/token.html:59
@@ -1795,15 +1802,16 @@ msgid ""
 "Applications or scripts using this token will no longer have access to "
 "PyPI."
 msgstr ""
+"इस टोकन का उपयोग करने वाले एप्लिकेशन या स्क्रिप्ट अब PyPI तक पहुंच पाएंगी।"
 
 #: warehouse/templates/manage/account.html:225
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
-msgstr ""
+msgstr "API टोकन कि अद्वितीय पहचान \"%(token_description)s\""
 
 #: warehouse/templates/manage/account.html:243
 msgid "Profile picture"
-msgstr ""
+msgstr "प्रोफ़ाइल छवि"
 
 #: warehouse/templates/manage/account.html:249
 #, python-format
@@ -1812,18 +1820,21 @@ msgid ""
 "rel=\"noopener\">gravatar.com</a> to generate your profile picture based "
 "on your primary email address"
 msgstr ""
+"आपके प्राथमिक ईमेल पते के आधार पर आपकी प्रोफ़ाइल छवि उत्पन्न करने के लिए हम <"
+"a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">gravatar.com</a> का उपयोग करते हैं"
 
 #: warehouse/templates/manage/account.html:256
 msgid "Change image on gravatar.com"
-msgstr ""
+msgstr "gravatar.com पर छवि बदलें"
 
 #: warehouse/templates/manage/account.html:266
 msgid "Account details"
-msgstr ""
+msgstr "खाता विवरण"
 
 #: warehouse/templates/manage/account.html:272
 msgid "Date Joined"
-msgstr ""
+msgstr "संगठित होने की तिथि"
 
 #: warehouse/templates/manage/account.html:278
 #, python-format
@@ -1831,27 +1842,29 @@ msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
 "changed."
 msgstr ""
+"आपके<a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a> पर प्रदर्शित होता है। अतः "
+"अपरिवर्तनीय है।"
 
 #: warehouse/templates/manage/account.html:289
 msgid "Full name"
-msgstr ""
+msgstr "पूरा नाम"
 
 #: warehouse/templates/manage/account.html:294
 msgid "No name set"
-msgstr ""
+msgstr "कोई नाम सेट नहीं है"
 
 #: warehouse/templates/manage/account.html:299
 #, python-format
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
-msgstr ""
+msgstr "आपके <a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a>पर प्रदर्शित"
 
 #: warehouse/templates/manage/account.html:304
 msgid "Update account"
-msgstr ""
+msgstr "अपडेट खाता"
 
 #: warehouse/templates/manage/account.html:312
 msgid "Account emails"
-msgstr ""
+msgstr "खाता ईमेल"
 
 #: warehouse/templates/manage/account.html:314
 msgid ""
@@ -1861,43 +1874,47 @@ msgid ""
 "only your <span class=\"badge\">Primary</span> email will receive "
 "notifications."
 msgstr ""
+"आप अपने खाते के साथ कई ईमेल संबद्ध कर सकते हैं। आप किसी भी <span class=\""
+"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\""
+"></i>सत्यापित</span> ईमेल से अपना खाता ठीक कर सकते हैं, लेकिन ईमेल सूचनाएं के"
+"वल <span class=\"badge\">प्राथमिक</span> ईमेल से ही प्राप्त होंगी।"
 
 #: warehouse/templates/manage/account.html:325
 msgid "Emails associated with your account"
-msgstr ""
+msgstr "आपके खाते से संबद्ध ईमेल"
 
 #: warehouse/templates/manage/account.html:329
 msgid "Status"
-msgstr ""
+msgstr "स्थिति"
 
 #: warehouse/templates/manage/account.html:344
 #: warehouse/templates/manage/account.html:354
 msgid "Add email"
-msgstr ""
+msgstr "ईमेल जोड़ें"
 
 #: warehouse/templates/manage/account.html:361
 msgid "Change password"
-msgstr ""
+msgstr "पासवर्ड बदलें"
 
 #: warehouse/templates/manage/account.html:369
 msgid "Old password"
-msgstr ""
+msgstr "पुराना पासवर्ड"
 
 #: warehouse/templates/manage/account.html:379
 msgid "Your current password"
-msgstr ""
+msgstr "आपका वर्तमान पासवर्ड"
 
 #: warehouse/templates/manage/account.html:386
 msgid "New password"
-msgstr ""
+msgstr "नया पासवर्ड"
 
 #: warehouse/templates/manage/account.html:402
 msgid "Confirm new password"
-msgstr ""
+msgstr "नए पासवर्ड की पुष्टि करें"
 
 #: warehouse/templates/manage/account.html:425
 msgid "Two factor authentication (2FA)"
-msgstr ""
+msgstr "द्वी-करक प्रमाणीकरण (2FA)"
 
 #: warehouse/templates/manage/account.html:426
 #, python-format
@@ -1906,14 +1923,17 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>."
 msgstr ""
+"द्वी-कारक प्रमाणीकरण आपके खाते में सुरक्षा की एक अतिरिक्त परत जोड़ता है। <a "
+"href=\"%(href)s\"><abbr title=\"two factor authentication\">2FA</abbr> के "
+"बारे में और अधिक जानें</a>।"
 
 #: warehouse/templates/manage/account.html:431
 msgid "Two factor authentication methods enabled"
-msgstr ""
+msgstr "द्वी-कारक प्रमाणीकरण विधियां उपयोगित हैं"
 
 #: warehouse/templates/manage/account.html:434
 msgid "Two factor method"
-msgstr ""
+msgstr "द्वी-कारक विधि"
 
 #: warehouse/templates/manage/account.html:440
 #: warehouse/templates/manage/account.html:537
@@ -1921,41 +1941,42 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
+"प्रमाणीकरण आवेदन (<abbr title=\"time-based one-time password\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
 #: warehouse/templates/manage/roles.html:121
 msgid "Remove"
-msgstr ""
+msgstr "हटाएं"
 
 #: warehouse/templates/manage/account.html:443
 msgid "Remove authentication application"
-msgstr ""
+msgstr "प्रमाणीकरण आवेदन हटाएं"
 
 #: warehouse/templates/manage/account.html:444
 msgid "Remove application"
-msgstr ""
+msgstr "एप्लिकेशन हटाएं"
 
 #: warehouse/templates/manage/account.html:453
 #: warehouse/templates/manage/account.html:535
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
+msgstr "सुरक्षा उपकरण (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:458
 msgid "Remove two factor security device"
-msgstr ""
+msgstr "द्वी-कारक सुरक्षा उपकरण हटाएं"
 
 #: warehouse/templates/manage/account.html:459
 msgid "Remove device"
-msgstr ""
+msgstr "उपकरण हटाएं"
 
 #: warehouse/templates/manage/account.html:465
 msgid "Device name"
-msgstr ""
+msgstr "उपकरण नाम"
 
 #: warehouse/templates/manage/account.html:474
 msgid "You have not enabled two factor authentication on your account."
-msgstr ""
+msgstr "आपने खाते में द्वी-कारक प्रमाणीकरण विधियां उपयोगित नहीं हैं।"
 
 #: warehouse/templates/manage/account.html:479
 #, python-format
@@ -1963,11 +1984,13 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
 "factor authentication to your account."
 msgstr ""
+"द्वी-करक प्रमाणीकरण स्थापित करने हेतु <a href=\"%(href)s\">अपना प्राथमिक ईमे"
+"ल पता सत्यापित</a> करें।"
 
 #: warehouse/templates/manage/account.html:486
 #: warehouse/templates/manage/settings.html:23
 msgid "API tokens"
-msgstr ""
+msgstr "API टोकन"
 
 #: warehouse/templates/manage/account.html:487
 #: warehouse/templates/manage/settings.html:24
@@ -1975,19 +1998,21 @@ msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
 msgstr ""
+"API टोकन PyPI पर पैकेज अपलोड करते समय अपने प्रमाणन का एक वैकल्पिक तरीका प्रदा"
+"न करते हैं।"
 
 #: warehouse/templates/manage/account.html:487
 msgid "Learn more about API tokens"
-msgstr ""
+msgstr "API टोकन के बारे में अधिक जानें"
 
 #: warehouse/templates/manage/account.html:491
 msgid "Active API tokens for this account"
-msgstr ""
+msgstr "इस खाते के सक्रिय API टोकन"
 
 #: warehouse/templates/manage/account.html:509
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
-msgstr ""
+msgstr "API टोकन जोड़ें"
 
 #: warehouse/templates/manage/account.html:511
 #, python-format
@@ -1995,24 +2020,26 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
 "tokens to your account."
 msgstr ""
+"खाते में API टोकन जोड़ने के लिए <a href=\"%(href)s\">अपने प्राथमिक ईमेल पते "
+"को सत्यापित करें</a>।"
 
 #: warehouse/templates/manage/account.html:526
 msgid "Account created"
-msgstr ""
+msgstr "खाता बना"
 
 #: warehouse/templates/manage/account.html:529
 msgid "Logged in"
-msgstr ""
+msgstr "लॉग इन किया हुआ है"
 
 #: warehouse/templates/manage/account.html:531
 msgid "Two factor method:"
-msgstr ""
+msgstr "द्वी-कारक विधि:"
 
 #: warehouse/templates/manage/account.html:533
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:311
 msgid "None"
-msgstr ""
+msgstr "कोई नहीं"
 
 #: warehouse/templates/manage/account.html:542
 msgid "Email added to account"
