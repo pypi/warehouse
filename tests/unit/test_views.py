@@ -274,14 +274,12 @@ class TestSearch:
         assert search(db_request) == {
             "page": page_obj,
             "term": params.get("q", ""),
-            "mode": "relevance",
+            "order": "",
             "applied_filters": [],
             "available_filters": [],
         }
         assert get_es_query.calls == [
-            pretend.call(
-                db_request.es, params.get("q"), queries.SearchModes.relevance, []
-            )
+            pretend.call(db_request.es, params.get("q"), "", [])
         ]
         assert page_cls.calls == [
             pretend.call(es_query, url_maker=url_maker, page=page or 1)
@@ -325,7 +323,7 @@ class TestSearch:
         assert search_view == {
             "page": page_obj,
             "term": params.get("q", ""),
-            "mode": "relevance",
+            "order": "",
             "applied_filters": params.getall("c"),
             "available_filters": [
                 {
@@ -342,12 +340,7 @@ class TestSearch:
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert get_es_query.calls == [
-            pretend.call(
-                db_request.es,
-                params.get("q"),
-                queries.SearchModes.relevance,
-                params.getall("c"),
-            )
+            pretend.call(db_request.es, params.get("q"), "", params.getall("c"),)
         ]
         assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
