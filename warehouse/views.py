@@ -47,12 +47,7 @@ from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
-from warehouse.search.queries import (
-    SEARCH_BOOSTS,
-    SEARCH_FIELDS,
-    SEARCH_FILTER_ORDER,
-    get_es_query,
-)
+from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
