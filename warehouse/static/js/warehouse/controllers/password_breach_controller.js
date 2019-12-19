@@ -30,7 +30,7 @@ export default class extends Controller {
         this._lastCheckedPassword = this.passwordTarget.value;
         return this.checkPassword(this.passwordTarget.value).catch(
           e => {
-            console.error(e);
+            console.error(e);  // eslint-disable-line no-console
             this.hideMessage();  // default to hiding the message on errors
           }
         );
