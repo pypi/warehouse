@@ -25,7 +25,6 @@ from pyramid.httpexceptions import (
 from webob.multidict import MultiDict
 
 from warehouse import views
-from warehouse.search import queries
 from warehouse.views import (
     classifiers,
     current_user_indicator,
