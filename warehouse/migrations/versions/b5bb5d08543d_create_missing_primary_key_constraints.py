@@ -18,11 +18,10 @@ Create Date: 2019-12-19 14:27:47.230249
 """
 
 from alembic import op
-import sqlalchemy as sa
 
+revision = "b5bb5d08543d"
+down_revision = "08aedc089eaf"
 
-revision = 'b5bb5d08543d'
-down_revision = '08aedc089eaf'
 
 def upgrade():
     op.create_primary_key(None, "release_files", ["id"])
