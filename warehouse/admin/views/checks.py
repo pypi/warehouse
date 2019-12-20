@@ -10,8 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPSeeOther
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.malware.models import MalwareCheck, MalwareCheckState
 
@@ -44,9 +45,16 @@ def get_check(request):
     query = (
         request.db.query(MalwareCheck)
         .filter(MalwareCheck.name == request.matchdict["check_name"])
-        .order_by(MalwareCheck.created.desc())
+        .order_by(MalwareCheck.version.desc())
     )
-    return {"check": query.first(), "checks": query.all(), "states": MalwareCheckState}
+
+    try:
+        # Throw an exception if and only if no results are returned.
+        newest = query.limit(1).one()
+    except NoResultFound:
+        raise HTTPNotFound
+
+    return {"check": newest, "checks": query.all(), "states": MalwareCheckState}
 
 
 @view_config(
@@ -58,12 +66,24 @@ def get_check(request):
     require_csrf=True,
 )
 def change_check_state(request):
-    print("got here")
-    check = request.db.query(MalwareCheck).get(request.POST["id"])
-    check.state = getattr(MalwareCheckState, request.POST["check_state"])
-    request.session.flash(
-        f"Changed {check.name!r} check to {check.state.value!r}!", queue="success"
-    )
-    return HTTPSeeOther(
-        request.route_path("admin.checks.detail", check_name=check.name)
-    )
+    try:
+        check = (
+            request.db.query(MalwareCheck)
+            .filter(MalwareCheck.id == request.POST["id"])
+            .one()
+        )
+    except NoResultFound:
+        raise HTTPNotFound
+
+    try:
+        check.state = getattr(MalwareCheckState, request.POST["check_state"])
+    except (AttributeError, KeyError):
+        request.session.flash("Invalid check state provided.", queue="error")
+    else:
+        request.session.flash(
+            f"Changed {check.name!r} check to {check.state.value!r}!", queue="success"
+        )
+    finally:
+        return HTTPSeeOther(
+            request.route_path("admin.checks.detail", check_name=check.name)
+        )
