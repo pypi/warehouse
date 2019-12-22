@@ -17,7 +17,7 @@ however, you can trigger a manual build of them by installing
 `NodeJS 8.x <https://nodejs.org/en/download/releases/>`_, installing
 the dependencies using ``npm install`` and then running ``gulp dist``.
 
-If you're in a POSIX enviroment you may find
+If you're in a POSIX environment you may find
 `NVM <https://github.com/nvm-sh/nvm>`_ useful to have multiple NodeJS
 versions installed in your system.
 
@@ -27,7 +27,7 @@ Tests
 
 The JavaScript codebase includes tests that can be ran via
 ``make static_tests`` which is also ran with the ``make tests`` target.
-Both targets will run the tests in the Docker enviroment but they
+Both targets will run the tests in the Docker environment but they
 may also be ran locally using ``npm run test`` once NodeJS and the
 dependencies are installed as described above.
 
@@ -41,7 +41,7 @@ All tests are located in the ``tests/frontend``.
 `Stimulus <https://stimulusjs.org/>`_ controller tests leverage on Jest
 including `JSDOM <https://github.com/jsdom/jsdom/>`_ allowing us to
 inject the required HTML markup for Stimulus in a setup phase. After the
-setup we must manually instanciate and start a Stimulus application and
+setup we must manually instantiate and start a Stimulus application and
 then test the funcionality by triggering events in DOM elements and
 asserting on the effects. See existing tests the details on how to
 accomplish this.
