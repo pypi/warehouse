@@ -2,36 +2,32 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Yothin Muangsommuk <m@yothinix.com>, 2019.
-# Jaruwit Jaiya <poiiiii4yy@gmail.com>, 2019.
+# Alexander Baghramyan <aleksandr.baghramyan@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-10-23 13:46+0000\n"
-"Last-Translator: Jaruwit Jaiya <poiiiii4yy@gmail.com>\n"
-"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
-">\n"
-"Language: th\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: hy\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
 msgid "No user found with that username"
-msgstr "ไม่ค้นพบผู้ใช้งานจากชื่อผู้ใช้งานดังกล่าว"
+msgstr ""
 
 #: warehouse/accounts/forms.py:50
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "รหัส TOTP ต้องมีตัวเลข ${totp_length} ตำแหน่ง"
+msgstr ""
 
 #: warehouse/accounts/forms.py:70
 msgid "Choose a username with 50 characters or less."
-msgstr "กรุณาระบุชื่อผู้ใช้งานด้วยตัวอักษรไม่เกิน 50 ตัวอักษร"
+msgstr ""
 
 #: warehouse/accounts/forms.py:76
 msgid ""
@@ -39,179 +35,174 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ชื่อผู้ใช้งานไม่ถูกต้อง โดยชื่อผู้ใช้งานต้องประกอบด้วยตัวอักษร, ตัวเลข, จุดทศนิยม, "
-"เครื่องหมายขีดกลางหรือขีดล่างและต้องเริ่มและจบด้วยตัวอักษรหรือตัวเลขเท่านั้น "
-"กรุณาเลือกชื่อผู้ใช้งานใหม่"
 
 #: warehouse/accounts/forms.py:90
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "ชื่อผู้ใช้งานนี้ได้ถูกใช้งานแล้วโดยบัญชีอื่น กรุณาเลือกชื่อผู้ใช้งานใหม่"
+msgstr ""
 
 #: warehouse/accounts/forms.py:113
 msgid "The password is invalid. Try again."
-msgstr "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
+msgstr ""
 
 #: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ในภายหลัง"
+msgstr ""
 
 #: warehouse/accounts/forms.py:139
 msgid "Your passwords don't match. Try again."
-msgstr "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
+msgstr ""
 
 #: warehouse/accounts/forms.py:170
 msgid "The email address isn't valid. Try again."
-msgstr "อีเมล์ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
+msgstr ""
 
 #: warehouse/accounts/forms.py:180
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "อีเมล์นี้ถูกใช้งานโดยบัญชีอื่นแล้ว กรุณาเลือกอีเมล์ใหม่"
+msgstr ""
 
 #: warehouse/accounts/forms.py:187
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr "อีเมล์นี้ได้ถูกใช้งานโดยบัญชีอื่นแล้ว กรุณาเลือกอีเมล์ใหม่"
+msgstr ""
 
 #: warehouse/accounts/forms.py:196
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr "คุณไม่สามารถใช้อีเมล์ที่มาจากโดเมนดังกล่าวได้ กรุณาเลือกอีเมล์ใหม่"
+msgstr ""
 
 #: warehouse/accounts/forms.py:218
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "ชื่อยาวเกินไป กรุณาระบุชื่อโดยมีความยาวไม่เกิน 100 ตัวอักษร"
+msgstr ""
 
 #: warehouse/accounts/forms.py:282
 msgid "Invalid TOTP code."
-msgstr "รหัส TOTP ไม่ถูกต้อง"
+msgstr ""
 
 #: warehouse/accounts/forms.py:299
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr "การยืนยัน WebAuthn ไม่ถูกต้อง: Bad Payload"
+msgstr ""
 
 #: warehouse/accounts/forms.py:332
 msgid "No user found with that username or email"
-msgstr "ไม่ค้นพบผู้ใช้งานจากชื่อผู้ใช้งานหรืออีเมล์ดังกล่าว"
+msgstr ""
 
 #: warehouse/accounts/views.py:204 warehouse/accounts/views.py:258
 #: warehouse/accounts/views.py:259 warehouse/accounts/views.py:285
 #: warehouse/accounts/views.py:286
 msgid "Invalid or expired two factor login."
-msgstr "ระบบยืนยันตัวตนสองปัจจัยไม่ถูกต้องหรือหมดอายุไปแล้ว"
+msgstr ""
 
 #: warehouse/accounts/views.py:253
 msgid "Already authenticated"
-msgstr "คุณได้ทำการยืนยันตัวตนไปแล้ว"
+msgstr ""
 
 #: warehouse/accounts/views.py:317
 msgid "Successful WebAuthn assertion"
-msgstr "การตรวจสอบ WebAuthn ประสบความสำเร็จ"
+msgstr ""
 
 #: warehouse/accounts/views.py:398
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
-"intervention"
 
 #: warehouse/accounts/views.py:495
 msgid "Expired token: request a new password reset link"
-msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
+msgstr ""
 
 #: warehouse/accounts/views.py:497
 msgid "Invalid token: request a new password reset link"
-msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
+msgstr ""
 
 #: warehouse/accounts/views.py:499 warehouse/accounts/views.py:577
 msgid "Invalid token: no token supplied"
-msgstr "โทเคนไม่ถูกต้อง: ไม่มีโทเคน"
+msgstr ""
 
 #: warehouse/accounts/views.py:503
 msgid "Invalid token: not a password reset token"
-msgstr "โทเคนไม่ถูกต้อง: ไม่ใช่โทเคนในการตั้งค่ารหัสผ่านใหม่"
+msgstr ""
 
 #: warehouse/accounts/views.py:508
 msgid "Invalid token: user not found"
-msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
+msgstr ""
 
 #: warehouse/accounts/views.py:515
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr "โทเคนไม่ถูกต้อง: ผู้ใช้งานได้ทำการเข้าสู่ระบบหลังจากมีการร้องขอโทเคนนี้"
+msgstr ""
 
 #: warehouse/accounts/views.py:522
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr "โทเคนไม่ถูกต้อง: รหัสผ่านถูกเปลี่ยนแปลงแล้วหลังจากมีการร้องขอโทเคนนี้"
+msgstr ""
 
 #: warehouse/accounts/views.py:548
 msgid "You have reset your password"
-msgstr "คุณได้ทำการตั้งค่ารหัสผ่านใหม่"
+msgstr ""
 
 #: warehouse/accounts/views.py:573
 msgid "Expired token: request a new email verification link"
-msgstr "โทเคนหมดอายุ: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
+msgstr ""
 
 #: warehouse/accounts/views.py:575
 msgid "Invalid token: request a new email verification link"
-msgstr "โทเคนไม่ถูกต้อง: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
+msgstr ""
 
 #: warehouse/accounts/views.py:581
 msgid "Invalid token: not an email verification token"
-msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
+msgstr ""
 
 #: warehouse/accounts/views.py:590
 msgid "Email not found"
-msgstr "ไม่พบอีเมล์"
+msgstr ""
 
 #: warehouse/accounts/views.py:593
 msgid "Email already verified"
-msgstr "อีเมล์ได้ทำการยืนยันไปแล้ว"
+msgstr ""
 
 #: warehouse/accounts/views.py:605
 msgid "You can now set this email as your primary address"
-msgstr "คุณสามารถตั้งค่าให้อีเมล์นี้เป็นอีเมล์หลักได้"
+msgstr ""
 
 #: warehouse/accounts/views.py:607
 msgid "This is your primary address"
-msgstr "นี่คือที่อยู่อีเมล์หลัก"
+msgstr ""
 
 #: warehouse/accounts/views.py:612
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr "อีเมล์ ${email_address} ยืนยันแล้ว. ${confirm_message}."
+msgstr ""
 
 #: warehouse/manage/views.py:170
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr "เพิ่มอีเมล์ ${email_address} แล้ว - กรุณาเช็คลิ้งค์ยืนยันตัวตนในอีเมล์ดังกล่าว"
+msgstr ""
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr "ปฏิเสธการเข้าถึง / ไม่ได้รับอนุญาติ (403)"
+msgstr ""
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr "คุณไม่มีสิทธิในการเข้าถึงหน้านี้"
+msgstr ""
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr "ไม่พบหน้าดังกล่าว (404)"
+msgstr ""
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr "เราค้นจนทั่วแล้วก็ยังไม่เจอหน้าดังกล่าว"
+msgstr ""
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr "และตอนนี้สำหรับบางสิ่งบางอย่าง <br> <span> ที่แตกต่างกันอย่างสิ้นเชิง"
+msgstr ""
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "มอนตี้ ไพธอน - รูปสเก็ตช์ร้านชีส"
+msgstr ""
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -304,27 +295,27 @@ msgstr "มอนตี้ ไพธอน - รูปสเก็ตช์ร�
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr "ลิ้งค์ภายนอก"
+msgstr ""
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr "ดูบันทึกถอดความวิดีโอ"
+msgstr ""
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr "หน้าถูกลบออกไปแล้ว (410)"
+msgstr ""
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr "หน้าที่คุณค้นหาได้ถูกลบออกไปแล้ว"
+msgstr ""
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์"
+msgstr ""
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr "มีบางอย่างผิดปกติ"
+msgstr ""
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -332,24 +323,22 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p> เราประสบปัญหาทางเทคนิคที่มีผลต่อความสามารถของเราในการให้บริการเว็บไซต์นี้ </p> <p> "
-"ทางทีมงานได้รับทราบถึงปัญหาและกำลังทำงานเพื่อแก้ไขโดยเร็วที่สุดเท่าที่เป็นไปได้ </p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr "ตรวจสอบหน้าสถานะของเรา"
+msgstr ""
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr "ตรวจสอบสถานะไพธอนบนทวิตเตอร์"
+msgstr ""
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr "รหัสข้อผิดพลาด 500"
+msgstr ""
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr "ต้องพึ่งพา PyPI เพื่อให้งานสำเร็จ?"
+msgstr ""
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -358,22 +347,16 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
-"พิจารณา <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" rel="
-"\"noopener\"> ช่วยเหลือ </a> หรือ <a href = \"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13 target =\" _ blank \"rel =\" noopener \"> "
-"บริจาค </a> เพื่อช่วยเราสร้างแพลตฟอร์มที่มั่นคงและปลอดภัยยิ่งขึ้น"
 
 #: warehouse/templates/base.html:24
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
-"เลือกรหัสผ่านที่รัดกุมซึ่งประกอบด้วยตัวอักษร (ตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก) ตัวเลขและอักขระพิเศษ "
-"หลีกเลี่ยงคำทั่วไปหรือการทำซ้ำ"
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
-msgstr "ความปลอดภัยของรหัสผ่าน:"
+msgstr ""
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
@@ -477,19 +460,19 @@ msgstr ""
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr "ค้นหา PyPI"
+msgstr ""
 
 #: warehouse/templates/base.html:214 warehouse/templates/base.html:235
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr "ค้นหาโครงการ"
+msgstr ""
 
 #: warehouse/templates/base.html:218 warehouse/templates/base.html:239
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr "ค้นหา"
+msgstr ""
 
 #: warehouse/templates/base.html:258
 msgid "Help navigation"
@@ -610,15 +593,15 @@ msgstr ""
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr "รหัสข้อผิดพลาด"
+msgstr ""
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr "กลับไปที่หน้าหลัก"
+msgstr ""
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr "ดัชนีแพคเกจไพธอน"
+msgstr ""
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
@@ -819,12 +802,11 @@ msgid_plural ""
 "            %(count)s projects\n"
 "          "
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:59
-#, fuzzy
-#| msgid "Search projects"
 msgid "No projects"
-msgstr "ค้นหาโครงการ"
+msgstr ""
 
 #: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/manage/projects.html:36
@@ -1196,6 +1178,7 @@ msgstr ""
 msgid "This link will expire in %(n_hours)s hour."
 msgid_plural "This link will expire in %(n_hours)s hours."
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
@@ -2020,6 +2003,7 @@ msgid_plural ""
 "%(count)s projects.\n"
 "        "
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/account.html:656
 msgid ""
@@ -2033,6 +2017,7 @@ msgid_plural ""
 "can delete your account.\n"
 "        "
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/account.html:666
 #, python-format
@@ -2450,6 +2435,7 @@ msgid_plural ""
 "files.\n"
 "      "
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/release.html:135
 msgid "Deleting will irreversibly delete this release."
@@ -2509,6 +2495,7 @@ msgid_plural ""
 "              %(count)s files\n"
 "            "
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/releases.html:56
 msgid "No files"
@@ -2676,6 +2663,7 @@ msgid_plural ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
 "releases</a>"
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
@@ -2783,10 +2771,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/token.html:98
-#, fuzzy
-#| msgid "Search projects"
 msgid "a project token"
-msgstr "ค้นหาโครงการ"
+msgstr ""
 
 #: warehouse/templates/manage/token.html:100
 #, python-format
@@ -4510,6 +4496,7 @@ msgid_plural ""
 "              <strong>%(count_display)s</strong> projects\n"
 "              "
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/search/results.html:159
 #, python-format
@@ -4526,6 +4513,7 @@ msgid_plural ""
 "                  with the selected classifiers\n"
 "                "
 msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/search/results.html:179
 msgid "Order by"
@@ -4567,7 +4555,4 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
-
-#~ msgid ""
-#~ "There have been too many unsuccessful login attempts, try again later."
-#~ msgstr "มีความพยายามเข้าถึงระบบโดยไม่สำเร็จมากเกินไป กรุณาลองใหม่ในภายหลัง"
+msgstr[1] ""

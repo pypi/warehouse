@@ -76,7 +76,7 @@
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
 {% macro project_name_claim() %}{% trans %}How do I claim an abandoned or previously registered project name?{% endtrans %}{% endmacro %}
 {% macro collaborator_roles() %}{% trans %}What collaborator roles are available for a project on PyPI?{% endtrans %}{% endmacro %}
-{% macro request_ownership() %}{% trans %}How do I become a owner/maintainer of a project on PyPI?{% endtrans %}{% endmacro %}
+{% macro request_ownership() %}{% trans %}How do I become an owner/maintainer of a project on PyPI?{% endtrans %}{% endmacro %}
 {% macro description_content_type() %}{% trans %}How can I upload a project description in a different format?{% endtrans %}{% endmacro %}
 {% macro new_classifier() %}{% trans %}How do I request a new trove classifier?{% endtrans %}{% endmacro %}
 {% macro feedback() %}{% trans %}Where can I report a bug or provide feedback about PyPI?{% endtrans %}{% endmacro %}
@@ -436,7 +436,7 @@
         <p>{% trans href='https://github.com/works-with/category/dependency-management?query=python', title=gettext('External link') %}PyPI itself does not offer a way to get notified when a project uploads new releases. However, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities listed as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">GitHub apps</a>.{% endtrans %}</p>
 
         <h3 id="statistics">{{ statistics() }}</h3>
-        <p>{% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">analyze PyPI download usage statistics via Google BigQuery</a>.{% endtrans %}</p>
+        <p>{% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">analyze PyPI download usage statistics via our public dataset on Google BigQuery</a>.{% endtrans %}</p>
         <p>
           {% trans trimmed libs_io_href='https://libraries.io/pypi', libs_io_example_href='https://libraries.io/pypi/twine/', libs_io_api_href='https://libraries.io/api', in_progress_href='https://github.com/librariesio/bibliothecary/issues/415', other_factors_href='https://docs.libraries.io/overview#sourcerank', title=gettext('External link') %}
           <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io provides statistics for PyPI projects</a>
