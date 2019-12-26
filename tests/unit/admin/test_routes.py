@@ -123,4 +123,13 @@ def test_includeme():
         pretend.call("admin.flags.edit", "/admin/flags/edit/", domain=warehouse),
         pretend.call("admin.squats", "/admin/squats/", domain=warehouse),
         pretend.call("admin.squats.review", "/admin/squats/review/", domain=warehouse),
+        pretend.call("admin.checks.list", "/admin/checks/", domain=warehouse),
+        pretend.call(
+            "admin.checks.detail", "/admin/checks/{check_name}", domain=warehouse
+        ),
+        pretend.call(
+            "admin.checks.change_state",
+            "/admin/checks/{check_name}/change_state",
+            domain=warehouse,
+        ),
     ]
