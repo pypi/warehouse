@@ -389,6 +389,9 @@ def configure(settings=None):
     # Register support for Macaroon based authentication
     config.include(".macaroons")
 
+    # Register support for malware checks
+    config.include(".malware")
+
     # Register logged-in views
     config.include(".manage")
 
