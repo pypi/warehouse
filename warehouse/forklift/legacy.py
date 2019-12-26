@@ -42,6 +42,8 @@ from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
+from warehouse.malware.interfaces import MalwareCheckService
+from warehouse.malware.tasks import run_check
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
@@ -1384,6 +1386,12 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+        request.db.flush()
+
+        check_service = request.find_service(MalwareCheckService, context=None)
+        for check in check_service.get_enabled_checks():
+            request.task(run_check).delay(check.name, check.id, file_.id)
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])

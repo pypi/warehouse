@@ -32,6 +32,7 @@ from sqlalchemy import event
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services, views as account_views
 from warehouse.macaroons import services as macaroon_services
+from warehouse.malware import services as check_services
 from warehouse.manage import views as manage_views
 from warehouse.metrics import IMetricsService
 
@@ -225,6 +226,11 @@ def user_service(db_session, metrics):
 @pytest.yield_fixture
 def macaroon_service(db_session):
     return macaroon_services.DatabaseMacaroonService(db_session)
+
+
+@pytest.yield_fixture
+def check_service(db_session):
+    return check_services.DatabaseMalwareCheckService(db_session)
 
 
 @pytest.yield_fixture
