@@ -128,3 +128,14 @@ def includeme(config):
     # Squats
     config.add_route("admin.squats", "/admin/squats/", domain=warehouse)
     config.add_route("admin.squats.review", "/admin/squats/review/", domain=warehouse)
+
+    # Malware checks
+    config.add_route("admin.checks.list", "/admin/checks/", domain=warehouse)
+    config.add_route(
+        "admin.checks.detail", "/admin/checks/{check_name}", domain=warehouse
+    )
+    config.add_route(
+        "admin.checks.change_state",
+        "/admin/checks/{check_name}/change_state",
+        domain=warehouse,
+    )
