@@ -1387,12 +1387,6 @@ def file_upload(request):
                 },
             )
 
-        request.db.flush()
-
-        check_service = request.find_service(MalwareCheckService, context=None)
-        for check in check_service.get_enabled_checks():
-            request.task(run_check).delay(check.name, check.id, file_.id)
-
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
 
