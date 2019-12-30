@@ -42,8 +42,6 @@ from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
-from warehouse.malware.interfaces import MalwareCheckService
-from warehouse.malware.tasks import run_check
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
