@@ -21,8 +21,8 @@ To add a new known locale, add a key/value to the ``KNOWN_LOCALES`` mapping in
 `warehouse/i18n/__init__.py
 <https://github.com/pypa/warehouse/blob/master/warehouse/i18n/__init__.py>`_.
 The key is the locale code, and corresponds to a directory in
-``warehouse/locale``, and the value is the human-readable name for the locale
-(in English).
+``warehouse/locale``, and the value is the human-readable name for the locale,
+in the given language.
 
 Then, compile the MO file for the locale by running ``make build-mos``. This
 may recompile some existing MO files as well, but should add a new MO file for
