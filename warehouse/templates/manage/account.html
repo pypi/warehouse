@@ -208,7 +208,7 @@
       {% set action=request.route_path('manage.account.token') %}
       {% set confirm_button_label=gettext("Remove API token") %}
       {% set extra_fields %}
-        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off" hidden>
+        <input type="hidden" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off">
       {% endset %}
       {% set token_warning_text %}
         <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
@@ -460,7 +460,7 @@
               {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
               {% set slug="disable-webauthn-" + credential.id | string %}
               {% set extra_fields %}
-                <input type="text" name="label" value="{{ credential.label }}" autocomplete="off" hidden>
+                <input type="hidden" name="label" value="{{ credential.label }}" autocomplete="off">
               {% endset %}
               {{ confirm_modal(title=title, label=gettext("Device name"), confirm_name="device_name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
             </td>
