@@ -7,7 +7,7 @@ WAREHOUSE_TOKEN=insecuretoken
 
 AWS_ACCESS_KEY_ID=foo
 AWS_SECRET_ACCESS_KEY=foo
-BROKER_URL=sqs://localstack:4576/warehouse-dev?region=us-east-1
+BROKER_URL=sqs://localstack:4576/?region=us-east-1&queue_name_prefix=warehouse-dev
 
 DATABASE_URL=postgresql://postgres@db/warehouse
 

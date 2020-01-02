@@ -17,6 +17,7 @@ import pytest
 import transaction
 
 from celery import Celery, Task
+from kombu import Queue
 from pyramid import scripting
 from pyramid_retry import RetryableException
 
@@ -372,14 +373,13 @@ def test_make_celery_app():
 
 
 @pytest.mark.parametrize(
-    ("env", "ssl", "broker_url", "expected_url", "queue_name", "transport_options"),
+    ("env", "ssl", "broker_url", "expected_url", "transport_options"),
     [
         (
             Environment.development,
             False,
             "amqp://guest@rabbitmq:5672//",
             "amqp://guest@rabbitmq:5672//",
-            "celery",
             {},
         ),
         (
@@ -387,19 +387,29 @@ def test_make_celery_app():
             True,
             "amqp://guest@rabbitmq:5672//",
             "amqp://guest@rabbitmq:5672//",
-            "celery",
             {},
         ),
-        (Environment.development, False, "sqs://", "sqs://", "celery", {}),
-        (Environment.production, True, "sqs://", "sqs://", "celery", {}),
-        (Environment.development, False, "sqs:///my-queue", "sqs://", "my-queue", {}),
-        (Environment.production, True, "sqs:///my-queue", "sqs://", "my-queue", {}),
+        (Environment.development, False, "sqs://", "sqs://", {}),
+        (Environment.production, True, "sqs://", "sqs://", {}),
+        (
+            Environment.development,
+            False,
+            "sqs://?queue_name_prefix=warehouse",
+            "sqs://",
+            {"queue_name_prefix": "warehouse-"},
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs://?queue_name_prefix=warehouse",
+            "sqs://",
+            {"queue_name_prefix": "warehouse-"},
+        ),
         (
             Environment.development,
             False,
             "sqs://?region=us-east-2",
             "sqs://",
-            "celery",
             {"region": "us-east-2"},
         ),
         (
@@ -407,28 +417,25 @@ def test_make_celery_app():
             True,
             "sqs://?region=us-east-2",
             "sqs://",
-            "celery",
             {"region": "us-east-2"},
         ),
         (
             Environment.development,
             False,
-            "sqs:///my-queue?region=us-east-2",
+            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
             "sqs://",
-            "my-queue",
-            {"region": "us-east-2"},
+            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
         ),
         (
             Environment.production,
             True,
-            "sqs:///my-queue?region=us-east-2",
+            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
             "sqs://",
-            "my-queue",
-            {"region": "us-east-2"},
+            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
         ),
     ],
 )
-def test_includeme(env, ssl, broker_url, expected_url, queue_name, transport_options):
+def test_includeme(env, ssl, broker_url, expected_url, transport_options):
     registry_dict = {}
     config = pretend.stub(
         action=pretend.call_recorder(lambda *a, **kw: None),
@@ -456,10 +463,16 @@ def test_includeme(env, ssl, broker_url, expected_url, queue_name, transport_opt
         "broker_url": expected_url,
         "broker_use_ssl": ssl,
         "worker_disable_rate_limits": True,
-        "task_default_queue": queue_name,
+        "task_default_queue": "default",
+        "task_default_routing_key": "task.default",
         "task_serializer": "json",
         "accept_content": ["json", "msgpack"],
         "task_queue_ha_policy": "all",
+        "task_queues": (
+            Queue("default", routing_key="task.#"),
+            Queue("malware", routing_key="malware.#"),
+        ),
+        "task_routes": ([("warehouse.malware.tasks.*", {"queue": "malware"})]),
         "REDBEAT_REDIS_URL": (config.registry.settings["celery.scheduler_url"]),
     }.items():
         assert app.conf[key] == value
