@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import collections
 import re
 
@@ -44,9 +45,12 @@ from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailable
+from warehouse.forms import SetLocaleForm
+from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
+from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
 
@@ -163,6 +167,7 @@ def opensearchxml(request):
             keys=["all-projects", "trending"],
         )
     ],
+    has_translations=True,
 )
 def index(request):
     project_ids = [
@@ -226,7 +231,30 @@ def index(request):
     }
 
 
-@view_config(route_name="classifiers", renderer="pages/classifiers.html")
+@view_config(
+    route_name="locale",
+    request_method="GET",
+    request_param=SetLocaleForm.__params__,
+    uses_session=True,
+)
+def locale(request):
+    form = SetLocaleForm(**request.GET)
+
+    redirect_to = request.referer
+    if not is_safe_url(redirect_to, host=request.host):
+        redirect_to = request.route_path("index")
+    resp = HTTPSeeOther(redirect_to)
+
+    if form.validate():
+        request.session.flash("Locale updated", queue="success")
+        resp.set_cookie(LOCALE_ATTR, form.locale_id.data)
+
+    return resp
+
+
+@view_config(
+    route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
+)
 def classifiers(request):
     classifiers = (
         request.db.query(Classifier.classifier)
@@ -248,6 +276,7 @@ def classifiers(request):
             keys=["all-projects"],
         )
     ],
+    has_translations=True,
 )
 def search(request):
     metrics = request.find_service(IMetricsService, context=None)
@@ -371,6 +400,7 @@ def search(request):
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
     ],
+    has_translations=True,
 )
 @view_config(
     route_name="stats.json",
@@ -408,6 +438,7 @@ def stats(request):
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
     uses_session=True,
+    has_translations=True,
 )
 def current_user_indicator(request):
     return {}
@@ -417,6 +448,7 @@ def current_user_indicator(request):
     route_name="includes.flash-messages",
     renderer="includes/flash-messages.html",
     uses_session=True,
+    has_translations=True,
 )
 def flash_messages(request):
     return {}
@@ -426,6 +458,7 @@ def flash_messages(request):
     route_name="includes.session-notifications",
     renderer="includes/session-notifications.html",
     uses_session=True,
+    has_translations=True,
 )
 def session_notifications(request):
     return {}

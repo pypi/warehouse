@@ -15,7 +15,7 @@
 
 {% import "warehouse:templates/includes/pagination.html" as pagination %}
 
-{% block title %}Search results{% endblock %}
+{% block title %}{% trans %}Search results{% endtrans %}{% endblock %}
 
 {% macro project_snippet(item) -%}
 <li>
@@ -39,7 +39,7 @@
 {% set link = request.route_path('search', _query={'q': text}) %}
 
 <span>
-  Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?
+  {% trans link=link, text=text %}Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?{% endtrans %}
 </span>
 {%- endmacro %}
 
@@ -69,6 +69,7 @@
 
 
 {% block search_form_extra_inputs -%}
+  <input type="hidden" name="o" value="{{ order }}">
   {%- for classifier in applied_filters %}
   <input name="c" type="hidden" value="{{ classifier|e }}">
   {%- endfor -%}
@@ -80,17 +81,13 @@
     <div class="left-layout__sidebar">
       <div class="dark-overlay -js-dark-overlay"></div>
       <div class="filter-panel -js-filter-panel">
-        <button type="button" class="filter-panel__close -js-close-panel" aria-label="Close panel">
+        <button type="button" class="filter-panel__close -js-close-panel" aria-label="{% trans %}Close panel{% endtrans %}">
           <i class="fa fa-times" aria-hidden="true"></i>
         </button>
         <h2 class="no-top-padding">
-          Filter by
-          <a href="{{ request.route_path('help')}}#trove-classifier"
-             class="tooltipped tooltipped-s"
-             aria-label="What's a trove classifier?"
-             data-original-label="What's a trove classifier?">
-            classifier
-          </a>
+          {% trans trimmed href=request.route_path('classifiers') %}
+          Filter by <a href="{{ href }}">classifier</a>
+          {% endtrans %}
         </h2>
         <form id="classifiers">
         <input id="search" type="hidden" name="q" value="{{ term }}">
@@ -116,25 +113,26 @@
     </div>
 
     <div class="left-layout__main">
+      <h2 class="sr-only">{% trans %}Search results{% endtrans %}</h2>
       {% if not term and not applied_filters %}
       <div class="callout-block no-top-margin">
-        <p class="hide-below-desktop">Enter a search query, or select a filter from the list of classifiers.</p>
-        <p class="hide-on-desktop">Enter a search query, or add a filter by clicking on the button.</p>
-        <p>You can combine searches and classifier filters. Examples:</p>
+        <p class="hide-below-desktop">{% trans %}Enter a search query, or select a filter from the list of classifiers.{% endtrans %}</p>
+        <p class="hide-on-desktop">{% trans %}Enter a search query, or add a filter by clicking on the button.{% endtrans %}</p>
+        <p>{% trans %}You can combine searches and classifier filters. Examples:{% endtrans %}</p>
         <ul class="no-bottom-margin">
           <li>
             <a href="{{ request.route_path('search', _query=[('c', 'Programming Language :: Python :: 3')]) }}">
-              Python 3 compatible projects
+              {% trans %}Python 3 compatible projects{% endtrans %}
             </a>
           </li>
           <li>
             <a href="{{ request.route_path('search', _query=[('c', 'Framework :: Sphinx :: Extension'), ('c', 'Development Status :: 5 - Production/Stable')]) }}">
-              Sphinx extensions that have a stable/production status
+              {% trans %}Sphinx extensions that have a stable/production status{% endtrans %}
             </a>
           </li>
           <li>
             <a href="{{ request.route_path('search', _query=[('q', 'graphics'), ('c', 'License :: OSI Approved')]) }}">
-              Projects related to "graphics" with OSI-approved licenses
+              {% trans %}Projects related to "graphics" with OSI-approved licenses{% endtrans %}
             </a>
           </li>
         </ul>
@@ -145,25 +143,44 @@
           <div>
             {% if term or applied_filters %}
             <p>
-              <strong>{{ page.item_count|format_number }}{%if page.item_count == 10000 %}+{% endif %}</strong>
-                projects
-                {% if term %}for "{{ term }}"{% endif %}
-                {% if applied_filters %} with the selected classifier{% if applied_filters|length > 1 %}s{% endif %}{% endif %}
+              {% if page.item_count >= 10000 %}
+                {% set item_count_display = page.item_count|format_number + '+' %}
+              {% else %}
+                {% set item_count_display = page.item_count|format_number %}
+              {% endif %}
 
-                {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
-                  {{ suggestion_link(page.collection.best_guess) }}
-                {% endif %}
+              {% trans count=page.item_count, count_display=item_count_display %}
+              <strong>{{ count_display }}</strong> project
+              {% pluralize %}
+              <strong>{{ count_display }}</strong> projects
+              {% endtrans %}
+
+              {% if term %}
+                {% trans term=term %}for "{{ term }}"{% endtrans %}
+              {% endif %}
+
+              {% if applied_filters %}
+                {% trans count=applied_filters|length %}
+                  with the selected classifier
+                {% pluralize %}
+                  with the selected classifiers
+                {% endtrans %}
+              {% endif %}
+
+              {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
+                {{ suggestion_link(page.collection.best_guess) }}
+              {% endif %}
             </p>
             {% endif %}
           </div>
           <div>
             {% if term or applied_filters %}
             <input id="search" type="hidden" name="q" value="{{ term }}">
-            <label for="order">Order by &nbsp;</label>
+            <label for="order">{% trans %}Order by{% endtrans %} &nbsp;</label>
             <select class="-js-form-submit-trigger" id="order" name="o">
-              {{ search_option("Relevance", "") }}
-              {{ search_option("Date last updated", "-created") }}
-              {{ search_option("Trending", "-zscore") }}
+              {{ search_option(gettext("Relevance"), "") }}
+              {{ search_option(gettext("Date last updated"), "-created") }}
+              {{ search_option(gettext("Trending"), "-zscore") }}
             </select>
             {% endif %}
           </div>
@@ -176,25 +193,25 @@
             <input type="hidden" name="c" value="{{ filter }}">
             <span class="filter-badge__icon">
               <i class="fa fa-filter" aria-hidden="true"></i>
-              <span class="sr-only">Filter</span>
+              <span class="sr-only">{% trans %}Filter{% endtrans %}</span>
             </span>
             <span class="filter-badge__description">{{ filter }}</span>
             <button type="button" class="filter-badge__remove-button">
               <i class="fa fa-times" aria-hidden="true"></i>
-              <span class="sr-only">Close</span>
+              <span class="sr-only">{% trans %}Close{% endtrans %}</span>
             </button>
           </div>
           {% endfor %}
         {% endif %}
           <span class="applied-filters__add-button">
-            <button type="button" class="-js-add-filter button button--small">Add filter</button>
+            <button type="button" class="-js-add-filter button button--small">{% trans %}Add filter{% endtrans %}</button>
           </span>
         </div>
 
         {% if term or applied_filters %}
         <div>
           {% if page.items %}
-          <ul class="unstyled" aria-label="Search results">
+          <ul class="unstyled" aria-label="{% trans %}Search results{% endtrans %}">
             {% for item in page.items %}
               {{ project_snippet(item) }}
             {% endfor %}
@@ -203,7 +220,7 @@
           <div class="callout-block">
             <p>
               {% if term %}
-                There were no results for '{{ term }}'
+                {% trans term=term %}There were no results for '{{ term }}'{% endtrans %}
               {% elif applied_filters %}
                 {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
                   There were no results for '{{ filters }}' filter

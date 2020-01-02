@@ -14,96 +14,138 @@
 {% extends "manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Add API token" %}
+{% set title = gettext("Add API token") %}
 
-{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'account' %}
 
 {% block title %}
-  {% if create_macaroon_form.errors %}Error processing form –{% endif %}
+  {% if create_macaroon_form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
   {{ title }}
 {% endblock %}
 
 {% block main %}
-  <h1 class="page-title">{{ title }} <span class="badge badge--warning">Beta feature</span></h1>
+  <h1 class="page-title">{{ title }} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span></h1>
 
   {% if serialized_macaroon %}
   <section id="provisioned-key">
-    <h2>Token for "{{ macaroon.description }}"</h2>
+    <h2>{% trans macaroon_description=macaroon.description %}Token for "{{ macaroon_description }}"{% endtrans %}</h2>
     <p>
-      <strong>Permissions:</strong> Upload packages<br>
+      <strong>{% trans %}Permissions:{% endtrans %}</strong> {% trans %}Upload packages{% endtrans %}<br>
       {% if macaroon.caveats.permissions == "user" %}
-      <strong>Scope:</strong> Entire account (all projects)
+      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans %}Entire account (all projects){% endtrans %}
       {% else %}
-      <strong>Scope:</strong> Project "{{ macaroon.caveats.permissions.projects[0] }}"
+      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
       {% endif %}
     </p>
-    <p>For instructions on how to use this token, <a href="/help#apitoken">visit the PyPI help page</a>.</p>
-    <code class="api-token">{{ serialized_macaroon }}</code>
+
+    <code class="code-block">{{ serialized_macaroon }}</code>
     <div class="margin-bottom--large">
       <div class="callout-block callout-block--danger no-top-margin">
-        <p>For security reasons this token will only appear once. <strong>Copy it now.</strong></p>
+        <p>{% trans %}For security reasons this token will only appear once. <strong>Copy it now.</strong>{% endtrans %}</p>
       </div>
-      <button type="button" class="button button--primary -js-copy-hash tooltipped tooltipped-e" aria-label="Copy token to clipboard" data-original-label="Copy token to clipboard" data-clipboard-text="{{ serialized_macaroon }}">
-        Copy token
+      <button type="button" class="button button--primary copy-tooltip copy-tooltip-e" aria-label="{% trans %}Copy token to clipboard{% endtrans %}" data-tooltip-label="{% trans %}Copy token to clipboard{% endtrans %}" data-clipboard-text="{{ serialized_macaroon }}">
+        {% trans %}Copy token{% endtrans %}
       </button>
       <a href="#remove-API-token--{{ macaroon.id }}" class="button">
-        Remove token
+        {% trans %}Remove token{% endtrans %}
       </a>
       {% set slug="remove-API-token--" + macaroon.id | string %}
-      {% set title="Remove API token - " + macaroon.description %}
-      {% set confirm_button_label="Remove API token" %}
+      {% set title=gettext("Remove API token") + " - " + macaroon.description %}
+      {% set confirm_button_label=gettext("Remove API token") %}
       {% set extra_fields %}
-        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
+        <input type="hidden" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off">
       {% endset %}
       {% set token_warning_text %}
-        <p>Applications or scripts using this token will no longer have access to PyPI.</p>
+        <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
       {% endset %}
 
-      {{ confirm_modal(title=title, confirm_name="Username", confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
+      {{ confirm_password_modal(title=title, slug=slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, custom_warning_text=token_warning_text) }}
     </div>
-    <hr>
+
+    <h2>{% trans %}Using this token{% endtrans %}</h2>
+
+    <p>{% trans %}To use this API token:{% endtrans %}</p>
+
+    <ul>
+      <li>{% trans token='__token__' %}Set your username to <code>{{ token }}</code>{% endtrans %}</li>
+      <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
+    </ul>
+
+    {% if macaroon.caveats.permissions == "user" %}
+
+    <p>
+      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+        For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
+      {% endtrans %}
+    </p>
+    <pre class="code-block">
+[pypi]
+  username = __token__
+  password = {{ serialized_macaroon }}</pre>
+    {% else %}
+    <p>
+      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+        For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
+      {% endtrans %}
+    </p>
+    <pre class="code-block">
+[pypi]
+  username = __token__
+  password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
+
+[PROJECT_NAME]
+  username = __token__
+  password = # {% trans %}a project token{% endtrans %} </pre>
+    <p>
+      {% trans trimmed command='twine --repository PROJECT_NAME' %}
+        You can then use <code>{{ command }}</code> to switch to the correct token when uploading to PyPI.
+      {% endtrans %}
+    </p>
+    {% endif %}
+
+    <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
   </section>
+  <hr>
   {% endif %}
 
   {{ form_error_anchor(create_macaroon_form) }}
   <section id="add-token">
     {% if serialized_macaroon %}
-    <h2>Add another token</h2>
+    <h2>{% trans %}Add another token{% endtrans %}</h2>
     {% endif %}
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_macaroon_form) }}
       <div class="form-group">
         <label for="description" class="form-group__label">
-          Token name
+          {% trans %}Token name{% endtrans %}
           {% if create_macaroon_form.description.flags.required %}
-          <span class="form-group__required">(required)</span>
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         <input type="text" name="description" id="description" autocomplete="off" autocapitalize="off" spellcheck="false" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
         <div id="token-name-errors">
           {{ field_errors(create_macaroon_form.description) }}
         </div>
-        <p id="description-help-text" class="form-group__help-text">What is this token for?</p>
+        <p id="description-help-text" class="form-group__help-text">{% trans %}What is this token for?{% endtrans %}</p>
       </div>
       <div class="form-group">
-        <span class="form-group__label">Permissions</span>
-        <p class="form-group__text">Upload packages</p>
+        <span class="form-group__label">{% trans %}Permissions{% endtrans %}</span>
+        <p class="form-group__text">{% trans %}Upload packages{% endtrans %}</p>
       </div>
       <div class="form-group">
         <label for="token_scope" class="form-group__label">
-          Scope
+          {% trans %}Scope{% endtrans %}
           {% if create_macaroon_form.token_scope.flags.required %}
-          <span class="form-group__required">(required)</span>
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="scope-errors" autocomplete="off">
-          <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">Select scope...</option>
-          <option value="scope:user">Entire account (all projects)</option>
+          <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">{% trans %}Select scope...{% endtrans %}</option>
+          <option value="scope:user">{% trans %}Entire account (all projects){% endtrans %}</option>
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
-          <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>Project: {{ project }}</option>
+          <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>{% trans %}Project:{% endtrans %} {{ project }}</option>
         {% endfor %}
         </select>
         <div id="scope-errors">
@@ -111,11 +153,11 @@
         </div>
       </div>
       <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
-        <h3 class="callout-block__heading">Proceed with caution!</h3>
-        <p>An API token scoped to your entire account will have upload permissions for all of your projects.</p>
+        <h3 class="callout-block__heading">{% trans %}Proceed with caution!{% endtrans %}</h3>
+        <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your current and future projects.{% endtrans %}</p>
       </div>
       <div>
-        <input value="Add token" class="button button--primary" type="submit">
+        <input value="{% trans %}Add token{% endtrans %}" class="button button--primary" type="submit">
       </div>
     </form>
   </section>

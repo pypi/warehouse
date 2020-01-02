@@ -31,7 +31,7 @@ Example usage (Python 3)::
   'python_version': 'source',
   'sha256_digest': '1814c74b40c4a6287e0a97b810f6adc6a3312168201eaa0badd1dd8c216b1bcb',
   'size': 2893499,
-  'upload_time': '2018-07-13T11:30:36.405653Z',
+  'upload_time_iso_8601': '2018-07-13T11:30:36.405653Z',
   'url': 'https://files.pythonhosted.org/packages/f0/07/6f4e2164ed82dfff873ee55181f782926bcb4a29f6a83fe4f8b9cbf5489c/roundup-1.6.0.tar.gz'}]
 
 .. _changes-to-legacy-api:
@@ -86,7 +86,7 @@ Package querying
   * md5_digest
   * digests (a dict with two keys, "md5" and "sha256")
   * has_sig (a boolean)
-  * upload_time (a ``DateTime`` object)
+  * upload_time_iso_8601 (a ``DateTime`` object)
   * comment_text
   * downloads (always says "-1")
   * url

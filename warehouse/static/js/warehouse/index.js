@@ -14,7 +14,7 @@
 // The nature of the web being what it is, we often will need to use Polyfills
 // to get support for what we want. This will pull in babel-polyfill which will
 // ensure we have an ES6 like environment.
-import "babel-polyfill";
+import "@babel/polyfill";
 
 // Import stimulus
 import "@stimulus/polyfills";
@@ -37,6 +37,7 @@ import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
+import BindFilterKeys from "warehouse/utils/bind-filter-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
 // Do this before anything else, to potentially capture errors down the line
@@ -82,28 +83,29 @@ docReady(formUtils.registerFormValidation);
 
 docReady(Statuspage);
 
-// Copy handler for
+// Copy handler for copy tooltips, e.g.
 //   - the pip command on package detail page
 //   - the copy hash on package detail page
 //   - the copy hash on release maintainers page
 docReady(() => {
   let setCopiedTooltip = (e) => {
-    e.trigger.setAttribute("aria-label", "Copied!");
+    e.trigger.setAttribute("data-tooltip-label", "Copied!");
+    e.trigger.setAttribute("role", "alert");
     e.clearSelection();
   };
 
-  new Clipboard(".-js-copy-pip-command").on("success", setCopiedTooltip);
-  new Clipboard(".-js-copy-hash").on("success", setCopiedTooltip);
+  new Clipboard(".copy-tooltip").on("success", setCopiedTooltip);
 
-  // Get all elements with class "tooltipped" and bind to focousout and
-  // mouseout events. Change the "aria-label" to "original-label" attribute
-  // value.
   let setOriginalLabel = (element) => {
-    element.setAttribute("aria-label", element.dataset.originalLabel);
+    element.setAttribute("data-tooltip-label", "Copy to clipboard");
+    element.removeAttribute("role");
+    element.blur();
   };
-  let tooltippedElems = Array.from(document.querySelectorAll(".tooltipped"));
+
+  let tooltippedElems = Array.from(document.querySelectorAll(".copy-tooltip"));
+
   tooltippedElems.forEach((element) => {
-    element.addEventListener("focousout",
+    element.addEventListener("focusout",
       setOriginalLabel.bind(undefined, element),
       false
     );
@@ -161,30 +163,52 @@ docReady(() => {
   }
 });
 
-var bindDropdowns = function () {
+let bindDropdowns = function () {
   // Bind click handlers to dropdowns for keyboard users
   let dropdowns = document.querySelectorAll(".dropdown");
   for (let dropdown of dropdowns) {
     let trigger = dropdown.querySelector(".dropdown__trigger");
     let content = dropdown.querySelector(".dropdown__content");
 
+    let openDropdown = function () {
+      content.classList.add("display-block");
+      content.removeAttribute("aria-hidden");
+      trigger.setAttribute("aria-expanded", "true");
+    };
+
+    let closeDropdown = function () {
+      content.classList.remove("display-block");
+      content.setAttribute("aria-hidden", "true");
+      trigger.setAttribute("aria-expanded", "false");
+    };
+
     if (!trigger.dataset.dropdownBound) {
-      // If the user has clicked the trigger (either with a mouse or by pressing
-      // space/enter on the keyboard) show the content
+      // If the user has clicked the trigger (either with a mouse or by
+      // pressing space/enter on the keyboard) show the content
       trigger.addEventListener("click", function () {
-        // Toggle the visibility of the content
         if (content.classList.contains("display-block")) {
-          content.classList.remove("display-block");
+          closeDropdown();
         } else {
-          content.classList.add("display-block");
+          openDropdown();
         }
       });
 
-      // If the user has moused onto the trigger and has happened to click it,
-      // remove the `display-block` class so that it doesn't stay visable when
-      // they mouse out
-      trigger.addEventListener("mouseout", function() {
-        content.classList.remove("display-block");
+      // Close the dropdown when a user moves away with their mouse or keyboard
+      let closeInactiveDropdown = function (event) {
+        if (dropdown.contains(event.relatedTarget)) {
+          return;
+        }
+        closeDropdown();
+      };
+
+      dropdown.addEventListener("focusout", closeInactiveDropdown, false);
+      dropdown.addEventListener("mouseout", closeInactiveDropdown, false);
+
+      // Close the dropdown if the user presses the escape key
+      document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+          closeDropdown();
+        }
       });
 
       // Set the 'data-dropdownBound' attribute so we don't bind multiple
@@ -199,6 +223,9 @@ docReady(bindDropdowns);
 
 // Get modal keypress event listeners ready
 docReady(BindModalKeys);
+
+// Get filter pane keypress event listeners ready
+docReady(BindFilterKeys);
 
 // Get WebAuthn compatibility checks ready
 docReady(GuardWebAuthn);

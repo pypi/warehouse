@@ -54,6 +54,7 @@ def includeme(config):
         uses_session=True,
         require_csrf=True,
         require_methods=False,
+        has_translations=True,
     )
     config.add_view(
         logout,
@@ -62,4 +63,5 @@ def includeme(config):
         uses_session=True,
         require_csrf=True,
         require_methods=False,
+        has_translations=True,
     )

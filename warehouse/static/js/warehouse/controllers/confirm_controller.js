@@ -22,16 +22,8 @@ export default class extends Controller {
     this.buttonTarget.disabled = true;
   }
 
-  cancel() {
-    // Cancel button is a button (not an `a`) so we need to do close the
-    // modal manually
-    window.location.href = "#modal-close";
-    this.inputTarget.value = "";
-    this.buttonTarget.disabled = true;
-  }
-
   check() {
-    if (this.inputTarget.value == this.buttonTarget.dataset.expected) {
+    if (this.inputTarget.value.toLowerCase() === this.buttonTarget.dataset.expected.toLowerCase()) {
       this.buttonTarget.disabled = false;
     } else {
       this.buttonTarget.disabled = true;

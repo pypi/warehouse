@@ -14,8 +14,8 @@
 {% extends "base.html" %}
 
 {% block title %}
-  {% if totp_form and totp_form.errors %}Error processing form –{% endif %}
-  Two-factor authentication
+  {% if totp_form and totp_form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
+  {% trans %}Two-factor authentication{% endtrans %}
 {% endblock %}
 
 {% block content %}
@@ -27,35 +27,39 @@
 
 <div class="horizontal-section">
   <div class="site-container">
-    <h1 class="page-title">Two-factor authentication</h1>
+    <h1 class="page-title">{% trans %}Two-factor authentication{% endtrans %}</h1>
 
     <div class="twofa-login">
       {% if has_webauthn %}
       <div class="twofa-login__method {% if totp_form %}twofa-login__method--padded{% endif %}">
         <h2>
-          Authenticate with a security device (e.g. USB key)
-          &nbsp;<span class="badge badge--warning">Beta feature</span>
+          {% trans %}Authenticate with a security device (e.g. USB key){% endtrans %}
+          &nbsp;<span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span>
         </h2>
 
-        <p>Connect your security device and click the "Authenticate with device" button.</p>
+        <p>{% trans %}Connect your security device and click the "Authenticate with device" button.{% endtrans %}</p>
 
         <noscript>
-          <p>Enable JavaScript to log in with a security device (e.g. USB key)</p>
+          <p>{% trans %}Enable JavaScript to log in with a security device (e.g. USB key){% endtrans %}</p>
         </noscript>
 
-        <button
-          type="button"
-          id="webauthn-auth-begin"
-          class="button button--primary"
-          value="{{ request.session.get_csrf_token() }}"
-          disabled>Authenticate with device
-        </button>
-        <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
-          <li id="webauthn-browser-support" class="hidden">
-            <a href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility" title="External link" target="_blank" rel="noopener">Upgrade your browser</a> to log in with a security device (e.g. USB key)
-          </li>
-        </ul>
-        <p class="margin-top--large">Lost your device? Not working? <a href="/help/#utfkey">Get help</a>.</p>
+        <form id="webauthn-auth-form">
+          <button
+            type="submit"
+            id="webauthn-auth-begin"
+            class="button button--primary"
+            value="{{ request.session.get_csrf_token() }}"
+            disabled>{% trans %}Authenticate with device{% endtrans %}
+          </button>
+          <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
+            <li id="webauthn-browser-support" class="hidden">
+              {% trans trimmed href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility", title=gettext("External link"), target="_blank", rel="noopener" %}
+              <a href="{{ href }}" title="{{ title }}" target="{{ target }}" rel="{{ rel }}">Upgrade your browser</a> to log in with a security device (e.g. USB key)
+              {% endtrans %}
+            </li>
+          </ul>
+          <p class="margin-top--large">{% trans href='/help/#utfkey' %}Lost your device? Not working? <a href="{{ href }}">Get help</a>.{% endtrans %}</p>
+        </form>
       </div>
       {% endif %}
 
@@ -66,7 +70,7 @@
       {% if totp_form %}
       <div class="twofa-login__method {% if has_webauthn %}twofa-login__method--padded{% endif %}">
         <form method="POST" action="{{ request.current_route_path() }}">
-          <h2>Authenticate with an app</h2>
+          <h2>{% trans %}Authenticate with an app{% endtrans %}</h2>
 
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
           <input name="method" type="hidden" value="totp">
@@ -81,9 +85,9 @@
 
           <div class="form-group">
             <label for="totp_value" class="form-group__label">
-              Enter authentication code
+              {% trans %}Enter authentication code{% endtrans %}
               {% if totp_form.totp_value.flags.required %}
-              <span class="form-group__required">(required)</span>
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
             {{ totp_form.totp_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="one-time-code", **{"aria-describedby":"totp-errors"}) }}
@@ -96,11 +100,13 @@
             {% endif %}
           </div>
           <div class="form-group">
-            <input type="submit" value="Verify" class="button button--primary">
+            <input type="submit" value="{% trans %}Verify{% endtrans %}" class="button button--primary">
           </div>
 
+          {% trans trimmed href='/help/#totp' %}
           <p>Generate a code using the authentication application connected to your PyPI account. Enter this code in the form to verify your identity.</p>
-          <p>Lost your application? Not working? <a href="/help/#totp">Get help</a>.</p>
+          <p>Lost your application? Not working? <a href="{{ href }}">Get help</a>.</p>
+          {% endtrans %}
         </form>
       </div>
       {% endif %}

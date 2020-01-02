@@ -27,6 +27,7 @@ from webob.multidict import MultiDict
 import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.packaging.models import (
@@ -666,8 +667,14 @@ class TestManageAccount:
         jid = JournalEntryFactory.create(submitted_by=user).id
 
         db_request.user = user
-        db_request.params = {"confirm_username": user.username}
+        db_request.params = {"confirm_password": user.password}
         db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -697,7 +704,7 @@ class TestManageAccount:
 
     def test_delete_account_no_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": ""},
+            params={"confirm_password": ""},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
@@ -715,11 +722,17 @@ class TestManageAccount:
 
     def test_delete_account_wrong_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "invalid"},
+            params={"confirm_password": "invalid"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: False)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -730,18 +743,24 @@ class TestManageAccount:
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not delete account - 'invalid' is not the same as " "'username'",
+                "Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
         ]
 
     def test_delete_account_has_active_projects(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "username"},
+            params={"confirm_password": "password"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -1080,7 +1099,7 @@ class TestProvisionTOTP:
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1123,13 +1142,13 @@ class TestProvisionTOTP:
             )
         ]
 
-    def test_delete_totp_bad_username(self, monkeypatch, db_request):
+    def test_delete_totp_bad_password(self, monkeypatch, db_request):
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1151,7 +1170,7 @@ class TestProvisionTOTP:
 
         assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
-            pretend.call("Invalid credentials", queue="error")
+            pretend.call("Invalid credentials. Try again", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -1162,7 +1181,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1469,7 +1488,7 @@ class TestProvisionMacaroonViews:
         )
 
         request = pretend.stub(
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: pretend.stub(),
                 IUserService: pretend.stub(),
@@ -1767,7 +1786,7 @@ class TestProvisionMacaroonViews:
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1775,6 +1794,8 @@ class TestProvisionMacaroonViews:
             }[interface],
             referer="/fake/safe/route",
             host=None,
+            user=pretend.stub(username=pretend.stub()),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1790,13 +1811,16 @@ class TestProvisionMacaroonViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/fake/safe/route"
         assert macaroon_service.delete_macaroon.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials. Try again", queue="error")
+        ]
 
     def test_delete_macaroon_dangerous_redirect(self, monkeypatch):
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: "/safe/route"),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1804,6 +1828,8 @@ class TestProvisionMacaroonViews:
             }[interface],
             referer="http://google.com/",
             host=None,
+            user=pretend.stub(username=pretend.stub()),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1833,7 +1859,7 @@ class TestProvisionMacaroonViews:
         )
         user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1842,7 +1868,7 @@ class TestProvisionMacaroonViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             referer="/fake/safe/route",
             host=None,
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             remote_addr="0.0.0.0",
         )
 
@@ -1892,7 +1918,7 @@ class TestProvisionMacaroonViews:
         )
         user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": pretend.stub(), "macaroon_id": pretend.stub()},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -2014,6 +2040,7 @@ class TestManageProjectSettings:
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -2023,6 +2050,9 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -2031,6 +2061,7 @@ class TestManageProjectSettings:
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={"confirm_project_name": "bar"},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -2040,11 +2071,44 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call(
                 "Could not delete project - 'bar' is not the same as 'foo'",
                 queue="error",
             )
+        ]
+
+    def test_delete_project_disallow_deletion(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.delete_project(project, request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_delete_project(self, db_request):
@@ -2159,6 +2223,7 @@ class TestManageProjectReleases:
             filename=f"foobar-{release.version}.tar.gz",
             packagetype="sdist",
         )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
 
         assert views.manage_project_releases(project, db_request) == {
             "project": project,
@@ -2182,6 +2247,48 @@ class TestManageProjectRelease:
             "files": files,
         }
 
+    def test_delete_project_release_disallow_deletion(self, monkeypatch):
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            method="POST",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release()
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
     def test_delete_project_release(self, monkeypatch):
         release = pretend.stub(
             version="1.2.3",
@@ -2197,6 +2304,7 @@ class TestManageProjectRelease:
                 delete=pretend.call_recorder(lambda a: None),
                 add=pretend.call_recorder(lambda a: None),
             ),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             user=pretend.stub(username=pretend.stub()),
@@ -2215,6 +2323,9 @@ class TestManageProjectRelease:
 
         assert request.db.delete.calls == [pretend.call(release)]
         assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert journal_cls.calls == [
             pretend.call(
                 name=release.project.name,
@@ -2247,6 +2358,7 @@ class TestManageProjectRelease:
             POST={"confirm_version": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2260,6 +2372,9 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
         ]
         assert request.route_path.calls == [
             pretend.call(
@@ -2275,6 +2390,7 @@ class TestManageProjectRelease:
             POST={"confirm_version": "invalid"},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2290,6 +2406,42 @@ class TestManageProjectRelease:
             pretend.call(
                 "Could not delete release - "
                 + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_delete_project_release_file_disallow_deletion(self):
+        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        request = pretend.stub(
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
                 queue="error",
             )
         ]
@@ -2359,6 +2511,7 @@ class TestManageProjectRelease:
             POST={"confirm_project_name": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2370,6 +2523,9 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert request.db.delete.calls == []
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -2396,6 +2552,7 @@ class TestManageProjectRelease:
                 filter=lambda *a: pretend.stub(one=no_result_found)
             ),
         )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -2409,6 +2566,9 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert db_request.db.delete.calls == []
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Could not find file", queue="error")
         ]
