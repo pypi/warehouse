@@ -53,7 +53,7 @@
       {% set title=gettext("Remove API token") + " - " + macaroon.description %}
       {% set confirm_button_label=gettext("Remove API token") %}
       {% set extra_fields %}
-        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
+        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off" hidden>
       {% endset %}
       {% set token_warning_text %}
         <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
