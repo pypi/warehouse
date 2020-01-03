@@ -15,6 +15,8 @@
 
 {% block title %}{% trans username=user.username %}Profile of {{ username }}{% endtrans %}{% endblock %}
 
+{% block extra_rss %}<link rel="alternate" type="application/rss+xml" title="{% trans username=user.username %}RSS: Recent updates from {{ username }}{% endtrans %}" href="{{ request.route_path('rss.user_updates', username=user.username) }}">{% endblock %}
+
 {% block content %}
 <div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
