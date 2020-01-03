@@ -29,6 +29,7 @@ from warehouse.utils import readme
             1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
+    has_translations=True,
 )
 def project_detail(project, request):
     if project.name != request.matchdict.get("name", project.name):
@@ -57,6 +58,7 @@ def project_detail(project, request):
             1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
+    has_translations=True,
 )
 def release_detail(release, request):
     project = release.project
@@ -133,6 +135,7 @@ def release_detail(release, request):
     renderer="includes/manage-project-button.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def edit_project_button(project, request):
     return {"project": project}

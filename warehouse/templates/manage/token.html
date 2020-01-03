@@ -53,13 +53,13 @@
       {% set title=gettext("Remove API token") + " - " + macaroon.description %}
       {% set confirm_button_label=gettext("Remove API token") %}
       {% set extra_fields %}
-        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
+        <input type="hidden" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off">
       {% endset %}
       {% set token_warning_text %}
         <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
       {% endset %}
 
-      {{ confirm_modal(title=title, confirm_name=gettext("Username"), confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
+      {{ confirm_password_modal(title=title, slug=slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, custom_warning_text=token_warning_text) }}
     </div>
 
     <h2>{% trans %}Using this token{% endtrans %}</h2>

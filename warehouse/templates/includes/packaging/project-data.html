@@ -37,8 +37,7 @@
     <ul class="vertical-tabs__list">
       <li>
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-           data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
-           target="_blank">
+           data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener">
           <i class="fa fa-star" aria-hidden="true"></i>
           <strong>{% trans %}Stars:{% endtrans %}</strong>
           <span class="github-repo-info__item" data-key="stargazers_count"></span>
@@ -46,8 +45,7 @@
       </li>
       <li>
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-           data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
-           target="_blank">
+           data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener">
           <i class="fa fa-code-branch" aria-hidden="true"></i>
           <strong>{% trans %}Forks:{% endtrans %}</strong>
           <span class="github-repo-info__item" data-key="forks_count"></span>
@@ -55,8 +53,7 @@
       </li>
       <li>
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
-           data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
-           target="_blank">
+           data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener">
           <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
           <strong>{% trans %}Open issues/PRs:{% endtrans %}</strong>
           <span class="github-repo-info__item" data-key="open_issues_count"></span>
@@ -67,7 +64,7 @@
   {% endif %}
   <p>
     {% trans trimmed libs_io_href='https://libraries.io/pypi/{project_name}'.format(project_name=release.project.name), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}
-      View statistics for this project via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
+      View statistics for this project via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">our public dataset on Google BigQuery</a>
     {% endtrans %}
   </p>
 </div>

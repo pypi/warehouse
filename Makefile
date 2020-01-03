@@ -4,7 +4,7 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
-LOCALES := $(shell find warehouse/locale -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -103,13 +103,13 @@ static_tests:
 
 
 reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/isort -rc warehouse/ tests/
-	$(BINDIR)/black warehouse/ tests/
+	$(BINDIR)/isort -rc *.py warehouse/ tests/
+	$(BINDIR)/black *.py warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
-	$(BINDIR)/black --check warehouse/ tests/
-	$(BINDIR)/isort -rc -c warehouse/ tests/
+	$(BINDIR)/black --check *.py warehouse/ tests/
+	$(BINDIR)/isort -rc -c *.py warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
@@ -175,7 +175,7 @@ stop:
 	docker-compose down -v
 
 compile-pot: .state/env/pyvenv.cfg
-	$(BINDIR)/pybabel extract \
+	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
 		-F babel.cfg \
 		--copyright-holder="PyPA" \
 		--msgid-bugs-address="https://github.com/pypa/warehouse/issues/new" \

@@ -32,7 +32,7 @@
       {% endtrans %}
     </p>
     {% set action = request.route_path('manage.project.destroy_docs', project_name=project.normalized_name) %}
-    {{ confirm_button(gettext("Destroy Documentation for project"), gettext("Project name"), project.normalized_name, action=action) }}
+    {{ confirm_button(gettext("Destroy Documentation for project"), gettext("Project name"), "project_name", project.normalized_name, action=action) }}
   </div>
   {% else %}
   <div class="callout-block callout-block--info">

@@ -28,6 +28,7 @@ def html_cache_deriver(view, info):
                 request.add_response_callback(
                     functools.partial(cacher.cache, ["all-html", renderer.name])
                 )
+
             return view(context, request)
 
         return wrapper_view

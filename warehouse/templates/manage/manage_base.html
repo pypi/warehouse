@@ -74,6 +74,7 @@
 
 {% macro confirm_modal(
   title,
+  label,
   confirm_name,
   confirm_string,
   slug,
@@ -108,14 +109,14 @@
           {% endif %}
           {{ extra_description if extra_description else '' }}
           <p>
-            {% if confirm_name.lower() == 'username' %}
+            {% if confirm_name == 'username' %}
             {% trans %}Confirm your username to continue.{% endtrans %}
             {% else %}
-            {% trans item=confirm_name|lower %}Confirm the {{ item }} to continue.{% endtrans %}
+            {% trans item=label|lower %}Confirm the {{ item }} to continue.{% endtrans %}
             {% endif %}
           </p>
           {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
-          <label for="{{ slug }}-{{ name }}">{{ confirm_name }}</label>
+          <label for="{{ slug }}-{{ name }}">{{ label }}</label>
           <input id="{{ slug }}-{{ name }}" name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input modal-close.input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
         </div>
         <div class="modal__footer">
@@ -181,16 +182,17 @@
 
 {% macro confirm_button(
   title,
+  label,
   confirm_name,
   confirm_string,
   extra_fields=None,
   action=None)
 %}
-  {% set slug = title.lower().replace(' ', '-') + '-modal' %}
+  {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
-  {{ confirm_modal(title, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action) }}
+  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action) }}
 {% endmacro %}
 
 {% macro confirm_password_button(
