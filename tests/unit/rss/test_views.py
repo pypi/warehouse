@@ -13,8 +13,12 @@
 import datetime
 
 import pretend
+import pytest
+
+from pyramid.httpexceptions import HTTPBadRequest
 
 from warehouse.rss import views as rss
+from warehouse.utils import now
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
@@ -44,6 +48,72 @@ def test_rss_updates(db_request):
     assert db_request.response.content_type == "text/xml"
 
 
+def test_rss_updates_limit(db_request):
+    db_request.params = {"limit": 2}
+
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project1 = ProjectFactory.create()
+    project2 = ProjectFactory.create()
+
+    release1 = ReleaseFactory.create(project=project1)
+    release1.created = datetime.date(2011, 1, 1)
+    release2 = ReleaseFactory.create(project=project2)
+    release2.created = datetime.date(2012, 1, 1)
+    release3 = ReleaseFactory.create(project=project1)
+    release3.created = datetime.date(2013, 1, 1)
+
+    assert rss.rss_updates(db_request) == {"latest_releases": [release3, release2]}
+    assert db_request.response.content_type == "text/xml"
+
+
+def test_rss_updates_max_age(db_request):
+    db_request.params = {"max_age": 150}
+
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project1 = ProjectFactory.create()
+
+    release1 = ReleaseFactory.create(project=project1)
+    release1.created = now() - datetime.timedelta(seconds=100)
+    release2 = ReleaseFactory.create(project=project1)
+    release2.created = now() - datetime.timedelta(seconds=200)
+
+    assert rss.rss_updates(db_request) == {"latest_releases": [release1]}
+    assert db_request.response.content_type == "text/xml"
+
+
+def test_rss_updates_max_age_invalid(db_request):
+    db_request.params = {"max_age": "foo"}
+
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    with pytest.raises(HTTPBadRequest) as excinfo:
+        rss.rss_updates(db_request)
+
+    resp = excinfo.value
+
+    assert resp.status_code == 400
+
+
 def test_rss_packages(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
@@ -65,4 +135,50 @@ def test_rss_packages(db_request):
     ReleaseFactory.create(project=project3)
 
     assert rss.rss_packages(db_request) == {"newest_projects": [project3, project1]}
+    assert db_request.response.content_type == "text/xml"
+
+
+def test_rss_packages_limit(db_request):
+    db_request.params = {"limit": 1}
+
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project1 = ProjectFactory.create()
+    project1.created = datetime.date(2011, 1, 1)
+    ReleaseFactory.create(project=project1)
+
+    project2 = ProjectFactory.create()
+    project2.created = datetime.date(2012, 1, 1)
+    ReleaseFactory.create(project=project2)
+
+    assert rss.rss_packages(db_request) == {"newest_projects": [project2]}
+    assert db_request.response.content_type == "text/xml"
+
+
+def test_rss_packages_max_age(db_request):
+    db_request.params = {"max_age": 150}
+
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project1 = ProjectFactory.create()
+    project1.created = now() - datetime.timedelta(seconds=100)
+    ReleaseFactory.create(project=project1)
+
+    project2 = ProjectFactory.create()
+    project2.created = now() - datetime.timedelta(seconds=200)
+    ReleaseFactory.create(project=project2)
+
+    assert rss.rss_packages(db_request) == {"newest_projects": [project1]}
     assert db_request.response.content_type == "text/xml"
