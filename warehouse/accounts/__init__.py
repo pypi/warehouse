@@ -20,12 +20,14 @@ from warehouse.accounts.auth_policy import (
     SessionAuthenticationPolicy,
 )
 from warehouse.accounts.interfaces import (
+    IGitHubTokenScanningPayloadVerifyService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.services import (
+    GitHubTokenScanningPayloadVerifyService,
     HaveIBeenPwnedPasswordBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
@@ -150,6 +152,16 @@ def includeme(config):
     )
     config.register_service_factory(
         breached_pw_class.create_service, IPasswordBreachedService
+    )
+
+    # Register the service for checking GitHub token scanning requests signatures.
+    token_scanning_class = config.maybe_dotted(
+        config.registry.settings.get(
+            "github_token_scanning.backend", GitHubTokenScanningPayloadVerifyService
+        )
+    )
+    config.register_service_factory(
+        token_scanning_class.create_service, IGitHubTokenScanningPayloadVerifyService
     )
 
     # Register our authentication and authorization policies
