@@ -130,6 +130,7 @@ class MacaroonAuthorizationPolicy:
         # Macaroons. Any other request will just fall back to the standard Authorization
         # policy.
         if macaroon is not None:
+            valid_permissions = ["upload"]
             macaroon_service = request.find_service(IMacaroonService, context=None)
 
             try:
@@ -137,10 +138,16 @@ class MacaroonAuthorizationPolicy:
             except InvalidMacaroon as exc:
                 return Denied(f"The supplied token was invalid: {str(exc)!r}")
 
-        # If our Macaroon is verified, then we'll pass this request to our underlying
-        # Authorization policy, so it can handle its own authorization logic on
-        # the prinicpal.
-        return self.policy.permits(context, principals, permission)
+            # If our Macaroon is verified, and for a valid permission then we'll pass
+            # this request to our underlying Authorization policy, so it can handle its
+            # own authorization logic on the prinicpal.
+            if permission in valid_permissions:
+                return self.policy.permits(context, principals, permission)
+            else:
+                return Denied(f"API tokens are not valid for permission: {permission}!")
+
+        else:
+            return self.policy.permits(context, principals, permission)
 
     def principals_allowed_by_permission(self, context, permission):
         # We just dispatch this, because Macaroons don't restrict what principals are
