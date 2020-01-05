@@ -11,13 +11,18 @@
 # limitations under the License.
 
 import collections
+import enum
 import functools
 import hashlib
+import json
 import logging
 import os
+import re
 import secrets
+import typing
 import urllib.parse
 
+import attr
 import requests
 
 from passlib.context import CryptContext
@@ -29,6 +34,7 @@ import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
+    IGitHubTokenScanningPayloadVerifyService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -39,6 +45,8 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
+from warehouse.accounts.utils import InvalidTokenLeakRequest
+from warehouse.email import send_password_compromised_email_leak
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -759,3 +767,160 @@ class NullPasswordBreachedService:
         # This service allows *every* password as a non-breached password. It will never
         # tell a user their password isn't good enough.
         return False
+
+
+class GithubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
+    pass
+
+
+@implementer(IGitHubTokenScanningPayloadVerifyService)
+class GitHubTokenScanningPayloadVerifyService:
+    """
+    Checks payload signature using:
+    - `requests` for HTTP calls
+    - `cryptography` for signature verification
+    """
+
+    def __init__(self, *, session, metrics):
+        self._metrics = metrics
+        self._session = session
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(
+            session=request.http,
+            metrics=request.find_service(IMetricsService, context=context),
+        )
+
+    def verify(self, *, payload, key_id, signature):
+
+        try:
+            pubkey_api_data = self._retrieve_public_key_payload()
+            public_keys = self._extract_public_keys(pubkey_api_data)
+            public_key = self._check_public_key(
+                github_public_keys=public_keys, key_id=key_id
+            )
+            self._check_signature(
+                payload=payload, public_key=public_key, signature=signature
+            )
+        except InvalidTokenLeakRequest as exc:
+            self._metrics.increment(
+                f"warehouse.token_leak.github.auth.error.{exc.reason}"
+            )
+            return False
+
+        self._metrics.increment("warehouse.token_leak.github.auth.success")
+        return True
+
+    def _retrieve_public_key_payload(self):
+        # TODO: cache ?
+
+        token_scanning_pubkey_api_url = (
+            "https://api.github.com/meta/public_keys/token_scanning"
+        )
+        headers = {}
+        # TODO get GitHub token, otherwise we'll get ip based rate limiting
+        api_token = None
+        # if api_token:
+        #     headers["Authorization"] = f"token {api_token}"
+
+        try:
+            response = self._session.get(token_scanning_pubkey_api_url, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.HTTPError as exc:
+            # TODO Log, including status code and body
+            raise GithubPublicKeyMetaAPIError(
+                f"Invalid response code {response.status_code}: {response.text[:100]}",
+                f"public_key_api.status.{response.status_code}",
+            ) from exc
+        except json.JSONDecodeError as exc:
+            raise GithubPublicKeyMetaAPIError(
+                f"Non-JSON response received: {response.text[:100]}",
+                "public_key_api.invalid_json",
+            ) from exc
+        except requests.RequestException as exc:
+            # TODO Log
+            raise GithubPublicKeyMetaAPIError(
+                "Could not connect to Github", "public_key_api.network_error"
+            ) from exc
+
+    def _extract_public_keys(self, pubkey_api_data):
+        if not isinstance(pubkey_api_data, dict):
+            raise GithubPublicKeyMetaAPIError(
+                f"Payload is not a dict but: {str(pubkey_api_data)[:100]}",
+                "public_key_api.format_error",
+            )
+        try:
+            public_keys = pubkey_api_data["public_keys"]
+        except KeyError:
+            raise GithubPublicKeyMetaAPIError(
+                "Payload misses 'public_keys' attribute", "public_key_api.format_error"
+            )
+
+        if not isinstance(public_keys, list):
+            raise GithubPublicKeyMetaAPIError(
+                "Payload 'public_keys' attribute is not a list",
+                "public_key_api.format_error",
+            )
+
+        expected_attributes = {"key", "key_identifier"}
+        for public_key in public_keys:
+
+            if not isinstance(public_key, dict):
+                raise GithubPublicKeyMetaAPIError(
+                    f"Key is not a dict but: {public_key}",
+                    "public_key_api.format_error",
+                )
+
+            attributes = set(public_key)
+            if not expected_attributes <= attributes:
+                raise GithubPublicKeyMetaAPIError(
+                    "Missing attribute in key: "
+                    f"{sorted(expected_attributes - attributes)}",
+                    "public_key_api.format_error",
+                )
+
+            yield {"key": public_key["key"], "key_id": public_key["key_identifier"]}
+
+        return public_keys
+
+    def _check_public_key(self, github_public_keys, key_id):
+        for record in github_public_keys:
+            if record["key_id"] == key_id:
+                return record["key"]
+
+        raise InvalidTokenLeakRequest(
+            f"Key {key_id} not found in github public keys", reason="wrong_key_id"
+        )
+
+    def _check_signature(self, payload, public_key, signature):
+
+        # TODO cf sns.py
+        # It's using:
+        # from cryptography import x509
+        # from cryptography.exceptions import InvalidSignature as _InvalidSignature
+        # from cryptography.hazmat.backends import default_backend
+        # from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+        # from cryptography.hazmat.primitives.hashes import SHA1
+
+        # 1. Not sure about the crypt settings Github uses, but I've understood
+        #    it's likely to rather be SHA256
+        # 2. It will be had to know for sure without an example payload. I've asked
+        #    in the ticket and may contact Github soon
+        # 3. It's probably worth isolating all the cryptography imports into a single
+        #    module that will provide a more abstract API.
+        return
+        raise InvalidTokenLeakRequest(
+            "Signature check not implemented", "invalid_signature"
+        )
+
+
+@implementer(IGitHubTokenScanningPayloadVerifyService)
+class NullGitHubTokenScanningPayloadVerifyService:
+    """
+    Doesn't really check anything, avoids HTTP calls, always validate
+    """
+
+    def verify(self, *, payload, key_id, signature):
+        return True
