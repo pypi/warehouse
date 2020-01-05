@@ -21,6 +21,19 @@ from warehouse.xml import XML_CSP
 
 
 def _format_author(release):
+    """
+    Format release author suitably for inclusion in an RSS feed.
+
+    Release author names and emails are hard to match robustly, mainly
+    because there may be multiple in both, and especially the names may
+    contain pretty much anything. So stick with just the emails with some
+    rudimentary sanity checks.
+
+    Even though the spec says "the email address" and thus assumes a single
+    author, we let multiple pass, comma separated.
+
+    http://www.rssboard.org/rss-specification#ltauthorgtSubelementOfLtitemgt
+    """
     author_emails = []
     for _, author_email in getaddresses([release.author_email or ""]):
         if "@" not in author_email:
