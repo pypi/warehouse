@@ -163,6 +163,11 @@ def includeme(config):
         "/account/verify-project-role/",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.github-disclose-token",
+        "/account/disclose-token/github",
+        domain=warehouse,
+    )
 
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)

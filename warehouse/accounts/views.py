@@ -21,6 +21,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
+from pyramid.response import Response
 from pyramid.security import forget, remember
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
@@ -37,6 +38,7 @@ from warehouse.accounts.forms import (
     WebAuthnAuthenticationForm,
 )
 from warehouse.accounts.interfaces import (
+    IGitHubTokenScanningPayloadVerifyService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -48,6 +50,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
+from warehouse.accounts.utils import TokenLeakAnalyzer
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
@@ -1007,3 +1010,59 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         request.session.record_auth_timestamp()
 
     return resp
+
+
+@view_config(
+    require_methods=["POST"],
+    require_csrf=False,
+    renderer="json",
+    route_name="accounts.github-disclose-token",
+    header="GITHUB-PUBLIC-KEY-IDENTIFIER",
+    # TODO: How to check multiple headers in the predicates ?
+    # header="GITHUB-PUBLIC-KEY-SIGNATURE"
+    has_translations=True,  # Not the view itself, but the email it sends
+)
+def github_disclose_token(request):
+    # GitHub calls this API view when they have identified a string matching
+    # the regular expressions we provided them.
+    # Our job is to validate we're talking to github, check if the string contains
+    # valid credentials and, if they do, invalidate them and warn the owner
+
+    # The documentation for this process is at
+    # https://developer.github.com/partnerships/token-scanning/
+
+    body = request.body
+
+    # Thanks to the predicates, we know the headers we need are defined.
+    key_id = request.headers.get("GITHUB-PUBLIC-KEY-IDENTIFIER")
+    signature = request.headers.get("GITHUB-PUBLIC-KEY-SIGNATURE")
+
+    verifier = request.find_service(
+        IGitHubTokenScanningPayloadVerifyService, context=None
+    )
+
+    if not verifier.verify(payload=body, key_id=key_id, signature=signature):
+        request.response.status_int = 403
+        return {"error": "invalid signature"}
+
+    try:
+        disclosures = request.json_body
+    except json.decoder.JSONDecodeError:
+        request.response.status_int = 403
+        return {"error": "body is not valid json"}
+
+    analyzer = TokenLeakAnalyzer(request=request)
+
+    for disclosure_record in disclosures:
+        try:
+            analyzer.analyze_disclosure(
+                disclosure_record=disclosure_record, origin="github"
+            )
+        except Exception:
+            # TODO log, but don't stop processing other leaks.
+            # It seems logger.exception() is not used in the codebase. What is
+            # expected ?
+            raise
+
+    # 204 No Content: we acknowledge but we won't comment on the outcome.#
+    return Response(status=204)
