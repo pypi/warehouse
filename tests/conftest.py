@@ -174,6 +174,9 @@ def app_config(database):
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "docs.backend": "warehouse.packaging.services.LocalFileStorage",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
+        "malware_check.backend": (
+            "warehouse.malware.services.PrinterMalwareCheckService"
+        ),
         "files.url": "http://localhost:7000/",
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
