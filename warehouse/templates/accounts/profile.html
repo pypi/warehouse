@@ -34,14 +34,8 @@
               <span class="break">{{ user.username }}</span>
             </p>
             {% if not user.is_email_private %}
-            <p>
-              <i class="fa fa-envelope" aria-hidden="true"></i>
-              <span class="sr-only">{% trans %}Email{% endtrans %}</span>
-              &nbsp;&nbsp;
-              <a class="ellipsized" href="mailto:{{ user.primary_email.email }}">
-                  {{ user.primary_email.email }}
-              </a>
-            </p>
+            {% csi request.route_url("includes.profile-public-email", username=user.username) %}
+            {% endcsi %}
             {% endif %}
             {% if user.date_joined %}
             <p>
