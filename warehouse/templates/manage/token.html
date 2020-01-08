@@ -35,7 +35,7 @@
       <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans %}Entire account (all projects){% endtrans %}
       {% else %}
         {% for project in macaroon.caveats.permissions.projects %}
-          <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
+        <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
         {% endfor %}
       {% endif %}
     </p>
