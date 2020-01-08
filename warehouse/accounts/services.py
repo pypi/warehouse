@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import collections
 import enum
 import functools
@@ -25,6 +26,11 @@ import urllib.parse
 import attr
 import requests
 
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ec import ECDSA
+from cryptography.hazmat.primitives.hashes import SHA256
 from passlib.context import CryptContext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -895,25 +901,26 @@ class GitHubTokenScanningPayloadVerifyService:
         )
 
     def _check_signature(self, payload, public_key, signature):
-
-        # TODO cf sns.py
-        # It's using:
-        # from cryptography import x509
-        # from cryptography.exceptions import InvalidSignature as _InvalidSignature
-        # from cryptography.hazmat.backends import default_backend
-        # from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
-        # from cryptography.hazmat.primitives.hashes import SHA1
-
-        # 1. Not sure about the crypt settings Github uses, but I've understood
-        #    it's likely to rather be SHA256
-        # 2. It will be had to know for sure without an example payload. I've asked
-        #    in the ticket and may contact Github soon
-        # 3. It's probably worth isolating all the cryptography imports into a single
-        #    module that will provide a more abstract API.
-        return
-        raise InvalidTokenLeakRequest(
-            "Signature check not implemented", "invalid_signature"
-        )
+        try:
+            loaded_public_key = serialization.load_pem_public_key(
+                data=public_key.encode("utf-8"), backend=default_backend()
+            )
+            loaded_public_key.verify(
+                signature=base64.b64decode(signature),
+                data=payload.encode("utf-8"),
+                # This validates the ECDSA and SHA256 part
+                signature_algorithm=ECDSA(algorithm=SHA256()),
+            )
+        except InvalidSignature as exc:
+            raise InvalidTokenLeakRequest(
+                "Invalid signature", "invalid_signature"
+            ) from exc
+        except Exception as exc:
+            # Maybe the key is not a valid ECDSA key, maybe the data is not properly
+            # padded, etc. So many things can go wrong...
+            raise InvalidTokenLeakRequest(
+                "Invalid cryptographic values", "invalid_crypto"
+            ) from exc
 
 
 @implementer(IGitHubTokenScanningPayloadVerifyService)
