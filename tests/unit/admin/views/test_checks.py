@@ -67,17 +67,25 @@ class TestGetCheck:
 
 
 class TestChangeCheckState:
-    def test_change_to_enabled(self, db_request):
+    @pytest.mark.parametrize(
+        ("final_state"), [MalwareCheckState.disabled, MalwareCheckState.wiped_out]
+    )
+    def test_change_to_valid_state(self, db_request, final_state):
         check = MalwareCheckFactory.create(
             name="MyCheck", state=MalwareCheckState.disabled
         )
 
-        db_request.POST = {"id": check.id, "check_state": "enabled"}
+        db_request.POST = {"id": check.id, "check_state": final_state.value}
         db_request.matchdict["check_name"] = check.name
 
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        wipe_out_recorder = pretend.stub(
+            delay=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *a, **kw: wipe_out_recorder)
+
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/checks/MyCheck/change_state"
         )
@@ -85,9 +93,15 @@ class TestChangeCheckState:
         views.change_check_state(db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Changed 'MyCheck' check to 'enabled'!", queue="success")
+            pretend.call(
+                "Changed 'MyCheck' check to '%s'!" % final_state.value, queue="success"
+            )
         ]
-        assert check.state == MalwareCheckState.enabled
+
+        assert check.state == final_state
+
+        if final_state == MalwareCheckState.wiped_out:
+            assert wipe_out_recorder.delay.calls == [pretend.call("MyCheck")]
 
     def test_change_to_invalid_state(self, db_request):
         check = MalwareCheckFactory.create(name="MyCheck")
