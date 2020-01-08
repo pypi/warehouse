@@ -15,6 +15,7 @@ from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.malware.models import MalwareCheck, MalwareCheckState
+from warehouse.malware.tasks import remove_verdicts
 
 
 @view_config(
@@ -80,6 +81,8 @@ def change_check_state(request):
     except (AttributeError, KeyError):
         request.session.flash("Invalid check state provided.", queue="error")
     else:
+        if check.state == MalwareCheckState.wiped_out:
+            request.task(remove_verdicts).delay(check.name)
         request.session.flash(
             f"Changed {check.name!r} check to {check.state.value!r}!", queue="success"
         )
