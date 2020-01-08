@@ -1692,7 +1692,7 @@ class TestProvisionMacaroonViews:
         record_event = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
-            POST={},
+            POST=MultiDict({"description": "dummy"}),
             domain=pretend.stub(),
             user=pretend.stub(
                 id=pretend.stub(),
