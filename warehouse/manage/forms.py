@@ -31,7 +31,7 @@ class RoleNameMixin:
 
     role_name = wtforms.SelectField(
         "Select role",
-        choices=[("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
         validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
@@ -87,13 +87,18 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
         self.user_service = user_service
 
 
-class DeleteTOTPForm(UsernameMixin, forms.Form):
+class ConfirmPasswordForm(UsernameMixin, PasswordMixin, forms.Form):
 
-    __params__ = ["confirm_username"]
+    __params__ = ["confirm_password"]
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+
+
+class DeleteTOTPForm(ConfirmPasswordForm):
+    # TODO: delete?
+    pass
 
 
 class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
@@ -258,15 +263,16 @@ class CreateMacaroonForm(forms.Form):
             self.validated_scope["projects"].append(scope_value)
 
 
-class DeleteMacaroonForm(forms.Form):
-    __params__ = ["macaroon_id"]
+class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
+    __params__ = ["confirm_password", "macaroon_id"]
 
     macaroon_id = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Identifier required")]
     )
 
-    def __init__(self, *args, macaroon_service, **kwargs):
+    def __init__(self, *args, macaroon_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_service = user_service
         self.macaroon_service = macaroon_service
 
     def validate_macaroon_id(self, field):

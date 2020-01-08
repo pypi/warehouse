@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import enum
 
 from citext import CIText
@@ -29,7 +30,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -82,9 +83,10 @@ class User(SitemapMixin, db.Model):
     )
 
     totp_secret = Column(Binary(length=20), nullable=True)
+    last_totp_value = Column(String, nullable=True)
 
     webauthn = orm.relationship(
-        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=False
+        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
     emails = orm.relationship(
@@ -92,8 +94,22 @@ class User(SitemapMixin, db.Model):
     )
 
     macaroons = orm.relationship(
-        "Macaroon", backref="user", cascade="all, delete-orphan", lazy=False
+        "Macaroon", backref="user", cascade="all, delete-orphan", lazy=True
     )
+
+    events = orm.relationship(
+        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=True
+    )
+
+    def record_event(self, *, tag, ip_address, additional):
+        session = orm.object_session(self)
+        event = UserEvent(
+            user=self, tag=tag, ip_address=ip_address, additional=additional
+        )
+        session.add(event)
+        session.flush()
+
+        return event
 
     @property
     def primary_email(self):
@@ -122,6 +138,17 @@ class User(SitemapMixin, db.Model):
     def has_primary_verified_email(self):
         return self.primary_email is not None and self.primary_email.verified
 
+    @property
+    def recent_events(self):
+        session = orm.object_session(self)
+        last_fortnight = datetime.datetime.now() - datetime.timedelta(days=14)
+        return (
+            session.query(UserEvent)
+            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_fortnight))
+            .order_by(UserEvent.time.desc())
+            .all()
+        )
+
 
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
@@ -138,6 +165,20 @@ class WebAuthn(db.Model):
     credential_id = Column(String, unique=True, nullable=False)
     public_key = Column(String, unique=True, nullable=True)
     sign_count = Column(Integer, default=0)
+
+
+class UserEvent(db.Model):
+    __tablename__ = "user_events"
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    tag = Column(String, nullable=False)
+    time = Column(DateTime, nullable=False, server_default=sql.func.now())
+    ip_address = Column(String, nullable=False)
+    additional = Column(JSONB, nullable=True)
 
 
 class UnverifyReasons(enum.Enum):

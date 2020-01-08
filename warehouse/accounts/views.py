@@ -44,18 +44,24 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_email_verification_email, send_password_reset_email
+from warehouse.email import (
+    send_email_verification_email,
+    send_password_change_email,
+    send_password_reset_email,
+)
+from warehouse.i18n import localize as _
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
 
-@view_config(context=TooManyFailedLogins)
+@view_config(context=TooManyFailedLogins, has_translations=True)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        "There have been too many unsuccessful login attempts. " "Try again later.",
+        _("There have been too many unsuccessful login attempts. Try again later."),
         retry_after=exc.resets_in.total_seconds(),
     )
 
@@ -74,6 +80,7 @@ def failed_logins(exc, request):
     decorator=[
         origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
+    has_translations=True,
 )
 def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):
@@ -96,6 +103,7 @@ def profile(user, request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginForm):
     # TODO: Logging in should reset request.user
@@ -138,7 +146,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 resp = HTTPSeeOther(
                     request.route_path("accounts.two-factor", _query=token)
                 )
-
                 return resp
             else:
                 # If the user-originating redirection url is not safe, then
@@ -171,7 +178,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .hexdigest()
                     .lower(),
                 )
-
             return resp
 
     return {
@@ -186,6 +192,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.authenticated_userid is not None:
@@ -194,7 +201,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash("Invalid or expired two factor login.", queue="error")
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
@@ -216,7 +223,8 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            _login_user(request, userid)
+            _login_user(request, userid, two_factor_method="totp")
+            user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
             resp = HTTPSeeOther(redirect_to)
             resp.set_cookie(
@@ -238,16 +246,17 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     request_method="GET",
     route_name="accounts.webauthn-authenticate.options",
     renderer="json",
+    has_translations=True,
 )
 def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
-        return {"fail": {"errors": ["Already authenticated"]}}
+        return {"fail": {"errors": [_("Already authenticated")]}}
 
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash("Invalid or expired two factor login.", queue="error")
-        return {"fail": {"errors": ["Invalid two factor token"]}}
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        return {"fail": {"errors": [_("Invalid or expired two factor login.")]}}
 
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)
@@ -264,6 +273,7 @@ def webauthn_authentication_options(request):
     request_param=WebAuthnAuthenticationForm.__params__,
     route_name="accounts.webauthn-authenticate.validate",
     renderer="json",
+    has_translations=True,
 )
 def webauthn_authentication_validate(request):
     if request.authenticated_userid is not None:
@@ -272,8 +282,8 @@ def webauthn_authentication_validate(request):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash("Invalid or expired two factor login.", queue="error")
-        return {"fail": {"errors": ["Invalid two factor token"]}}
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        return {"fail": {"errors": [_("Invalid or expired two factor login.")]}}
 
     redirect_to = two_factor_data.get("redirect_to")
     userid = two_factor_data.get("userid")
@@ -295,7 +305,7 @@ def webauthn_authentication_validate(request):
         webauthn = user_service.get_webauthn_by_credential_id(userid, credential_id)
         webauthn.sign_count = sign_count
 
-        _login_user(request, userid)
+        _login_user(request, userid, two_factor_method="webauthn")
 
         request.response.set_cookie(
             USER_ID_INSECURE_COOKIE,
@@ -303,7 +313,10 @@ def webauthn_authentication_validate(request):
             .hexdigest()
             .lower(),
         )
-        return {"success": "Successful WebAuthn assertion", "redirect_to": redirect_to}
+        return {
+            "success": _("Successful WebAuthn assertion"),
+            "redirect_to": redirect_to,
+        }
 
     errors = [str(error) for error in form.credential.errors]
     return {"fail": {"errors": errors}}
@@ -315,6 +328,7 @@ def webauthn_authentication_validate(request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: Logging out should reset request.user
@@ -369,6 +383,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
@@ -378,9 +393,9 @@ def register(request, _form_class=RegistrationForm):
     if request.method == "POST" and request.POST.get("confirm_form"):
         return HTTPSeeOther(request.route_path("index"))
 
-    if request.flags.enabled("disallow-new-user-registration"):
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION):
         request.session.flash(
-            (
+            _(
                 "New user registration temporarily disabled. "
                 "See https://pypi.org/help#admin-intervention for details."
             ),
@@ -400,6 +415,12 @@ def register(request, _form_class=RegistrationForm):
             form.username.data, form.full_name.data, form.new_password.data
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
+        user_service.record_event(
+            user.id,
+            tag="account:create",
+            ip_address=request.remote_addr,
+            additional={"email": form.email.data},
+        )
 
         send_email_verification_email(request, (user, email))
 
@@ -416,6 +437,7 @@ def register(request, _form_class=RegistrationForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.authenticated_userid is not None:
@@ -433,6 +455,11 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         send_password_reset_email(request, (user, email))
+        user_service.record_event(
+            user.id,
+            tag="account:password:reset:request",
+            ip_address=request.remote_addr,
+        )
 
         token_service = request.find_service(ITokenService, name="password")
         n_hours = token_service.max_age // 60 // 60
@@ -447,6 +474,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
+    has_translations=True,
 )
 def reset_password(request, _form_class=ResetPasswordForm):
     if request.authenticated_userid is not None:
@@ -464,35 +492,37 @@ def reset_password(request, _form_class=ResetPasswordForm):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error("Expired token: request a new password reset link")
+        return _error(_("Expired token: request a new password reset link"))
     except TokenInvalid:
-        return _error("Invalid token: request a new password reset link")
+        return _error(_("Invalid token: request a new password reset link"))
     except TokenMissing:
-        return _error("Invalid token: no token supplied")
+        return _error(_("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
     if data.get("action") != "password-reset":
-        return _error("Invalid token: not a password reset token")
+        return _error(_("Invalid token: not a password reset token"))
 
     # Check whether a user with the given user ID exists
     user = user_service.get_user(uuid.UUID(data.get("user.id")))
     if user is None:
-        return _error("Invalid token: user not found")
+        return _error(_("Invalid token: user not found"))
 
     # Check whether the user has logged in since the token was created
     last_login = data.get("user.last_login")
     if str(user.last_login) > last_login:
         # TODO: track and audit this, seems alertable
         return _error(
-            "Invalid token: user has logged in since this token was requested"
+            _("Invalid token: user has logged in since " "this token was requested")
         )
 
     # Check whether the password has been changed since the token was created
     password_date = data.get("user.password_date")
     if str(user.password_date) > password_date:
         return _error(
-            "Invalid token: password has already been changed since this "
-            "token was requested"
+            _(
+                "Invalid token: password has already been changed since this "
+                "token was requested"
+            )
         )
 
     form = _form_class(
@@ -507,9 +537,15 @@ def reset_password(request, _form_class=ResetPasswordForm):
     if request.method == "POST" and form.validate():
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
+        user_service.record_event(
+            user.id, tag="account:password:reset", ip_address=request.remote_addr
+        )
+
+        # Send password change email
+        send_password_change_email(request, user)
 
         # Flash a success message
-        request.session.flash("You have reset your password", queue="success")
+        request.session.flash(_("You have reset your password"), queue="success")
 
         # Redirect to account login.
         return HTTPSeeOther(request.route_path("accounts.login"))
@@ -518,7 +554,10 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
 
 @view_config(
-    route_name="accounts.verify-email", uses_session=True, permission="manage:user"
+    route_name="accounts.verify-email",
+    uses_session=True,
+    permission="manage:user",
+    has_translations=True,
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
@@ -531,15 +570,15 @@ def verify_email(request):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error("Expired token: request a new verification link")
+        return _error(_("Expired token: request a new email verification link"))
     except TokenInvalid:
-        return _error("Invalid token: request a new verification link")
+        return _error(_("Invalid token: request a new email verification link"))
     except TokenMissing:
-        return _error("Invalid token: no token supplied")
+        return _error(_("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
     if data.get("action") != "email-verify":
-        return _error("Invalid token: not an email verification token")
+        return _error(_("Invalid token: not an email verification token"))
 
     try:
         email = (
@@ -548,24 +587,33 @@ def verify_email(request):
             .one()
         )
     except NoResultFound:
-        return _error("Email not found")
+        return _error(_("Email not found"))
 
     if email.verified:
-        return _error("Email already verified")
+        return _error(_("Email already verified"))
 
     email.verified = True
     email.unverify_reason = None
     email.transient_bounces = 0
+    email.user.record_event(
+        tag="account:email:verified",
+        ip_address=request.remote_addr,
+        additional={"email": email.email, "primary": email.primary},
+    )
 
     if not email.primary:
-        confirm_message = "You can now set this email as your primary address"
+        confirm_message = _("You can now set this email as your primary address")
     else:
-        confirm_message = "This is your primary address"
+        confirm_message = _("This is your primary address")
 
     request.user.is_active = True
 
     request.session.flash(
-        f"Email address {email.email} verified. {confirm_message}.", queue="success"
+        _(
+            "Email address ${email_address} verified. ${confirm_message}.",
+            mapping={"email_address": email.email, "confirm_message": confirm_message},
+        ),
+        queue="success",
     )
     return HTTPSeeOther(request.route_path("manage.account"))
 
@@ -586,7 +634,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
     return two_factor_data
 
 
-def _login_user(request, userid):
+def _login_user(request, userid, two_factor_method=None):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -625,6 +673,12 @@ def _login_user(request, userid):
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
+    user_service.record_event(
+        userid,
+        tag="account:login:success",
+        ip_address=request.remote_addr,
+        additional={"two_factor_method": two_factor_method},
+    )
 
     return headers
 
@@ -634,6 +688,7 @@ def _login_user(request, userid):
     context=User,
     renderer="includes/accounts/profile-callout.html",
     uses_session=True,
+    has_translations=True,
 )
 def profile_callout(user, request):
     return {"user": user}
@@ -644,6 +699,7 @@ def profile_callout(user, request):
     context=User,
     renderer="includes/accounts/profile-actions.html",
     uses_session=True,
+    has_translations=True,
 )
 def edit_profile_button(user, request):
     return {"user": user}

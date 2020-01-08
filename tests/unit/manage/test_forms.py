@@ -76,7 +76,7 @@ class TestAddEmailForm:
 
         assert form.user_service is user_service
 
-    def test_email_exists_error(self):
+    def test_email_exists_error(self, pyramid_config):
         user_id = pretend.stub()
         form = forms.AddEmailForm(
             data={"email": "foo@bar.com"},
@@ -86,12 +86,12 @@ class TestAddEmailForm:
 
         assert not form.validate()
         assert (
-            form.email.errors.pop()
+            str(form.email.errors.pop())
             == "This email address is already being used by this account. "
             "Use a different email."
         )
 
-    def test_email_exists_other_account_error(self):
+    def test_email_exists_other_account_error(self, pyramid_config):
         form = forms.AddEmailForm(
             data={"email": "foo@bar.com"},
             user_id=pretend.stub(),
@@ -100,12 +100,12 @@ class TestAddEmailForm:
 
         assert not form.validate()
         assert (
-            form.email.errors.pop()
+            str(form.email.errors.pop())
             == "This email address is already being used by another account. "
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self):
+    def test_blacklisted_email_error(self, pyramid_config):
         form = forms.AddEmailForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
@@ -114,7 +114,7 @@ class TestAddEmailForm:
 
         assert not form.validate()
         assert (
-            form.email.errors.pop()
+            str(form.email.errors.pop())
             == "You can't use an email address from this domain. "
             "Use a different email."
         )
@@ -166,6 +166,19 @@ class TestDeleteTOTPForm:
         form = forms.DeleteTOTPForm(user_service=user_service)
 
         assert form.user_service is user_service
+
+    def test_validate_confirm_password(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+        )
+        form = forms.DeleteTOTPForm(
+            username="username", user_service=user_service, password="password"
+        )
+
+        assert form.validate()
 
 
 class TestProvisionWebAuthnForm:
@@ -460,16 +473,26 @@ class TestCreateMacaroonForm:
 class TestDeleteMacaroonForm:
     def test_creation(self):
         macaroon_service = pretend.stub()
-        form = forms.DeleteMacaroonForm(macaroon_service=macaroon_service)
+        user_service = pretend.stub()
+        form = forms.DeleteMacaroonForm(
+            macaroon_service=macaroon_service, user_service=user_service
+        )
 
         assert form.macaroon_service is macaroon_service
+        assert form.user_service is user_service
 
     def test_validate_macaroon_id_invalid(self):
         macaroon_service = pretend.stub(
             find_macaroon=pretend.call_recorder(lambda id: None)
         )
+        user_service = pretend.stub(
+            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
+        )
         form = forms.DeleteMacaroonForm(
-            data={"macaroon_id": pretend.stub()}, macaroon_service=macaroon_service
+            data={"macaroon_id": pretend.stub(), "password": "password"},
+            macaroon_service=macaroon_service,
+            user_service=user_service,
+            username="username",
         )
 
         assert not form.validate()
@@ -479,8 +502,14 @@ class TestDeleteMacaroonForm:
         macaroon_service = pretend.stub(
             find_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
+        user_service = pretend.stub(
+            find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
+        )
         form = forms.DeleteMacaroonForm(
-            data={"macaroon_id": pretend.stub()}, macaroon_service=macaroon_service
+            data={"macaroon_id": pretend.stub(), "password": "password"},
+            macaroon_service=macaroon_service,
+            username="username",
+            user_service=user_service,
         )
 
         assert form.validate()

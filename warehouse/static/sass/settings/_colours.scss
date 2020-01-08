@@ -18,9 +18,8 @@ $primary-color:               #006dad;
 $primary-color-light:         lighten($primary-color, 45);
 $primary-color-dark:          darken($primary-color, 10);
 $success-color:               #148024;
-$warn-color:                  #ffdf76;
-$warn-text:                   #664e04;
-$warn-orange-color:           #ff9918;
+$warning-color:               #664e04;
+$warning-background-color:    #ffdf76;
 $danger-color:                #D52D40;
 $highlight-color:             #ffd343;
 
@@ -30,6 +29,7 @@ $background-color:            #fdfdfd;
 $base-grey:                   #ececec;
 $light-grey:                  #bbb;
 $border-color:                darken($base-grey, 10);
+$accessible-border-color:     #949494;
 $text-color:                  #464646;
 $transparent-white:           transparentize($white, 0.6);
 

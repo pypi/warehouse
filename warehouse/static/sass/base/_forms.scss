@@ -19,10 +19,9 @@ select {
   font-size: $input-font-size;
   border-radius: 2px;
   background-color: $white;
-  padding: 0 8px;
-  height: 40px;
-  line-height: 37px;
-  border: 1px solid $border-color;
+  padding: 7px;
+  min-height: 40px;
+  border: 1px solid $accessible-border-color;
   color: $text-color;
   vertical-align: middle;
   width: 250px;
@@ -38,8 +37,8 @@ select:active,
 input[type="checkbox"]:focus,
 input[type="checkbox"]:hover,
 input[type="checkbox"]:active {
-  box-shadow: inset 0 0 0 2px $primary-color-light;
-  border-color: $primary-color-light;
+  box-shadow: inset 0 0 0 1px $primary-color;
+  border-color: $primary-color;
   outline: none;
 }
 

@@ -22,7 +22,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Load, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
@@ -30,6 +30,7 @@ import warehouse.utils.otp as otp
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -38,11 +39,13 @@ from warehouse.email import (
     send_password_change_email,
     send_primary_email_change_email,
 )
+from warehouse.i18n import localize as _
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
     ChangeRoleForm,
+    ConfirmPasswordForm,
     CreateMacaroonForm,
     CreateRoleForm,
     DeleteMacaroonForm,
@@ -52,7 +55,14 @@ from warehouse.manage.forms import (
     ProvisionWebAuthnForm,
     SaveAccountForm,
 )
-from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    Project,
+    ProjectEvent,
+    Release,
+    Role,
+)
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
@@ -96,6 +106,7 @@ def user_projects(request):
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
+    has_translations=True,
 )
 class ManageAccountViews:
     def __init__(self, request):
@@ -146,12 +157,21 @@ class ManageAccountViews:
 
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:email:add",
+                ip_address=self.request.remote_addr,
+                additional={"email": email.email},
+            )
 
             send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
-                f"Email {email.email} added - check your email for "
-                + "a verification link",
+                _(
+                    "Email ${email_address} added - check your email for "
+                    "a verification link",
+                    mapping={"email_address": email.email},
+                ),
                 queue="success",
             )
             return self.default_response
@@ -179,6 +199,12 @@ class ManageAccountViews:
             )
         else:
             self.request.user.emails.remove(email)
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:email:remove",
+                ip_address=self.request.remote_addr,
+                additional={"email": email.email},
+            )
             self.request.session.flash(
                 f"Email address {email.email} removed", queue="success"
             )
@@ -206,6 +232,17 @@ class ManageAccountViews:
         ).update(values={"primary": False})
 
         new_primary_email.primary = True
+        self.user_service.record_event(
+            self.request.user.id,
+            tag="account:email:primary:change",
+            ip_address=self.request.remote_addr,
+            additional={
+                "old_primary": previous_primary_email.email
+                if previous_primary_email
+                else None,
+                "new_primary": new_primary_email.email,
+            },
+        )
 
         self.request.session.flash(
             f"Email address {new_primary_email.email} set as primary", queue="success"
@@ -236,6 +273,11 @@ class ManageAccountViews:
             self.request.session.flash("Email is already verified", queue="error")
         else:
             send_email_verification_email(self.request, (self.request.user, email))
+            email.user.record_event(
+                tag="account:email:reverify",
+                ip_address=self.request.remote_addr,
+                additional={"email": email.email},
+            )
 
             self.request.session.flash(
                 f"Verification email for {email.email} resent", queue="success"
@@ -259,23 +301,32 @@ class ManageAccountViews:
             self.user_service.update_user(
                 self.request.user.id, password=form.new_password.data
             )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:password:change",
+                ip_address=self.request.remote_addr,
+            )
             send_password_change_email(self.request, self.request.user)
             self.request.session.flash("Password updated", queue="success")
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST", request_param=["confirm_username"])
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_account(self):
-        username = self.request.params.get("confirm_username")
-
-        if not username:
+        confirm_password = self.request.params.get("confirm_password")
+        if not confirm_password:
             self.request.session.flash("Confirm the request", queue="error")
             return self.default_response
 
-        if username != self.request.user.username:
+        form = ConfirmPasswordForm(
+            password=confirm_password,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if not form.validate():
             self.request.session.flash(
-                f"Could not delete account - {username!r} is not the same as "
-                f"{self.request.user.username!r}",
+                f"Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
             return self.default_response
@@ -318,6 +369,7 @@ class ManageAccountViews:
     require_methods=False,
     permission="manage:user",
     http_cache=0,
+    has_translations=True,
 )
 class ProvisionTOTPViews:
     def __init__(self, request):
@@ -399,8 +451,13 @@ class ProvisionTOTPViews:
             self.user_service.update_user(
                 self.request.user.id, totp_secret=self.request.session.get_totp_secret()
             )
-
             self.request.session.clear_totp_secret()
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=self.request.remote_addr,
+                additional={"method": "totp"},
+            )
             self.request.session.flash(
                 "Authentication application successfully set up", queue="success"
             )
@@ -425,20 +482,26 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
-            **self.request.POST,
+            password=self.request.POST["confirm_password"],
             username=self.request.user.username,
             user_service=self.user_service,
         )
 
         if form.validate():
             self.user_service.update_user(self.request.user.id, totp_secret=None)
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=self.request.remote_addr,
+                additional={"method": "totp"},
+            )
             self.request.session.flash(
                 "Authentication application removed from PyPI. "
                 "Remember to remove PyPI from your application.",
                 queue="success",
             )
         else:
-            self.request.session.flash("Invalid credentials", queue="error")
+            self.request.session.flash("Invalid credentials. Try again", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -449,6 +512,7 @@ class ProvisionTOTPViews:
     require_methods=False,
     permission="manage:user",
     http_cache=0,
+    has_translations=True,
 )
 class ProvisionWebAuthnViews:
     def __init__(self, request):
@@ -502,6 +566,12 @@ class ProvisionWebAuthnViews:
                 public_key=form.validated_credential.public_key.decode(),
                 sign_count=form.validated_credential.sign_count,
             )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=self.request.remote_addr,
+                additional={"method": "webauthn", "label": form.label.data},
+            )
             self.request.session.flash(
                 "Security device successfully set up", queue="success"
             )
@@ -533,6 +603,12 @@ class ProvisionWebAuthnViews:
 
         if form.validate():
             self.request.user.webauthn.remove(form.webauthn)
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=self.request.remote_addr,
+                additional={"method": "webauthn", "label": form.label.data},
+            )
             self.request.session.flash("Security device removed", queue="success")
         else:
             self.request.session.flash("Invalid credentials", queue="error")
@@ -547,6 +623,7 @@ class ProvisionWebAuthnViews:
     permission="manage:user",
     renderer="manage/token.html",
     route_name="manage.account.token",
+    has_translations=True,
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -568,7 +645,9 @@ class ProvisionMacaroonViews:
                 project_names=self.project_names,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
-                macaroon_service=self.macaroon_service
+                username=self.request.user.username,
+                user_service=self.user_service,
+                macaroon_service=self.macaroon_service,
             ),
         }
 
@@ -594,12 +673,42 @@ class ProvisionMacaroonViews:
 
         response = {**self.default_response}
         if form.validate():
+            macaroon_caveats = {"permissions": form.validated_scope, "version": 1}
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
                 user_id=self.request.user.id,
                 description=form.description.data,
-                caveats={"permissions": form.validated_scope, "version": 1},
+                caveats=macaroon_caveats,
             )
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:api_token:added",
+                ip_address=self.request.remote_addr,
+                additional={
+                    "description": form.description.data,
+                    "caveats": macaroon_caveats,
+                },
+            )
+            if "projects" in form.validated_scope:
+                projects = [
+                    project
+                    for project in self.request.user.projects
+                    if project.normalized_name in form.validated_scope["projects"]
+                ]
+                for project in projects:
+                    # NOTE: We don't disclose the full caveats for this token
+                    # to the project event log, since the token could also
+                    # have access to projects that this project's owner
+                    # isn't aware of.
+                    project.record_event(
+                        tag="project:api_token:added",
+                        ip_address=self.request.remote_addr,
+                        additional={
+                            "description": form.description.data,
+                            "user": self.request.user.username,
+                        },
+                    )
+
             response.update(serialized_macaroon=serialized_macaroon, macaroon=macaroon)
 
         return {**response, "create_macaroon_form": form}
@@ -607,17 +716,43 @@ class ProvisionMacaroonViews:
     @view_config(request_method="POST", request_param=DeleteMacaroonForm.__params__)
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
-            **self.request.POST, macaroon_service=self.macaroon_service
+            password=self.request.POST["confirm_password"],
+            macaroon_id=self.request.POST["macaroon_id"],
+            macaroon_service=self.macaroon_service,
+            username=self.request.user.username,
+            user_service=self.user_service,
         )
 
         if form.validate():
-            description = self.macaroon_service.find_macaroon(
-                form.macaroon_id.data
-            ).description
+            macaroon = self.macaroon_service.find_macaroon(form.macaroon_id.data)
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
-            self.request.session.flash(
-                f"Deleted API token '{description}'.", queue="success"
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:api_token:removed",
+                ip_address=self.request.remote_addr,
+                additional={"macaroon_id": form.macaroon_id.data},
             )
+            if "projects" in macaroon.caveats["permissions"]:
+                projects = [
+                    project
+                    for project in self.request.user.projects
+                    if project.normalized_name
+                    in macaroon.caveats["permissions"]["projects"]
+                ]
+                for project in projects:
+                    project.record_event(
+                        tag="project:api_token:removed",
+                        ip_address=self.request.remote_addr,
+                        additional={
+                            "description": macaroon.description,
+                            "user": self.request.user.username,
+                        },
+                    )
+            self.request.session.flash(
+                f"Deleted API token '{macaroon.description}'.", queue="success"
+            )
+        else:
+            self.request.session.flash("Invalid credentials. Try again", queue="error")
 
         redirect_to = self.request.referer
         if not is_safe_url(redirect_to, host=self.request.host):
@@ -630,6 +765,7 @@ class ProvisionMacaroonViews:
     renderer="manage/projects.html",
     uses_session=True,
     permission="manage:user",
+    has_translations=True,
 )
 def manage_projects(request):
     def _key(project):
@@ -658,6 +794,7 @@ def manage_projects(request):
     renderer="manage/settings.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_settings(project, request):
     return {"project": project}
@@ -669,8 +806,21 @@ def manage_project_settings(project, request):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def delete_project(project, request):
+    if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+        request.session.flash(
+            (
+                "Project deletion temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details."
+            ),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
     confirm_project(project, request, fail_route="manage.project.settings")
     remove_project(project, request)
 
@@ -683,6 +833,7 @@ def delete_project(project, request):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -701,9 +852,40 @@ def destroy_project_docs(project, request):
     renderer="manage/releases.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_releases(project, request):
-    return {"project": project}
+    # Get the counts for all the files for this project, grouped by the
+    # release version and the package types
+    filecounts = (
+        request.db.query(Release.version, File.packagetype, func.count(File.id))
+        .options(Load(Release).load_only("version"))
+        .outerjoin(File)
+        .group_by(Release.id)
+        .group_by(File.packagetype)
+        .filter(Release.project == project)
+        .all()
+    )
+
+    # Turn rows like:
+    #   [('0.1', 'bdist_wheel', 2), ('0.1', 'sdist', 1)]
+    # into:
+    #   {
+    #       '0.1: {
+    #            'bdist_wheel': 2,
+    #            'sdist': 1,
+    #            'total': 3,
+    #       }
+    #   }
+
+    version_to_file_counts = {}
+    for version, packagetype, count in filecounts:
+        packagetype_to_count = version_to_file_counts.setdefault(version, {})
+        packagetype_to_count.setdefault("total", 0)
+        packagetype_to_count[packagetype] = count
+        packagetype_to_count["total"] += count
+
+    return {"project": project, "version_to_file_counts": version_to_file_counts}
 
 
 @view_defaults(
@@ -714,6 +896,7 @@ def manage_project_releases(project, request):
     require_csrf=True,
     require_methods=False,
     permission="manage:project",
+    has_translations=True,
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -730,6 +913,22 @@ class ManageProjectRelease:
 
     @view_config(request_method="POST", request_param=["confirm_version"])
     def delete_project_release(self):
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+            self.request.session.flash(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
         version = self.request.POST.get("confirm_version")
         if not version:
             self.request.session.flash("Confirm the request", queue="error")
@@ -765,6 +964,15 @@ class ManageProjectRelease:
             )
         )
 
+        self.release.project.record_event(
+            tag="project:release:remove",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+            },
+        )
+
         self.request.db.delete(self.release)
 
         self.request.session.flash(
@@ -790,6 +998,13 @@ class ManageProjectRelease:
                     version=self.release.version,
                 )
             )
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+            message = (
+                "Project deletion temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details."
+            )
+            return _error(message)
 
         project_name = self.request.POST.get("confirm_project_name")
 
@@ -824,6 +1039,16 @@ class ManageProjectRelease:
             )
         )
 
+        self.release.project.record_event(
+            tag="project:release:file:remove",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+                "filename": release_file.filename,
+            },
+        )
+
         self.request.db.delete(release_file)
 
         self.request.session.flash(
@@ -846,6 +1071,7 @@ class ManageProjectRelease:
     uses_session=True,
     require_methods=False,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -885,6 +1111,15 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
+            )
+            project.record_event(
+                tag="project:role:add",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": role_name,
+                    "target_user": username,
+                },
             )
 
             owner_roles = (
@@ -939,6 +1174,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -981,6 +1217,15 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                             submitted_from=request.remote_addr,
                         )
                     )
+                    project.record_event(
+                        tag="project:role:delete",
+                        ip_address=request.remote_addr,
+                        additional={
+                            "submitted_by": request.user.username,
+                            "role_name": role.role_name,
+                            "target_user": role.user.username,
+                        },
+                    )
                 request.session.flash("Changed role", queue="success")
         else:
             # This user only has one role, so get it and change the type.
@@ -1009,6 +1254,15 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         )
                     )
                     role.role_name = form.role_name.data
+                    project.record_event(
+                        tag="project:role:change",
+                        ip_address=request.remote_addr,
+                        additional={
+                            "submitted_by": request.user.username,
+                            "role_name": form.role_name.data,
+                            "target_user": role.user.username,
+                        },
+                    )
                     request.session.flash("Changed role", queue="success")
             except NoResultFound:
                 request.session.flash("Could not find role", queue="error")
@@ -1024,6 +1278,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def delete_project_role(project, request):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -1054,6 +1309,15 @@ def delete_project_role(project, request):
                     submitted_from=request.remote_addr,
                 )
             )
+            project.record_event(
+                tag="project:role:delete",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": role.role_name,
+                    "target_user": role.user.username,
+                },
+            )
         request.session.flash("Removed role", queue="success")
 
     return HTTPSeeOther(
@@ -1067,8 +1331,43 @@ def delete_project_role(project, request):
     renderer="manage/history.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_history(project, request):
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
+    events_query = (
+        request.db.query(ProjectEvent)
+        .join(ProjectEvent.project)
+        .filter(ProjectEvent.project_id == project.id)
+        .order_by(ProjectEvent.time.desc())
+    )
+
+    events = SQLAlchemyORMPage(
+        events_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    if events.page_count and page_num > events.page_count:
+        raise HTTPNotFound
+
+    return {"project": project, "events": events}
+
+
+@view_config(
+    route_name="manage.project.journal",
+    context=Project,
+    renderer="manage/journal.html",
+    uses_session=True,
+    permission="manage:project",
+    has_translations=True,
+)
+def manage_project_journal(project, request):
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
@@ -1100,6 +1399,7 @@ def manage_project_history(project, request):
     renderer="manage/documentation.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_documentation(project, request):
     return {"project": project}

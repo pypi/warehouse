@@ -45,7 +45,7 @@ services:
         # working on pypi-theme, this is a private repository due to the fact
         # that other people's IP is contained in it.
         #THEME_REPO:
-    command: hupper -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn.conf warehouse.wsgi:application
+    command: hupper -w 'warehouse/locale/**/*.mo' -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn.conf.py warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify all of these directories instead of just . because we want to
@@ -111,6 +111,8 @@ services:
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
+      - ./bin:/opt/warehouse/src/bin:z
 
   smtp:
     build:

@@ -12,15 +12,23 @@
  * limitations under the License.
  */
 
+@mixin link-focus-state($color) {
+  &:focus,
+  &:active {
+    outline: 1px solid $color;
+  }
+}
+
 @mixin colored-link($color) {
   color: $color;
   background-image: linear-gradient(to right, $color, transparentize($color, 0.3));
 
-  &:hover,
-  &:active {
+  &:hover {
     color: darken($color, 10);
     background-image: linear-gradient(to right, darken($color, 10), darken($color, 10));
   }
+
+  @include link-focus-state($color);
 }
 
 @mixin primary-underlined-link {
@@ -31,31 +39,25 @@
   @include colored-link($danger-color);
 }
 
+@mixin warning-underlined-link {
+  @include colored-link($warning-color);
+}
+
+@mixin success-underlined-link {
+  @include colored-link($success-color);
+}
+
 @mixin white-underlined-link {
   color: transparentize($white, 0.05);
   background-image: linear-gradient(to right, $white, transparentize($white, 0.3));
 
-  &:hover,
-  &:active {
-    color: $white;
-    background-image: linear-gradient(to right, $white, $white);
-  }
+  @include link-focus-state($white);
 }
 
 @mixin link-without-underline {
   background-image: none;
 
-  &:hover,
-  &:active {
+  &:hover {
     background-image: none;
-  }
-}
-
-@mixin link-focus {
-  &:focus,
-  &:active {
-    outline: 1px solid $primary-color-light;
-    background-color: transparentize($primary-color-light, 0.9);
-    cursor: pointer;
   }
 }

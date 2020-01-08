@@ -100,12 +100,14 @@ def commit_veto(request, response):
         return True
 
 
-def template_view(config, name, route, template, route_kw=None):
+def template_view(config, name, route, template, route_kw=None, view_kw=None):
     if route_kw is None:
         route_kw = {}
+    if view_kw is None:
+        view_kw = {}
 
     config.add_route(name, route, **route_kw)
-    config.add_view(renderer=template, route_name=name)
+    config.add_view(renderer=template, route_name=name, **view_kw)
 
 
 def maybe_set(settings, name, envvar, coercer=None, default=None):
@@ -265,6 +267,9 @@ def configure(settings=None):
     # We want to use newstyle gettext
     config.add_settings({"jinja2.newstyle": True})
 
+    # Our translation strings are all in the "messages" domain
+    config.add_settings({"jinja2.i18n.domain": "messages"})
+
     # We also want to use Jinja2 for .html templates as well, because we just
     # assume that all templates will be using Jinja.
     config.add_jinja2_renderer(".html")
@@ -284,6 +289,7 @@ def configure(settings=None):
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault("format_classifiers", "warehouse.filters:format_classifiers")
+    filters.setdefault("classifier_id", "warehouse.filters:classifier_id")
     filters.setdefault("format_tags", "warehouse.filters:format_tags")
     filters.setdefault("json", "warehouse.filters:tojson")
     filters.setdefault("camoify", "warehouse.filters:camoify")
@@ -441,9 +447,6 @@ def configure(settings=None):
     config.whitenoise_add_manifest(
         "warehouse:static/dist/manifest.json", prefix="/static/"
     )
-
-    # Enable Warehouse to serve our locale files
-    config.add_static_view("locales", "warehouse:locales/")
 
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.

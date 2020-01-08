@@ -14,48 +14,50 @@
 
 <div id="copy-hash-modal-{{ file.id }}" class="modal modal--wide">
   <div class="modal__content" role="dialog">
-    <a href="#modal-close" title="Close" class="modal__close">
+    <a href="#modal-close" title="{% trans %}Close{% endtrans %}" class="modal__close">
       <i class="fa fa-times" aria-hidden="true"></i>
-      <span class="sr-only">close</span>
+      <span class="sr-only">{% trans %}Close{% endtrans %}</span>
     </a>
     <div class="modal__body">
       <h3 class="modal__title">
-        <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" title="External link" target="_blank" rel="noopener">Hashes</a> for {{ file.filename }}
+        {% trans trimmed href='https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode', title=gettext('External link'), filename=file.filename %}
+        <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Hashes</a> for {{ filename }}
+        {% endtrans %}
       </h3>
-      <table class="table table--light table--hashes">
-        <caption class="sr-only">Hashes for {{ file.filename }}</caption>
+      <table class="table table--hashes">
+        <caption class="sr-only">{% trans filename=file.filename %}Hashes for {{ filename }}{% endtrans %}</caption>
         <thead>
           <tr>
-            <th scope="col" class="table__algorithm">Algorithm</th>
-            <th scope="col" class="table__hash">Hash digest</th>
-            <th class="table__copy"></th>
+            <th scope="col">{% trans %}Algorithm{% endtrans %}</th>
+            <th scope="col">{% trans %}Hash digest{% endtrans %}</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <th scope="row" class="table__algorithm">SHA256</th>
-            <td class="table__hash"><code>{{ file.sha256_digest }}</code></td>
-            <td class="table__copy">
-              <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
-                Copy
+            <th scope="row">SHA256</th>
+            <td><code>{{ file.sha256_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.sha256_digest }}">
+                {% trans %}Copy{% endtrans %}
               </button>
             </td>
           </tr>
           <tr>
-            <th scope="row" class="table__algorithm">MD5</th>
-            <td class="table__hash"><code>{{ file.md5_digest }}</code></td>
-            <td class="table__copy">
-              <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
-                Copy
+            <th scope="row">MD5</th>
+            <td><code>{{ file.md5_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.md5_digest }}">
+                {% trans %}Copy{% endtrans %}
               </button>
             </td>
           </tr>
           <tr>
-            <th scope="row" class="table__algorithm">BLAKE2-256</th>
-            <td class="table__hash"><code>{{ file.blake2_256_digest }}</code></td>
-            <td class="table__copy">
-              <button type="button" class="button -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
-                Copy
+            <th scope="row">BLAKE2-256</th>
+            <td><code>{{ file.blake2_256_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.blake2_256_digest }}">
+                {% trans %}Copy{% endtrans %}
               </button>
             </td>
           </tr>
@@ -63,7 +65,7 @@
       </table>
     </div>
     <div class="modal__footer">
-      <a href="#modal-close" class="button button--primary modal__action">Close</a>
+      <a href="#modal-close" class="button button--primary modal__action">{% trans %}Close{% endtrans %}</a>
     </div>
   </div>
 </div>

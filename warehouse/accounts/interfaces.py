@@ -179,6 +179,14 @@ class IUserService(Interface):
         or None of the user doesn't have a credential with this ID.
         """
 
+    def record_event(user_id, *, tag, ip_address, additional=None):
+        """
+        Creates a new UserEvent for the given user with the given
+        tag, IP address, and additional metadata.
+
+        Returns the event.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):

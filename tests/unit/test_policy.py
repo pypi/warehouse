@@ -52,7 +52,12 @@ def test_add_policy_view(monkeypatch):
         pretend.call("policy.my-policy", "/policy/my-policy/")
     ]
     assert config.add_view.calls == [
-        pretend.call(md_view, route_name="policy.my-policy", renderer="policy.html")
+        pretend.call(
+            md_view,
+            route_name="policy.my-policy",
+            renderer="policy.html",
+            has_translations=True,
+        )
     ]
     assert markdown_view_factory.calls == [pretend.call(filename="mine.md")]
 

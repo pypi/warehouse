@@ -22,6 +22,7 @@ import uuid
 import requests
 
 from passlib.context import CryptContext
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
@@ -78,7 +79,7 @@ class DatabaseUserService:
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
-        return self.db.query(User).get(userid)
+        return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
@@ -264,6 +265,17 @@ class DatabaseUserService:
 
         return user.totp_secret
 
+    def get_last_totp_value(self, user_id):
+        """
+        Returns the user's last (accepted) TOTP value.
+
+        If the user doesn't have a TOTP or hasn't used their TOTP
+        method, returns None.
+        """
+        user = self.get_user(user_id)
+
+        return user.last_totp_value
+
     def check_totp_value(self, user_id, totp_value, *, tags=None):
         """
         Returns True if the given TOTP is valid against the user's secret.
@@ -308,6 +320,11 @@ class DatabaseUserService:
             # verification.
             self.ratelimiters["user"].hit(user_id)
             self.ratelimiters["global"].hit()
+            return False
+
+        last_totp_value = self.get_last_totp_value(user_id)
+
+        if last_totp_value is not None and totp_value == last_totp_value.encode():
             return False
 
         valid = otp.verify_totp(totp_secret, totp_value)
@@ -427,6 +444,16 @@ class DatabaseUserService:
             ),
             None,
         )
+
+    def record_event(self, user_id, *, tag, ip_address, additional=None):
+        """
+        Creates a new UserEvent for the given user with the given
+        tag, IP address, and additional metadata.
+
+        Returns the event.
+        """
+        user = self.get_user(user_id)
+        return user.record_event(tag=tag, ip_address=ip_address, additional=additional)
 
 
 @implementer(ITokenService)
