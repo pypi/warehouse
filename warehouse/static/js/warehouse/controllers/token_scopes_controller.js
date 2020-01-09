@@ -1,4 +1,4 @@
-/*!
+/**
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,21 +12,20 @@
  * limitations under the License.
  */
 
-/*
-  Specific rules for the API tokens form.
-*/
 
-.token-scopes {
+import { Controller } from "stimulus";
 
-  div {
-    padding-top: 7px;
+export default class extends Controller {
+
+  static targets = [ "selector", "description" ];
+
+  user() {
+    this.selectorTargets.forEach(ss => ss.setAttribute("disabled", "disabled"));
+    this.descriptionTargets.forEach(desc => desc.classList.add("disabled"));
   }
 
-  &__checkbox {
-    margin-left: 25px;
-  }
-
-  .disabled {
-    color: $light-grey;
+  unspecified() {
+    this.selectorTargets.forEach(ss => ss.removeAttribute("disabled"));
+    this.descriptionTargets.forEach(desc => desc.classList.remove("disabled"));
   }
 }
