@@ -135,21 +135,38 @@
         <span class="form-group__label">{% trans %}Permissions{% endtrans %}</span>
         <p class="form-group__text">{% trans %}Upload packages{% endtrans %}</p>
       </div>
-      <div class="form-group">
+      <div class="form-group token-scopes">
         <label for="token_scopes" class="form-group__label">
           {% trans %}Scope{% endtrans %}
           {% if create_macaroon_form.token_scopes.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        <select multiple name="token_scopes" id="token_scopes" class="form-group__input form-group__multiselect" aria-describedby="token_scopes-errors" autocomplete="off">
-          <option disabled {{ "" if create_macaroon_form.token_scopes.data else "selected" }} value="scope:unspecified">{% trans %}Select scope...{% endtrans %}</option>
-          <option {{ "selected" if "scope:user" in create_macaroon_form.token_scopes.data else "" }} value="scope:user">{% trans %}Entire account (all projects){% endtrans %}</option>
+        {% set token_scopes = create_macaroon_form.token_scopes.data %}
+        <div>
+          <input type="radio" name="token_scopes" value="scope:user" id="scope:user" {{ "checked" if token_scopes == ["scope:user"] or not token_scopes else "" }}>
+          <label for="scope:user">{% trans %}Entire account (all projects){% endtrans %}</label>
+        </div>
+        <div>
+          <input type="radio" name="token_scopes" value="scope:unspecified" id="scope:unspecified" {{ "checked" if token_scopes and "scope:user" not in token_scopes }}>
+          <label for="scope:unspecified">{% trans %}By project{% endtrans %}</label>
+        </div>
+        {% if project_names|length > 10 %}
+        <select multiple name="token_scopes" id="token_scopes" class="form-group__input form-group__multiselect" aria-describedby="token_scopes-errors" autocomplete="off" disabled>
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
-          <option value="{{ project_value }}" {{ "selected" if project_value in create_macaroon_form.token_scopes.data else "" }}>{% trans %}Project:{% endtrans %} {{ project }}</option>
+          <option value="{{ project_value }}" {{ "selected" if project_value in token_scopes else "" }}>{{ project }}</option>
         {% endfor %}
         </select>
+        {% else %}
+        {% for project in project_names %}
+          {% set project_value = 'scope:project:' + project %}
+          <div>
+            <input type="checkbox" class="token-scopes__checkbox" value="{{ project_value }}" id="{{ project_value }}" {{ "checked" if project_value in token_scopes else "" }}>
+            <label for="{{ project_value }}">{{ project }}</label>
+          </div>
+        {% endfor %}
+        {% endif %}
         <div id="scope-errors">
           {{ field_errors(create_macaroon_form.token_scopes) }}
         </div>
