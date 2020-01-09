@@ -24,7 +24,7 @@ export default class extends Controller {
     this.descriptionTargets.forEach(desc => desc.classList.add("disabled"));
   }
 
-  unspecified() {
+  project() {
     this.selectorTargets.forEach(ss => ss.removeAttribute("disabled"));
     this.descriptionTargets.forEach(desc => desc.classList.remove("disabled"));
   }

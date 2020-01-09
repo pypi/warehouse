@@ -231,6 +231,12 @@ class CreateMacaroonForm(forms.Form):
         if not scopes:
             raise wtforms.ValidationError(f"Specify the token scope")
 
+        if scopes == ["scope:user"]:
+            self.validated_scope = "user"
+            return
+        elif "scope:user" in scopes and len(scopes) > 1:
+            raise wtforms.ValidationError(f"Mixed user and project scopes")
+
         self.validated_scope = {"projects": []}
 
         for scope in scopes:
@@ -239,14 +245,10 @@ class CreateMacaroonForm(forms.Form):
             except ValueError:
                 raise wtforms.ValidationError(f"Unknown token scope: {scope}")
 
-            if scope_kind == "unspecified":
-                raise wtforms.ValidationError(f"Specify the token scope")
-
-            if scope_kind == "user":
-                if len(scopes) != 1:
-                    raise wtforms.ValidationError(f"Mixed user and project scopes")
-                self.validated_scope = scope_kind
-                return
+            if scope_kind == "by_project":
+                # "by_project" is sent to indicate the user made a selection
+                # of projects either in checkboxes or in the multiselect
+                continue
 
             try:
                 scope_kind, scope_value = scope_kind.split(":", 1)
@@ -261,6 +263,9 @@ class CreateMacaroonForm(forms.Form):
                 )
 
             self.validated_scope["projects"].append(scope_value)
+
+        if not self.validated_scope["projects"]:
+            raise wtforms.ValidationError(f"Specify the token scope")
 
 
 class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):

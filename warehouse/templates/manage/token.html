@@ -149,8 +149,8 @@
           <label for="scope:user">{% trans %}Entire account (all projects){% endtrans %}</label>
         </div>
         <div>
-          <input type="radio" name="token_scopes" value="scope:unspecified" id="scope:unspecified" data-action="token-scopes#unspecified" {{ "checked" if not all_projects }}>
-          <label for="scope:unspecified">{% trans %}By project{% endtrans %}</label>
+          <input type="radio" name="token_scopes" value="scope:by_project" id="scope:by_project" data-action="token-scopes#project" {{ "checked" if not all_projects }}>
+          <label for="scope:by_project">{% trans %}By project{% endtrans %}</label>
         </div>
         {% if project_names|length > 10 %}
         <select multiple name="token_scopes" id="token_scopes" class="form-group__input form-group__multiselect" aria-describedby="token_scopes-errors" autocomplete="off" data-target="token-scopes.selector" {{ "disabled" if all_projects }}>
@@ -164,7 +164,7 @@
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
           <div>
-            <input type="checkbox" class="token-scopes__checkbox" value="{{ project_value }}" id="{{ project_value }}" data-target="token-scopes.selector" {{ "checked" if project_value in token_scopes }} {{ "disabled" if all_projects }}>
+            <input type="checkbox" class="token-scopes__checkbox" name="token_scopes" value="{{ project_value }}" id="{{ project_value }}" data-target="token-scopes.selector" {{ "checked" if project_value in token_scopes }} {{ "disabled" if all_projects }}>
             <label for="{{ project_value }}" class="{{ "disabled" if all_projects }}" data-target="token-scopes.description">{{ project }}</label>
           </div>
         {% endfor %}
