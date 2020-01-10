@@ -20,10 +20,8 @@ import pytest
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
 from warehouse.admin.views import verdicts as views
-from warehouse.malware.models import MalwareCheckType
 
-from ....common.db.malware import MalwareCheckFactory, MalwareVerdictFactory
-from ....common.db.packaging import ProjectFactory
+from ....common.db.malware import MalwareVerdictFactory
 
 
 class TestListVerdicts:
@@ -31,30 +29,12 @@ class TestListVerdicts:
         assert views.get_verdicts(db_request) == {"verdicts": []}
 
     def test_some(self, db_request):
-        project = ProjectFactory.create()
-        check = MalwareCheckFactory.create(
-            check_type=MalwareCheckType.event_hook, hooked_object="Project"
-        )
-        verdicts = [
-            MalwareVerdictFactory.create(
-                check_id=check.id, project=project, release_file=None
-            )
-            for _ in range(10)
-        ]
+        verdicts = [MalwareVerdictFactory.create() for _ in range(10)]
 
         assert views.get_verdicts(db_request) == {"verdicts": verdicts}
 
     def test_some_with_multipage(self, db_request):
-        project = ProjectFactory.create()
-        check = MalwareCheckFactory.create(
-            check_type=MalwareCheckType.event_hook, hooked_object="Project"
-        )
-        verdicts = [
-            MalwareVerdictFactory.create(
-                check_id=check.id, project=project, release_file=None
-            )
-            for _ in range(60)
-        ]
+        verdicts = [MalwareVerdictFactory.create() for _ in range(60)]
 
         db_request.GET["page"] = "2"
 
@@ -69,24 +49,15 @@ class TestListVerdicts:
 
 class TestGetVerdict:
     def test_found(self, db_request):
-        project = ProjectFactory.create()
-        check = MalwareCheckFactory.create(
-            check_type=MalwareCheckType.event_hook, hooked_object="Project"
-        )
-        verdicts = [
-            MalwareVerdictFactory.create(
-                check_id=check.id, project=project, release_file=None
-            )
-            for _ in range(10)
-        ]
+        verdicts = [MalwareVerdictFactory.create() for _ in range(10)]
         index = randint(0, 9)
-        lookup_id = verdicts[index].id.hex
+        lookup_id = verdicts[index].id
         db_request.matchdict["verdict_id"] = lookup_id
 
         assert views.get_verdict(db_request) == {"verdict": verdicts[index]}
 
     def test_not_found(self, db_request):
-        db_request.matchdict["verdict_id"] = uuid.uuid4().hex
+        db_request.matchdict["verdict_id"] = uuid.uuid4()
 
         with pytest.raises(HTTPNotFound):
             views.get_verdict(db_request)
