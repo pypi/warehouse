@@ -79,7 +79,7 @@ class TestGetVerdict:
             )
             for _ in range(10)
         ]
-        index = randint(1, 10)
+        index = randint(0, 9)
         lookup_id = verdicts[index].id.hex
         db_request.matchdict["verdict_id"] = lookup_id
 

@@ -13,7 +13,6 @@
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.malware.models import MalwareVerdict
 from warehouse.utils.paginate import paginate_url_factory
@@ -54,13 +53,9 @@ def get_verdicts(request):
     uses_session=True,
 )
 def get_verdict(request):
-    try:
-        verdict = (
-            request.db.query(MalwareVerdict)
-            .filter(MalwareVerdict.id == request.matchdict["verdict_id"])
-            .one()
-        )
-    except NoResultFound:
-        raise HTTPNotFound
+    verdict = request.db.query(MalwareVerdict).get(request.matchdict["verdict_id"])
 
-    return {"verdict": verdict}
+    if verdict:
+        return {"verdict": verdict}
+
+    raise HTTPNotFound
