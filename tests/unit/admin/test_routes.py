@@ -132,4 +132,8 @@ def test_includeme():
             "/admin/checks/{check_name}/change_state",
             domain=warehouse,
         ),
+        pretend.call("admin.verdicts.list", "/admin/verdicts/", domain=warehouse),
+        pretend.call(
+            "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
+        ),
     ]
