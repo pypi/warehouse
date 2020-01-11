@@ -13,12 +13,13 @@
 -#}
 {% extends "email/_base/body.html" %}
 
+{% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-<p>You have been added as <strong>{{ role }}</strong> to the {{ request.registry.settings["site.name"] }} project {{ project }} by {{ submitter }}.</p>
+<p>{% trans role=role, site=site, project=project, submitter=submitter %}You have been added as <strong>{{ role }}</strong> to the {{ site }} project {{ project }} by {{ submitter }}.{% endtrans %}</p>
 {% endblock %}
 
 
 {% block reason %}
-You are receiving this because you have been added by {{ submitter }} to a project on {{ request.registry.settings["site.name"] }}.
+{% trans submitter=submitter, site=site %}You are receiving this because you have been added by {{ submitter }} to a project on {{ site }}.{% endtrans %}
 {% endblock %}

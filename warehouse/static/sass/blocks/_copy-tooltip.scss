@@ -1,0 +1,220 @@
+// The following is modified from https://github.com/primer/tooltips
+// The MIT License (MIT)
+// Copyright (c) 2016 GitHub Inc
+
+/*
+  A tooltip that is attached to a button, incidacting that clicking the button will cause something to be copied:
+
+  <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#target" data-tooltip-label="Copy to clipboard">
+    // Text or icon
+  </button>
+
+  Data:
+    - data-clipboard-target: the content that will be copied to the clipboard
+    - data-tooltip-label: the label of the tooltip (before the button is clicked)
+
+  Modifiers:
+    - copy-tooltip-s: Tooltip appears below the button (south)
+    - copy-tooltip-n: Tooltip appears above the button (north)
+    - copy-tooltip-e: Tooltip appears to the right of the button (east)
+    - copy-tooltip-w: Tooltip appears to the left of the button (west)
+*/
+
+
+$tooltip-max-width: 250px !default;
+$tooltip-background-color: transparentize($black, 0.3) !default;
+$tooltip-text-color: $white !default;
+$tooltip-delay: 0.4s !default;
+$tooltip-duration: 0.1s !default;
+
+.copy-tooltip {
+  position: relative;
+  cursor: pointer;
+}
+
+// This is the tooltip bubble
+.copy-tooltip::after {
+  content: attr(data-tooltip-label);
+  position: absolute;
+  z-index: 1000000;
+  display: none;
+  padding: 5px 8px;
+  font-weight: normal;
+  -webkit-font-smoothing: subpixel-antialiased;
+  color: $tooltip-text-color;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: break-word;
+  white-space: pre;
+  pointer-events: none;
+  background: $tooltip-background-color;
+  border-radius: 2px;
+  opacity: 0;
+}
+
+// This is the tooltip arrow
+.copy-tooltip::before {
+  position: absolute;
+  z-index: 1000001;
+  display: none;
+  width: 0;
+  height: 0;
+  color: $tooltip-background-color;
+  pointer-events: none;
+  content: "";
+  border: 5px solid transparent;
+  opacity: 0;
+}
+
+// delay animation for tooltip
+@keyframes tooltip-appear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// This will indicate when we'll activate the tooltip
+.copy-tooltip:hover,
+.copy-tooltip:active,
+.copy-tooltip:focus,
+.copy-tooltip-immediate {
+  &::before,
+  &::after {
+    display: inline-block;
+    text-decoration: none;
+    animation-name: tooltip-appear;
+    animation-duration: $tooltip-duration;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-delay: $tooltip-delay;
+  }
+}
+
+.copy-tooltip-no-delay:hover,
+.copy-tooltip-no-delay:active,
+.copy-tooltip-no-delay:focus {
+  &::before,
+  &::after {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+.copy-tooltip-multiline:hover,
+.copy-tooltip-multiline:active,
+.copy-tooltip-multiline:focus {
+  &::after {
+    display: table-cell;
+  }
+}
+
+// Tooltipped south
+.copy-tooltip-s,
+.copy-tooltip-se,
+.copy-tooltip-sw {
+  &::after {
+    top: 100%;
+    right: 50%;
+    margin-top: 5px;
+  }
+
+  &::before {
+    top: auto;
+    right: 50%;
+    bottom: -5px;
+    margin-right: -5px;
+    border-bottom-color: $tooltip-background-color;
+  }
+}
+
+.copy-tooltip-se {
+  &::after {
+    right: auto;
+    left: 50%;
+    margin-left: -($spacing-unit / 2);
+  }
+}
+
+.copy-tooltip-sw::after {
+  margin-right: -($spacing-unit / 2);
+}
+
+// Tooltips above the object
+.copy-tooltip-n,
+.copy-tooltip-ne,
+.copy-tooltip-nw {
+  &::after {
+    right: 50%;
+    bottom: 100%;
+    margin-bottom: 5px;
+  }
+
+  &::before {
+    top: -5px;
+    right: 50%;
+    bottom: auto;
+    margin-right: -5px;
+    border-top-color: $tooltip-background-color;
+  }
+}
+
+.copy-tooltip-ne {
+  &::after {
+    right: auto;
+    left: 50%;
+    margin-left: -($spacing-unit / 2);
+  }
+}
+
+.copy-tooltip-nw::after {
+  margin-right: -($spacing-unit / 2);
+}
+
+// Move the tooltip body to the center of the object.
+.copy-tooltip-s::after,
+.copy-tooltip-n::after {
+  transform: translateX(50%);
+}
+
+// Tooltipped to the left
+.copy-tooltip-w {
+  &::after {
+    right: 100%;
+    bottom: 50%;
+    margin-right: 5px;
+    transform: translateY(50%);
+  }
+
+  &::before {
+    top: 50%;
+    bottom: 50%;
+    left: -5px;
+    margin-top: -5px;
+    border-left-color: $tooltip-background-color;
+  }
+}
+
+// copy-tooltip to the right
+.copy-tooltip-e {
+  &::after {
+    bottom: 50%;
+    left: 100%;
+    margin-left: 5px;
+    transform: translateY(50%);
+  }
+
+  &::before {
+    top: 50%;
+    right: -5px;
+    bottom: 50%;
+    margin-top: -5px;
+    border-right-color: $tooltip-background-color;
+  }
+}

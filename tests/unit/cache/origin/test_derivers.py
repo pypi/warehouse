@@ -12,14 +12,14 @@
 
 import pretend
 
-from warehouse.cache.origin.derivers import html_cache_deriver
+from warehouse.cache.origin import derivers
 
 
 def test_no_renderer():
     view = pretend.stub()
     info = pretend.stub(options={})
 
-    assert html_cache_deriver(view, info) == view
+    assert derivers.html_cache_deriver(view, info) == view
 
 
 def test_non_html_renderer():
@@ -27,7 +27,7 @@ def test_non_html_renderer():
     renderer = pretend.stub(name="foo.txt")
     info = pretend.stub(options={"renderer": renderer})
 
-    assert html_cache_deriver(view, info) == view
+    assert derivers.html_cache_deriver(view, info) == view
 
 
 def test_no_origin_cache_found():
@@ -45,7 +45,7 @@ def test_no_origin_cache_found():
         add_response_callback=pretend.call_recorder(lambda a: None),
     )
 
-    assert html_cache_deriver(view, info)(context, request) == view_result
+    assert derivers.html_cache_deriver(view, info)(context, request) == view_result
     assert request.add_response_callback.calls == []
 
 
@@ -69,7 +69,7 @@ def test_response_hook():
         find_service=lambda iface: cacher, add_response_callback=callbacks.append
     )
     info = pretend.stub(options={"renderer": pretend.stub(name="foo.html")})
-    derived_view = html_cache_deriver(view, info)
+    derived_view = derivers.html_cache_deriver(view, info)
 
     assert derived_view(context, request) is response
     assert view.calls == [pretend.call(context, request)]

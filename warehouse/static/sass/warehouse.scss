@@ -65,7 +65,6 @@
 // blocks LAYER: some warehouse specific, some generic/reusable
 @import "blocks/about-pypi";
 @import "blocks/accordion";
-@import "blocks/api-token";
 @import "blocks/applied-filters";
 @import "blocks/author-profile";
 @import "blocks/badge";
@@ -75,6 +74,8 @@
 @import "blocks/callout-block";
 @import "blocks/centered-heading";
 @import "blocks/checkbox-tree";
+@import "blocks/code-block";
+@import "blocks/copy-tooltip";
 @import "blocks/dark-overlay";
 @import "blocks/dropdown";
 @import "blocks/faq-group";
@@ -88,6 +89,7 @@
 @import "blocks/homepage-banner";
 @import "blocks/horizontal-menu";
 @import "blocks/horizontal-section";
+@import "blocks/language-switcher";
 @import "blocks/large-input";
 @import "blocks/lede-paragraph";
 @import "blocks/mobile-search-bar";
@@ -109,8 +111,8 @@
 @import "blocks/status-badge";
 @import "blocks/statistics-bar";
 @import "blocks/table";
-@import "blocks/tooltip";
 @import "blocks/totp-form";
+@import "blocks/token-form";
 @import "blocks/twofa-login";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
@@ -129,6 +131,11 @@
 .reset-text {
   font-size: $base-font-size;
   font-weight: normal;
+}
+
+// TYPE
+.break {
+  word-break: break-all;
 }
 
 // COLORS
@@ -234,6 +241,10 @@
   display: none;
 }
 
+.display-block {
+  display: block;
+}
+
 // Desktop specific visibility
 @media screen and (min-width: $desktop + 1px) {
   .hide-on-desktop {
@@ -247,18 +258,14 @@
   }
 }
 
-.display-block {
-  display: block;
-}
-
-// Mobile specific visibility
-@media screen and (max-width: $mobile) {
-  .hide-on-mobile {
+// Tablet specific visibility
+@media screen and (max-width: $tablet) {
+  .hide-on-tablet {
     display: none;
   }
 
-  .break-on-mobile {
-    word-break: break-all;
+  .show-on-tablet {
+    display: block;
   }
 }
 

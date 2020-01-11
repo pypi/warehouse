@@ -24,6 +24,7 @@ from sqlalchemy import event
 from sqlalchemy.exc import OperationalError
 
 from warehouse import db
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.db import (
     DEFAULT_ISOLATION,
     DatabaseNotAvailable,
@@ -273,7 +274,7 @@ def test_create_session_read_only_mode(
     )
 
     assert _create_session(request) is session_obj
-    assert get.calls == [pretend.call("read-only")]
+    assert get.calls == [pretend.call(AdminFlagValue.READ_ONLY.value)]
     assert request.tm.doom.calls == doom_calls
 
 

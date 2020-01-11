@@ -25,7 +25,6 @@
   width: 1px;
   height: 1px;
   overflow: hidden;
-  color: $white;
   z-index: index($z-index-scale, "skip-to-content");
   @include link-without-underline;
 
@@ -33,10 +32,11 @@
     top: 7px;
     left: 7px;
     width: auto;
-    height: 41px;
-    line-height: 41px;
-    padding: 0 ($spacing-unit / 2);
-    color: $white;
-    background-color: #235589;
+    height: auto;
+    line-height: 1;
+    padding: ($spacing-unit / 2);
+    color: $primary-color;
+    font-weight: $bold-font-weight;
+    background-color: $white;
   }
 }

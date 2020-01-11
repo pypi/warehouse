@@ -31,7 +31,7 @@ class RoleNameMixin:
 
     role_name = wtforms.SelectField(
         "Select role",
-        choices=[("Maintainer", "Maintainer"), ("Owner", "Owner")],
+        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
         validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
@@ -87,13 +87,18 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
         self.user_service = user_service
 
 
-class DeleteTOTPForm(UsernameMixin, forms.Form):
+class ConfirmPasswordForm(UsernameMixin, PasswordMixin, forms.Form):
 
-    __params__ = ["confirm_username"]
+    __params__ = ["confirm_password"]
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+
+
+class DeleteTOTPForm(ConfirmPasswordForm):
+    # TODO: delete?
+    pass
 
 
 class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
@@ -226,6 +231,12 @@ class CreateMacaroonForm(forms.Form):
         if not scopes:
             raise wtforms.ValidationError(f"Specify the token scope")
 
+        if scopes == ["scope:user"]:
+            self.validated_scope = "user"
+            return
+        elif "scope:user" in scopes and len(scopes) > 1:
+            raise wtforms.ValidationError(f"Mixed user and project scopes")
+
         self.validated_scope = {"projects": []}
 
         for scope in scopes:
@@ -234,14 +245,10 @@ class CreateMacaroonForm(forms.Form):
             except ValueError:
                 raise wtforms.ValidationError(f"Unknown token scope: {scope}")
 
-            if scope_kind == "unspecified":
-                raise wtforms.ValidationError(f"Specify the token scope")
-
-            if scope_kind == "user":
-                if len(scopes) != 1:
-                    raise wtforms.ValidationError(f"Mixed user and project scopes")
-                self.validated_scope = scope_kind
-                return
+            if scope_kind == "by_project":
+                # "by_project" is sent to indicate the user made a selection
+                # of projects either in checkboxes or in the multiselect
+                continue
 
             try:
                 scope_kind, scope_value = scope_kind.split(":", 1)
@@ -257,16 +264,20 @@ class CreateMacaroonForm(forms.Form):
 
             self.validated_scope["projects"].append(scope_value)
 
+        if not self.validated_scope["projects"]:
+            raise wtforms.ValidationError(f"Specify the token scope")
 
-class DeleteMacaroonForm(forms.Form):
-    __params__ = ["macaroon_id"]
+
+class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
+    __params__ = ["confirm_password", "macaroon_id"]
 
     macaroon_id = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Identifier required")]
     )
 
-    def __init__(self, *args, macaroon_service, **kwargs):
+    def __init__(self, *args, macaroon_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_service = user_service
         self.macaroon_service = macaroon_service
 
     def validate_macaroon_id(self, field):

@@ -27,9 +27,17 @@ from webob.multidict import MultiDict
 import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
-from warehouse.packaging.models import File, JournalEntry, Project, Role, User
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    Project,
+    ProjectEvent,
+    Role,
+    User,
+)
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_documentation
 
@@ -37,6 +45,7 @@ from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
+    ProjectEventFactory,
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
@@ -186,7 +195,8 @@ class TestManageAccount:
         email_address = "test@example.com"
         email = pretend.stub(id=pretend.stub(), email=email_address)
         user_service = pretend.stub(
-            add_email=pretend.call_recorder(lambda *a, **kw: email)
+            add_email=pretend.call_recorder(lambda *a, **kw: email),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"email": email_address},
@@ -197,6 +207,7 @@ class TestManageAccount:
                 emails=[], username="username", name="Name", id=pretend.stub()
             ),
             task=pretend.call_recorder(lambda *args, **kwargs: send_email),
+            remote_addr="0.0.0.0",
         )
         monkeypatch.setattr(
             views,
@@ -226,6 +237,14 @@ class TestManageAccount:
             )
         ]
         assert send_email.calls == [pretend.call(request, (request.user, email))]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:email:add",
+                ip_address=request.remote_addr,
+                additional={"email": email_address},
+            )
+        ]
 
     def test_add_email_validation_fails(self, monkeypatch):
         email_address = "test@example.com"
@@ -262,6 +281,9 @@ class TestManageAccount:
     def test_delete_email(self, monkeypatch):
         email = pretend.stub(id=pretend.stub(), primary=False, email=pretend.stub())
         some_other_email = pretend.stub()
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
         request = pretend.stub(
             POST={"delete_email_id": email.id},
             user=pretend.stub(
@@ -272,8 +294,9 @@ class TestManageAccount:
                     filter=lambda *a: pretend.stub(one=lambda: email)
                 )
             ),
-            find_service=lambda *a, **kw: pretend.stub(),
+            find_service=lambda *a, **kw: user_service,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            remote_addr="0.0.0.0",
         )
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -285,6 +308,14 @@ class TestManageAccount:
             pretend.call(f"Email address {email.email} removed", queue="success")
         ]
         assert request.user.emails == [some_other_email]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:email:remove",
+                ip_address=request.remote_addr,
+                additional={"email": email.email},
+            )
+        ]
 
     def test_delete_email_not_found(self, monkeypatch):
         email = pretend.stub()
@@ -341,13 +372,17 @@ class TestManageAccount:
 
     def test_change_primary_email(self, monkeypatch, db_request):
         user = UserFactory()
-        old_primary = EmailFactory(primary=True, user=user)
-        new_primary = EmailFactory(primary=False, verified=True, user=user)
+        old_primary = EmailFactory(primary=True, user=user, email="old")
+        new_primary = EmailFactory(primary=False, verified=True, user=user, email="new")
 
         db_request.user = user
 
-        db_request.find_service = lambda *a, **kw: pretend.stub()
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
+        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -367,6 +402,14 @@ class TestManageAccount:
         ]
         assert not old_primary.primary
         assert new_primary.primary
+        assert user_service.record_event.calls == [
+            pretend.call(
+                user.id,
+                tag="account:email:primary:change",
+                ip_address=db_request.remote_addr,
+                additional={"old_primary": "old", "new_primary": "new"},
+            )
+        ]
 
     def test_change_primary_email_without_current(self, monkeypatch, db_request):
         user = UserFactory()
@@ -374,8 +417,12 @@ class TestManageAccount:
 
         db_request.user = user
 
-        db_request.find_service = lambda *a, **kw: pretend.stub()
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
+        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -392,6 +439,14 @@ class TestManageAccount:
             )
         ]
         assert new_primary.primary
+        assert user_service.record_event.calls == [
+            pretend.call(
+                user.id,
+                tag="account:email:primary:change",
+                ip_address=db_request.remote_addr,
+                additional={"old_primary": None, "new_primary": new_primary.email},
+            )
+        ]
 
     def test_change_primary_email_not_found(self, monkeypatch, db_request):
         user = UserFactory()
@@ -414,7 +469,13 @@ class TestManageAccount:
         assert old_primary.primary
 
     def test_reverify_email(self, monkeypatch):
-        email = pretend.stub(verified=False, email="email_address")
+        email = pretend.stub(
+            verified=False,
+            email="email_address",
+            user=pretend.stub(
+                record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
 
         request = pretend.stub(
             POST={"reverify_email_id": pretend.stub()},
@@ -426,6 +487,7 @@ class TestManageAccount:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
             user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
+            remote_addr="0.0.0.0",
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -439,6 +501,13 @@ class TestManageAccount:
             pretend.call("Verification email for email_address resent", queue="success")
         ]
         assert send_email.calls == [pretend.call(request, (request.user, email))]
+        assert email.user.record_event.calls == [
+            pretend.call(
+                tag="account:email:reverify",
+                ip_address=request.remote_addr,
+                additional={"email": email.email},
+            )
+        ]
 
     def test_reverify_email_not_found(self, monkeypatch):
         def raise_no_result():
@@ -499,7 +568,8 @@ class TestManageAccount:
         old_password = "0ld_p455w0rd"
         new_password = "n3w_p455w0rd"
         user_service = pretend.stub(
-            update_user=pretend.call_recorder(lambda *a, **kw: None)
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={
@@ -515,6 +585,7 @@ class TestManageAccount:
                 email=pretend.stub(),
                 name=pretend.stub(),
             ),
+            remote_addr="0.0.0.0",
         )
         change_pwd_obj = pretend.stub(
             validate=lambda: True, new_password=pretend.stub(data=new_password)
@@ -539,6 +610,13 @@ class TestManageAccount:
         assert send_email.calls == [pretend.call(request, request.user)]
         assert user_service.update_user.calls == [
             pretend.call(request.user.id, password=new_password)
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:password:change",
+                ip_address=request.remote_addr,
+            )
         ]
 
     def test_change_password_validation_fails(self, monkeypatch):
@@ -589,8 +667,14 @@ class TestManageAccount:
         jid = JournalEntryFactory.create(submitted_by=user).id
 
         db_request.user = user
-        db_request.params = {"confirm_username": user.username}
+        db_request.params = {"confirm_password": user.password}
         db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -620,7 +704,7 @@ class TestManageAccount:
 
     def test_delete_account_no_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": ""},
+            params={"confirm_password": ""},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
@@ -638,11 +722,17 @@ class TestManageAccount:
 
     def test_delete_account_wrong_confirm(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "invalid"},
+            params={"confirm_password": "invalid"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: False)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -653,18 +743,24 @@ class TestManageAccount:
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not delete account - 'invalid' is not the same as " "'username'",
+                "Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
         ]
 
     def test_delete_account_has_active_projects(self, monkeypatch):
         request = pretend.stub(
-            params={"confirm_username": "username"},
+            params={"confirm_password": "password"},
             user=pretend.stub(username="username"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
         )
+
+        confirm_password_obj = pretend.stub(validate=lambda: True)
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: confirm_password_obj
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", pretend.stub()
@@ -847,6 +943,7 @@ class TestProvisionTOTP:
         user_service = pretend.stub(
             get_totp_secret=lambda id: None,
             update_user=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"totp_value": "123456"},
@@ -866,6 +963,7 @@ class TestProvisionTOTP:
                 has_primary_verified_email=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
+            remote_addr="0.0.0.0",
         )
 
         provision_totp_obj = pretend.stub(validate=lambda: True)
@@ -883,6 +981,14 @@ class TestProvisionTOTP:
         assert request.session.flash.calls == [
             pretend.call(
                 "Authentication application successfully set up", queue="success"
+            )
+        ]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=request.remote_addr,
+                additional={"method": "totp"},
             )
         ]
 
@@ -990,9 +1096,10 @@ class TestProvisionTOTP:
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
             update_user=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1004,6 +1111,7 @@ class TestProvisionTOTP:
                 has_primary_verified_email=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
+            remote_addr="0.0.0.0",
         )
 
         delete_totp_obj = pretend.stub(validate=lambda: True)
@@ -1025,14 +1133,22 @@ class TestProvisionTOTP:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=request.remote_addr,
+                additional={"method": "totp"},
+            )
+        ]
 
-    def test_delete_totp_bad_username(self, monkeypatch, db_request):
+    def test_delete_totp_bad_password(self, monkeypatch, db_request):
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1054,7 +1170,7 @@ class TestProvisionTOTP:
 
         assert user_service.update_user.calls == []
         assert request.session.flash.calls == [
-            pretend.call("Invalid credentials", queue="error")
+            pretend.call("Invalid credentials. Try again", queue="error")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -1065,7 +1181,7 @@ class TestProvisionTOTP:
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
-            POST={"confirm_username": pretend.stub()},
+            POST={"confirm_password": pretend.stub()},
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(
@@ -1157,7 +1273,8 @@ class TestProvisionWebAuthn:
 
     def test_validate_webauthn_provision(self, monkeypatch):
         user_service = pretend.stub(
-            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+            add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub()),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={},
@@ -1170,6 +1287,7 @@ class TestProvisionWebAuthn:
             find_service=lambda *a, **kw: user_service,
             domain="fake_domain",
             host_url="fake_host_url",
+            remote_addr="0.0.0.0",
         )
 
         provision_webauthn_obj = pretend.stub(
@@ -1204,6 +1322,17 @@ class TestProvisionWebAuthn:
             pretend.call("Security device successfully set up", queue="success")
         ]
         assert result == {"success": "Security device successfully set up"}
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_added",
+                ip_address=request.remote_addr,
+                additional={
+                    "method": "webauthn",
+                    "label": provision_webauthn_obj.label.data,
+                },
+            )
+        ]
 
     def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
         user_service = pretend.stub(
@@ -1242,6 +1371,9 @@ class TestProvisionWebAuthn:
         assert result == {"fail": {"errors": ["Not a real error"]}}
 
     def test_delete_webauthn(self, monkeypatch):
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
         request = pretend.stub(
             POST={},
             user=pretend.stub(
@@ -1255,11 +1387,14 @@ class TestProvisionWebAuthn:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
-            find_service=lambda *a, **kw: pretend.stub(),
+            find_service=lambda *a, **kw: user_service,
+            remote_addr="0.0.0.0",
         )
 
         delete_webauthn_obj = pretend.stub(
-            validate=lambda: True, webauthn=pretend.stub()
+            validate=lambda: True,
+            webauthn=pretend.stub(),
+            label=pretend.stub(data="fake label"),
         )
         delete_webauthn_cls = pretend.call_recorder(
             lambda *a, **kw: delete_webauthn_obj
@@ -1275,6 +1410,17 @@ class TestProvisionWebAuthn:
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:two_factor:method_removed",
+                ip_address=request.remote_addr,
+                additional={
+                    "method": "webauthn",
+                    "label": delete_webauthn_obj.label.data,
+                },
+            )
+        ]
 
     def test_delete_webauthn_not_provisioned(self):
         request = pretend.stub(
@@ -1342,7 +1488,7 @@ class TestProvisionMacaroonViews:
         )
 
         request = pretend.stub(
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: pretend.stub(),
                 IUserService: pretend.stub(),
@@ -1467,20 +1613,24 @@ class TestProvisionMacaroonViews:
                 lambda *a, **kw: ("not a real raw macaroon", macaroon)
             )
         )
+        user_service = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None)
+        )
         request = pretend.stub(
             POST=MultiDict({"description": "dummy"}),
             domain=pretend.stub(),
             user=pretend.stub(id=pretend.stub(), has_primary_verified_email=True),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
+                IUserService: user_service,
             }[interface],
+            remote_addr="0.0.0.0",
         )
 
         create_macaroon_obj = pretend.stub(
             validate=lambda: True,
             description=pretend.stub(data=pretend.stub()),
-            validated_scope=pretend.stub(),
+            validated_scope="foobar",
         )
         create_macaroon_cls = pretend.call_recorder(
             lambda *a, **kw: create_macaroon_obj
@@ -1517,13 +1667,126 @@ class TestProvisionMacaroonViews:
             "macaroon": macaroon,
             "create_macaroon_form": create_macaroon_obj,
         }
+        assert user_service.record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "caveats": {
+                        "permissions": create_macaroon_obj.validated_scope,
+                        "version": 1,
+                    },
+                },
+            )
+        ]
+
+    def test_create_macaroon_records_events_for_each_project(self, monkeypatch):
+        macaroon = pretend.stub()
+        macaroon_service = pretend.stub(
+            create_macaroon=pretend.call_recorder(
+                lambda *a, **kw: ("not a real raw macaroon", macaroon)
+            )
+        )
+        record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(record_event=record_event)
+        request = pretend.stub(
+            POST=MultiDict({"description": "dummy"}),
+            domain=pretend.stub(),
+            user=pretend.stub(
+                id=pretend.stub(),
+                has_primary_verified_email=True,
+                username=pretend.stub(),
+                projects=[
+                    pretend.stub(normalized_name="foo", record_event=record_event),
+                    pretend.stub(normalized_name="bar", record_event=record_event),
+                ],
+            ),
+            find_service=lambda interface, **kw: {
+                IMacaroonService: macaroon_service,
+                IUserService: user_service,
+            }[interface],
+            remote_addr="0.0.0.0",
+        )
+
+        create_macaroon_obj = pretend.stub(
+            validate=lambda: True,
+            description=pretend.stub(data=pretend.stub()),
+            validated_scope={"projects": ["foo", "bar"]},
+        )
+        create_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: create_macaroon_obj
+        )
+        monkeypatch.setattr(views, "CreateMacaroonForm", create_macaroon_cls)
+
+        project_names = [pretend.stub()]
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "project_names", project_names
+        )
+
+        default_response = {"default": "response"}
+        monkeypatch.setattr(
+            views.ProvisionMacaroonViews, "default_response", default_response
+        )
+
+        view = views.ProvisionMacaroonViews(request)
+        result = view.create_macaroon()
+
+        assert macaroon_service.create_macaroon.calls == [
+            pretend.call(
+                location=request.domain,
+                user_id=request.user.id,
+                description=create_macaroon_obj.description.data,
+                caveats={
+                    "permissions": create_macaroon_obj.validated_scope,
+                    "version": 1,
+                },
+            )
+        ]
+        assert result == {
+            **default_response,
+            "serialized_macaroon": "not a real raw macaroon",
+            "macaroon": macaroon,
+            "create_macaroon_form": create_macaroon_obj,
+        }
+        assert record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "caveats": {
+                        "permissions": create_macaroon_obj.validated_scope,
+                        "version": 1,
+                    },
+                },
+            ),
+            pretend.call(
+                tag="project:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "user": request.user.username,
+                },
+            ),
+            pretend.call(
+                tag="project:api_token:added",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": create_macaroon_obj.description.data,
+                    "user": request.user.username,
+                },
+            ),
+        ]
 
     def test_delete_macaroon_invalid_form(self, monkeypatch):
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
-            POST=MultiDict({"description": "dummy"}),
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1531,6 +1794,8 @@ class TestProvisionMacaroonViews:
             }[interface],
             referer="/fake/safe/route",
             host=None,
+            user=pretend.stub(username=pretend.stub()),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1546,13 +1811,16 @@ class TestProvisionMacaroonViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/fake/safe/route"
         assert macaroon_service.delete_macaroon.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials. Try again", queue="error")
+        ]
 
     def test_delete_macaroon_dangerous_redirect(self, monkeypatch):
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub())
         )
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: "/safe/route"),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -1560,6 +1828,8 @@ class TestProvisionMacaroonViews:
             }[interface],
             referer="http://google.com/",
             host=None,
+            user=pretend.stub(username=pretend.stub()),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
         delete_macaroon_obj = pretend.stub(validate=lambda: False)
@@ -1577,22 +1847,29 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.delete_macaroon.calls == []
 
     def test_delete_macaroon(self, monkeypatch):
+        macaroon = pretend.stub(
+            description="fake macaroon", caveats={"version": 1, "permissions": "user"}
+        )
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
-            find_macaroon=pretend.call_recorder(
-                lambda id: pretend.stub(description="fake macaroon")
-            ),
+            find_macaroon=pretend.call_recorder(lambda id: macaroon),
         )
+        record_event = pretend.call_recorder(
+            pretend.call_recorder(lambda *a, **kw: None)
+        )
+        user_service = pretend.stub(record_event=record_event)
         request = pretend.stub(
-            POST={},
+            POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
-                IUserService: pretend.stub(),
+                IUserService: user_service,
             }[interface],
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             referer="/fake/safe/route",
             host=None,
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
+            remote_addr="0.0.0.0",
         )
 
         delete_macaroon_obj = pretend.stub(
@@ -1617,6 +1894,96 @@ class TestProvisionMacaroonViews:
         ]
         assert request.session.flash.calls == [
             pretend.call("Deleted API token 'fake macaroon'.", queue="success")
+        ]
+        assert record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
+            )
+        ]
+
+    def test_delete_macaroon_records_events_for_each_project(self, monkeypatch):
+        macaroon = pretend.stub(
+            description="fake macaroon",
+            caveats={"version": 1, "permissions": {"projects": ["foo", "bar"]}},
+        )
+        macaroon_service = pretend.stub(
+            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
+            find_macaroon=pretend.call_recorder(lambda id: macaroon),
+        )
+        record_event = pretend.call_recorder(
+            pretend.call_recorder(lambda *a, **kw: None)
+        )
+        user_service = pretend.stub(record_event=record_event)
+        request = pretend.stub(
+            POST={"confirm_password": pretend.stub(), "macaroon_id": pretend.stub()},
+            route_path=pretend.call_recorder(lambda x: pretend.stub()),
+            find_service=lambda interface, **kw: {
+                IMacaroonService: macaroon_service,
+                IUserService: user_service,
+            }[interface],
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            referer="/fake/safe/route",
+            host=None,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                projects=[
+                    pretend.stub(normalized_name="foo", record_event=record_event),
+                    pretend.stub(normalized_name="bar", record_event=record_event),
+                ],
+            ),
+            remote_addr="0.0.0.0",
+        )
+
+        delete_macaroon_obj = pretend.stub(
+            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
+        )
+        delete_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_macaroon_obj
+        )
+        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+
+        view = views.ProvisionMacaroonViews(request)
+        result = view.delete_macaroon()
+
+        assert request.route_path.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/fake/safe/route"
+        assert macaroon_service.delete_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
+        assert macaroon_service.find_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
+        ]
+        assert record_event.calls == [
+            pretend.call(
+                request.user.id,
+                tag="account:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
+            ),
+            pretend.call(
+                tag="project:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": "fake macaroon",
+                    "user": request.user.username,
+                },
+            ),
+            pretend.call(
+                tag="project:api_token:removed",
+                ip_address=request.remote_addr,
+                additional={
+                    "description": "fake macaroon",
+                    "user": request.user.username,
+                },
+            ),
         ]
 
 
@@ -1673,6 +2040,7 @@ class TestManageProjectSettings:
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1682,6 +2050,9 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -1690,6 +2061,7 @@ class TestManageProjectSettings:
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={"confirm_project_name": "bar"},
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1699,11 +2071,44 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call(
                 "Could not delete project - 'bar' is not the same as 'foo'",
                 queue="error",
             )
+        ]
+
+    def test_delete_project_disallow_deletion(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.delete_project(project, request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_delete_project(self, db_request):
@@ -1810,11 +2215,22 @@ class TestManageProjectDocumentation:
 
 
 class TestManageProjectReleases:
-    def test_manage_project_releases(self):
-        request = pretend.stub()
-        project = pretend.stub()
+    def test_manage_project_releases(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.0.0")
+        release_file = FileFactory.create(
+            release=release,
+            filename=f"foobar-{release.version}.tar.gz",
+            packagetype="sdist",
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
 
-        assert views.manage_project_releases(project, request) == {"project": project}
+        assert views.manage_project_releases(project, db_request) == {
+            "project": project,
+            "version_to_file_counts": {
+                release.version: {"total": 1, release_file.packagetype: 1}
+            },
+        }
 
 
 class TestManageProjectRelease:
@@ -1831,8 +2247,56 @@ class TestManageProjectRelease:
             "files": files,
         }
 
+    def test_delete_project_release_disallow_deletion(self, monkeypatch):
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            method="POST",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release()
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
     def test_delete_project_release(self, monkeypatch):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
         request = pretend.stub(
             POST={"confirm_version": release.version},
             method="POST",
@@ -1840,9 +2304,10 @@ class TestManageProjectRelease:
                 delete=pretend.call_recorder(lambda a: None),
                 add=pretend.call_recorder(lambda a: None),
             ),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(),
+            user=pretend.stub(username=pretend.stub()),
             remote_addr=pretend.stub(),
         )
         journal_obj = pretend.stub()
@@ -1858,6 +2323,9 @@ class TestManageProjectRelease:
 
         assert request.db.delete.calls == [pretend.call(release)]
         assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert journal_cls.calls == [
             pretend.call(
                 name=release.project.name,
@@ -1873,6 +2341,16 @@ class TestManageProjectRelease:
         assert request.route_path.calls == [
             pretend.call("manage.project.releases", project_name=release.project.name)
         ]
+        assert release.project.record_event.calls == [
+            pretend.call(
+                tag="project:release:remove",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+        ]
 
     def test_delete_project_release_no_confirm(self):
         release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
@@ -1880,6 +2358,7 @@ class TestManageProjectRelease:
             POST={"confirm_version": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -1893,6 +2372,9 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
         ]
         assert request.route_path.calls == [
             pretend.call(
@@ -1908,6 +2390,7 @@ class TestManageProjectRelease:
             POST={"confirm_version": "invalid"},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -1923,6 +2406,42 @@ class TestManageProjectRelease:
             pretend.call(
                 "Could not delete release - "
                 + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_delete_project_release_file_disallow_deletion(self):
+        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        request = pretend.stub(
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
                 queue="error",
             )
         ]
@@ -1992,6 +2511,7 @@ class TestManageProjectRelease:
             POST={"confirm_project_name": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2003,6 +2523,9 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert request.db.delete.calls == []
+        assert request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -2029,6 +2552,7 @@ class TestManageProjectRelease:
                 filter=lambda *a: pretend.stub(one=no_result_found)
             ),
         )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -2042,6 +2566,9 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert db_request.db.delete.calls == []
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Could not find file", queue="error")
         ]
@@ -2599,6 +3126,129 @@ class TestDeleteProjectRoles:
 class TestManageProjectHistory:
     def test_get(self, db_request):
         project = ProjectFactory.create()
+        older_event = ProjectEventFactory.create(
+            project=project,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+        )
+        newer_event = ProjectEventFactory.create(
+            project=project,
+            tag="fake:event",
+            ip_address="0.0.0.0",
+            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        )
+
+        assert views.manage_project_history(project, db_request) == {
+            "project": project,
+            "events": [newer_event, older_event],
+        }
+
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+        params = MultiDict({"page": "abc"})
+        db_request.params = params
+
+        events_query = pretend.stub()
+        db_request.events_query = pretend.stub(
+            events_query=lambda *a, **kw: events_query
+        )
+
+        page_obj = pretend.stub(page_count=10, item_count=1000)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "SQLAlchemyORMPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        project = ProjectFactory.create()
+        with pytest.raises(HTTPBadRequest):
+            views.manage_project_history(project, db_request)
+
+        assert page_cls.calls == []
+
+    def test_first_page(self, db_request):
+        page_number = 1
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            ProjectEventFactory.create(
+                project=project, tag="fake:event", ip_address="0.0.0.0"
+            )
+        events_query = (
+            db_request.db.query(ProjectEvent)
+            .join(ProjectEvent.project)
+            .filter(ProjectEvent.project_id == project.id)
+            .order_by(ProjectEvent.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_project_history(project, db_request) == {
+            "project": project,
+            "events": events_page,
+        }
+
+    def test_last_page(self, db_request):
+        page_number = 2
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            ProjectEventFactory.create(
+                project=project, tag="fake:event", ip_address="0.0.0.0"
+            )
+        events_query = (
+            db_request.db.query(ProjectEvent)
+            .join(ProjectEvent.project)
+            .filter(ProjectEvent.project_id == project.id)
+            .order_by(ProjectEvent.time.desc())
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=page_number,
+            items_per_page=items_per_page,
+            item_count=total_items,
+            url_maker=paginate_url_factory(db_request),
+        )
+        assert views.manage_project_history(project, db_request) == {
+            "project": project,
+            "events": events_page,
+        }
+
+    def test_raises_404_with_out_of_range_page(self, db_request):
+        page_number = 3
+        params = MultiDict({"page": page_number})
+        db_request.params = params
+
+        project = ProjectFactory.create()
+        items_per_page = 25
+        total_items = items_per_page + 2
+        for _ in range(total_items):
+            ProjectEventFactory.create(
+                project=project, tag="fake:event", ip_address="0.0.0.0"
+            )
+
+        with pytest.raises(HTTPNotFound):
+            assert views.manage_project_history(project, db_request)
+
+
+class TestManageProjectJournal:
+    def test_get(self, db_request):
+        project = ProjectFactory.create()
         older_journal = JournalEntryFactory.create(
             name=project.name,
             submitted_date=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
@@ -2608,7 +3258,7 @@ class TestManageProjectHistory:
             submitted_date=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
-        assert views.manage_project_history(project, db_request) == {
+        assert views.manage_project_journal(project, db_request) == {
             "project": project,
             "journals": [newer_journal, older_journal],
         }
@@ -2632,7 +3282,7 @@ class TestManageProjectHistory:
 
         project = ProjectFactory.create()
         with pytest.raises(HTTPBadRequest):
-            views.manage_project_history(project, db_request)
+            views.manage_project_journal(project, db_request)
 
         assert page_cls.calls == []
 
@@ -2662,7 +3312,7 @@ class TestManageProjectHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
-        assert views.manage_project_history(project, db_request) == {
+        assert views.manage_project_journal(project, db_request) == {
             "project": project,
             "journals": journals_page,
         }
@@ -2693,7 +3343,7 @@ class TestManageProjectHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
-        assert views.manage_project_history(project, db_request) == {
+        assert views.manage_project_journal(project, db_request) == {
             "project": project,
             "journals": journals_page,
         }
@@ -2712,4 +3362,4 @@ class TestManageProjectHistory:
             )
 
         with pytest.raises(HTTPNotFound):
-            assert views.manage_project_history(project, db_request)
+            assert views.manage_project_journal(project, db_request)

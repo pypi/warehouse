@@ -24,6 +24,7 @@
 .badge {
   font-size: $small-font-size;
   text-transform: uppercase;
+  border: 1px solid $primary-color;
   background-color: $primary-color;
   color: $white;
   padding: 0 7px;
@@ -35,20 +36,48 @@
     color: $white;
   }
 
+  &:focus,
+  &:active {
+    border-color: $white;
+    outline: 1px solid $primary-color;
+  }
+
   &--success {
     background-color: $success-color;
+    border-color: $success-color;
+
+    &:focus,
+    &:active {
+      outline: 1px solid $success-color;
+    }
   }
 
   &--danger {
     background-color: $danger-color;
+    border-color: $danger-color;
+
+    &:focus,
+    &:active {
+      outline: 1px solid $danger-color;
+    }
   }
 
   &--warning {
-    background-color: $warn-color;
-    color: $warn-text;
+    background-color: $warning-background-color;
+    border-color: $warning-background-color;
+    color: $warning-color;
 
     &:hover {
-      color: $warn-text;
+      color: $warning-color;
+    }
+
+    &:focus,
+    &:active {
+      outline: 1px solid $warning-color;
     }
   }
+}
+
+a.badge {
+  text-decoration: underline;
 }

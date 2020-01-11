@@ -44,7 +44,6 @@ class TestDatabaseMacaroonService:
             (None, None),
             ("noprefixhere", None),
             ("invalid:prefix", None),
-            ("pypi:validprefix", "validprefix"),
             ("pypi-validprefix", "validprefix"),
         ],
     )

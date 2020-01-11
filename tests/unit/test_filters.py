@@ -153,6 +153,13 @@ def test_format_classifiers(inp, expected):
 
 
 @pytest.mark.parametrize(
+    ("inp", "expected"), [("Foo", "Foo"), ("Foo :: Foo", "Foo_._Foo")]
+)
+def test_classifier_id(inp, expected):
+    assert filters.classifier_id(inp) == expected
+
+
+@pytest.mark.parametrize(
     ("inp", "expected"),
     [
         (["abcdef", "ghijkl"], False),

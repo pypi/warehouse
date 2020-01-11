@@ -15,32 +15,30 @@
 
 {% set active_tab = 'documentation' %}
 
-{% block title %}Manage '{{ project.name }}' documentation{% endblock %}
+{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' documentation{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>Documentation</h2>
+  <h2>{% trans %}Documentation{% endtrans %}</h2>
 
   {% if project.has_docs %}
   <div class="callout-block callout-block--danger">
-    <h3>Destroy documentation</h3>
+    <h3>{% trans %}Destroy documentation{% endtrans %}</h3>
     <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-      If you would like to DESTROY any existing documentation hosted at
-      <a href="{{ project.documentation_url}}">
-          {{ project.documentation_url }}
-      </a>
-    </p>
-    <p>
-      There is <b>no</b> undo as uploading new documentation is no longer supported.
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+      {% trans trimmed url=project.documentation_url %}
+        If you would like to DESTROY any existing documentation hosted at
+        <a href="{{ url }}">{{ url }}</a>
+        there is <strong>no</strong> undo, as uploading new documentation is no longer supported.
+      {% endtrans %}
     </p>
     {% set action = request.route_path('manage.project.destroy_docs', project_name=project.normalized_name) %}
-    {{ confirm_button("Destroy Documentation for project", "Project name", project.normalized_name, action=action) }}
+    {{ confirm_button(gettext("Destroy Documentation for project"), gettext("Project name"), "project_name", project.normalized_name, action=action) }}
   </div>
   {% else %}
   <div class="callout-block callout-block--info">
-    <h3>Project documentation</h3>
+    <h3>{% trans %}Project documentation{% endtrans %}</h3>
     <p>
-      Uploading new documentation is no longer supported
+      {% trans %}Uploading new documentation is no longer supported{% endtrans %}
     </p>
   </div>
   {% endif %}

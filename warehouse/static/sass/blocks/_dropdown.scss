@@ -14,14 +14,28 @@
 
 /*
   A dropdown - containing a trigger and dropdown content, which may include
-  links. Styled to match the banner.
+  links.
 
-  <div class="dropdown">
-    <button class="dropdown__trigger">
-    <div class="dropdown__content">
-      <a class="dropdown__link">Link Here</a>
-    </div>
-  </div>
+  <nav class="dropdown" aria-label="Dropdown label">
+    <button type="button" class="dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="button label">
+      // Button text or icon
+    </button>
+    <ul class="dropdown__content" aria-hidden="true" aria-label="Main menu">
+      <li>
+        <a class="dropdown__link" href="url">
+          // Link text
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  Accessbility:
+    - .dropdown - aria-label: label the entire dropdown. E.g. "Main navigation"
+    - .dropdown__trigger - aria-label: label the button. E.g. "Show menu"
+    - .dropdown__trigger - aria-haspopup: indicates that the button has a popup element attached
+    - .dropdown__trigger - aria-expended: indicates whether or not the popup is expanded
+    - .dropdown__content - aria-hidden: indicates whether or not list is hidden
+    - .dropdown__content - aria-label: labels the content. E.g. "Main menu"
 
   Modifiers:
     - on-menu: Styles the dropdown to match the site header
@@ -38,10 +52,6 @@
     margin: 0;
     padding: 0;
     list-style-type: none;
-  }
-
-  &:hover .dropdown__content {
-    display: block;
   }
 
   &__trigger {
@@ -81,20 +91,23 @@
     @include link-without-underline;
 
     &:hover,
+    &:active,
     &:focus {
       background-color: mix($white, $primary-color-light, 90%);
       color: $primary-color-dark;
     }
 
+    &:active,
     &:focus {
-      border-bottom-color: $primary-color-light;
+      outline: 1px solid $primary-color;
+      border-bottom-color: $primary-color;
     }
 
     .fa {
       font-size: 14px;
       position: absolute;
       left: 15px;
-      top: 20px;
+      top: calc(50% - 7px);
     }
   }
 
@@ -124,13 +137,15 @@
       }
 
       &:hover,
+      &:active,
       &:focus {
         background-color: darken($header-background-color, 1.5);
         color: $white;
       }
 
       &:focus {
-        border-bottom-color: $primary-color-light;
+        outline: 1px solid $white;
+        border-bottom-color: $white;
       }
     }
   }
