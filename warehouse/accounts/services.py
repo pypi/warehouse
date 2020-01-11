@@ -22,6 +22,7 @@ import uuid
 import requests
 
 from passlib.context import CryptContext
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
@@ -78,7 +79,7 @@ class DatabaseUserService:
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
-        return self.db.query(User).get(userid)
+        return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
