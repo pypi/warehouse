@@ -58,12 +58,11 @@
 
   &__info {
     padding-top: $spacing-unit;
-    overflow: hidden;
+    word-wrap: break-word;
   }
 
   &__name {
     @include h2;
-    overflow: hidden;
     padding: 0 0 $spacing-unit / 2;
     word-wrap: break-word;
 
@@ -76,6 +75,7 @@
 
   &__meta {
     margin-bottom: $spacing-unit;
+    word-wrap: break-word;
   }
 
   &__edit-button {
