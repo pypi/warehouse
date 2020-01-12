@@ -12,6 +12,8 @@
 
 import json
 
+from email.headerregistry import Address
+
 import disposable_email_domains
 import jinja2
 import wtforms
@@ -173,6 +175,26 @@ class NewEmailMixin:
     )
 
     def validate_email(self, field):
+        # Additional checks for the validity of the address
+        try:
+            Address(addr_spec=field.data)
+        except ValueError:
+            raise wtforms.validators.ValidationError(
+                _("The email address isn't valid. Try again.")
+            )
+
+        # Check if the domain is valid
+        domain = field.data.split("@")[-1]
+
+        if domain in disposable_email_domains.blacklist:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "You can't use an email address from this domain. Use a "
+                    "different email."
+                )
+            )
+
+        # Check if this email address is already in use
         userid = self.user_service.find_userid_by_email(field.data)
 
         if userid and userid == self.user_id:
@@ -187,15 +209,6 @@ class NewEmailMixin:
                 _(
                     "This email address is already being used "
                     "by another account. Use a different email."
-                )
-            )
-
-        domain = field.data.split("@")[-1]
-        if domain in disposable_email_domains.blacklist:
-            raise wtforms.validators.ValidationError(
-                _(
-                    "You can't use an email address from this domain. Use a "
-                    "different email."
                 )
             )
 
