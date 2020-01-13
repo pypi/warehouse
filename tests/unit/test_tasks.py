@@ -472,7 +472,7 @@ def test_includeme(env, ssl, broker_url, expected_url, transport_options):
             Queue("default", routing_key="task.#"),
             Queue("malware", routing_key="malware.#"),
         ),
-        "task_routes": ([("warehouse.malware.tasks.*", {"queue": "malware"})]),
+        "task_routes": {"warehouse.malware.tasks.*": {"queue": "malware"}},
         "REDBEAT_REDIS_URL": (config.registry.settings["celery.scheduler_url"]),
     }.items():
         assert app.conf[key] == value
