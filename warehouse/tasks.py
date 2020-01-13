@@ -195,8 +195,11 @@ def includeme(config):
         task_default_queue="default",
         task_default_routing_key="task.default",
         task_queue_ha_policy="all",
-        task_queues=(Queue("default", routing_key="task.#"),),
-        task_routes=([]),
+        task_queues=(
+            Queue("default", routing_key="task.#"),
+            Queue("malware", routing_key="malware.#"),
+        ),
+        task_routes={"warehouse.malware.tasks.*": {"queue": "malware"}},
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
