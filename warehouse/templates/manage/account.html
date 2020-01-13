@@ -139,6 +139,9 @@
     <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
     {% endif %}
     <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
+    {% if not user.has_recovery_codes %}
+    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate <abbr title="two factor authentication">2FA</abbr> Recovery Codes{% endtrans %}</a>
+    {% endif %}
   </div>
 
   <noscript>
@@ -465,6 +468,20 @@
             </td>
           </tr>
           {% endfor %}
+          {% if user.has_recovery_codes %}
+          <tr>
+            <th scope="row">
+              Recovery Codes
+            </th>
+            <td class="table__align-right">
+              <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
+              {% set title=gettext("Regenerate Recovery Codes") %}
+              {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
+              {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
+              {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
+            </td>
+          </tr>
+          {% endif %}
         </tbody>
       </table>
       {{ twofa_buttons() }}

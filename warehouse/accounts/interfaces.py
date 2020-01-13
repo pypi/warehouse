@@ -187,6 +187,20 @@ class IUserService(Interface):
         Returns the event.
         """
 
+    def generate_recovery_codes(user_id):
+        """
+        Generates RecoveryCode objects for the given user.
+
+        Returns a list of plain-text codes.
+        """
+
+    def check_recovery_code(user_id, code):
+        """
+        Checks if supplied code matches a valid hashed recovery code for the given user.
+
+        Returns True if supplied recovery code is valid, and destroys stored code.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):

@@ -27,6 +27,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
     LoginForm,
+    RecoveryCodeAuthenticationForm,
     RegistrationForm,
     RequestPasswordResetForm,
     ResetPasswordForm,
@@ -320,6 +321,50 @@ def webauthn_authentication_validate(request):
 
     errors = [str(error) for error in form.credential.errors]
     return {"fail": {"errors": errors}}
+
+
+@view_config(
+    route_name="accounts.recovery-code",
+    renderer="accounts/recovery-code.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    has_translations=True,
+)
+def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path("manage.projects"))
+
+    try:
+        two_factor_data = _get_two_factor_data(request)
+    except TokenException:
+        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    userid = two_factor_data.get("userid")
+    redirect_to = two_factor_data.get("redirect_to")
+
+    user_service = request.find_service(IUserService, context=None)
+
+    form = _form_class(**request.POST, user_id=userid, user_service=user_service)
+
+    if request.method == "POST":
+        if form.validate():
+            _login_user(request, userid, two_factor_method="recovery-code")
+
+            resp = HTTPSeeOther(redirect_to)
+            resp.set_cookie(
+                USER_ID_INSECURE_COOKIE,
+                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
+                .hexdigest()
+                .lower(),
+            )
+
+            return resp
+        else:
+            form.recovery_code_value.data = ""
+
+    return {"form": form}
 
 
 @view_config(

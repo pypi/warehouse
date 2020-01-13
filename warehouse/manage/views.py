@@ -621,6 +621,60 @@ class ProvisionWebAuthnViews:
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
+    http_cache=0,
+    has_translations=True,
+)
+class ProvisionRecoveryCodesViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.recovery-codes.generate",
+        renderer="manage/account/recovery_codes-provision.html",
+    )
+    def recovery_codes_generate(self):
+        if self.user_service.has_recovery_codes(self.request.user.id):
+            self.request.session.flash(
+                "Recovery codes already generated", queue="error"
+            )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        return {
+            "recovery_codes": self.user_service.generate_recovery_codes(
+                self.request.user.id
+            )
+        }
+
+    @view_config(
+        request_method="POST",
+        route_name="manage.account.recovery-codes.regenerate",
+        renderer="manage/account/recovery_codes-provision.html",
+    )
+    def recovery_codes_regenerate(self):
+        form = ConfirmPasswordForm(
+            password=self.request.POST["confirm_password"],
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            return {
+                "recovery_codes": self.user_service.generate_recovery_codes(
+                    self.request.user.id
+                )
+            }
+
+        self.request.session.flash("Invalid credentials. Try again", queue="error")
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
     renderer="manage/token.html",
     route_name="manage.account.token",
     has_translations=True,

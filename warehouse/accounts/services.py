@@ -16,6 +16,7 @@ import hashlib
 import hmac
 import logging
 import posixpath
+import secrets
 import urllib.parse
 import uuid
 
@@ -38,7 +39,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, User, WebAuthn
+from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -255,6 +256,14 @@ class DatabaseUserService:
 
         return len(user.webauthn) > 0
 
+    def has_recovery_codes(self, user_id):
+        """
+        Returns True if the user has generated recovery codes.
+        """
+        user = self.get_user(user_id)
+
+        return len(user.recovery_codes) > 0
+
     def get_totp_secret(self, user_id):
         """
         Returns the user's TOTP secret as bytes.
@@ -454,6 +463,32 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
         return user.record_event(tag=tag, ip_address=ip_address, additional=additional)
+
+    def generate_recovery_codes(self, user_id):
+        user = self.get_user(user_id)
+
+        if user.has_recovery_codes:
+            self.db.query(RecoveryCode).filter_by(user=user).delete()
+
+        # Generate Recovery Codes
+        recovery_codes = [secrets.token_hex(8) for _ in range(8)]
+        for recovery_code in recovery_codes:
+            self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
+
+        return recovery_codes
+
+    def check_recovery_code(self, user_id, code):
+        user = self.get_user(user_id)
+
+        if user.has_recovery_codes:
+            stored_codes = self.db.query(RecoveryCode).filter_by(user=user).all()
+
+            for stored_recovery_code in stored_codes:
+                if self.hasher.verify(code, stored_recovery_code.code):
+                    self.db.delete(stored_recovery_code)
+                    return True
+
+        return False
 
 
 @implementer(ITokenService)
