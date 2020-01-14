@@ -51,6 +51,9 @@ def _format_exc_status(exc, message):
 
 
 def _basic_auth_login(username, password, request):
+    if request.matched_route.name not in ["forklift.legacy.file_upload"]:
+        return
+
     login_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
 
