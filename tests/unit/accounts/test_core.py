@@ -33,12 +33,23 @@ from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 class TestLogin:
+    def test_invalid_route(self, pyramid_request, pyramid_services):
+        service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
+        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, pretend.stub()
+        )
+        pyramid_request.matched_route = pretend.stub(name="route_name")
+        assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+        assert service.find_userid.calls == []
+
     def test_with_no_user(self, pyramid_request, pyramid_services):
         service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
         pyramid_services.register_service(IUserService, None, service)
         pyramid_services.register_service(
             IPasswordBreachedService, None, pretend.stub()
         )
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
         assert service.find_userid.calls == [pretend.call("myuser")]
 
@@ -56,6 +67,7 @@ class TestLogin:
         pyramid_services.register_service(
             IPasswordBreachedService, None, pretend.stub()
         )
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(1)]
@@ -78,6 +90,7 @@ class TestLogin:
         pyramid_services.register_service(
             IPasswordBreachedService, None, pretend.stub()
         )
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(1)]
@@ -104,6 +117,7 @@ class TestLogin:
             None,
             pretend.stub(failure_message_plain="Bad Password!"),
         )
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
         with pytest.raises(BasicAuthBreachedPassword) as excinfo:
             assert (
@@ -139,6 +153,8 @@ class TestLogin:
         pyramid_services.register_service(
             IPasswordBreachedService, None, breach_service
         )
+
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
         now = datetime.datetime.utcnow()
 
@@ -187,6 +203,8 @@ class TestLogin:
         pyramid_services.register_service(
             IPasswordBreachedService, None, breach_service
         )
+
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
         with pytest.raises(BasicAuthBreachedPassword) as excinfo:
             accounts._basic_auth_login("myuser", "mypass", pyramid_request)
