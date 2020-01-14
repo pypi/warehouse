@@ -139,6 +139,11 @@ def includeme(config):
         "/admin/checks/{check_name}/change_state",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.checks.run_backfill",
+        "/admin/checks/{check_name}/run_backfill",
+        domain=warehouse,
+    )
     config.add_route("admin.verdicts.list", "/admin/verdicts/", domain=warehouse)
     config.add_route(
         "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse

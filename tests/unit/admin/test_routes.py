@@ -132,6 +132,11 @@ def test_includeme():
             "/admin/checks/{check_name}/change_state",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.checks.run_backfill",
+            "/admin/checks/{check_name}/run_backfill",
+            domain=warehouse,
+        ),
         pretend.call("admin.verdicts.list", "/admin/verdicts/", domain=warehouse),
         pretend.call(
             "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
