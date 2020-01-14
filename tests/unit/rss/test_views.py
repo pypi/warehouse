@@ -35,11 +35,14 @@ def test_rss_updates(db_request):
     release1.created = datetime.date(2011, 1, 1)
     release2 = ReleaseFactory.create(project=project2)
     release2.created = datetime.date(2012, 1, 1)
+    release2.author_email = "noreply@pypi.org"
     release3 = ReleaseFactory.create(project=project1)
     release3.created = datetime.date(2013, 1, 1)
 
     assert rss.rss_updates(db_request) == {
-        "latest_releases": [release3, release2, release1]
+        "latest_releases": tuple(
+            zip((release3, release2, release1), (None, "noreply@pypi.org", None))
+        )
     }
     assert db_request.response.content_type == "text/xml"
 
@@ -64,5 +67,42 @@ def test_rss_packages(db_request):
     project3.created = datetime.date(2013, 1, 1)
     ReleaseFactory.create(project=project3)
 
-    assert rss.rss_packages(db_request) == {"newest_projects": [project3, project1]}
+    assert rss.rss_packages(db_request) == {
+        "newest_projects": tuple(zip((project3, project1), (None, None)))
+    }
     assert db_request.response.content_type == "text/xml"
+
+
+def test_format_author(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+
+    release.author_email = "noreply@pypi.org"
+    assert rss._format_author(release) == release.author_email
+
+    release.author_email = "No Reply <noreply@pypi.org>"
+    assert rss._format_author(release) == "noreply@pypi.org"
+
+    for invalid in (None, "", "UNKNOWN", "noreply@pypi.org, UNKNOWN"):
+        release.author_email = invalid
+        assert rss._format_author(release) is None
+
+    release.author_email = (
+        # simple, no spaces
+        "noreply@pypi.org,"
+        # space after
+        "noreply@pypi.org ,"
+        # space before, incl realname
+        " No Reply <noreply@pypi.org>,"
+        # two spaces before, angle brackets
+        "  <noreply@pypi.org>"
+    )
+    assert rss._format_author(release) == ", ".join(["noreply@pypi.org"] * 4)
