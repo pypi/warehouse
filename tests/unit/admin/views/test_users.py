@@ -16,12 +16,13 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import DisableReason
 from warehouse.admin.views import users as views
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import JournalEntry, Project
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
 from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFactory
@@ -200,9 +201,12 @@ class TestUserDelete:
         user = UserFactory.create()
         project = ProjectFactory.create()
         another_project = ProjectFactory.create()
-        journal = JournalEntryFactory(submitted_by=user)
         RoleFactory(project=project, user=user, role_name="Owner")
         deleted_user = UserFactory.create(username="deleted-user")
+
+        # Create an extra JournalEntry by this user which should be
+        # updated with the deleted-user user.
+        JournalEntryFactory(submitted_by=user, action="some old journal")
 
         db_request.matchdict["user_id"] = str(user.id)
         db_request.params = {"username": user.username}
@@ -219,7 +223,27 @@ class TestUserDelete:
         assert db_request.route_path.calls == [pretend.call("admin.user.list")]
         assert result.status_code == 303
         assert result.location == "/foobar"
-        assert journal.submitted_by == deleted_user
+
+        # Check that the correct journals were written/modified
+        old_journal = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .filter(JournalEntry.action == "some old journal")
+            .one()
+        )
+        assert old_journal.submitted_by == deleted_user
+        remove_journal = (
+            db_request.db.query(JournalEntry)
+            .filter(JournalEntry.action == "remove project")
+            .one()
+        )
+        assert remove_journal.name == project.name
+        nuke_journal = (
+            db_request.db.query(JournalEntry)
+            .filter(JournalEntry.action == "nuke user")
+            .one()
+        )
+        assert nuke_journal.name == f"user:{user.username}"
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
