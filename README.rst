@@ -1,3 +1,5 @@
+|travis-badge|_
+
 Warehouse
 =========
 
@@ -56,3 +58,5 @@ rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 .. |BrowserStackImg| image:: docs/_static/browserstack-logo.png
 .. _BrowserStackImg: https://browserstack.com/
 .. _`PyPA Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
+.. |travis-badge| image:: https://api.travis-ci.org/pypa/warehouse.svg?branch=master
+.. _travis-badge: https://travis-ci.org/pypa/warehouse
