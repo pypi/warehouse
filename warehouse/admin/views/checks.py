@@ -26,7 +26,7 @@ from warehouse.malware.tasks import backfill, remove_verdicts
     uses_session=True,
 )
 def get_checks(request):
-    all_checks = request.db.query(MalwareCheck).all()
+    all_checks = request.db.query(MalwareCheck)
     active_checks = []
     for check in all_checks:
         if not check.is_stale:
