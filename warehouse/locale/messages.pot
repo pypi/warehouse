@@ -2981,7 +2981,7 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:124
 #, python-format
-msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:136
