@@ -39,11 +39,12 @@ isort==4.3.21 \
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
-pathspec==0.6.0 \
-    --hash=sha256:e285ccc8b0785beadd4c18e5708b12bb8fcf529a1e61215b3feff1d1e559ea5c
-pbr==5.4.3 \
-    --hash=sha256:2c8e420cd4ed4cec4e7999ee47409e876af575d4c35a45840d59e8b5f3155ab8 \
-    --hash=sha256:b32c8ccaac7b1a20c0ce00ce317642e6cf231cf038f9875e0280e28af5bf7ac9
+pathspec==0.7.0 \
+    --hash=sha256:163b0632d4e31cef212976cf57b43d9fd6b0bac6e67c26015d611a647d5e7424 \
+    --hash=sha256:562aa70af2e0d434367d9790ad37aed893de47f1693e4201fd1d3dca15d19b96
+pbr==5.4.4 \
+    --hash=sha256:139d2625547dbfa5fb0b81daebb39601c478c21956dc57e2e07b74450a8c506b \
+    --hash=sha256:61aa52a0f18b71c5cc58232d2cf8f8d09cd67fcad60b742a60124cb8d6951488
 pep8-naming==0.9.1 \
     --hash=sha256:45f330db8fcfb0fba57458c77385e288e7a3be1d01e8ea4268263ef677ceea5f \
     --hash=sha256:a33d38177056321a167decd6ba70b890856ba5025f0a8eca6a3eda607da93caf

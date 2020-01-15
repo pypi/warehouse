@@ -203,6 +203,7 @@ def test_includeme():
                         "https://api.github.com/repos/",
                         "*.fastly-insights.com",
                         "sentry.io",
+                        "https://api.pwnedpasswords.com",
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
