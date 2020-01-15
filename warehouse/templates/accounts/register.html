@@ -29,7 +29,7 @@
     <div class="site-container">
       <h1 class="page-title">{% trans title=title %}Create an account on {{ title }}{% endtrans %}</h1>
 
-      <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match password-strength-gauge">
+      <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match password-strength-gauge password-breach">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
         {% if form.errors.__all__ %}
@@ -117,7 +117,7 @@
                   id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
               </label>
             </div>
-            {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"password-errors password-strength"}) }}
+            {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__input", autocomplete="new-password", spellcheck="false", data_target="password.password password-match.passwordMatch password-strength-gauge.password password-breach.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check", **{"aria-describedby":"password-errors password-strength"}) }}
             <div id="password-errors">
               {% if form.new_password.errors %}
               <ul class="form-errors" role="alert">
@@ -153,6 +153,9 @@
         <div class="form-group">
           <ul class="form-errors">
             <li data-target="password-match.matchMessage" class="hidden"></li>
+            <li data-target="password-breach.message" class="hidden">
+              {{ gettext("This password appears in a security breach or has been compromised and cannot be used. Please refer to the <a href=\"/help/#compromised-password\">FAQ</a> for more information.") }}
+            </li>
           </ul>
         </div>
 
