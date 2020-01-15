@@ -365,9 +365,9 @@ msgpack==0.6.2 \
     --hash=sha256:dedf54d72d9e7b6d043c244c8213fe2b8bbfe66874b9a65b39c4cc892dd99dd4 \
     --hash=sha256:ea3c2f859346fcd55fc46e96885301d9c2f7a36d453f5d8f2967840efa1e1830 \
     --hash=sha256:f0f47bafe9c9b8ed03e19a100a743662dd8c6d0135e684feea720a0d0046d116
-packaging==19.2 \
-    --hash=sha256:28b924174df7a2fa32c1953825ff29c61e2f5e082343165438812f00d3a7fc47 \
-    --hash=sha256:d9551545c6d761f3def1677baf08ab2a3ca17c56879e70fecba2fc4dde4ed108
+packaging==20.0 \
+    --hash=sha256:aec3fdbb8bc9e4bb65f0634b9f551ced63983a529d6a8931817d52fdd0816ddb \
+    --hash=sha256:fe1d8331dfa7cc0a883b49d75fc76380b2ab2734b220fbb87d774e4fd4b851f8
 paginate-sqlalchemy==0.3.0 \
     --hash=sha256:88d46abdab3de93d1993b83e27388a16353f93c6d991e7d6aa5eac1adeca7f93
 paginate==0.5.6 \
