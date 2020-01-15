@@ -58,12 +58,13 @@
 
   &__info {
     padding-top: $spacing-unit;
+    word-wrap: break-word;
   }
 
   &__name {
     @include h2;
-    overflow: hidden;
     padding: 0 0 $spacing-unit / 2;
+    word-wrap: break-word;
 
     @media only screen and (max-width: $desktop) {
       border-top: 0;
@@ -74,6 +75,7 @@
 
   &__meta {
     margin-bottom: $spacing-unit;
+    word-wrap: break-word;
   }
 
   &__edit-button {

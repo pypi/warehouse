@@ -82,6 +82,7 @@ def includeme(config):
                     "https://api.github.com/repos/",
                     "*.fastly-insights.com",
                     "sentry.io",
+                    "https://api.pwnedpasswords.com",
                 ]
                 + [
                     item
