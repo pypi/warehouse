@@ -70,9 +70,9 @@ lazy==1.4 \
 mirakuru==2.1.2 \
     --hash=sha256:3fbf7b690d0c63139dabc96edcd84f5dfb66baf71fc53fc5c84e90836cd6f7cd \
     --hash=sha256:ad6c676a268b0e98ddf2ae9f2e4692440888c46daa6a071c0bad707cdeee181a
-more-itertools==8.0.2 \
-    --hash=sha256:b84b238cce0d9adad5ed87e745778d20a3f8487d0f0cb8b8a586816c7496458d \
-    --hash=sha256:c833ef592a0324bcc6a60e48440da07645063c453880c9477ceb22490aec1564
+more-itertools==8.1.0 \
+    --hash=sha256:1a2a32c72400d365000412fe08eb4a24ebee89997c18d3d147544f70f5403b39 \
+    --hash=sha256:c468adec578380b6281a114cb8a5db34eb1116277da92d7c46f904f0b52d3288
 packaging==20.0 \
     --hash=sha256:aec3fdbb8bc9e4bb65f0634b9f551ced63983a529d6a8931817d52fdd0816ddb \
     --hash=sha256:fe1d8331dfa7cc0a883b49d75fc76380b2ab2734b220fbb87d774e4fd4b851f8
