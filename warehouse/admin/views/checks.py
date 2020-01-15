@@ -65,11 +65,7 @@ def get_check(request):
 )
 def run_backfill(request):
     check = get_check_by_name(request.db, request.matchdict["check_name"])
-
-    try:
-        sample = int(request.POST["sample-rate"])
-    except (KeyError, ValueError):
-        raise HTTPNotFound
+    num_objects = 10000
 
     if check.state not in (MalwareCheckState.enabled, MalwareCheckState.evaluation):
         request.session.flash(
@@ -80,20 +76,12 @@ def run_backfill(request):
             request.route_path("admin.checks.detail", check_name=check.name)
         )
 
-    if sample <= 0 or sample > 100:
-        request.session.flash(
-            f"Sample percentage must be an integer between 0 and 100.", queue="error",
-        )
-        return HTTPSeeOther(
-            request.route_path("admin.checks.detail", check_name=check.name)
-        )
-
     request.session.flash(
-        f"Running {check.name!r} on {sample!r}% of all {check.hooked_object.value!r}s!",
+        f"Running {check.name} on {num_objects} {check.hooked_object.value}s!",
         queue="success",
     )
 
-    request.task(backfill).delay(check.name, sample * 0.01)
+    request.task(backfill).delay(check.name, num_objects)
 
     return HTTPSeeOther(
         request.route_path("admin.checks.detail", check_name=check.name)

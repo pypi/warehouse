@@ -130,53 +130,22 @@ class TestChangeCheckState:
 
 
 class TestRunBackfill:
-    @pytest.mark.parametrize(("sample_rate"), [None, "abc"])
-    def test_invalid_form_values(self, db_request, sample_rate):
-        check = MalwareCheckFactory.create()
-        db_request.matchdict["check_name"] = check.name
-
-        if sample_rate:
-            db_request.POST["sample-rate"] = sample_rate
-
-        with pytest.raises(HTTPNotFound):
-            views.run_backfill(db_request)
-
     @pytest.mark.parametrize(
-        ("check_state", "sample_rate", "message"),
+        ("check_state", "message"),
         [
             (
                 MalwareCheckState.disabled,
-                1,
                 "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
             ),
             (
                 MalwareCheckState.wiped_out,
-                1,
                 "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
-            ),
-            (
-                MalwareCheckState.enabled,
-                -1,
-                "Sample percentage must be an integer between 0 and 100.",
-            ),
-            (
-                MalwareCheckState.evaluation,
-                0,
-                "Sample percentage must be an integer between 0 and 100.",
-            ),
-            (
-                MalwareCheckState.enabled,
-                101,
-                "Sample percentage must be an integer between 0 and 100.",
             ),
         ],
     )
-    def test_invalid_backfill_parameters(
-        self, db_request, check_state, sample_rate, message
-    ):
+    def test_invalid_backfill_parameters(self, db_request, check_state, message):
         check = MalwareCheckFactory.create(state=check_state)
         db_request.matchdict["check_name"] = check.name
-        db_request.POST["sample-rate"] = sample_rate
 
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -193,7 +162,6 @@ class TestRunBackfill:
     def test_sucess(self, db_request):
         check = MalwareCheckFactory.create(state=MalwareCheckState.enabled)
         db_request.matchdict["check_name"] = check.name
-        db_request.POST["sample-rate"] = "1"
 
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -213,10 +181,9 @@ class TestRunBackfill:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Running '%s' on 1%% of all '%s's!"
-                % (check.name, check.hooked_object.value),
+                "Running %s on 10000 %ss!" % (check.name, check.hooked_object.value),
                 queue="success",
             )
         ]
 
-        assert backfill_recorder.delay.calls == [pretend.call(check.name, 0.01)]
+        assert backfill_recorder.delay.calls == [pretend.call(check.name, 10000)]
