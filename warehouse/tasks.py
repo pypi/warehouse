@@ -21,6 +21,7 @@ import pyramid_retry
 import transaction
 import venusian
 
+from kombu import Queue
 from pyramid.threadlocal import get_current_request
 
 from warehouse.config import Environment
@@ -158,7 +159,6 @@ def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **
 def includeme(config):
     s = config.registry.settings
 
-    queue_name = "celery"
     broker_transport_options = {}
 
     broker_url = s["celery.broker_url"]
@@ -169,8 +169,10 @@ def includeme(config):
         # so we'll just remove them from here.
         broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
 
-        if parsed_url.path:
-            queue_name = parsed_url.path[1:]
+        if "queue_name_prefix" in parsed_query:
+            broker_transport_options["queue_name_prefix"] = (
+                parsed_query["queue_name_prefix"][0] + "-"
+            )
 
         if "region" in parsed_query:
             broker_transport_options["region"] = parsed_query["region"][0]
@@ -183,8 +185,11 @@ def includeme(config):
         broker_url=broker_url,
         broker_use_ssl=s["warehouse.env"] == Environment.production,
         broker_transport_options=broker_transport_options,
-        task_default_queue=queue_name,
+        task_default_queue="default",
+        task_default_routing_key="task.default",
         task_queue_ha_policy="all",
+        task_queues=(Queue("default", routing_key="task.#"),),
+        task_routes=([]),
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
