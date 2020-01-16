@@ -973,19 +973,22 @@ def file_upload(request):
     # Check that the user has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
-    if not request.has_permission("upload", project):
-        raise _exc_with_message(
-            HTTPForbidden,
+    allowed = request.has_permission("upload", project)
+    if not allowed:
+        reason = getattr(allowed, "reason", None)
+        msg = (
             (
-                "The credential associated with user '{0}' "
-                "isn't allowed to upload to project '{1}'. "
+                "The user '{0}' isn't allowed to upload to project '{1}'. "
                 "See {2} for more information."
             ).format(
                 request.user.username,
                 project.name,
                 request.help_url(_anchor="project-name"),
-            ),
+            )
+            if reason is None
+            else allowed.msg
         )
+        raise _exc_with_message(HTTPForbidden, msg)
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we

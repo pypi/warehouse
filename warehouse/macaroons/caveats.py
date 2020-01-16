@@ -45,7 +45,9 @@ class V1Caveat(Caveat):
         if project.normalized_name in projects:
             return True
 
-        raise InvalidMacaroon("project-scoped token matches no projects")
+        raise InvalidMacaroon(
+            f"project-scoped token is not valid for project '{project.name}'"
+        )
 
     def verify(self, predicate):
         try:
