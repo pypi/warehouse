@@ -139,7 +139,7 @@ class MacaroonAuthorizationPolicy:
                 macaroon_service.verify(macaroon, context, principals, permission)
             except InvalidMacaroon as exc:
                 return WarehouseDenied(
-                    "Invalid API Token: %s", str(exc), reason="invalid_api_token"
+                    f"Invalid API Token: {exc}!r", reason="invalid_api_token"
                 )
 
             # If our Macaroon is verified, and for a valid permission then we'll pass
@@ -149,7 +149,8 @@ class MacaroonAuthorizationPolicy:
                 return self.policy.permits(context, principals, permission)
             else:
                 return WarehouseDenied(
-                    f"API tokens are not valid for permission: {permission}!"
+                    f"API tokens are not valid for permission: {permission}!",
+                    reason="invalid_permission",
                 )
 
         else:
