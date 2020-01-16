@@ -15,7 +15,7 @@ from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.malware.models import MalwareCheck, MalwareCheckState
-from warehouse.malware.tasks import remove_verdicts
+from warehouse.malware.tasks import backfill, remove_verdicts
 
 
 @view_config(
@@ -26,7 +26,7 @@ from warehouse.malware.tasks import remove_verdicts
     uses_session=True,
 )
 def get_checks(request):
-    all_checks = request.db.query(MalwareCheck).all()
+    all_checks = request.db.query(MalwareCheck)
     active_checks = []
     for check in all_checks:
         if not check.is_stale:
@@ -43,19 +43,49 @@ def get_checks(request):
     uses_session=True,
 )
 def get_check(request):
-    query = (
+    check = get_check_by_name(request.db, request.matchdict["check_name"])
+
+    all_checks = (
         request.db.query(MalwareCheck)
         .filter(MalwareCheck.name == request.matchdict["check_name"])
         .order_by(MalwareCheck.version.desc())
+        .all()
     )
 
-    try:
-        # Throw an exception if and only if no results are returned.
-        newest = query.limit(1).one()
-    except NoResultFound:
-        raise HTTPNotFound
+    return {"check": check, "checks": all_checks, "states": MalwareCheckState}
 
-    return {"check": newest, "checks": query.all(), "states": MalwareCheckState}
+
+@view_config(
+    route_name="admin.checks.run_backfill",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+    require_csrf=True,
+)
+def run_backfill(request):
+    check = get_check_by_name(request.db, request.matchdict["check_name"])
+    num_objects = 10000
+
+    if check.state not in (MalwareCheckState.enabled, MalwareCheckState.evaluation):
+        request.session.flash(
+            f"Check must be in 'enabled' or 'evaluation' state to run a backfill.",
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("admin.checks.detail", check_name=check.name)
+        )
+
+    request.session.flash(
+        f"Running {check.name} on {num_objects} {check.hooked_object.value}s!",
+        queue="success",
+    )
+
+    request.task(backfill).delay(check.name, num_objects)
+
+    return HTTPSeeOther(
+        request.route_path("admin.checks.detail", check_name=check.name)
+    )
 
 
 @view_config(
@@ -67,18 +97,16 @@ def get_check(request):
     require_csrf=True,
 )
 def change_check_state(request):
+    check = get_check_by_name(request.db, request.matchdict["check_name"])
+
     try:
-        check = (
-            request.db.query(MalwareCheck)
-            .filter(MalwareCheck.id == request.POST["id"])
-            .one()
-        )
-    except NoResultFound:
+        check_state = request.POST["check_state"]
+    except KeyError:
         raise HTTPNotFound
 
     try:
-        check.state = getattr(MalwareCheckState, request.POST["check_state"])
-    except (AttributeError, KeyError):
+        check.state = getattr(MalwareCheckState, check_state)
+    except AttributeError:
         request.session.flash("Invalid check state provided.", queue="error")
     else:
         if check.state == MalwareCheckState.wiped_out:
@@ -90,3 +118,19 @@ def change_check_state(request):
         return HTTPSeeOther(
             request.route_path("admin.checks.detail", check_name=check.name)
         )
+
+
+def get_check_by_name(db, check_name):
+    try:
+        # Throw an exception if and only if no results are returned.
+        newest = (
+            db.query(MalwareCheck)
+            .filter(MalwareCheck.name == check_name)
+            .order_by(MalwareCheck.version.desc())
+            .limit(1)
+            .one()
+        )
+    except NoResultFound:
+        raise HTTPNotFound
+
+    return newest
