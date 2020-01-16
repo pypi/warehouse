@@ -26,7 +26,11 @@ implementation of a hook-based check. This check will generate verdicts if enabl
     def __init__(self, db):
         super().__init__(db)
 
-    def scan(self, file_id=None):
+    def scan(self, **kwargs):
+        file_id = kwargs.get("obj_id")
+        if file_id is None:
+            return
+
         self.add_verdict(
             file_id=file_id,
             classification=VerdictClassification.benign,
