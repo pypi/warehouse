@@ -148,7 +148,9 @@ class MacaroonAuthorizationPolicy:
             if permission in valid_permissions:
                 return self.policy.permits(context, principals, permission)
             else:
-                return Denied(f"API tokens are not valid for permission: {permission}!")
+                return WarehouseDenied(
+                    f"API tokens are not valid for permission: {permission}!"
+                )
 
         else:
             return self.policy.permits(context, principals, permission)
