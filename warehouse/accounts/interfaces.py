@@ -117,6 +117,11 @@ class IUserService(Interface):
         Returns True if the user has a security key provisioned.
         """
 
+    def has_recovery_codes(user_id):
+        """
+        Returns True if the user has at least one valid recovery code.
+        """
+
     def get_totp_secret(user_id):
         """
         Returns the user's TOTP secret as bytes.
