@@ -124,7 +124,7 @@ class Project(SitemapMixin, db.Model):
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
-
+    downloads_last_30_days = Column(Integer, nullable=True)
     total_size = Column(BigInteger, server_default=sql.text("0"))
 
     users = orm.relationship(User, secondary=Role.__table__, backref="projects")
