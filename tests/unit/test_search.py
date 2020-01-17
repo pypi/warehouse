@@ -151,6 +151,47 @@ class TestQueries:
             }
         ]
 
+    @pytest.mark.parametrize("order", ["-", ""])
+    def test_downloads_last_30_days_order(self, order):
+        field = "downloads_last_30_days"
+        es = Search()
+        querystring = "foo bar"
+
+        query = queries.get_es_query(es, querystring, f"{order}{field}", [])
+
+        query_dict = query.to_dict()
+        assert query_dict["query"]["function_score"]["functions"] == [
+            {
+                "field_value_factor": {
+                    "field": "downloads_last_30_days",
+                    "modifier": "sqrt",
+                    "factor": 0.0001,
+                    "missing": 0,
+                }
+            }
+        ]
+        bool_query = query_dict["query"]["function_score"]["query"]["bool"]
+        assert len(bool_query["should"]) == 2
+        assert bool_query["should"][1] == {"prefix": {"normalized_name": "foo bar"}}
+        must_params = bool_query["should"][0]["bool"]["must"]
+        assert len(must_params) == 1
+        assert must_params[0]["multi_match"] == {
+            "fields": EXPECTED_SEARCH_FIELDS,
+            "type": "best_fields",
+            "query": "foo bar",
+        }
+        assert query_dict["suggest"] == {
+            "name_suggestion": {"text": querystring, "term": {"field": "name"}}
+        }
+        assert query_dict["sort"] == [
+            {
+                field: {
+                    "order": "desc" if order.startswith("-") else "asc",
+                    "unmapped_type": "long",
+                }
+            }
+        ]
+
     def test_with_classifiers(self):
         es = Search()
         querystring = "foo bar"

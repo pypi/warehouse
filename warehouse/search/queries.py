@@ -113,6 +113,20 @@ def query_for_order(query, order):
     """
     if order == "":  # relevance should not sort
         return query
+    elif order.endswith("downloads_last_30_days"):
+        functions = [
+            {
+                "field_value_factor": {
+                    "field": "downloads_last_30_days",
+                    "modifier": "sqrt",
+                    "factor": 0.001,
+                    "missing": 0,
+                }
+            }
+        ]
+        # The following will change the nature of the query to be of
+        # type function_score wrapping the original bool query
+        query.query = Q("function_score", query=query.query, functions=functions)
 
     field = order[order.find("-") + 1 :]
     sort_info = {
