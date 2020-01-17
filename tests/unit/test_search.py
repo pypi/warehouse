@@ -165,7 +165,7 @@ class TestQueries:
                 "field_value_factor": {
                     "field": "downloads_last_30_days",
                     "modifier": "sqrt",
-                    "factor": 0.0001,
+                    "factor": 0.001,
                     "missing": 0,
                 }
             }
