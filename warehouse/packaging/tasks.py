@@ -21,6 +21,7 @@ def compute_trending(request):
     bq = request.find_service(name="gcloud.bigquery")
     query = bq.query(
         """ SELECT project,
+                   SUM(downloads) as downloads_last_30_days,
                    IF(
                         STDDEV(downloads) > 0,
                         (todays_downloads - AVG(downloads))/STDDEV(downloads),
@@ -63,26 +64,33 @@ def compute_trending(request):
     zscores = {}
     for row in query.result():
         row = dict(row)
-        zscores[row["project"]] = row["zscore"]
+        zscores[row["project"]] = (row["zscore"], row["downloads_last_30_days"])
 
-    # We're going to "reset" all of our zscores to a steady state where they
-    # are all equal to ``None``. The next query will then set any that have a
-    # value back to the expected value.
+    # We're going to "reset" all of our zscores and downloads to a steady state
+    # where they are all equal to ``None``. The next query will then set any
+    # that have a value back to the expected value.
     (
         request.db.query(Project)
-        .filter(Project.zscore != None)  # noqa
-        .update({Project.zscore: None})
+        .filter(
+            (Project.zscore.isnot(None)) | (Project.downloads_last_30_days.isnot(None))
+        )  # noqa
+        .update({Project.zscore: None, Project.downloads_last_30_days: None})
     )
 
     # We need to convert the normalized name that we get out of BigQuery and
     # turn it into the primary key of the Project object and construct a list
     # of primary key: new zscore, including a default of None if the item isn't
     # in the result set.
-    query = request.db.query(Project.id, Project.normalized_name).all()
+    query = request.db.query(Project.id, Project.normalized_name).filter(
+        Project.normalized_name.in_(zscores)
+    )
     to_update = [
-        {"id": id, "zscore": zscores[normalized_name]}
+        {
+            "id": id,
+            "zscore": zscores[normalized_name][0],
+            "downloads_last_30_days": zscores[normalized_name][1],
+        }
         for id, normalized_name in query
-        if normalized_name in zscores
     ]
 
     # Reflect out updated ZScores into the database.
