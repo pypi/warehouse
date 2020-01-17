@@ -92,6 +92,7 @@ def _project_docs(db, project_name=None):
             Project.normalized_name,
             Project.name,
             Project.zscore,
+            Project.downloads_last_30_days,
         )
         .select_from(releases_list)
         .join(Release, Release.id == releases_list.c.id)
