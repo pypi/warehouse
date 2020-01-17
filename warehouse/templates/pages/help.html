@@ -55,9 +55,9 @@
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
 {% macro twoFA() %}{% trans %}What is two factor authentication and how does it work on PyPI?{% endtrans %}{% endmacro %}
 {% macro totp() %}{% trans %}How does two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
-{% macro utfkey() %}{% trans %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span>{% endmacro %}
-{% macro utfdevices() %}{% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span>{% endmacro %}
-{% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span>{% endmacro %}
+{% macro utfkey() %}{% trans %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
+{% macro utfdevices() %}{% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %}{% endmacro %}
+{% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
 
 {% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
@@ -698,12 +698,7 @@
 
         <h3 id="beta-badge">{{ beta_badge() }}</h3>
         <p>{% trans %}When Warehouse's maintainers are deploying new features, at first we mark them with a small "beta feature" symbol to tell you: this should probably work fine, but it's new and less tested than other site functionality.{% endtrans %}</p>
-        <p>{% trans %}Currently, the following features are in beta:{% endtrans %}</p>
-        <ul>
-          <li><a href="#utfkey">{{ utfkey() }}</a></li>
-          <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
-          <li><a href="#apitoken">{{ apitoken() }}</a></li>
-        </ul>
+        <p>{% trans %}Currently, no features are in beta.{% endtrans %}</p>
 
         <h3 id="pronunciation">{{ pronunciation() }}</h3>
         <p>
