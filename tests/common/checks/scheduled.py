@@ -12,23 +12,25 @@
 
 from warehouse.malware.checks.base import MalwareCheckBase
 from warehouse.malware.models import VerdictClassification, VerdictConfidence
+from warehouse.packaging.models import Project
 
 
-class ExampleCheck(MalwareCheckBase):
+class ExampleScheduledCheck(MalwareCheckBase):
 
     version = 1
-    short_description = "An example hook-based check"
-    long_description = """The purpose of this check is to demonstrate the \
-implementation of a hook-based check. This check will generate verdicts if enabled."""
-    check_type = "event_hook"
-    hooked_object = "File"
+    short_description = "An example scheduled check"
+    long_description = "The purpose of this check is to test the \
+implementation of a scheduled check. This check will generate verdicts if enabled."
+    check_type = "scheduled"
+    schedule = {"minute": "0", "hour": "*/8"}
 
     def __init__(self, db):
         super().__init__(db)
 
-    def scan(self, file_id):
+    def scan(self):
+        project = self.db.query(Project).first()
         self.add_verdict(
-            file_id=file_id,
+            project_id=project.id,
             classification=VerdictClassification.benign,
             confidence=VerdictConfidence.High,
             message="Nothing to see here!",
