@@ -57,7 +57,7 @@
               {% endtrans %}
             </li>
           </ul>
-          <p class="margin-top--large">{% trans href='/help/#utfkey' %}Not working? <a href="{{ href }}">Get help</a>.{% endtrans %}</p>
+          <p class="margin-top--large">{% trans href='/help/#utfkey' %}Lost your device? Not working? <a href="{{ href }}">Get help</a>.{% endtrans %}</p>
         </form>
       </div>
       {% endif %}
@@ -104,7 +104,7 @@
 
           {% trans trimmed href='/help/#totp' %}
           <p>Generate a code using the authentication application connected to your PyPI account. Enter this code in the form to verify your identity.</p>
-          <p>Not working? <a href="{{ href }}">Get help</a>.</p>
+          <p>Lost your application?  Not working? <a href="{{ href }}">Get help</a>.</p>
           {% endtrans %}
         </form>
       </div>
@@ -113,9 +113,9 @@
 
     <hr>
     <div class="twofa-recovery">
-      <p>Lost your security key or application?</p>
+      <p>{% trans %}Lost your security key or application?{% endtrans %}</p>
       <a href="{{ request.route_path('accounts.recovery-code') }}?{{request.query_string}}" class="button button--secondary">
-          Login using a Recovery Code
+          {% trans %}Login using a Recovery Code{% endtrans %}
       </a>
     </div>
   </div>

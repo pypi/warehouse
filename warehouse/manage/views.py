@@ -637,7 +637,7 @@ class ProvisionRecoveryCodesViews:
     def recovery_codes_generate(self):
         if self.user_service.has_recovery_codes(self.request.user.id):
             self.request.session.flash(
-                "Recovery codes already generated", queue="error"
+                _("Recovery codes already generated"), queue="error"
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -666,7 +666,7 @@ class ProvisionRecoveryCodesViews:
                 )
             }
 
-        self.request.session.flash("Invalid credentials. Try again", queue="error")
+        self.request.session.flash(_("Invalid credentials. Try again"), queue="error")
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
 
