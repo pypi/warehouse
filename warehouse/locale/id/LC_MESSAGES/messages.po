@@ -2,7 +2,7 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# oon arfiandwi <oon.arfiandwi@gmail.com>, 2019.
+# oon arfiandwi <oon.arfiandwi@gmail.com>, 2019, 2020.
 # yafiabiyyu <luckyveri3@gmail.com>, 2019.
 # Teofilus Hendry Harianto <teofilushendry5@gmail.com>, 2019.
 # Azharuddin <azhargiri@gmail.com>, 2020.
@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-15 02:18+0000\n"
-"Last-Translator: Habib R <revolusi147id@gmail.com>\n"
+"PO-Revision-Date: 2020-01-16 19:46+0000\n"
+"Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"X-Generator: Weblate 3.10.2-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -1134,7 +1134,7 @@ msgstr ""
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
-msgstr "Anda menerima ini karena Anda adalah pemilik proyek ini."
+msgstr "Anda menerima ini karena Anda pemilik proyek ini."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1695,6 +1695,8 @@ msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
 "application"
 msgstr ""
+"Tambah <abbr title=\"autentikasi dua faktor\">2FA</abbr> dengan aplikasi "
+"otentikasi"
 
 #: warehouse/templates/manage/account.html:141
 msgid ""
@@ -1962,7 +1964,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:486
 #: warehouse/templates/manage/settings.html:23
 msgid "API tokens"
-msgstr "API tokens"
+msgstr "Token API"
 
 #: warehouse/templates/manage/account.html:487
 #: warehouse/templates/manage/settings.html:24
@@ -2001,7 +2003,7 @@ msgstr "Akun telah dibuat"
 
 #: warehouse/templates/manage/account.html:529
 msgid "Logged in"
-msgstr ""
+msgstr "Masuk"
 
 #: warehouse/templates/manage/account.html:531
 msgid "Two factor method:"
@@ -2067,8 +2069,8 @@ msgstr "Autentikasi dua faktor ditambahkan"
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
-"Metode: Perangkat keamanan  (<abbr title=\"web authentication\">WebAuthn</"
-"abbr>)"
+"Metode: Perangkat keamanan (<abbr title=\"web authentication\""
+">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:579
 #: warehouse/templates/manage/account.html:589
