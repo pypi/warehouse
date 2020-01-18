@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-12-10 17:43-0600\n"
+"POT-Creation-Date: 2020-01-15 10:23-0600\n"
 "PO-Revision-Date: 2020-01-05 23:17+0000\n"
 "Last-Translator: Eana Hufwe <ilove@1a23.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -27,19 +27,19 @@ msgstr ""
 "X-Generator: Weblate 3.10\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:39
+#: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "未找到使用该用户名的用户"
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP代码必须为$ {totp_length}位数字。"
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
 msgstr "选择一个不超过50个字符的用户名。"
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -48,57 +48,57 @@ msgstr ""
 "用户名无效。用户名必须由字母、数字、点、连字符和下划线组成。也必须以字母或数"
 "字开头和结尾。请选择其他用户名。"
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:92
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "此用户名已被其他帐户使用。请重新选择用户名。"
 
-#: warehouse/accounts/forms.py:113
+#: warehouse/accounts/forms.py:115
 msgid "The password is invalid. Try again."
 msgstr "密码无效。请再试一次。"
 
-#: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
+#: warehouse/accounts/forms.py:119 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "登录尝试失败次数过多。请稍后重试。"
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Your passwords don't match. Try again."
 msgstr "两次输入的密码不匹配。请再试一次。"
 
-#: warehouse/accounts/forms.py:170
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:183
 msgid "The email address isn't valid. Try again."
 msgstr "电子邮件地址无效。请再试一次。"
 
-#: warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:191
+msgid "You can't use an email address from this domain. Use a different email."
+msgstr "您不能使用来自该域名的电子邮件地址。请换一个电子邮件。"
+
+#: warehouse/accounts/forms.py:202
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "此帐户已使用此电子邮件地址。请使用一个不同的电子邮件。"
 
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:209
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "此电子邮件地址已被另一个帐户使用。使用一个不同的电子邮件。"
 
-#: warehouse/accounts/forms.py:196
-msgid "You can't use an email address from this domain. Use a different email."
-msgstr "您不能使用来自该域名的电子邮件地址。请换一个电子邮件。"
-
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:231
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "用户名太长。请选择一个不超过100个字符的用户名。"
 
-#: warehouse/accounts/forms.py:282
+#: warehouse/accounts/forms.py:295
 msgid "Invalid TOTP code."
 msgstr "无效的 TOTP 代码。"
 
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:312
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "无效的 WebAuthn 断言：数据错误"
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
 msgstr "未找到使用该用户名或电子邮件的用户"
 
@@ -232,7 +232,7 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:83 warehouse/templates/index.html:87
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account.html:249
@@ -478,7 +478,8 @@ msgstr ""
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
-msgstr "没有JavaScript一些功能可能无法使用。如果你遇到此问题，请尝试允许JavaScript。"
+msgstr ""
+"没有JavaScript一些功能可能无法使用。如果你遇到此问题，请尝试允许JavaScript。"
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
@@ -808,16 +809,16 @@ msgstr "%(username)s 的档案"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com 上 {user} 的头像"
 
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:39
 msgid "Date joined"
 msgstr "加入日期"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:40
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "%(start_date)s 加入"
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:54
 #, python-format
 msgid ""
 "\n"
@@ -832,17 +833,17 @@ msgstr[0] ""
 "            %(count) 个项目\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:59
+#: warehouse/templates/accounts/profile.html:60
 msgid "No projects"
 msgstr "没有项目"
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "上次发布于 %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:76
+#: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s 尚未上传任何项目到 PyPI"
@@ -902,7 +903,14 @@ msgstr "选择密码"
 msgid "Confirm password"
 msgstr "确认密码"
 
-#: warehouse/templates/accounts/register.html:159
+#: warehouse/templates/accounts/register.html:157
+msgid ""
+"This password appears in a security breach or has been compromised and "
+"cannot be used. Please refer to the <a href=\"/help/#compromised-password"
+"\">FAQ</a> for more information."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:162
 msgid "Create account"
 msgstr "创建帐户"
 
@@ -1022,8 +1030,9 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
-"<p>使用连接到您的PyPI帐户的身份验证应用程序生成代码。 在表单中输入此代码以验证您的身份。</p> 3<p>Appt丢失？无法工作？点击<a "
-"href=\"%(href)s\">获取帮助</a>。</p>"
+"<p>使用连接到您的PyPI帐户的身份验证应用程序生成代码。 在表单中输入此代码以验"
+"证您的身份。</p> 3<p>Appt丢失？无法工作？点击<a href=\"%(href)s\">获取帮助</"
+"a>。</p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1178,7 +1187,8 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
-"PyPI本身并未遭受破坏。 这是一种保护措施，可降低针对PyPI及其用户的<a href=\"%(href)s\">凭据填充</a>攻击的风险。"
+"PyPI本身并未遭受破坏。 这是一种保护措施，可降低针对PyPI及其用户的<a href="
+"\"%(href)s\">凭据填充</a>攻击的风险。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -1188,8 +1198,9 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"要重新访问您的帐户，请在 PyPI 上<a href=\"%(reset_pw_url)s\">重置您的密码</a>。我们同时建议您到 <a href="
-"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> 检查您的其他密码是否被泄露，并了解如何创建更安全的密码。"
+"要重新访问您的帐户，请在 PyPI 上<a href=\"%(reset_pw_url)s\">重置您的密码</"
+"a>。我们同时建议您到 <a href=\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</"
+"a> 检查您的其他密码是否被泄露，并了解如何创建更安全的密码。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
@@ -1204,9 +1215,10 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
-"我们从<a href=\"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a>使用免费的安全服务。 "
-"在注册，认证或更新密码时会生成密码的SHA1哈希，并使用哈希的前5个字符来确定密码是否会受到威胁。 "
-"纯文本密码永远不会被PyPI存储或发送给HaveIBeenPwned。"
+"我们从<a href=\"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a>使用免费的安"
+"全服务。 在注册，认证或更新密码时会生成密码的SHA1哈希，并使用哈希的前5个字符"
+"来确定密码是否会受到威胁。 纯文本密码永远不会被PyPI存储或发送给"
+"HaveIBeenPwned。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -1215,8 +1227,9 @@ msgid ""
 "can email <a href=\"%(email_href)s\">%(email_address)s</a> to communicate "
 "with the PyPI administrators."
 msgstr ""
-"更多信息，请参阅我们的 <a href=\"%(faq_url)s\">FAQ</a>。如需帮助，您可以向 <a href=\"%(email_href)"
-"s\">%(email_address)s</a> 发送电子邮件并与 PyPI 管理员沟通。"
+"更多信息，请参阅我们的 <a href=\"%(faq_url)s\">FAQ</a>。如需帮助，您可以向 "
+"<a href=\"%(email_href)s\">%(email_address)s</a> 发送电子邮件并与 PyPI 管理员"
+"沟通。"
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1230,7 +1243,8 @@ msgstr "有人（可能是您）为 PyPI 帐户 '%(username)s' 提出了密码�
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
-msgstr "如果您希望继续执行此请求，请单击链接 <a href=\"%(href)s\">重置密码</a>。"
+msgstr ""
+"如果您希望继续执行此请求，请单击链接 <a href=\"%(href)s\">重置密码</a>。"
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -1422,9 +1436,10 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"通过 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">Libraries.io</a> 或者使用 <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">我们在Google BigQuery上的公开数据集</a> 查看项目的统计信息"
+"通过 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libraries.io</a> 或者使用 <a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">我们在Google BigQuery上的公开数据集</a> 查看项目"
+"的统计信息"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1434,9 +1449,10 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"通过 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">Libraries.io</a> 或者使用 <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">Google BigQuery</a> 查看 %(username)s 的项目的统计信息"
+"通过 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libraries.io</a> 或者使用 <a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">Google BigQuery</a> 查看 %(username)s 的项目的统"
+"计信息"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1495,19 +1511,19 @@ msgstr "项目链接"
 msgid "GitHub statistics:"
 msgstr "GitHub 统计信息："
 
-#: warehouse/templates/includes/packaging/project-data.html:43
+#: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
 msgstr "星标数："
 
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
 msgstr "分支数："
 
-#: warehouse/templates/includes/packaging/project-data.html:61
+#: warehouse/templates/includes/packaging/project-data.html:58
 msgid "Open issues/PRs:"
 msgstr "未解决的问题/ PR："
 
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -1515,46 +1531,47 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"通过 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">Libraries.io</a> 或者使用 <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">Google BigQuery上公开的数据集</a> 查看此项目的统计信息"
+"通过 <a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libraries.io</a> 或者使用 <a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">Google BigQuery上公开的数据集</a> 查看此项目的统"
+"计信息"
 
-#: warehouse/templates/includes/packaging/project-data.html:77
+#: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
 msgstr "元数据"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
 msgstr "许可证："
 
-#: warehouse/templates/includes/packaging/project-data.html:82
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
 msgstr "作者："
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:86
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
 msgstr "维护者："
 
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:91
 msgid "Tags"
 msgstr "标签"
 
-#: warehouse/templates/includes/packaging/project-data.html:104
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Requires:"
 msgstr "要求："
 
-#: warehouse/templates/includes/packaging/project-data.html:111
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Maintainers"
 msgstr "维护者"
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
 msgstr "gravatar.com 上 {username} 的头像"
 
-#: warehouse/templates/includes/packaging/project-data.html:129
+#: warehouse/templates/includes/packaging/project-data.html:126
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -1640,13 +1657,15 @@ msgstr "删除电子邮件"
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
 "application"
-msgstr "在身份验证应用程序中添加 <abbr title=\"two factor authentication\">2FA</abbr>"
+msgstr ""
+"在身份验证应用程序中添加 <abbr title=\"two factor authentication\">2FA</abbr>"
 
 #: warehouse/templates/manage/account.html:141
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
-msgstr "通过安全设备添加（例如USB密钥）的 <abbr title=\"两因素认证\">2FA</abbr>"
+msgstr ""
+"通过安全设备添加（例如USB密钥）的 <abbr title=\"两因素认证\">2FA</abbr>"
 
 #: warehouse/templates/manage/account.html:145
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1663,8 +1682,8 @@ msgid ""
 "\">Upgrade your browser</a> to set up two factor authentication with a "
 "security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">升级浏览器</a> 以使用安全设备（例如USB密钥）设置两因素身份验证"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"升级浏览器</a> 以使用安全设备（例如USB密钥）设置两因素身份验证"
 
 #: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/account.html:495
@@ -1732,8 +1751,8 @@ msgid ""
 "\"noopener\">gravatar.com</a> to generate your profile picture based on your "
 "primary email address"
 msgstr ""
-"我们使用<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">gravatar.com</a>来根据您的主要电子邮件地址生成个人资料图片"
+"我们使用<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">gravatar.com</a>来根据您的主要电子邮件地址生成个人资料图片"
 
 #: warehouse/templates/manage/account.html:256
 msgid "Change image on gravatar.com"
@@ -1781,9 +1800,10 @@ msgid ""
 "\"></i> Verified</span> email to recover your account, but only your <span "
 "class=\"badge\">Primary</span> email will receive notifications."
 msgstr ""
-"您可以将您的帐户相关联关联到多个电子邮件地址。您可以使用任何 <span class=\"badge badge--success\"><i class="
-"\"fa fa-check\" aria-hidden=\"true\"></i> 已验证</span>的电子邮件来恢复您的帐户，但只有您的<span "
-"class=\"badge\">主电子邮件</span>将收到通知。"
+"您可以将您的帐户相关联关联到多个电子邮件地址。您可以使用任何 <span class="
+"\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i> "
+"已验证</span>的电子邮件来恢复您的帐户，但只有您的<span class=\"badge\">主电子"
+"邮件</span>将收到通知。"
 
 #: warehouse/templates/manage/account.html:325
 msgid "Emails associated with your account"
@@ -1829,8 +1849,8 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>."
 msgstr ""
-"双因素身份验证可以为您的帐户添加一层额外的安全保护。<a href=\"%(href)s\">进一步了解 <abbr title=\"two "
-"factor authentication\">2FA</abbr></a>。"
+"双因素身份验证可以为您的帐户添加一层额外的安全保护。<a href=\"%(href)s\">进一"
+"步了解 <abbr title=\"two factor authentication\">2FA</abbr></a>。"
 
 #: warehouse/templates/manage/account.html:431
 msgid "Two factor authentication methods enabled"
@@ -1887,7 +1907,8 @@ msgstr "您的帐户尚未启用双因素身份验证。"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
 "authentication to your account."
-msgstr "<a href=\"%(href)s\">验证主要电子邮件地址</a>以向您的帐户添加两要素身份验证。"
+msgstr ""
+"<a href=\"%(href)s\">验证主要电子邮件地址</a>以向您的帐户添加两要素身份验证。"
 
 #: warehouse/templates/manage/account.html:486
 #: warehouse/templates/manage/settings.html:23
@@ -1919,7 +1940,9 @@ msgstr "添加 API 令牌"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
 "to your account."
-msgstr "<a href=\"%(href)s\">验证主要电子邮件地址</a> ，以便将API令牌添加到您的帐户中。"
+msgstr ""
+"<a href=\"%(href)s\">验证主要电子邮件地址</a> ，以便将API令牌添加到您的帐户"
+"中。"
 
 #: warehouse/templates/manage/account.html:526
 msgid "Account created"
@@ -2003,7 +2026,9 @@ msgstr "设备名称："
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
-msgstr "方式：身份验证程序（<abbr title=\"time-based one-time password\">TOTP</abbr>）"
+msgstr ""
+"方式：身份验证程序（<abbr title=\"time-based one-time password\">TOTP</"
+"abbr>）"
 
 #: warehouse/templates/manage/account.html:585
 msgid "Two factor authentication removed"
@@ -2149,8 +2174,8 @@ msgid ""
 "\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading new "
 "documentation is no longer supported."
 msgstr ""
-"如果您需要销毁所有储存在 <a href=\"%(url)s\">%(url)s</a> "
-"的文档，此操作将<strong>不能</strong>撤销。上传新的文档已不再被支持。"
+"如果您需要销毁所有储存在 <a href=\"%(url)s\">%(url)s</a> 的文档，此操作将"
+"<strong>不能</strong>撤销。上传新的文档已不再被支持。"
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"

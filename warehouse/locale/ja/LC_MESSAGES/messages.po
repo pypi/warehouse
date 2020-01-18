@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-12-10 17:43-0600\n"
+"POT-Creation-Date: 2020-01-15 10:23-0600\n"
 "PO-Revision-Date: 2019-12-19 13:38+0000\n"
 "Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -26,19 +26,19 @@ msgstr ""
 "X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:39
+#: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "そのユーザー名のユーザーは見つかりませんでした"
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP コードは ${totp_length} 桁でなければなりません。"
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
 msgstr "50文字以下のユーザー名を選択してください。"
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -48,7 +48,7 @@ msgstr ""
 "コアで構成する必要があります。また、文字または数字で開始および終了する必要が"
 "あります。別のユーザー名を選択してください。"
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:92
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -56,23 +56,29 @@ msgstr ""
 "このユーザー名はすでに別のアカウントで使用されています。別のユーザー名を選択"
 "してください。"
 
-#: warehouse/accounts/forms.py:113
+#: warehouse/accounts/forms.py:115
 msgid "The password is invalid. Try again."
 msgstr "パスワードが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
+#: warehouse/accounts/forms.py:119 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "ログインの失敗が多数発生しました。後でやり直してください。"
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Your passwords don't match. Try again."
 msgstr "パスワードが一致しません。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:170
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:183
 msgid "The email address isn't valid. Try again."
 msgstr "メールアドレスが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:191
+msgid "You can't use an email address from this domain. Use a different email."
+msgstr ""
+"このドメインからのメールアドレスは使用できません。別のメールアドレスを使用し"
+"てください。"
+
+#: warehouse/accounts/forms.py:202
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -80,7 +86,7 @@ msgstr ""
 "このメールアドレスはすでにこのアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:209
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -88,25 +94,19 @@ msgstr ""
 "このメールアドレスはすでに別のアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:196
-msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
-"このドメインからのメールアドレスは使用できません。別のメールアドレスを使用し"
-"てください。"
-
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:231
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名前が長過ぎます。100字以下の名前を選択してください。"
 
-#: warehouse/accounts/forms.py:282
+#: warehouse/accounts/forms.py:295
 msgid "Invalid TOTP code."
 msgstr "不正なTOTPコード。"
 
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:312
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "無効なWebAuthnアサーション：不正なペイロード"
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
 msgstr "そのユーザ名またはメールアドレスのユーザは見つかりませんでした"
 
@@ -245,7 +245,7 @@ msgstr "モンティ・パイソン — チーズ・ショップ"
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:83 warehouse/templates/index.html:87
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account.html:249
@@ -835,16 +835,16 @@ msgstr "%(username)s のプロフィール"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com上の {user} のアバター"
 
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:39
 msgid "Date joined"
 msgstr "登録日"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:40
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "%(start_date)s に登録"
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:54
 #, python-format
 msgid ""
 "\n"
@@ -859,17 +859,17 @@ msgstr[0] ""
 "            %(count)s 個のプロジェクト\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:59
+#: warehouse/templates/accounts/profile.html:60
 msgid "No projects"
 msgstr "プロジェクト無し"
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "最終リリース日: %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:76
+#: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s はまだPyPIにプロジェクトをアップロードしていません"
@@ -929,7 +929,14 @@ msgstr "パスワードを選択"
 msgid "Confirm password"
 msgstr "パスワードの確認"
 
-#: warehouse/templates/accounts/register.html:159
+#: warehouse/templates/accounts/register.html:157
+msgid ""
+"This password appears in a security breach or has been compromised and "
+"cannot be used. Please refer to the <a href=\"/help/#compromised-password"
+"\">FAQ</a> for more information."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:162
 msgid "Create account"
 msgstr "アカウントを作成"
 
@@ -1480,9 +1487,10 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">Libraries.io</a>経由または <a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">Google BigQuery上の公開データセット</a>を使ってプロジェクトの統計を見る"
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libraries.io</a>経由または <a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">Google BigQuery上の公開データセット</a>を使ってプ"
+"ロジェクトの統計を見る"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1492,9 +1500,10 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">Google BigQuery上の公開データセット</a>を使って%(username)sのプロジェクトの統計を見る"
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">Google BigQuery上の公開データセット</a>を使っ"
+"て%(username)sのプロジェクトの統計を見る"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1553,19 +1562,19 @@ msgstr "プロジェクトのリンク"
 msgid "GitHub statistics:"
 msgstr "GitHubの統計:"
 
-#: warehouse/templates/includes/packaging/project-data.html:43
+#: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
 msgstr "スター:"
 
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
 msgstr "フォーク:"
 
-#: warehouse/templates/includes/packaging/project-data.html:61
+#: warehouse/templates/includes/packaging/project-data.html:58
 msgid "Open issues/PRs:"
 msgstr "オープンなissue/PR:"
 
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -1573,46 +1582,47 @@ msgid ""
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target=\"_blank\" "
-"rel=\"noopener\">Google BigQuery上の公開データセット</a>を使ってこのプロジェクトの統計を見る"
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">Google BigQuery上の公開データセット</a>を使ってこ"
+"のプロジェクトの統計を見る"
 
-#: warehouse/templates/includes/packaging/project-data.html:77
+#: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
 msgstr "メタデータ"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
 msgstr "ライセンス:"
 
-#: warehouse/templates/includes/packaging/project-data.html:82
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
 msgstr "作者:"
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:86
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
 msgstr "メンテナ:"
 
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:91
 msgid "Tags"
 msgstr "タグ"
 
-#: warehouse/templates/includes/packaging/project-data.html:104
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Requires:"
 msgstr "必須:"
 
-#: warehouse/templates/includes/packaging/project-data.html:111
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Maintainers"
 msgstr "メンテナ"
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
 msgstr "gravatar.com 上の {username} のアバター"
 
-#: warehouse/templates/includes/packaging/project-data.html:129
+#: warehouse/templates/includes/packaging/project-data.html:126
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -3560,7 +3570,8 @@ msgstr "PyPI上のプロジェクトで使用可能な共同編集者の役割�
 
 #: warehouse/templates/pages/help.html:79
 msgid "How do I become an owner/maintainer of a project on PyPI?"
-msgstr "PyPIでプロジェクトのオーナー/メンテナになるには、どうすればよいですか？"
+msgstr ""
+"PyPIでプロジェクトのオーナー/メンテナになるには、どうすればよいですか？"
 
 #: warehouse/templates/pages/help.html:80
 msgid "How can I upload a project description in a different format?"
@@ -4287,8 +4298,9 @@ msgid ""
 "\"noopener\">analyze PyPI download usage statistics via our public dataset "
 "on Google BigQuery</a>."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">PyPIのダウンロード利用の統計は、Google BigQuery上の公開データセットを使って分析することができます</a>。"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">PyPIのダウンロード利用の統計は、Google BigQuery上の公開データセットを使っ"
+"て分析することができます</a>。"
 
 #: warehouse/templates/pages/help.html:441
 #, python-format
@@ -4382,9 +4394,10 @@ msgid ""
 "\"noopener\">\"How to request a name transfer\"</a> section of <abbr title="
 "\"Python enhancement proposal\">PEP</abbr> 541."
 msgstr ""
-"<abbr title=\"Python enhancement proposal\">PEP</abbr> 541の <a href=\"%(href)"
-"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">「How to request a "
-"name transfer（名前の移行をリクエストする方法）」</a> の項に従ってください。"
+"<abbr title=\"Python enhancement proposal\">PEP</abbr> 541の <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">「How to "
+"request a name transfer（名前の移行をリクエストする方法）」</a> の項に従って"
+"ください。"
 
 #: warehouse/templates/pages/help.html:473
 msgid "Owner:"

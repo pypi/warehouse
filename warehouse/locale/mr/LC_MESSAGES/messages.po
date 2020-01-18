@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-12-10 17:43-0600\n"
+"POT-Creation-Date: 2020-01-15 10:23-0600\n"
 "PO-Revision-Date: 2019-12-29 02:56+0000\n"
 "Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
 "Language-Team: Marathi <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -20,78 +20,76 @@ msgstr ""
 "X-Generator: Weblate 3.10\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:39
+#: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "त्या वापरकर्तानावासह कोणताही वापरकर्ता आढळला नाही"
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
 msgstr "50 किंवा त्यापेक्षा कमी वर्ण असलेले वापरकर्तानाव निवडा."
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:92
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr ""
-"हे वापरकर्तानाव आधीपासूनच दुसर्‍या खात्याने वापरलेले आहे. भिन्न वापरकर्तानाव "
-"निवडा."
+msgstr "हे वापरकर्तानाव आधीपासूनच दुसर्‍या खात्याने वापरलेले आहे. भिन्न वापरकर्तानाव निवडा."
 
-#: warehouse/accounts/forms.py:113
+#: warehouse/accounts/forms.py:115
 msgid "The password is invalid. Try again."
 msgstr "संकेतशब्द अवैध आहे. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
+#: warehouse/accounts/forms.py:119 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "बरेच लॉगिन प्रयत्न अयशस्वी झाले. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Your passwords don't match. Try again."
 msgstr "आपले संकेतशब्द जुळत नाहीत. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/forms.py:170
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:183
 msgid "The email address isn't valid. Try again."
 msgstr "ईमेल पत्ता वैध नाही. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:191
+msgid "You can't use an email address from this domain. Use a different email."
+msgstr "आपण या डोमेनकडून ईमेल पत्ता वापरू शकत नाही. भिन्न ईमेल वापरा."
+
+#: warehouse/accounts/forms.py:202
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "हा ईमेल पत्ता आधीपासून या खात्याने वापरला आहे. भिन्न ईमेल वापरा."
 
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:209
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "हा ईमेल पत्ता आधीपासून दुसर्‍या खात्याने वापरला आहे. भिन्न ईमेल वापरा."
 
-#: warehouse/accounts/forms.py:196
-msgid "You can't use an email address from this domain. Use a different email."
-msgstr "आपण या डोमेनकडून ईमेल पत्ता वापरू शकत नाही. भिन्न ईमेल वापरा."
-
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:231
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "नाव खूप मोठे आहे. १०० किंवा त्याहून कमी वर्ण असलेले नाव निवडा."
 
-#: warehouse/accounts/forms.py:282
+#: warehouse/accounts/forms.py:295
 msgid "Invalid TOTP code."
 msgstr "अवैध TOTP कोड."
 
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:312
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अवैध WebAuthn प्रतिपादन: खराब पेलोड"
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
 msgstr "वापरकर्तानाव किंवा ईमेल असलेला कोणताही वापरकर्ता आढळला नाही"
 
@@ -114,8 +112,8 @@ msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help"
-"#admin-intervention पहा."
+"नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
+"intervention पहा."
 
 #: warehouse/accounts/views.py:495
 msgid "Expired token: request a new password reset link"
@@ -225,7 +223,7 @@ msgstr ""
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:83 warehouse/templates/index.html:87
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account.html:249
@@ -462,8 +460,8 @@ msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
-"काही वैशिष्ट्ये जावास्क्रिप्टशिवाय कार्य करू शकत नाहीत. कृपया आपणास काही "
-"समस्या असल्यास ते सक्षम करण्याचा प्रयत्न करा."
+"काही वैशिष्ट्ये जावास्क्रिप्टशिवाय कार्य करू शकत नाहीत. कृपया आपणास काही समस्या असल्यास "
+"ते सक्षम करण्याचा प्रयत्न करा."
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
@@ -792,16 +790,16 @@ msgstr ""
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:39
 msgid "Date joined"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:40
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:54
 #, python-format
 msgid ""
 "\n"
@@ -814,17 +812,17 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/accounts/profile.html:59
+#: warehouse/templates/accounts/profile.html:60
 msgid "No projects"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:76
+#: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr ""
@@ -884,7 +882,14 @@ msgstr ""
 msgid "Confirm password"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:159
+#: warehouse/templates/accounts/register.html:157
+msgid ""
+"This password appears in a security breach or has been compromised and "
+"cannot be used. Please refer to the <a href=\"/help/#compromised-password"
+"\">FAQ</a> for more information."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:162
 msgid "Create account"
 msgstr ""
 
@@ -1429,19 +1434,19 @@ msgstr ""
 msgid "GitHub statistics:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:43
+#: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:61
+#: warehouse/templates/includes/packaging/project-data.html:58
 msgid "Open issues/PRs:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -1450,42 +1455,42 @@ msgid ""
 "dataset on Google BigQuery</a>"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:77
+#: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:82
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:86
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:91
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:104
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:111
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Maintainers"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:129
+#: warehouse/templates/includes/packaging/project-data.html:126
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -4378,15 +4383,14 @@ msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
-"एकदा आपण ईमेलद्वारे समस्या सबमिट केल्यावर आपल्याला 48 तासांच्या आत एक पोच "
-"पावती मिळाली पाहिजे."
+"एकदा आपण ईमेलद्वारे समस्या सबमिट केल्यावर आपल्याला 48 तासांच्या आत एक पोच पावती "
+"मिळाली पाहिजे."
 
 #: warehouse/templates/pages/security.html:41
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
-msgstr ""
-"करावयाच्या कारवाईच्या आधारावर आपल्याला पुढील पाठपुरावा ईमेल प्राप्त होऊ शकेल."
+msgstr "करावयाच्या कारवाईच्या आधारावर आपल्याला पुढील पाठपुरावा ईमेल प्राप्त होऊ शकेल."
 
 #: warehouse/templates/pages/security.html:44
 msgid "This security policy was last updated on March 14, 2018."
@@ -4440,9 +4444,7 @@ msgstr "अव्वल स्टोरेज वापरकर्ते"
 msgid ""
 "Here is a list of the top 100 packages based on sum of their packages sizes "
 "(in bytes)."
-msgstr ""
-"त्यांच्या पॅकेज आकाराच्या (बाइटमध्ये) बेरीजच्या आधारे शीर्ष 100 पॅकेजची यादी "
-"येथे आहे."
+msgstr "त्यांच्या पॅकेज आकाराच्या (बाइटमध्ये) बेरीजच्या आधारे शीर्ष 100 पॅकेजची यादी येथे आहे."
 
 #: warehouse/templates/pages/stats.html:39
 msgid "Statistics by project"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-12-10 17:43-0600\n"
+"POT-Creation-Date: 2020-01-15 10:23-0600\n"
 "PO-Revision-Date: 2020-01-15 02:18+0000\n"
 "Last-Translator: Habib R <revolusi147id@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
@@ -24,20 +24,20 @@ msgstr ""
 "X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:39
+#: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "Pengguna dengan nama tersebut tidak ditemukan"
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 "Kode TOTP (Time-based One-time Password) harus berupa $ {totp_length} digit."
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
 msgstr "Pilih nama pengguna kurang dari 50 huruf."
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -47,7 +47,7 @@ msgstr ""
 "titik, tanda hubung, dan garis bawah. Dan juga harus mulai dan selesai "
 "dengan huruf atau angka. Pilih nama pengguna yang berbeda."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:92
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -55,53 +55,53 @@ msgstr ""
 "Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
 "berbeda."
 
-#: warehouse/accounts/forms.py:113
+#: warehouse/accounts/forms.py:115
 msgid "The password is invalid. Try again."
 msgstr "Kata sandi salah. Coba lagi."
 
-#: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
+#: warehouse/accounts/forms.py:119 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Terlalu banyak upaya masuk yang gagal. Coba lagi nanti."
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Your passwords don't match. Try again."
 msgstr "Kata sandi tidak cocok. Coba lagi."
 
-#: warehouse/accounts/forms.py:170
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:183
 msgid "The email address isn't valid. Try again."
 msgstr "Alamat email tidak valid. Coba lagi."
 
-#: warehouse/accounts/forms.py:180
-msgid ""
-"This email address is already being used by this account. Use a different "
-"email."
-msgstr "Alamat email ini sudah digunakan oleh akun ini. Gunakan email lain."
-
-#: warehouse/accounts/forms.py:187
-msgid ""
-"This email address is already being used by another account. Use a different "
-"email."
-msgstr "Alamat email ini sudah digunakan oleh akun lain. Gunakan email lain."
-
-#: warehouse/accounts/forms.py:196
+#: warehouse/accounts/forms.py:191
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Anda tidak dapat menggunakan alamat email dari domain ini. Gunakan email "
 "lain."
 
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:202
+msgid ""
+"This email address is already being used by this account. Use a different "
+"email."
+msgstr "Alamat email ini sudah digunakan oleh akun ini. Gunakan email lain."
+
+#: warehouse/accounts/forms.py:209
+msgid ""
+"This email address is already being used by another account. Use a different "
+"email."
+msgstr "Alamat email ini sudah digunakan oleh akun lain. Gunakan email lain."
+
+#: warehouse/accounts/forms.py:231
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
-#: warehouse/accounts/forms.py:282
+#: warehouse/accounts/forms.py:295
 msgid "Invalid TOTP code."
 msgstr "Kode TOTP tidak valid."
 
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:312
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Pernyataan WebAuthn tidak valid: Muatan buruk"
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
 msgstr "Tidak ada pengguna yang ditemukan dengan nama pengguna atau email itu"
 
@@ -237,7 +237,7 @@ msgstr "Monty Python - Sketsa Toko Keju"
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:83 warehouse/templates/index.html:87
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account.html:249
@@ -830,16 +830,16 @@ msgstr "Profil %(username)s"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar untuk {user} dari gravatar.com"
 
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:39
 msgid "Date joined"
 msgstr "Tanggal bergabung"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:40
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "Bergabung pada %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:54
 #, python-format
 msgid ""
 "\n"
@@ -854,17 +854,17 @@ msgstr[0] ""
 "            %(count)s proyek\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:59
+#: warehouse/templates/accounts/profile.html:60
 msgid "No projects"
 msgstr "Tidak ada proyek"
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "Terakhir dirilis pada %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:76
+#: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s belum mengunggah proyek apa pun ke PyPI"
@@ -924,7 +924,14 @@ msgstr "Pilih kata sandi"
 msgid "Confirm password"
 msgstr "Konfirmasi kata sandi"
 
-#: warehouse/templates/accounts/register.html:159
+#: warehouse/templates/accounts/register.html:157
+msgid ""
+"This password appears in a security breach or has been compromised and "
+"cannot be used. Please refer to the <a href=\"/help/#compromised-password"
+"\">FAQ</a> for more information."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:162
 msgid "Create account"
 msgstr "Buat Akun"
 
@@ -1023,8 +1030,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">Perbarui perambanmu</a> untuk masuk menggunakan perangkat keamanan (mis. "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
+"\">Perbarui perambanmu</a> untuk masuk menggunakan perangkat keamanan (mis. "
 "kunci USB)"
 
 #: warehouse/templates/accounts/two-factor.html:61
@@ -1055,8 +1062,8 @@ msgid ""
 msgstr ""
 "<p>Hasilkan kode menggunakan aplikasi otentikasi yang tersambung ke akun "
 "PyPI anda. Masukkan kode ini pada formulir untuk memverifikasi identitas "
-"anda.</p> <p>Kehilangan aplikasi? Tidak bekerja? <a href=\"%(href)s\">"
-"Dapatkan bantuan</a>.</p>"
+"anda.</p> <p>Kehilangan aplikasi? Tidak bekerja? <a href=\"%(href)s"
+"\">Dapatkan bantuan</a>.</p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1071,8 +1078,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
-"Jika anda tidak mengubah ini, anda bisa bersurel ke <a href=\"%(href)s\""
-">%(email_address)s</a> untuk berkomunikasi dengan administrator PyPi."
+"Jika anda tidak mengubah ini, anda bisa bersurel ke <a href=\"%(href)s\">"
+"%(email_address)s</a> untuk berkomunikasi dengan administrator PyPi."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
@@ -1122,8 +1129,8 @@ msgid ""
 "If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
 "a> to communicate with the PyPI administrators."
 msgstr ""
-"Jika ini sebuah kesalahan, Anda bisa mengemail <a href=\"%(href)s\""
-">%(email_address)s</a> untuk berkomunikasi dengan administrator PyPI."
+"Jika ini sebuah kesalahan, Anda bisa mengemail <a href=\"%(href)s\">"
+"%(email_address)s</a> untuk berkomunikasi dengan administrator PyPI."
 
 #: warehouse/templates/email/collaborator-added/body.html:41
 msgid "You are receiving this because you are an owner of this project."
@@ -1234,8 +1241,8 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
-"Kamimenggunakan layanan keamanan gratis dari <a href=\""
-"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Ketika pendaftaran, "
+"Kamimenggunakan layanan keamanan gratis dari <a href="
+"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a>. Ketika pendaftaran, "
 "autentikasi, atau mengupdate kata sandi anda, kami membuat SHA1 hash dari "
 "kata sandi anda dan menggunakan 5 karakter pertama dari hash untuk "
 "memutuskan bahwa kata sandi dikompromikan. Password teks biasa tidak pernah "
@@ -1249,8 +1256,8 @@ msgid ""
 "with the PyPI administrators."
 msgstr ""
 "Untuk informasi lebih lanjut, lihat <a href=\"%(faq_url)s\">FAQ</a> kami. "
-"Untuk bantuan, anda bisa mengemail <a href=\"%(email_href)s\""
-">%(email_address)s</a> untuk berkomunikasi dengan admin-admin PyPI."
+"Untuk bantuan, anda bisa mengemail <a href=\"%(email_href)s\">"
+"%(email_address)s</a> untuk berkomunikasi dengan admin-admin PyPI."
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
@@ -1267,8 +1274,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
 msgstr ""
-"Jika anda berharap melanjutkan dengan permintaan ini, <a href=\"%(href)s\">"
-"klik untuk menyetel ulang kata sandi anda</a>."
+"Jika anda berharap melanjutkan dengan permintaan ini, <a href=\"%(href)s"
+"\">klik untuk menyetel ulang kata sandi anda</a>."
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
@@ -1306,8 +1313,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>"
 msgstr ""
-"Jika anda berharap untuk melanjutkan dengan permintaan ini, <a href=\"%(href)"
-"s\">klik link ini untuk memverivikasi alamat email anda</a>"
+"Jika anda berharap untuk melanjutkan dengan permintaan ini, <a href="
+"\"%(href)s\">klik link ini untuk memverivikasi alamat email anda</a>"
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -1371,8 +1378,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Hashes</a> for %(filename)s"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Hashes</a> untuk %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Hashes</a> untuk %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
@@ -1464,8 +1471,8 @@ msgid ""
 msgstr ""
 "Lihat statistik untuk proyek anda melalui <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, atau "
-"dengan menggunakan <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\""
-"noopener\">himpunan data publik kami di Google BigQuery</a>"
+"dengan menggunakan <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">himpunan data publik kami di Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1475,10 +1482,10 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"Lihat statistik untuk proyek milik %(username)s' melalui <a href=\""
-"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Libraries.io</a>, atau dengan menggunakan <a href=\"%(gbq_href)s\" target=\""
-"_blank\" rel=\"noopener\">himpunan data publik kami di Google BigQuery</a>"
+"Lihat statistik untuk proyek milik %(username)s' melalui <a href="
+"\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Libraries.io</a>, atau dengan menggunakan <a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">himpunan data publik kami di Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1488,8 +1495,8 @@ msgid ""
 "\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "Anda belum pernah mengunggah proyek apapun ke PyPI. Untuk belajar bagaimana "
-"cara memulai, kunjungi <a href=\"%(href)s\" title=\"%(title)s\" target=\""
-"_blank\" rel=\"noopener\">Panduan Pengguna Python Packaging</a>"
+"cara memulai, kunjungi <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Panduan Pengguna Python Packaging</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -1537,20 +1544,20 @@ msgstr "Tautan proyek"
 msgid "GitHub statistics:"
 msgstr "Statistik GitHub:"
 
-#: warehouse/templates/includes/packaging/project-data.html:43
+#: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
 msgstr "Bintang:"
 
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
 msgstr "Cabang:"
 
-#: warehouse/templates/includes/packaging/project-data.html:61
+#: warehouse/templates/includes/packaging/project-data.html:58
 #, fuzzy
 msgid "Open issues/PRs:"
 msgstr "Masalah terbuka/tarik permintaan:"
 
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -1560,46 +1567,46 @@ msgid ""
 msgstr ""
 "Lihat statistik untuk proyek ini melalui <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, atau "
-"dengan menggunakan <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\""
-"noopener\">himpunan data publik kami di Google BigQuery</a>"
+"dengan menggunakan <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">himpunan data publik kami di Google BigQuery</a>"
 
-#: warehouse/templates/includes/packaging/project-data.html:77
+#: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
 msgstr "Meta"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
 msgstr "Lisensi:"
 
-#: warehouse/templates/includes/packaging/project-data.html:82
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
 msgstr "Penulis:"
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:86
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
 msgstr "Pemelihara:"
 
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:91
 msgid "Tags"
 msgstr "Tag"
 
-#: warehouse/templates/includes/packaging/project-data.html:104
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:111
+#: warehouse/templates/includes/packaging/project-data.html:108
 #, fuzzy
 msgid "Maintainers"
 msgstr "Para pemelihara"
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Avatar untuk {username} dari gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:129
+#: warehouse/templates/includes/packaging/project-data.html:126
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -1712,9 +1719,9 @@ msgid ""
 "\">Upgrade your browser</a> to set up two factor authentication with a "
 "security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"Tingkatkan peramban Anda</a> untuk menyiapkan otentikasi dua faktor dengan "
-"perangkat keamanan (misal. kunci USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Tingkatkan peramban Anda</a> untuk menyiapkan otentikasi dua faktor "
+"dengan perangkat keamanan (misal. kunci USB)"
 
 #: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/account.html:495
@@ -1905,8 +1912,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 msgstr ""
-"Aplikasi otentikasi (<abbr title=\"time-based one-time password\""
-">TOTP</abbr>)"
+"Aplikasi otentikasi (<abbr title=\"time-based one-time password\">TOTP</"
+"abbr>)"
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
@@ -2060,8 +2067,8 @@ msgstr "Autentikasi dua faktor ditambahkan"
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
-"Metode: Perangkat keamanan  (<abbr title=\"web authentication\""
-">WebAuthn</abbr>)"
+"Metode: Perangkat keamanan  (<abbr title=\"web authentication\">WebAuthn</"
+"abbr>)"
 
 #: warehouse/templates/manage/account.html:579
 #: warehouse/templates/manage/account.html:589
@@ -2074,8 +2081,8 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"Metode: Aplikasi otentikasi (<abbr title=\"time-based one-time password\">"
-"TOTP </abbr>)"
+"Metode: Aplikasi otentikasi (<abbr title=\"time-based one-time password"
+"\">TOTP </abbr>)"
 
 #: warehouse/templates/manage/account.html:585
 msgid "Two factor authentication removed"
@@ -2190,8 +2197,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href = \"%(transfer_href) s\"> transfer kepemilikan </a> atau <a href = \""
-"%(delete_href) s\" > hapus proyek </a>"
+"<a href = \"%(transfer_href) s\"> transfer kepemilikan </a> atau <a href = "
+"\"%(delete_href) s\" > hapus proyek </a>"
 
 #: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/token.html:156
@@ -2355,8 +2362,8 @@ msgid ""
 "This feature will be deprecated in the future, replaced by the <a href="
 "\"%(href)s\">security history page</a>."
 msgstr ""
-"Fitur ini akan usang di masa mendatang, digantikan oleh <a href=\"%(href)s\">"
-"halaman riwayat keamanan</a>."
+"Fitur ini akan usang di masa mendatang, digantikan oleh <a href=\"%(href)s"
+"\">halaman riwayat keamanan</a>."
 
 #: warehouse/templates/manage/journal.html:32
 #, python-format
@@ -2486,8 +2493,8 @@ msgid ""
 "\">Python Packaging User Guide</a>"
 msgstr ""
 "Anda belum mengunggah proyek apa pun ke PyPI. Untuk mempelajari cara "
-"memulai, kunjungi <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">"
-"Panduan Pengguna Python Packaging</a>"
+"memulai, kunjungi <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
+"\">Panduan Pengguna Python Packaging</a>"
 
 #: warehouse/templates/manage/release.html:18
 #, fuzzy, python-format
