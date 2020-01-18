@@ -551,6 +551,8 @@
           {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "totp" %}
           {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
+        {% elif event.additional.two_factor_method  == "recovery-code" %}
+          {% trans %}Recovery Code{% endtrans %}
         {% endif %}
       </small>
 
