@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-10-17 10:13+0000\n"
+"PO-Revision-Date: 2019-12-19 13:38+0000\n"
 "Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9\n"
+"X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -1473,40 +1473,28 @@ msgid "Statistics"
 msgstr "統計"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
-#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-#| "BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a>経由または <a href=\"%(gbq_href)s\" target="
-"\"_blank\" rel=\"noopener\">Google BigQuery</a>を使ってプロジェクトの統計を見"
-"る"
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Libraries.io</a>経由または <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">Google BigQuery上の公開データセット</a>を使ってプロジェクトの統計を見る"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for %(username)s's projects via <a href=\"%(libs_io_href)s"
-#| "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</"
-#| "a>, or by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Google BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for %(username)s's projects via <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or "
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target="
-"\"_blank\" rel=\"noopener\">Google BigQuery</a>を使って%(username)sのプロジェ"
-"クトの統計を見る"
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">Google BigQuery上の公開データセット</a>を使って%(username)sのプロジェクトの統計を見る"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1578,22 +1566,16 @@ msgid "Open issues/PRs:"
 msgstr "オープンなissue/PR:"
 
 #: warehouse/templates/includes/packaging/project-data.html:69
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
-#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-#| "BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target="
-"\"_blank\" rel=\"noopener\">Google BigQuery</a>を使ってこのプロジェクトの統計"
-"を見る"
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Libraries.io</a>経由または<a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">Google BigQuery上の公開データセット</a>を使ってこのプロジェクトの統計を見る"
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
@@ -3577,11 +3559,8 @@ msgid "What collaborator roles are available for a project on PyPI?"
 msgstr "PyPI上のプロジェクトで使用可能な共同編集者の役割には、何がありますか？"
 
 #: warehouse/templates/pages/help.html:79
-#, fuzzy
-#| msgid "How do I become a owner/maintainer of a project on PyPI?"
 msgid "How do I become an owner/maintainer of a project on PyPI?"
-msgstr ""
-"PyPIでプロジェクトのオーナー/メンテナになるには、どうすればよいですか？"
+msgstr "PyPIでプロジェクトのオーナー/メンテナになるには、どうすればよいですか？"
 
 #: warehouse/templates/pages/help.html:80
 msgid "How can I upload a project description in a different format?"
@@ -4302,19 +4281,14 @@ msgstr ""
 "ます。"
 
 #: warehouse/templates/pages/help.html:439
-#, fuzzy, python-format
-#| msgid ""
-#| "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">analyze PyPI download usage statistics via Google BigQuery</"
-#| "a>."
+#, python-format
 msgid ""
 "You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">analyze PyPI download usage statistics via our public dataset "
 "on Google BigQuery</a>."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">PyPIのダウンロード利用の統計は、Google BigQueryを使って分析することができ"
-"ます</a>。"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">PyPIのダウンロード利用の統計は、Google BigQuery上の公開データセットを使って分析することができます</a>。"
 
 #: warehouse/templates/pages/help.html:441
 #, python-format
@@ -4402,19 +4376,15 @@ msgstr ""
 "別のユーザによってプロジェクト名が登録済みだが、リリースが作成されていない。"
 
 #: warehouse/templates/pages/help.html:468
-#, fuzzy, python-format
-#| msgid ""
-#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
-#| "available formats."
+#, python-format
 msgid ""
 "Follow the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">\"How to request a name transfer\"</a> section of <abbr title="
 "\"Python enhancement proposal\">PEP</abbr> 541."
 msgstr ""
-"使用可能なフォーマットの詳細については、<a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guide</a>を参照してください。"
+"<abbr title=\"Python enhancement proposal\">PEP</abbr> 541の <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">「How to request a "
+"name transfer（名前の移行をリクエストする方法）」</a> の項に従ってください。"
 
 #: warehouse/templates/pages/help.html:473
 msgid "Owner:"
