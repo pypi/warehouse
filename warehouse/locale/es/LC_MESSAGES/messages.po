@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-02 07:20+0000\n"
+"PO-Revision-Date: 2020-01-18 11:57+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.10\n"
+"X-Generator: Weblate 3.10.2\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -33,7 +33,7 @@ msgstr "El código TOTP debe tener ${totp_length} dígitos."
 
 #: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
-msgstr "Elija un nombre de usuario con 50 caracteres o menos."
+msgstr "Elija un nombre de usuario de 50 caracteres o menos."
 
 #: warehouse/accounts/forms.py:78
 msgid ""
@@ -950,6 +950,9 @@ msgid ""
 "cannot be used. Please refer to the <a href=\"/help/#compromised-password"
 "\">FAQ</a> for more information."
 msgstr ""
+"Esta contraseña figura en una vulneración de datos o se encuentra en peligro "
+"y no puede utilizarse. Consulte las <a href=\"/help/#compromised-password\">"
+"preguntas frecuentes</a> para obtener más información."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -3313,10 +3316,9 @@ msgid "Latest version"
 msgstr "Versión más reciente"
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released: %(release_date)s"
+#, python-format
 msgid "Released: %(release_date)s"
-msgstr "Última publicación: %(release_date)s"
+msgstr "Publicación: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
 msgid "No project description provided"
