@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Mariam Maarouf <mariam.mrf@hotmail.com>, 2019.
 # Sayed A Omar <devsayed1@gmail.com>, 2019.
+# Abdur-Rahmaan Janhangeer <cryptolabour@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
 "PO-Revision-Date: 2019-12-24 19:07+0000\n"
-"Last-Translator: Mariam Maarouf <mariam.mrf@hotmail.com>\n"
+"Last-Translator: Abdur-Rahmaan Janhangeer <cryptolabour@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -444,11 +445,11 @@ msgstr "فهرس حزمات بايثون (PyPI) مخزن برمجيات للغة
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 40 آخر التحديثات"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 أحدث الحزم"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
@@ -507,17 +508,15 @@ msgstr "بحث"
 
 #: warehouse/templates/base.html:258
 msgid "Help navigation"
-msgstr ""
+msgstr "التنقل المساعدة"
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "تعرف على تثبيت الحزمات</a>."
+msgstr "تعرف على تثبيت الحزمات"
 
 #: warehouse/templates/base.html:261
 msgid "Uploading packages"
-msgstr ""
+msgstr "تحميل الحزمات"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
@@ -545,19 +544,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
-msgstr ""
+msgstr "احتفاظ اسم فهرس الحزمة"
 
 #: warehouse/templates/base.html:275
 msgid "Our sponsors"
-msgstr ""
+msgstr "الرعاة"
 
 #: warehouse/templates/base.html:281
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "المساهمة في PyPI"
 
 #: warehouse/templates/base.html:282
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "كيفيه المساهمة بالتنقل"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
