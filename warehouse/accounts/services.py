@@ -262,7 +262,7 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
 
-        return len(user.recovery_codes) > 0
+        return user.has_recovery_codes
 
     def get_recovery_codes(self, user_id):
         user = self.get_user(user_id)
