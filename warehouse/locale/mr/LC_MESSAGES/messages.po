@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-16 20:06+0000\n"
+"PO-Revision-Date: 2019-12-29 02:56+0000\n"
 "Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
 "Language-Team: Marathi <https://hosted.weblate.org/projects/pypa/warehouse/"
 "mr/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.10\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -462,60 +462,62 @@ msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
+"काही वैशिष्ट्ये जावास्क्रिप्टशिवाय कार्य करू शकत नाहीत. कृपया आपणास काही "
+"समस्या असल्यास ते सक्षम करण्याचा प्रयत्न करा."
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
-msgstr ""
+msgstr "PyPI मध्ये शोधा"
 
 #: warehouse/templates/base.html:214 warehouse/templates/base.html:235
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:54
 msgid "Search projects"
-msgstr ""
+msgstr "प्रकल्प शोधा"
 
 #: warehouse/templates/base.html:218 warehouse/templates/base.html:239
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:57
 msgid "Search"
-msgstr ""
+msgstr "शोधा"
 
 #: warehouse/templates/base.html:258
 msgid "Help navigation"
-msgstr ""
+msgstr "मदत नेव्हिगेशन"
 
 #: warehouse/templates/base.html:260
 msgid "Installing packages"
-msgstr ""
+msgstr "पॅकेजेस स्थापित करीत आहे"
 
 #: warehouse/templates/base.html:261
 msgid "Uploading packages"
-msgstr ""
+msgstr "पॅकेजेस अपलोड करीत आहे"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
-msgstr ""
+msgstr "वापरकर्ता मार्गदर्शक"
 
 #: warehouse/templates/base.html:263
 msgid "FAQs"
-msgstr ""
+msgstr "सामान्य प्रश्न"
 
 #: warehouse/templates/base.html:269 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr ""
+msgstr "PyPI बद्दल"
 
 #: warehouse/templates/base.html:270
 msgid "About PyPI navigation"
-msgstr ""
+msgstr "PYPI नेव्हिगेशन बद्दल"
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
-msgstr ""
+msgstr "ट्विटरवर PyPI"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "पायाभूत सुविधा डॅशबोर्ड"
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
@@ -523,84 +525,85 @@ msgstr ""
 
 #: warehouse/templates/base.html:275
 msgid "Our sponsors"
-msgstr ""
+msgstr "आमचे प्रायोजक"
 
 #: warehouse/templates/base.html:281
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "PyPI मध्ये योगदान"
 
 #: warehouse/templates/base.html:282
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "नेव्हिगेशनचे योगदान कसे द्यावे"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "दोष आणि अभिप्राय"
 
 #: warehouse/templates/base.html:285
+#, fuzzy
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "गिटहब वर सहयोग द्या"
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
-msgstr ""
+msgstr "PyPI चे भाषांतर करा"
 
 #: warehouse/templates/base.html:287
 msgid "Development credits"
-msgstr ""
+msgstr "विकासाचॆ श्रेय"
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr ""
+msgstr "PyPI चा वापर"
 
 #: warehouse/templates/base.html:294
 msgid "Using PyPI navigation"
-msgstr ""
+msgstr "PyPI नेव्हिगेशन चा वापर"
 
 #: warehouse/templates/base.html:296
 msgid "Code of conduct"
-msgstr ""
+msgstr "आचारसंहिता"
 
 #: warehouse/templates/base.html:297
 msgid "Report security issue"
-msgstr ""
+msgstr "सुरक्षिततेचा मुद्दा नोंदवा"
 
 #: warehouse/templates/base.html:298
 msgid "Privacy policy"
-msgstr ""
+msgstr "गोपनीयता धोरण"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "वापरण्याच्या अटी"
 
 #: warehouse/templates/base.html:309
 msgid "Status: "
-msgstr ""
+msgstr "स्थिती: "
 
 #: warehouse/templates/base.html:310
 msgid "all systems operational"
-msgstr ""
+msgstr "सर्व प्रणाली कार्यरत"
 
 #: warehouse/templates/base.html:314
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
+msgstr "पायथन समुदायासाठी पायथन समुदायाद्वारे विकसित आणि देखभाल केली जाते."
 
 #: warehouse/templates/base.html:316
 msgid "Donate today!"
-msgstr ""
+msgstr "आजच देणगी द्या!"
 
 #: warehouse/templates/base.html:319 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr ""
+msgstr "साइट मॅप"
 
 #: warehouse/templates/base.html:325
 msgid "Switch to desktop version"
-msgstr ""
+msgstr "डेस्कटॉप आवृत्तीवर स्विच करा"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
-msgstr ""
+msgstr "त्रुटी कोड"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
@@ -2304,7 +2307,7 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:77
 msgid "View"
-msgstr ""
+msgstr "पहा"
 
 #: warehouse/templates/manage/projects.html:74
 #, python-format
@@ -2323,20 +2326,20 @@ msgstr ""
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr ""
+msgstr "रीलिझ आवृत्ती %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
-msgstr ""
+msgstr "ब्रेडक्रंब"
 
 #: warehouse/templates/manage/release.html:26
 #, python-format
 msgid "All %(project_name)s releases"
-msgstr ""
+msgstr "सर्व %(project_name)s रिलीझ"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
-msgstr ""
+msgstr "प्रकाशन पहा"
 
 #: warehouse/templates/manage/release.html:34
 #, python-format
@@ -2348,70 +2351,70 @@ msgstr ""
 #: warehouse/templates/packaging/detail.html:285
 #: warehouse/templates/packaging/detail.html:296
 msgid "Filename, size"
-msgstr ""
+msgstr "फाइलनाव, आकार"
 
 #: warehouse/templates/manage/release.html:38
 #: warehouse/templates/manage/release.html:53
 msgid "Type"
-msgstr ""
+msgstr "प्रकार"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
 #: warehouse/templates/packaging/detail.html:287
 #: warehouse/templates/packaging/detail.html:307
 msgid "Python version"
-msgstr ""
+msgstr "पायथन आवृत्ती"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
 #: warehouse/templates/packaging/detail.html:288
 #: warehouse/templates/packaging/detail.html:315
 msgid "Upload date"
-msgstr ""
+msgstr "अपलोड तारीख"
 
 #: warehouse/templates/manage/release.html:66
 msgid "View file options"
-msgstr ""
+msgstr "फाईल पर्याय पहा"
 
 #: warehouse/templates/manage/release.html:72
 msgid "File options"
-msgstr ""
+msgstr "फाईल पर्याय"
 
 #: warehouse/templates/manage/release.html:76
 msgid "Download"
-msgstr ""
+msgstr "डाउनलोड करा"
 
 #: warehouse/templates/manage/release.html:82
 msgid "View Hashes"
-msgstr ""
+msgstr "हॅशेस पहा"
 
 #: warehouse/templates/manage/release.html:87
 msgid "Delete file from"
-msgstr ""
+msgstr "वरून फाइल हटवा"
 
 #: warehouse/templates/manage/release.html:89
 msgid "Delete file"
-msgstr ""
+msgstr "फाइल हटवा"
 
 #: warehouse/templates/manage/release.html:93
 #: warehouse/templates/manage/releases.html:86
 msgid "Delete"
-msgstr ""
+msgstr "हटवा"
 
 #: warehouse/templates/manage/release.html:114
 msgid "Uploading new files"
-msgstr ""
+msgstr "नवीन फायली अपलोड करीत आहे"
 
 #: warehouse/templates/manage/release.html:116
 msgid "No files found"
-msgstr ""
+msgstr "कोणत्याही फायली आढळल्या नाहीत"
 
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:110
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
-msgstr ""
+msgstr "डिसमिस करा"
 
 #: warehouse/templates/manage/release.html:119
 #, python-format
@@ -2422,12 +2425,12 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:122
 msgid "Release settings"
-msgstr ""
+msgstr "प्रकाशन सेटिंग्ज"
 
 #: warehouse/templates/manage/release.html:125
 #: warehouse/templates/manage/release.html:142
 msgid "Delete release"
-msgstr ""
+msgstr "रीलिझ हटवा"
 
 #: warehouse/templates/manage/release.html:129
 #, python-format
