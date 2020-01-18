@@ -839,6 +839,7 @@ class TestRecoveryCode:
             update=new_session.update,
             invalidate=pretend.call_recorder(lambda: None),
             new_csrf_token=pretend.call_recorder(lambda: None),
+            flash=pretend.call_recorder(lambda message, queue: None),
         )
 
         pyramid_request.set_property(
@@ -873,6 +874,12 @@ class TestRecoveryCode:
                 tag="account:login:success",
                 ip_address="0.0.0.0",
                 additional={"two_factor_method": "recovery-code"},
+            )
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Recovery code accepted. The supplied code cannot be used again.",
+                queue="success",
             )
         ]
 

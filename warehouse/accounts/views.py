@@ -360,6 +360,11 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                 .lower(),
             )
 
+            request.session.flash(
+                _("Recovery code accepted. The supplied code cannot be used again."),
+                queue="success",
+            )
+
             return resp
         else:
             form.recovery_code_value.data = ""
