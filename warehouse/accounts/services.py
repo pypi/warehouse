@@ -264,6 +264,11 @@ class DatabaseUserService:
 
         return len(user.recovery_codes) > 0
 
+    def get_recovery_codes(self, user_id):
+        user = self.get_user(user_id)
+
+        return self.db.query(RecoveryCode).filter_by(user=user).all()
+
     def get_totp_secret(self, user_id):
         """
         Returns the user's TOTP secret as bytes.
@@ -470,10 +475,11 @@ class DatabaseUserService:
         if user.has_recovery_codes:
             self.db.query(RecoveryCode).filter_by(user=user).delete()
 
-        # Generate Recovery Codes
         recovery_codes = [secrets.token_hex(8) for _ in range(8)]
         for recovery_code in recovery_codes:
             self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
+
+        self.db.flush()
 
         return recovery_codes
 
@@ -481,11 +487,10 @@ class DatabaseUserService:
         user = self.get_user(user_id)
 
         if user.has_recovery_codes:
-            stored_codes = self.db.query(RecoveryCode).filter_by(user=user).all()
-
-            for stored_recovery_code in stored_codes:
+            for stored_recovery_code in self.get_recovery_codes(user.id):
                 if self.hasher.verify(code, stored_recovery_code.code):
                     self.db.delete(stored_recovery_code)
+                    self.db.flush()
                     return True
 
         return False

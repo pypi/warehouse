@@ -1468,6 +1468,95 @@ class TestProvisionWebAuthn:
         assert result.headers["Location"] == "/foo/bar"
 
 
+class TestProvisionRecoveryCodes:
+    def test_recovery_codes_generate(self):
+        user_service = pretend.stub(
+            has_recovery_codes=lambda user_id: False,
+            generate_recovery_codes=lambda user_id: ["aaaaaaaaaaaa", "bbbbbbbbbbbb"],
+        )
+        request = pretend.stub(
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub()),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_generate()
+
+        assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
+
+    def test_recovery_codes_generate_already_exist(self):
+        user_service = pretend.stub(has_recovery_codes=lambda user_id: True)
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub()),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_generate()
+
+        assert request.session.flash.calls == [
+            pretend.call("Recovery codes already generated", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_recovery_codes_regenerate(self, monkeypatch):
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: pretend.stub(validate=lambda: True)
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
+
+        user_service = pretend.stub(
+            has_recovery_codes=lambda user_id: True,
+            generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
+        )
+        request = pretend.stub(
+            POST={"confirm_password": "correct password"},
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub(), username="username"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_regenerate()
+
+        assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
+
+    def test_recovery_codes_regenerate_wrong_confirm(self, monkeypatch):
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: pretend.stub(validate=lambda: False)
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
+
+        user_service = pretend.stub()
+        request = pretend.stub(
+            POST={"confirm_password": "wrong password"},
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub(), username="username"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_regenerate()
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials. Try again", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+
+
 class TestProvisionMacaroonViews:
     def test_default_response(self, monkeypatch):
         create_macaroon_obj = pretend.stub()

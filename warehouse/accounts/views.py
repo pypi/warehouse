@@ -346,7 +346,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
     user_service = request.find_service(IUserService, context=None)
 
-    form = _form_class(**request.POST, user_id=userid, user_service=user_service)
+    form = _form_class(request.POST, user_id=userid, user_service=user_service)
 
     if request.method == "POST":
         if form.validate():

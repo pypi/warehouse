@@ -676,3 +676,47 @@ class TestWebAuthnAuthenticationForm:
         )
         assert form.validate()
         assert form.validated_credential == ("foo", 123456)
+
+
+class TestRecoveryCodeForm:
+    def test_creation(self):
+        user_id = pretend.stub()
+        user_service = pretend.stub()
+        form = forms.RecoveryCodeAuthenticationForm(
+            user_id=user_id, user_service=user_service
+        )
+
+        assert form.user_id is user_id
+        assert form.user_service is user_service
+
+    def test_missing_value(self):
+        form = forms.RecoveryCodeAuthenticationForm(
+            data={"recovery_code_value": ""},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(),
+        )
+        assert not form.validate()
+        assert form.recovery_code_value.errors.pop() == "This field is required."
+
+    def test_invalid_recovery_code(self, pyramid_config):
+        form = forms.RecoveryCodeAuthenticationForm(
+            data={"recovery_code_value": "invalid"},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                check_recovery_code=pretend.call_recorder(lambda *a, **kw: False)
+            ),
+        )
+
+        assert not form.validate()
+        assert str(form.recovery_code_value.errors.pop()) == "Invalid Recovery Code."
+
+    def test_valid_recovery_code(self):
+        form = forms.RecoveryCodeAuthenticationForm(
+            data={"recovery_code_value": "valid"},
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True)
+            ),
+        )
+
+        assert form.validate()

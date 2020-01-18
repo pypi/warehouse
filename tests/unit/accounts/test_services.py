@@ -636,6 +636,48 @@ class TestDatabaseUserService:
         )
         assert webauthn is None
 
+    def test_has_recovery_codes(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.has_recovery_codes(user.id)
+        user_service.generate_recovery_codes(user.id)
+        assert user_service.has_recovery_codes(user.id)
+
+    def test_get_recovery_codes(self, user_service):
+        user = UserFactory.create()
+        assert len(user_service.get_recovery_codes(user.id)) == 0
+        user_service.generate_recovery_codes(user.id)
+        assert len(user_service.get_recovery_codes(user.id)) == 8
+
+    def test_generate_recovery_codes(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.has_recovery_codes(user.id)
+        assert len(user_service.get_recovery_codes(user.id)) == 0
+        codes = user_service.generate_recovery_codes(user.id)
+        assert len(codes) == 8
+        assert len(user_service.get_recovery_codes(user.id)) == 8
+
+    def test_check_recovery_code(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.check_recovery_code(user.id, "no codes yet")
+        codes = user_service.generate_recovery_codes(user.id)
+        assert len(codes) == 8
+        assert len(user_service.get_recovery_codes(user.id)) == 8
+        assert user_service.check_recovery_code(user.id, codes[0])
+        # Once used, the code should not be accepted again.
+        assert len(user_service.get_recovery_codes(user.id)) == 7
+        assert not user_service.check_recovery_code(user.id, codes[0])
+
+    def test_regenerate_recovery_codes(self, user_service):
+        user = UserFactory.create()
+        assert len(user_service.get_recovery_codes(user.id)) == 0
+        user_service.generate_recovery_codes(user.id)
+        initial_codes = user_service.get_recovery_codes(user.id)
+        assert len(initial_codes) == 8
+        user_service.generate_recovery_codes(user.id)
+        new_codes = user_service.get_recovery_codes(user.id)
+        assert len(new_codes) == 8
+        assert [c.id for c in initial_codes] != [c.id for c in new_codes]
+
 
 class TestTokenService:
     def test_verify_service(self):

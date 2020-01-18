@@ -738,6 +738,198 @@ class TestWebAuthn:
         }
 
 
+class TestRecoveryCode:
+    def test_already_authenticated(self):
+        request = pretend.stub(
+            authenticated_userid="not_none",
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+        )
+        result = views.recovery_code(request)
+
+        assert request.route_path.calls == [pretend.call("manage.projects")]
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "redirect_to"
+
+    def test_two_factor_token_invalid(self):
+        token_service = pretend.stub(loads=pretend.raiser(TokenException))
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
+                interface
+            ],
+            query_string=pretend.stub(),
+        )
+
+        result = views.recovery_code(request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.route_path.calls == [pretend.call("accounts.login")]
+        assert result.headers["Location"] == "redirect_to"
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
+
+    def test_get_returns_form(self, pyramid_request):
+        query_params = {"userid": 1}
+
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda s: query_params)
+        )
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 1),
+            update_user=lambda *a, **k: None,
+            has_totp=lambda uid: True,
+            has_webauthn=lambda uid: False,
+        )
+
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+
+        pyramid_request.query_string = pretend.stub()
+
+        form_obj = pretend.stub()
+        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
+
+        result = views.recovery_code(pyramid_request, _form_class=form_class)
+
+        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
+        assert result == {"form": form_obj}
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service,)
+        ]
+
+    @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
+    def test_recovery_code_auth(self, monkeypatch, pyramid_request, redirect_url):
+        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
+        monkeypatch.setattr(views, "remember", remember)
+
+        query_params = {"userid": str(1)}
+        if redirect_url:
+            query_params["redirect_to"] = redirect_url
+
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda s: query_params)
+        )
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 1),
+            update_user=lambda *a, **k: None,
+            has_recovery_codes=lambda userid: True,
+            check_recovery_code=lambda userid, recovery_code_value: True,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        new_session = {}
+
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+
+        pyramid_request.method = "POST"
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.session = pretend.stub(
+            items=lambda: [("a", "b"), ("foo", "bar")],
+            update=new_session.update,
+            invalidate=pretend.call_recorder(lambda: None),
+            new_csrf_token=pretend.call_recorder(lambda: None),
+        )
+
+        pyramid_request.set_property(
+            lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
+        )
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            recovery_code_value=pretend.stub(data="recovery-code"),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: "/account/two-factor"
+        )
+        pyramid_request.params = pretend.stub(
+            get=pretend.call_recorder(lambda k: query_params.get(k))
+        )
+        result = views.recovery_code(pyramid_request, _form_class=form_class)
+
+        token_expected_data = {"userid": str(1)}
+        if redirect_url:
+            token_expected_data["redirect_to"] = redirect_url
+
+        assert isinstance(result, HTTPSeeOther)
+
+        assert remember.calls == [pretend.call(pyramid_request, str(1))]
+        assert pyramid_request.session.invalidate.calls == [pretend.call()]
+        assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
+        assert user_service.record_event.calls == [
+            pretend.call(
+                "1",
+                tag="account:login:success",
+                ip_address="0.0.0.0",
+                additional={"two_factor_method": "recovery-code"},
+            )
+        ]
+
+    def test_recovery_code_form_invalid(self):
+        token_data = {"userid": 1}
+        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: token_data))
+
+        user_service = pretend.stub(
+            has_recovery_codes=lambda userid: True,
+            check_recovery_code=lambda userid, recovery_code_value: False,
+        )
+
+        request = pretend.stub(
+            POST={},
+            method="POST",
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+            find_service=lambda interface, **kwargs: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }[interface],
+            query_string=pretend.stub(),
+        )
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: False),
+            recovery_code_value=pretend.stub(data="invalid-recovery-code"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        result = views.recovery_code(request, _form_class=form_class)
+
+        assert token_service.loads.calls == [pretend.call(request.query_string)]
+        assert result == {"form": form_obj}
+
+    def test_recovery_code_auth_invalid_token(self):
+        token_service = pretend.stub(loads=pretend.raiser(TokenException))
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            authenticated_userid=None,
+            route_path=pretend.call_recorder(lambda p: "redirect_to"),
+            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
+                interface
+            ],
+            query_string=pretend.stub(),
+        )
+
+        result = views.recovery_code(request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "redirect_to"
+        assert request.session.flash.calls == [
+            pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
+
+
 class TestLogout:
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_empty(self, pyramid_request, next_url):
