@@ -8,13 +8,14 @@
 # Andrey Smelter <andrey.smelter@gmail.com>, 2019.
 # Древ Брагкин <rokree@yahoo.com>, 2019.
 # Aleksei Kozharin <1alekseik1@gmail.com>, 2019.
+# Alexandr Artemyev <mogost@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-17 09:09+0000\n"
-"Last-Translator: Aleksei Kozharin <1alekseik1@gmail.com>\n"
+"PO-Revision-Date: 2019-12-31 12:31+0000\n"
+"Last-Translator: Alexandr Artemyev <mogost@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
 "4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.10\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -409,7 +410,7 @@ msgstr "Поле пароля не заполнено"
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr ""
+msgstr "Основная навигация"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:257
@@ -438,7 +439,7 @@ msgstr "Зарегистрироваться"
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "Показать меню"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
@@ -467,7 +468,7 @@ msgstr "RSS: 40 новых пакетов"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
-msgstr ""
+msgstr "Перейти к основному содержанию"
 
 #: warehouse/templates/base.html:150
 msgid "Switch to mobile version"
@@ -528,7 +529,7 @@ msgstr "Поиск"
 
 #: warehouse/templates/base.html:258
 msgid "Help navigation"
-msgstr ""
+msgstr "Помощь с навигацией"
 
 #: warehouse/templates/base.html:260
 msgid "Installing packages"
@@ -552,7 +553,7 @@ msgstr "О PyPI"
 
 #: warehouse/templates/base.html:270
 msgid "About PyPI navigation"
-msgstr ""
+msgstr "Навигация \"О PyPI\""
 
 #: warehouse/templates/base.html:272
 msgid "PyPI on Twitter"
@@ -576,7 +577,7 @@ msgstr "Принять участие в разработке PyPI"
 
 #: warehouse/templates/base.html:282
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "Навигация того как cделать вклад"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
@@ -592,7 +593,7 @@ msgstr "Перевод PyPI"
 
 #: warehouse/templates/base.html:287
 msgid "Development credits"
-msgstr ""
+msgstr "Вклад в разработку"
 
 #: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
@@ -887,7 +888,7 @@ msgstr "Проекты не найдены"
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
-msgstr ""
+msgstr "Дата последнего релиза %(release_date)s"
 
 #: warehouse/templates/accounts/profile.html:76
 #, python-format
@@ -1346,6 +1347,8 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
+"Кто-то, возможно вы, добавили этот адрес электронной почты "
+"(<code>%(email_address)s</code>) к своей учетной записи PyPI."
 
 #: warehouse/templates/email/verify-email/body.html:20
 #, python-format
@@ -1546,7 +1549,7 @@ msgstr ""
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
-msgstr ""
+msgstr "%(username)s на текущий момент не загрузил никаких проектов на PyPI."
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
@@ -1555,7 +1558,7 @@ msgstr "Навигация для управления %(project)s"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 msgid "Releases"
-msgstr ""
+msgstr "Релизы"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
 #: warehouse/templates/manage/roles.html:21
@@ -1583,23 +1586,23 @@ msgstr "Настройки"
 
 #: warehouse/templates/includes/packaging/project-data.html:17
 msgid "Project links"
-msgstr ""
+msgstr "Ссылка проекта"
 
 #: warehouse/templates/includes/packaging/project-data.html:36
 msgid "GitHub statistics:"
-msgstr ""
+msgstr "Статистика GitHub:"
 
 #: warehouse/templates/includes/packaging/project-data.html:43
 msgid "Stars:"
-msgstr ""
+msgstr "Звезд:"
 
 #: warehouse/templates/includes/packaging/project-data.html:52
 msgid "Forks:"
-msgstr ""
+msgstr "Форков:"
 
 #: warehouse/templates/includes/packaging/project-data.html:61
 msgid "Open issues/PRs:"
-msgstr ""
+msgstr "Открытых issues/PRs:"
 
 #: warehouse/templates/includes/packaging/project-data.html:69
 #, fuzzy, python-format
@@ -1621,49 +1624,49 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:77
 msgid "Meta"
-msgstr ""
+msgstr "Метаданные"
 
 #: warehouse/templates/includes/packaging/project-data.html:79
 msgid "License:"
-msgstr ""
+msgstr "Лицензия:"
 
 #: warehouse/templates/includes/packaging/project-data.html:82
 #: warehouse/templates/includes/packaging/project-data.html:84
 msgid "Author:"
-msgstr ""
+msgstr "Автор:"
 
 #: warehouse/templates/includes/packaging/project-data.html:87
 #: warehouse/templates/includes/packaging/project-data.html:89
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
-msgstr ""
+msgstr "Сопровождающий:"
 
 #: warehouse/templates/includes/packaging/project-data.html:94
 msgid "Tags"
-msgstr ""
+msgstr "Теги"
 
 #: warehouse/templates/includes/packaging/project-data.html:104
 msgid "Requires:"
-msgstr ""
+msgstr "Требует:"
 
 #: warehouse/templates/includes/packaging/project-data.html:111
 msgid "Maintainers"
-msgstr ""
+msgstr "Обслуживающие"
 
 #: warehouse/templates/includes/packaging/project-data.html:113
 msgid "Avatar for {username} from gravatar.com"
-msgstr ""
+msgstr "Аватар для {username} из gravatar.com"
 
 #: warehouse/templates/includes/packaging/project-data.html:129
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
-msgstr ""
+msgstr "Классификаторы"
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
-msgstr ""
+msgstr "Проверенный*"
 
 #: warehouse/templates/manage/account.html:35
 msgid "*Intermittent delivery problems may lead to verification loss"
@@ -1671,44 +1674,44 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:39
 msgid "Verified"
-msgstr ""
+msgstr "Проверенный"
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
 #: warehouse/templates/manage/account.html:58
 msgid "Unverified*"
-msgstr ""
+msgstr "Непроверенный*"
 
 #: warehouse/templates/manage/account.html:48
 msgid "*Email from PyPI being treated as spam"
-msgstr ""
+msgstr "*Письмо от PyPI рассматривается как спам"
 
 #: warehouse/templates/manage/account.html:54
 msgid "*Hard failure during delivery"
-msgstr ""
+msgstr "*Сильный сбой во время доставки"
 
 #: warehouse/templates/manage/account.html:60
 msgid "*Too many delivery problems"
-msgstr ""
+msgstr "*Очень много проблем доставки"
 
 #: warehouse/templates/manage/account.html:64
 msgid "Unverified"
-msgstr ""
+msgstr "Непроверенный"
 
 #: warehouse/templates/manage/account.html:78
 msgid "Primary"
-msgstr ""
+msgstr "Основной"
 
 #: warehouse/templates/manage/account.html:86
 msgid "View email options"
-msgstr ""
+msgstr "Опции просмотра электронной почты"
 
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:184
 #: warehouse/templates/manage/release.html:67
 #: warehouse/templates/manage/releases.html:62
 msgid "Options"
-msgstr ""
+msgstr "Параметры"
 
 #: warehouse/templates/manage/account.html:92
 #, python-format
