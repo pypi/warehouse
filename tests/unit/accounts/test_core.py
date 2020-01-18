@@ -18,12 +18,14 @@ import pytest
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
+    IGitHubTokenScanningPayloadVerifyService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.services import (
+    GitHubTokenScanningPayloadVerifyService,
     HaveIBeenPwnedPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
@@ -341,6 +343,10 @@ def test_includeme(monkeypatch):
         pretend.call(
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,
+        ),
+        pretend.call(
+            GitHubTokenScanningPayloadVerifyService.create_service,
+            IGitHubTokenScanningPayloadVerifyService,
         ),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(

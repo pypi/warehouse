@@ -171,6 +171,11 @@ def test_routes(warehouse):
             "/account/verify-project-role/",
             domain=warehouse,
         ),
+        pretend.call(
+            "accounts.github-disclose-token",
+            "/account/disclose-token/github",
+            domain=warehouse,
+        ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
             "manage.account.totp-provision",
