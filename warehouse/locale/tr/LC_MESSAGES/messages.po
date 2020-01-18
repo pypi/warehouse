@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2019-11-11 07:06+0000\n"
 "Last-Translator: Behcet <behcet.senturk@protonmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -3322,7 +3322,7 @@ msgstr "Sürümü Yönet"
 #: warehouse/templates/packaging/detail.html:124
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
-msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "En son %(release_date)s tarihinde yayınlandı"
 
 #: warehouse/templates/packaging/detail.html:136

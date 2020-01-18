@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2019-11-01 10:52+0000\n"
 "Last-Translator: Nick Mavrakis <mavrakis.n@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
@@ -3312,8 +3312,9 @@ msgid "Latest version"
 msgstr "Τελευταία έκδοση"
 
 #: warehouse/templates/packaging/detail.html:124
-#, python-format
-msgid "Last released: %(release_date)s"
+#, fuzzy, python-format
+#| msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "Τελευταία εκδόθηκε: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136

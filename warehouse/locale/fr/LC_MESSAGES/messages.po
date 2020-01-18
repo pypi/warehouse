@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2019-12-15 22:20+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
@@ -3334,8 +3334,9 @@ msgid "Latest version"
 msgstr "Dernière version"
 
 #: warehouse/templates/packaging/detail.html:124
-#, python-format
-msgid "Last released: %(release_date)s"
+#, fuzzy, python-format
+#| msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "Dernière version : %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136

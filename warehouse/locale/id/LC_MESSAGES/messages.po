@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-01-15 02:18+0000\n"
 "Last-Translator: Habib R <revolusi147id@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
@@ -3140,9 +3140,10 @@ msgid "Latest version"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:124
-#, python-format
-msgid "Last released: %(release_date)s"
-msgstr ""
+#, fuzzy, python-format
+#| msgid "Last released on %(release_date)s"
+msgid "Released: %(release_date)s"
+msgstr "Terakhir dirilis pada %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
 msgid "No project description provided"

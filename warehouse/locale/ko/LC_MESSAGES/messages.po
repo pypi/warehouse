@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2019-10-26 06:00+0000\n"
 "Last-Translator: Min ho Kim <minho42@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
@@ -3174,7 +3174,7 @@ msgstr "파이썬 버전"
 #: warehouse/templates/packaging/detail.html:124
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
-msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "%(release_date)s에 마지막으로 릴리즈됨"
 
 #: warehouse/templates/packaging/detail.html:136

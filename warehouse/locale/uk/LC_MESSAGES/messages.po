@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2019-12-15 22:20+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -3312,8 +3312,9 @@ msgid "Latest version"
 msgstr "Найновіша версія"
 
 #: warehouse/templates/packaging/detail.html:124
-#, python-format
-msgid "Last released: %(release_date)s"
+#, fuzzy, python-format
+#| msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "Востаннє опубліковано: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136

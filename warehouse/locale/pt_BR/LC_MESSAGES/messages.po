@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-01-15 18:45+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
@@ -936,8 +936,8 @@ msgid ""
 "\">FAQ</a> for more information."
 msgstr ""
 "Esta senha aparece em uma violação de segurança ou foi comprometida e não "
-"pode ser usada. Por favor, consulte o <a href=\"/help/#compromised-password\""
-">FAQ</a> para obter mais informações."
+"pode ser usada. Por favor, consulte o <a href=\"/help/#compromised-password"
+"\">FAQ</a> para obter mais informações."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -3286,8 +3286,9 @@ msgid "Latest version"
 msgstr "Versão mais recente"
 
 #: warehouse/templates/packaging/detail.html:124
-#, python-format
-msgid "Last released: %(release_date)s"
+#, fuzzy, python-format
+#| msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "Último lançamento: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136

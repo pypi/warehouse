@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 10:23-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2019-12-29 02:56+0000\n"
 "Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
 "Language-Team: Marathi <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -2969,9 +2969,10 @@ msgid "Latest version"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:124
-#, python-format
-msgid "Last released: %(release_date)s"
-msgstr ""
+#, fuzzy, python-format
+#| msgid "Delete release"
+msgid "Released: %(release_date)s"
+msgstr "रीलिझ हटवा"
 
 #: warehouse/templates/packaging/detail.html:136
 msgid "No project description provided"
