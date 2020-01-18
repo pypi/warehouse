@@ -14,7 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = gettext("Generate 2FA Recovery Codes") %}
+{% set title = gettext("2FA Recovery Codes") %}
 
 {% set active_tab = 'account' %}
 
@@ -25,24 +25,52 @@
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
 
-{% block main %}
-<h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
-
-<section>
-  <h2>{% trans %}Save your Recovery Codes{% endtrans %}</h2>
-  <div class="recovery-codes">
-    <div>
-      <div class="recovery-codes__-codes">
-        <ul>
-          {% for recovery_code in recovery_codes %}
-          <li><code>{{ recovery_code }}</code></li>
-          {% endfor %}
-        </ul>
-        <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI Recovery Codes\n' + recovery_codes|join('\n') }}">
-          {% trans %}Copy{% endtrans %}
-        </button>
+{% block content %}
+<div class="horizontal-section">
+  <div class="site-container">
+    <div class="col-half">
+      <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
+      <p>If you lose access to your authentication application or security key(s), you’ll need to use one of these recovery codes to log into your PyPI account. Each code can only be used <strong>once</strong>.</p>
+      <p>These codes should <strong>only</strong> be used for account recovery, not for typical logins.</p>
+      <p><strong>Keep these somewhere safe</strong>. If you lose your authentication application or security key(s) and do not have access to these recovery codes, you may permanently lose access to your PyPI account!</p>
+    </div>
+    <div class="col-half">
+      <div>
+        <h2>{% trans %}Save your Recovery Codes{% endtrans %}</h2>
+        <div class="recovery-codes">
+          <div>
+            <div class="recovery-codes__-codes">
+              <ul>
+                {% for recovery_code in recovery_codes %}
+                <li><code>{{ recovery_code }}</code></li>
+                {% endfor %}
+              </ul>
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI Recovery Codes\n' + recovery_codes|join('\n') }}">
+                {% trans %}Copy{% endtrans %}
+              </button>
+              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="PyPI-Recovery-Codes.txt" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}" target="_blank">
+                {% trans %}Save{% endtrans %}
+              </a>
+              {% set title = gettext("Continue") %}
+              {% set confirm_name = "username" %}
+              {% set confirm_button_label = gettext("Continue") %}
+              {% set slug = "complete" %}
+              {% set action = request.route_path('manage.account') %}
+              <a href="#complete" class="button button--small button--primary">
+                {% trans %}Continue{% endtrans %}
+              </a>
+              {% set custom_warning_text %}
+                <p><strong>{% trans %}These codes will not be visible again.{% endtrans %}</strong></p>
+              {% endset %}
+              {% set extra_description %}
+                <p>{% trans %}Ensure that you have securely stored them before continuing.{% endtrans %}</p>
+              {% endset %}
+              {{ confirm_modal(title, gettext("Username"), "username", request.user.username, slug, confirm_button_label=confirm_button_label, extra_description=extra_description, confirm_string_in_title=False, custom_warning_text=custom_warning_text, action=action, method="GET") }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</section>
+</div>
 {% endblock %}

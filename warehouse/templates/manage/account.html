@@ -471,7 +471,7 @@
           {% if user.has_recovery_codes %}
           <tr>
             <th scope="row">
-              Recovery Codes
+              Recovery Codes - generated {{ humanize(request.user.recovery_codes[0].generated, time="true") }}, {{ request.user.recovery_codes|length }} of 8 valid
             </th>
             <td class="table__align-right">
               <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
