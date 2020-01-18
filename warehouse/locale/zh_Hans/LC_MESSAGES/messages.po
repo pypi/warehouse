@@ -8,13 +8,14 @@
 # Jesse201147 <tjx201147@163.com>, 2019.
 # 谭九鼎 <109224573@qq.com>, 2019.
 # zhaoying <zhaoying1258@qq.com>, 2019.
+# eronglee <larbbt@163.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-18 17:18+0000\n"
-"Last-Translator: zhaoying <zhaoying1258@qq.com>\n"
+"PO-Revision-Date: 2019-12-26 17:05+0000\n"
+"Last-Translator: eronglee <larbbt@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.10\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:39
@@ -476,7 +477,7 @@ msgstr ""
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
-msgstr ""
+msgstr "没有JavaScript一些功能可能无法使用。如果你遇到此问题，请尝试允许JavaScript。"
 
 #: warehouse/templates/base.html:213 warehouse/templates/base.html:234
 #: warehouse/templates/error-base-with-search.html:20
@@ -505,10 +506,8 @@ msgid "Installing packages"
 msgstr "安装软件包"
 
 #: warehouse/templates/base.html:261
-#, fuzzy
-#| msgid "Upload packages"
 msgid "Uploading packages"
-msgstr "上传软件包"
+msgstr "正在上传软件包"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
@@ -532,7 +531,7 @@ msgstr "PyPI 的 Twitter 页面"
 
 #: warehouse/templates/base.html:273
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "基础架构仪表板"
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
@@ -543,24 +542,20 @@ msgid "Our sponsors"
 msgstr "我们的赞助商"
 
 #: warehouse/templates/base.html:281
-#, fuzzy
-#| msgid "How can I contribute to PyPI?"
 msgid "Contributing to PyPI"
-msgstr "如何为 PyPI 做出贡献？"
+msgstr "为 PyPI 做出贡献"
 
 #: warehouse/templates/base.html:282
-#, fuzzy
-#| msgid "Account navigation"
 msgid "How to contribute navigation"
-msgstr "帐户导航"
+msgstr "怎么构建导航"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
-msgstr ""
+msgstr "错误反馈"
 
 #: warehouse/templates/base.html:285
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "资助 GitHub"
 
 #: warehouse/templates/base.html:286
 msgid "Translate PyPI"
@@ -575,14 +570,12 @@ msgid "Using PyPI"
 msgstr "使用 PyPI"
 
 #: warehouse/templates/base.html:294
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Using PyPI navigation"
-msgstr "主导航"
+msgstr "使用PyPI导航"
 
 #: warehouse/templates/base.html:296
 msgid "Code of conduct"
-msgstr ""
+msgstr "行为守则"
 
 #: warehouse/templates/base.html:297
 msgid "Report security issue"
@@ -594,7 +587,7 @@ msgstr "隐私政策"
 
 #: warehouse/templates/base.html:299 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr ""
+msgstr "使用条款"
 
 #: warehouse/templates/base.html:309
 msgid "Status: "
@@ -607,7 +600,7 @@ msgstr "所有系统工作正常"
 #: warehouse/templates/base.html:314
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
+msgstr "由Python社区针对Python社区开发和维护。"
 
 #: warehouse/templates/base.html:316
 msgid "Donate today!"
@@ -835,7 +828,7 @@ msgid_plural ""
 "          "
 msgstr[0] ""
 "\n"
-"            %(count)s 个项目\n"
+"            %(count) 个项目\n"
 "          "
 
 #: warehouse/templates/accounts/profile.html:59
@@ -1028,6 +1021,8 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
+"<p>使用连接到您的PyPI帐户的身份验证应用程序生成代码。 在表单中输入此代码以验证您的身份。</p> 3<p>Appt丢失？无法工作？点击<a "
+"href=\"%(href)s\">获取帮助</a>。</p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1182,6 +1177,7 @@ msgid ""
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"PyPI本身并未遭受破坏。 这是一种保护措施，可降低针对PyPI及其用户的<a href=\"%(href)s\">凭据填充</a>攻击的风险。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -1194,7 +1190,7 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr "你怎么知道的？"
+msgstr "你是怎么知道的？"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -1205,6 +1201,9 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
+"我们从<a href=\"%(have_i_been_pwned_url)s\"> HaveIBeenPwned </a>使用免费的安全服务。 "
+"在注册，认证或更新密码时会生成密码的SHA1哈希，并使用哈希的前5个字符来确定密码是否会受到威胁。 "
+"纯文本密码永远不会被PyPI存储或发送给HaveIBeenPwned。"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -1213,30 +1212,29 @@ msgid ""
 "can email <a href=\"%(email_href)s\">%(email_address)s</a> to communicate "
 "with the PyPI administrators."
 msgstr ""
-"有关详细信息，请参阅我们的 <a href=\"%(faq_url)s\">FAQ</a>。如需帮助，您可以"
-"向 <a href=\"%(email_href)s\">%(email_address)s</a> 发送电子邮件并于 PyPI 管"
-"理员沟通。"
+"更多信息，请参阅我们的 <a href=\"%(faq_url)s\">FAQ</a>。如需帮助，您可以向 <a href=\"%(email_href)"
+"s\">%(email_address)s</a> 发送电子邮件并与 PyPI 管理员沟通。"
 
 #: warehouse/templates/email/password-reset/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
-msgstr "有人（可能是您）为您的 PyPI 帐户 '%(username)s' 提出了密码重置请求。"
+msgstr "有人（可能是您）为 PyPI 帐户 '%(username)s' 提出了密码重置请求。"
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
 "reset your password</a>."
-msgstr "如果要继续此操作， <a href=\"%(href)s\">请单击此链接以重置密码</a>。"
+msgstr "如果您希望继续执行此请求，请单击链接 <a href=\"%(href)s\">重置密码</a>。"
 
 #: warehouse/templates/email/password-reset/body.html:22
 #: warehouse/templates/email/verify-email/body.html:22
 #, python-format
 msgid "This link will expire in %(n_hours)s hour."
 msgid_plural "This link will expire in %(n_hours)s hours."
-msgstr[0] "此链接将在 %(n_hours)s 个小时后过期。"
+msgstr[0] "此链接将在 %(n_hours)个小时后过期。"
 
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
@@ -1661,14 +1659,14 @@ msgstr ""
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
-msgstr ""
+msgstr "通过安全设备添加（例如USB密钥）的 <abbr title=\"两因素认证\">2FA</abbr>"
 
 #: warehouse/templates/manage/account.html:145
 #: warehouse/templates/manage/account/webauthn-provision.html:37
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
-msgstr ""
+msgstr "通过安全设备（如USB密钥）允许JavaScript进行二个认证要素的设置。"
 
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account/webauthn-provision.html:53
@@ -1830,7 +1828,7 @@ msgstr "确认新密码"
 
 #: warehouse/templates/manage/account.html:425
 msgid "Two factor authentication (2FA)"
-msgstr "双因素身份验证 （2FA）"
+msgstr "双要素身份验证 （2FA）"
 
 #: warehouse/templates/manage/account.html:426
 #, python-format
@@ -1853,7 +1851,7 @@ msgstr "双因素身份验证"
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
-msgstr ""
+msgstr "申请认证(<abbr title=\"time-based one-time password\">TOTP2</abbr>)"
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
@@ -1863,7 +1861,7 @@ msgstr "删除"
 
 #: warehouse/templates/manage/account.html:443
 msgid "Remove authentication application"
-msgstr ""
+msgstr "删除认证申请"
 
 #: warehouse/templates/manage/account.html:444
 msgid "Remove application"
@@ -1872,7 +1870,7 @@ msgstr "删除申请"
 #: warehouse/templates/manage/account.html:453
 #: warehouse/templates/manage/account.html:535
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr "安全设备（<abbr title=\"web authentication\">WebAuthn</abbr>）"
+msgstr "安全设备（<abbr title=\"web authentication\">网络认证</abbr>）"
 
 #: warehouse/templates/manage/account.html:458
 msgid "Remove two factor security device"
@@ -1895,7 +1893,7 @@ msgstr "您的帐户尚未启用双因素身份验证。"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
 "authentication to your account."
-msgstr ""
+msgstr "<a href=\"%(href)s\">验证主要电子邮件地址</a>以向您的帐户添加两要素身份验证。"
 
 #: warehouse/templates/manage/account.html:486
 #: warehouse/templates/manage/settings.html:23
@@ -1927,7 +1925,7 @@ msgstr "添加 API 令牌"
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
 "to your account."
-msgstr ""
+msgstr "<a href=\"%(href)s\">验证主要电子邮件地址</a> ，以便将API令牌添加到您的帐户中。"
 
 #: warehouse/templates/manage/account.html:526
 msgid "Account created"
