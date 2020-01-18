@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-15 18:45+0000\n"
+"PO-Revision-Date: 2020-01-16 19:46+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"X-Generator: Weblate 3.10.2-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -3286,10 +3286,9 @@ msgid "Latest version"
 msgstr "Versão mais recente"
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released: %(release_date)s"
+#, python-format
 msgid "Released: %(release_date)s"
-msgstr "Último lançamento: %(release_date)s"
+msgstr "Lançamento em: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
 msgid "No project description provided"
