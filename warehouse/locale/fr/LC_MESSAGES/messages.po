@@ -9,13 +9,13 @@
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # gabriel-tessier <tessier@luxeys.com>, 2019.
 # Matthieu Melot <matthieu.melot@gmail.com>, 2019.
-# Nathan <bonnemainsnathan@gmail.com>, 2019.
+# Nathan <bonnemainsnathan@gmail.com>, 2019, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-12-15 22:20+0000\n"
+"PO-Revision-Date: 2020-01-18 11:57+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.10.2\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -963,6 +963,9 @@ msgid ""
 "cannot be used. Please refer to the <a href=\"/help/#compromised-password"
 "\">FAQ</a> for more information."
 msgstr ""
+"Ce mot de passe apparaît dans une faille de sécurité ou bien a été compromis "
+"et ne peut pas être utilisé. Veuillez vous référer à la <a href=\"/help/"
+"#compromised-password\">FAQ</a> pour plus d'informations."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -3334,8 +3337,7 @@ msgid "Latest version"
 msgstr "Dernière version"
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released: %(release_date)s"
+#, python-format
 msgid "Released: %(release_date)s"
 msgstr "Dernière version : %(release_date)s"
 
