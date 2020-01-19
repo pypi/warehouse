@@ -484,16 +484,65 @@ class DatabaseUserService:
         return recovery_codes
 
     def check_recovery_code(self, user_id, code):
+        self._metrics.increment("warehouse.authentication.recovery_code.start")
+
+        # The very first thing we want to do is check to see if we've hit our
+        # global rate limit or not, assuming that we've been configured with a
+        # global rate limiter anyways.
+        if not self.ratelimiters["global"].test():
+            logger.warning("Global failed login threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.ratelimited",
+                tags=["ratelimiter:global"],
+            )
+            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+
+        # Now, check to make sure that we haven't hitten a rate limit on a
+        # per user basis.
+        if not self.ratelimiters["user"].test(user_id):
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.ratelimited",
+                tags=["ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["user"].resets_in(user_id)
+            )
+
         user = self.get_user(user_id)
 
-        if user.has_recovery_codes:
-            for stored_recovery_code in self.get_recovery_codes(user.id):
-                if self.hasher.verify(code, stored_recovery_code.code):
-                    self.db.delete(stored_recovery_code)
-                    self.db.flush()
-                    return True
+        if not user.has_recovery_codes:
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.failure",
+                tags=["failure_reason:no_recovery_codes"],
+            )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed recovery code
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
+            return False
 
-        return False
+        valid = False
+        for stored_recovery_code in self.get_recovery_codes(user.id):
+            if self.hasher.verify(code, stored_recovery_code.code):
+                self.db.delete(stored_recovery_code)
+                self.db.flush()
+                valid = True
+
+        if valid:
+            self._metrics.increment("warehouse.authentication.recovery_code.ok")
+        else:
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.failure",
+                tags=["failure_reason:invalid_recovery_code"],
+            )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed totp
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
+
+        return valid
 
 
 @implementer(ITokenService)
