@@ -1473,16 +1473,24 @@ class TestProvisionRecoveryCodes:
         user_service = pretend.stub(
             has_recovery_codes=lambda user_id: False,
             generate_recovery_codes=lambda user_id: ["aaaaaaaaaaaa", "bbbbbbbbbbbb"],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=1),
+            remote_addr="0.0.0.0",
         )
 
         view = views.ProvisionRecoveryCodesViews(request)
         result = view.recovery_codes_generate()
+
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1, tag="account:recovery_codes:generated", ip_address="0.0.0.0"
+            )
+        ]
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
 
@@ -1516,17 +1524,25 @@ class TestProvisionRecoveryCodes:
         user_service = pretend.stub(
             has_recovery_codes=lambda user_id: True,
             generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"confirm_password": "correct password"},
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(id=pretend.stub(), username="username"),
+            user=pretend.stub(id=1, username="username"),
+            remote_addr="0.0.0.0",
         )
 
         view = views.ProvisionRecoveryCodesViews(request)
         result = view.recovery_codes_regenerate()
+
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1, tag="account:recovery_codes:regenerated", ip_address="0.0.0.0"
+            )
+        ]
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
 

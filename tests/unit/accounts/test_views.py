@@ -874,7 +874,12 @@ class TestRecoveryCode:
                 tag="account:login:success",
                 ip_address="0.0.0.0",
                 additional={"two_factor_method": "recovery-code"},
-            )
+            ),
+            pretend.call(
+                "1",
+                tag="account:recovery_codes:recovery_code_used",
+                ip_address="0.0.0.0",
+            ),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(

@@ -360,6 +360,12 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                 .lower(),
             )
 
+            user_service.record_event(
+                userid,
+                tag="account:recovery_codes:recovery_code_used",
+                ip_address=request.remote_addr,
+            )
+
             request.session.flash(
                 _("Recovery code accepted. The supplied code cannot be used again."),
                 queue="success",

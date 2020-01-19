@@ -641,6 +641,11 @@ class ProvisionRecoveryCodesViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
+        self.user_service.record_event(
+            self.request.user.id,
+            tag="account:recovery_codes:generated",
+            ip_address=self.request.remote_addr,
+        )
         return {
             "recovery_codes": self.user_service.generate_recovery_codes(
                 self.request.user.id
@@ -660,6 +665,11 @@ class ProvisionRecoveryCodesViews:
         )
 
         if form.validate():
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:recovery_codes:regenerated",
+                ip_address=self.request.remote_addr,
+            )
             return {
                 "recovery_codes": self.user_service.generate_recovery_codes(
                     self.request.user.id

@@ -610,6 +610,20 @@
         {% endif %}
       </small>
 
+      {% elif event.tag == "account:recovery_codes:generated" %}
+      <strong>{% trans %}Recovery Codes generated{% endtrans %}</strong><br>
+      <small>
+      </small>
+      {% elif event.tag == "account:recovery_codes:regenerated" %}
+      <strong>{% trans %}Recovery Codes regenerated{% endtrans %}</strong><br>
+      <small>
+      </small>
+      {% elif event.tag == "account:recovery_codes:recovery_code_used" %}
+      <strong>{% trans %}Recovery Code used for login{% endtrans %}</strong><br>
+      <small>
+      </small>
+
+
       {% elif event.tag  == "account:api_token:added" %}
       <strong>{% trans %}API token added{% endtrans %}</strong><br>
       <small>
