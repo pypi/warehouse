@@ -90,10 +90,13 @@ def test_rss_project_releases(db_request):
     release2.created = datetime.date(2019, 1, 2)
     release3 = ReleaseFactory.create(project=project)
     release3.created = datetime.date(2019, 1, 3)
+    release3.author_email = "noreply@pypi.org"
 
     assert rss.rss_project_releases(project, db_request) == {
         "project": project,
-        "latest_releases": [release3, release2, release1],
+        "latest_releases": tuple(
+            zip((release3, release2, release1), ("noreply@pypi.org", None, None))
+        ),
     }
     assert db_request.response.content_type == "text/xml"
 

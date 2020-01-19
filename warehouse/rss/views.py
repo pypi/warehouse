@@ -128,5 +128,9 @@ def rss_project_releases(project, request):
         .limit(40)
         .all()
     )
+    release_authors = [_format_author(release) for release in latest_releases]
 
-    return {"project": project, "latest_releases": latest_releases}
+    return {
+        "project": project,
+        "latest_releases": tuple(zip(latest_releases, release_authors)),
+    }
