@@ -140,8 +140,8 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "admin.checks.run_backfill",
-        "/admin/checks/{check_name}/run_backfill",
+        "admin.checks.run_evaluation",
+        "/admin/checks/{check_name}/run_evaluation",
         domain=warehouse,
     )
     config.add_route("admin.verdicts.list", "/admin/verdicts/", domain=warehouse)

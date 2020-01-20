@@ -27,7 +27,7 @@ implementation of a scheduled check. This check will generate verdicts if enable
     def __init__(self, db):
         super().__init__(db)
 
-    def scan(self):
+    def scan(self, **kwargs):
         project = self.db.query(Project).first()
         self.add_verdict(
             project_id=project.id,

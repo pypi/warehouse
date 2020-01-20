@@ -14,8 +14,8 @@ from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.malware.models import MalwareCheck, MalwareCheckState
-from warehouse.malware.tasks import backfill, remove_verdicts
+from warehouse.malware.models import MalwareCheck, MalwareCheckState, MalwareCheckType
+from warehouse.malware.tasks import backfill, remove_verdicts, run_check
 
 
 @view_config(
@@ -56,32 +56,36 @@ def get_check(request):
 
 
 @view_config(
-    route_name="admin.checks.run_backfill",
+    route_name="admin.checks.run_evaluation",
     permission="admin",
     request_method="POST",
     uses_session=True,
     require_methods=False,
     require_csrf=True,
 )
-def run_backfill(request):
+def run_evaluation(request):
     check = get_check_by_name(request.db, request.matchdict["check_name"])
-    num_objects = 10000
 
     if check.state not in (MalwareCheckState.Enabled, MalwareCheckState.Evaluation):
         request.session.flash(
-            f"Check must be in 'enabled' or 'evaluation' state to run a backfill.",
+            f"Check must be in 'enabled' or 'evaluation' state to manually execute.",
             queue="error",
         )
         return HTTPSeeOther(
             request.route_path("admin.checks.detail", check_name=check.name)
         )
 
-    request.session.flash(
-        f"Running {check.name} on {num_objects} {check.hooked_object.value}s!",
-        queue="success",
-    )
+    if check.check_type == MalwareCheckType.event_hook:
+        num_objects = 10000
+        request.session.flash(
+            f"Running {check.name} on {num_objects} {check.hooked_object.value}s!",
+            queue="success",
+        )
+        request.task(backfill).delay(check.name, num_objects)
 
-    request.task(backfill).delay(check.name, num_objects)
+    else:
+        request.session.flash(f"Running {check.name} now!", queue="success")
+        request.task(run_check).delay(check.name, manually_triggered=True)
 
     return HTTPSeeOther(
         request.route_path("admin.checks.detail", check_name=check.name)
