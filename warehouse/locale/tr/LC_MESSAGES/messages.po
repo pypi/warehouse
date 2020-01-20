@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-12-10 17:43-0600\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2019-11-11 07:06+0000\n"
 "Last-Translator: Behcet <behcet.senturk@protonmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
@@ -24,19 +24,19 @@ msgstr ""
 "X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:39
+#: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "Bu kullanıcı adıyla kayıtlı bir kullanıcı bulunamadı"
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP kodu ${totp_length} rakamdan oluşmalıdır."
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -46,7 +46,7 @@ msgstr ""
 "çizgiden oluşmak zorundadır. Ayrıca bir harf veya rakam ile başlayıp "
 "bitmelidir. Farklı bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:92
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -54,23 +54,29 @@ msgstr ""
 "Bu kullanıcı adı başka bir hesap tarafından kullanılıyor. Başka bir "
 "kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:113
+#: warehouse/accounts/forms.py:115
 msgid "The password is invalid. Try again."
 msgstr "Geçersiz parola. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
+#: warehouse/accounts/forms.py:119 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Your passwords don't match. Try again."
 msgstr "Parolalarınız eşleşmiyor. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:170
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:183
 msgid "The email address isn't valid. Try again."
 msgstr "E-posta adresi geçerli değil. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:191
+msgid "You can't use an email address from this domain. Use a different email."
+msgstr ""
+"Bu alan adından bir e-posta adresi kullanamazsınız. Başka bir e-posta "
+"kullanın."
+
+#: warehouse/accounts/forms.py:202
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -78,7 +84,7 @@ msgstr ""
 "Bu e-posta adresi zaten bu hesap tarafından kullanılıyor. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:209
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -86,26 +92,20 @@ msgstr ""
 "Bu e-posta adresi farklı bir hesap tarafından kullanılıyor. Başka bir e-"
 "posta kullanın."
 
-#: warehouse/accounts/forms.py:196
-msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
-"Bu alan adından bir e-posta adresi kullanamazsınız. Başka bir e-posta "
-"kullanın."
-
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:231
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "İsim çok uzun. En fazla 100 karakter olacak şekilde başka bir isim seçin."
 
-#: warehouse/accounts/forms.py:282
+#: warehouse/accounts/forms.py:295
 msgid "Invalid TOTP code."
 msgstr "Geçersiz TOTP kodu."
 
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:312
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Geçersiz WebAuthn önermesi: Kötü yük"
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
 msgstr "Bu kullanıcı adı veya e-posta ile alakalı hiçbir kullanıcı bulunamadı"
 
@@ -241,7 +241,7 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:83 warehouse/templates/index.html:87
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account.html:249
@@ -847,16 +847,16 @@ msgstr "%(username)s' nin profili"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "{user} Adlı Kullanıcının Gravatar.com Profil Fotoğrafı"
 
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:39
 msgid "Date joined"
 msgstr "Katılma Tarihi"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:40
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "%(start_date)s tarihinde oluşturuldu"
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:54
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -883,17 +883,17 @@ msgstr[1] ""
 "              %(count)s Dosya\n"
 "            "
 
-#: warehouse/templates/accounts/profile.html:59
+#: warehouse/templates/accounts/profile.html:60
 msgid "No projects"
 msgstr "Herhangi bir proje mevcut değil"
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "En son %(release_date)s tarihinde yayınlandı"
 
-#: warehouse/templates/accounts/profile.html:76
+#: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s PyPI'a henüz bir proje yüklemedi"
@@ -953,7 +953,14 @@ msgstr "Bir parola seç"
 msgid "Confirm password"
 msgstr "Parolayı onayla"
 
-#: warehouse/templates/accounts/register.html:159
+#: warehouse/templates/accounts/register.html:157
+msgid ""
+"This password appears in a security breach or has been compromised and "
+"cannot be used. Please refer to the <a href=\"/help/#compromised-password"
+"\">FAQ</a> for more information."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:162
 msgid "Create account"
 msgstr "Hesap oluştur"
 
@@ -1588,19 +1595,19 @@ msgstr "Proje Bağlantıları"
 msgid "GitHub statistics:"
 msgstr "GitHub İstatistikleri:"
 
-#: warehouse/templates/includes/packaging/project-data.html:43
+#: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
 msgstr "Toplam Yıldız:"
 
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
 msgstr "Kopyalar:"
 
-#: warehouse/templates/includes/packaging/project-data.html:61
+#: warehouse/templates/includes/packaging/project-data.html:58
 msgid "Open issues/PRs:"
 msgstr "Açık Konular/Katkılar:"
 
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #, fuzzy, python-format
 #| msgid ""
 #| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -1618,44 +1625,44 @@ msgstr ""
 "\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</a> "
 "kullanarak incele"
 
-#: warehouse/templates/includes/packaging/project-data.html:77
+#: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
 msgstr "Üstbilgi"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
 msgstr "Lisans:"
 
-#: warehouse/templates/includes/packaging/project-data.html:82
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
 msgstr "Yayımlayan:"
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:86
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
 msgstr "İlgilenenler:"
 
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:91
 msgid "Tags"
 msgstr "Etiketler"
 
-#: warehouse/templates/includes/packaging/project-data.html:104
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Requires:"
 msgstr "Gereken Python Sürümü:"
 
-#: warehouse/templates/includes/packaging/project-data.html:111
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Maintainers"
 msgstr "İlgilenenler"
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 "{username} adlı K\n"
 "kullanıcının Gravatar.com Avatarı"
 
-#: warehouse/templates/includes/packaging/project-data.html:129
+#: warehouse/templates/includes/packaging/project-data.html:126
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -3315,7 +3322,7 @@ msgstr "Sürümü Yönet"
 #: warehouse/templates/packaging/detail.html:124
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
-msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "En son %(release_date)s tarihinde yayınlandı"
 
 #: warehouse/templates/packaging/detail.html:136

@@ -141,10 +141,10 @@ class User(SitemapMixin, db.Model):
     @property
     def recent_events(self):
         session = orm.object_session(self)
-        last_fortnight = datetime.datetime.now() - datetime.timedelta(days=14)
+        last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
             session.query(UserEvent)
-            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_fortnight))
+            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_ninety))
             .order_by(UserEvent.time.desc())
             .all()
         )

@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Mariam Maarouf <mariam.mrf@hotmail.com>, 2019.
 # Sayed A Omar <devsayed1@gmail.com>, 2019.
+# Abdur-Rahmaan Janhangeer <cryptolabour@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-10-25 21:06+0000\n"
-"Last-Translator: Sayed A Omar <devsayed1@gmail.com>\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
+"PO-Revision-Date: 2019-12-24 19:07+0000\n"
+"Last-Translator: Abdur-Rahmaan Janhangeer <cryptolabour@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -19,22 +20,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
+"X-Generator: Weblate 3.10\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:39
+#: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "لا يوجد مستخدم بهذا الاسم"
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "كود الTOTP يجب أن يكون طوله ${totp_length}."
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
 msgstr "برجاء اختيار اسم مستخدم طوله 50 حرفاً أو أقل."
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -44,30 +45,36 @@ msgstr ""
 "أو واصلات عادية أو سفلية. يجب أيضاً أن يبدأ وينتهي بحرف أو رقم. برجاء اختيار "
 "اسم مستخدم مختلف."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:92
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "اسم المستخدم هذا يستخدمه حساب آخر. برجاء اختيار اسم مستخدم مختلف."
 
-#: warehouse/accounts/forms.py:113
+#: warehouse/accounts/forms.py:115
 msgid "The password is invalid. Try again."
 msgstr "كلمة السر هذه غير صحيحة. برجاء المحاولة مرة أخرى."
 
-#: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
+#: warehouse/accounts/forms.py:119 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Your passwords don't match. Try again."
 msgstr "كلمات المرور الخاصة بك غير متطابقة. برجاء المحاولة مرة أخرى."
 
-#: warehouse/accounts/forms.py:170
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:183
 msgid "The email address isn't valid. Try again."
 msgstr "البريد الاليكتروني غير صالح. برجاء المحاولة مرة أخرى."
 
-#: warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:191
+msgid "You can't use an email address from this domain. Use a different email."
+msgstr ""
+"لا يمكن استخدام بريد اليكتروني من هذا النطاق. برجاء استخدام بريد اليكتروني "
+"مختلف."
+
+#: warehouse/accounts/forms.py:202
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -75,33 +82,26 @@ msgstr ""
 "هذا البريد الاليكتروني يستخدمه هذا الحساب بالفعل. برجاء استخدام بريد "
 "اليكتروني مختلف."
 
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:209
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
 "هذا البريد الاليكتروني يستخدمه حساب آخر. برجاء استخدام بريد اليكتروني مختلف."
 
-#: warehouse/accounts/forms.py:196
-msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
-"لا يمكن استخدام بريد اليكتروني من هذا النطاق. برجاء استخدام بريد اليكتروني "
-"مختلف."
-
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:231
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "هذا الاسم طويل للغاية. برجاء اختيار اسم طوله 100 حرفاً أو أقل."
 
-#: warehouse/accounts/forms.py:282
+#: warehouse/accounts/forms.py:295
 msgid "Invalid TOTP code."
 msgstr "كود TOTP غير صحيح."
 
-#: warehouse/accounts/forms.py:299
-#, fuzzy
+#: warehouse/accounts/forms.py:312
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "توكيد WebAuthn غير صالح: حمولة سيئة"
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
 msgstr "لا يوجد مستخدم بهذا الاسم أو البريد الاليكتروني"
 
@@ -237,7 +237,7 @@ msgstr "مونتي بايثون - مشهد متجر الجبنة"
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:83 warehouse/templates/index.html:87
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account.html:249
@@ -445,11 +445,11 @@ msgstr "فهرس حزمات بايثون (PyPI) مخزن برمجيات للغة
 
 #: warehouse/templates/base.html:95
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "RSS: 40 آخر التحديثات"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS: 40 أحدث الحزم"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
@@ -508,17 +508,15 @@ msgstr "بحث"
 
 #: warehouse/templates/base.html:258
 msgid "Help navigation"
-msgstr ""
+msgstr "التنقل المساعدة"
 
 #: warehouse/templates/base.html:260
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Installing packages"
-msgstr "تعرف على تثبيت الحزمات</a>."
+msgstr "تعرف على تثبيت الحزمات"
 
 #: warehouse/templates/base.html:261
 msgid "Uploading packages"
-msgstr ""
+msgstr "تحميل الحزمات"
 
 #: warehouse/templates/base.html:262
 msgid "User guide"
@@ -546,19 +544,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:274
 msgid "Package index name retention"
-msgstr ""
+msgstr "احتفاظ اسم فهرس الحزمة"
 
 #: warehouse/templates/base.html:275
 msgid "Our sponsors"
-msgstr ""
+msgstr "الرعاة"
 
 #: warehouse/templates/base.html:281
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "المساهمة في PyPI"
 
 #: warehouse/templates/base.html:282
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "كيفيه المساهمة بالتنقل"
 
 #: warehouse/templates/base.html:284
 msgid "Bugs and feedback"
@@ -825,16 +823,16 @@ msgstr "اختيار اسم مستخدم"
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:39
 msgid "Date joined"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:40
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:54
 #, python-format
 msgid ""
 "\n"
@@ -851,19 +849,19 @@ msgstr[3] ""
 msgstr[4] ""
 msgstr[5] ""
 
-#: warehouse/templates/accounts/profile.html:59
+#: warehouse/templates/accounts/profile.html:60
 #, fuzzy
 #| msgid "Search projects"
 msgid "No projects"
 msgstr "بحث في المشاريع"
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:76
+#: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr ""
@@ -923,7 +921,14 @@ msgstr "اختيار كلمة سر"
 msgid "Confirm password"
 msgstr "تأكيد كلمة السر"
 
-#: warehouse/templates/accounts/register.html:159
+#: warehouse/templates/accounts/register.html:157
+msgid ""
+"This password appears in a security breach or has been compromised and "
+"cannot be used. Please refer to the <a href=\"/help/#compromised-password"
+"\">FAQ</a> for more information."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:162
 msgid "Create account"
 msgstr "إنشاء حساب"
 
@@ -1532,19 +1537,19 @@ msgstr ""
 msgid "GitHub statistics:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:43
+#: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:61
+#: warehouse/templates/includes/packaging/project-data.html:58
 msgid "Open issues/PRs:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -1553,42 +1558,42 @@ msgid ""
 "dataset on Google BigQuery</a>"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:77
+#: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:82
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:86
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:91
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:104
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:111
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Maintainers"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:129
+#: warehouse/templates/includes/packaging/project-data.html:126
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -3088,7 +3093,7 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:124
 #, python-format
-msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:136
