@@ -81,7 +81,6 @@ class User(SitemapMixin, db.Model):
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
-    is_email_private = Column(Boolean, nullable=False, server_default=sql.true())
 
     totp_secret = Column(Binary(length=20), nullable=True)
     last_totp_value = Column(String, nullable=True)
@@ -120,6 +119,12 @@ class User(SitemapMixin, db.Model):
         primaries = [x for x in self.emails if x.primary]
         if primaries:
             return primaries[0]
+
+    @property
+    def public_email(self):
+        publics = [x for x in self.emails if x.public]
+        if publics:
+            return publics[0]
 
     @hybrid_property
     def email(self):
@@ -225,6 +230,7 @@ class Email(db.ModelBase):
     email = Column(String(length=254), nullable=False)
     primary = Column(Boolean, nullable=False)
     verified = Column(Boolean, nullable=False)
+    public = Column(Boolean, nullable=False, server_default=sql.false())
 
     # Deliverability information
     unverify_reason = Column(

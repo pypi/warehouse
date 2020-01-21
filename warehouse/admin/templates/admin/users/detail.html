@@ -199,6 +199,9 @@
                     <td>
                       {{ render_field("Verified", field.verified, "email-verified-" ~ loop.index0) }}
                     </td>
+                    <td>
+                      {{ render_field("Public", field.public, "email-public-" ~ loop.index0) }}
+                    </td>
                   </tr>
                   {% endfor %}
                 </table>
@@ -231,6 +234,7 @@
             {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email")}}
             {{ render_field("Primary", add_email_form.primary, "email-primary")}}
             {{ render_field("Verified", add_email_form.verified, "email-verified") }}
+            {{ render_field("Public", add_email_form.public, "email-public") }}
             <div class="form-group">
               <div class="col-sm-offset-10 col-sm-2">
                 <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>

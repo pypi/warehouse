@@ -17,7 +17,7 @@ from webob.multidict import MultiDict
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.manage import views
 
-from ...common.db.packaging import UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 
 
 class TestManageAccount:
@@ -27,13 +27,14 @@ class TestManageAccount:
         pyramid_services.register_service(
             IPasswordBreachedService, None, breach_service
         )
-        user = UserFactory.create(name="old name", is_email_private=False)
+        user = UserFactory.create(name="old name")
+        EmailFactory.create(primary=True, verified=True, public=True, user=user)
         db_request.user = user
         db_request.method = "POST"
         db_request.path = "/manage/accounts/"
-        db_request.POST = MultiDict({"name": "new name", "is_email_private": "y"})
+        db_request.POST = MultiDict({"name": "new name", "public_email": ""})
         views.ManageAccountViews(db_request).save_account()
 
         user = user_service.get_user(user.id)
         assert user.name == "new name"
-        assert user.is_email_private is True
+        assert user.public_email is None

@@ -34,7 +34,6 @@ class UserFactory(WarehouseFactory):
         datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)
     )
     last_login = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2011, 1, 1))
-    is_email_private = True
 
 
 class UserEventFactory(WarehouseFactory):
@@ -52,5 +51,6 @@ class EmailFactory(WarehouseFactory):
     email = FuzzyEmail()
     verified = True
     primary = True
+    public = False
     unverify_reason = None
     transient_bounces = 0
