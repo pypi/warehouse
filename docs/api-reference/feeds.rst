@@ -2,7 +2,7 @@ Feeds
 =====
 
 PyPI offers three RSS feeds, the `Newest Packages Feed`_, the `Latest Updates
-Feed`_, and the `Package Releases Feed`_. You can also call its APIs to get
+Feed`_, and the `Project Releases Feed`_. You can also call its APIs to get
 more details on project activity.
 
 
@@ -22,7 +22,7 @@ newly created releases for individual projects on PyPI, including the project
 name and description, release version, and a link to the release page.
 
 
-Package Releases Feed
+Project Releases Feed
 ---------------------
 
 Available at https://pypi.org/rss/project/<project>/releases.xml for each
