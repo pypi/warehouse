@@ -278,7 +278,7 @@ def includeme(config):
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
     config.add_route(
         "rss.project.releases",
-        "/rss/{name}/",
+        "/rss/project/{name}/releases.xml",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
         read_only=True,

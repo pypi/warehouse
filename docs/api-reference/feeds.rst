@@ -25,10 +25,10 @@ name and description, release version, and a link to the release page.
 Package Releases Feed
 ---------------------
 
-Available at https://pypi.org/rss/<packagename>/ for each package, this feed
-provides the latest releases for the given project on PyPI, including the
-project name and description, release version, and a link to the release
-page.
+Available at https://pypi.org/rss/project/<project>/releases.xml for each
+project, this feed provides the latest releases for the given project on
+PyPI, including the package name and description, release version, and a link
+to the release page.
 
 
 Project and release activity details

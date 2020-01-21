@@ -285,7 +285,7 @@ def test_routes(warehouse):
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
         pretend.call(
             "rss.project.releases",
-            "/rss/{name}/",
+            "/rss/project/{name}/releases.xml",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
             read_only=True,
