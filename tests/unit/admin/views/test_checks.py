@@ -72,11 +72,11 @@ class TestChangeCheckState:
             views.change_check_state(db_request)
 
     @pytest.mark.parametrize(
-        ("final_state"), [MalwareCheckState.disabled, MalwareCheckState.wiped_out]
+        ("final_state"), [MalwareCheckState.Disabled, MalwareCheckState.WipedOut]
     )
     def test_change_to_valid_state(self, db_request, final_state):
         check = MalwareCheckFactory.create(
-            name="MyCheck", state=MalwareCheckState.disabled
+            name="MyCheck", state=MalwareCheckState.Disabled
         )
 
         db_request.POST = {"check_state": final_state.value}
@@ -104,7 +104,7 @@ class TestChangeCheckState:
 
         assert check.state == final_state
 
-        if final_state == MalwareCheckState.wiped_out:
+        if final_state == MalwareCheckState.WipedOut:
             assert wipe_out_recorder.delay.calls == [pretend.call("MyCheck")]
 
     def test_change_to_invalid_state(self, db_request):
@@ -134,11 +134,11 @@ class TestRunBackfill:
         ("check_state", "message"),
         [
             (
-                MalwareCheckState.disabled,
+                MalwareCheckState.Disabled,
                 "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
             ),
             (
-                MalwareCheckState.wiped_out,
+                MalwareCheckState.WipedOut,
                 "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
             ),
         ],
@@ -160,7 +160,7 @@ class TestRunBackfill:
         assert db_request.session.flash.calls == [pretend.call(message, queue="error")]
 
     def test_sucess(self, db_request):
-        check = MalwareCheckFactory.create(state=MalwareCheckState.enabled)
+        check = MalwareCheckFactory.create(state=MalwareCheckState.Enabled)
         db_request.matchdict["check_name"] = check.name
 
         db_request.session = pretend.stub(
