@@ -47,6 +47,7 @@ class TestGetCheck:
             "check": check,
             "checks": [check],
             "states": MalwareCheckState,
+            "evaluation_run_size": 10000,
         }
 
     def test_get_check_many_versions(self, db_request):
@@ -57,6 +58,7 @@ class TestGetCheck:
             "check": check2,
             "checks": [check2, check1],
             "states": MalwareCheckState,
+            "evaluation_run_size": 10000,
         }
 
     def test_get_check_not_found(self, db_request):
@@ -196,7 +198,7 @@ class TestRunEvaluation:
             ]
             assert db_request.task.calls == [pretend.call(backfill)]
             assert backfill_recorder.delay.calls == [pretend.call(check.name, 10000)]
-        else:
+        elif check_type == MalwareCheckType.scheduled:
             assert db_request.session.flash.calls == [
                 pretend.call("Running %s now!" % check.name, queue="success",)
             ]
@@ -204,3 +206,5 @@ class TestRunEvaluation:
             assert backfill_recorder.delay.calls == [
                 pretend.call(check.name, manually_triggered=True)
             ]
+        else:
+            raise Exception("Invalid check type: %s" % check_type)

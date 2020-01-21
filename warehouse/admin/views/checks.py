@@ -17,6 +17,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.malware.models import MalwareCheck, MalwareCheckState, MalwareCheckType
 from warehouse.malware.tasks import backfill, remove_verdicts, run_check
 
+EVALUATION_RUN_SIZE = 10000
+
 
 @view_config(
     route_name="admin.checks.list",
@@ -52,7 +54,12 @@ def get_check(request):
         .all()
     )
 
-    return {"check": check, "checks": all_checks, "states": MalwareCheckState}
+    return {
+        "check": check,
+        "checks": all_checks,
+        "states": MalwareCheckState,
+        "evaluation_run_size": EVALUATION_RUN_SIZE,
+    }
 
 
 @view_config(
@@ -76,12 +83,12 @@ def run_evaluation(request):
         )
 
     if check.check_type == MalwareCheckType.event_hook:
-        num_objects = 10000
         request.session.flash(
-            f"Running {check.name} on {num_objects} {check.hooked_object.value}s!",
+            f"Running {check.name} on {EVALUATION_RUN_SIZE} {check.hooked_object.value}s\
+!",
             queue="success",
         )
-        request.task(backfill).delay(check.name, num_objects)
+        request.task(backfill).delay(check.name, EVALUATION_RUN_SIZE)
 
     else:
         request.session.flash(f"Running {check.name} now!", queue="success")
