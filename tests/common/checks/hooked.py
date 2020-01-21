@@ -33,7 +33,7 @@ implementation of a hook-based check. This check will generate verdicts if enabl
 
         self.add_verdict(
             file_id=file_id,
-            classification=VerdictClassification.benign,
+            classification=VerdictClassification.Benign,
             confidence=VerdictConfidence.High,
             message="Nothing to see here!",
         )
