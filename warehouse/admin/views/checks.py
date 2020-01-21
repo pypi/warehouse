@@ -105,11 +105,11 @@ def change_check_state(request):
         raise HTTPNotFound
 
     try:
-        check.state = getattr(MalwareCheckState, check_state)
-    except AttributeError:
+        check.state = MalwareCheckState(check_state)
+    except ValueError:
         request.session.flash("Invalid check state provided.", queue="error")
     else:
-        if check.state == MalwareCheckState.wiped_out:
+        if check.state == MalwareCheckState.WipedOut:
             request.task(remove_verdicts).delay(check.name)
         request.session.flash(
             f"Changed {check.name!r} check to {check.state.value!r}!", queue="success"
