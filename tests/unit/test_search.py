@@ -151,7 +151,7 @@ class TestQueries:
             }
         ]
 
-    def test_with_classifiers(self):
+    def test_with_classifiers_with_querystring(self):
         es = Search()
         querystring = "foo bar"
         classifiers = [("c", "foo :: bar"), ("c", "fiz :: buz")]
@@ -178,3 +178,15 @@ class TestQueries:
             {"prefix": {"classifiers": classifier}} for classifier in classifiers
         ]
         assert query_dict["query"]["bool"]["minimum_should_match"] == 1
+
+    def test_with_classifiers_with_no_querystring(self):
+        es = Search()
+        querystring = ""
+        classifiers = [("c", "foo :: bar"), ("c", "fiz :: buz")]
+
+        query = queries.get_es_query(es, querystring, "", classifiers)
+
+        query_dict = query.to_dict()
+        assert query_dict["query"]["bool"]["must"] == [
+            {"prefix": {"classifiers": classifier}} for classifier in classifiers
+        ]
