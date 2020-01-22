@@ -29,6 +29,7 @@ export default class extends Controller {
 
   connect() {
     const timestamp = this.element.getAttribute("datetime");
+    const locale = document.documentElement.lang;
     let localTime = this.getLocalTimeFromTimestamp(timestamp);
     let isoDate = format(localTime, "YYYY-MM-DD HH:mm:ss");
     let startOfDay = new Date();
@@ -42,9 +43,9 @@ export default class extends Controller {
       this.element.textContent = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
     } else {
       if (showTime) {
-        this.element.textContent = localTime.toLocaleTimeString("en-US", options);
+        this.element.textContent = localTime.toLocaleTimeString(locale, options);
       } else {
-        this.element.textContent = localTime.toLocaleDateString("en-US", options);
+        this.element.textContent = localTime.toLocaleDateString(locale, options);
       }
     }
 

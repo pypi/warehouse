@@ -86,7 +86,7 @@ class User(SitemapMixin, db.Model):
     last_totp_value = Column(String, nullable=True)
 
     webauthn = orm.relationship(
-        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=False
+        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
     emails = orm.relationship(
@@ -94,11 +94,11 @@ class User(SitemapMixin, db.Model):
     )
 
     macaroons = orm.relationship(
-        "Macaroon", backref="user", cascade="all, delete-orphan", lazy=False
+        "Macaroon", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
     events = orm.relationship(
-        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=False
+        "UserEvent", backref="user", cascade="all, delete-orphan", lazy=True
     )
 
     def record_event(self, *, tag, ip_address, additional):
@@ -141,10 +141,10 @@ class User(SitemapMixin, db.Model):
     @property
     def recent_events(self):
         session = orm.object_session(self)
-        last_fortnight = datetime.datetime.now() - datetime.timedelta(days=14)
+        last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
             session.query(UserEvent)
-            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_fortnight))
+            .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_ninety))
             .order_by(UserEvent.time.desc())
             .all()
         )

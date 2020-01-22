@@ -62,9 +62,7 @@ Warehouse serves four main classes of users:
    on. There are under ten such admins.
 
 Since reads are *much* more common than writes (much more goes out than
-goes in), we try to cache as much as possible. This is a big reason
-that, although we have supported localization in the past, `we currently
-don't <https://github.com/pypa/warehouse/issues/1453>`__.
+goes in), we try to cache as much as possible.
 
 File and directory structure
 ----------------------------

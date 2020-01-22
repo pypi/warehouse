@@ -11,7 +11,15 @@
 # limitations under the License.
 
 from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.security import Denied
 
 
 class BasicAuthBreachedPassword(HTTPUnauthorized):
     pass
+
+
+class WarehouseDenied(Denied):
+    def __new__(cls, s, *args, reason=None, **kwargs):
+        inner = super().__new__(cls, s, *args, **kwargs)
+        inner.reason = reason
+        return inner

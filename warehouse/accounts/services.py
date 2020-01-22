@@ -22,6 +22,7 @@ import uuid
 import requests
 
 from passlib.context import CryptContext
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
@@ -78,7 +79,7 @@ class DatabaseUserService:
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
-        return self.db.query(User).get(userid)
+        return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
@@ -516,9 +517,7 @@ class TokenServiceFactory:
 @implementer(IPasswordBreachedService)
 class HaveIBeenPwnedPasswordBreachedService:
 
-    _failure_message_preamble = (
-        "This password appears in a breach or has been compromised and cannot be used."
-    )
+    _failure_message_preamble = "This password appears in a security breach or has been compromised and cannot be used."
 
     def __init__(
         self,
@@ -602,7 +601,7 @@ class HaveIBeenPwnedPasswordBreachedService:
         #   0136E006E24E7D152139815FB0FC6A50B15:2
         #   ...
         #
-        # THat is, it is a line delimited textual data, where each line is a hash, a
+        # That is, it is a line delimited textual data, where each line is a hash, a
         # colon, and then the number of times that password has appeared in a breach.
         # For our uses, we're going to consider any password that has ever appeared in
         # a breach to be insecure, even if only once.
