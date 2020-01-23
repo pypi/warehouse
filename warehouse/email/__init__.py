@@ -203,15 +203,13 @@ def send_added_as_collaborator_email(request, user, *, submitter, project_name, 
 
 @_email("2fa-added")
 def send_2fa_added_email(request, user, method):
-    # TODO: trans the pretty_methods
-    pretty_methods = {'totp': 'TOTP', 'webauthn': 'WebAuthn'}
+    pretty_methods = {"totp": "TOTP", "webauthn": "WebAuthn"}
     return {"method": pretty_methods[method], "username": user.username}
 
 
 @_email("2fa-removed")
 def send_2fa_removed_email(request, user, method):
-    # TODO: trans the pretty_methods
-    pretty_methods = {'totp': 'TOTP', 'webauthn': 'WebAuthn'}
+    pretty_methods = {"totp": "TOTP", "webauthn": "WebAuthn"}
     return {"method": pretty_methods[method], "username": user.username}
 
 

@@ -32,6 +32,8 @@ from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
+    send_2fa_added_email,
+    send_2fa_removed_email,
     send_account_deletion_email,
     send_added_as_collaborator_email,
     send_collaborator_added_email,
@@ -461,9 +463,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Authentication application successfully set up", queue="success"
             )
-
-            # we'll need this to email the user once the transaction is committed
-            self.request.db.info['request'] = self.request
+            send_2fa_added_email(self.request, self.request.user, method="totp")
 
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -503,9 +503,7 @@ class ProvisionTOTPViews:
                 "Remember to remove PyPI from your application.",
                 queue="success",
             )
-
-            # we'll need this to email the user once the transaction is committed
-            self.request.db.info['request'] = self.request
+            send_2fa_removed_email(self.request, self.request.user, method="totp")
         else:
             self.request.session.flash("Invalid credentials. Try again", queue="error")
 
@@ -581,9 +579,7 @@ class ProvisionWebAuthnViews:
             self.request.session.flash(
                 "Security device successfully set up", queue="success"
             )
-
-            # we'll need this to email the user once the transaction is committed
-            self.request.db.info['request'] = self.request
+            send_2fa_added_email(self.request, self.request.user, method="webauthn")
 
             return {"success": "Security device successfully set up"}
 
@@ -620,9 +616,7 @@ class ProvisionWebAuthnViews:
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
-
-            # we'll need this to email the user once the transaction is committed
-            self.request.db.info['request'] = self.request
+            send_2fa_removed_email(self.request, self.request.user, method="webauthn")
         else:
             self.request.session.flash("Invalid credentials", queue="error")
 

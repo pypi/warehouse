@@ -970,6 +970,9 @@ class TestProvisionTOTP:
         provision_totp_cls = pretend.call_recorder(lambda *a, **kw: provision_totp_obj)
         monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_2fa_added_email", send_email)
+
         view = views.ProvisionTOTPViews(request)
         result = view.validate_totp_provision()
 
@@ -990,6 +993,9 @@ class TestProvisionTOTP:
                 ip_address=request.remote_addr,
                 additional={"method": "totp"},
             )
+        ]
+        assert send_email.calls == [
+            pretend.call(request, request.user, method="totp"),
         ]
 
     def test_validate_totp_provision_already_provisioned(self, monkeypatch):
@@ -1118,6 +1124,9 @@ class TestProvisionTOTP:
         delete_totp_cls = pretend.call_recorder(lambda *a, **kw: delete_totp_obj)
         monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_2fa_removed_email", send_email)
+
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
 
@@ -1140,6 +1149,9 @@ class TestProvisionTOTP:
                 ip_address=request.remote_addr,
                 additional={"method": "totp"},
             )
+        ]
+        assert send_email.calls == [
+            pretend.call(request, request.user, method="totp"),
         ]
 
     def test_delete_totp_bad_password(self, monkeypatch, db_request):
@@ -1304,6 +1316,9 @@ class TestProvisionWebAuthn:
         )
         monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_2fa_added_email", send_email)
+
         view = views.ProvisionWebAuthnViews(request)
         result = view.validate_webauthn_provision()
 
@@ -1332,6 +1347,9 @@ class TestProvisionWebAuthn:
                     "label": provision_webauthn_obj.label.data,
                 },
             )
+        ]
+        assert send_email.calls == [
+            pretend.call(request, request.user, method="webauthn"),
         ]
 
     def test_validate_webauthn_provision_invalid_form(self, monkeypatch):
@@ -1401,6 +1419,9 @@ class TestProvisionWebAuthn:
         )
         monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_2fa_removed_email", send_email)
+
         view = views.ProvisionWebAuthnViews(request)
         result = view.delete_webauthn()
 
@@ -1420,6 +1441,9 @@ class TestProvisionWebAuthn:
                     "label": delete_webauthn_obj.label.data,
                 },
             )
+        ]
+        assert send_email.calls == [
+            pretend.call(request, request.user, method="webauthn"),
         ]
 
     def test_delete_webauthn_not_provisioned(self):
