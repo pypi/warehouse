@@ -139,7 +139,7 @@
     <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
     {% endif %}
     <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
-    {% if not user.has_recovery_codes %}
+    {% if user.has_two_factor and not user.has_recovery_codes %}
     <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate Recovery Codes{% endtrans %}</a>
     {% endif %}
   </div>

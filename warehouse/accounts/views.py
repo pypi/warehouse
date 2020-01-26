@@ -342,7 +342,6 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
-    redirect_to = two_factor_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
 
@@ -352,7 +351,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
         if form.validate():
             _login_user(request, userid, two_factor_method="recovery-code")
 
-            resp = HTTPSeeOther(redirect_to)
+            resp = HTTPSeeOther(request.route_path("manage.account"))
             resp.set_cookie(
                 USER_ID_INSECURE_COOKIE,
                 hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")

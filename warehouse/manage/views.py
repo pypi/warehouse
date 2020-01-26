@@ -646,10 +646,13 @@ class ProvisionRecoveryCodesViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         if self.user_service.has_recovery_codes(self.request.user.id):
-            self.request.session.flash(
-                _("Recovery codes already generated"), queue="error"
-            )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return {
+                "recovery_codes": None,
+                "_error": _("Recovery codes already generated"),
+                "_message": _(
+                    "Generating new recovery codes will invalidate your existing codes."
+                ),
+            }
 
         self.user_service.record_event(
             self.request.user.id,
@@ -668,6 +671,16 @@ class ProvisionRecoveryCodesViews:
         renderer="manage/account/recovery_codes-provision.html",
     )
     def recovery_codes_regenerate(self):
+        if not self.user_service.has_two_factor(self.request.user.id):
+            self.request.session.flash(
+                _(
+                    "You must provision a two factor method before recovery "
+                    "codes can be generated"
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         form = ConfirmPasswordForm(
             password=self.request.POST["confirm_password"],
             username=self.request.user.username,

@@ -113,10 +113,17 @@
 
     <hr>
     <div class="twofa-recovery">
+      {% if request.user.has_recovery_codes %}
       <p>{% trans %}Lost your security key or application?{% endtrans %}</p>
       <a href="{{ request.route_path('accounts.recovery-code') }}?{{request.query_string}}" class="button button--secondary">
           {% trans %}Login using a Recovery Code{% endtrans %}
       </a>
+      {% else %}
+      {% trans trimmed href='/help/#recovery-codes' %}
+      <p><strong>You have not generated account recovery codes.</strong></p>
+      <p>If you lose access to your two factor methods, you may lose access to your account. <a href="{{ href }}">Get help with recovery codes.</a></p>
+      {% endtrans %}
+      {% endif %}
     </div>
   </div>
 </div>

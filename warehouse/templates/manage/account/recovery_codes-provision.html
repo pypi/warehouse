@@ -28,6 +28,19 @@
 {% block content %}
 <div class="horizontal-section">
   <div class="site-container">
+    {% if recovery_codes is none %}
+    <div>
+      <div class="callout-block callout-block--warning">
+        <p><strong>{{ _error }}</strong></p>
+        <p>{{ _message }}</p>
+        <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
+        {% set title=gettext("Regenerate Recovery Codes") %}
+        {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
+        {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
+        {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
+      </div>
+    </div>
+    {% else %}
     <div class="col-half">
       <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
       <p>{% trans %}If you lose access to your authentication application or security key(s), you’ll need to use one of these recovery codes to log into your PyPI account. Each code can only be used <strong>once</strong>.{% endtrans %}</p>
@@ -71,6 +84,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
