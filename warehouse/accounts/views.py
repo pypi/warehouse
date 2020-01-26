@@ -362,7 +362,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
             user_service.record_event(
                 userid,
-                tag="account:recovery_codes:recovery_code_used",
+                tag="account:recovery_codes:used",
                 ip_address=request.remote_addr,
             )
 

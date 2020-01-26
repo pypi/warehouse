@@ -47,6 +47,7 @@ from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerial
 logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
+RECOVERY_CODE_COUNT = 8
 
 
 @implementer(IUserService)
@@ -475,7 +476,7 @@ class DatabaseUserService:
         if user.has_recovery_codes:
             self.db.query(RecoveryCode).filter_by(user=user).delete()
 
-        recovery_codes = [secrets.token_hex(8) for _ in range(8)]
+        recovery_codes = [secrets.token_hex(8) for _ in range(RECOVERY_CODE_COUNT)]
         for recovery_code in recovery_codes:
             self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
 
@@ -537,7 +538,7 @@ class DatabaseUserService:
                 tags=["failure_reason:invalid_recovery_code"],
             )
             # If we've gotten here, then we'll want to record a failed attempt in our
-            # rate limiting before returning False to indicate a failed totp
+            # rate limiting before returning False to indicate a failed recovery code
             # verification.
             self.ratelimiters["user"].hit(user_id)
             self.ratelimiters["global"].hit()

@@ -1472,6 +1472,7 @@ class TestProvisionRecoveryCodes:
     def test_recovery_codes_generate(self):
         user_service = pretend.stub(
             has_recovery_codes=lambda user_id: False,
+            has_two_factor=lambda user_id: True,
             generate_recovery_codes=lambda user_id: ["aaaaaaaaaaaa", "bbbbbbbbbbbb"],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1494,8 +1495,37 @@ class TestProvisionRecoveryCodes:
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
 
+    def test_recovery_codes_generate_no_two_factor(self):
+        user_service = pretend.stub(has_two_factor=lambda user_id: False)
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub()),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_generate()
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "You must provision a two factor method before recovery "
+                    "codes can be generated"
+                ),
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+
+        assert isinstance(result, HTTPSeeOther)
+
     def test_recovery_codes_generate_already_exist(self):
-        user_service = pretend.stub(has_recovery_codes=lambda user_id: True)
+        user_service = pretend.stub(
+            has_two_factor=lambda user_id: True, has_recovery_codes=lambda user_id: True
+        )
         request = pretend.stub(
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
             find_service=lambda interface, **kw: {IUserService: user_service}[

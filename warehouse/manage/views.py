@@ -635,6 +635,16 @@ class ProvisionRecoveryCodesViews:
         renderer="manage/account/recovery_codes-provision.html",
     )
     def recovery_codes_generate(self):
+        if not self.user_service.has_two_factor(self.request.user.id):
+            self.request.session.flash(
+                _(
+                    "You must provision a two factor method before recovery "
+                    "codes can be generated"
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         if self.user_service.has_recovery_codes(self.request.user.id):
             self.request.session.flash(
                 _("Recovery codes already generated"), queue="error"
