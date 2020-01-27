@@ -14,11 +14,11 @@ import base64
 
 from pyramid.authentication import CallbackAuthenticationPolicy
 from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
-from pyramid.security import Denied
 from pyramid.threadlocal import get_current_request
 from zope.interface import implementer
 
 from warehouse.cache.http import add_vary_callback
+from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroon
 
@@ -119,7 +119,9 @@ class MacaroonAuthorizationPolicy:
         # that case we're going to always deny, because without a request, we can't
         # determine if this request is authorized or not.
         if request is None:
-            return Denied("There was no active request.")
+            return WarehouseDenied(
+                "There was no active request.", reason="no_active_request"
+            )
 
         # Re-extract our Macaroon from the request, it sucks to have to do this work
         # twice, but I believe it is inevitable unless we pass the Macaroon back as
@@ -130,17 +132,29 @@ class MacaroonAuthorizationPolicy:
         # Macaroons. Any other request will just fall back to the standard Authorization
         # policy.
         if macaroon is not None:
+            valid_permissions = ["upload"]
             macaroon_service = request.find_service(IMacaroonService, context=None)
 
             try:
                 macaroon_service.verify(macaroon, context, principals, permission)
             except InvalidMacaroon as exc:
-                return Denied(f"The supplied token was invalid: {str(exc)!r}")
+                return WarehouseDenied(
+                    f"Invalid API Token: {exc}!r", reason="invalid_api_token"
+                )
 
-        # If our Macaroon is verified, then we'll pass this request to our underlying
-        # Authorization policy, so it can handle its own authorization logic on
-        # the prinicpal.
-        return self.policy.permits(context, principals, permission)
+            # If our Macaroon is verified, and for a valid permission then we'll pass
+            # this request to our underlying Authorization policy, so it can handle its
+            # own authorization logic on the prinicpal.
+            if permission in valid_permissions:
+                return self.policy.permits(context, principals, permission)
+            else:
+                return WarehouseDenied(
+                    f"API tokens are not valid for permission: {permission}!",
+                    reason="invalid_permission",
+                )
+
+        else:
+            return self.policy.permits(context, principals, permission)
 
     def principals_allowed_by_permission(self, context, permission):
         # We just dispatch this, because Macaroons don't restrict what principals are

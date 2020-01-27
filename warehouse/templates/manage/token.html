@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block main %}
-  <h1 class="page-title">{{ title }} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span></h1>
+  <h1 class="page-title">{{ title }}</h1>
 
   {% if serialized_macaroon %}
   <section id="provisioned-key">
@@ -53,13 +53,13 @@
       {% set title=gettext("Remove API token") + " - " + macaroon.description %}
       {% set confirm_button_label=gettext("Remove API token") %}
       {% set extra_fields %}
-        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
+        <input type="hidden" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off">
       {% endset %}
       {% set token_warning_text %}
         <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
       {% endset %}
 
-      {{ confirm_modal(title=title, confirm_name=gettext("Username"), confirm_string=user.username, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, custom_warning_text=token_warning_text, confirm_string_in_title=False) }}
+      {{ confirm_password_modal(title=title, slug=slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, custom_warning_text=token_warning_text) }}
     </div>
 
     <h2>{% trans %}Using this token{% endtrans %}</h2>
@@ -89,11 +89,17 @@
       {% endtrans %}
     </p>
     <pre class="code-block">
+[distutils]
+  index-servers =
+    pypi
+    PROJECT_NAME
+
 [pypi]
   username = __token__
   password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
+  repository = https://upload.pypi.org/legacy/
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>

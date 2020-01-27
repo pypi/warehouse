@@ -184,6 +184,15 @@ def user_delete(request):
             .subquery()
         )
     )
+    for project in projects:
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action="remove project",
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        )
     projects.delete(synchronize_session=False)
 
     # Update all journals to point to `deleted-user` instead
@@ -217,6 +226,7 @@ def user_delete(request):
     route_name="admin.user.reset_password",
     require_methods=["POST"],
     permission="admin",
+    has_translations=True,
     uses_session=True,
     require_csrf=True,
 )

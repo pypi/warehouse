@@ -45,6 +45,7 @@ from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
     ChangeRoleForm,
+    ConfirmPasswordForm,
     CreateMacaroonForm,
     CreateRoleForm,
     DeleteMacaroonForm,
@@ -105,6 +106,7 @@ def user_projects(request):
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
+    has_translations=True,
 )
 class ManageAccountViews:
     def __init__(self, request):
@@ -309,18 +311,22 @@ class ManageAccountViews:
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST", request_param=["confirm_username"])
+    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
     def delete_account(self):
-        username = self.request.params.get("confirm_username")
-
-        if not username:
+        confirm_password = self.request.params.get("confirm_password")
+        if not confirm_password:
             self.request.session.flash("Confirm the request", queue="error")
             return self.default_response
 
-        if username != self.request.user.username:
+        form = ConfirmPasswordForm(
+            password=confirm_password,
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if not form.validate():
             self.request.session.flash(
-                f"Could not delete account - {username!r} is not the same as "
-                f"{self.request.user.username!r}",
+                f"Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
             return self.default_response
@@ -363,6 +369,7 @@ class ManageAccountViews:
     require_methods=False,
     permission="manage:user",
     http_cache=0,
+    has_translations=True,
 )
 class ProvisionTOTPViews:
     def __init__(self, request):
@@ -475,7 +482,7 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
-            **self.request.POST,
+            password=self.request.POST["confirm_password"],
             username=self.request.user.username,
             user_service=self.user_service,
         )
@@ -494,7 +501,7 @@ class ProvisionTOTPViews:
                 queue="success",
             )
         else:
-            self.request.session.flash("Invalid credentials", queue="error")
+            self.request.session.flash("Invalid credentials. Try again", queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -505,6 +512,7 @@ class ProvisionTOTPViews:
     require_methods=False,
     permission="manage:user",
     http_cache=0,
+    has_translations=True,
 )
 class ProvisionWebAuthnViews:
     def __init__(self, request):
@@ -615,6 +623,7 @@ class ProvisionWebAuthnViews:
     permission="manage:user",
     renderer="manage/token.html",
     route_name="manage.account.token",
+    has_translations=True,
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -636,7 +645,9 @@ class ProvisionMacaroonViews:
                 project_names=self.project_names,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
-                macaroon_service=self.macaroon_service
+                username=self.request.user.username,
+                user_service=self.user_service,
+                macaroon_service=self.macaroon_service,
             ),
         }
 
@@ -704,7 +715,11 @@ class ProvisionMacaroonViews:
     @view_config(request_method="POST", request_param=DeleteMacaroonForm.__params__)
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
-            **self.request.POST, macaroon_service=self.macaroon_service
+            password=self.request.POST["confirm_password"],
+            macaroon_id=self.request.POST["macaroon_id"],
+            macaroon_service=self.macaroon_service,
+            username=self.request.user.username,
+            user_service=self.user_service,
         )
 
         if form.validate():
@@ -735,6 +750,8 @@ class ProvisionMacaroonViews:
             self.request.session.flash(
                 f"Deleted API token '{macaroon.description}'.", queue="success"
             )
+        else:
+            self.request.session.flash("Invalid credentials. Try again", queue="error")
 
         redirect_to = self.request.referer
         if not is_safe_url(redirect_to, host=self.request.host):
@@ -747,6 +764,7 @@ class ProvisionMacaroonViews:
     renderer="manage/projects.html",
     uses_session=True,
     permission="manage:user",
+    has_translations=True,
 )
 def manage_projects(request):
     def _key(project):
@@ -775,6 +793,7 @@ def manage_projects(request):
     renderer="manage/settings.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_settings(project, request):
     return {"project": project}
@@ -786,6 +805,7 @@ def manage_project_settings(project, request):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
@@ -812,6 +832,7 @@ def delete_project(project, request):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -830,6 +851,7 @@ def destroy_project_docs(project, request):
     renderer="manage/releases.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_releases(project, request):
     # Get the counts for all the files for this project, grouped by the
@@ -873,6 +895,7 @@ def manage_project_releases(project, request):
     require_csrf=True,
     require_methods=False,
     permission="manage:project",
+    has_translations=True,
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -1047,6 +1070,7 @@ class ManageProjectRelease:
     uses_session=True,
     require_methods=False,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -1149,6 +1173,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -1252,6 +1277,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     uses_session=True,
     require_methods=["POST"],
     permission="manage:project",
+    has_translations=True,
 )
 def delete_project_role(project, request):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -1304,6 +1330,7 @@ def delete_project_role(project, request):
     renderer="manage/history.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_history(project, request):
     try:
@@ -1337,6 +1364,7 @@ def manage_project_history(project, request):
     renderer="manage/journal.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_journal(project, request):
     try:
@@ -1370,6 +1398,7 @@ def manage_project_journal(project, request):
     renderer="manage/documentation.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def manage_project_documentation(project, request):
     return {"project": project}

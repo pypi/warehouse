@@ -76,7 +76,7 @@ def test_routes(warehouse):
         pretend.call("health", "/_health/"),
         pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
-        pretend.call("locale", "/locale", domain=warehouse),
+        pretend.call("locale", "/locale/", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
@@ -328,11 +328,26 @@ def test_routes(warehouse):
     ]
 
     assert config.add_template_view.calls == [
-        pretend.call("sitemap", "/sitemap/", "pages/sitemap.html"),
-        pretend.call("help", "/help/", "pages/help.html"),
-        pretend.call("security", "/security/", "pages/security.html"),
         pretend.call(
-            "sponsors", "/sponsors/", "warehouse:templates/pages/sponsors.html"
+            "sitemap",
+            "/sitemap/",
+            "pages/sitemap.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+        ),
+        pretend.call(
+            "security",
+            "/security/",
+            "pages/security.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "sponsors",
+            "/sponsors/",
+            "warehouse:templates/pages/sponsors.html",
+            view_kw={"has_translations": True},
         ),
     ]
 

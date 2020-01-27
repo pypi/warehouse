@@ -4,7 +4,7 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
-LOCALES := $(shell find warehouse/locale -type d -depth 1 -exec basename {} \;)
+LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -103,13 +103,13 @@ static_tests:
 
 
 reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/isort -rc warehouse/ tests/
-	$(BINDIR)/black warehouse/ tests/
+	$(BINDIR)/isort -rc *.py warehouse/ tests/
+	$(BINDIR)/black *.py warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
-	$(BINDIR)/black --check warehouse/ tests/
-	$(BINDIR)/isort -rc -c warehouse/ tests/
+	$(BINDIR)/black --check *.py warehouse/ tests/
+	$(BINDIR)/isort -rc -c *.py warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
@@ -174,8 +174,8 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-compile-pot:
-	$(BINDIR)/pybabel extract \
+compile-pot: .state/env/pyvenv.cfg
+	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
 		-F babel.cfg \
 		--copyright-holder="PyPA" \
 		--msgid-bugs-address="https://github.com/pypa/warehouse/issues/new" \
@@ -183,19 +183,19 @@ compile-pot:
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
-init-po:
+init-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel init \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-dir="warehouse/locale/" \
 		--locale="$(L)"
 
-update-po:
+update-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel update \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--locale="$(L)"
 
-compile-po:
+compile-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel compile \
 		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--directory="warehouse/locale/" \

@@ -44,7 +44,11 @@ def includeme(config):
 
     if forklift:
         config.add_template_view(
-            "forklift.index", "/", "upload.html", route_kw={"domain": forklift}
+            "forklift.index",
+            "/",
+            "upload.html",
+            route_kw={"domain": forklift},
+            view_kw={"has_translations": True},
         )
 
         # Any call to /legacy/ not handled by another route (e.g. no :action
@@ -55,4 +59,5 @@ def includeme(config):
             "/legacy/",
             "upload.html",
             route_kw={"domain": forklift},
+            view_kw={"has_translations": True},
         )
