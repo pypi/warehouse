@@ -94,7 +94,7 @@ class TestUser:
             user=user,
             tag="bar",
             ip_address="0.0.0.0",
-            time=datetime.datetime.now() - datetime.timedelta(days=15),
+            time=datetime.datetime.now() - datetime.timedelta(days=91),
         )
 
         assert len(user.events) == 2

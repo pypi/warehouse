@@ -9,13 +9,13 @@
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # gabriel-tessier <tessier@luxeys.com>, 2019.
 # Matthieu Melot <matthieu.melot@gmail.com>, 2019.
-# Nathan <bonnemainsnathan@gmail.com>, 2019.
+# Nathan <bonnemainsnathan@gmail.com>, 2019, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2019-12-10 17:43-0600\n"
-"PO-Revision-Date: 2019-12-15 22:20+0000\n"
+"POT-Creation-Date: 2020-01-15 20:11+0200\n"
+"PO-Revision-Date: 2020-01-18 11:57+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -24,22 +24,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.10.2\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/accounts/forms.py:39
+#: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "Aucun utilisateur trouvé pour ce nom d’utilisateur"
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Le code TOTP doit comporter ${totp_length} chiffres."
 
-#: warehouse/accounts/forms.py:70
+#: warehouse/accounts/forms.py:72
 msgid "Choose a username with 50 characters or less."
 msgstr "Choisissez un nom d’utilisateur d’au plus 50 caractères."
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -50,7 +50,7 @@ msgstr ""
 "se terminer par une lettre ou un nombre. Choisissez un nom d’utilisateur "
 "différent."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:92
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -58,25 +58,31 @@ msgstr ""
 "Ce nom d’utilisateur est déjà utilisé par un autre compte. Choisissez un nom "
 "d’utilisateur différent."
 
-#: warehouse/accounts/forms.py:113
+#: warehouse/accounts/forms.py:115
 msgid "The password is invalid. Try again."
 msgstr "Le mot de passe est invalide. Veuillez réessayer."
 
-#: warehouse/accounts/forms.py:117 warehouse/accounts/views.py:64
+#: warehouse/accounts/forms.py:119 warehouse/accounts/views.py:64
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Il y a eu trop de tentative de connexions infructueuses. Veuillez réessayer "
 "plus tard."
 
-#: warehouse/accounts/forms.py:139
+#: warehouse/accounts/forms.py:141
 msgid "Your passwords don't match. Try again."
 msgstr "Votre mot de passe est incorrect. Veuillez réessayer."
 
-#: warehouse/accounts/forms.py:170
+#: warehouse/accounts/forms.py:172 warehouse/accounts/forms.py:183
 msgid "The email address isn't valid. Try again."
 msgstr "L’adresse e-mail est invalide. Veuillez réessayer."
 
-#: warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:191
+msgid "You can't use an email address from this domain. Use a different email."
+msgstr ""
+"Vous ne pouvez pas utiliser une adresse e-mail de ce domaine. Veuillez "
+"utiliser une adresse e-mail différente."
+
+#: warehouse/accounts/forms.py:202
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -84,7 +90,7 @@ msgstr ""
 "Cette adresse e-mail est déjà utilisée par ce compte. Veuillez utiliser une "
 "adresse e-mail différente."
 
-#: warehouse/accounts/forms.py:187
+#: warehouse/accounts/forms.py:209
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -92,25 +98,19 @@ msgstr ""
 "Cette adresse e-mail est déjà utilisée par un autre compte. Veuillez "
 "utiliser une adresse e-mail différente."
 
-#: warehouse/accounts/forms.py:196
-msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
-"Vous ne pouvez pas utiliser une adresse e-mail de ce domaine. Veuillez "
-"utiliser une adresse e-mail différente."
-
-#: warehouse/accounts/forms.py:218
+#: warehouse/accounts/forms.py:231
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Le nom est trop long. Choisissez un nom d’au plus 100 caractères."
 
-#: warehouse/accounts/forms.py:282
+#: warehouse/accounts/forms.py:295
 msgid "Invalid TOTP code."
 msgstr "Code TOTP invalide."
 
-#: warehouse/accounts/forms.py:299
+#: warehouse/accounts/forms.py:312
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Assertion WebAuthn non valide : requête malformée"
 
-#: warehouse/accounts/forms.py:332
+#: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
 msgstr "Aucun utilisateur trouvé pour ce nom d’utilisateur ou e-mail"
 
@@ -256,7 +256,7 @@ msgstr "Monty Python, le sketch de la fromagerie"
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #: warehouse/templates/index.html:83 warehouse/templates/index.html:87
 #: warehouse/templates/manage/account.html:150
 #: warehouse/templates/manage/account.html:249
@@ -857,16 +857,16 @@ msgstr "Profil de %(username)s"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar pour {user} via gravatar.com"
 
-#: warehouse/templates/accounts/profile.html:38
+#: warehouse/templates/accounts/profile.html:39
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:40
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "Inscrit le %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:54
 #, python-format
 msgid ""
 "\n"
@@ -887,17 +887,17 @@ msgstr[1] ""
 "  projets\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:59
+#: warehouse/templates/accounts/profile.html:60
 msgid "No projects"
 msgstr "Aucun projet"
 
-#: warehouse/templates/accounts/profile.html:68
+#: warehouse/templates/accounts/profile.html:69
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "Dernière version le %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:76
+#: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s n'a pas encore publié de projet sur PyPI"
@@ -957,7 +957,17 @@ msgstr "Choisissez un mot de passe"
 msgid "Confirm password"
 msgstr "Confirmez le mot de passe"
 
-#: warehouse/templates/accounts/register.html:159
+#: warehouse/templates/accounts/register.html:157
+msgid ""
+"This password appears in a security breach or has been compromised and "
+"cannot be used. Please refer to the <a href=\"/help/#compromised-password"
+"\">FAQ</a> for more information."
+msgstr ""
+"Ce mot de passe apparaît dans une faille de sécurité ou bien a été compromis "
+"et ne peut pas être utilisé. Veuillez vous référer à la <a href=\"/help/"
+"#compromised-password\">FAQ</a> pour plus d'informations."
+
+#: warehouse/templates/accounts/register.html:162
 msgid "Create account"
 msgstr "Créer un compte"
 
@@ -1529,8 +1539,8 @@ msgid ""
 msgstr ""
 "Consultez les statistiques pour vos projets via <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Librairies.io</a>, ou "
-"bien en utilisant <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
-">notre ensemble de données publiques sur Google BigQuery</a>"
+"bien en utilisant <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">notre ensemble de données publiques sur Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, python-format
@@ -1540,10 +1550,10 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"Consultez les statistiques pour les projets de %(username)s via <a href=\""
-"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Librairies.io</a>, ou bien en utilisant <a href=\"%(gbq_href)s\" target=\""
-"_blank\" rel=\"noopener\">notre ensemble de données publiques sur Google "
+"Consultez les statistiques pour les projets de %(username)s via <a href="
+"\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Librairies.io</a>, ou bien en utilisant <a href=\"%(gbq_href)s\" target="
+"\"_blank\" rel=\"noopener\">notre ensemble de données publiques sur Google "
 "BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -1603,19 +1613,19 @@ msgstr "Liens du projet"
 msgid "GitHub statistics:"
 msgstr "Statistiques de GitHub :"
 
-#: warehouse/templates/includes/packaging/project-data.html:43
+#: warehouse/templates/includes/packaging/project-data.html:42
 msgid "Stars:"
 msgstr "Stars :"
 
-#: warehouse/templates/includes/packaging/project-data.html:52
+#: warehouse/templates/includes/packaging/project-data.html:50
 msgid "Forks:"
 msgstr "Forks :"
 
-#: warehouse/templates/includes/packaging/project-data.html:61
+#: warehouse/templates/includes/packaging/project-data.html:58
 msgid "Open issues/PRs:"
 msgstr "Issues ouvertes / PR :"
 
-#: warehouse/templates/includes/packaging/project-data.html:69
+#: warehouse/templates/includes/packaging/project-data.html:66
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -1625,45 +1635,45 @@ msgid ""
 msgstr ""
 "Consultez les statistiques pour ce projet via <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Librairies.io</a>, ou "
-"bien en utilisant <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\""
-">notre ensemble de données publiques sur Google BigQuery</a>"
+"bien en utilisant <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">notre ensemble de données publiques sur Google BigQuery</a>"
 
-#: warehouse/templates/includes/packaging/project-data.html:77
+#: warehouse/templates/includes/packaging/project-data.html:74
 msgid "Meta"
 msgstr "Métadonnées"
 
-#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:76
 msgid "License:"
 msgstr "Licence :"
 
-#: warehouse/templates/includes/packaging/project-data.html:82
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:79
+#: warehouse/templates/includes/packaging/project-data.html:81
 msgid "Author:"
 msgstr "Auteur :"
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:86
 #: warehouse/templates/pages/help.html:472
 msgid "Maintainer:"
 msgstr "Mainteneur :"
 
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:91
 msgid "Tags"
 msgstr "Étiquettes"
 
-#: warehouse/templates/includes/packaging/project-data.html:104
+#: warehouse/templates/includes/packaging/project-data.html:101
 msgid "Requires:"
 msgstr "Exigences :"
 
-#: warehouse/templates/includes/packaging/project-data.html:111
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Maintainers"
 msgstr "Mainteneurs"
 
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Avatar de {username} via gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:129
+#: warehouse/templates/includes/packaging/project-data.html:126
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -3328,7 +3338,7 @@ msgstr "Dernière version"
 
 #: warehouse/templates/packaging/detail.html:124
 #, python-format
-msgid "Last released: %(release_date)s"
+msgid "Released: %(release_date)s"
 msgstr "Dernière version : %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
@@ -4430,9 +4440,9 @@ msgid ""
 "\"noopener\">analyze PyPI download usage statistics via our public dataset "
 "on Google BigQuery</a>."
 msgstr ""
-"Vous pouvez <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">analyser les statistiques d'utilisation des téléchargements PyPI "
-"via notre ensemble de données publiques sur Google BigQuery</a>."
+"Vous pouvez <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">analyser les statistiques d'utilisation des téléchargements "
+"PyPI via notre ensemble de données publiques sur Google BigQuery</a>."
 
 #: warehouse/templates/pages/help.html:441
 #, python-format

@@ -53,12 +53,12 @@ def get_es_query(es, querystring, order, classifiers):
     Returns an Elasticsearch query from data from the request.
     """
     if not querystring:
-        return es.query()
-
-    bool_query = gather_es_queries(querystring)
-    query = es.query(bool_query)
-    query = query.suggest("name_suggestion", querystring, term={"field": "name"})
-    query = query_for_order(query, order)
+        query = es.query()
+    else:
+        bool_query = gather_es_queries(querystring)
+        query = es.query(bool_query)
+        query = query.suggest("name_suggestion", querystring, term={"field": "name"})
+        query = query_for_order(query, order)
 
     # Require match to all specified classifiers
     for classifier in classifiers:
