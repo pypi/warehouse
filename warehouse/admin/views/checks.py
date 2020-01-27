@@ -67,7 +67,7 @@ def run_backfill(request):
     check = get_check_by_name(request.db, request.matchdict["check_name"])
     num_objects = 10000
 
-    if check.state not in (MalwareCheckState.enabled, MalwareCheckState.evaluation):
+    if check.state not in (MalwareCheckState.Enabled, MalwareCheckState.Evaluation):
         request.session.flash(
             f"Check must be in 'enabled' or 'evaluation' state to run a backfill.",
             queue="error",
@@ -105,11 +105,11 @@ def change_check_state(request):
         raise HTTPNotFound
 
     try:
-        check.state = getattr(MalwareCheckState, check_state)
-    except AttributeError:
+        check.state = MalwareCheckState(check_state)
+    except ValueError:
         request.session.flash("Invalid check state provided.", queue="error")
     else:
-        if check.state == MalwareCheckState.wiped_out:
+        if check.state == MalwareCheckState.WipedOut:
             request.task(remove_verdicts).delay(check.name)
         request.session.flash(
             f"Changed {check.name!r} check to {check.state.value!r}!", queue="success"
