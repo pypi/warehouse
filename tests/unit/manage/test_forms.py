@@ -388,7 +388,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_by_project(self):
         form = forms.CreateMacaroonForm(
-            data={"description": "dummy", "token_scopes": ["scope:by_project"]},
+            data={"description": "dummy", "token_scopes": ["by_project"]},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
