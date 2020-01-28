@@ -31,7 +31,7 @@ implementation of a scheduled check. This check will generate verdicts if enable
         project = self.db.query(Project).first()
         self.add_verdict(
             project_id=project.id,
-            classification=VerdictClassification.benign,
+            classification=VerdictClassification.Benign,
             confidence=VerdictConfidence.High,
             message="Nothing to see here!",
         )

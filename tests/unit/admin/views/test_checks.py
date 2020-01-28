@@ -138,11 +138,11 @@ class TestRunEvaluation:
         [
             (
                 MalwareCheckState.Disabled,
-                "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
+                "Check must be in 'enabled' or 'evaluation' state to manually execute.",
             ),
             (
                 MalwareCheckState.WipedOut,
-                "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
+                "Check must be in 'enabled' or 'evaluation' state to manually execute.",
             ),
         ],
     )
@@ -198,7 +198,7 @@ class TestRunEvaluation:
             ]
             assert db_request.task.calls == [pretend.call(backfill)]
             assert backfill_recorder.delay.calls == [pretend.call(check.name, 10000)]
-        elif check_type == MalwareCheckType.scheduled:
+        elif check_type == MalwareCheckType.Scheduled:
             assert db_request.session.flash.calls == [
                 pretend.call("Running %s now!" % check.name, queue="success",)
             ]

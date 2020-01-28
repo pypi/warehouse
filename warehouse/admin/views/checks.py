@@ -82,7 +82,7 @@ def run_evaluation(request):
             request.route_path("admin.checks.detail", check_name=check.name)
         )
 
-    if check.check_type == MalwareCheckType.event_hook:
+    if check.check_type == MalwareCheckType.EventHook:
         request.session.flash(
             f"Running {check.name} on {EVALUATION_RUN_SIZE} {check.hooked_object.value}s\
 !",
