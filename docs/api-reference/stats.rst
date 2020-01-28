@@ -1,8 +1,8 @@
 Stats API
 =========
 
-PyPI offers a JSON stats endpoint via a ``Content-Type: application/json`` GET
-request. Without the ``Content-Type`` header set, you will be returned a HTML page.
+PyPI offers a JSON stats endpoint via a ``Accept: application/json`` GET
+request. Without the ``Accept`` header set, you will be returned a HTML page.
 
 **Example Client**: https://github.com/cooperlees/pypistats
 
