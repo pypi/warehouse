@@ -17,14 +17,13 @@ Project
 
     **Example Request**:
 
-    - `curl -H "Content-Type: application/json" -H "Accept: application/json" https://pypi.org/stats/`
+    - `curl -H "Accept: application/json" https://pypi.org/stats/`
 
     .. code:: http
 
         GET /stats HTTP/1.1
         Host: pypi.org
         Accept: application/json
-        Content-Type: application/json
 
     **Example response**:
 
