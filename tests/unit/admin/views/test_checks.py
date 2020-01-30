@@ -16,7 +16,8 @@ import pytest
 from pyramid.httpexceptions import HTTPNotFound
 
 from warehouse.admin.views import checks as views
-from warehouse.malware.models import MalwareCheckState
+from warehouse.malware.models import MalwareCheckState, MalwareCheckType
+from warehouse.malware.tasks import backfill, run_check
 
 from ....common.db.malware import MalwareCheckFactory
 
@@ -46,6 +47,7 @@ class TestGetCheck:
             "check": check,
             "checks": [check],
             "states": MalwareCheckState,
+            "evaluation_run_size": 10000,
         }
 
     def test_get_check_many_versions(self, db_request):
@@ -56,6 +58,7 @@ class TestGetCheck:
             "check": check2,
             "checks": [check2, check1],
             "states": MalwareCheckState,
+            "evaluation_run_size": 10000,
         }
 
     def test_get_check_not_found(self, db_request):
@@ -129,17 +132,17 @@ class TestChangeCheckState:
         assert check.state == initial_state
 
 
-class TestRunBackfill:
+class TestRunEvaluation:
     @pytest.mark.parametrize(
         ("check_state", "message"),
         [
             (
                 MalwareCheckState.Disabled,
-                "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
+                "Check must be in 'enabled' or 'evaluation' state to manually execute.",
             ),
             (
                 MalwareCheckState.WipedOut,
-                "Check must be in 'enabled' or 'evaluation' state to run a backfill.",
+                "Check must be in 'enabled' or 'evaluation' state to manually execute.",
             ),
         ],
     )
@@ -152,15 +155,21 @@ class TestRunBackfill:
         )
 
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/checks/%s/run_backfill" % check.name
+            lambda *a, **kw: "/admin/checks/%s/run_evaluation" % check.name
         )
 
-        views.run_backfill(db_request)
+        views.run_evaluation(db_request)
 
         assert db_request.session.flash.calls == [pretend.call(message, queue="error")]
 
-    def test_sucess(self, db_request):
-        check = MalwareCheckFactory.create(state=MalwareCheckState.Enabled)
+    @pytest.mark.parametrize(
+        ("check_type"), [MalwareCheckType.EventHook, MalwareCheckType.Scheduled]
+    )
+    def test_success(self, db_request, check_type):
+
+        check = MalwareCheckFactory.create(
+            check_type=check_type, state=MalwareCheckState.Enabled
+        )
         db_request.matchdict["check_name"] = check.name
 
         db_request.session = pretend.stub(
@@ -168,7 +177,7 @@ class TestRunBackfill:
         )
 
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/checks/%s/run_backfill" % check.name
+            lambda *a, **kw: "/admin/checks/%s/run_evaluation" % check.name
         )
 
         backfill_recorder = pretend.stub(
@@ -177,13 +186,25 @@ class TestRunBackfill:
 
         db_request.task = pretend.call_recorder(lambda *a, **kw: backfill_recorder)
 
-        views.run_backfill(db_request)
+        views.run_evaluation(db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "Running %s on 10000 %ss!" % (check.name, check.hooked_object.value),
-                queue="success",
-            )
-        ]
-
-        assert backfill_recorder.delay.calls == [pretend.call(check.name, 10000)]
+        if check_type == MalwareCheckType.EventHook:
+            assert db_request.session.flash.calls == [
+                pretend.call(
+                    "Running %s on 10000 %ss!"
+                    % (check.name, check.hooked_object.value),
+                    queue="success",
+                )
+            ]
+            assert db_request.task.calls == [pretend.call(backfill)]
+            assert backfill_recorder.delay.calls == [pretend.call(check.name, 10000)]
+        elif check_type == MalwareCheckType.Scheduled:
+            assert db_request.session.flash.calls == [
+                pretend.call("Running %s now!" % check.name, queue="success",)
+            ]
+            assert db_request.task.calls == [pretend.call(run_check)]
+            assert backfill_recorder.delay.calls == [
+                pretend.call(check.name, manually_triggered=True)
+            ]
+        else:
+            raise Exception("Invalid check type: %s" % check_type)
