@@ -133,8 +133,8 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
-            "admin.checks.run_backfill",
-            "/admin/checks/{check_name}/run_backfill",
+            "admin.checks.run_evaluation",
+            "/admin/checks/{check_name}/run_evaluation",
             domain=warehouse,
         ),
         pretend.call("admin.verdicts.list", "/admin/verdicts/", domain=warehouse),
