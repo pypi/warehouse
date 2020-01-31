@@ -96,7 +96,7 @@ def generate_query(db, params):
         query = query.filter(MalwareVerdict.confidence == params["confidence"])
     if params.get("classification"):
         query = query.filter(MalwareVerdict.classification == params["classification"])
-    if params.get("manually_reviewed") is not None:
+    if params.get("manually_reviewed"):
         query = query.filter(
             MalwareVerdict.manually_reviewed == bool(int(params["manually_reviewed"]))
         )

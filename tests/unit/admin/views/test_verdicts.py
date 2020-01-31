@@ -58,154 +58,130 @@ class TestListVerdicts:
             "confidences": set(["low", "medium", "high"]),
         }
 
-    def test_check_name_filter(self, db_request):
-        check1 = MalwareCheckFactory.create()
-        check2 = MalwareCheckFactory.create()
-        check3 = MalwareCheckFactory.create()
-        verdicts1 = [MalwareVerdictFactory.create(check=check1) for _ in range(10)]
-        verdicts2 = [MalwareVerdictFactory.create(check=check2) for _ in range(10)]
+    @pytest.mark.parametrize(
+        "check_name", ["check0", "check1", ""],
+    )
+    def test_check_name_filter(self, db_request, check_name):
+        result_verdicts, all_verdicts = [], []
+        for i in range(3):
+            check = MalwareCheckFactory.create(name="check%d" % i)
+            verdicts = [MalwareVerdictFactory.create(check=check) for _ in range(5)]
+            all_verdicts.extend(verdicts)
+            if check.name == check_name:
+                result_verdicts = verdicts
+
+        # Emptry string
+        if not result_verdicts:
+            result_verdicts = all_verdicts
 
         response = {
-            "verdicts": verdicts1,
-            "check_names": set([check1.name, check2.name, check3.name]),
+            "verdicts": result_verdicts,
+            "check_names": set(["check0", "check1", "check2"]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
         }
 
-        db_request.GET["check_name"] = check1.name
+        db_request.GET["check_name"] = check_name
         assert views.get_verdicts(db_request) == response
 
-        db_request.GET["check_name"] = check2.name
-        response["verdicts"] = verdicts2
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["check_name"] = check3.name
-        response["verdicts"] = []
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["check_name"] = ""
-        response["verdicts"] = verdicts1 + verdicts2
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["check_name"] = "DoesNotExist"
-        with pytest.raises(HTTPBadRequest):
-            views.get_verdicts(db_request) == response
-
-    def test_classification_filter(self, db_request):
+    @pytest.mark.parametrize(
+        "classification", ["benign", "indeterminate", "threat", ""],
+    )
+    def test_classification_filter(self, db_request, classification):
         check1 = MalwareCheckFactory.create()
-        verdicts1 = [
+        result_verdicts, all_verdicts = [], []
+        for c in VerdictClassification:
+            verdicts = [
+                MalwareVerdictFactory.create(check=check1, classification=c)
+                for _ in range(5)
+            ]
+            all_verdicts.extend(verdicts)
+            if c.value == classification:
+                result_verdicts = verdicts
+
+        # Emptry string
+        if not result_verdicts:
+            result_verdicts = all_verdicts
+
+        db_request.GET["classification"] = classification
+        response = {
+            "verdicts": result_verdicts,
+            "check_names": set([check1.name]),
+            "classifications": set(["threat", "indeterminate", "benign"]),
+            "confidences": set(["low", "medium", "high"]),
+        }
+        assert views.get_verdicts(db_request) == response
+
+    @pytest.mark.parametrize(
+        "confidence", ["low", "medium", "high", ""],
+    )
+    def test_confidence_filter(self, db_request, confidence):
+        check1 = MalwareCheckFactory.create()
+        result_verdicts, all_verdicts = [], []
+        for c in VerdictConfidence:
+            verdicts = [
+                MalwareVerdictFactory.create(check=check1, confidence=c)
+                for _ in range(5)
+            ]
+            all_verdicts.extend(verdicts)
+            if c.value == confidence:
+                result_verdicts = verdicts
+
+        # Emptry string
+        if not result_verdicts:
+            result_verdicts = all_verdicts
+
+        response = {
+            "verdicts": result_verdicts,
+            "check_names": set([check1.name]),
+            "classifications": set(["threat", "indeterminate", "benign"]),
+            "confidences": set(["low", "medium", "high"]),
+        }
+
+        db_request.GET["confidence"] = confidence
+        assert views.get_verdicts(db_request) == response
+
+    @pytest.mark.parametrize(
+        "manually_reviewed", [1, 0],
+    )
+    def test_manually_reviewed_filter(self, db_request, manually_reviewed):
+        check1 = MalwareCheckFactory.create()
+        result_verdicts = [
             MalwareVerdictFactory.create(
-                check=check1, classification=VerdictClassification.Threat
-            )
-            for _ in range(10)
-        ]
-        verdicts2 = [
-            MalwareVerdictFactory.create(
-                check=check1, classification=VerdictClassification.Indeterminate
-            )
-            for _ in range(10)
-        ]
-        verdicts3 = [
-            MalwareVerdictFactory.create(
-                check=check1, classification=VerdictClassification.Benign
+                check=check1, manually_reviewed=bool(manually_reviewed)
             )
             for _ in range(5)
         ]
 
-        db_request.GET["classification"] = "threat"
-        response = {
-            "verdicts": verdicts1,
-            "check_names": set([check1.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
-        }
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["classification"] = "indeterminate"
-        response["verdicts"] = verdicts2
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["classification"] = ""
-        response["verdicts"] = verdicts1 + verdicts2 + verdicts3
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["classification"] = "NotAClassification"
-        with pytest.raises(HTTPBadRequest):
-            views.get_verdicts(db_request)
-
-    def test_confidence_filter(self, db_request):
-        check1 = MalwareCheckFactory.create()
-        verdicts1 = [
-            MalwareVerdictFactory.create(check=check1, confidence=VerdictConfidence.Low)
-            for _ in range(10)
-        ]
-        verdicts2 = [
+        # Create other verdicts to ensure filter works properly
+        for _ in range(10):
             MalwareVerdictFactory.create(
-                check=check1, confidence=VerdictConfidence.Medium
+                check=check1, manually_reviewed=not bool(manually_reviewed)
             )
-            for _ in range(10)
-        ]
-        verdicts3 = [
-            MalwareVerdictFactory.create(
-                check=check1, confidence=VerdictConfidence.High
-            )
-            for _ in range(5)
-        ]
 
-        db_request.GET["confidence"] = "low"
-        response = {
-            "verdicts": verdicts1,
-            "check_names": set([check1.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
-        }
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["confidence"] = "high"
-        response["verdicts"] = verdicts3
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["confidence"] = ""
-        response["verdicts"] = verdicts1 + verdicts2 + verdicts3
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["confidence"] = "NotAConfidence"
-        with pytest.raises(HTTPBadRequest):
-            views.get_verdicts(db_request) == response
-
-    def test_manually_reviewed_filter(self, db_request):
-        check1 = MalwareCheckFactory.create()
-        verdicts1 = [
-            MalwareVerdictFactory.create(check=check1, manually_reviewed=False)
-            for _ in range(10)
-        ]
-        verdicts2 = [
-            MalwareVerdictFactory.create(check=check1, manually_reviewed=True)
-            for _ in range(10)
-        ]
+        db_request.GET["manually_reviewed"] = str(manually_reviewed)
 
         response = {
-            "verdicts": verdicts1,
+            "verdicts": result_verdicts,
             "check_names": set([check1.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
         }
 
-        db_request.GET["manually_reviewed"] = "0"
         assert views.get_verdicts(db_request) == response
 
-        db_request.GET["manually_reviewed"] = "1"
-        response["verdicts"] = verdicts2
-        assert views.get_verdicts(db_request) == response
-
-        db_request.GET["manually_reviewed"] = "nope"
-
-        with pytest.raises(HTTPBadRequest):
-            views.get_verdicts(db_request)
-
-    def test_with_invalid_page(self, db_request):
-        db_request.GET["page"] = "not an integer"
-
+    @pytest.mark.parametrize(
+        "invalid_param",
+        [
+            ("page", "invalid"),
+            ("check_name", "NotACheck"),
+            ("confidence", "NotAConfidence"),
+            ("classification", "NotAClassification"),
+            ("manually_reviewed", "False"),
+        ],
+    )
+    def test_errors(self, db_request, invalid_param):
+        db_request.GET[invalid_param[0]] = invalid_param[1]
         with pytest.raises(HTTPBadRequest):
             views.get_verdicts(db_request)
 
