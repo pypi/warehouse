@@ -138,3 +138,33 @@ def test_rss_user_my_releases(db_request):
         "latest_releases": [release2, release1],
     }
     assert db_request.response.content_type == "text/xml"
+
+
+def test_rss_user_my_project_releases(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+    project1 = ProjectFactory.create()
+    project2 = ProjectFactory.create()
+
+    user = UserFactory.create()
+
+    RoleFactory.create(user=user, project=project1)
+
+    release1 = ReleaseFactory.create(project=project1)
+    release1.created = datetime.date(2011, 1, 1)
+    release1.uploader = user
+    release2 = ReleaseFactory.create(project=project2)
+    release2.created = datetime.date(2012, 1, 1)
+    release3 = ReleaseFactory.create(project=project1)
+    release3.created = datetime.date(2013, 1, 1)
+
+    assert rss.rss_user_my_project_releases(user, db_request) == {
+        "user": user,
+        "latest_releases": [release3, release1],
+    }
+    assert db_request.response.content_type == "text/xml"

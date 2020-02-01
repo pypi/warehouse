@@ -126,7 +126,37 @@ def rss_user_my_releases(user, request):
 
     latest_releases = (
         request.db.query(Release)
-        .filter(Release.uploader_id==user.id)
+        .filter(Release.uploader_id == user.id)
+        .options(joinedload(Release.project))
+        .order_by(Release.created.desc())
+        .limit(40)
+        .all()
+    )
+
+    return {"latest_releases": latest_releases, "user": user}
+
+
+@view_config(
+    route_name="rss.user_my_project_releases",
+    context=User,
+    renderer="rss/user_my_project_releases.xml",
+    decorator=[
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+        )
+    ],
+)
+def rss_user_my_project_releases(user, request):
+    request.response.content_type = "text/xml"
+
+    request.find_service(name="csp").merge(XML_CSP)
+
+    latest_releases = (
+        request.db.query(Release)
+        .join(Project)
+        .filter(Project.users.any(id=user.id))
         .options(joinedload(Release.project))
         .order_by(Release.created.desc())
         .limit(40)

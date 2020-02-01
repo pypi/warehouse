@@ -16,7 +16,8 @@
 {% block title %}{% trans username=user.username %}Profile of {{ username }}{% endtrans %}{% endblock %}
 
 {% block extra_rss %}
-<link rel="alternate" type="application/rss+xml" title="{% trans username=user.username %}RSS: Recent updates from {{ username }}{% endtrans %}" href="{{ request.route_path('rss.user_updates', username=user.username) }}">
+<link rel="alternate" type="application/rss+xml" title="{% trans username=user.username %}RSS: Recent releases from {{ username }}{% endtrans %}" href="{{ request.route_path('rss.user_my_releases', username=user.username) }}">
+<link rel="alternate" type="application/rss+xml" title="{% trans username=user.username %}RSS: Recent releases from {{ username }}'s projects{% endtrans %}" href="{{ request.route_path('rss.user_my_project_releases', username=user.username) }}">
 {% endblock %}
 
 {% block content %}
@@ -47,8 +48,14 @@
             {% if projects %}
             <p>
               <i class="fa fa-rss" aria-hidden="true"></i>
-              <span class="sr-only">{% trans %}RSS Feed{% endtrans %}</span>
-              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_updates', username=user.username) }}">{% trans %}Recent updates{% endtrans %}</a></p>
+              <span class="sr-only">{% trans %}My Releases RSS Feed{% endtrans %}</span>
+              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_my_releases', username=user.username) }}">{% trans %}Recent updates{% endtrans %}</a>
+            </p>
+            <p>
+              <i class="fa fa-rss" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}My Projects' Releases RSS Feed{% endtrans %}</span>
+              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_my_releases', username=user.username) }}">{% trans %}Recent updates{% endtrans %}</a>
+            </p>
             {% endif %}
           </div>
           {% csi request.route_path("includes.profile-actions", username=user.username) %}

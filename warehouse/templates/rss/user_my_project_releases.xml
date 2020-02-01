@@ -1,6 +1,6 @@
 {% extends "base.xml" %}
-{% block title %}{{ user.username }}'s recent releases{% endblock %}
-{% block description %}Recent releases from {{ user.username }} to the Python Package Index{% endblock %}
+{% block title %}{{ user.username }}'s projects recent releases{% endblock %}
+{% block description %}Recent releases from projects {{ user.username }} owns or maintains to the Python Package Index{% endblock %}
 {% block items -%}
   {% for release in latest_releases %}
     <item>
