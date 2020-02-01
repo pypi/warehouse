@@ -108,9 +108,9 @@ def rss_packages(request):
 
 
 @view_config(
-    route_name="rss.user_updates",
+    route_name="rss.user_my_releases",
     context=User,
-    renderer="rss/user_updates.xml",
+    renderer="rss/user_my_releases.xml",
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60,  # 1 day
@@ -119,15 +119,14 @@ def rss_packages(request):
         )
     ],
 )
-def rss_user_updates(user, request):
+def rss_user_my_releases(user, request):
     request.response.content_type = "text/xml"
 
     request.find_service(name="csp").merge(XML_CSP)
 
     latest_releases = (
         request.db.query(Release)
-        .join(Project)
-        .filter(Project.users.any(username=user.username))
+        .filter(Release.uploader_id==user.id)
         .options(joinedload(Release.project))
         .order_by(Release.created.desc())
         .limit(40)

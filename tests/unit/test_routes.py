@@ -284,10 +284,10 @@ def test_routes(warehouse):
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
         pretend.call(
-            "rss.user_updates",
-            "/user/{username}/updates.xml",
+            "rss.user_my_releases",
+            "/rss/user/{username}/my_releases.xml",
             factory="warehouse.accounts.models:UserFactory",
-            traverse="/{username}",
+            traverse="/{username}/",
             domain=warehouse,
         ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),

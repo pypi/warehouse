@@ -109,7 +109,7 @@ def test_format_author(db_request):
     assert rss._format_author(release) == ", ".join(["noreply@pypi.org"] * 4)
 
 
-def test_rss_user_updates(db_request):
+def test_rss_user_my_releases(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
             enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
@@ -119,24 +119,22 @@ def test_rss_user_updates(db_request):
     db_request.session = pretend.stub()
     project1 = ProjectFactory.create()
     project2 = ProjectFactory.create()
-    project3 = ProjectFactory.create()
 
     user = UserFactory.create()
 
     RoleFactory.create(user=user, project=project1)
-    RoleFactory.create(user=user, project=project2)
 
     release1 = ReleaseFactory.create(project=project1)
     release1.created = datetime.date(2011, 1, 1)
+    release1.uploader = user
     release2 = ReleaseFactory.create(project=project2)
     release2.created = datetime.date(2012, 1, 1)
+    release2.uploader = user
     release3 = ReleaseFactory.create(project=project1)
     release3.created = datetime.date(2013, 1, 1)
-    release4 = ReleaseFactory.create(project=project3)
-    release4.created = datetime.date(2014, 1, 1)
 
-    assert rss.rss_user_updates(user, db_request) == {
+    assert rss.rss_user_my_releases(user, db_request) == {
         "user": user,
-        "latest_releases": [release3, release2, release1],
+        "latest_releases": [release2, release1],
     }
     assert db_request.response.content_type == "text/xml"

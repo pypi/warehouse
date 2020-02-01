@@ -277,10 +277,10 @@ def includeme(config):
     config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
     config.add_route(
-        "rss.user_updates",
-        "/user/{username}/updates.xml",
+        "rss.user_my_releases",
+        "/rss/user/{username}/my_releases.xml",
         factory="warehouse.accounts.models:UserFactory",
-        traverse="/{username}",
+        traverse="/{username}/",
         domain=warehouse,
     )
 
