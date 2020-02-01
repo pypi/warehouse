@@ -654,6 +654,7 @@ def test_release_urls(db_request):
             "digests": {"md5": file_.md5_digest, "sha256": file_.sha256_digest},
             "has_sig": file_.has_signature,
             "upload_time": file_.upload_time.isoformat() + "Z",
+            "upload_time_iso_8601": file_.upload_time.isoformat() + "Z",
             "comment_text": file_.comment_text,
             "downloads": -1,
             "path": file_.path,

@@ -19,7 +19,7 @@
     <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
     <p>
       {% trans trimmed libs_io_href='https://libraries.io/', title=gettext('External link'), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/' %}
-        View statistics for your projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
+        View statistics for your projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">our public dataset on Google BigQuery</a>
       {% endtrans %}
     </p>
   </div>
@@ -28,7 +28,7 @@
   <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
   <p>
     {% trans trimmed username=user.username, libs_io_href='https://libraries.io/', title=gettext('External link'), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/' %}
-      View statistics for {{ username }}'s projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">Google BigQuery</a>
+      View statistics for {{ username }}'s projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">our public dataset on Google BigQuery</a>
     {% endtrans %}
   </p>
 </div>

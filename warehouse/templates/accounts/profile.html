@@ -34,7 +34,8 @@
             <p>
               <i class="fa fa-user-circle" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Username{% endtrans %}</span>
-              &nbsp;&nbsp;{{ user.username }}
+              &nbsp;&nbsp;
+              <span class="break">{{ user.username }}</span>
             </p>
             {% if user.date_joined %}
             <p>

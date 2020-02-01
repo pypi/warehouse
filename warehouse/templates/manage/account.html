@@ -208,7 +208,7 @@
       {% set action=request.route_path('manage.account.token') %}
       {% set confirm_button_label=gettext("Remove API token") %}
       {% set extra_fields %}
-        <input type="text" name="macaroon_id" value="{{ macaroon.id }}" hidden>
+        <input type="hidden" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off">
       {% endset %}
       {% set token_warning_text %}
         <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
@@ -451,7 +451,6 @@
           <tr>
             <th scope="row">
               <strong>"{{ credential.label }}"</strong> - {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
-              <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span>
             </th>
             <td class="table__align-right">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
@@ -460,7 +459,7 @@
               {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
               {% set slug="disable-webauthn-" + credential.id | string %}
               {% set extra_fields %}
-                <input type="text" name="label" value="{{ credential.label }}" hidden>
+                <input type="hidden" name="label" value="{{ credential.label }}" autocomplete="off">
               {% endset %}
               {{ confirm_modal(title=title, label=gettext("Device name"), confirm_name="device_name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
             </td>
@@ -483,7 +482,7 @@
   <hr>
 
   <section id="api-tokens">
-    <h2>{% trans %}API tokens{% endtrans %} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span></h2>
+    <h2>{% trans %}API tokens{% endtrans %}</h2>
     <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %} <a href="/help#apitoken">{% trans %}Learn more about API tokens{% endtrans %}</a>.</p>
 
     {% if user.macaroons|length > 0 %}
@@ -516,7 +515,7 @@
   <hr>
 
   <section id="account-events">
-    <h2>{% trans %}Security history{% endtrans %} <span class="badge badge--warning">{% trans %}Beta feature{% endtrans %}</span></h2>
+    <h2>{% trans %}Security history{% endtrans %}</h2>
 
     {% set recent_events = user.recent_events %}
     {% if recent_events|length > 0 %}

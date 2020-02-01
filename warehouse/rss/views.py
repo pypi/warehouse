@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from email.utils import getaddresses
+
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
@@ -17,6 +19,32 @@ from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
 from warehouse.xml import XML_CSP
+
+
+def _format_author(release):
+    """
+    Format release author suitably for inclusion in an RSS feed.
+
+    Release author names and emails are hard to match robustly, mainly
+    because there may be multiple in both, and especially the names may
+    contain pretty much anything. So stick with just the emails with some
+    rudimentary sanity checks.
+
+    Even though the spec says "the email address" and thus assumes a single
+    author, we let multiple pass, comma separated.
+
+    http://www.rssboard.org/rss-specification#ltauthorgtSubelementOfLtitemgt
+    """
+    author_emails = []
+    for _, author_email in getaddresses([release.author_email or ""]):
+        if "@" not in author_email:
+            # Require all valid looking
+            return None
+        author_emails.append(author_email)
+
+    if not author_emails:
+        return None
+    return ", ".join(author_emails)
 
 
 @view_config(
@@ -43,8 +71,9 @@ def rss_updates(request):
         .limit(40)
         .all()
     )
+    release_authors = [_format_author(release) for release in latest_releases]
 
-    return {"latest_releases": latest_releases}
+    return {"latest_releases": tuple(zip(latest_releases, release_authors))}
 
 
 @view_config(
@@ -71,8 +100,11 @@ def rss_packages(request):
         .limit(40)
         .all()
     )
+    project_authors = [
+        _format_author(project.releases[0]) for project in newest_projects
+    ]
 
-    return {"newest_projects": newest_projects}
+    return {"newest_projects": tuple(zip(newest_projects, project_authors))}
 
 
 @view_config(

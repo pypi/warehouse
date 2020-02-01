@@ -34,6 +34,7 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    UniqueConstraint,
     func,
     orm,
     sql,
@@ -137,7 +138,7 @@ class Project(SitemapMixin, db.Model):
     )
 
     events = orm.relationship(
-        "ProjectEvent", backref="project", cascade="all, delete-orphan", lazy=False
+        "ProjectEvent", backref="project", cascade="all, delete-orphan", lazy=True
     )
 
     def __getitem__(self, version):
@@ -310,6 +311,7 @@ class Release(db.Model):
             Index("release_created_idx", cls.created.desc()),
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
+            UniqueConstraint("project_id", "version"),
         )
 
     __repr__ = make_repr("project", "version")
