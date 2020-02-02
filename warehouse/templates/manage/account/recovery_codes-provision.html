@@ -61,8 +61,8 @@
               <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI Recovery Codes\n' + recovery_codes|join('\n') }}">
                 {% trans %}Copy{% endtrans %}
               </button>
-              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="PyPI-Recovery-Codes.txt" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}" target="_blank">
-                {% trans %}Save{% endtrans %}
+              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="PyPI-Recovery-Codes.txt" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
+                {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
               </a>
               {% set title = gettext("Continue") %}
               {% set confirm_name = "username" %}
