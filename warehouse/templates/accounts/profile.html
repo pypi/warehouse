@@ -49,12 +49,12 @@
             <p>
               <i class="fa fa-rss" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}My Releases RSS Feed{% endtrans %}</span>
-              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_my_releases', username=user.username) }}">{% trans %}Recent updates{% endtrans %}</a>
+              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_my_releases', username=user.username) }}">{% trans %}My Releases{% endtrans %}</a>
             </p>
             <p>
               <i class="fa fa-rss" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}My Projects' Releases RSS Feed{% endtrans %}</span>
-              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_my_releases', username=user.username) }}">{% trans %}Recent updates{% endtrans %}</a>
+              &nbsp;&nbsp;<a href="{{ request.route_path('rss.user_my_project_releases', username=user.username) }}">{% trans %}My Projects' Releases{% endtrans %}</a>
             </p>
             {% endif %}
           </div>
