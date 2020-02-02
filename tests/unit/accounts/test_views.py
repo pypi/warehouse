@@ -354,6 +354,7 @@ class TestTwoFactor:
             update_user=lambda *a, **k: None,
             has_totp=lambda uid: True,
             has_webauthn=lambda uid: False,
+            has_recovery_codes=lambda uid: False,
         )
 
         pyramid_request.find_service = lambda interface, **kwargs: {
@@ -396,6 +397,7 @@ class TestTwoFactor:
             update_user=lambda *a, **k: None,
             has_totp=lambda uid: False,
             has_webauthn=lambda uid: True,
+            has_recovery_codes=lambda uid: False,
         )
 
         pyramid_request.find_service = lambda interface, **kwargs: {
@@ -410,6 +412,37 @@ class TestTwoFactor:
 
         assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
         assert result == {"has_webauthn": True}
+
+    @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
+    def test_get_returns_recovery_code_status(self, pyramid_request, redirect_url):
+        query_params = {"userid": 1}
+        if redirect_url:
+            query_params["redirect_to"] = redirect_url
+
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda s: query_params)
+        )
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 1),
+            update_user=lambda *a, **k: None,
+            has_totp=lambda uid: False,
+            has_webauthn=lambda uid: False,
+            has_recovery_codes=lambda uid: True,
+        )
+
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+
+        pyramid_request.query_string = pretend.stub()
+        result = views.two_factor_and_totp_validate(
+            pyramid_request, _form_class=pretend.stub()
+        )
+
+        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
+        assert result == {"has_recovery_codes": True}
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
     def test_totp_auth(self, monkeypatch, pyramid_request, redirect_url):
@@ -429,6 +462,7 @@ class TestTwoFactor:
             update_user=lambda *a, **k: None,
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
+            has_recovery_codes=lambda userid: False,
             check_totp_value=lambda userid, totp_value: True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -505,6 +539,7 @@ class TestTwoFactor:
         user_service = pretend.stub(
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
+            has_recovery_codes=lambda userid: False,
             check_totp_value=lambda userid, totp_value: False,
         )
 
@@ -784,6 +819,7 @@ class TestRecoveryCode:
             update_user=lambda *a, **k: None,
             has_totp=lambda uid: True,
             has_webauthn=lambda uid: False,
+            has_recovery_codes=lambda uid: False,
         )
 
         pyramid_request.find_service = lambda interface, **kwargs: {

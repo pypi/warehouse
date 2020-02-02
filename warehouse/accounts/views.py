@@ -220,6 +220,8 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
         )
     if user_service.has_webauthn(userid):
         two_factor_state["has_webauthn"] = True
+    if user_service.has_recovery_codes(userid):
+        two_factor_state["has_recovery_codes"] = True
 
     if request.method == "POST":
         form = two_factor_state["totp_form"]
