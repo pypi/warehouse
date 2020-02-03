@@ -14,7 +14,12 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid.view import view_config
 
-from warehouse.malware.models import MalwareVerdict
+from warehouse.malware.models import (
+    MalwareCheck,
+    MalwareVerdict,
+    VerdictClassification,
+    VerdictConfidence,
+)
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -26,23 +31,23 @@ from warehouse.utils.paginate import paginate_url_factory
     uses_session=True,
 )
 def get_verdicts(request):
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
-    verdicts_query = request.db.query(MalwareVerdict).order_by(
-        MalwareVerdict.run_date.desc()
+    result = {}
+    result["check_names"] = set(
+        [name for (name,) in request.db.query(MalwareCheck.name)]
     )
+    result["classifications"] = set([c.value for c in VerdictClassification])
+    result["confidences"] = set([c.value for c in VerdictConfidence])
 
-    verdicts = SQLAlchemyORMPage(
-        verdicts_query,
-        page=page_num,
+    validate_fields(request, result)
+
+    result["verdicts"] = SQLAlchemyORMPage(
+        generate_query(request.db, request.params),
+        page=int(request.params.get("page", 1)),
         items_per_page=25,
         url_maker=paginate_url_factory(request),
     )
 
-    return {"verdicts": verdicts}
+    return result
 
 
 @view_config(
@@ -59,3 +64,41 @@ def get_verdict(request):
         return {"verdict": verdict}
 
     raise HTTPNotFound
+
+
+def validate_fields(request, validators):
+    try:
+        int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    validators = {**validators, **{"manually_revieweds": set(["0", "1"])}}
+
+    for key, possible_values in validators.items():
+        # Remove the trailing 's'
+        value = request.params.get(key[:-1])
+        additional_values = set([None, ""])
+        if value not in possible_values | additional_values:
+            raise HTTPBadRequest(
+                "Invalid value for '%s': %s." % (key[:-1], value)
+            ) from None
+
+
+def generate_query(db, params):
+    """
+    Returns an SQLAlchemy query wth request params applied as filters.
+    """
+    query = db.query(MalwareVerdict)
+    if params.get("check_name"):
+        query = query.join(MalwareCheck)
+        query = query.filter(MalwareCheck.name == params["check_name"])
+    if params.get("confidence"):
+        query = query.filter(MalwareVerdict.confidence == params["confidence"])
+    if params.get("classification"):
+        query = query.filter(MalwareVerdict.classification == params["classification"])
+    if params.get("manually_reviewed"):
+        query = query.filter(
+            MalwareVerdict.manually_reviewed == bool(int(params["manually_reviewed"]))
+        )
+
+    return query.order_by(MalwareVerdict.run_date.desc())
