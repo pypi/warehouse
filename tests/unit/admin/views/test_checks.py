@@ -28,7 +28,10 @@ class TestListChecks:
 
     def test_get_checks(self, db_request):
         checks = [MalwareCheckFactory.create() for _ in range(10)]
-        assert views.get_checks(db_request) == {"checks": checks}
+        result = views.get_checks(db_request)["checks"]
+        assert len(result) == len(checks)
+        for r in result:
+            assert r in checks
 
     def test_get_checks_different_versions(self, db_request):
         checks = [MalwareCheckFactory.create() for _ in range(5)]
@@ -36,7 +39,10 @@ class TestListChecks:
             MalwareCheckFactory.create(name="MyCheck", version=i) for i in range(1, 6)
         ]
         checks.append(checks_same[-1])
-        assert views.get_checks(db_request) == {"checks": checks}
+        result = views.get_checks(db_request)["checks"]
+        assert len(result) == len(checks)
+        for r in result:
+            assert r in checks
 
 
 class TestGetCheck:

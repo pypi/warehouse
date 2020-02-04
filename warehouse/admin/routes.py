@@ -148,3 +148,6 @@ def includeme(config):
     config.add_route(
         "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
     )
+    config.add_route(
+        "admin.verdicts.review", "/admin/verdicts/{verdict_id}/review", domain=warehouse
+    )
