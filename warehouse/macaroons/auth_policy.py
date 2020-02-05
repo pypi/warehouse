@@ -144,7 +144,7 @@ class MacaroonAuthorizationPolicy:
 
             # If our Macaroon is verified, and for a valid permission then we'll pass
             # this request to our underlying Authorization policy, so it can handle its
-            # own authorization logic on the prinicpal.
+            # own authorization logic on the principal.
             if permission in valid_permissions:
                 return self.policy.permits(context, principals, permission)
             else:
