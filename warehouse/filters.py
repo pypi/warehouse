@@ -132,7 +132,7 @@ def format_classifiers(classifiers):
         if value:
             structured[key].append(value[0])
 
-    # Go thorugh and ensure that all of the lists in our classifiers are in
+    # Go through and ensure that all of the lists in our classifiers are in
     # sorted order.
     structured = {k: sorted(v) for k, v in structured.items()}
 
