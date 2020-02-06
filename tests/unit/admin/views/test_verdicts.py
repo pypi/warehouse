@@ -208,18 +208,15 @@ class TestGetVerdict:
 
 class TestReviewVerdict:
     @pytest.mark.parametrize(
-        "manually_reviewed, administrator_verdict",
+        "manually_reviewed, reviewer_verdict",
         [
             (False, None),  # unreviewed verdict
             (True, VerdictClassification.Threat),  # previously reviewed
         ],
     )
-    def test_set_classification(
-        self, db_request, manually_reviewed, administrator_verdict
-    ):
+    def test_set_classification(self, db_request, manually_reviewed, reviewer_verdict):
         verdict = MalwareVerdictFactory.create(
-            manually_reviewed=manually_reviewed,
-            administrator_verdict=administrator_verdict,
+            manually_reviewed=manually_reviewed, reviewer_verdict=reviewer_verdict,
         )
 
         db_request.matchdict["verdict_id"] = verdict.id
@@ -239,7 +236,7 @@ class TestReviewVerdict:
         ]
 
         assert verdict.manually_reviewed
-        assert verdict.administrator_verdict == VerdictClassification.Benign
+        assert verdict.reviewer_verdict == VerdictClassification.Benign
 
     @pytest.mark.parametrize("post_params", [{}, {"classification": "Nope"}])
     def test_errors(self, db_request, post_params):

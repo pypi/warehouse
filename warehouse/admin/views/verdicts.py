@@ -71,7 +71,7 @@ def get_verdict(request):
 
 @view_config(
     route_name="admin.verdicts.review",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -86,7 +86,7 @@ def review_verdict(request):
         raise HTTPBadRequest("Invalid verdict classification.") from None
 
     verdict.manually_reviewed = True
-    verdict.administrator_verdict = classification
+    verdict.reviewer_verdict = classification
 
     request.session.flash(
         "Verdict %s marked as reviewed." % verdict.id, queue="success"
