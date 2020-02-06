@@ -11,6 +11,7 @@
 # limitations under the License.
 
 from warehouse.malware.checks.base import MalwareCheckBase
+from warehouse.malware.checks.utils import FatalCheckException
 from warehouse.malware.models import VerdictClassification, VerdictConfidence
 
 
@@ -29,7 +30,7 @@ implementation of a hook-based check. This check will generate verdicts if enabl
     def scan(self, **kwargs):
         file_id = kwargs.get("obj_id")
         if file_id is None:
-            return
+            raise FatalCheckException("Missing required kwarg `obj_id`")
 
         self.add_verdict(
             file_id=file_id,
