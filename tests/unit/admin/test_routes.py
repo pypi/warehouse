@@ -141,4 +141,9 @@ def test_includeme():
         pretend.call(
             "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
         ),
+        pretend.call(
+            "admin.verdicts.review",
+            "/admin/verdicts/{verdict_id}/review",
+            domain=warehouse,
+        ),
     ]
