@@ -14,6 +14,7 @@ import uuid
 
 from random import randint
 
+import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
@@ -193,10 +194,55 @@ class TestGetVerdict:
         lookup_id = verdicts[index].id
         db_request.matchdict["verdict_id"] = lookup_id
 
-        assert views.get_verdict(db_request) == {"verdict": verdicts[index]}
+        assert views.get_verdict(db_request) == {
+            "verdict": verdicts[index],
+            "classifications": ["Benign", "Indeterminate", "Threat"],
+        }
 
     def test_not_found(self, db_request):
         db_request.matchdict["verdict_id"] = uuid.uuid4()
 
         with pytest.raises(HTTPNotFound):
             views.get_verdict(db_request)
+
+
+class TestReviewVerdict:
+    @pytest.mark.parametrize(
+        "manually_reviewed, reviewer_verdict",
+        [
+            (False, None),  # unreviewed verdict
+            (True, VerdictClassification.Threat),  # previously reviewed
+        ],
+    )
+    def test_set_classification(self, db_request, manually_reviewed, reviewer_verdict):
+        verdict = MalwareVerdictFactory.create(
+            manually_reviewed=manually_reviewed, reviewer_verdict=reviewer_verdict,
+        )
+
+        db_request.matchdict["verdict_id"] = verdict.id
+        db_request.POST = {"classification": "Benign"}
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/verdicts/%s/review" % verdict.id
+        )
+
+        views.review_verdict(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Verdict %s marked as reviewed." % verdict.id, queue="success")
+        ]
+
+        assert verdict.manually_reviewed
+        assert verdict.reviewer_verdict == VerdictClassification.Benign
+
+    @pytest.mark.parametrize("post_params", [{}, {"classification": "Nope"}])
+    def test_errors(self, db_request, post_params):
+        verdict = MalwareVerdictFactory.create()
+        db_request.matchdict["verdict_id"] = verdict.id
+        db_request.POST = post_params
+
+        with pytest.raises(HTTPBadRequest):
+            views.review_verdict(db_request)

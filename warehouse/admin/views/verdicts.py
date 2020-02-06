@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 
 from warehouse.malware.models import (
@@ -61,9 +61,41 @@ def get_verdict(request):
     verdict = request.db.query(MalwareVerdict).get(request.matchdict["verdict_id"])
 
     if verdict:
-        return {"verdict": verdict}
+        return {
+            "verdict": verdict,
+            "classifications": list(VerdictClassification.__members__.keys()),
+        }
 
     raise HTTPNotFound
+
+
+@view_config(
+    route_name="admin.verdicts.review",
+    permission="moderator",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+    require_csrf=True,
+)
+def review_verdict(request):
+    verdict = request.db.query(MalwareVerdict).get(request.matchdict["verdict_id"])
+
+    try:
+        classification = getattr(VerdictClassification, request.POST["classification"])
+    except (KeyError, AttributeError):
+        raise HTTPBadRequest("Invalid verdict classification.") from None
+
+    verdict.manually_reviewed = True
+    verdict.reviewer_verdict = classification
+
+    request.session.flash(
+        "Verdict %s marked as reviewed." % verdict.id, queue="success"
+    )
+
+    # If no query params are provided (e.g. request originating from
+    # admins.verdicts.detail view), then route to the default list view
+    query = request.GET or {"classification": "threat", "manually_reviewed": "0"}
+    return HTTPSeeOther(request.route_path("admin.verdicts.list", _query=query))
 
 
 def validate_fields(request, validators):

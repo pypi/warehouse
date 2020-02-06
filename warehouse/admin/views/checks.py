@@ -34,6 +34,8 @@ def get_checks(request):
         if not check.is_stale:
             active_checks.append(check)
 
+    active_checks.sort(key=lambda check: check.created, reverse=True)
+
     return {"checks": active_checks}
 
 
