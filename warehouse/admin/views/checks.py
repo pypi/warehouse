@@ -15,7 +15,7 @@ from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.malware.models import MalwareCheck, MalwareCheckState, MalwareCheckType
-from warehouse.malware.tasks import backfill, remove_verdicts, run_check
+from warehouse.malware.tasks import backfill, remove_verdicts, run_scheduled_check
 
 EVALUATION_RUN_SIZE = 10000
 
@@ -94,7 +94,7 @@ def run_evaluation(request):
 
     else:
         request.session.flash(f"Running {check.name} now!", queue="success")
-        request.task(run_check).delay(check.name, manually_triggered=True)
+        request.task(run_scheduled_check).delay(check.name, manually_triggered=True)
 
     return HTTPSeeOther(
         request.route_path("admin.checks.detail", check_name=check.name)
