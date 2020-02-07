@@ -29,8 +29,7 @@ MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=smtp port=2525 ssl=fa
 
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
-#TODO: change this to PrinterMalwareCheckService before deploy
-MALWARE_CHECK_BACKEND=warehouse.malware.services.DatabaseMalwareCheckService
+MALWARE_CHECK_BACKEND=warehouse.malware.services.PrinterMalwareCheckService
 
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
