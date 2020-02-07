@@ -17,7 +17,7 @@ from pyramid.httpexceptions import HTTPNotFound
 
 from warehouse.admin.views import checks as views
 from warehouse.malware.models import MalwareCheckState, MalwareCheckType
-from warehouse.malware.tasks import backfill, run_check
+from warehouse.malware.tasks import backfill, run_scheduled_check
 
 from ....common.db.malware import MalwareCheckFactory
 
@@ -208,7 +208,7 @@ class TestRunEvaluation:
             assert db_request.session.flash.calls == [
                 pretend.call("Running %s now!" % check.name, queue="success",)
             ]
-            assert db_request.task.calls == [pretend.call(run_check)]
+            assert db_request.task.calls == [pretend.call(run_scheduled_check)]
             assert backfill_recorder.delay.calls == [
                 pretend.call(check.name, manually_triggered=True)
             ]

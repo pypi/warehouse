@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from warehouse.malware.checks.base import MalwareCheckBase
-from warehouse.malware.checks.utils import FatalCheckException
+from warehouse.malware.errors import FatalCheckException
 from warehouse.malware.models import VerdictClassification, VerdictConfidence
 
 
