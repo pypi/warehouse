@@ -80,7 +80,14 @@ def get_credential_options(user, *, challenge, rp_name, rp_id):
     on the client side.
     """
     options = pywebauthn.WebAuthnMakeCredentialOptions(
-        challenge, rp_name, rp_id, str(user.id), user.username, user.name, None
+        challenge,
+        rp_name,
+        rp_id,
+        str(user.id),
+        user.username,
+        user.name,
+        None,
+        user_verification="discouraged",
     )
 
     return options.registration_dict
