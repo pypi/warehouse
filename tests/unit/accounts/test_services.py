@@ -1481,3 +1481,14 @@ class TestGitHubTokenScanningPayloadVerifyService:
         assert str(exc.value) == "Invalid cryptographic values"
         assert exc.value.reason == "invalid_crypto"
 
+
+class TestNullGitHubTokenScanningPayloadVerifyService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IGitHubTokenScanningPayloadVerifyService,
+            services.NullGitHubTokenScanningPayloadVerifyService,
+        )
+
+    def test_verify(self):
+        svc = services.NullGitHubTokenScanningPayloadVerifyService()
+        assert svc.verify(payload="a", key_id="b", signature="c") is True
