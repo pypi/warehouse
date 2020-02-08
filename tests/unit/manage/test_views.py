@@ -971,7 +971,7 @@ class TestProvisionTOTP:
         monkeypatch.setattr(views, "ProvisionTOTPForm", provision_totp_cls)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_2fa_added_email", send_email)
+        monkeypatch.setattr(views, "send_two_factor_added_email", send_email)
 
         view = views.ProvisionTOTPViews(request)
         result = view.validate_totp_provision()
@@ -1125,7 +1125,7 @@ class TestProvisionTOTP:
         monkeypatch.setattr(views, "DeleteTOTPForm", delete_totp_cls)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_2fa_removed_email", send_email)
+        monkeypatch.setattr(views, "send_two_factor_removed_email", send_email)
 
         view = views.ProvisionTOTPViews(request)
         result = view.delete_totp()
@@ -1317,7 +1317,7 @@ class TestProvisionWebAuthn:
         monkeypatch.setattr(views, "ProvisionWebAuthnForm", provision_webauthn_cls)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_2fa_added_email", send_email)
+        monkeypatch.setattr(views, "send_two_factor_added_email", send_email)
 
         view = views.ProvisionWebAuthnViews(request)
         result = view.validate_webauthn_provision()
@@ -1420,7 +1420,7 @@ class TestProvisionWebAuthn:
         monkeypatch.setattr(views, "DeleteWebAuthnForm", delete_webauthn_cls)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_2fa_removed_email", send_email)
+        monkeypatch.setattr(views, "send_two_factor_removed_email", send_email)
 
         view = views.ProvisionWebAuthnViews(request)
         result = view.delete_webauthn()

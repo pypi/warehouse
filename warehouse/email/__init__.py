@@ -201,14 +201,14 @@ def send_added_as_collaborator_email(request, user, *, submitter, project_name, 
     return {"project": project_name, "submitter": submitter.username, "role": role}
 
 
-@_email("2fa-added")
-def send_2fa_added_email(request, user, method):
+@_email("two-factor-added")
+def send_two_factor_added_email(request, user, method):
     pretty_methods = {"totp": "TOTP", "webauthn": "WebAuthn"}
     return {"method": pretty_methods[method], "username": user.username}
 
 
-@_email("2fa-removed")
-def send_2fa_removed_email(request, user, method):
+@_email("two-factor-removed")
+def send_two_factor_removed_email(request, user, method):
     pretty_methods = {"totp": "TOTP", "webauthn": "WebAuthn"}
     return {"method": pretty_methods[method], "username": user.username}
 

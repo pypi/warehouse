@@ -1092,7 +1092,7 @@ class TestAddedAsCollaboratorEmail:
         assert send_email.delay.calls == []
 
 
-class Test2faEmail:
+class TestTwoFactorEmail:
     @pytest.mark.parametrize(
         ("action", "method", "pretty_method"),
         [
@@ -1102,7 +1102,7 @@ class Test2faEmail:
             ("removed", "webauthn", "WebAuthn"),
         ],
     )
-    def test_2fa_email(
+    def test_two_factor_email(
         self,
         pyramid_request,
         pyramid_config,
@@ -1118,15 +1118,15 @@ class Test2faEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            f"email/2fa-{action}/subject.txt"
+            f"email/two-factor-{action}/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            f"email/2fa-{action}/body.txt"
+            f"email/two-factor-{action}/body.txt"
         )
         body_renderer.string_response = "Email Body"
         html_renderer = pyramid_config.testing_add_renderer(
-            f"email/2fa-{action}/body.html"
+            f"email/two-factor-{action}/body.html"
         )
         html_renderer.string_response = "Email HTML Body"
 
@@ -1136,7 +1136,7 @@ class Test2faEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        send_method = getattr(email, f"send_2fa_{action}_email")
+        send_method = getattr(email, f"send_two_factor_{action}_email")
         result = send_method(pyramid_request, stub_user, method=method)
 
         assert result == {"method": pretty_method, "username": stub_user.username}
