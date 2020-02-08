@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import base64
 import re
 
@@ -26,9 +25,25 @@ class ExtractionFailed(Exception):
     pass
 
 
-class TokenMatcher:
-    def __init__(self, pattern: re.Pattern):
-        self.pattern = pattern
+class TokenLeakMatcher:
+    """
+    A TokenLeakMatcher is linked to a specific regex pattern. When provided
+    a string that matches this pattern, the matcher can extract a token-like string
+    from it.
+    """
+
+    name: str
+    pattern: re.Pattern
+
+    def extract(self, text):
+        raise NotImplementedError
+
+
+class PlainTextTokenLeakMatcher(TokenLeakMatcher):
+    name = "token"
+    # Macaroons are urlsafe_b64 encodeded so non-alphanumeric chars are - and _
+    # https://github.com/ecordell/pymacaroons/blob/06b55110eda2fb192c130dee0bcedf8b124d1056/pymacaroons/serializers/binary_serializer.py#L32
+    pattern = re.compile(r"pypi-[A-Za-z0-9-_=]+")
 
     def extract(self, text):
         """
@@ -38,29 +53,27 @@ class TokenMatcher:
         return text
 
 
-class Base64BasicAuthTokenMatcher(TokenMatcher):
-    def _extract(self, text):
-        # Text is expected to be base64(__token__:pypi-<something>)
+class Base64BasicAuthTokenLeakMatcher(TokenLeakMatcher):
+    name = "base64-basic-auth"
+    # This is what we would expect to find if a basic auth value was leaked
+    # The following string was obtained by:
+    #     base64.b64encode(b"__token__:pypi-").decode("utf-8")
+    # Basic auth is standard base64, so non-alphanumeric chars are + and /
+    pattern = re.compile(r"X190b2tlbl9fOnB5cGkt[A-Za-z0-9+/=]+")
+
+    def extract(self, text):
         try:
-            _, token = base64.b64decode(text).split(":", 1)
+            _, token = (
+                base64.b64decode(text.encode("utf-8")).decode("utf-8").split(":", 1)
+            )
             return token
         except Exception as exc:
             raise ExtractionFailed from exc
 
 
-TOKEN_BREACH_MATCHERS = {
-    "token": TokenMatcher(
-        # Macaroons are urlsafe_b64 encodeded so non-alphanumeric chars are - and _
-        # https://github.com/ecordell/pymacaroons/blob/06b55110eda2fb192c130dee0bcedf8b124d1056/pymacaroons/serializers/binary_serializer.py#L32
-        pattern=re.compile(r"pypi-[A-Za-z0-9-_=]+"),
-    ),
-    # This is what we would expect to find if a basic auth value was leaked
-    "base64-basic-auth": Base64BasicAuthTokenMatcher(
-        # Basic auth is standard base64, so non-alphanumeric chars are + and /
-        # The following string was obtained by:
-        #     base64.b64encode(b"__token__:pypi-").decode("utf-8")
-        pattern=re.compile(r"X190b2tlbl9fOnB5cGkt[A-Za-z0-9+/=]+"),
-    ),
+TOKEN_LEAK_MATCHERS = {
+    matcher.name: matcher
+    for matcher in [PlainTextTokenLeakMatcher(), Base64BasicAuthTokenLeakMatcher()]
 }
 
 
@@ -74,77 +87,75 @@ class InvalidTokenLeakRequest(Exception):
 class TokenLeakDisclosureRequest:
 
     token: str
-    matcher: TokenMatcher
     public_url: str
 
     @classmethod
-    def from_api_record(cls, record, *, matchers=TOKEN_BREACH_MATCHERS):
+    def from_api_record(cls, record, *, matchers=TOKEN_LEAK_MATCHERS):
 
         if not isinstance(record, dict):
             raise InvalidTokenLeakRequest(
-                f"Record is not a dict but: {type(record)}", reason="format"
+                f"Record is not a dict but: {str(record)[:100]}", reason="format"
             )
 
-        try:
-            matcher_code = record["type"]
-        except KeyError:
+        missing_keys = sorted({"token", "type", "url"} - set(record))
+        if missing_keys:
             raise InvalidTokenLeakRequest(
-                f"Record is missing attribute type", reason="format"
+                f"Record is missing attribute(s): {', '.join(missing_keys)}",
+                reason="format",
             )
+
+        matcher_code = record["type"]
 
         matcher = matchers.get(matcher_code)
-        if not matchers:
+        if not matcher:
             raise InvalidTokenLeakRequest(
                 f"Matcher with code {matcher_code} not found. "
                 f"Available codes are: {', '.join(matchers)}",
                 reason="invalid_matcher",
             )
+
         try:
-            return cls(token=record["token"], matcher=matcher, public_url=record["url"])
-        except KeyError as exc:
+            extracted_token = matcher.extract(record["token"])
+        except ExtractionFailed:
             raise InvalidTokenLeakRequest(
-                f"Record is missing attribute {exc!s}", reason="format"
+                f"Cannot extract token from recieved match", reason="extraction"
             )
+
+        return cls(token=extracted_token, public_url=record["url"])
 
 
 class TokenLeakAnalyzer:
     def __init__(self, request):
         self._request = request
+        self._metrics = self._request.find_service(IMetricsService, context=None)
+        self._macaroon_service = self._request.find_service(
+            IMacaroonService, context=None
+        )
 
     def analyze_disclosure(self, disclosure_record, origin):
 
-        metrics = self._request.find_service(IMetricsService, context=None)
-
-        metrics.increment(f"warehouse.token_leak.{origin}.recieved")
+        self._metrics.increment(f"warehouse.token_leak.{origin}.recieved")
 
         try:
             disclosure = TokenLeakDisclosureRequest.from_api_record(
                 record=disclosure_record
             )
         except InvalidTokenLeakRequest as exc:
-            metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
-
-        # We don't expect to fail at this step: if GitHub starts sending us
-        # strings that don't match the regex we have, we have a problem.
-        # That being said, except logging, there's not much we can do.
-        try:
-            token = disclosure.matcher.extract(text=disclosure.token)
-        except ExtractionFailed:
-            metrics.increment(f"warehouse.token_leak.{origin}.error.extraction")
+            # TODO Logging something here would be useful in case we recieve
+            # unexpected pattern type.
+            self._metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
             return
 
-        macaroon_service = self._request.find_service(IMacaroonService, context=None)
-
         try:
-            database_macaroon = macaroon_service.check_if_macaroon_exists(
-                raw_macaroon=token
+            database_macaroon = self._macaroon_service.check_if_macaroon_exists(
+                raw_macaroon=disclosure.token
             )
         except InvalidMacaroon:
-            metrics.increment(f"warehouse.token_leak.{origin}.invalid")
+            self._metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
             return
 
-        metrics.increment(f"warehouse.token_leak.{origin}.valid")
-        macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
+        self._metrics.increment(f"warehouse.token_leak.{origin}.valid")
+        self._macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
 
         send_password_compromised_email_leak(
             self._request,
