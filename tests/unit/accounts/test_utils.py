@@ -113,7 +113,7 @@ def test_token_leak_analyzer_analyze_disclosure(monkeypatch):
     request = pretend.stub(find_service=lambda iface, context: svc[iface])
 
     send_email = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(utils, "send_password_compromised_email_leak", send_email)
+    monkeypatch.setattr(utils, "send_token_compromised_email_leak", send_email)
 
     analyzer = utils.TokenLeakAnalyzer(request=request)
     analyzer.analyze_disclosure(

@@ -15,7 +15,7 @@ import re
 
 import attr
 
-from warehouse.email import send_password_compromised_email_leak
+from warehouse.email import send_token_compromised_email_leak
 from warehouse.macaroons.caveats import InvalidMacaroon
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -157,7 +157,7 @@ class TokenLeakAnalyzer:
         self._metrics.increment(f"warehouse.token_leak.{origin}.valid")
         self._macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
 
-        send_password_compromised_email_leak(
+        send_token_compromised_email_leak(
             self._request,
             database_macaroon.user,
             public_url=disclosure.public_url,

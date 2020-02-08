@@ -52,7 +52,6 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
 from warehouse.accounts.utils import InvalidTokenLeakRequest
-from warehouse.email import send_password_compromised_email_leak
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
