@@ -17,6 +17,7 @@ import re
 import attr
 
 from warehouse.email import send_password_compromised_email_leak
+from warehouse.macaroons.caveats import InvalidMacaroon
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 
@@ -134,9 +135,11 @@ class TokenLeakAnalyzer:
 
         macaroon_service = self._request.find_service(IMacaroonService, context=None)
 
-        database_macaroon = macaroon_service.find_macaroon_from_raw(raw_macaroon=token)
-
-        if not database_macaroon:
+        try:
+            database_macaroon = macaroon_service.check_if_macaroon_exists(
+                raw_macaroon=token
+            )
+        except InvalidMacaroon:
             metrics.increment(f"warehouse.token_leak.{origin}.invalid")
             return
 
