@@ -1062,7 +1062,7 @@ def github_disclose_token(request):
             # TODO log, but don't stop processing other leaks.
             # It seems logger.exception() is not used in the codebase. What is
             # expected ?
-            raise
+            continue
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.#
     return Response(status=204)

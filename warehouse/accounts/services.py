@@ -774,7 +774,7 @@ class NullPasswordBreachedService:
         return False
 
 
-class GithubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
+class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
     pass
 
 
@@ -835,36 +835,36 @@ class GitHubTokenScanningPayloadVerifyService:
             return response.json()
         except requests.HTTPError as exc:
             # TODO Log, including status code and body
-            raise GithubPublicKeyMetaAPIError(
+            raise GitHubPublicKeyMetaAPIError(
                 f"Invalid response code {response.status_code}: {response.text[:100]}",
                 f"public_key_api.status.{response.status_code}",
             ) from exc
         except json.JSONDecodeError as exc:
-            raise GithubPublicKeyMetaAPIError(
+            raise GitHubPublicKeyMetaAPIError(
                 f"Non-JSON response received: {response.text[:100]}",
                 "public_key_api.invalid_json",
             ) from exc
         except requests.RequestException as exc:
             # TODO Log
-            raise GithubPublicKeyMetaAPIError(
-                "Could not connect to Github", "public_key_api.network_error"
+            raise GitHubPublicKeyMetaAPIError(
+                "Could not connect to GitHub", "public_key_api.network_error"
             ) from exc
 
     def _extract_public_keys(self, pubkey_api_data):
         if not isinstance(pubkey_api_data, dict):
-            raise GithubPublicKeyMetaAPIError(
+            raise GitHubPublicKeyMetaAPIError(
                 f"Payload is not a dict but: {str(pubkey_api_data)[:100]}",
                 "public_key_api.format_error",
             )
         try:
             public_keys = pubkey_api_data["public_keys"]
         except KeyError:
-            raise GithubPublicKeyMetaAPIError(
+            raise GitHubPublicKeyMetaAPIError(
                 "Payload misses 'public_keys' attribute", "public_key_api.format_error"
             )
 
         if not isinstance(public_keys, list):
-            raise GithubPublicKeyMetaAPIError(
+            raise GitHubPublicKeyMetaAPIError(
                 "Payload 'public_keys' attribute is not a list",
                 "public_key_api.format_error",
             )
@@ -873,14 +873,14 @@ class GitHubTokenScanningPayloadVerifyService:
         for public_key in public_keys:
 
             if not isinstance(public_key, dict):
-                raise GithubPublicKeyMetaAPIError(
+                raise GitHubPublicKeyMetaAPIError(
                     f"Key is not a dict but: {public_key}",
                     "public_key_api.format_error",
                 )
 
             attributes = set(public_key)
             if not expected_attributes <= attributes:
-                raise GithubPublicKeyMetaAPIError(
+                raise GitHubPublicKeyMetaAPIError(
                     "Missing attribute in key: "
                     f"{sorted(expected_attributes - attributes)}",
                     "public_key_api.format_error",

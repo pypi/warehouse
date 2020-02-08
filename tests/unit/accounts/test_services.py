@@ -1263,7 +1263,7 @@ class TestGitHubTokenScanningPayloadVerifyService:
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
         )
-        with pytest.raises(services.GithubPublicKeyMetaAPIError) as exc:
+        with pytest.raises(services.GitHubPublicKeyMetaAPIError) as exc:
             svc._retrieve_public_key_payload()
 
         assert str(exc.value) == "Invalid response code 418: I'm a teapot"
@@ -1282,7 +1282,7 @@ class TestGitHubTokenScanningPayloadVerifyService:
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
         )
-        with pytest.raises(services.GithubPublicKeyMetaAPIError) as exc:
+        with pytest.raises(services.GitHubPublicKeyMetaAPIError) as exc:
             svc._retrieve_public_key_payload()
 
         assert str(exc.value) == "Non-JSON response received: Still a non-json teapot"
@@ -1296,10 +1296,10 @@ class TestGitHubTokenScanningPayloadVerifyService:
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
         )
-        with pytest.raises(services.GithubPublicKeyMetaAPIError) as exc:
+        with pytest.raises(services.GitHubPublicKeyMetaAPIError) as exc:
             svc._retrieve_public_key_payload()
 
-        assert str(exc.value) == "Could not connect to Github"
+        assert str(exc.value) == "Could not connect to GitHub"
         assert exc.value.reason == "public_key_api.network_error"
 
     def test_extract_public_keys(self):
@@ -1364,7 +1364,7 @@ class TestGitHubTokenScanningPayloadVerifyService:
             context=pretend.stub(), request=request
         )
 
-        with pytest.raises(services.GithubPublicKeyMetaAPIError) as exc:
+        with pytest.raises(services.GitHubPublicKeyMetaAPIError) as exc:
             list(svc._extract_public_keys(pubkey_api_data=payload))
 
         assert exc.value.reason == "public_key_api.format_error"
