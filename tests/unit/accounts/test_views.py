@@ -21,7 +21,7 @@ import pytest
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.accounts import views
+from warehouse.accounts import utils, views
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -2227,6 +2227,7 @@ class TestProfilePublicEmail:
         request = pretend.stub()
 
         assert views.profile_public_email(user, request) == {"user": user}
+<<<<<<< HEAD
 
 
 class TestReAuthentication:
@@ -2288,3 +2289,105 @@ class TestReAuthentication:
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
         assert result.headers["Location"] == "/the-redirect"
+||||||| merged common ancestors
+=======
+
+
+class TestGitHubDiscloseToken:
+    def test_github_disclose_token(self, pyramid_request, monkeypatch):
+
+        pyramid_request.headers = {
+            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+        }
+        pyramid_request.body = "[1, 2, 3]"
+        pyramid_request.json_body = [1, 2, 3]
+        verify = pretend.call_recorder(lambda **k: True)
+        service = pretend.stub(verify=verify)
+        pyramid_request.find_service = lambda *a, **k: service
+
+        analyze_disclosures = pretend.call_recorder(lambda **k: None)
+        analyzer_cls = pretend.call_recorder(
+            lambda request: pretend.stub(analyze_disclosures=analyze_disclosures)
+        )
+
+        monkeypatch.setattr(views, "TokenLeakAnalyzer", analyzer_cls)
+
+        response = views.github_disclose_token(pyramid_request)
+
+        assert response.status_code == 204
+        assert verify.calls == [
+            pretend.call(payload="[1, 2, 3]", key_id="foo", signature="bar")
+        ]
+        assert analyzer_cls.calls == [pretend.call(request=pyramid_request)]
+        assert analyze_disclosures.calls == [
+            pretend.call(disclosure_records=[1, 2, 3], origin="github")
+        ]
+
+    def test_github_disclose_token_verify_fail(self, pyramid_request):
+
+        pyramid_request.headers = {
+            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+        }
+        pyramid_request.body = "[1, 2, 3]"
+        service = pretend.stub(verify=lambda **k: False)
+        pyramid_request.find_service = lambda *a, **k: service
+
+        response = views.github_disclose_token(pyramid_request)
+
+        assert response == {"error": "invalid signature"}
+        assert pyramid_request.response.status_int == 403
+
+    def test_github_disclose_token_verify_invalid_json(self):
+
+        service = pretend.stub(verify=lambda **k: True)
+
+        # We need to raise on a property access, can't do that with a stub.
+        class Request:
+            headers = {
+                "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+                "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+            }
+            body = "["
+
+            @property
+            def json_body(self):
+                return json.loads(self.body)
+
+            def find_service(self, *a, **k):
+                return service
+
+            response = pretend.stub(status_int=200)
+
+        request = Request()
+        response = views.github_disclose_token(request)
+
+        assert response == {"error": "body is not valid json"}
+        assert request.response.status_int == 400
+
+    def test_github_disclose_token_wrong_payload(self, pyramid_request, monkeypatch):
+
+        pyramid_request.headers = {
+            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+        }
+        pyramid_request.body = "{}"
+        pyramid_request.json_body = {}
+        service = pretend.stub(verify=lambda **k: True)
+        pyramid_request.find_service = lambda *a, **k: service
+
+        def analyzer_cls(request):
+            return pretend.stub(
+                analyze_disclosures=pretend.raiser(
+                    utils.InvalidTokenLeakRequest("Bla", reason="bla")
+                )
+            )
+
+        monkeypatch.setattr(views, "TokenLeakAnalyzer", analyzer_cls)
+
+        response = views.github_disclose_token(pyramid_request)
+
+        assert response == {"error": "cannot read disclosures from payload"}
+        assert pyramid_request.response.status_int == 400
+>>>>>>> Fix and test github_disclose_token view

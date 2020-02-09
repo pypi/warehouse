@@ -50,7 +50,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
-from warehouse.accounts.utils import TokenLeakAnalyzer
+from warehouse.accounts.utils import InvalidTokenLeakRequest, TokenLeakAnalyzer
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
@@ -1048,21 +1048,16 @@ def github_disclose_token(request):
     try:
         disclosures = request.json_body
     except json.decoder.JSONDecodeError:
-        request.response.status_int = 403
+        request.response.status_int = 400
         return {"error": "body is not valid json"}
 
     analyzer = TokenLeakAnalyzer(request=request)
 
-    for disclosure_record in disclosures:
-        try:
-            analyzer.analyze_disclosure(
-                disclosure_record=disclosure_record, origin="github"
-            )
-        except Exception:
-            # TODO log, but don't stop processing other leaks.
-            # It seems logger.exception() is not used in the codebase. What is
-            # expected ?
-            continue
+    try:
+        analyzer.analyze_disclosures(disclosure_records=disclosures, origin="github")
+    except InvalidTokenLeakRequest:
+        request.response.status_int = 400
+        return {"error": "cannot read disclosures from payload"}
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.#
     return Response(status=204)
