@@ -786,15 +786,17 @@ class GitHubTokenScanningPayloadVerifyService:
     - `cryptography` for signature verification
     """
 
-    def __init__(self, *, session, metrics):
+    def __init__(self, *, session, metrics, api_token=None):
         self._metrics = metrics
         self._session = session
+        self._api_token = api_token
 
     @classmethod
     def create_service(cls, context, request):
         return cls(
             session=request.http,
             metrics=request.find_service(IMetricsService, context=context),
+            api_token=request.registry.settings["github.token"],
         )
 
     def verify(self, *, payload, key_id, signature):
@@ -817,18 +819,18 @@ class GitHubTokenScanningPayloadVerifyService:
         self._metrics.increment("warehouse.token_leak.github.auth.success")
         return True
 
+    def _get_headers(self):
+        if self._api_token:
+            return {"Authorization": f"token {self._api_token}"}
+        return {}
+
     def _retrieve_public_key_payload(self):
         # TODO: cache ?
 
         token_scanning_pubkey_api_url = (
             "https://api.github.com/meta/public_keys/token_scanning"
         )
-        headers = {}
-        # TODO get GitHub token, otherwise we'll get ip based rate limiting
-        api_token = None
-        # if api_token:
-        #     headers["Authorization"] = f"token {api_token}"
-
+        headers = self._get_headers()
         try:
             response = self._session.get(token_scanning_pubkey_api_url, headers=headers)
             response.raise_for_status()

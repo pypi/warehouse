@@ -1147,7 +1147,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
         session = pretend.stub()
         context = pretend.stub()
         request = pretend.stub(
-            find_service=lambda iface, context: metrics, http=session
+            find_service=lambda iface, context: metrics,
+            http=session,
+            registry=pretend.stub(settings={"github.token": None}),
         )
 
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
@@ -1180,7 +1182,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
         session = pretend.stub(get=lambda *a, **k: response)
         metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
         request = pretend.stub(
-            find_service=lambda iface, context: metrics, http=session
+            find_service=lambda iface, context: metrics,
+            http=session,
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=None, request=request
@@ -1204,7 +1208,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
     def test_verify_error(self):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
         request = pretend.stub(
-            find_service=lambda iface, context: metrics, http=pretend.stub()
+            find_service=lambda iface, context: metrics,
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1238,7 +1244,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
         session = pretend.stub(get=pretend.call_recorder(lambda *a, **k: response))
         metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
         request = pretend.stub(
-            find_service=lambda iface, context: metrics, http=session
+            find_service=lambda iface, context: metrics,
+            http=session,
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=None, request=request
@@ -1258,7 +1266,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
         )
         session = pretend.stub(get=lambda *a, **k: response,)
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=session
+            find_service=lambda iface, context: pretend.stub(),
+            http=session,
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1277,7 +1287,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
         )
         session = pretend.stub(get=lambda *a, **k: response,)
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=session
+            find_service=lambda iface, context: pretend.stub(),
+            http=session,
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1291,7 +1303,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
     def test_retrieve_public_key_payload_connection_error(self):
         session = pretend.stub(get=pretend.raiser(requests.ConnectionError))
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=session
+            find_service=lambda iface, context: pretend.stub(),
+            http=session,
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1304,7 +1318,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
 
     def test_extract_public_keys(self):
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=pretend.stub()
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         meta_payload = {
             "public_keys": [
@@ -1358,7 +1374,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
     )
     def test_extract_public_keys_error(self, payload, expected):
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=pretend.stub()
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1372,7 +1390,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
 
     def test_check_public_key(self):
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=pretend.stub()
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1386,7 +1406,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
 
     def test_check_public_key_error(self):
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=pretend.stub()
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1400,7 +1422,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
 
     def test_check_signature(self):
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=pretend.stub()
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1430,7 +1454,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
 
     def test_check_signature_invalid_signature(self):
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=pretend.stub()
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1462,7 +1488,9 @@ class TestGitHubTokenScanningPayloadVerifyService:
 
     def test_check_signature_invalid_crypto(self):
         request = pretend.stub(
-            find_service=lambda iface, context: pretend.stub(), http=pretend.stub()
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": None}),
         )
         svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
             context=pretend.stub(), request=request
@@ -1480,6 +1508,20 @@ class TestGitHubTokenScanningPayloadVerifyService:
 
         assert str(exc.value) == "Invalid cryptographic values"
         assert exc.value.reason == "invalid_crypto"
+
+    @pytest.mark.parametrize(
+        "api_token, headers", [("yay", {"Authorization": "token yay"}), (None, {})]
+    )
+    def test_get_headers(self, api_token, headers):
+        request = pretend.stub(
+            find_service=lambda iface, context: pretend.stub(),
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"github.token": api_token}),
+        )
+        svc = services.GitHubTokenScanningPayloadVerifyService.create_service(
+            context=pretend.stub(), request=request
+        )
+        assert svc._get_headers() == headers
 
 
 class TestNullGitHubTokenScanningPayloadVerifyService:
