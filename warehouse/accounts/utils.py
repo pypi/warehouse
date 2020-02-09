@@ -163,3 +163,19 @@ class TokenLeakAnalyzer:
             public_url=disclosure.public_url,
             origin=origin,
         )
+
+    def analyze_disclosures(self, disclosure_records, origin):
+        if not isinstance(disclosure_records, list):
+            raise InvalidTokenLeakRequest(
+                "Invalid format: payload is not a list", "format"
+            )
+        for disclosure_record in disclosure_records:
+            try:
+                self.analyze_disclosure(
+                    disclosure_record=disclosure_record, origin=origin
+                )
+            except Exception:
+                # TODO log, but don't stop processing other leaks.
+                # It seems logger.exception() is not used in the codebase. What is
+                # expected ?
+                continue

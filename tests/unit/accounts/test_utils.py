@@ -187,3 +187,35 @@ def test_token_leak_analyzer_analyze_disclosure_invalid_macaroon():
         "warehouse.token_leak.github.recieved": 1,
         "warehouse.token_leak.github.error.invalid": 1,
     }
+
+
+def test_token_leak_analyzer_analyze_disclosures_wrong_type():
+
+    request = pretend.stub(find_service=lambda *a, **k: pretend.stub())
+    analyzer = utils.TokenLeakAnalyzer(request=request)
+
+    with pytest.raises(utils.InvalidTokenLeakRequest) as exc:
+        analyzer.analyze_disclosures({}, origin="yay")
+
+    assert str(exc.value) == "Invalid format: payload is not a list"
+    assert exc.value.reason == "format"
+
+
+def test_token_leak_analyzer_analyze_disclosures_raise():
+
+    request = pretend.stub(find_service=lambda *a, **k: pretend.stub())
+    analyzer = utils.TokenLeakAnalyzer(request=request)
+
+    def raise_on_2(disclosure_record):
+        if disclosure_record == 2:
+            raise ValueError
+
+    analyzer.analyze_disclosure = pretend.call_recorder(raise_on_2)
+
+    analyzer.analyze_disclosures([1, 2, 3], origin="yay")
+
+    assert analyzer.analyze_disclosure.calls == [
+        pretend.call(disclosure_record=1, origin="yay"),
+        pretend.call(disclosure_record=2, origin="yay"),
+        pretend.call(disclosure_record=3, origin="yay"),
+    ]
