@@ -16,4 +16,5 @@ PyPI.
 
 Malware Checks
 --------------
-See :doc:`development/malware-checks` for information about existing checks that are instrumented in PyPI, and instructions for contributing new checks.
+See :doc:`development/malware-checks` for information about existing checks
+that are instrumented in PyPI, and instructions for contributing new checks.
