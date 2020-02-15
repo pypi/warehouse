@@ -76,7 +76,7 @@
     {% if macaroon.caveats.permissions == "user" %}
 
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
@@ -86,7 +86,7 @@
   password = {{ serialized_macaroon }}</pre>
     {% else %}
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
@@ -149,8 +149,8 @@
           <label for="scope:user">{% trans %}Entire account (all projects){% endtrans %}</label>
         </div>
         <div>
-          <input type="radio" name="token_scopes" value="scope:by_project" id="scope:by_project" data-action="token-scopes#project" {{ "checked" if not all_projects }}>
-          <label for="scope:by_project">{% trans %}By project{% endtrans %}</label>
+          <input type="radio" name="token_scopes" value="by_project" id="by_project" data-action="token-scopes#project" {{ "checked" if not all_projects }}>
+          <label for="by_project">{% trans %}By project{% endtrans %}</label>
         </div>
         {% if project_names|length > 10 %}
         <select multiple name="token_scopes" id="token_scopes" class="form-group__input form-group__multiselect" aria-describedby="token_scopes-errors" autocomplete="off" data-target="token-scopes.selector" {{ "disabled" if all_projects }}>

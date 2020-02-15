@@ -25,8 +25,8 @@ describe("Confirm controller", () => {
         <label for="scope:user">Entire account (all projects)</label>
       </div>
       <div>
-        <input type="radio" name="token_scopes" value="scope:by_project" id="scope:by_project" data-action="token-scopes#project" >
-        <label for="scope:by_project">By project</label>
+        <input type="radio" name="token_scopes" value="by_project" id="by_project" data-action="token-scopes#project" >
+        <label for="by_project">By project</label>
       </div>
       <div>
         <input type="checkbox" name="token_scopes" value="scope:project:lunr" id="scope:project:lunr" data-target="token-scopes.selector" disabled>
@@ -43,9 +43,9 @@ describe("Confirm controller", () => {
     application.register("token-scopes", TokenScopesController);
   });
 
-  describe("clicking the radio button for by project", function() {
-    it("enables the checkboxes and removes the `disabled` class from descriptions", function() {
-      document.getElementById("scope:by_project").click();
+  describe("clicking the radio button for by project", function () {
+    it("enables the checkboxes and removes the `disabled` class from descriptions", function () {
+      document.getElementById("by_project").click();
 
       const checkboxes = document.querySelectorAll("input[type=\"checkbox\"]");
       checkboxes.forEach(cb => {
@@ -55,9 +55,9 @@ describe("Confirm controller", () => {
     });
   });
 
-  describe("clicking the radio button for user scope", function() {
-    it("disables the checkboxes and adds the `disabled` class from descriptions", function() {
-      document.getElementById("scope:by_project").click();
+  describe("clicking the radio button for user scope", function () {
+    it("disables the checkboxes and adds the `disabled` class from descriptions", function () {
+      document.getElementById("by_project").click();
       document.getElementById("scope:user").click();
 
       const checkboxes = document.querySelectorAll("input[type=\"checkbox\"]");

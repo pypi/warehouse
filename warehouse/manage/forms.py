@@ -240,15 +240,15 @@ class CreateMacaroonForm(forms.Form):
         self.validated_scope = {"projects": []}
 
         for scope in scopes:
+            if scope == "by_project":
+                # "by_project" is sent to indicate the user made a selection
+                # of projects either in checkboxes or in the multiselect
+                continue
+
             try:
                 _, scope_kind = scope.split(":", 1)
             except ValueError:
                 raise wtforms.ValidationError(f"Unknown token scope: {scope}")
-
-            if scope_kind == "by_project":
-                # "by_project" is sent to indicate the user made a selection
-                # of projects either in checkboxes or in the multiselect
-                continue
 
             try:
                 scope_kind, scope_value = scope_kind.split(":", 1)
