@@ -25,6 +25,7 @@ from kombu import Queue
 from pyramid.threadlocal import get_current_request
 
 from warehouse.config import Environment
+from warehouse.metrics import IMetricsService
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
@@ -57,15 +58,21 @@ class WarehouseTask(celery.Task):
         def run(*args, **kwargs):
             original_run = obj._wh_original_run
             request = obj.get_request()
+            metrics = request.find_service(IMetricsService, context=None)
+            metric_tags = [f"task:{obj.name}"]
 
-            with request.tm:
+            with request.tm, metrics.timed("warehouse.task.run", tags=metric_tags):
                 try:
-                    return original_run(*args, **kwargs)
+                    result = original_run(*args, **kwargs)
+                    metrics.increment("warehouse.task.complete", tags=metric_tags)
+                    return result
                 except BaseException as exc:
                     if isinstance(
                         exc, pyramid_retry.RetryableException
                     ) or pyramid_retry.IRetryableError.providedBy(exc):
+                        metrics.increment("warehouse.task.retried", tags=metric_tags)
                         raise obj.retry(exc=exc)
+                    metrics.increment("warehouse.task.failed", tags=metric_tags)
                     raise
 
         obj._wh_original_run, obj.run = obj.run, run
