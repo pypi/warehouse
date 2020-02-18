@@ -3,21 +3,22 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Nick Mavrakis <mavrakis.n@gmail.com>, 2019.
+# Giorgos K. <kavalieratos.giwrgos@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-11-01 10:52+0000\n"
-"Last-Translator: Nick Mavrakis <mavrakis.n@gmail.com>\n"
-"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
-">\n"
+"PO-Revision-Date: 2020-02-03 16:28+0000\n"
+"Last-Translator: Giorgos K. <kavalieratos.giwrgos@gmail.com>\n"
+"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/>"
+"\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -1499,22 +1500,17 @@ msgid "Statistics"
 msgstr "Στατιστικά"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
-#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-#| "BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"Δείτε τα στατιστικά για τα projects σας μέσω του <a href=\"%(libs_io_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> ή "
-"χρησιμοποιώντας το <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-"\">Google BigQuery</a>"
+"Δείτε τα στατιστικά για τα projects σας μέσω του <a href=\"%(libs_io_href)s\""
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> ή "
+"χρησιμοποιώντας το <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\""
+"noopener\">δημόσιο σύνολο δεδομένων μας στο Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #, fuzzy, python-format
