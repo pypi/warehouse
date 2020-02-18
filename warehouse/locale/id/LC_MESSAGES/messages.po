@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-16 19:46+0000\n"
-"Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
+"PO-Revision-Date: 2020-01-22 10:21+0000\n"
+"Last-Translator: Habib R <revolusi147id@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.10.2-dev\n"
+"X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -1151,6 +1151,7 @@ msgid "What?"
 msgstr "Apa?"
 
 #: warehouse/templates/email/password-compromised/body.html:20
+#, fuzzy
 msgid ""
 "PyPI administrators have determined that your password is compromised. To\n"
 "  protect you and other users, we have preemptively reset your password and "
@@ -1158,6 +1159,11 @@ msgid ""
 "  will no longer be able to log in or upload to PyPI with your existing\n"
 "  password."
 msgstr ""
+"Administrator PyPI telah menentukan bahwa sandi Anda disusupi. Untuk\n"
+"  melindungi Anda dan pengguna lain, kami telah mengatur ulang kata sandi "
+"Anda terlebih dahulu dan Anda\n"
+"  tidak akan dapat lagi masuk atau mengunggah ke PyPI dengan\n"
+"  kata sandi lama."
 
 #: warehouse/templates/email/password-compromised/body.html:26
 msgid ""
@@ -1165,6 +1171,9 @@ msgid ""
 "reduce the\n"
 "  risk for PyPI and its users."
 msgstr ""
+"PyPI sendiri tidak mengalami pelanggaran. Ini adalah langkah perlindungan "
+"untuk mengurangi\n"
+"  risiko untuk PyPI dan penggunanya."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
@@ -1206,13 +1215,17 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the\n"
 "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
 "  attacks against PyPI and its users."
 msgstr ""
+"PyPI sendiri tidak mengalami pelanggaran. Ini adalah langkah perlindungan "
+"untuk mengurangi\n"
+"  risiko dari <a href=\"%(href)s\">credential stuffing</a>\n"
+"  serangan terhadap PyPI dan penggunanya."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -1306,6 +1319,8 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
+"Seseorang, mungkin Anda, telah menambahkan alamat email ini "
+"(<code>%(email_address)s</code>) ke akun PyPI mereka."
 
 #: warehouse/templates/email/verify-email/body.html:20
 #, python-format
@@ -1594,13 +1609,13 @@ msgid "Tags"
 msgstr "Tag"
 
 #: warehouse/templates/includes/packaging/project-data.html:101
+#, fuzzy
 msgid "Requires:"
-msgstr ""
+msgstr "Memerlukan:"
 
 #: warehouse/templates/includes/packaging/project-data.html:108
-#, fuzzy
 msgid "Maintainers"
-msgstr "Para pemelihara"
+msgstr "Pengelola"
 
 #: warehouse/templates/includes/packaging/project-data.html:110
 msgid "Avatar for {username} from gravatar.com"
@@ -1703,6 +1718,8 @@ msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
 msgstr ""
+"Tambahkan <abbr title=\"two factor authentication\"> 2FA</abbr> dengan "
+"perangkat keamanan (mis. kunci USB)"
 
 #: warehouse/templates/manage/account.html:145
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1889,14 +1906,14 @@ msgid "Two factor authentication (2FA)"
 msgstr "Otentikasi dua faktor (2FA)"
 
 #: warehouse/templates/manage/account.html:426
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Two factor authentication adds an additional layer of security to your "
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>."
 msgstr ""
-"Otentikasi dua faktor menambahkan lapisan keamanan tambahan ke akun Anda. <a "
-"href=\"%(href)s\">Belajar lebih tentang <abbr title=\"two factor "
+"Autentikasi dua faktor menambahkan lapisan keamanan tambahan ke akun Anda. <"
+"a href=\"%(href)s\">Belajar lebih tentang <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>."
 
 #: warehouse/templates/manage/account.html:431
@@ -2045,12 +2062,11 @@ msgstr "Email utama baru:"
 
 #: warehouse/templates/manage/account.html:561
 msgid "Primary email set"
-msgstr ""
+msgstr "Kumpulan email utama"
 
 #: warehouse/templates/manage/account.html:568
-#, fuzzy
 msgid "Password reset requested"
-msgstr "Atur ulang sandi telah diminta"
+msgstr "Atur ulang kata sandi telah diminta"
 
 #: warehouse/templates/manage/account.html:570
 msgid "Password successfully reset"
@@ -2175,6 +2191,10 @@ msgid_plural ""
 "%(count)s projects.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          Saat ini, akun Anda adalah pemilik <strong>pemilik tunggal</strong>"
+" dari%(count)s proyek.\n"
+"        "
 
 #: warehouse/templates/manage/account.html:656
 msgid ""
@@ -2274,7 +2294,7 @@ msgstr "Dibuat oleh:"
 #: warehouse/templates/manage/history.html:34
 #, python-format
 msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
-msgstr ""
+msgstr "<a href=\"%(href)s\"> Versi rilis %(version)s</a> dibuat"
 
 #: warehouse/templates/manage/history.html:36
 #: warehouse/templates/manage/history.html:52
@@ -2284,7 +2304,7 @@ msgstr "Ditambahkan oleh:"
 #: warehouse/templates/manage/history.html:39
 #, python-format
 msgid "Release version %(version)s removed"
-msgstr ""
+msgstr "Versi rilis %(version)s dihapus"
 
 #: warehouse/templates/manage/history.html:41
 #: warehouse/templates/manage/history.html:47
@@ -2327,7 +2347,6 @@ msgstr "Diubah oleh:"
 
 #: warehouse/templates/manage/history.html:67
 #: warehouse/templates/manage/history.html:74
-#, fuzzy
 msgid "Permissions: Can upload to this project"
 msgstr "Izin: Dapat mengunggah ke proyek ini"
 
@@ -2485,7 +2504,7 @@ msgstr "Proyek ini tidak memiliki rilis"
 #: warehouse/templates/manage/releases.html:77
 #, fuzzy
 msgid "View"
-msgstr "Dilihat"
+msgstr "Lihat"
 
 #: warehouse/templates/manage/projects.html:74
 #, python-format
