@@ -2,7 +2,7 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# bkaskar <roypbc@yahoo.com>, 2019.
+# bkaskar <roypbc@yahoo.com>, 2019, 2020.
 # Michal Čihař <michal@cihar.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 msgid ""
@@ -10,16 +10,16 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-12-17 08:54+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
-">\n"
+"PO-Revision-Date: 2020-02-18 07:18+0000\n"
+"Last-Translator: bkaskar <roypbc@yahoo.com>\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
+"\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.11\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -924,6 +924,9 @@ msgid ""
 "cannot be used. Please refer to the <a href=\"/help/#compromised-password"
 "\">FAQ</a> for more information."
 msgstr ""
+"इस पासवर्ड का कहीं खुलासा हो चुका है या सुरक्षा उल्लंघन में ये कहीं प्रकट "
+"होता है और इसका उपयोग नहीं किया जा सकता है। अधिक जानकारी के लिए कृपया <a "
+"href=\"/help/#compromised-password\"> FAQ </a> का संदर्भ लें।"
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -1049,9 +1052,9 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
-"<p> अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। अपनी पहचान "
-"सत्यापित करने के लिए इस कोड को दर्ज करें। </p><p> अपना आवेदन खो दिया? काम नहीं कर "
-"रहा? <a href=\"%(href)s\"> सहायता प्राप्त करें </a>। </ p>"
+"<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। "
+"अपनी पहचान सत्यापित करने के लिए इस कोड को दर्ज करें।</p> <p>अपना आवेदन खो "
+"दिया? काम नहीं कर रहा? <a href=\"%(href)s\">सहायता प्राप्त करें</a>।</ p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1099,7 +1102,7 @@ msgstr "<strong>उपयोगकर्ता नाम</strong>: %(username)s"
 #: warehouse/templates/email/collaborator-added/body.html:30
 #, python-format
 msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>भूमिका</ strong>: %(role)s"
+msgstr "<strong>भूमिका</ strong>:%(role)s"
 
 #: warehouse/templates/email/collaborator-added/body.html:31
 #, python-format
@@ -2012,62 +2015,63 @@ msgstr "कोई नहीं"
 
 #: warehouse/templates/manage/account.html:542
 msgid "Email added to account"
-msgstr ""
+msgstr "खाते में ईमेल जोड़ दिया"
 
 #: warehouse/templates/manage/account.html:545
 msgid "Email removed from account"
-msgstr ""
+msgstr "खाते से ईमेल निकाला गया"
 
 #: warehouse/templates/manage/account.html:548
 msgid "Email verified"
-msgstr ""
+msgstr "ईमेल सत्यापित"
 
 #: warehouse/templates/manage/account.html:551
 msgid "Email reverified"
-msgstr ""
+msgstr "पुन: सत्यापित ईमेल"
 
 #: warehouse/templates/manage/account.html:555
 msgid "Primary email changed"
-msgstr ""
+msgstr "प्राथमिक ईमेल बदला"
 
 #: warehouse/templates/manage/account.html:557
 msgid "Old primary email:"
-msgstr ""
+msgstr "पुराना प्राथमिक ईमेल:"
 
 #: warehouse/templates/manage/account.html:558
 msgid "New primary email:"
-msgstr ""
+msgstr "नया प्राथमिक ईमेल:"
 
 #: warehouse/templates/manage/account.html:561
 msgid "Primary email set"
-msgstr ""
+msgstr "प्राथमिक ईमेल सेट"
 
 #: warehouse/templates/manage/account.html:568
 msgid "Password reset requested"
-msgstr ""
+msgstr "पासवर्ड रीसेट अनुरोधित"
 
 #: warehouse/templates/manage/account.html:570
 msgid "Password successfully reset"
-msgstr ""
+msgstr "पासवर्ड सफलतापूर्वक रीसेट"
 
 #: warehouse/templates/manage/account.html:572
 msgid "Password successfully changed"
-msgstr ""
+msgstr "पासवर्ड सफलतापूर्वक बदला"
 
 #: warehouse/templates/manage/account.html:575
 msgid "Two factor authentication added"
-msgstr ""
+msgstr "द्वी-करक प्रमाणन जोड़ा"
 
 #: warehouse/templates/manage/account.html:578
 #: warehouse/templates/manage/account.html:588
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
+"विधि: सुरक्षा उपकरण (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:579
 #: warehouse/templates/manage/account.html:589
 msgid "Device name:"
-msgstr ""
+msgstr "उपकरण नाम:"
 
 #: warehouse/templates/manage/account.html:581
 #: warehouse/templates/manage/account.html:591
@@ -2075,79 +2079,84 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
+"विधि: प्रमाणीकरण आवेदन (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:585
 msgid "Two factor authentication removed"
-msgstr ""
+msgstr "द्वी-करक प्रमाणन हटा"
 
 #: warehouse/templates/manage/account.html:596
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
-msgstr ""
+msgstr "API टोकन जोड़ा गया"
 
 #: warehouse/templates/manage/account.html:598
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
-msgstr ""
+msgstr "टोकन नाम:"
 
 #: warehouse/templates/manage/account.html:600
 msgid "Token scope: entire account"
-msgstr ""
+msgstr "टोकन दायरा: पूरा खाता"
 
 #: warehouse/templates/manage/account.html:602
 #, python-format
 msgid "Token scope: Project %(project_name)s"
-msgstr ""
+msgstr "टोकन दायरा: परियोजना %(project_name)s"
 
 #: warehouse/templates/manage/account.html:607
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
-msgstr ""
+msgstr "API टोकन हटाया गया"
 
 #: warehouse/templates/manage/account.html:608
 msgid "Unique identifier:"
-msgstr ""
+msgstr "अद्वितीय पहचानकर्ता:"
 
 #: warehouse/templates/manage/account.html:614
 msgid "Events appear here as security-related actions occur on your account."
 msgstr ""
+"आपके खाते पर सुरक्षा से संबंधित कार्रवाई होने के कारण घटनाएँ यहां दिखाई देती "
+"हैं."
 
 #: warehouse/templates/manage/account.html:616
 msgid "Recent account activity"
-msgstr ""
+msgstr "अभी हाल ही की खाता गतिविधि"
 
 #: warehouse/templates/manage/account.html:618
 #: warehouse/templates/manage/history.html:88
 msgid "Event"
-msgstr ""
+msgstr "घटना"
 
 #: warehouse/templates/manage/account.html:619
 #: warehouse/templates/manage/account.html:627
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
 msgid "Date / time"
-msgstr ""
+msgstr "दिनांक / समय"
 
 #: warehouse/templates/manage/account.html:620
 #: warehouse/templates/manage/account.html:631
 #: warehouse/templates/manage/history.html:90
 #: warehouse/templates/manage/history.html:102
 msgid "IP address"
-msgstr ""
+msgstr "IP पता"
 
 #: warehouse/templates/manage/account.html:639
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
+"आपके खाते पर सुरक्षा से संबंधित कार्रवाई होने पर घटनाएँ यहां दिखाई देंगी।"
 
 #: warehouse/templates/manage/account.html:646
 msgid "Delete account"
-msgstr ""
+msgstr "खाता हटाएं"
 
 #: warehouse/templates/manage/account.html:649
 msgid "Cannot delete account"
-msgstr ""
+msgstr "खाता नहीं हटाया जा सकता"
 
 #: warehouse/templates/manage/account.html:651
 #, python-format
@@ -2162,7 +2171,15 @@ msgid_plural ""
 "%(count)s projects.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          वर्तमान में आपका खाता इस %(count)s परियोजना का <strong>एकमात्र "
+"मालिक</strong> है।\n"
+"        "
 msgstr[1] ""
+"\n"
+"          वर्तमान में आपका खाता इन %(count)s परियोजनाओं का <strong>एकमात्र "
+"मालिक</strong> है।\n"
+"        "
 
 #: warehouse/templates/manage/account.html:656
 msgid ""
@@ -2176,7 +2193,15 @@ msgid_plural ""
 "can delete your account.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          अपना खाता हटाने से पहले आपको स्वामित्व स्थानांतरित करना होगा या इस "
+"परियोजना को हटाना होगा।\n"
+"        "
 msgstr[1] ""
+"\n"
+"          अपना खाता हटाने से पहले आपको स्वामित्व स्थानांतरित करना होगा या इन "
+"परियोजनाओं को हटाना होगा।\n"
+"        "
 
 #: warehouse/templates/manage/account.html:666
 #, python-format
@@ -2184,28 +2209,30 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
+"<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a href=\""
+"%(delete_href)s\"> परियोजना हटाएं </a>"
 
 #: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/token.html:156
 msgid "Proceed with caution!"
-msgstr ""
+msgstr "सावधानी के साथ आगे बढ़ें!"
 
 #: warehouse/templates/manage/account.html:678
 msgid "You will not be able to recover your account after you delete it"
-msgstr ""
+msgstr "इसे हटाने के बाद आप अपने खाते को पुनर्प्राप्त नहीं कर पाएंगे"
 
 #: warehouse/templates/manage/account.html:680
 msgid "Delete your PyPI account"
-msgstr ""
+msgstr "अपना PyPI खाता हटाएं"
 
 #: warehouse/templates/manage/documentation.html:18
 #, python-format
 msgid "Manage '%(project_name)s' documentation"
-msgstr ""
+msgstr "'%(project_name)s' का प्रलेखन (डाक्यूमेंटेशन) संभाले"
 
 #: warehouse/templates/manage/documentation.html:25
 msgid "Destroy documentation"
-msgstr ""
+msgstr "प्रलेखन (डाक्यूमेंटेशन) नष्ट करें"
 
 #: warehouse/templates/manage/documentation.html:28
 #, python-format
@@ -2214,123 +2241,137 @@ msgid ""
 "\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading new "
 "documentation is no longer supported."
 msgstr ""
+"यदि आप किसी भी मौजूदा प्रलेखन (डाक्यूमेंटेशन) को नष्ट करना चाहते हैं जो <a "
+"href=\"%(url)s\">%(url)s</a> पर होस्ट है उसे आप यथावत स्थापित "
+"<strong>नहीं</strong> कर पाएंगे, क्योंकि नए प्रलेखन अपलोड करना अब समर्थित "
+"नहीं है।"
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
-msgstr ""
+msgstr "परियोजना के प्रलेखन को नष्ट करें"
 
 #: warehouse/templates/manage/documentation.html:35
 #: warehouse/templates/manage/release.html:104
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
-msgstr ""
+msgstr "परियोजना का नाम"
 
 #: warehouse/templates/manage/documentation.html:39
 msgid "Project documentation"
-msgstr ""
+msgstr "परियोजना प्रलेखन"
 
 #: warehouse/templates/manage/documentation.html:41
 msgid "Uploading new documentation is no longer supported"
-msgstr ""
+msgstr "नया प्रलेखन अपलोड करना अब समर्थित नहीं है"
 
 #: warehouse/templates/manage/history.html:20
 #, python-format
 msgid "'%(project_name)s' project history"
-msgstr ""
+msgstr "'%(project_name)s' परियोजना का इतिहास"
 
 #: warehouse/templates/manage/history.html:25
 msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this project, the action is recorded and displayed here."
 msgstr ""
+"हर बार जब आप (या आपके सहयोगी) इस परियोजना से संबंधित सुरक्षा कार्रवाई करते "
+"हैं, तो वह कार्रवाई यहां दर्ज और यहां प्रदर्शित की जाती है।"
 
 #: warehouse/templates/manage/history.html:29
 msgid "Project created"
-msgstr ""
+msgstr "परियोजना बनायीं गयी"
 
 #: warehouse/templates/manage/history.html:31
 msgid "Created by:"
-msgstr ""
+msgstr "द्वारा बनाई गई:"
 
 #: warehouse/templates/manage/history.html:34
 #, python-format
 msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
-msgstr ""
+msgstr "<a href=\"%(href)s\">रिलीज संस्करण %(version)s</a> बनाया गया"
 
 #: warehouse/templates/manage/history.html:36
 #: warehouse/templates/manage/history.html:52
 msgid "Added by:"
-msgstr ""
+msgstr "द्वारा जोड़ा गया:"
 
 #: warehouse/templates/manage/history.html:39
 #, python-format
 msgid "Release version %(version)s removed"
-msgstr ""
+msgstr "रिलीज संस्करण %(version)s हटा दिया गया"
 
 #: warehouse/templates/manage/history.html:41
 #: warehouse/templates/manage/history.html:47
 #: warehouse/templates/manage/history.html:57
 msgid "Removed by:"
-msgstr ""
+msgstr "द्वारा हटाया गया:"
 
 #: warehouse/templates/manage/history.html:44
 #, python-format
 msgid "File removed from release version %(version)s"
-msgstr ""
+msgstr "रिलीज संस्करण %(version)s से फ़ाइल हटाई गई"
 
 #: warehouse/templates/manage/history.html:45
 #: warehouse/templates/manage/release.html:99
 msgid "Filename:"
-msgstr ""
+msgstr "फ़ाइल का नाम:"
 
 #: warehouse/templates/manage/history.html:50
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a>परियोजना %(role_name)s के रूप में जोड़ा "
+"गया"
 
 #: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> परियोजना %(role_name)s के रूप से हटाया "
+"गया"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
+"<a href=\"%(href)s\">%(username)s</a> परियोजना %(role_name)s में परिवर्तित "
+"किया"
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
-msgstr ""
+msgstr "द्वारा परिवर्तित:"
 
 #: warehouse/templates/manage/history.html:67
 #: warehouse/templates/manage/history.html:74
 msgid "Permissions: Can upload to this project"
-msgstr ""
+msgstr "अनुमतियां: इस परियोजना पर अपलोड कर सकते हैं"
 
 #: warehouse/templates/manage/history.html:68
 #: warehouse/templates/manage/history.html:75
 msgid "Controlled by:"
-msgstr ""
+msgstr "द्वारा नियंत्रित:"
 
 #: warehouse/templates/manage/history.html:85
 #, python-format
 msgid "Security history for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s का सुरक्षा इतिहास"
 
 #: warehouse/templates/manage/journal.html:20
 #, python-format
 msgid "'%(project_name)s' project journal"
-msgstr ""
+msgstr "'%(project_name)s' परियोजना पत्रिका"
 
 #: warehouse/templates/manage/journal.html:23
 msgid "Project journal"
-msgstr ""
+msgstr "परियोजना पत्रिका"
 
 #: warehouse/templates/manage/journal.html:25
 msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
 msgstr ""
+"हर बार आप या आपके सहयोगी द्वारा किये गए हर परियोजना परिवर्तन कि कार्रवाई, "
+"यहां रिकॉर्ड और प्रदर्शित की जाती है।"
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
@@ -2338,91 +2379,93 @@ msgid ""
 "This feature will be deprecated in the future, replaced by the <a href="
 "\"%(href)s\">security history page</a>."
 msgstr ""
+"इस सुविधा को भविष्य में बहिष्कृत किया जाएगा, और <a href=\"%(href)s\">सुरक्षा "
+"इतिहास पृष्ठ</a> द्वारा प्रतिस्थापित किया जाएगा।"
 
 #: warehouse/templates/manage/journal.html:32
 #, python-format
 msgid "History for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s का इतिहास"
 
 #: warehouse/templates/manage/journal.html:35
 #: warehouse/templates/manage/journal.html:44
 msgid "Action"
-msgstr ""
+msgstr "कार्य"
 
 #: warehouse/templates/manage/journal.html:36
 #: warehouse/templates/manage/journal.html:48
 msgid "Date"
-msgstr ""
+msgstr "दिनांक"
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
 #: warehouse/templates/manage/roles.html:135
 msgid "User"
-msgstr ""
+msgstr "उपयोगकर्ता"
 
 #: warehouse/templates/manage/journal.html:45
 #, python-format
 msgid "Release %(version)s:"
-msgstr ""
+msgstr "रिलीज %(version)s:"
 
 #: warehouse/templates/manage/journal.html:54
 #, python-format
 msgid "from %(ip_address)s"
-msgstr ""
+msgstr "%(ip_address)s से"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
 #: warehouse/templates/manage/releases.html:71
 msgid "Manage"
-msgstr ""
+msgstr "प्रबंधन"
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
-msgstr ""
+msgstr "आपका खाता"
 
 #: warehouse/templates/manage/manage_base.html:27
 #: warehouse/templates/manage/manage_base.html:47
 msgid "Account navigation"
-msgstr ""
+msgstr "खाता नेविगेशन"
 
 #: warehouse/templates/manage/manage_base.html:105
 #: warehouse/templates/manage/manage_base.html:157
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "यह कार्रवाई दोबारा पूर्ववत अवस्था में नहीं स्थापित की जा सकती!"
 
 #: warehouse/templates/manage/manage_base.html:113
 msgid "Confirm your username to continue."
-msgstr ""
+msgstr "जारी रखने के लिए अपने उपयोगकर्ता नाम की पुष्टि करें।"
 
 #: warehouse/templates/manage/manage_base.html:115
 #, python-format
 msgid "Confirm the %(item)s to continue."
-msgstr ""
+msgstr "जारी रखने के लिए %(item)s की पुष्टि करें।"
 
 #: warehouse/templates/manage/manage_base.html:123
 #: warehouse/templates/manage/manage_base.html:175
 msgid "Cancel"
-msgstr ""
+msgstr "रद्द"
 
 #: warehouse/templates/manage/manage_base.html:146
 msgid "close"
-msgstr ""
+msgstr "बंद"
 
 #: warehouse/templates/manage/manage_base.html:162
 msgid "Enter your password to continue."
-msgstr ""
+msgstr "जारी रखने के लिए अपना पासवर्ड दर्ज करें।"
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
 msgid "Manage '%(project_name)s'"
-msgstr ""
+msgstr "'%(project_name)s' प्रबंधित करें"
 
 #: warehouse/templates/manage/manage_project_base.html:32
 #: warehouse/templates/manage/projects.html:21
 #, python-format
 msgid "Your projects (%(project_count)s)"
-msgstr ""
+msgstr "आपकी परियोजनाएं (%(project_count)s)"
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
@@ -2475,7 +2518,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr "रिलीज संस्करण %(version)s व."
+msgstr "रिलीज संस्करण %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
@@ -3113,10 +3156,9 @@ msgid "Latest version"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released on %(release_date)s"
+#, python-format
 msgid "Released: %(release_date)s"
-msgstr "अंतिम बार %(release_date)s पर वितरण किया गया"
+msgstr "वितरण: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
 msgid "No project description provided"
@@ -3498,19 +3540,23 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          <p>हम PyPI (उच्चारण - पाइपाइ) पर उपलब्ध सॉफ्टवेयर का वर्णन करने के लिए कई "
-"शब्दों का उपयोग करते हैं, जैसे \"परियोजना\", \"रिलीज\", \"फ़ाइल\", और \"पैकेज\"। कभी-"
-"कभी ये शब्द भ्रमित कर सकते हैं क्योंकि उनका उपयोग अन्य संदर्भों में विभिन्न चीजों का वर्णन "
-"करने के लिए किया जाता है। हम इनका उपयोग PyPI पर इस तरह से करते हैं:</p> <p>PyPI पर "
-"कोई भी \"परियोजना\" रिलीज और फ़ाइलों के संग्रह का नाम है, और जो उनके बारे में जानकारी "
-"देता है । PyPI पर परियोजनाएं पायथन समुदाय के अन्य सदस्यों द्वारा बनाई और साझा की जाती "
-"हैं ताकि आप उनका उपयोग कर सकें। </p> <p>PyPI पर कोई भी \"रिलीज\" एक परियोजना का "
-"एक विशिष्ट संस्करण होता है। उदाहरण के लिए, <a href=\"%(requests_href)s"
-"\">requests</a> परियोजना में कई रिलीज हैं, जैसे \"requests 2.10\" और \"requests "
-"1.2.1\"। एक रिलीज में एक या एक से अधिक \"फ़ाइलें\" होती हैं </p>। <p>जब आप PyPI  से "
-"एक \"पैकेज\" डाउनलोड और इंस्टॉल करते हैं, वह भी एक \"फ़ाइल\" होती है। विभिन्न हार्डवेयर, "
-"ऑपरेटिंग सिस्टम और फ़ाइल प्रारूपों के कारण, एक रिलीज में कई फाइलें (पैकेज) हो सकती हैं, जैसे "
-"स्रोत कोड या बाइनरी वाले संग्रह <a href=\"%(wheel_href)s\">व्हील</a>.</p>\n"
+"          <p>हम PyPI (उच्चारण - पाइपाइ) पर उपलब्ध सॉफ्टवेयर का वर्णन करने के "
+"लिए कई शब्दों का उपयोग करते हैं, जैसे \"परियोजना\", \"रिलीज\", \"फ़ाइल\", और "
+"\"पैकेज\"। कभी-कभी ये शब्द भ्रमित कर सकते हैं क्योंकि उनका उपयोग अन्य "
+"संदर्भों में विभिन्न चीजों का वर्णन करने के लिए किया जाता है। हम इनका उपयोग "
+"PyPI पर इस तरह से करते हैं:</p>\n"
+"          <p>PyPI पर कोई भी \"परियोजना\" रिलीज और फ़ाइलों के संग्रह का नाम है"
+", और जो उनके बारे में जानकारी देता है । PyPI पर परियोजनाएं पायथन समुदाय के "
+"अन्य सदस्यों द्वारा बनाई और साझा की जाती हैं ताकि आप उनका उपयोग कर सकें। </p>"
+"\n"
+"          <p>PyPI पर कोई भी \"रिलीज\" एक परियोजना का एक विशिष्ट संस्करण होता "
+"है। उदाहरण के लिए, <a href=\"%(requests_href)s\">requests</a> परियोजना में "
+"कई रिलीज हैं, जैसे \"requests 2.10\" और \"requests 1.2.1\"। एक रिलीज में एक "
+"या एक से अधिक \"फ़ाइलें\" होती हैं </p>।\n"
+"          <p>जब आप PyPI  से एक \"पैकेज\" डाउनलोड और इंस्टॉल करते हैं, वह भी "
+"एक \"फ़ाइल\" होती है। विभिन्न हार्डवेयर, ऑपरेटिंग सिस्टम और फ़ाइल प्रारूपों "
+"के कारण, एक रिलीज में कई फाइलें (पैकेज) हो सकती हैं, जैसे स्रोत कोड या बाइनरी"
+" वाले संग्रह <a href=\"%(wheel_href)s\">wheel</a>.</p>\n"
 "        "
 
 #: warehouse/templates/pages/help.html:185
@@ -3585,7 +3631,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:219
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<p> PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the risk of <a href=\"%(credential_stuffing_href)s\" title=\"%(title)s"
@@ -3608,26 +3654,29 @@ msgid ""
 "in to PyPI until you <a href=\"%(reset_pwd_href)s\">reset your password</a>. "
 "</p>"
 msgstr ""
-"<p> PyPI में कोई सुरक्षात्मक उल्लंघन नहीं हुआ है। यह PyPI और इसके उपयोगकर्ताओं के लिये <a "
-"href=\"%(credential_stuffing_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\"> क्रेडेंशियल स्टफिंग </a> के जोखिम को कम करने का एक सुरक्षात्मक उपाय "
-"है। </p> <p> हर बार जब कोई उपयोगकर्ता पासवर्ड की आपूर्ति करता है - पंजीकरण, "
-"प्रमाणीकरण, या अपने पासवर्ड को अपडेट करते समय - PyPI सुरक्षित रूप से जांचता है कि क्या "
-"वह पासवर्ड सार्वजनिक डेटा उल्लंघनों में प्रकट हुआ है। </p> <p> इन प्रक्रियाओं में से प्रत्येक के "
-"दौरान, PyPI आपूर्ति किए गए पासवर्ड का SHA-1 हैश उत्पन्न करता है और जाँचने के लिए हैश के "
-"पहले पाँच (5) वर्णों का उपयोग करता है<a href=\"%(haveibeenpwned_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\"> क्या मुझे बनाया गया है "
-"(haveibeenpawned) API</a> और निर्धारित करता है कि क्या पासवर्ड का पहले से, अनजाने में "
-"खुलासा हुआ है। प्लेनटेक्स्ट पासवर्ड कभी भी PyPI द्वारा स्टोर नहीं किया जाता है और न ही "
-"Have I Been Pwned API पर सबमिट किया जाता है। </p> <p> PyPI पंजीकरण या पासवर्ड "
-"अपडेट करते समय ऐसे पासवर्ड उपयोग करने की अनुमति नहीं देता है, जिसका पहले से अनजाने में "
-"खुलासा हुआ हो। </p> <p> यदि आपको यह त्रुटि संदेश प्राप्त होता है कि \"यह पासवर्ड उल्लंघन "
-"में दिखाई देता है या समझौता किया गया है और इसका उपयोग नहीं किया जा सकता है\", तो "
-"आपको इसे जल्द से जल्द अन्य सभी स्थानों पर बदलना चाहिए, जहाँ आप इसे उपयोग करते हैं। </p> "
-"<p> यदि आपको लॉग इन करने या PyPI पर अपलोड करने का प्रयास करते समय यह त्रुटि मिली "
-"है, तो आपका पासवर्ड रीसेट कर दिया गया है और जब तक आप <a href=\"%(reset_pwd_href)s"
-"\">नहीं करते हैं, तब तक आप PyPI में लॉग इन नहीं कर सकते हैं। अपना पासवर्ड रीसेट करें</a>। "
-"</p>"
+"<p> PyPI में कोई सुरक्षात्मक उल्लंघन नहीं हुआ है। यह PyPI और इसके "
+"उपयोगकर्ताओं के लिये <a href=\"%(credential_stuffing_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\"> क्रेडेंशियल स्टफिंग</a> के "
+"जोखिम को कम करने का एक सुरक्षात्मक उपाय है। </p> <p> हर बार जब कोई उपयोगकर्ता"
+" पासवर्ड की आपूर्ति करता है - पंजीकरण, प्रमाणीकरण, या अपने पासवर्ड को अपडेट "
+"करते समय - PyPI सुरक्षित रूप से जांचता है कि क्या वह पासवर्ड सार्वजनिक डेटा "
+"उल्लंघनों में प्रकट हुआ है। </p> <p> इन प्रक्रियाओं में से प्रत्येक के दौरा"
+"न, PyPI आपूर्ति किए गए पासवर्ड का SHA-1 हैश उत्पन्न करता है और जाँचने के लिए "
+"हैश के पहले पाँच (5) वर्णों का उपयोग करता है<a href=\"%(haveibeenpwned_href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> क्या मुझे बनाया "
+"गया है (haveibeenpawned) API</a> और निर्धारित करता है कि क्या पासवर्ड का पहले"
+" से, अनजाने में खुलासा हुआ है। प्लेनटेक्स्ट पासवर्ड कभी भी PyPI द्वारा स्टोर "
+"नहीं किया जाता है और न ही Have I Been Pwned API पर सबमिट किया जाता है। </p> "
+"<p> PyPI पंजीकरण या पासवर्ड अपडेट करते समय ऐसे पासवर्ड उपयोग करने की अनुमति "
+"नहीं देता है, जिसका पहले से अनजाने में खुलासा हुआ हो। </p> <p> यदि आपको यह "
+"त्रुटि संदेश प्राप्त होता है कि \"This password appears in a breach or has "
+"been compromised and cannot be used\" (\"यह पासवर्ड उल्लंघन में दिखाई देता है"
+" या समझौता किया गया है और इसका उपयोग नहीं किया जा सकता है\"), तो आपको इसे जल्"
+"द से जल्द अन्य सभी स्थानों पर बदलना चाहिए, जहाँ आप इसे उपयोग करते हैं। </p> "
+"<p> यदि आपको लॉग इन करने या PyPI पर अपलोड करने का प्रयास करते समय यह त्रुटि "
+"मिली है, तो आपका पासवर्ड रीसेट कर दिया गया है और जब तक आप <a href=\""
+"%(reset_pwd_href)s\">नहीं करते हैं, तब तक आप PyPI में लॉग इन नहीं कर सकते "
+"हैं। अपना पासवर्ड रीसेट करें</a>। </p>"
 
 #: warehouse/templates/pages/help.html:254
 #, python-format
@@ -4218,11 +4267,11 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">use "
 "twine to upload your project to PyPI</a>."
 msgstr ""
-"PyPI के पिछले संस्करण में, रिलीज़ अपलोड करने के लिए मेंटेनर PyPI में वेब ब्राउज़र फ़ॉर्म का "
-"उपयोग करते थे। यह सुविधा PyPI के नए संस्करण के साथ हटा दी गई है - हम इसके बजाय आपको "
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">अपनी परियोजना को PyPI अपलोड पर करने के लिए  twine का उपयोग</a> करने की सलाह "
-"देते हैं।"
+"PyPI के पिछले संस्करण में, रिलीज़ अपलोड करने के लिए मेंटेनर PyPI में वेब "
+"ब्राउज़र फ़ॉर्म का उपयोग करते थे। यह सुविधा PyPI के नए संस्करण के साथ हटा दी "
+"गई है - हम इसके बजाय आपको <a href=\"%(href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">अपनी परियोजना को PyPI अपलोड पर करने के लिए twine का"
+" उपयोग</a> करने की सलाह देते हैं।"
 
 #: warehouse/templates/pages/help.html:562
 msgid ""
