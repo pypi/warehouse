@@ -10,13 +10,14 @@
 # gabriel-tessier <tessier@luxeys.com>, 2019.
 # Matthieu Melot <matthieu.melot@gmail.com>, 2019.
 # Nathan <bonnemainsnathan@gmail.com>, 2019, 2020.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-18 11:57+0000\n"
-"Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
+"PO-Revision-Date: 2020-02-09 21:17+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.10.2\n"
+"X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -409,7 +410,7 @@ msgstr "Force du mot de passe :"
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr "Le champ du mot de passer est vide"
+msgstr "Le champ du mot de passe est vide"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
@@ -709,7 +710,7 @@ msgstr ""
 
 #: warehouse/templates/index.html:83
 msgid "Learn about installing packages</a>."
-msgstr "Apprenez à installer des paquet</a>."
+msgstr "Apprenez à installer des paquets</a>."
 
 #: warehouse/templates/index.html:86
 msgid "Package authors use PyPI to distribute their software."
