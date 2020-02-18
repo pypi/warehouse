@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Dustin Ingram <dustin.ingram@gmail.com>, 2019.
 # Sebastian Witowski <sebawitowski@yahoo.com>, 2019.
+# m-aciek <maciej.olko@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-10-27 05:58+0000\n"
-"Last-Translator: Sebastian Witowski <sebawitowski@yahoo.com>\n"
+"PO-Revision-Date: 2020-02-03 16:28+0000\n"
+"Last-Translator: m-aciek <maciej.olko@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
 "Language: pl\n"
@@ -19,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
+"X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -97,9 +98,8 @@ msgid "Invalid TOTP code."
 msgstr "Nieprawidłowy kod TOTP."
 
 #: warehouse/accounts/forms.py:312
-#, fuzzy
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr "Nieprawidłowe potwierdzenie WebAuthn: Zły ładunek"
+msgstr "Nieprawidłowe potwierdzenie WebAuthn: Zły payload"
 
 #: warehouse/accounts/forms.py:345
 msgid "No user found with that username or email"
@@ -140,7 +140,6 @@ msgid "Invalid token: no token supplied"
 msgstr "Nieprawidłowy token: nie podano tokena"
 
 #: warehouse/accounts/views.py:503
-#, fuzzy
 msgid "Invalid token: not a password reset token"
 msgstr "Nieprawidłowy token: to nie jest token do resetowania hasła"
 
