@@ -7,13 +7,14 @@
 # Teofilus Hendry Harianto <teofilushendry5@gmail.com>, 2019.
 # Azharuddin <azhargiri@gmail.com>, 2020.
 # Habib R <revolusi147id@gmail.com>, 2020.
+# Bayu Satiyo <bayusatiyo33617@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-05 22:36+0000\n"
-"Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
+"PO-Revision-Date: 2020-02-11 09:33+0000\n"
+"Last-Translator: Bayu Satiyo <bayusatiyo33617@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -1224,7 +1225,7 @@ msgstr ""
 "  kata sandi."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the\n"
@@ -1232,9 +1233,8 @@ msgid ""
 "  attacks against PyPI and its users."
 msgstr ""
 "PyPI sendiri tidak mengalami pelanggaran. Ini adalah langkah perlindungan "
-"untuk mengurangi\n"
-"  risiko dari <a href=\"%(href)s\">credential stuffing</a>\n"
-"  serangan terhadap PyPI dan penggunanya."
+"untuk mengurangi resiko dari <i><a href=\"%(href)s\">credential "
+"stuffing</a></i> serangan terhadap PyPI dan penggunanya."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -1577,9 +1577,8 @@ msgid "Forks:"
 msgstr "Cabang:"
 
 #: warehouse/templates/includes/packaging/project-data.html:58
-#, fuzzy
 msgid "Open issues/PRs:"
-msgstr "Masalah terbuka/tarik permintaan:"
+msgstr "Buka permasalahan/tarik permintaan:"
 
 #: warehouse/templates/includes/packaging/project-data.html:66
 #, python-format
@@ -1940,8 +1939,8 @@ msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 msgstr ""
-"Aplikasi otentikasi (<abbr title=\"time-based one-time password\">TOTP</"
-"abbr>)"
+"Aplikasi autentikasi (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:442
 #: warehouse/templates/manage/account.html:457
@@ -2260,6 +2259,9 @@ msgid ""
 "\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading new "
 "documentation is no longer supported."
 msgstr ""
+"Jika Anda ingin MENGHANCURKAN dokumentasi yang ada yang dihosting di <a href="
+"\"%(url)s\">% (url) s </a><strong> tidak </strong> dapat dikembalikan, "
+"karena mengunggah dokumentasi baru sudah tidak didukung."
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
@@ -2511,7 +2513,6 @@ msgstr "Proyek ini tidak memiliki rilis"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:77
-#, fuzzy
 msgid "View"
 msgstr "Lihat"
 
@@ -2539,91 +2540,91 @@ msgstr "Rilis versi %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
-msgstr ""
+msgstr "Breadcrumb"
 
 #: warehouse/templates/manage/release.html:26
 #, python-format
 msgid "All %(project_name)s releases"
-msgstr ""
+msgstr "Semua rilisan %(project_name)s"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
-msgstr ""
+msgstr "tampilkan rilisan"
 
 #: warehouse/templates/manage/release.html:34
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
-msgstr ""
+msgstr "Berkas untuk rilisan % (version) s dari % (project_name) s"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
 #: warehouse/templates/packaging/detail.html:285
 #: warehouse/templates/packaging/detail.html:296
 msgid "Filename, size"
-msgstr ""
+msgstr "Nama berkas, ukuran"
 
 #: warehouse/templates/manage/release.html:38
 #: warehouse/templates/manage/release.html:53
 msgid "Type"
-msgstr ""
+msgstr "Tipe"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
 #: warehouse/templates/packaging/detail.html:287
 #: warehouse/templates/packaging/detail.html:307
 msgid "Python version"
-msgstr ""
+msgstr "Versi Python"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
 #: warehouse/templates/packaging/detail.html:288
 #: warehouse/templates/packaging/detail.html:315
 msgid "Upload date"
-msgstr ""
+msgstr "Tanggal unggah"
 
 #: warehouse/templates/manage/release.html:66
 msgid "View file options"
-msgstr ""
+msgstr "Tampilkan pengaturan berkas"
 
 #: warehouse/templates/manage/release.html:72
 msgid "File options"
-msgstr ""
+msgstr "Pengaturan berkas"
 
 #: warehouse/templates/manage/release.html:76
 msgid "Download"
-msgstr ""
+msgstr "Unduh"
 
 #: warehouse/templates/manage/release.html:82
 msgid "View Hashes"
-msgstr ""
+msgstr "Tampilkan Hash"
 
 #: warehouse/templates/manage/release.html:87
 msgid "Delete file from"
-msgstr ""
+msgstr "Hapus berkas dari"
 
 #: warehouse/templates/manage/release.html:89
 msgid "Delete file"
-msgstr ""
+msgstr "Hapus berkas"
 
 #: warehouse/templates/manage/release.html:93
 #: warehouse/templates/manage/releases.html:86
 msgid "Delete"
-msgstr ""
+msgstr "Hapus"
 
 #: warehouse/templates/manage/release.html:114
 msgid "Uploading new files"
-msgstr ""
+msgstr "Mengunggah berkas baru"
 
 #: warehouse/templates/manage/release.html:116
 msgid "No files found"
-msgstr ""
+msgstr "Tidak ada berkas ditemukan"
 
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:110
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
-msgstr ""
+msgstr "Abaikan"
 
 #: warehouse/templates/manage/release.html:119
 #, python-format
@@ -2631,15 +2632,17 @@ msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
 
 #: warehouse/templates/manage/release.html:122
 msgid "Release settings"
-msgstr ""
+msgstr "Pengaturan rilis"
 
 #: warehouse/templates/manage/release.html:125
 #: warehouse/templates/manage/release.html:142
 msgid "Delete release"
-msgstr ""
+msgstr "Hapus rilisan"
 
 #: warehouse/templates/manage/release.html:129
 #, python-format
@@ -2654,10 +2657,14 @@ msgid_plural ""
 "files.\n"
 "      "
 msgstr[0] ""
+"\n"
+"        Penghapusan akan menghapus rilisan ini bersama dengan berkas "
+"%(count)s.\n"
+"      "
 
 #: warehouse/templates/manage/release.html:135
 msgid "Deleting will irreversibly delete this release."
-msgstr ""
+msgstr "Penghapusan akan menghapus rilisan ini."
 
 #: warehouse/templates/manage/release.html:137
 #: warehouse/templates/manage/releases.html:93
