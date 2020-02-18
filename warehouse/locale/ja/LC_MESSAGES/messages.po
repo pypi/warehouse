@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Michael Myers <mike.myers@trailofbits.com>, 2019.
-# komo_fr <komo.mdrms@gmail.com>, 2019.
+# komo_fr <komo.mdrms@gmail.com>, 2019, 2020.
 # Yuta Kanzawa <ytknzw@gmail.com>, 2019.
 # shinji uyama <uyaaan.event@gmail.com>, 2019.
 # Ryo/Liàng KAJI <kaji@code.ac.jp>, 2019.
@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-12-19 13:38+0000\n"
+"PO-Revision-Date: 2020-01-29 12:01+0000\n"
 "Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -935,6 +935,8 @@ msgid ""
 "cannot be used. Please refer to the <a href=\"/help/#compromised-password"
 "\">FAQ</a> for more information."
 msgstr ""
+"このパスワードはセキュリティ違反または侵害を受けているため、使用できません。より多くの情報を得るには、<a href=\"/help/"
+"#compromised-password\">FAQ</a>を参照してください。"
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -3236,10 +3238,9 @@ msgid "Latest version"
 msgstr "最新バージョン"
 
 #: warehouse/templates/packaging/detail.html:124
-#, fuzzy, python-format
-#| msgid "Last released: %(release_date)s"
+#, python-format
 msgid "Released: %(release_date)s"
-msgstr "最終リリース日: %(release_date)s"
+msgstr "リリース日: %(release_date)s"
 
 #: warehouse/templates/packaging/detail.html:136
 msgid "No project description provided"
