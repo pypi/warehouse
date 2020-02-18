@@ -7,13 +7,14 @@
 # Behcet <behcet.senturk@protonmail.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # Çağıl <cagilulusahin@gmail.com>, 2019.
+# Çağatay Onur Şengör <cagataysengor@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-11-11 07:06+0000\n"
-"Last-Translator: Behcet <behcet.senturk@protonmail.com>\n"
+"PO-Revision-Date: 2020-01-28 03:12+0000\n"
+"Last-Translator: Çağatay Onur Şengör <cagataysengor@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.10-dev\n"
+"X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -451,9 +452,8 @@ msgid "RSS: 40 latest updates"
 msgstr "RSS: 40 en son güncellemeler"
 
 #: warehouse/templates/base.html:96
-#, fuzzy
 msgid "RSS: 40 newest packages"
-msgstr "RSS: 40 en yeni paketler"
+msgstr "RSS: en yeni 40 paket"
 
 #: warehouse/templates/base.html:147
 msgid "Skip to main content"
@@ -480,15 +480,13 @@ msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "Tarayıcınız desteklenmiyor, daha güncel bir tarayıcı kullanın."
 
 #: warehouse/templates/base.html:170
-#, fuzzy
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"Şuan TestPyPI' yı kullanıyorsunuz. TestPyPI gerçek dizini etkilemeden "
-"dağıtım araçlarını ve işlemlerini denemenize olanak tanıyan Python Package "
-"Index kopyasıdır."
+"Python Paket Dizini'nin dağıtım araç ve süreçlerini asıl dizini etkilemeden "
+"denemenize olanak tanıyan kopyası TestPyPI'yı kullanmaktasınız."
 
 #: warehouse/templates/base.html:180
 msgid ""
@@ -517,10 +515,8 @@ msgid "Search"
 msgstr "Ara"
 
 #: warehouse/templates/base.html:258
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Help navigation"
-msgstr "Gezinme yardımı"
+msgstr "Yardım menüleri"
 
 #: warehouse/templates/base.html:260
 msgid "Installing packages"
@@ -857,15 +853,7 @@ msgid "Joined on %(start_date)s"
 msgstr "%(start_date)s tarihinde oluşturuldu"
 
 #: warehouse/templates/accounts/profile.html:54
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              %(count)s file\n"
-#| "            "
-#| msgid_plural ""
-#| "\n"
-#| "              %(count)s files\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            %(count)s project\n"
@@ -876,12 +864,12 @@ msgid_plural ""
 "          "
 msgstr[0] ""
 "\n"
-"              %(count)s Dosya\n"
-"            "
+"            %(count)s proje\n"
+"          "
 msgstr[1] ""
 "\n"
-"              %(count)s Dosya\n"
-"            "
+"            %(count)s proje\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:60
 msgid "No projects"
@@ -959,6 +947,9 @@ msgid ""
 "cannot be used. Please refer to the <a href=\"/help/#compromised-password"
 "\">FAQ</a> for more information."
 msgstr ""
+"Seçtiğiniz parola güvenlik ihlali teşkil ettiği ya da sızdırıldığı "
+"gerekçesiyle kullanılamıyor. Bilgi almak istiyorsanız lütfen <a href=\"/help/"
+"#compromised-password\">SSS</a> sayfasını inceleyin."
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
@@ -1503,40 +1494,31 @@ msgid "Statistics"
 msgstr "İstatistikler"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
-#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-#| "BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"Projenizle ilgili istatistikleri <a href=\"%(libs_io_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya <a "
-"href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</a> "
-"aracılığıyla inceleyin"
+"Projelerinizle ilgili istatistikleri <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya <a href="
+"\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery'deki "
+"halka açık veri setimizi</a> kullanarak inceleyin"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for %(username)s's projects via <a href=\"%(libs_io_href)s"
-#| "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</"
-#| "a>, or by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Google BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for %(username)s's projects via <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or "
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"%(username)s'in projelerine ait istatistikleri <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> veya "
-"<a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google BigQuery</"
-"a> kullanarak incele"
+"%(username)s kullanıcısının projelerine ait istatistikleri <a href=\""
+"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">Libraries.io</a> veya <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\""
+"noopener\">Google BigQuery'deki halka açık veri setimizi</a> kullanarak "
+"inceleyin"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -4474,15 +4456,15 @@ msgstr ""
 "bir duruma neden olabilecek üç şey var:"
 
 #: warehouse/templates/pages/help.html:462
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "The project name conflicts with a <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Standard Library</a> module from "
 "any major version from 2.5 to present."
 msgstr ""
-"Projenin ismi ile ana sürüm 2.5 ya da daha yeni bir href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Standard Library</a> "
-"modülü ile çakışıyor."
+"Projenin adı 2.5'ten bugüne yayınlanmış ana sürümlerden birinde yer alan bir "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Python Standart Kütüphanesi</a> modülü ile çakışıyor."
 
 #: warehouse/templates/pages/help.html:463
 #, fuzzy, python-format
