@@ -508,7 +508,7 @@
           <li>{% trans href=request.route_path('accounts.reset-password') %}Go to <a href="{{ href }}">reset your password</a>.{% endtrans %}</li>
           <li>{% trans %}Enter the email address or username you used for PyPI and submit the form.{% endtrans %}</li>
           <li>{% trans %}You'll receive an email with a password reset link.{% endtrans %}</li>
-          <li>{% trans href='https://github.com/pypa/pypi-support/issues/new', title=gettext('External link') %}If you no longer have access to the email address associated with your account, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a>.{% endtrans %}</li>
+          <li>{% trans href='https://github.com/pypa/pypi-support/issues/new?labels=account-recovery&template=account-recovery.md&title=Account+recovery+request', title=gettext('External link') %}If you no longer have access to the email address associated with your account, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a>.{% endtrans %}</li>
         </ol>
         {{ code_of_conduct() }}
 
