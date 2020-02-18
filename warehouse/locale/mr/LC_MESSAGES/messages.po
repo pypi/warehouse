@@ -2,13 +2,13 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Prachi Joshi <josprachi@yahoo.com>, 2019.
+# Prachi Joshi <josprachi@yahoo.com>, 2019, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-12-29 02:56+0000\n"
+"PO-Revision-Date: 2020-02-15 12:25+0000\n"
 "Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
 "Language-Team: Marathi <https://hosted.weblate.org/projects/pypa/warehouse/"
 "mr/>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.10\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/accounts/forms.py:41
@@ -868,11 +868,11 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:45
 #: warehouse/templates/manage/account.html:376
 msgid "Show passwords"
-msgstr ""
+msgstr "पासवर्ड दाखवा"
 
 #: warehouse/templates/accounts/register.html:120
 msgid "Select a password"
-msgstr ""
+msgstr "पासवर्ड निवडा"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
@@ -880,7 +880,7 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:66
 #: warehouse/templates/manage/account.html:407
 msgid "Confirm password"
-msgstr ""
+msgstr "पासवर्डची पुष्टी करा"
 
 #: warehouse/templates/accounts/register.html:157
 msgid ""
@@ -891,32 +891,33 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:162
 msgid "Create account"
-msgstr ""
+msgstr "खाते तयार करा"
 
 #: warehouse/templates/accounts/request-password-reset.html:18
 #: warehouse/templates/accounts/request-password-reset.html:24
 msgid "Password reset"
-msgstr ""
+msgstr "पासवर्ड रीसेट"
 
 #: warehouse/templates/accounts/request-password-reset.html:27
 msgid "To reset your password, enter your username or email."
 msgstr ""
+"आपला पासवर्ड रीसेट करण्यासाठी, आपले वापरकर्तानाव किंवा ईमेल प्रविष्ट करा."
 
 #: warehouse/templates/accounts/request-password-reset.html:39
 msgid "Username or email"
-msgstr ""
+msgstr "वापरकर्तानाव किंवा ईमेल"
 
 #: warehouse/templates/accounts/request-password-reset.html:46
 msgid "Request password reset"
-msgstr ""
+msgstr "पासवर्ड रीसेट विनंती करा"
 
 #: warehouse/templates/accounts/request-password-reset.html:50
 msgid "Reset email sent"
-msgstr ""
+msgstr "रीसेट ईमेल पाठविला"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
 msgid "An email has been sent to your registered email address."
-msgstr ""
+msgstr "आपल्या नोंदणीकृत ईमेल पत्त्यावर ईमेल पाठविला गेला आहे."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
@@ -929,25 +930,25 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:24
 #: warehouse/templates/pages/sitemap.html:34
 msgid "Reset your password"
-msgstr ""
+msgstr "आपला पासवर्ड रीसेट करा"
 
 #: warehouse/templates/accounts/reset-password.html:48
 #: warehouse/templates/manage/account.html:393
 msgid "Select a new password"
-msgstr ""
+msgstr "नवीन पासवर्ड निवडा"
 
 #: warehouse/templates/accounts/reset-password.html:82
 msgid "Reset password"
-msgstr ""
+msgstr "पासवर्ड रीसेट करा"
 
 #: warehouse/templates/accounts/two-factor.html:18
 #: warehouse/templates/accounts/two-factor.html:30
 msgid "Two-factor authentication"
-msgstr ""
+msgstr "द्वि-घटक प्रमाणीकरण"
 
 #: warehouse/templates/accounts/two-factor.html:36
 msgid "Authenticate with a security device (e.g. USB key)"
-msgstr ""
+msgstr "सुरक्षा डिव्हाइससह प्रमाणित करा (उदा. यूएसबी की)"
 
 #: warehouse/templates/accounts/two-factor.html:37
 #: warehouse/templates/manage/account.html:454
@@ -960,21 +961,24 @@ msgstr ""
 #: warehouse/templates/pages/help.html:59
 #: warehouse/templates/pages/help.html:60
 msgid "Beta feature"
-msgstr ""
+msgstr "बीटा वैशिष्ट्य"
 
 #: warehouse/templates/accounts/two-factor.html:40
 msgid ""
 "Connect your security device and click the \"Authenticate with device\" "
 "button."
 msgstr ""
+"आपले सुरक्षा डिव्हाइस कनेक्ट करा आणि \"डिव्हाइससह प्रमाणीकरण करा\" बटणावर "
+"क्लिक करा."
 
 #: warehouse/templates/accounts/two-factor.html:43
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
 msgstr ""
+"सुरक्षा डिव्हाइससह लॉग इन करण्यासाठी जावास्क्रिप्ट सक्षम करा (उदा. यूएसबी की)"
 
 #: warehouse/templates/accounts/two-factor.html:52
 msgid "Authenticate with device"
-msgstr ""
+msgstr "डिव्हाइससह प्रमाणीकरण करा"
 
 #: warehouse/templates/accounts/two-factor.html:56
 #, python-format
@@ -990,15 +994,15 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:73
 msgid "Authenticate with an app"
-msgstr ""
+msgstr "अ‍ॅपसह प्रमाणीकरण करा"
 
 #: warehouse/templates/accounts/two-factor.html:88
 msgid "Enter authentication code"
-msgstr ""
+msgstr "प्रमाणीकरण कोड प्रविष्ट करा"
 
 #: warehouse/templates/accounts/two-factor.html:103
 msgid "Verify"
-msgstr ""
+msgstr "सत्यापित करा"
 
 #: warehouse/templates/accounts/two-factor.html:106
 #, python-format
@@ -1011,7 +1015,7 @@ msgstr ""
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr ""
+msgstr "आपले पायपीआय खाते <strong>%(username)s</strong> हटविले गेले आहे."
 
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
@@ -2079,11 +2083,11 @@ msgstr ""
 #: warehouse/templates/manage/release.html:104
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
-msgstr ""
+msgstr "प्रकल्पाचे नाव"
 
 #: warehouse/templates/manage/documentation.html:39
 msgid "Project documentation"
-msgstr ""
+msgstr "प्रकल्प दस्तऐवजीकरण"
 
 #: warehouse/templates/manage/documentation.html:41
 msgid "Uploading new documentation is no longer supported"
@@ -3139,27 +3143,27 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:49
 msgid "What's a package, project, or release?"
-msgstr ""
+msgstr "पॅकेज, प्रकल्प किंवा प्रकाशन काय आहे?"
 
 #: warehouse/templates/pages/help.html:50
 msgid "How do I install a file (package) from PyPI?"
-msgstr ""
+msgstr "मी PyPI वरून फाइल (पॅकेज) कसे स्थापित करू?"
 
 #: warehouse/templates/pages/help.html:51
 msgid "How do I package and publish my code for PyPI?"
-msgstr ""
+msgstr "मी PyPI साठी माझा कोड पॅकेज आणि प्रकाशित कसा करू?"
 
 #: warehouse/templates/pages/help.html:52
 msgid "What's a trove classifier?"
-msgstr ""
+msgstr "ट्रॉव्ह क्लासिफायर म्हणजे काय?"
 
 #: warehouse/templates/pages/help.html:54
 msgid "Why do I need a verified email address?"
-msgstr ""
+msgstr "मला सत्यापित ईमेल पत्त्याची आवश्यकता का आहे?"
 
 #: warehouse/templates/pages/help.html:55
 msgid "Why is PyPI telling me my password is compromised?"
-msgstr ""
+msgstr "PyPI माझा पासवर्ड तडजोड असल्याचे का सांगत आहे?"
 
 #: warehouse/templates/pages/help.html:56
 msgid "What is two factor authentication and how does it work on PyPI?"
