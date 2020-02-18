@@ -125,6 +125,16 @@
             <i class="fa fa-dumbbell"></i> <span>Squats</span>
           </a>
         </li>
+        <li>
+          <a href="{{ request.route_path('admin.checks.list') }}">
+            <i class="fa fa-check"></i> <span>Checks</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('admin.verdicts.list', _query={'classification':'threat', 'manually_reviewed':'0'}) }}">
+            <i class="fa fa-gavel"></i> <span>Verdicts</span>
+          </a>
+        </li>
       </ul>
     </section>
   </aside>
