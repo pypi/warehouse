@@ -65,6 +65,7 @@
 {% macro statistics() %}{% trans %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endtrans %}{% endmacro %}
 
 {% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
+{% macro invalid_auth() %}{% trans %}Why am I getting a "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
 {% macro tls_deprecation() %}{% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}{% endmacro %}
 {% macro accessibility() %}{% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}{% endmacro %}
 {% macro uploading() %}{% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}{% endmacro %}
@@ -147,6 +148,7 @@
         <ul>
           <li><a href="#uploading">{{ uploading() }}</a></li>
           <li><a href="#login-problem">{{ login_problem() }}</a></li>
+          <li><a href="#invalid-auth">{{ invalid_auth() }}</a></li>
           <li><a href="#tls-deprecation">{{ tls_deprecation() }}</a></li>
           <li><a href="#accessibility">{{ accessibility() }}</a></li>
           <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
@@ -511,6 +513,18 @@
           <li>{% trans href='https://github.com/pypa/pypi-support/issues/new?labels=account-recovery&template=account-recovery.md&title=Account+recovery+request', title=gettext('External link') %}If you no longer have access to the email address associated with your account, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a>.{% endtrans %}</li>
         </ol>
         {{ code_of_conduct() }}
+
+        <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
+        <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
+        <ol>
+          <li>{% trans %}Check to see if your username or password are incorrect.{% endtrans %}</li>
+          <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
+        </ol>
+        <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
+        <ol>
+          <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
+          <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
+        </ol>
 
         <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
         <p>
