@@ -241,6 +241,69 @@
       </div>
       <div class="box">
         <div class="box-header with-border">
+          <h3 class="box-title">2FA</h3>
+        </div>
+        <div>
+          <div class="box-body">
+            <table class="table table-hover">
+              <tr>
+                <th>TOTP Enabled</th>
+                <th>{% if user.totp_secret %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+              </tr>
+              <tr>
+                <th>WebAuthn Enabled</th>
+                <th>{% if user.webauthn %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+              </tr>
+              <tr>
+                <th>Recovery Codes Generated</th>
+                <th>{% if user.has_recovery_codes %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}</th>
+              </tr>
+            </table>
+          </div>
+        </div>
+        {% if user.webauthn %}
+        <div>
+          <div class="box-header with-border">
+            <h3 class="box-title">WebAuthn Keys</h3>
+          </div>
+          <div class="box-body">
+            <table class="table table-hover">
+              <tr>
+                <th>Label</th>
+                <th>Unique Identifier</th>
+              </tr>
+              {% for security_key in user.webauthn %}
+              <tr>
+                <td>{{ security_key.label }}</td>
+                <td>{{ security_key.id }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+        {% endif %}
+        {% if user.has_recovery_codes %}
+        <div>
+          <div class="box-header with-border">
+            <h3 class="box-title">Recovery Codes</h3>
+          </div>
+          <div class="box-body">
+            <table class="table table-hover">
+              <tr>
+                <th>Generated</th>
+                <th>Remaining</th>
+              </tr>
+              <tr>
+                <td>{{ user.recovery_codes[0].generated }}</td>
+                <td>{{ user.recovery_codes|length }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="box">
+        <div class="box-header with-border">
           <h3 class="box-title">Projects</h3>
         </div>
         <div class="box-body">

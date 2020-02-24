@@ -1492,6 +1492,181 @@ class TestProvisionWebAuthn:
         assert result.headers["Location"] == "/foo/bar"
 
 
+class TestProvisionRecoveryCodes:
+    def test_recovery_codes_generate(self):
+        user_service = pretend.stub(
+            has_recovery_codes=lambda user_id: False,
+            has_two_factor=lambda user_id: True,
+            generate_recovery_codes=lambda user_id: ["aaaaaaaaaaaa", "bbbbbbbbbbbb"],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=1),
+            remote_addr="0.0.0.0",
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_generate()
+
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1, tag="account:recovery_codes:generated", ip_address="0.0.0.0"
+            )
+        ]
+
+        assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
+
+    def test_recovery_codes_generate_no_two_factor(self):
+        user_service = pretend.stub(has_two_factor=lambda user_id: False)
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub()),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_generate()
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "You must provision a two factor method before recovery "
+                    "codes can be generated"
+                ),
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_recovery_codes_generate_already_exist(self):
+        user_service = pretend.stub(
+            has_two_factor=lambda user_id: True, has_recovery_codes=lambda user_id: True
+        )
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub()),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_generate()
+
+        assert result == {
+            "recovery_codes": None,
+            "_error": "Recovery codes already generated",
+            "_message": (
+                "Generating new recovery codes will invalidate your existing codes."
+            ),
+        }
+
+    def test_recovery_codes_regenerate(self, monkeypatch):
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: pretend.stub(validate=lambda: True)
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
+
+        user_service = pretend.stub(
+            has_recovery_codes=lambda user_id: True,
+            has_two_factor=lambda user_id: True,
+            generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            POST={"confirm_password": "correct password"},
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=1, username="username"),
+            remote_addr="0.0.0.0",
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_regenerate()
+
+        assert user_service.record_event.calls == [
+            pretend.call(
+                1, tag="account:recovery_codes:regenerated", ip_address="0.0.0.0"
+            )
+        ]
+
+        assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
+
+    def test_recovery_codes_regenerate_no_two_factor(self, monkeypatch):
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: pretend.stub(validate=lambda: True)
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
+
+        user_service = pretend.stub(
+            has_two_factor=lambda user_id: False,
+            generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            POST={"confirm_password": "correct password"},
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=1, username="username"),
+            remote_addr="0.0.0.0",
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_regenerate()
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                (
+                    "You must provision a two factor method before recovery "
+                    "codes can be generated"
+                ),
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+
+        assert isinstance(result, HTTPSeeOther)
+
+    def test_recovery_codes_regenerate_wrong_confirm(self, monkeypatch):
+        confirm_password_cls = pretend.call_recorder(
+            lambda *a, **kw: pretend.stub(validate=lambda: False)
+        )
+        monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
+
+        user_service = pretend.stub(has_two_factor=lambda user_id: True)
+        request = pretend.stub(
+            POST={"confirm_password": "wrong password"},
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(id=pretend.stub(), username="username"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        )
+
+        view = views.ProvisionRecoveryCodesViews(request)
+        result = view.recovery_codes_regenerate()
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid credentials. Try again", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+
+
 class TestProvisionMacaroonViews:
     def test_default_response(self, monkeypatch):
         create_macaroon_obj = pretend.stub()
