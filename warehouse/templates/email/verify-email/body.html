@@ -17,7 +17,7 @@
 {% block content %}
 <p>{% trans email_address=email_address %}Someone, perhaps you, has added this email address (<code>{{ email_address }}</code>) to their PyPI account.{% endtrans %}</p>
 
-<p>{% trans href=request.route_url('accounts.verify-email', _query={'token': token}) %}If you wish to proceed with this request, <a href="{{ href }}">click this link to verify your email address</a>{% endtrans %}</p>
+<p>{% trans href=request.route_url('accounts.verify-email', _query={'token': token}) %}If you wish to proceed with this request, <a href="{{ href }}">click this link to verify your email address</a>.{% endtrans %}</p>
 
 <p>{% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hour.{% pluralize %}This link will expire in {{ n_hours }} hours.{% endtrans %}</p>
 
