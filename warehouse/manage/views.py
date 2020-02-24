@@ -38,6 +38,8 @@ from warehouse.email import (
     send_email_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
+    send_two_factor_added_email,
+    send_two_factor_removed_email,
 )
 from warehouse.i18n import localize as _
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -461,6 +463,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Authentication application successfully set up", queue="success"
             )
+            send_two_factor_added_email(self.request, self.request.user, method="totp")
 
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -499,6 +502,9 @@ class ProvisionTOTPViews:
                 "Authentication application removed from PyPI. "
                 "Remember to remove PyPI from your application.",
                 queue="success",
+            )
+            send_two_factor_removed_email(
+                self.request, self.request.user, method="totp"
             )
         else:
             self.request.session.flash("Invalid credentials. Try again", queue="error")
@@ -575,6 +581,10 @@ class ProvisionWebAuthnViews:
             self.request.session.flash(
                 "Security device successfully set up", queue="success"
             )
+            send_two_factor_added_email(
+                self.request, self.request.user, method="webauthn"
+            )
+
             return {"success": "Security device successfully set up"}
 
         errors = [
@@ -610,6 +620,9 @@ class ProvisionWebAuthnViews:
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
+            send_two_factor_removed_email(
+                self.request, self.request.user, method="webauthn"
+            )
         else:
             self.request.session.flash("Invalid credentials", queue="error")
 

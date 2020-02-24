@@ -251,6 +251,26 @@ class TestAuthenticate:
         assert service.get_user.calls == [pretend.call(1)]
 
 
+class TestSessionAuthenticate:
+    def test_route_matched_name_bad(self, monkeypatch):
+        authenticate_obj = pretend.call_recorder(lambda *a, **kw: True)
+        monkeypatch.setattr(accounts, "_authenticate", authenticate_obj)
+        request = pretend.stub(
+            matched_route=pretend.stub(name="forklift.legacy.file_upload")
+        )
+        assert accounts._session_authenticate(1, request) is None
+        assert authenticate_obj.calls == []
+
+    def test_route_matched_name_ok(self, monkeypatch):
+        authenticate_obj = pretend.call_recorder(lambda *a, **kw: True)
+        monkeypatch.setattr(accounts, "_authenticate", authenticate_obj)
+        request = pretend.stub(
+            matched_route=pretend.stub(name="includes.current-user-indicator")
+        )
+        assert accounts._session_authenticate(1, request) is True
+        assert authenticate_obj.calls == [pretend.call(1, request)]
+
+
 class TestUser:
     def test_with_user(self):
         user = pretend.stub()
@@ -333,7 +353,9 @@ def test_includeme(monkeypatch):
     assert config.set_authentication_policy.calls == [pretend.call(authn_obj)]
     assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
     assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_login)]
-    assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
+    assert session_authn_cls.calls == [
+        pretend.call(callback=accounts._session_authenticate)
+    ]
     assert authn_cls.calls == [
         pretend.call([session_authn_obj, basic_authn_obj, macaroon_authn_obj])
     ]

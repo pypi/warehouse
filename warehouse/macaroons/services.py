@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import binascii
 import datetime
 import json
 import uuid
@@ -77,6 +78,8 @@ class DatabaseMacaroonService:
 
         try:
             m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        except binascii.Error:
+            return None
         except MacaroonDeserializationException:
             return None
 
