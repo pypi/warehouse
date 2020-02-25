@@ -177,9 +177,7 @@ stop:
 compile-pot: .state/env/pyvenv.cfg
 	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
 		-F babel.cfg \
-		--copyright-holder="PyPA" \
-		--msgid-bugs-address="https://github.com/pypa/warehouse/issues/new" \
-		--project="Warehouse" \
+		--omit-header \
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
