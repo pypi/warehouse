@@ -207,4 +207,10 @@ build-mos: compile-pot
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
 
+translations: compile-pot
+ifneq ($(TRAVIS), false)
+	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
+else
+endif
+
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
