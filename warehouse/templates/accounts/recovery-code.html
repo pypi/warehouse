@@ -55,8 +55,8 @@
             <input type="submit" value="{% trans %}Verify{% endtrans %}" class="button button--primary">
           </div>
 
+          <p>{% trans %}PyPI allows for generating recovery codes to be stored securely offline in the event that your device or application is lost. Enter one of these codes in the form to verify your identity. Once used, the recovery code will no longer be valid.{% endtrans %}</p>
           {% trans trimmed href='/help/#recovery_code' %}
-          <p>PyPI allows for generating recovery codes to be stored securely offline in the event that your device or application is lost. Enter one of these codes in the form to verify your identity. Once used, the recovery code will no longer be valid.</p>
           <p>Not working? <a href="{{ href }}">Get help</a>.</p>
           {% endtrans %}
         </form>
