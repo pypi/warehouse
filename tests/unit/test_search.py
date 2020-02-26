@@ -203,4 +203,3 @@ class TestQueries:
         assert query_dict["sort"] == [
             {"created": {"order": "desc", "unmapped_type": "long"}}
         ]
-
