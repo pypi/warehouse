@@ -83,6 +83,7 @@
   extra_fields=None,
   extra_description=None,
   action=None,
+  method="POST",
   warning=True,
   custom_warning_text="",
   confirm_string_in_title="True")
@@ -93,7 +94,7 @@
         <i class="fa fa-times" aria-hidden="true"></i>
         <span class="sr-only">{% trans %}Close{% endtrans %}</span>
       </a>
-      <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
+      <form method="{{ method }}" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         {{ extra_fields if extra_fields else '' }}
         <div class="modal__body">

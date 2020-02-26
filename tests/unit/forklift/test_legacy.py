@@ -3139,6 +3139,7 @@ class TestFileUpload:
 
     def test_fails_without_user(self, pyramid_config, pyramid_request):
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
         pyramid_config.testing_securitypolicy(userid=None)
 
         with pytest.raises(HTTPForbidden) as excinfo:
@@ -3148,7 +3149,8 @@ class TestFileUpload:
 
         assert resp.status_code == 403
         assert resp.status == (
-            "403 Invalid or non-existent authentication information."
+            "403 Invalid or non-existent authentication information. "
+            "See /the/help/url/ for details"
         )
 
 
