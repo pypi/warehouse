@@ -1,25 +1,28 @@
 # Translations template for Warehouse.
-# Copyright (C) 2019 PyPA
+# Copyright (C) 2020 PyPA
 # This file is distributed under the same license as the Warehouse project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Helen Bire <helenapocali@gmail.com>, 2019.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+# Pro Neon <proneon267@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: am\n"
+"PO-Revision-Date: 2020-02-12 09:32+0000\n"
+"Last-Translator: Pro Neon <proneon267@gmail.com>\n"
+"Language-Team: Odia <https://hosted.weblate.org/projects/pypa/warehouse/or/"
+">\n"
+"Language: or\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.11-dev\n"
+"Generated-By: Babel 2.8.0\n"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
-msgstr ""
+msgstr "ଏହି ଉପଭୋକ୍ତା ନାମରେ କୌଣସି ଉପଭୋକ୍ତା ନାହାନ୍ତି"
 
 #: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
@@ -27,7 +30,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:79
 msgid "Choose a username with 50 characters or less."
-msgstr ""
+msgstr "ଏକ ଉପଭୋକ୍ତା ନାମ ବାଛନ୍ତୁ ଯାହା ୫୦ ବର୍ଣ୍ଣ କିମ୍ୱା ଅଧିକ ର ଥିବ।"
 
 #: warehouse/accounts/forms.py:85
 msgid ""
