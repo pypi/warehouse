@@ -1143,14 +1143,14 @@ class TestRemovedPackageEmail:
         assert result == {
             "project": "test_project",
             "submitter": stub_submitter_user.username,
-            "submitter_role": "Owner",
+            "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
         }
 
         subject_renderer.assert_(project="test_project")
         body_renderer.assert_(project="test_project")
         body_renderer.assert_(submitter=stub_submitter_user.username)
-        body_renderer.assert_(submitter_role="Owner")
+        body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="a maintainer")
 
         assert pyramid_request.task.calls == [
@@ -1235,14 +1235,14 @@ class TestRemovedPackageEmail:
         assert result == {
             "project": "test_project",
             "submitter": stub_submitter_user.username,
-            "submitter_role": "Owner",
+            "submitter_role": "owner",
             "recipient_role_descr": "an owner",
         }
 
         subject_renderer.assert_(project="test_project")
         body_renderer.assert_(project="test_project")
         body_renderer.assert_(submitter=stub_submitter_user.username)
-        body_renderer.assert_(submitter_role="Owner")
+        body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="an owner")
 
         assert pyramid_request.task.calls == [
@@ -1338,7 +1338,7 @@ class TestRemovedReleaseEmail:
             "release": release.version,
             "release_date": release.created.strftime("%Y-%m-%d"),
             "submitter": stub_submitter_user.username,
-            "submitter_role": "Owner",
+            "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
         }
 
@@ -1348,7 +1348,7 @@ class TestRemovedReleaseEmail:
         body_renderer.assert_(release="0.0.0")
         body_renderer.assert_(release_date=release.created.strftime("%Y-%m-%d"))
         body_renderer.assert_(submitter=stub_submitter_user.username)
-        body_renderer.assert_(submitter_role="Owner")
+        body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="a maintainer")
 
         assert pyramid_request.task.calls == [
@@ -1442,7 +1442,7 @@ class TestRemovedReleaseEmail:
             "release": release.version,
             "release_date": release.created.strftime("%Y-%m-%d"),
             "submitter": stub_submitter_user.username,
-            "submitter_role": "Owner",
+            "submitter_role": "owner",
             "recipient_role_descr": "an owner",
         }
 
@@ -1452,7 +1452,7 @@ class TestRemovedReleaseEmail:
         body_renderer.assert_(release="0.0.0")
         body_renderer.assert_(release_date=release.created.strftime("%Y-%m-%d"))
         body_renderer.assert_(submitter=stub_submitter_user.username)
-        body_renderer.assert_(submitter_role="Owner")
+        body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="an owner")
 
         assert pyramid_request.task.calls == [
