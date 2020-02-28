@@ -188,8 +188,6 @@ class GCSFileStorage(GenericFileStorage):
     def store(self, path, file_path, *, meta=None):
         path = self._get_path(path)
         blob = self.bucket.blob(path)
-        blob.upload_from_filename(file_path)
-
         if meta is not None:
             blob.metadata = meta
-            blob.patch()
+        blob.upload_from_filename(file_path)

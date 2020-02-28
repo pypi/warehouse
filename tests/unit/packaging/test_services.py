@@ -352,7 +352,6 @@ class TestGCSFileStorage:
         storage.store("foo/bar.txt", filename, meta=meta)
 
         assert blob.metadata == meta
-        assert blob.patch.calls == [pretend.call()]
 
 
 class TestS3DocsStorage:
