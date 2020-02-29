@@ -252,9 +252,60 @@ msgstr "मोंटी पाइथन - चीज़ शॉप स्केच
 #: warehouse/templates/packaging/detail.html:279
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
+#, python-format
+msgid ""
+"All users submitting feedback, reporting issues or contributing to "
+"Warehouse are expected to follow the <a href="\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPA Code of Conduct</a>."
+msgstr ""
+"सभी उपयोगकर्ता जो वेयरहाउस में प्रतिक्रिया, रिपोर्टिंग मुद्दों या कोई भी योगदान देते हैं उनसे <a href="
+"\"%(href)s\" \"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPA के आचरण "
+"पालन कि</a>. अपेक्षा की जाती है।"
+
 #: warehouse/templates/pages/help.html:31
+#, python-format
+msgid ""
+"If you lose your \"%(method)s\" and can no longer log in, the PyPI team "
+"<strong>cannot</strong> currently help you recover your account. We plan "
+"to develop a <a href="\"%(policy_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">manual account recovery policy</a> and implement "
+"<a href=\"%(recovery_codes_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">account recovery codes</a>"
+msgstr ""
+अगर आप अपना \"%(method)s\" खो कर लॉगिन करने में असमर्थ हैं, तो PyPI टीम वर्तमान में आपको "
+"खाता यथावत स्थापित करने में <strong>सहायता नहीं कर सकती<strong>। हम खातो को <a href="
+"\"%(recovery_codes_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">रिकवरी कोड</a> द्वारा यथावत <a href="\"%(policy_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">स्थापना की अवचालित विधियो</a> "
+"को बनाने की मंशा रखते हैं"
+
 #: warehouse/templates/pages/help.html:185
+#, python-format
+msgid ""
+"To learn how to install a file from PyPI, visit the <a href=\"%(installation_"
+"href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">installation "
+"tutorial</a> on the <a href=\"%(user_guide_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Python Packaging User Guide"
+msgstr ""
+"PyPI से कोई फाइल संस्थापित करना सीखने के लिए, <a href=\"%(user_guide_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">पाइथन संकलन उपयोगकर्ता कुंजी</a> के "
+"<a href=\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">स्थापना स्वाध्याय पाठ</a> पर जाएं"
+
 #: warehouse/templates/pages/help.html:192
+#, python-format
+msgid ""
+"For full instructions on configuring, packaging and distributing your Python "
+"project, refer to the <a href=\"%(packaging_tutorial_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">packaging tutorial</a> on the <a href="
+"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
+"Packaging User Guide</a>."
+msgstr ""
+"अपनी पाइथन परियोजना का आयोजन, एकत्रीकरण तथा वितरण के सभी निर्देशों को जानने के लिए, <a href="
+"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">पाइथन "
+"संकलन उपयोगकर्ता कुंजी</a> के <a href=\"%(packaging_tutorial_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">एकत्रीकरण स्वाध्याय पाठ</a> पर जाएं"
+
 #: warehouse/templates/pages/help.html:215
 #: warehouse/templates/pages/help.html:219
 #: warehouse/templates/pages/help.html:254
@@ -1183,20 +1234,20 @@ msgstr "मैं आपसे कैसे संपर्क कर सकत�
 #, python-format
 msgid ""
 "For more information, you can email %(email_address)s to communicate with\n"
-"  the PyPI administrators."
+" the PyPI administrators."
 msgstr ""
-"अधिक जानकारी के लिए, PyPI व्यवस्थापक से आप %(email_address)s  पर \n"
+"अधिक जानकारी के लिए, PyPI व्यवस्थापक से आप %(email_address)s पर \n"
 "ईमेल कर सकते हैं।"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
 msgid ""
 "During your recent attempt to log in or upload to PyPI, we noticed your "
 "password appears\n"
-"  in public data breaches. To protect you and other users, we have "
+" in public data breaches. To protect you and other users, we have "
 "preemptively reset your\n"
-"  password and you will no longer be able to log in or upload to PyPI with "
+" password and you will no longer be able to log in or upload to PyPI with "
 "your existing\n"
-"  password."
+" password."
 msgstr ""
 "PyPI पर आपके हाल ही में किये लॉग इन या अपलोड के प्रयास के दौरान, हमने आपका पासवर्ड "
 "सार्वजनिक डेटा \n"
