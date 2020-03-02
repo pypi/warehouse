@@ -44,6 +44,7 @@ pyramid_tm>=0.12
 raven
 readme_renderer[md]>=0.7.0
 requests
+requests-aws4auth
 redis>=2.8.0
 rfc3986
 setuptools
