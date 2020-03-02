@@ -169,25 +169,25 @@ msgstr ""
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/manage/views.py:187
+#: warehouse/manage/views.py:188
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
+#: warehouse/manage/views.py:669 warehouse/manage/views.py:705
 msgid ""
 "You must provision a two factor method before recovery codes can be "
 "generated"
 msgstr ""
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:680
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:680
+#: warehouse/manage/views.py:681
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:730
+#: warehouse/manage/views.py:731
 msgid "Invalid credentials. Try again"
 msgstr ""
 
