@@ -201,6 +201,8 @@ def configure(settings=None):
     maybe_set(settings, "tuf.snapshot.secret", "TUF_SNAPSHOT_SECRET")
     maybe_set(settings, "tuf.targets.secret", "TUF_TARGETS_SECRET")
     maybe_set(settings, "tuf.timestamp.secret", "TUF_TIMESTAMP_SECRET")
+    maybe_set(settings, "tuf.bins.secret", "TUF_BINS_SECRET")
+    maybe_set(settings, "tuf.bin-n.secret", "TUF_BIN_N_SECRET")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")

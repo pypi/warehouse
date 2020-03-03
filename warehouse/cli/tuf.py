@@ -10,12 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import shutil
+
 import click
 
 from tuf import repository_tool
 
 from warehouse.cli import warehouse
 
+TUF_REPO = "warehouse/tuf/dist"
 TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 
 
@@ -49,7 +53,9 @@ def new_repo(config):
     Initialize the TUF repository from scratch, including a brand new root.
     """
 
-    repository = repository_tool.create_new_repository("warehouse/tuf/dist")
+    repository = repository_tool.create_new_repository(TUF_REPO)
+
+    # TODO: Create the bins role, as well as every (all 16k) bin-n roles.
 
     for role in TOPLEVEL_ROLES:
         key_service_class = config.maybe_dotted(config.registry.settings["tuf.backend"])
@@ -77,6 +83,18 @@ def new_repo(config):
             role,
             consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
         )
+
+    # Copy the "staged" metadata directory to the actual metadata directory.
+    shutil.copytree(
+        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME),
+        os.path.join(TUF_REPO, repository_tool.METADATA_DIRECTORY_NAME),
+    )
+
+    # Remove the staged metadata. After this point, the current repository object
+    # is no longer valid.
+    shutil.rmtree(
+        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME)
+    )
 
 
 @tuf.command()

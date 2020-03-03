@@ -23,6 +23,8 @@ def includeme(config):
             "tuf.snapshot.threshold": 1,
             "tuf.targets.threshold": 1,
             "tuf.timestamp.threshold": 1,
+            "tuf.bins.threshold": 1,
+            "tuf.bin-n.threshold": 1,
             "tuf.spec_version": "1.0.0",
         }
     )
