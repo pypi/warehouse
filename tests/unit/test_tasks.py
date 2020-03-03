@@ -176,7 +176,7 @@ class TestWarehouseTask:
 
         assert obj.get_request() is pyramid_env["request"]
 
-    def test_run_creates_transaction(self):
+    def test_run_creates_transaction(self, metrics):
         result = pretend.stub()
         arg = pretend.stub()
         kwarg = pretend.stub()
@@ -185,7 +185,8 @@ class TestWarehouseTask:
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            )
+            ),
+            find_service=lambda *a, **kw: metrics,
         )
 
         @pretend.call_recorder
@@ -194,7 +195,11 @@ class TestWarehouseTask:
             assert kwarg_ is kwarg
             return result
 
-        task_type = type("Foo", (tasks.WarehouseTask,), {"run": staticmethod(run)})
+        task_type = type(
+            "Foo",
+            (tasks.WarehouseTask,),
+            {"name": "warehouse.test.task", "run": staticmethod(run)},
+        )
 
         obj = task_type()
         obj.get_request = lambda: request
@@ -203,8 +208,14 @@ class TestWarehouseTask:
         assert run.calls == [pretend.call(arg, kwarg_=kwarg)]
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [pretend.call(None, None, None)]
+        assert metrics.timed.calls == [
+            pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
+        ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.complete", tags=["task:warehouse.test.task"])
+        ]
 
-    def test_run_retries_failed_transaction(self):
+    def test_run_retries_failed_transaction(self, metrics):
         class RetryThisException(RetryableException):
             pass
 
@@ -217,14 +228,19 @@ class TestWarehouseTask:
         task_type = type(
             "Foo",
             (tasks.WarehouseTask,),
-            {"run": staticmethod(run), "retry": lambda *a, **kw: Retry()},
+            {
+                "name": "warehouse.test.task",
+                "run": staticmethod(run),
+                "retry": lambda *a, **kw: Retry(),
+            },
         )
 
         request = pretend.stub(
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            )
+            ),
+            find_service=lambda *a, **kw: metrics,
         )
 
         obj = task_type()
@@ -235,21 +251,32 @@ class TestWarehouseTask:
 
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [pretend.call(Retry, mock.ANY, mock.ANY)]
+        assert metrics.timed.calls == [
+            pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
+        ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
+        ]
 
-    def test_run_doesnt_retries_failed_transaction(self):
+    def test_run_doesnt_retries_failed_transaction(self, metrics):
         class DontRetryThisException(Exception):
             pass
 
         def run():
             raise DontRetryThisException
 
-        task_type = type("Foo", (tasks.WarehouseTask,), {"run": staticmethod(run)})
+        task_type = type(
+            "Foo",
+            (tasks.WarehouseTask,),
+            {"name": "warehouse.test.task", "run": staticmethod(run)},
+        )
 
         request = pretend.stub(
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            )
+            ),
+            find_service=lambda *a, **kw: metrics,
         )
 
         obj = task_type()
@@ -261,6 +288,12 @@ class TestWarehouseTask:
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
             pretend.call(DontRetryThisException, mock.ANY, mock.ANY)
+        ]
+        assert metrics.timed.calls == [
+            pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
+        ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.failed", tags=["task:warehouse.test.task"])
         ]
 
     def test_after_return_without_pyramid_env(self):
@@ -468,8 +501,11 @@ def test_includeme(env, ssl, broker_url, expected_url, transport_options):
         "task_serializer": "json",
         "accept_content": ["json", "msgpack"],
         "task_queue_ha_policy": "all",
-        "task_queues": (Queue("default", routing_key="task.#"),),
-        "task_routes": ([]),
+        "task_queues": (
+            Queue("default", routing_key="task.#"),
+            Queue("malware", routing_key="malware.#"),
+        ),
+        "task_routes": {"warehouse.malware.tasks.*": {"queue": "malware"}},
         "REDBEAT_REDIS_URL": (config.registry.settings["celery.scheduler_url"]),
     }.items():
         assert app.conf[key] == value

@@ -28,18 +28,21 @@
   <div class="callout-block">
     <p>
       <strong>{% trans %}Note:{% endtrans %}</strong>
-      {% trans trimmed method=method, policy_href='https://github.com/pypa/warehouse/issues/5758', recovery_codes_href='https://github.com/pypa/warehouse/issues/5800', title=gettext('External link') %}
-        If you lose your {{ method }} and can no longer log in, the PyPI team <strong>cannot</strong> currently help you recover your account.
-        We plan to develop a <a href="{{ policy_href }}" title="{{ title }}" target="_blank" rel="noopener">manual account recovery policy</a>
-        and implement <a href="{{ recovery_codes_href }}" title="{{ title }}" target="_blank" rel="noopener">account recovery codes</a>
-        to address this issue.
+      {% trans trimmed method=method %}
+        If you lose your {{ method }} and can no longer log in, you may <strong>permanently lose access to your account</strong>.
+        You should generate and securely store <a href="#recoverycodes">recovery codes</a> to regain access in that event..
       {% endtrans %}
     </p>
     <p>
-      {% trans %}
-        In the short term, we recommend that all PyPI users set up <em>both</em>
-        supported two factor authentication methods - using an authentication
-        application <em>and</em> setting up a security device (e.g. USB key).
+      {% trans trimmed %}
+        We recommend that all PyPI users set up <em>at least two</em> supported two factor authentication methods
+        and provision <a href="#recoverycodes">recovery codes</a>.
+      {% endtrans %}
+    </p>
+    <p>
+      {% trans trimmed %}
+        If you've lost access to all two factor methods for your account and do not have <a href="#recoverycodes">recovery codes</a>,
+        you can request help <a href="#account-recovery">with account recovery</a>.
       {% endtrans %}
     </p>
   </div>
@@ -57,6 +60,7 @@
 {% macro totp() %}{% trans %}How does two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro utfkey() %}{% trans %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro utfdevices() %}{% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %}{% endmacro %}
+{% macro recoverycodes() %}{% trans %}How does two factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
 
 {% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
@@ -65,6 +69,8 @@
 {% macro statistics() %}{% trans %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endtrans %}{% endmacro %}
 
 {% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
+{% macro account_recovery() %}{% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}{% endmacro %}
+{% macro invalid_auth() %}{% trans %}Why am I getting a "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
 {% macro tls_deprecation() %}{% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}{% endmacro %}
 {% macro accessibility() %}{% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}{% endmacro %}
 {% macro uploading() %}{% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}{% endmacro %}
@@ -115,6 +121,7 @@
           <li><a href="#totp">{{ totp() }}</a></li>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
+          <li><a href="#recoverycodes">{{ recoverycodes() }}</a></li>
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
         </ul>
       </section>
@@ -147,6 +154,8 @@
         <ul>
           <li><a href="#uploading">{{ uploading() }}</a></li>
           <li><a href="#login-problem">{{ login_problem() }}</a></li>
+          <li><a href="#account-recovery">{{ account_recovery() }}</a></li>
+          <li><a href="#invalid-auth">{{ invalid_auth() }}</a></li>
           <li><a href="#tls-deprecation">{{ tls_deprecation() }}</a></li>
           <li><a href="#accessibility">{{ accessibility() }}</a></li>
           <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
@@ -392,12 +401,41 @@
           {% endtrans %}
         </p>
 
+        <h3 id="recoverycodes">{{ recoverycodes() }}</h3>
+
+        <p>
+          {% trans %}If you lose access to your <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>, you can use these codes to sign into PyPI.{% endtrans %}
+        </p>
+        <p>
+          {% trans trimmed %}
+            Recovery codes are <strong>one time use</strong>. They are not a substitute for a <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>
+            and should only be used for recovery. After using a recovery code to sign in, it becomes inactive.
+          {% endtrans %}
+        </p>
+
+        <p><strong>{% trans %}To provision recovery codes:{% endtrans %}</strong></p>
+        <ol>
+          <li>{% trans %}Log in to your PyPI account, go to your account settings, and choose "Generate recovery codes"{% endtrans %}</li>
+          <li>{% trans %}Securely store the displayed recovery codes! Consider printing them out and storing them in a safe location or saving them in a password manager.{% endtrans %}</li>
+        </ol>
+
+        <p>{% trans %}If you lose access to your stored recovery codes or use all of them, you can get new ones by selecting "Regenerate recovery codes" in your account settings.{% endtrans %}</p>
+
+        <p><strong>{% trans %}To sign in with a recovery code:{% endtrans %}</strong></p>
+        <ol>
+          <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
+          <li>{% trans %}When prompted for Two-Factor Authentication, select "Login using a Recovery Code"{% endtrans %}</li>
+          <li>{% trans %}As each code can be used only once, you might want to mark the code as used{% endtrans %}</li>
+          <li>{% trans %}If you have few recovery codes remaining, you may also want to generate a new set using the "Regenerate recovery codes" button in your account settings.{% endtrans %}</li>
+        </ol>
+
         <h3 id="apitoken">{{ apitoken() }}</h3>
 
         {% trans %}
           <p>API tokens provide an alternative way (instead of username and password) to authenticate when <strong>uploading packages</strong> to PyPI.</p>
           <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
           <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
+
         {% endtrans %}
 
         <p>{% trans %}To make an API token:{% endtrans %}</p>
@@ -508,9 +546,33 @@
           <li>{% trans href=request.route_path('accounts.reset-password') %}Go to <a href="{{ href }}">reset your password</a>.{% endtrans %}</li>
           <li>{% trans %}Enter the email address or username you used for PyPI and submit the form.{% endtrans %}</li>
           <li>{% trans %}You'll receive an email with a password reset link.{% endtrans %}</li>
-          <li>{% trans href='https://github.com/pypa/pypi-support/issues/new', title=gettext('External link') %}If you no longer have access to the email address associated with your account, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a>.{% endtrans %}</li>
         </ol>
         {{ code_of_conduct() }}
+
+        <h3 id="account-recovery">{{ account_recovery() }}</h3>
+        <p>{% trans %}If you've lost access to your PyPI account due to:{% endtrans %}</p>
+        <ul>
+          <li>{% trans %}Lost access to the email address associated with your account{% endtrans %}</li>
+          <li>{% trans %}Lost two factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}</li>
+        </ul>
+        <p>
+          {% trans trimmed href='https://github.com/pypa/pypi-support/issues/new?labels=account-recovery&template=account-recovery.md&title=Account+recovery+request', title=gettext('External link') %}
+            You can proceed to, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
+          {% endtrans %}
+        </p>
+        {{ code_of_conduct() }}
+
+        <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
+        <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
+        <ol>
+          <li>{% trans %}Check to see if your username or password are incorrect.{% endtrans %}</li>
+          <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
+        </ol>
+        <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
+        <ol>
+          <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
+          <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
+        </ol>
 
         <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
         <p>
