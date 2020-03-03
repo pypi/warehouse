@@ -14,6 +14,7 @@ import urllib.parse
 
 import certifi
 import elasticsearch
+import requests_aws4auth
 
 from celery.schedules import crontab
 from elasticsearch_dsl import serializer
@@ -80,15 +81,26 @@ def es(request):
 def includeme(config):
     p = urllib.parse.urlparse(config.registry.settings["elasticsearch.url"])
     qs = urllib.parse.parse_qs(p.query)
-    config.registry["elasticsearch.client"] = elasticsearch.Elasticsearch(
-        [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
-        verify_certs=True,
-        ca_certs=certifi.where(),
-        timeout=2,
-        retry_on_timeout=False,
-        serializer=serializer.serializer,
-        max_retries=1,
-    )
+    kwargs = {
+        "hosts": [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
+        "verify_certs": True,
+        "ca_certs": certifi.where(),
+        "timeout": 2,
+        "retry_on_timeout": False,
+        "serializer": serializer.serializer,
+        "max_retries": 1,
+    }
+    aws_auth = bool(qs.get("aws_auth", False))
+    if aws_auth:
+        aws_region = qs.get("region", ["us-east-1"])[0]
+        kwargs["connection_class"] = elasticsearch.RequestsHttpConnection
+        kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
+            config.registry.settings["aws.key_id"],
+            config.registry.settings["aws.secret_key"],
+            aws_region,
+            "es",
+        )
+    config.registry["elasticsearch.client"] = elasticsearch.Elasticsearch(**kwargs)
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
     config.registry["elasticsearch.replicas"] = int(qs.get("replicas", ["0"])[0])
