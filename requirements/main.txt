@@ -165,9 +165,9 @@ cssselect==1.1.0 \
 cssutils==1.0.2 \
     --hash=sha256:a2fcf06467553038e98fea9cfe36af2bf14063eb147a70958cfcaa8f5786acaf \
     --hash=sha256:c74dbe19c92f5052774eadb15136263548dd013250f1ed1027988e7fef125c8d
-datadog==0.33.0 \
-    --hash=sha256:22d3c935e83de02b64efed635ac5fb45db26e152ac759105ec6d5a7ed8b9f6a9 \
-    --hash=sha256:bce73f33a4496b004402baa502251150e3b48a48f610ff89d4cd110b366ee0ab
+datadog==0.34.1 \
+    --hash=sha256:186b25a51e160e4d6ee599c647d83dca60d6889f852e07e552fdad18b0d0b6f5 \
+    --hash=sha256:3bd8cc3d6915c6ac74c68093068b903de3fae22b8dd3d31480bfc2092a1f51d7
 decorator==4.4.1 \
     --hash=sha256:54c38050039232e1db4ad7375cfce6748d7b41c29e95a081c8a6d2c30364a2ce \
     --hash=sha256:5d19b92a3c8f7f101c8dd86afd86b0f061a8ce4540ab8cd401fa2542756bce6d
@@ -549,8 +549,9 @@ s3transfer==0.3.3 \
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c
-sqlalchemy-citext==1.3.post0 \
-    --hash=sha256:7d7343037a35153d6f94c3c2f6baf391f88a57651c3bde5d6749d216859ae4c5
+sqlalchemy-citext==1.5.post0 \
+    --hash=sha256:0bc64312bcc0e83f98c5fa2ddf1c0794ea1bc39e71aa60ab08d0fed8535fd46d \
+    --hash=sha256:f7613627194c05539e40f6083a20d3464a4b4f0e0966efcb3a181d549bc260ce
 sqlalchemy==1.3.13 \
     --hash=sha256:64a7b71846db6423807e96820993fa12a03b89127d278290ca25c0b11ed7b4fb
 stdlib-list==0.6.0 \
