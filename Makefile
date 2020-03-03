@@ -177,9 +177,7 @@ stop:
 compile-pot: .state/env/pyvenv.cfg
 	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
 		-F babel.cfg \
-		--copyright-holder="PyPA" \
-		--msgid-bugs-address="https://github.com/pypa/warehouse/issues/new" \
-		--project="Warehouse" \
+		--omit-header \
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
@@ -208,5 +206,11 @@ build-mos: compile-pot
 		fi ; \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
+
+translations: compile-pot
+ifneq ($(TRAVIS), false)
+	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
+else
+endif
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
