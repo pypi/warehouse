@@ -260,6 +260,10 @@ idna==2.9 \
 importlib-metadata==1.6.0 \
     --hash=sha256:2a688cbaa90e0cc587f1df48bdc97a6eadccdcd9c35fb3f976a09e3b5016d90f \
     --hash=sha256:34513a8a0c4962bc66d35b359558fd8a5e10cd472d37aec5f66858addef32c1e
+iso8601==0.1.12 \
+    --hash=sha256:210e0134677cc0d02f6028087fee1df1e1d76d372ee1db0bf30bf66c5c1c89a3 \
+    --hash=sha256:49c4b20e1f38aa5cf109ddcd39647ac419f928512c869dc01d5c7098eddede82 \
+    --hash=sha256:bbbae5fb4a7abfe71d4688fd64bff70b91bbd74ef6a99d964bab18f7fdf286dd
 itsdangerous==1.1.0 \
     --hash=sha256:321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19 \
     --hash=sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749
@@ -547,6 +551,9 @@ rsa==4.0 \
 s3transfer==0.3.3 \
     --hash=sha256:2482b4259524933a022d59da830f51bd746db62f047d6eb213f2f8855dcb8a13 \
     --hash=sha256:921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db
+securesystemslib==0.14.2 \
+    --hash=sha256:bcac34f254efc106d8717950d79d2c05ddf8d0f9eb5e31bf8fd5531b69ce7ac3 \
+    --hash=sha256:ed89b4557a045ad41924433de97ac8ff9ec833e21126a6b6c8395532f21b56c6
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c
@@ -572,6 +579,9 @@ translationstring==1.3 \
 trove-classifiers==2020.4.1 \
     --hash=sha256:9e1dcd47920817eaeb4cc67004b3fee430f3fc692e926f6ab1e337035b7a590d \
     --hash=sha256:d8adb5d687ee15fe83c4c23404a8fbc0ff267ca997c6870419cc625fdea449e0
+tuf==0.12.2 \
+    --hash=sha256:7f59abf2d82bf3e4185e94bb81a0f968b1f5d14ece2811be65763e483ad58f83 \
+    --hash=sha256:c19d2f979b3d7b80b3e28902e636ce49218f287d83810dc6fe59a9e2c4eb616f
 typeguard==2.7.1 \
     --hash=sha256:1d3710251d3d3d6c64e0c49f45edec2e88ddc386a51e89c3ec0703efeb8b3b81 \
     --hash=sha256:2d545c71e9439c21bcd7c28f5f55b3606e6106f7031ab58375656a1aed483ef2

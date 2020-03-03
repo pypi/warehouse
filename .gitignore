@@ -19,6 +19,7 @@ docker-compose.override.yaml
 
 node_modules/
 
+dev/tuf.*
 dev/example.sql
 dev/prod.sql
 dev/prod.sql.xz
@@ -28,6 +29,7 @@ warehouse/.commit
 warehouse/static/components
 warehouse/static/dist
 warehouse/admin/static/dist
+warehouse/tuf/dist
 
 tags
 *.sw*

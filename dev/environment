@@ -40,3 +40,9 @@ TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
+
+TUF_KEY_BACKEND=warehouse.tuf.services.LocalKeyService key.path=/opt/warehouse/src/dev
+TUF_ROOT_SECRET="an insecure private key password"
+TUF_SNAPSHOT_SECRET="an insecure private key password"
+TUF_TARGETS_SECRET="an insecure private key password"
+TUF_TIMESTAMP_SECRET="an insecure private key password"
