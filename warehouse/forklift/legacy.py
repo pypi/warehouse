@@ -759,7 +759,11 @@ def file_upload(request):
     # request, then we'll go ahead and bomb out.
     if request.authenticated_userid is None:
         raise _exc_with_message(
-            HTTPForbidden, "Invalid or non-existent authentication information."
+            HTTPForbidden,
+            "Invalid or non-existent authentication information. "
+            "See {projecthelp} for details".format(
+                projecthelp=request.help_url(_anchor="invalid-auth")
+            ),
         )
 
     # Ensure that user has a verified, primary email address. This should both
