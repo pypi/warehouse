@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud import bigquery
+from google.cloud import bigquery, storage
 
 
 def gcloud_bigquery_factory(context, request):
@@ -20,5 +20,13 @@ def gcloud_bigquery_factory(context, request):
     return bigquery.Client.from_service_account_json(credentials, project=project)
 
 
+def gcloud_gcs_factory(context, request):
+    credentials = request.registry.settings["gcloud.credentials"]
+    project = request.registry.settings["gcloud.project"]
+
+    return storage.Client.from_service_account_json(credentials, project=project)
+
+
 def includeme(config):
     config.register_service_factory(gcloud_bigquery_factory, name="gcloud.bigquery")
+    config.register_service_factory(gcloud_gcs_factory, name="gcloud.gcs")
