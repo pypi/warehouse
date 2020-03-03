@@ -46,6 +46,7 @@
         <th>Admin</th>
         <th>Moderator</th>
         <th>Active</th>
+        <th>2FA</th>
       </tr>
 
       {% for user in users %}
@@ -59,6 +60,7 @@
         <td>{% if user.is_superuser %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if user.is_moderator %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if user.is_active %}<i class="fa fa-check text-green"></i>{% endif %}</td>
+        <td>{% if user.has_two_factor %}<i class="fa fa-check text-green"></i>{% endif %}</td>
       </tr>
       {% endfor %}
     </table>

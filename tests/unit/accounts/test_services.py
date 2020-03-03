@@ -636,6 +636,107 @@ class TestDatabaseUserService:
         )
         assert webauthn is None
 
+    def test_has_recovery_codes(self, user_service):
+        user = UserFactory.create()
+        assert not user_service.has_recovery_codes(user.id)
+        user_service.generate_recovery_codes(user.id)
+        assert user_service.has_recovery_codes(user.id)
+
+    def test_get_recovery_codes(self, user_service):
+        user = UserFactory.create()
+        assert len(user_service.get_recovery_codes(user.id)) == 0
+        user_service.generate_recovery_codes(user.id)
+        assert len(user_service.get_recovery_codes(user.id)) == 8
+
+    def test_generate_recovery_codes(self, user_service):
+        user = UserFactory.create()
+
+        assert not user_service.has_recovery_codes(user.id)
+        assert len(user_service.get_recovery_codes(user.id)) == 0
+
+        codes = user_service.generate_recovery_codes(user.id)
+        assert len(codes) == 8
+        assert len(user_service.get_recovery_codes(user.id)) == 8
+
+    def test_check_recovery_code(self, user_service, metrics):
+        user = UserFactory.create()
+        assert not user_service.check_recovery_code(user.id, "no codes yet")
+
+        codes = user_service.generate_recovery_codes(user.id)
+        assert len(codes) == 8
+        assert len(user_service.get_recovery_codes(user.id)) == 8
+        assert user_service.check_recovery_code(user.id, codes[0])
+
+        # Once used, the code should not be accepted again.
+        assert len(user_service.get_recovery_codes(user.id)) == 7
+        assert not user_service.check_recovery_code(user.id, codes[0])
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.recovery_code.start"),
+            pretend.call(
+                "warehouse.authentication.recovery_code.failure",
+                tags=["failure_reason:no_recovery_codes"],
+            ),
+            pretend.call("warehouse.authentication.recovery_code.start"),
+            pretend.call("warehouse.authentication.recovery_code.ok"),
+            pretend.call("warehouse.authentication.recovery_code.start"),
+            pretend.call(
+                "warehouse.authentication.recovery_code.failure",
+                tags=["failure_reason:invalid_recovery_code"],
+            ),
+        ]
+
+    def test_check_recovery_code_global_rate_limited(self, user_service, metrics):
+        resets = pretend.stub()
+        limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
+        user_service.ratelimiters["global"] = limiter
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_recovery_code(uuid.uuid4(), "recovery_code")
+
+        assert excinfo.value.resets_in is resets
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.recovery_code.start"),
+            pretend.call(
+                "warehouse.authentication.recovery_code.ratelimited",
+                tags=["ratelimiter:global"],
+            ),
+        ]
+
+    def test_check_recovery_code_user_rate_limited(self, user_service, metrics):
+        user = UserFactory.create()
+        resets = pretend.stub()
+        limiter = pretend.stub(
+            test=pretend.call_recorder(lambda uid: False),
+            resets_in=pretend.call_recorder(lambda uid: resets),
+        )
+        user_service.ratelimiters["user"] = limiter
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_recovery_code(user.id, "recovery_code")
+
+        assert excinfo.value.resets_in is resets
+        assert limiter.test.calls == [pretend.call(user.id)]
+        assert limiter.resets_in.calls == [pretend.call(user.id)]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.recovery_code.start"),
+            pretend.call(
+                "warehouse.authentication.recovery_code.ratelimited",
+                tags=["ratelimiter:user"],
+            ),
+        ]
+
+    def test_regenerate_recovery_codes(self, user_service):
+        user = UserFactory.create()
+        assert len(user_service.get_recovery_codes(user.id)) == 0
+        user_service.generate_recovery_codes(user.id)
+        initial_codes = user_service.get_recovery_codes(user.id)
+        assert len(initial_codes) == 8
+        user_service.generate_recovery_codes(user.id)
+        new_codes = user_service.get_recovery_codes(user.id)
+        assert len(new_codes) == 8
+        assert [c.id for c in initial_codes] != [c.id for c in new_codes]
+
 
 class TestTokenService:
     def test_verify_service(self):

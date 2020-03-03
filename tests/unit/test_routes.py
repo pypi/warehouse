@@ -140,6 +140,9 @@ def test_routes(warehouse):
             "/account/webauthn-authenticate/validate",
             domain=warehouse,
         ),
+        pretend.call(
+            "accounts.recovery-code", "/account/recovery-code/", domain=warehouse
+        ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call("accounts.register", "/account/register/", domain=warehouse),
         pretend.call(
@@ -182,6 +185,16 @@ def test_routes(warehouse):
         pretend.call(
             "manage.account.webauthn-provision.delete",
             "/manage/account/webauthn-provision/delete",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.recovery-codes.generate",
+            "/manage/account/recovery-codes/generate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.recovery-codes.regenerate",
+            "/manage/account/recovery-codes/regenerate",
             domain=warehouse,
         ),
         pretend.call(
