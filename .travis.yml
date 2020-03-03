@@ -55,3 +55,6 @@ matrix:
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses
+    - script: make translations BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=Translations

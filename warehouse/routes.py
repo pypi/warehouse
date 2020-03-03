@@ -126,6 +126,9 @@ def includeme(config):
         "/account/webauthn-authenticate/validate",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.recovery-code", "/account/recovery-code/", domain=warehouse,
+    )
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route("accounts.register", "/account/register/", domain=warehouse)
     config.add_route(
@@ -170,6 +173,16 @@ def includeme(config):
     config.add_route(
         "manage.account.webauthn-provision.delete",
         "/manage/account/webauthn-provision/delete",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.recovery-codes.generate",
+        "/manage/account/recovery-codes/generate",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.recovery-codes.regenerate",
+        "/manage/account/recovery-codes/regenerate",
         domain=warehouse,
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)

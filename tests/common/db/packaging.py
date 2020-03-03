@@ -83,6 +83,7 @@ class FileFactory(WarehouseFactory):
 
     release = factory.SubFactory(ReleaseFactory)
     python_version = "source"
+    filename = factory.fuzzy.FuzzyText(length=12)
     md5_digest = factory.LazyAttribute(
         lambda o: hashlib.md5(o.filename.encode("utf8")).hexdigest()
     )
