@@ -355,6 +355,86 @@ class TestReindex:
             )
         ]
 
+    def test_client_aws(self, db_request, monkeypatch):
+        docs = pretend.stub()
+
+        def project_docs(db):
+            return docs
+
+        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
+
+        task = pretend.stub()
+        aws4auth_stub = pretend.stub()
+        aws4auth = pretend.call_recorder(lambda *a, **kw: aws4auth_stub)
+        es_client = FakeESClient()
+        es_client_init = pretend.call_recorder(lambda *a, **kw: es_client)
+
+        db_request.registry.update(
+            {"elasticsearch.index": "warehouse", "elasticsearch.shards": 42}
+        )
+        db_request.registry.settings = {
+            "aws.key_id": "AAAAAAAAAAAAAAAAAA",
+            "aws.secret_key": "deadbeefdeadbeefdeadbeef",
+            "elasticsearch.url": "https://some.url?aws_auth=1&region=us-east-2",
+            "celery.scheduler_url": "redis://redis:6379/0",
+        }
+        monkeypatch.setattr(
+            warehouse.search.tasks.requests_aws4auth, "AWS4Auth", aws4auth,
+        )
+        monkeypatch.setattr(
+            warehouse.search.tasks.elasticsearch, "Elasticsearch", es_client_init
+        )
+        monkeypatch.setattr(
+            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
+        )
+
+        parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
+        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+
+        monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
+
+        reindex(task, db_request)
+
+        assert len(es_client_init.calls) == 1
+        assert es_client_init.calls[0].kwargs["hosts"] == ["https://some.url"]
+        assert es_client_init.calls[0].kwargs["timeout"] == 30
+        assert es_client_init.calls[0].kwargs["retry_on_timeout"] is True
+        assert (
+            es_client_init.calls[0].kwargs["connection_class"]
+            == elasticsearch.connection.http_requests.RequestsHttpConnection
+        )
+        assert es_client_init.calls[0].kwargs["http_auth"] == aws4auth_stub
+        assert aws4auth.calls == [
+            pretend.call(
+                "AAAAAAAAAAAAAAAAAA", "deadbeefdeadbeefdeadbeef", "us-east-2", "es"
+            )
+        ]
+
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+        ]
+        assert es_client.indices.create.calls == [
+            pretend.call(
+                body={
+                    "settings": {
+                        "number_of_shards": 42,
+                        "number_of_replicas": 0,
+                        "refresh_interval": "-1",
+                    }
+                },
+                wait_for_active_shards=42,
+                index="warehouse-cbcbcbcbcb",
+            )
+        ]
+        assert es_client.indices.delete.calls == []
+        assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
+        assert es_client.indices.put_settings.calls == [
+            pretend.call(
+                index="warehouse-cbcbcbcbcb",
+                body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
+            )
+        ]
+
 
 class TestPartialReindex:
     def test_reindex_fails_when_raising(self, db_request, monkeypatch):

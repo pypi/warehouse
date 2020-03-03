@@ -117,6 +117,16 @@ class IUserService(Interface):
         Returns True if the user has a security key provisioned.
         """
 
+    def has_recovery_codes(user_id):
+        """
+        Returns True if the user has at least one valid recovery code.
+        """
+
+    def get_recovery_codes(user_id):
+        """
+        Returns RecoveryCode objects associated with the user.
+        """
+
     def get_totp_secret(user_id):
         """
         Returns the user's TOTP secret as bytes.
@@ -185,6 +195,20 @@ class IUserService(Interface):
         tag, IP address, and additional metadata.
 
         Returns the event.
+        """
+
+    def generate_recovery_codes(user_id):
+        """
+        Generates RecoveryCode objects for the given user.
+
+        Returns a list of plain-text codes.
+        """
+
+    def check_recovery_code(user_id, code):
+        """
+        Checks if supplied code matches a valid hashed recovery code for the given user.
+
+        Returns True if supplied recovery code is valid, and destroys stored code.
         """
 
 
