@@ -15,7 +15,8 @@ import click
 from tuf import repository_tool
 
 from warehouse.cli import warehouse
-from warehouse.tuf.tasks import new_repo as _new_repo
+
+TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 
 
 @warehouse.group()  # pragma: no-branch
@@ -48,8 +49,34 @@ def new_repo(config):
     Initialize the TUF repository from scratch, including a brand new root.
     """
 
-    request = config.task(_new_repo).get_request()
-    config.task(_new_repo).run(request)
+    repository = repository_tool.create_new_repository("warehouse/tuf/dist")
+
+    for role in TOPLEVEL_ROLES:
+        key_service_class = config.maybe_dotted(config.registry.settings["tuf.backend"])
+        key_service = key_service_class.create_service(role, config)
+
+        role_obj = getattr(repository, role)
+        role_obj.threshold = config.registry.settings[f"tuf.{role}.threshold"]
+
+        pubkeys = key_service.get_pubkeys()
+        privkeys = key_service.get_privkeys()
+        if len(pubkeys) < role_obj.threshold or len(privkeys) < role_obj.threshold:
+            raise click.ClickException(
+                f"Unable to initialize TUF repo ({role} needs {role_obj.threshold} keys"
+            )
+
+        for pubkey in pubkeys:
+            role_obj.add_verification_key(pubkey)
+
+        for privkey in privkeys:
+            role_obj.load_signing_key(privkey)
+
+    repository.mark_dirty(TOPLEVEL_ROLES)
+    for role in TOPLEVEL_ROLES:
+        repository.write(
+            role,
+            consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
+        )
 
 
 @tuf.command()

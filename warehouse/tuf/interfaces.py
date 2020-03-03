@@ -19,3 +19,15 @@ class IKeyService(Interface):
         Create the service, given the context and request for which it is being
         created for, passing a name for settings.
         """
+
+    def get_pubkeys():
+        """
+        Return a list of (TUF-formatted) public keys for the TUF role that this
+        service was initialized with.
+        """
+
+    def get_privkeys():
+        """
+        Return a list of (TUF-formatted) private keys for the TUF role that this
+        service was initialized with.
+        """

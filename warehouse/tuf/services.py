@@ -45,12 +45,14 @@ class LocalKeyService:
             request.registry.settings[f"tuf.{context}.secret"],
         )
 
-    def get_pubkey(self):
+    def get_pubkeys(self):
         pubkey_path = os.path.join(self._key_path, f"tuf.{self._role}.pub")
-        return repository_tool.import_ed25519_publickey_from_file(pubkey_path)
+        return [repository_tool.import_ed25519_publickey_from_file(pubkey_path)]
 
-    def get_privkey(self):
+    def get_privkeys(self):
         privkey_path = os.path.join(self._key_path, f"tuf.{self._role}")
-        return repository_tool.import_ed25519_privatekey_from_file(
-            privkey_path, password=self._key_secret
-        )
+        return [
+            repository_tool.import_ed25519_privatekey_from_file(
+                privkey_path, password=self._key_secret
+            )
+        ]
