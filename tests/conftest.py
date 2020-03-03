@@ -255,6 +255,8 @@ def app_config(database):
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
+        "tuf.key_backend": "warehouse.tuf.services.LocalKeyService",
+        "tuf.repo_backend": "warehouse.tuf.services.LocalRepositoryService",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"
         ),

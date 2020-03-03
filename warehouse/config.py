@@ -228,6 +228,12 @@ def configure(settings=None):
         default=21600,  # 6 hours
     )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
+    maybe_set(settings, "tuf.root.secret", "TUF_ROOT_SECRET")
+    maybe_set(settings, "tuf.snapshot.secret", "TUF_SNAPSHOT_SECRET")
+    maybe_set(settings, "tuf.targets.secret", "TUF_TARGETS_SECRET")
+    maybe_set(settings, "tuf.timestamp.secret", "TUF_TIMESTAMP_SECRET")
+    maybe_set(settings, "tuf.bins.secret", "TUF_BINS_SECRET")
+    maybe_set(settings, "tuf.bin-n.secret", "TUF_BIN_N_SECRET")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
@@ -237,6 +243,9 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
+    maybe_set_compound(settings, "tuf", "key_backend", "TUF_KEY_BACKEND")
+    maybe_set_compound(settings, "tuf", "storage_backend", "TUF_STORAGE_BACKEND")
+    maybe_set_compound(settings, "tuf", "repo_backend", "TUF_REPO_BACKEND")
 
     # Pythondotorg integration settings
     maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
@@ -357,6 +366,10 @@ def configure(settings=None):
                 ]
             ],
         )
+
+        # For development only: this artificially prolongs the expirations of any
+        # Warehouse-generated TUF metadata by approximately one year.
+        settings.setdefault("tuf.development_metadata_expiry", 31536000)
 
     # Actually setup our Pyramid Configurator with the values pulled in from
     # the environment as well as the ones passed in to the configure function.
@@ -564,6 +577,13 @@ def configure(settings=None):
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
+
+    # Register TUF support for package integrity
+    config.include(".tuf")
+
+    # Serve the TUF metadata files.
+    # TODO: This should be routed to the TUF GCS bucket.
+    config.add_static_view("tuf", "warehouse:tuf/dist/metadata.staged/")
 
     # Configure redirection support
     config.include(".redirects")

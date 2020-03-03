@@ -129,6 +129,7 @@ services:
         DEVEL: "yes"
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     volumes:
+      - ./dev:/opt/warehouse/src/dev:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
     env_file: dev/environment
     environment:
