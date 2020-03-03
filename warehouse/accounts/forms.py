@@ -63,6 +63,13 @@ class WebAuthnCredentialMixin:
     credential = wtforms.StringField(wtforms.validators.DataRequired())
 
 
+class RecoveryCodeValueMixin:
+
+    recovery_code_value = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+
+
 class NewUsernameMixin:
 
     username = wtforms.StringField(
@@ -325,6 +332,16 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential
+
+
+class RecoveryCodeAuthenticationForm(
+    RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
+):
+    def validate_recovery_code_value(self, field):
+        recovery_code_value = field.data.encode("utf-8")
+
+        if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
+            raise wtforms.validators.ValidationError(_("Invalid Recovery Code."))
 
 
 class RequestPasswordResetForm(forms.Form):

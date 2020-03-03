@@ -81,6 +81,13 @@ class TestDatabaseMacaroonService:
     def test_find_userid_malformed_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(f"pypi-thiswillnotdeserialize") is None
 
+    def test_find_userid_valid_macaroon_trailinglinebreak(self, macaroon_service):
+        user = UserFactory.create()
+        raw_macaroon, _ = macaroon_service.create_macaroon(
+            "fake location", user.id, "fake description", {"fake": "caveats"}
+        )
+        assert macaroon_service.find_userid(f"{raw_macaroon}\n") is None
+
     def test_find_userid(self, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(

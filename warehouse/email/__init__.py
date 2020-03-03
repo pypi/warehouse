@@ -201,6 +201,52 @@ def send_added_as_collaborator_email(request, user, *, submitter, project_name, 
     return {"project": project_name, "submitter": submitter.username, "role": role}
 
 
+@_email("two-factor-added")
+def send_two_factor_added_email(request, user, method):
+    pretty_methods = {"totp": "TOTP", "webauthn": "WebAuthn"}
+    return {"method": pretty_methods[method], "username": user.username}
+
+
+@_email("two-factor-removed")
+def send_two_factor_removed_email(request, user, method):
+    pretty_methods = {"totp": "TOTP", "webauthn": "WebAuthn"}
+    return {"method": pretty_methods[method], "username": user.username}
+
+
+@_email("removed-project")
+def send_removed_project_email(
+    request, user, *, project_name, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "project": project_name,
+        "submitter": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
+@_email("removed-project-release")
+def send_removed_project_release_email(
+    request, user, *, release, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "project": release.project.name,
+        "release": release.version,
+        "release_date": release.created.strftime("%Y-%m-%d"),
+        "submitter": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

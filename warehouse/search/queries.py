@@ -48,22 +48,22 @@ SEARCH_FILTER_ORDER = (
 )
 
 
-def get_es_query(es, querystring, order, classifiers):
+def get_es_query(es, terms, order, classifiers):
     """
     Returns an Elasticsearch query from data from the request.
     """
-    if not querystring:
+    if not terms:
         query = es.query()
     else:
-        bool_query = gather_es_queries(querystring)
+        bool_query = gather_es_queries(terms)
         query = es.query(bool_query)
-        query = query.suggest("name_suggestion", querystring, term={"field": "name"})
-        query = query_for_order(query, order)
+        query = query.suggest("name_suggestion", terms, term={"field": "name"})
 
     # Require match to all specified classifiers
     for classifier in classifiers:
         query = query.query("prefix", classifiers=classifier)
 
+    query = query_for_order(query, order)
     return query
 
 
