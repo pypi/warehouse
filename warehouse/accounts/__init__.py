@@ -110,6 +110,13 @@ def _authenticate(userid, request):
     return principals
 
 
+def _session_authenticate(userid, request):
+    if request.matched_route.name in ["forklift.legacy.file_upload"]:
+        return
+
+    return _authenticate(userid, request)
+
+
 def _user(request):
     userid = request.authenticated_userid
 
@@ -149,7 +156,7 @@ def includeme(config):
     config.set_authentication_policy(
         MultiAuthenticationPolicy(
             [
-                SessionAuthenticationPolicy(callback=_authenticate),
+                SessionAuthenticationPolicy(callback=_session_authenticate),
                 BasicAuthAuthenticationPolicy(check=_basic_auth_login),
                 MacaroonAuthenticationPolicy(callback=_authenticate),
             ]
