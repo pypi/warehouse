@@ -25,6 +25,8 @@ from pyramid.httpexceptions import (
     HTTPServiceUnavailable,
     exception_response,
 )
+from pyramid.i18n import make_localizer
+from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.view import (
@@ -244,7 +246,13 @@ def locale(request):
     resp = HTTPSeeOther(redirect_to)
 
     if form.validate():
-        request.session.flash("Locale updated", queue="success")
+        # Build a localizer for the locale we're about to switch to. This will
+        # happen automatically once the cookie is set, but if we want the flash
+        # message indicating success to be in the new language as well, we need
+        # to do it here.
+        tdirs = request.registry.queryUtility(ITranslationDirectories)
+        _ = make_localizer(form.locale_id.data, tdirs).translate
+        request.session.flash(_("Locale updated"), queue="success")
         resp.set_cookie(LOCALE_ATTR, form.locale_id.data)
 
     return resp
