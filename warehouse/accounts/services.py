@@ -16,6 +16,7 @@ import hashlib
 import hmac
 import logging
 import posixpath
+import secrets
 import urllib.parse
 import uuid
 
@@ -38,7 +39,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, User, WebAuthn
+from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -46,6 +47,7 @@ from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerial
 logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
+RECOVERY_CODE_COUNT = 8
 
 
 @implementer(IUserService)
@@ -255,6 +257,19 @@ class DatabaseUserService:
 
         return len(user.webauthn) > 0
 
+    def has_recovery_codes(self, user_id):
+        """
+        Returns True if the user has generated recovery codes.
+        """
+        user = self.get_user(user_id)
+
+        return user.has_recovery_codes
+
+    def get_recovery_codes(self, user_id):
+        user = self.get_user(user_id)
+
+        return self.db.query(RecoveryCode).filter_by(user=user).all()
+
     def get_totp_secret(self, user_id):
         """
         Returns the user's TOTP secret as bytes.
@@ -454,6 +469,81 @@ class DatabaseUserService:
         """
         user = self.get_user(user_id)
         return user.record_event(tag=tag, ip_address=ip_address, additional=additional)
+
+    def generate_recovery_codes(self, user_id):
+        user = self.get_user(user_id)
+
+        if user.has_recovery_codes:
+            self.db.query(RecoveryCode).filter_by(user=user).delete()
+
+        recovery_codes = [secrets.token_hex(8) for _ in range(RECOVERY_CODE_COUNT)]
+        for recovery_code in recovery_codes:
+            self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
+
+        self.db.flush()
+
+        return recovery_codes
+
+    def check_recovery_code(self, user_id, code):
+        self._metrics.increment("warehouse.authentication.recovery_code.start")
+
+        # The very first thing we want to do is check to see if we've hit our
+        # global rate limit or not, assuming that we've been configured with a
+        # global rate limiter anyways.
+        if not self.ratelimiters["global"].test():
+            logger.warning("Global failed login threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.ratelimited",
+                tags=["ratelimiter:global"],
+            )
+            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+
+        # Now, check to make sure that we haven't hitten a rate limit on a
+        # per user basis.
+        if not self.ratelimiters["user"].test(user_id):
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.ratelimited",
+                tags=["ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["user"].resets_in(user_id)
+            )
+
+        user = self.get_user(user_id)
+
+        if not user.has_recovery_codes:
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.failure",
+                tags=["failure_reason:no_recovery_codes"],
+            )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed recovery code
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
+            return False
+
+        valid = False
+        for stored_recovery_code in self.get_recovery_codes(user.id):
+            if self.hasher.verify(code, stored_recovery_code.code):
+                self.db.delete(stored_recovery_code)
+                self.db.flush()
+                valid = True
+
+        if valid:
+            self._metrics.increment("warehouse.authentication.recovery_code.ok")
+        else:
+            self._metrics.increment(
+                "warehouse.authentication.recovery_code.failure",
+                tags=["failure_reason:invalid_recovery_code"],
+            )
+            # If we've gotten here, then we'll want to record a failed attempt in our
+            # rate limiting before returning False to indicate a failed recovery code
+            # verification.
+            self.ratelimiters["user"].hit(user_id)
+            self.ratelimiters["global"].hit()
+
+        return valid
 
 
 @implementer(ITokenService)

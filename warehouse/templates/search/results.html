@@ -23,7 +23,7 @@
     <h3 class="package-snippet__title">
       <span class="package-snippet__name">{{ item.name }}</span>
       <span class="package-snippet__version">{{ item.latest_version }}</span>
-      {% if order == "-created" %}
+      {% if "created" in order %}
       <span class="package-snippet__released">{{ humanize(item.created) }}</span>
       {% endif %}
     </h3>
