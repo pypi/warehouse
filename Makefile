@@ -170,6 +170,8 @@ inittuf:
 		tuf keypair --name targets --path /opt/warehouse/src/dev/tuf.targets
 	docker-compose run --rm web python -m warehouse \
 		tuf keypair --name timestamp --path /opt/warehouse/src/dev/tuf.timestamp
+	docker-compose run --rm web python -m warehouse \
+		tuf new-repo
 
 reindex:
 	docker-compose run --rm web python -m warehouse search reindex
