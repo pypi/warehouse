@@ -260,12 +260,26 @@ At this point all the services are up, and web container is listening on port
 Logging in to Warehouse
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-In the development environment, the password for every account has been set to
-the string ``password``. You can log in as any account at
-http://localhost:80/account/login/.
+In the development environment, the password for every account is
+the string ``password``. You can log in at http://localhost:80/account/login/.
 
-To log in as an admin user, log in as ``ewdurbin`` with the password
+To log in as an admin user, log in as ``administrator`` with the password
 ``password`` at http://localhost:80/admin/login/.
+
+To log in as a moderator user, log in as ``moderator`` with the password
+``password`` at http://localhost:80/admin/login/.
+
+Other user accounts available include:
+
+- ``user``
+- ``maintainer``
+
+.. note::
+
+    A database dump with much richer content, created from test.pypi.org's
+    data is available using ``make exampledb``.
+
+    The password for every account has been set to the string ``password``
 
 
 Stopping Warehouse and other services

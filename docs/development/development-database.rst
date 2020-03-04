@@ -1,8 +1,5 @@
-Updating Development Database
-=============================
-
-Occasionally, the database dump supplied for local development should be
-refreshed.
+Updating the TestPyPI Database Dump
+===================================
 
 This dump is created from the database behind test.pypi.org, not production.
 
