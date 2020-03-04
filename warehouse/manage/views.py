@@ -38,6 +38,8 @@ from warehouse.email import (
     send_email_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
+    send_removed_project_email,
+    send_removed_project_release_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
 )
@@ -899,6 +901,46 @@ def manage_project_settings(project, request):
     return {"project": project}
 
 
+def get_project_contributors(project_name, request):
+    query_res = (
+        request.db.query(Project)
+        .join(User, Project.users)
+        .filter(Project.name == project_name)
+        .one()
+    )
+    return query_res.users
+
+
+def get_user_role_in_project(project_name, username, request):
+    raw_res = (
+        request.db.query(Project)
+        .join(User, Project.users)
+        .filter(User.username == username, Project.name == project_name)
+        .with_entities(Role.role_name)
+        .distinct(Role.role_name)
+        .all()
+    )
+
+    query_res = []
+    for el in raw_res:
+        if el.role_name is not None:
+            query_res.append(el)
+
+    user_role = ""
+    # This check is needed because of
+    # issue https://github.com/pypa/warehouse/issues/2745
+    # which is not yet resolved and a user could be an owner
+    # and a maintainer at the same time
+    if len(query_res) == 2 and (
+        query_res[0].role_name == "Owner" or query_res[1].role_name == "Owner"
+    ):
+        user_role = "Owner"
+    if len(query_res) == 1:
+        user_role = query_res[0].role_name
+
+    return user_role
+
+
 @view_config(
     route_name="manage.project.delete_project",
     context=Project,
@@ -921,6 +963,26 @@ def delete_project(project, request):
         )
 
     confirm_project(project, request, fail_route="manage.project.settings")
+
+    submitter_role = get_user_role_in_project(
+        project.name, request.user.username, request
+    )
+    contributors = get_project_contributors(project.name, request)
+
+    for contributor in contributors:
+        contributor_role = get_user_role_in_project(
+            project.name, contributor.username, request
+        )
+
+        send_removed_project_email(
+            request,
+            contributor,
+            project_name=project.name,
+            submitter_name=request.user.username,
+            submitter_role=submitter_role,
+            recipient_role=contributor_role,
+        )
+
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path("manage.projects"))
@@ -1053,6 +1115,11 @@ class ManageProjectRelease:
                 )
             )
 
+        submitter_role = get_user_role_in_project(
+            self.release.project.name, self.request.user.username, self.request
+        )
+        contributors = get_project_contributors(self.release.project.name, self.request)
+
         self.request.db.add(
             JournalEntry(
                 name=self.release.project.name,
@@ -1077,6 +1144,20 @@ class ManageProjectRelease:
         self.request.session.flash(
             f"Deleted release {self.release.version!r}", queue="success"
         )
+
+        for contributor in contributors:
+            contributor_role = get_user_role_in_project(
+                self.release.project.name, contributor.username, self.request
+            )
+
+            send_removed_project_release_email(
+                self.request,
+                contributor,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
 
         return HTTPSeeOther(
             self.request.route_path(
