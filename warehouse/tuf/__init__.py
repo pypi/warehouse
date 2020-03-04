@@ -13,6 +13,11 @@
 from warehouse.tuf.interfaces import IKeyService
 
 
+TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
+BINS_ROLE = "bins"
+BIN_N_ROLE = "bin-n"
+
+
 def includeme(config):
     config.add_settings(
         {
@@ -25,6 +30,7 @@ def includeme(config):
             "tuf.timestamp.threshold": 1,
             "tuf.bins.threshold": 1,
             "tuf.bin-n.threshold": 1,
+            "tuf.bin-n.count": 16384,
             "tuf.spec_version": "1.0.0",
         }
     )

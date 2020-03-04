@@ -18,9 +18,36 @@ import click
 from tuf import repository_tool
 
 from warehouse.cli import warehouse
+from warehouse.tuf import TOPLEVEL_ROLES, BINS_ROLE, BIN_N_ROLE
 
 TUF_REPO = "warehouse/tuf/dist"
-TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
+
+
+def _copy_staged_metadata():
+    """
+    Copy the "staged" metadata versions into the "live" TUF metadata directory.
+    """
+    shutil.copytree(
+        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME),
+        os.path.join(TUF_REPO, repository_tool.METADATA_DIRECTORY_NAME),
+    )
+
+
+def _remove_staged_metadata():
+    """
+    Remove the "staged" metadata directory from disk.
+
+    Calling this method invalidates whichever repository object
+    performed the staging.
+    """
+    shutil.rmtree(
+        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME)
+    )
+
+
+def _key_service_for_role(config, role):
+    key_service_class = config.maybe_dotted(config.registry.settings["tuf.backend"])
+    return key_service_class.create_service(role, config)
 
 
 @warehouse.group()  # pragma: no-branch
@@ -55,11 +82,8 @@ def new_repo(config):
 
     repository = repository_tool.create_new_repository(TUF_REPO)
 
-    # TODO: Create the bins role, as well as every (all 16k) bin-n roles.
-
     for role in TOPLEVEL_ROLES:
-        key_service_class = config.maybe_dotted(config.registry.settings["tuf.backend"])
-        key_service = key_service_class.create_service(role, config)
+        key_service = _key_service_for_role(config, role)
 
         role_obj = getattr(repository, role)
         role_obj.threshold = config.registry.settings[f"tuf.{role}.threshold"]
@@ -78,23 +102,64 @@ def new_repo(config):
             role_obj.load_signing_key(privkey)
 
     repository.mark_dirty(TOPLEVEL_ROLES)
-    for role in TOPLEVEL_ROLES:
-        repository.write(
-            role,
-            consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
-        )
-
-    # Copy the "staged" metadata directory to the actual metadata directory.
-    shutil.copytree(
-        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME),
-        os.path.join(TUF_REPO, repository_tool.METADATA_DIRECTORY_NAME),
+    repository.writeall(
+        consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
     )
 
-    # Remove the staged metadata. After this point, the current repository object
-    # is no longer valid.
-    shutil.rmtree(
-        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME)
+
+@tuf.command()
+@click.pass_obj
+def build_targets(config):
+    """
+    Given an initialized (but empty) TUF repository, create the delegated
+    targets role (bins) and its hashed bin delegations (each bin-n).
+    """
+
+    repository = repository_tool.load_repository(TUF_REPO)
+
+    # Load signing keys. We do this upfront for the top-level roles.
+    for role in ["snapshot", "targets", "timestamp"]:
+        key_service = _key_service_for_role(config, role)
+        role_obj = getattr(repository, role)
+
+        [role_obj.load_signing_key(k) for k in key_service.get_privkeys()]
+
+    bins_key_service = _key_service_for_role(config, BINS_ROLE)
+    bin_n_key_service = _key_service_for_role(config, BIN_N_ROLE)
+
+    # NOTE: TUF normally does delegations by path patterns (i.e., globs), but PyPI
+    # doesn't store its uploads on the same logical host as the TUF repository.
+    # The last parameter to `delegate` is a special sentinel for this;
+    # see https://github.com/theupdateframework/tuf/blob/bb94304/tuf/repository_tool.py#L2187
+    repository.targets.delegate(BINS_ROLE, bins_key_service.get_pubkeys(), [])
+    for privkey in bins_key_service.get_privkeys():
+        repository.targets(BINS_ROLE).load_signing_key(privkey)
+
+    repository.targets(BINS_ROLE).delegate_hashed_bins(
+        [], bin_n_key_service.get_pubkeys(), config.registry.settings["tuf.bin-n.count"]
     )
+
+    dirty_roles = ["snapshot", "targets", "timestamp", BINS_ROLE]
+    for idx in range(1, 2**16, 4):
+        low = f"{idx - 1:04x}"
+        high = f"{idx + 2:04x}"
+        dirty_roles.append(f"{low}-{high}")
+
+    repository.mark_dirty(dirty_roles)
+    repository.writeall(
+        consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"]
+    )
+
+    _copy_staged_metadata()
+    _remove_staged_metadata()
+
+    # TODO: This can't be done yet, since TUF doesn't have an API for
+    # adding additional/custom data to bin-delegated targets.
+    # Collect the "paths" for every PyPI package. These are packages already in
+    # existence, so we'll add some additional data to their targets to
+    # indicate that we're back-signing them.
+    # from warehouse.db import Session
+    # db = Session(bind=config.registry["sqlalchemy.engine"])
 
 
 @tuf.command()
