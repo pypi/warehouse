@@ -253,9 +253,9 @@ hiredis==1.0.1 \
 html5lib==1.0.1 \
     --hash=sha256:20b159aa3badc9d5ee8f5c647e5efd02ed2a66ab8d354930bd9ff139fc1dc0a3 \
     --hash=sha256:66cb0dcfdbbc4f9c3ba1a63fdb511ffdbd4f513b2b6d81b80cd26ce6b3fb3736
-hupper==1.10.1 \
-    --hash=sha256:109928477eeac69a55cdba65d20f09d06eff596a861f96c7736028988f090096 \
-    --hash=sha256:25e19eab7ba5d25c40c5fa083c845c5919ad2652b4bff002d1e9016b238489ae
+hupper==1.10.2 \
+    --hash=sha256:3818f53dabc24da66f65cf4878c1c7a9b5df0c46b813e014abdd7c569eb9a02a \
+    --hash=sha256:5de835f3b58324af2a8a16f52270c4d1a3d1734c45eed94b77fd622aea737f29
 idna==2.8 \
     --hash=sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407 \
     --hash=sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c
