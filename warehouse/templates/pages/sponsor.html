@@ -18,42 +18,40 @@
 <div class="horizontal-section">
   <div class="site-container">
     <div class="sponsorship-intro">
-      <div class="sponsorship-intro__container">
-        <div class="sponsorship-intro__text">
-          <div class="heading-wsubtitle">
-            <h1 class="heading-wsubtitle__heading">{% trans %}Sponsor PyPI and related projects{% endtrans %}</h1>
-            <p class="heading-wsubtitle__subtitle">{% trans %}Donate to the Python Packaging Working Group{% endtrans %}</p>
-          </div>
-          <p class="lede-paragraph">
-            {% trans href='https://wiki.python.org/psf/PackagingWG', title=gettext('External link') %}The <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Working Group</a> is a work group of the Python Software Foundation which raises and distributes funds to improve Python's packaging ecosystem.{% endtrans %}
-          </p>
-          <p>{% trans %}Recent projects funded through the working group include:{% endtrans %}</p>
-          <ul class="hooray-list">
-            <li>{% trans %}The successful relaunch of the Python Package Index, powered by the new 'Warehouse' codebase{% endtrans %}</li>
-            <li>{% trans %}Adding security features to PyPI, including two-factor authentication{% endtrans %}</li>
-            <li>{% trans %}Improving PyPI's web interface for users with disabilites, and adding support for multiple locales{% endtrans %}</li>
-            <li>{% trans %}Improving pip's dependency resolver and user experience{% endtrans %}</li>
-          </ul>
-          <p>
-            {% trans %}With your support, the working group can continue to fund packaging improvements, benefiting millions of Python users around the world.{% endtrans %}
-          </p>
+      <div class="sponsorship-intro__text">
+        <div class="heading-wsubtitle">
+          <h1 class="heading-wsubtitle__heading">{% trans %}Sponsor PyPI and related projects{% endtrans %}</h1>
+          <p class="heading-wsubtitle__subtitle">{% trans %}Donate to the Python Packaging Working Group{% endtrans %}</p>
         </div>
-        <div class="sponsorship-intro__donations sponsor-package">
-          <div class="sponsor-package__header">
-            <div class="sponsor-package__icon">
-              <i class="fas fa-donate" aria-hidden="true"></i>
-            </div>
-            <h2>{% trans %}Community donations{% endtrans %}</h2>
+        <p class="lede-paragraph">
+          {% trans href='https://wiki.python.org/psf/PackagingWG', title=gettext('External link') %}The <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Working Group</a> is a work group of the Python Software Foundation which raises and distributes funds to improve Python's packaging ecosystem.{% endtrans %}
+        </p>
+        <p>{% trans %}Recent projects funded through the working group include:{% endtrans %}</p>
+        <ul class="hooray-list">
+          <li>{% trans %}The successful relaunch of the Python Package Index, powered by the new 'Warehouse' codebase{% endtrans %}</li>
+          <li>{% trans %}Adding security features to PyPI, including two-factor authentication{% endtrans %}</li>
+          <li>{% trans %}Improving PyPI's web interface for users with disabilites, and adding support for multiple locales{% endtrans %}</li>
+          <li>{% trans %}Improving pip's dependency resolver and user experience{% endtrans %}</li>
+        </ul>
+        <p>
+          {% trans %}With your support, the working group can continue to fund packaging improvements, benefiting millions of Python users around the world.{% endtrans %}
+        </p>
+      </div>
+      <div class="sponsorship-intro__donations sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fas fa-donate" aria-hidden="true"></i>
           </div>
-          <div class="sponsor-package__body">
-            <p>{% trans %}We greatly appreciate both one-time and recurring donations from individuals and small businesses.{% endtrans %}</p>
-            <p>{% trans %}For US taxpayers, contributions are tax-deductible.{% endtrans %}</p>
-            <p>{% trans %}Every donation counts!{% endtrans %}</p>
-          </div>
-          <div class="sponsor-package__button">
-            <a class="button" href="https://donate.pypi.org">{% trans %}Donate here{% endtrans %}</a>
-            <p>{% trans href='#sponsorship-packages' %}Or <a href="{{ href }}">become a sponsor</a>{% endtrans %}</p>
-          </div>
+          <h2>{% trans %}Community donations{% endtrans %}</h2>
+        </div>
+        <div class="sponsor-package__body">
+          <p>{% trans %}We greatly appreciate both one-time and recurring donations from individuals and small businesses.{% endtrans %}</p>
+          <p>{% trans %}For US taxpayers, contributions are tax-deductible.{% endtrans %}</p>
+          <p>{% trans %}Every donation counts!{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__button">
+          <a class="button" href="https://donate.pypi.org">{% trans %}Donate here{% endtrans %}</a>
+          <p>{% trans href='#sponsorship-packages' %}Or <a href="{{ href }}">become a sponsor</a>{% endtrans %}</p>
         </div>
       </div>
     </div>
@@ -62,21 +60,19 @@
 
 <div class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
-    <div class="sponsorship-intro">
-      <div class="sponsorship-intro__benefits">
-        <div class="sponsorship-intro__benefit">
-          <h3>{% trans %}Get your logo on PyPI.org{% endtrans %}</h3>
-          <p>{% trans %}Looking for brand visibility? In the last year*, 20.6 million people from 235 countries visited PyPI.org.{% endtrans %}</p>
-          <p><small>{% trans %}* Data as of February 2020{% endtrans %}</small></p>
-        </div>
-        <div class="sponsorship-intro__benefit">
-          <h3>{% trans %}Strengthen the Python ecosystem{% endtrans %}</h3>
-          <p>{% trans %}Funds raised by the packaging working group go directly towards improving the tools your company uses every day.{% endtrans %}</p>
-        </div>
-        <div class="sponsorship-intro__benefit">
-          <h3>{% trans %}Boost your reputation{% endtrans %}</h3>
-          <p>{% trans %}Enhance your company's reputation by investing in Python and the open source community.{% endtrans %}</p>
-        </div>
+    <div class="sponsorship-benefits">
+      <div class="sponsorship-benefits__benefit">
+        <h3>{% trans %}Get your logo on PyPI.org{% endtrans %}</h3>
+        <p>{% trans %}Looking for brand visibility? In the last year*, 20.6 million people from 235 countries visited PyPI.org.{% endtrans %}</p>
+        <p><small>{% trans %}* Data as of February 2020{% endtrans %}</small></p>
+      </div>
+      <div class="sponsorship-benefits__benefit">
+        <h3>{% trans %}Strengthen the Python ecosystem{% endtrans %}</h3>
+        <p>{% trans %}Funds raised by the packaging working group go directly towards improving the tools your company uses every day.{% endtrans %}</p>
+      </div>
+      <div class="sponsorship-benefits__benefit">
+        <h3>{% trans %}Boost your reputation{% endtrans %}</h3>
+        <p>{% trans %}Enhance your company's reputation by investing in Python and the open source community.{% endtrans %}</p>
       </div>
     </div>
   </div>

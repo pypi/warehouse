@@ -13,50 +13,28 @@
  */
 
 /*
-  <div class="sponsorship-intro">
-    <div class="sponsorship-intro__text">
-    // Intro text here
-    </div>
-    <div class="sponsorship-intro__donations">
-      // donations box here
+  <div class="sponsorship-benefits">
+    <div class="sponsorship-benefits__benefit">
+    // Benefit text here
     </div>
   </div>
 */
 
-.sponsorship-intro {
+.sponsorship-benefits {
   display: flex;
 
   @media only screen and (max-width: $desktop) {
     display: block;
+    padding: $spacing-unit 0 0;
   }
 
-  &__text {
-    width: 70%;
-    padding-right: $spacing-unit * 2;
+  &__benefit {
+    width: 33%;
+    padding: $spacing-unit;
 
     @media only screen and (max-width: $desktop) {
       width: 100%;
-      padding: 0;
-      margin-bottom: $spacing-unit * 2;
-    }
-
-    h1 {
-      @include h1-title;
-      padding-bottom: 0;
-    }
-
-    .lede-paragraph {
-      margin: $spacing-unit 0;
-      padding: 0;
-    }
-  }
-
-  &__donations {
-    width: 30%;
-    padding-bottom: 120px !important;
-
-    @media only screen and (max-width: $desktop) {
-      width: 100%;
+      padding: 0 0 $spacing-unit 0;
     }
   }
 }
