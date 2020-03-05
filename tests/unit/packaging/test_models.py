@@ -28,14 +28,6 @@ from ...common.db.packaging import (
 )
 
 
-class TestRole:
-    def test_role_ordering(self, db_request):
-        project = DBProjectFactory.create()
-        owner_role = DBRoleFactory.create(project=project, role_name="Owner")
-        maintainer_role = DBRoleFactory.create(project=project, role_name="Maintainer")
-        assert max([maintainer_role, owner_role]) == owner_role
-
-
 class TestProjectFactory:
     @pytest.mark.parametrize(("name", "normalized"), [("foo", "foo"), ("Bar", "bar")])
     def test_traversal_finds(self, db_request, name, normalized):
