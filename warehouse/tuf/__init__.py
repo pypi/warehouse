@@ -12,7 +12,6 @@
 
 from warehouse.tuf.interfaces import IKeyService
 
-
 TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 BINS_ROLE = "bins"
 BIN_N_ROLE = "bin-n"

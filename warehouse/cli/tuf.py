@@ -18,7 +18,7 @@ import click
 from tuf import repository_tool
 
 from warehouse.cli import warehouse
-from warehouse.tuf import TOPLEVEL_ROLES, BINS_ROLE, BIN_N_ROLE
+from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES
 
 TUF_REPO = "warehouse/tuf/dist"
 
@@ -140,7 +140,7 @@ def build_targets(config):
     )
 
     dirty_roles = ["snapshot", "targets", "timestamp", BINS_ROLE]
-    for idx in range(1, 2**16, 4):
+    for idx in range(1, 2 ** 16, 4):
         low = f"{idx - 1:04x}"
         high = f"{idx + 2:04x}"
         dirty_roles.append(f"{low}-{high}")
