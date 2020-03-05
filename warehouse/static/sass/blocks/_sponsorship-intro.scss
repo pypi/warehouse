@@ -1,0 +1,88 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  Logo and description found on the homepage:
+
+  <div class="about-pypi">
+    <div class="about-pypi__logo">
+      // logo here
+    </div>
+    <div class="about-pypi__text">
+      // content here
+    </div>
+  </div>
+*/
+
+.sponsorship-intro {
+
+  &__container {
+    display: flex;
+  }
+
+  &__text {
+    width: 70%;
+    padding-right: $spacing-unit * 2;
+
+    h1 {
+      @include h1-title;
+      padding-bottom: 0;
+    }
+
+    .lede-paragraph {
+      margin: $spacing-unit 0;
+      padding: 0;
+    }
+  }
+
+  &__donations {
+    width: 30%;
+    padding-bottom: 120px !important;
+  }
+
+  &__benefits {
+    display: flex;
+  }
+
+  &__benefit {
+    width: 33%;
+    padding: $spacing-unit;
+  }
+
+  @media only screen and (max-width: $desktop) {
+    .sponsorship-intro__container,
+    .sponsorship-intro__benefits {
+      display: block;
+    }
+
+    .sponsorship-intro__text,
+    .sponsorship-intro__donations {
+      width: 100%;
+    }
+
+    .sponsorship-intro__text {
+      padding: 0;
+      margin-bottom: $spacing-unit * 2;
+    }
+
+    .sponsorship-intro__benefits {
+      padding: $spacing-unit 0 0;
+    }
+
+    .sponsorship-intro__benefit {
+      width: 100%;
+      padding: 0 0 $spacing-unit 0;
+    }
+  }
+}

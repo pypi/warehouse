@@ -1,0 +1,126 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  Grid of sponsorship packages:
+
+  <div class="sponsor-packages">
+    <div class="sponsor-package">
+      <div class="sponsor-package__header">
+        <div class="sponsor-package__icon">
+          <i class="fas fa-xxx" aria-hidden="true"></i>
+        </div>
+        <h3>Package title</h3>
+        <p>Package description</p>
+      </div>
+      <div class="sponsor-package__body">
+        // Content here
+        <a class="button sponsor-package__button">
+          // Button text
+        </a>
+      </div>
+    </div>
+  </div>
+*/
+
+.sponsor-packages {
+  display: grid;
+  grid-gap: $spacing-unit;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  margin: ($spacing-unit * 1.5) 0 ($spacing-unit * 2);
+
+  @media screen and (max-width: $mobile) {
+    grid-template-columns: repeat(auto-fill, 100%);
+  }
+
+  .sponsor-package {
+    margin-top: $spacing-unit;
+  }
+}
+
+.sponsor-package {
+  border: 2px solid $primary-color;
+  border-radius: 4px;
+  position: relative;
+  padding-bottom: 80px;
+
+  &__header {
+    background-color: $primary-color;
+    color: $white;
+    padding: $spacing-unit;
+    text-align: center;
+    position: relative;
+    border-radius: 2px 2px 0 0;
+
+    a {
+      @include white-underlined-link;
+    }
+
+    h2,
+    h3 {
+      @include h2;
+      padding: 0;
+    }
+  }
+
+  &__icon {
+    position: absolute;
+    top: -30px;
+    border-radius: 50%;
+    padding: 10px;
+    width: 60px;
+    height: 60px;
+    left: 50%;
+    margin-left: -30px;
+    background-color: $primary-color;
+    font-size: 30px;
+  }
+
+  &__body {
+    padding: $spacing-unit;
+
+    ul {
+      padding: 0;
+      margin: 0;
+
+      li {
+        padding: 10px 0;
+        margin-left: 20px;
+
+        &:first-of-type {
+          padding-top: 0;
+        }
+      }
+    }
+
+    ul + p {
+      font-weight: $bold-font-weight;
+      padding: 0;
+      margin: 15px 0 0;
+    }
+  }
+
+  &__button {
+    position: absolute;
+    bottom: $spacing-unit;
+    left: $spacing-unit;
+    width: calc(100% - 60px);
+    text-align: center;
+
+    .button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+}
