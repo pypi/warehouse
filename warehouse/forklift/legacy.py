@@ -1413,6 +1413,8 @@ def file_upload(request):
                 },
             )
 
+        # TODO: Record file_ in the TUF repository.
+
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
 

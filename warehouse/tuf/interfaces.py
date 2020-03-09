@@ -31,3 +31,14 @@ class IKeyService(Interface):
         Return a list of (TUF-formatted) private keys for the TUF role that this
         service was initialized with.
         """
+
+
+class IRepositoryService(Interface):
+    def create_service(context, request):
+        pass
+
+    def add_target(file, backsigned=False):
+        """
+        Given a warehouse.packaging.models.File, add it to the TUF
+        repository.
+        """

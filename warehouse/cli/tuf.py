@@ -10,12 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import shutil
-
 import click
 
 from tuf import repository_tool
+from tuf import formats as tuf_formats
 
 from warehouse.cli import warehouse
 from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES
@@ -23,26 +21,19 @@ from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES
 TUF_REPO = "warehouse/tuf/dist"
 
 
-def _copy_staged_metadata():
+def _make_backsigned_fileinfo_from_file(file):
     """
-    Copy the "staged" metadata versions into the "live" TUF metadata directory.
-    """
-    shutil.copytree(
-        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME),
-        os.path.join(TUF_REPO, repository_tool.METADATA_DIRECTORY_NAME),
-    )
+    Given a warehouse.packaging.models.File, create a TUF-compliant
+    "fileinfo" dictionary suitable for addition to a delegated bin.
 
-
-def _remove_staged_metadata():
+    This "fileinfo" will additionally contain a "backsigned" key in
+    its "custom" value to indicate that it originated from a backsigned
+    release (i.e., one that pre-dates TUF integration).
     """
-    Remove the "staged" metadata directory from disk.
+    hashes = {"blake2b": file.blake2_256_digest}
+    fileinfo = tuf_formats.make_fileinfo(file.size, hashes, custom={"backsigned": True})
 
-    Calling this method invalidates whichever repository object
-    performed the staging.
-    """
-    shutil.rmtree(
-        os.path.join(TUF_REPO, repository_tool.METADATA_STAGED_DIRECTORY_NAME)
-    )
+    return fileinfo
 
 
 def _key_service_for_role(config, role):
@@ -149,9 +140,6 @@ def build_targets(config):
     repository.writeall(
         consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"]
     )
-
-    _copy_staged_metadata()
-    _remove_staged_metadata()
 
     # TODO: This can't be done yet, since TUF doesn't have an API for
     # adding additional/custom data to bin-delegated targets.

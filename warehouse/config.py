@@ -410,7 +410,7 @@ def configure(settings=None):
     config.include(".tuf")
 
     # Serve the TUF metadata files.
-    config.add_static_view("tuf", "warehouse:tuf/dist/metadata/")
+    config.add_static_view("tuf", "warehouse:tuf/dist/metadata.staged/")
 
     # Configure redirection support
     config.include(".redirects")
