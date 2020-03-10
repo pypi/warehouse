@@ -129,7 +129,7 @@ class ManageAccountViews:
         return {
             "save_account_form": SaveAccountForm(
                 name=self.request.user.name,
-                public_email=self.request.user.public_email,
+                public_email=getattr(self.request.user.public_email, "email", ""),
                 user_service=self.user_service,
                 user_id=self.request.user.id,
             ),

@@ -54,12 +54,15 @@ from ...common.db.packaging import (
 
 
 class TestManageAccount:
-    def test_default_response(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "public_email, expected_public_email",
+        [(None, ""), (pretend.stub(email="some@email.com"), "some@email.com")],
+    )
+    def test_default_response(self, monkeypatch, public_email, expected_public_email):
         breach_service = pretend.stub()
         user_service = pretend.stub()
         name = pretend.stub()
         user_id = pretend.stub()
-        public_email = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
@@ -94,7 +97,7 @@ class TestManageAccount:
         assert save_account_cls.calls == [
             pretend.call(
                 name=name,
-                public_email=public_email,
+                public_email=expected_public_email,
                 user_service=user_service,
                 user_id=user_id,
             )
