@@ -34,7 +34,7 @@
               <span class="break">{{ user.username }}</span>
             </p>
             {% if user.public_email %}
-            {% csi request.route_url("includes.profile-public-email", username=user.username) %}
+            {% csi request.route_url("includes.profile-public-email", username=user.username), 'p' %}
             {% endcsi %}
             {% endif %}
             {% if user.date_joined %}

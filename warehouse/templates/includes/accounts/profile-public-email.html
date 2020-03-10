@@ -13,12 +13,10 @@
 -#}
 
 {% if request.user %}
-<p>
-  <i class="fa fa-envelope" aria-hidden="true"></i>
-  <span class="sr-only">{% trans %}Email{% endtrans %}</span>
-  &nbsp;&nbsp;
-  <a class="ellipsized" href="mailto:{{ user.public_email.email }}">
-    {{ user.public_email.email }}
-  </a>
-</p>
+<i class="fa fa-envelope" aria-hidden="true"></i>
+<span class="sr-only">{% trans %}Email{% endtrans %}</span>
+&nbsp;&nbsp;
+<a class="public-email" href="mailto:{{ user.public_email.email }}">
+{{ user.public_email.email }}
+</a>
 {% endif %}
