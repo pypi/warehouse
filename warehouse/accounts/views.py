@@ -760,3 +760,14 @@ def profile_callout(user, request):
 )
 def edit_profile_button(user, request):
     return {"user": user}
+
+
+@view_config(
+    route_name="includes.profile-public-email",
+    context=User,
+    renderer="includes/accounts/profile-public-email.html",
+    uses_session=True,
+    has_translations=True,
+)
+def profile_public_email(user, request):
+    return {"user": user}

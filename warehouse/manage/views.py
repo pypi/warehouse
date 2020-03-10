@@ -127,7 +127,12 @@ class ManageAccountViews:
     @property
     def default_response(self):
         return {
-            "save_account_form": SaveAccountForm(name=self.request.user.name),
+            "save_account_form": SaveAccountForm(
+                name=self.request.user.name,
+                public_email=getattr(self.request.user.public_email, "email", ""),
+                user_service=self.user_service,
+                user_id=self.request.user.id,
+            ),
             "add_email_form": AddEmailForm(
                 user_service=self.user_service, user_id=self.request.user.id
             ),
@@ -141,12 +146,20 @@ class ManageAccountViews:
     def manage_account(self):
         return self.default_response
 
-    @view_config(request_method="POST", request_param=SaveAccountForm.__params__)
+    @view_config(request_method="POST", request_param=["name"])
     def save_account(self):
-        form = SaveAccountForm(self.request.POST)
+        form = SaveAccountForm(
+            self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
 
         if form.validate():
-            self.user_service.update_user(self.request.user.id, **form.data)
+            data = form.data
+            public_email = data.pop("public_email", "")
+            self.user_service.update_user(self.request.user.id, **data)
+            for email in self.request.user.emails:
+                email.public = email.email == public_email
             self.request.session.flash("Account details updated", queue="success")
 
         return {**self.default_response, "save_account_form": form}

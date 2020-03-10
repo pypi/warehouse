@@ -51,5 +51,6 @@ class EmailFactory(WarehouseFactory):
     email = FuzzyEmail()
     verified = True
     primary = True
+    public = False
     unverify_reason = None
     transient_bounces = 0

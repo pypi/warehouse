@@ -137,6 +137,15 @@
   word-break: break-all;
 }
 
+.public-email {
+  @include ellipsis;
+  max-width: 85%;
+
+  &::after {
+    content: none !important;
+  }
+}
+
 // COLORS
 // Make text or icons red to draw attention
 .danger {

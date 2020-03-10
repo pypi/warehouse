@@ -184,7 +184,9 @@ class DatabaseUserService:
 
         return user
 
-    def add_email(self, user_id, email_address, primary=None, verified=False):
+    def add_email(
+        self, user_id, email_address, primary=None, verified=False, public=False
+    ):
         user = self.get_user(user_id)
 
         # If primary is None, then we're going to auto detect whether this should be the
@@ -195,7 +197,11 @@ class DatabaseUserService:
             primary = True if user.primary_email is None else False
 
         email = Email(
-            email=email_address, user=user, primary=primary, verified=verified
+            email=email_address,
+            user=user,
+            primary=primary,
+            verified=verified,
+            public=public,
         )
         self.db.add(email)
         self.db.flush()  # flush the db now so email.id is available

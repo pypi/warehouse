@@ -1781,3 +1781,11 @@ class TestEditProfileButton:
         request = pretend.stub()
 
         assert views.edit_profile_button(user, request) == {"user": user}
+
+
+class TestProfilePublicEmail:
+    def test_profile_public_email_returns_user(self):
+        user = pretend.stub()
+        request = pretend.stub()
+
+        assert views.profile_public_email(user, request) == {"user": user}
