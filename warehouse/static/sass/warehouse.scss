@@ -137,8 +137,13 @@
   word-break: break-all;
 }
 
-.ellipsized {
+.public-email {
   @include ellipsis;
+  max-width: 85%;
+
+  &::after {
+    content: none !important;
+  }
 }
 
 // COLORS
