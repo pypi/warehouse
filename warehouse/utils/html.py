@@ -47,7 +47,14 @@ class ClientSideIncludeExtension(Extension):
 
         # Now we parse a single expression that is used as the URL we're going
         # to include
-        url = parser.parse_expression()
+        args = [parser.parse_expression()]
+
+        # if there is a comma, the user provided a tag type.  If not use
+        # 'div' as second parameter.
+        if parser.stream.skip_if("comma"):
+            args.append(parser.parse_expression())
+        else:
+            args.append(nodes.Const("div"))
 
         # Now we parse the body of the csi block up to `endcsi` and drop the
         # needle (which would always be `endcsi` in that case).
@@ -55,9 +62,9 @@ class ClientSideIncludeExtension(Extension):
 
         # Now return a `CallBlock` node that calls our _csi helper method on
         # this extension.
-        n = nodes.CallBlock(self.call_method("_csi", [url]), [], [], body)
+        n = nodes.CallBlock(self.call_method("_csi", args), [], [], body)
         n = n.set_lineno(lineno)
         return n
 
-    def _csi(self, url, caller):
-        return f'<div data-html-include="{url}">{caller()}</div>'
+    def _csi(self, url, tag, caller):
+        return f'<{tag} data-html-include="{url}">{caller()}</{tag}>'
