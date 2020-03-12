@@ -10,12 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import csv
+import io
 import uuid
 
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import emails as views
 
@@ -71,6 +73,93 @@ class TestEmailList:
         result = views.email_list(db_request)
 
         assert result == {"emails": [emails[0]], "query": emails[0].to[:-1] + "%"}
+
+
+class TestEmailMass:
+    def test_sends_emails(self):
+        input_file = io.BytesIO()
+        wrapper = io.TextIOWrapper(input_file, encoding="utf-8")
+
+        fieldnames = ["to", "subject", "body_text"]
+        writer = csv.DictWriter(wrapper, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerow(
+            {
+                "to": "foo@bar.com",
+                "subject": "Test Subject 1",
+                "body_text": "Test Body 1",
+            }
+        )
+        writer.writerow(
+            {
+                "to": "biz@baz.com",
+                "subject": "Test Subject 2",
+                "body_text": "Test Body 2",
+            }
+        )
+        wrapper.seek(0)
+
+        delay = pretend.call_recorder(lambda *a, **kw: None)
+        request = pretend.stub(
+            params={"csvfile": pretend.stub(file=input_file)},
+            task=lambda a: pretend.stub(delay=delay),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.email_mass(request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.route_path.calls == [pretend.call("admin.emails.list")]
+        assert result.headers["Location"] == "/the-redirect"
+        assert request.session.flash.calls == [
+            pretend.call("Mass emails sent", queue="success")
+        ]
+        assert delay.calls == [
+            pretend.call(
+                "foo@bar.com",
+                {
+                    "subject": "Test Subject 1",
+                    "body_text": "Test Body 1",
+                    "body_html": None,
+                },
+            ),
+            pretend.call(
+                "biz@baz.com",
+                {
+                    "subject": "Test Subject 2",
+                    "body_text": "Test Body 2",
+                    "body_html": None,
+                },
+            ),
+        ]
+
+    def test_sends_no_emails(self):
+        input_file = io.BytesIO()
+        wrapper = io.TextIOWrapper(input_file, encoding="utf-8")
+
+        fieldnames = ["to", "subject", "body_text"]
+        writer = csv.DictWriter(wrapper, fieldnames=fieldnames)
+        writer.writeheader()
+        wrapper.seek(0)
+
+        delay = pretend.call_recorder(lambda *a, **kw: None)
+        request = pretend.stub(
+            params={"csvfile": pretend.stub(file=input_file)},
+            task=lambda a: pretend.stub(delay=delay),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.email_mass(request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.route_path.calls == [pretend.call("admin.emails.list")]
+        assert result.headers["Location"] == "/the-redirect"
+        assert request.session.flash.calls == [
+            pretend.call("No emails to send", queue="error")
+        ]
+        assert delay.calls == []
 
 
 class TestEmailDetail:
