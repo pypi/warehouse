@@ -13,7 +13,7 @@
 Add Release.yanked
 
 Revision ID: c81265f0353c
-Revises: 9ca7d5668af4
+Revises: 5c029d9ef925
 Create Date: 2019-05-12 16:27:21.993967
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "c81265f0353c"
-down_revision = "9ca7d5668af4"
+down_revision = "5c029d9ef925"
 
 
 def upgrade():
