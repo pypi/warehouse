@@ -20,6 +20,7 @@ from pyramid.view import view_config
 from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
+from warehouse.accounts.models import User
 from warehouse.email import send_email
 from warehouse.email.ses.models import EmailMessage
 from warehouse.utils.paginate import paginate_url_factory
@@ -76,14 +77,18 @@ def email_mass(request):
     rows = list(csv.DictReader(wrapper))
     if rows:
         for row in rows:
-            request.task(send_email).delay(
-                row["to"],
-                {
-                    "subject": row["subject"],
-                    "body_text": row["body_text"],
-                    "body_html": row.get("body_html"),
-                },
-            )
+            user = request.db.query(User).get(row["user_id"])
+            email = user.primary_email
+
+            if email:
+                request.task(send_email).delay(
+                    email.email,
+                    {
+                        "subject": row["subject"],
+                        "body_text": row["body_text"],
+                        "body_html": row.get("body_html"),
+                    },
+                )
         request.session.flash("Mass emails sent", queue="success")
     else:
         request.session.flash("No emails to send", queue="error")
