@@ -117,6 +117,7 @@ def includeme(config):
 
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
+    config.add_route("admin.emails.mass", "/admin/emails/mass/", domain=warehouse)
     config.add_route(
         "admin.emails.detail", "/admin/emails/{email_id}/", domain=warehouse
     )

@@ -120,6 +120,12 @@ class User(SitemapMixin, db.Model):
         if primaries:
             return primaries[0]
 
+    @property
+    def public_email(self):
+        publics = [x for x in self.emails if x.public]
+        if publics:
+            return publics[0]
+
     @hybrid_property
     def email(self):
         primary_email = self.primary_email
@@ -224,6 +230,7 @@ class Email(db.ModelBase):
     email = Column(String(length=254), nullable=False)
     primary = Column(Boolean, nullable=False)
     verified = Column(Boolean, nullable=False)
+    public = Column(Boolean, nullable=False, server_default=sql.false())
 
     # Deliverability information
     unverify_reason = Column(

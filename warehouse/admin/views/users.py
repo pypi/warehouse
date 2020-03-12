@@ -77,6 +77,7 @@ class EmailForm(forms.Form):
     )
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
+    public = wtforms.fields.BooleanField()
 
 
 class UserForm(forms.Form):
@@ -152,6 +153,7 @@ def user_add_email(request):
             user=user,
             primary=form.primary.data,
             verified=form.verified.data,
+            public=form.public.data,
         )
         request.db.add(email)
         request.session.flash(

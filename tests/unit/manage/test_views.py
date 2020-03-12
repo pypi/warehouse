@@ -54,7 +54,11 @@ from ...common.db.packaging import (
 
 
 class TestManageAccount:
-    def test_default_response(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "public_email, expected_public_email",
+        [(None, ""), (pretend.stub(email="some@email.com"), "some@email.com")],
+    )
+    def test_default_response(self, monkeypatch, public_email, expected_public_email):
         breach_service = pretend.stub()
         user_service = pretend.stub()
         name = pretend.stub()
@@ -64,7 +68,7 @@ class TestManageAccount:
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name, id=user_id),
+            user=pretend.stub(name=name, id=user_id, public_email=public_email),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -90,7 +94,14 @@ class TestManageAccount:
         }
         assert view.request == request
         assert view.user_service == user_service
-        assert save_account_cls.calls == [pretend.call(name=name)]
+        assert save_account_cls.calls == [
+            pretend.call(
+                name=name,
+                public_email=expected_public_email,
+                user_service=user_service,
+                user_id=user_id,
+            )
+        ]
         assert add_email_cls.calls == [
             pretend.call(user_id=user_id, user_service=user_service)
         ]
@@ -147,8 +158,16 @@ class TestManageAccount:
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
-            POST={"name": "new name"},
-            user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
+            POST={"name": "new name", "public_email": ""},
+            user=pretend.stub(
+                id=pretend.stub(),
+                name=pretend.stub(),
+                emails=[
+                    pretend.stub(
+                        primary=True, verified=True, public=True, email=pretend.stub()
+                    )
+                ],
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
         )
@@ -172,7 +191,7 @@ class TestManageAccount:
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
-            POST={"name": "new name"},
+            POST={"name": "new name", "public_email": ""},
             user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: user_service,
