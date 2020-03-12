@@ -1094,7 +1094,7 @@ class TestAddedAsCollaboratorEmail:
         assert send_email.delay.calls == []
 
 
-class TestRemovedPackageEmail:
+class TestRemovedProjectEmail:
     def test_removed_project_email_to_maintainer(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
@@ -1141,15 +1141,15 @@ class TestRemovedPackageEmail:
         )
 
         assert result == {
-            "project": "test_project",
-            "submitter": stub_submitter_user.username,
+            "project_name": "test_project",
+            "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
         }
 
-        subject_renderer.assert_(project="test_project")
-        body_renderer.assert_(project="test_project")
-        body_renderer.assert_(submitter=stub_submitter_user.username)
+        subject_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
         body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="a maintainer")
 
@@ -1233,15 +1233,15 @@ class TestRemovedPackageEmail:
         )
 
         assert result == {
-            "project": "test_project",
-            "submitter": stub_submitter_user.username,
+            "project_name": "test_project",
+            "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
         }
 
-        subject_renderer.assert_(project="test_project")
-        body_renderer.assert_(project="test_project")
-        body_renderer.assert_(submitter=stub_submitter_user.username)
+        subject_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
         body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="an owner")
 
@@ -1334,20 +1334,20 @@ class TestRemovedReleaseEmail:
         )
 
         assert result == {
-            "project": release.project.name,
-            "release": release.version,
+            "project_name": release.project.name,
+            "release_version": release.version,
             "release_date": release.created.strftime("%Y-%m-%d"),
-            "submitter": stub_submitter_user.username,
+            "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
         }
 
-        subject_renderer.assert_(project="test_project")
-        subject_renderer.assert_(release="0.0.0")
-        body_renderer.assert_(project="test_project")
-        body_renderer.assert_(release="0.0.0")
+        subject_renderer.assert_(project_name="test_project")
+        subject_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(release_version="0.0.0")
         body_renderer.assert_(release_date=release.created.strftime("%Y-%m-%d"))
-        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
         body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="a maintainer")
 
@@ -1385,7 +1385,7 @@ class TestRemovedReleaseEmail:
             ),
         ]
 
-    def test_send_removed_project_release_emai_to_owner(
+    def test_send_removed_project_release_email_to_owner(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
@@ -1438,20 +1438,20 @@ class TestRemovedReleaseEmail:
         )
 
         assert result == {
-            "project": release.project.name,
-            "release": release.version,
+            "project_name": release.project.name,
+            "release_version": release.version,
             "release_date": release.created.strftime("%Y-%m-%d"),
-            "submitter": stub_submitter_user.username,
+            "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
         }
 
-        subject_renderer.assert_(project="test_project")
-        subject_renderer.assert_(release="0.0.0")
-        body_renderer.assert_(project="test_project")
-        body_renderer.assert_(release="0.0.0")
+        subject_renderer.assert_(project_name="test_project")
+        subject_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(release_version="0.0.0")
         body_renderer.assert_(release_date=release.created.strftime("%Y-%m-%d"))
-        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
         body_renderer.assert_(submitter_role="owner")
         body_renderer.assert_(recipient_role_descr="an owner")
 

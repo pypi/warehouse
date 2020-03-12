@@ -222,8 +222,8 @@ def send_removed_project_email(
         recipient_role_descr = "a maintainer"
 
     return {
-        "project": project_name,
-        "submitter": submitter_name,
+        "project_name": project_name,
+        "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
     }
@@ -238,10 +238,10 @@ def send_removed_project_release_email(
         recipient_role_descr = "a maintainer"
 
     return {
-        "project": release.project.name,
-        "release": release.version,
+        "project_name": release.project.name,
+        "release_version": release.version,
         "release_date": release.created.strftime("%Y-%m-%d"),
-        "submitter": submitter_name,
+        "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
     }

@@ -15,9 +15,9 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-The project {{ project }} has been deleted.
+The project {{ project_name }} has been deleted.
 
-Deleted by: {{ submitter }} with a role: {{ submitter_role }}.
+Deleted by: {{ submitter_name }} with a role: {{ submitter_role }}.
 
 If this was a mistake, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
