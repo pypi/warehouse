@@ -41,6 +41,8 @@ from warehouse.email import (
     send_removed_project_release_file_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
+    send_unyanked_project_release_email,
+    send_yanked_project_release_email,
 )
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
@@ -1051,7 +1053,161 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
-    @view_config(request_method="POST", request_param=["confirm_version"])
+    @view_config(request_method="POST", request_param=["confirm_yank_version"])
+    def yank_project_release(self):
+        version = self.request.POST.get("confirm_yank_version")
+        if not version:
+            self.request.session.flash("Confirm the request", queue="error")
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        if version != self.release.version:
+            self.request.session.flash(
+                "Could not yank release - "
+                + f"{version!r} is not the same as {self.release.version!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        submitter_role = get_user_role_in_project(
+            self.release.project.name, self.request.user.username, self.request
+        )
+        contributors = get_project_contributors(self.release.project.name, self.request)
+
+        self.request.db.add(
+            JournalEntry(
+                name=self.release.project.name,
+                action="yank release",
+                version=self.release.version,
+                submitted_by=self.request.user,
+                submitted_from=self.request.remote_addr,
+            )
+        )
+
+        self.release.project.record_event(
+            tag="project:release:yank",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+            },
+        )
+
+        self.release.yanked = True
+
+        self.request.session.flash(
+            f"Yanked release {self.release.version!r}", queue="success"
+        )
+
+        for contributor in contributors:
+            contributor_role = get_user_role_in_project(
+                self.release.project.name, contributor.username, self.request
+            )
+
+            send_yanked_project_release_email(
+                self.request,
+                contributor,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.releases", project_name=self.release.project.name
+            )
+        )
+
+    @view_config(request_method="POST", request_param=["confirm_unyank_version"])
+    def unyank_project_release(self):
+        version = self.request.POST.get("confirm_unyank_version")
+        if not version:
+            self.request.session.flash("Confirm the request", queue="error")
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        if version != self.release.version:
+            self.request.session.flash(
+                "Could not un-yank release - "
+                + f"{version!r} is not the same as {self.release.version!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        submitter_role = get_user_role_in_project(
+            self.release.project.name, self.request.user.username, self.request
+        )
+        contributors = get_project_contributors(self.release.project.name, self.request)
+
+        self.request.db.add(
+            JournalEntry(
+                name=self.release.project.name,
+                action="unyank release",
+                version=self.release.version,
+                submitted_by=self.request.user,
+                submitted_from=self.request.remote_addr,
+            )
+        )
+
+        self.release.project.record_event(
+            tag="project:release:unyank",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+            },
+        )
+
+        self.release.yanked = False
+
+        self.request.session.flash(
+            f"Un-yanked release {self.release.version!r}", queue="success"
+        )
+
+        for contributor in contributors:
+            contributor_role = get_user_role_in_project(
+                self.release.project.name, contributor.username, self.request
+            )
+
+            send_unyanked_project_release_email(
+                self.request,
+                contributor,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.releases", project_name=self.release.project.name
+            )
+        )
+
+    @view_config(request_method="POST", request_param=["confirm_delete_version"])
     def delete_project_release(self):
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
@@ -1069,7 +1225,7 @@ class ManageProjectRelease:
                 )
             )
 
-        version = self.request.POST.get("confirm_version")
+        version = self.request.POST.get("confirm_delete_version")
         if not version:
             self.request.session.flash("Confirm the request", queue="error")
             return HTTPSeeOther(

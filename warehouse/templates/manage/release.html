@@ -142,6 +142,7 @@
       For more information, see <a href="{{ href }}">PEP 592</a>.
     {% endtrans %}
     </p>
+    {{ confirm_button(gettext("Yank release"), gettext("Version"), "yank_version", release.version, modifier="--primary", warning=False) }}
   </div>
 
   <div class="callout-block callout-block--danger">
@@ -162,7 +163,7 @@
         Consider yanking this release, making a new release, or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases">post release</a> instead.
       {% endtrans %}
     </p>
-    {{ confirm_button(gettext("Delete release"), gettext("Version"), "version", release.version) }}
+    {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version) }}
   </div>
 
   {% if files %}

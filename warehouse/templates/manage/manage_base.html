@@ -189,13 +189,14 @@
   confirm_string,
   extra_fields=None,
   action=None,
+  warning=True,
   modifier="--danger")
 %}
   {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button{{ modifier }}">
     {{ title }}
   </a>
-  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action, modifier=modifier) }}
+  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action, warning=warning, modifier=modifier) }}
 {% endmacro %}
 
 {% macro confirm_password_button(
