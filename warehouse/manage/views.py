@@ -779,7 +779,8 @@ class ProvisionMacaroonViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = CreateMacaroonForm(
-            **self.request.POST,
+            description=self.request.POST.getone("description"),
+            token_scopes=self.request.POST.getall("token_scopes"),
             user_id=self.request.user.id,
             macaroon_service=self.macaroon_service,
             project_names=self.project_names,

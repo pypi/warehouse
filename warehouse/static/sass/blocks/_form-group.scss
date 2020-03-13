@@ -52,6 +52,11 @@
     max-width: 100%;
   }
 
+  &__multiselect {
+    height: 200px;
+    overflow: auto;
+  }
+
   &__text {
     font-size: $input-font-size;
     padding: 4px 0 8px;

@@ -34,7 +34,9 @@
       {% if macaroon.caveats.permissions == "user" %}
       <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans %}Entire account (all projects){% endtrans %}
       {% else %}
-      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
+        {% for project in macaroon.caveats.permissions.projects %}
+        <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
+        {% endfor %}
       {% endif %}
     </p>
 
@@ -74,7 +76,7 @@
     {% if macaroon.caveats.permissions == "user" %}
 
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
@@ -84,7 +86,7 @@
   password = {{ serialized_macaroon }}</pre>
     {% else %}
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
@@ -139,23 +141,42 @@
         <span class="form-group__label">{% trans %}Permissions{% endtrans %}</span>
         <p class="form-group__text">{% trans %}Upload packages{% endtrans %}</p>
       </div>
-      <div class="form-group">
-        <label for="token_scope" class="form-group__label">
+      <div class="form-group token-scopes" data-controller="token-scopes">
+        <label for="token_scopes" class="form-group__label">
           {% trans %}Scope{% endtrans %}
-          {% if create_macaroon_form.token_scope.flags.required %}
+          {% if create_macaroon_form.token_scopes.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="scope-errors" autocomplete="off">
-          <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">{% trans %}Select scope...{% endtrans %}</option>
-          <option value="scope:user">{% trans %}Entire account (all projects){% endtrans %}</option>
+        {% set token_scopes = create_macaroon_form.token_scopes.data %}
+        {% set all_projects = not token_scopes or token_scopes == ["scope:user"] %}
+        <div>
+          <input type="radio" name="token_scopes" value="scope:user" id="scope:user" data-action="token-scopes#user" {{ "checked" if all_projects }}>
+          <label for="scope:user">{% trans %}Entire account (all projects){% endtrans %}</label>
+        </div>
+        <div>
+          <input type="radio" name="token_scopes" value="by_project" id="by_project" data-action="token-scopes#project" {{ "checked" if not all_projects }}>
+          <label for="by_project">{% trans %}By project{% endtrans %}</label>
+        </div>
+        {% if project_names|length > 10 %}
+        <select multiple name="token_scopes" id="token_scopes" class="form-group__input form-group__multiselect" aria-describedby="token_scopes-errors" autocomplete="off" data-target="token-scopes.selector" {{ "disabled" if all_projects }}>
         {% for project in project_names %}
           {% set project_value = 'scope:project:' + project %}
-          <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>{% trans %}Project:{% endtrans %} {{ project }}</option>
+          <option value="{{ project_value }}" {{ "selected" if project_value in token_scopes }}>{{ project }}</option>
         {% endfor %}
         </select>
+        <p class="{{ "disabled" if token_scopes == ["scope:user"] or not token_scopes }}" data-target="token-scopes.description">{% trans %}To select more than one project, hold down Ctrl (Windows/Linux) or Command (Mac).{% endtrans %}</p>
+        {% else %}
+        {% for project in project_names %}
+          {% set project_value = 'scope:project:' + project %}
+          <div>
+            <input type="checkbox" class="token-scopes__checkbox" name="token_scopes" value="{{ project_value }}" id="{{ project_value }}" data-target="token-scopes.selector" {{ "checked" if project_value in token_scopes }} {{ "disabled" if all_projects }}>
+            <label for="{{ project_value }}" class="{{ "disabled" if all_projects }}" data-target="token-scopes.description">{{ project }}</label>
+          </div>
+        {% endfor %}
+        {% endif %}
         <div id="scope-errors">
-          {{ field_errors(create_macaroon_form.token_scope) }}
+          {{ field_errors(create_macaroon_form.token_scopes) }}
         </div>
       </div>
       <div id="api-token-scope-warning" class="callout-block callout-block--warning" hidden>
