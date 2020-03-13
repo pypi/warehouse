@@ -566,19 +566,14 @@ class TokenService:
             raise TokenMissing
 
         try:
-            if return_timestamp:
-                data, timestamp = self.serializer.loads(
-                    token, max_age=self.max_age, return_timestamp=True
-                )
-            else:
-                data = self.serializer.loads(token, max_age=self.max_age)
+            data = self.serializer.loads(
+                token, max_age=self.max_age, return_timestamp=return_timestamp
+            )
         except SignatureExpired:
             raise TokenExpired
         except BadData:  #  Catch all other exceptions
             raise TokenInvalid
 
-        if return_timestamp:
-            return data, timestamp
         return data
 
 
