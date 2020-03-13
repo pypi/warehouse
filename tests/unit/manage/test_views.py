@@ -2541,7 +2541,9 @@ class TestManageProjectRelease:
     def test_manage_project_release(self):
         files = pretend.stub()
         project = pretend.stub()
-        release = pretend.stub(project=project, files=pretend.stub(all=lambda: files))
+        release = pretend.stub(
+            project=project, files=pretend.stub(all=lambda: files), yanked=False
+        )
         request = pretend.stub()
         view = views.ManageProjectRelease(release, request)
 
@@ -2593,6 +2595,332 @@ class TestManageProjectRelease:
             )
         ]
 
+    def test_yank_project_release(self, monkeypatch):
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            yanked=False,
+        )
+        request = pretend.stub(
+            POST={"confirm_yank_version": release.version},
+            method="POST",
+            db=pretend.stub(add=pretend.call_recorder(lambda a: None),),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=pretend.stub(username=pretend.stub()),
+            remote_addr=pretend.stub(),
+        )
+        journal_obj = pretend.stub()
+        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project_name, username, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+        get_project_contributors = pretend.call_recorder(
+            lambda project_name, request: [request.user]
+        )
+        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
+
+        monkeypatch.setattr(views, "JournalEntry", journal_cls)
+        send_yanked_project_release_email = pretend.call_recorder(
+            lambda req, contrib, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_yanked_project_release_email",
+            send_yanked_project_release_email,
+        )
+
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.yank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert release.yanked
+
+        assert get_user_role_in_project.calls == [
+            pretend.call(release.project.name, request.user.username, request,),
+            pretend.call(release.project.name, request.user.username, request,),
+        ]
+        assert get_project_contributors.calls == [
+            pretend.call(release.project.name, request,)
+        ]
+
+        assert send_yanked_project_release_email.calls == [
+            pretend.call(
+                request,
+                request.user,
+                release=release,
+                submitter_name=request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            )
+        ]
+
+        assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert journal_cls.calls == [
+            pretend.call(
+                name=release.project.name,
+                action="yank release",
+                version=release.version,
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(f"Yanked release {release.version!r}", queue="success")
+        ]
+        assert request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=release.project.name)
+        ]
+        assert release.project.record_event.calls == [
+            pretend.call(
+                tag="project:release:yank",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+        ]
+
+    def test_yank_project_release_no_confirm(self):
+        release = pretend.stub(
+            version="1.2.3", project=pretend.stub(name="foobar"), yanked=False
+        )
+        request = pretend.stub(
+            POST={"confirm_yank_version": ""},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.yank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.yanked
+
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_yank_project_release_bad_confirm(self):
+        release = pretend.stub(
+            version="1.2.3", project=pretend.stub(name="foobar"), yanked=False
+        )
+        request = pretend.stub(
+            POST={"confirm_yank_version": "invalid"},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.yank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.yanked
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not yank release - "
+                + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_unyank_project_release(self, monkeypatch):
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            yanked=True,
+        )
+        request = pretend.stub(
+            POST={"confirm_unyank_version": release.version},
+            method="POST",
+            db=pretend.stub(add=pretend.call_recorder(lambda a: None),),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=pretend.stub(username=pretend.stub()),
+            remote_addr=pretend.stub(),
+        )
+        journal_obj = pretend.stub()
+        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project_name, username, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+        get_project_contributors = pretend.call_recorder(
+            lambda project_name, request: [request.user]
+        )
+        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
+
+        monkeypatch.setattr(views, "JournalEntry", journal_cls)
+        send_unyanked_project_release_email = pretend.call_recorder(
+            lambda req, contrib, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_unyanked_project_release_email",
+            send_unyanked_project_release_email,
+        )
+
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.unyank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.yanked
+
+        assert get_user_role_in_project.calls == [
+            pretend.call(release.project.name, request.user.username, request,),
+            pretend.call(release.project.name, request.user.username, request,),
+        ]
+        assert get_project_contributors.calls == [
+            pretend.call(release.project.name, request,)
+        ]
+
+        assert send_unyanked_project_release_email.calls == [
+            pretend.call(
+                request,
+                request.user,
+                release=release,
+                submitter_name=request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            )
+        ]
+
+        assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert journal_cls.calls == [
+            pretend.call(
+                name=release.project.name,
+                action="unyank release",
+                version=release.version,
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(f"Un-yanked release {release.version!r}", queue="success")
+        ]
+        assert request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=release.project.name)
+        ]
+        assert release.project.record_event.calls == [
+            pretend.call(
+                tag="project:release:unyank",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+        ]
+
+    def test_unyank_project_release_no_confirm(self):
+        release = pretend.stub(
+            version="1.2.3", project=pretend.stub(name="foobar"), yanked=True
+        )
+        request = pretend.stub(
+            POST={"confirm_unyank_version": ""},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.unyank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert release.yanked
+
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_unyank_project_release_bad_confirm(self):
+        release = pretend.stub(
+            version="1.2.3", project=pretend.stub(name="foobar"), yanked=True
+        )
+        request = pretend.stub(
+            POST={"confirm_unyank_version": "invalid"},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.unyank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert release.yanked
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not un-yank release - "
+                + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
     def test_delete_project_release(self, monkeypatch):
         user = pretend.stub(username=pretend.stub())
         release = pretend.stub(
@@ -2606,7 +2934,7 @@ class TestManageProjectRelease:
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         request = pretend.stub(
-            POST={"confirm_version": release.version},
+            POST={"confirm_delete_version": release.version},
             method="POST",
             db=pretend.stub(
                 delete=pretend.call_recorder(lambda a: None),
@@ -2693,7 +3021,7 @@ class TestManageProjectRelease:
     def test_delete_project_release_no_confirm(self):
         release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
         request = pretend.stub(
-            POST={"confirm_version": ""},
+            POST={"confirm_delete_version": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
@@ -2725,7 +3053,7 @@ class TestManageProjectRelease:
     def test_delete_project_release_bad_confirm(self):
         release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
         request = pretend.stub(
-            POST={"confirm_version": "invalid"},
+            POST={"confirm_delete_version": "invalid"},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
