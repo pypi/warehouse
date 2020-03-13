@@ -141,8 +141,9 @@ class Project(SitemapMixin, db.Model):
             return (
                 session.query(Release)
                 .filter(
-                    (Release.project == self)
-                    & (Release.canonical_version == canonical_version)
+                    Release.project == self,
+                    Release.yanked.is_(False),
+                    Release.canonical_version == canonical_version,
                 )
                 .one()
             )
@@ -153,7 +154,11 @@ class Project(SitemapMixin, db.Model):
             try:
                 return (
                     session.query(Release)
-                    .filter((Release.project == self) & (Release.version == version))
+                    .filter(
+                        Release.project == self,
+                        Release.version == version,
+                        Release.yanked.is_(False),
+                    )
                     .one()
                 )
             except NoResultFound:
@@ -212,7 +217,7 @@ class Project(SitemapMixin, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self)
+            .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
@@ -222,7 +227,7 @@ class Project(SitemapMixin, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self)
+            .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )

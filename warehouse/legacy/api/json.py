@@ -65,7 +65,7 @@ def json_project(project, request):
     try:
         release = (
             request.db.query(Release)
-            .filter(Release.project == project)
+            .filter(Release.project == project, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .limit(1)
             .one()
@@ -114,7 +114,7 @@ def json_release(release, request):
         request.db.query(Release, File)
         .options(Load(Release).load_only("version", "requires_python"))
         .outerjoin(File)
-        .filter(Release.project == project)
+        .filter(Release.project == project, Release.yanked.is_(False))
         .order_by(Release._pypi_ordering.desc(), File.filename)
         .all()
     )
