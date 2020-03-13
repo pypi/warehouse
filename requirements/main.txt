@@ -105,9 +105,9 @@ cffi==1.14.0 \
 chardet==3.0.4 \
     --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae \
     --hash=sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691
-click==7.0 \
-    --hash=sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13 \
-    --hash=sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7
+click==7.1.1 \
+    --hash=sha256:8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc \
+    --hash=sha256:e345d143d80bf5ee7534056164e5e112ea5e22716bbb1ce727941f4c8b471b9a
 cmarkgfm==0.4.2 \
     --hash=sha256:0186dccca79483e3405217993b83b914ba4559fe9a8396efc4eea56561b74061 \
     --hash=sha256:1a625afc6f62da428df96ec325dc30866cc5781520cbd904ff4ec44cf018171c \
@@ -181,9 +181,9 @@ docutils==0.15.2 \
 elasticsearch-dsl==6.4.0 \
     --hash=sha256:26416f4dd46ceca43d62ef74970d9de4bdd6f4b0f163316f0b432c9e61a08bec \
     --hash=sha256:f60aea7fd756ac1fbe7ce114bbf4949aefbf495dfe8896640e787c67344f12f6
-elasticsearch==6.4.0 \
-    --hash=sha256:1f0f633e3b500d5042424f75a505badf8c4b9962c1b4734cdfb3087fb67920be \
-    --hash=sha256:fb5ab15ee283f104b5a7a5695c7e879cb2927e4eb5aed9c530811590b41259ad
+elasticsearch==6.8.0 \
+    --hash=sha256:73de69f2d1cfe64811a8f269389f768b15a769f881855aa1157414a1b276cc7e \
+    --hash=sha256:a0be2392d696e6b9547c0e3145352347aa67b1f9b61558f2a66f0ba8c4d12995
 first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
@@ -553,8 +553,8 @@ six==1.14.0 \
 sqlalchemy-citext==1.5.post0 \
     --hash=sha256:0bc64312bcc0e83f98c5fa2ddf1c0794ea1bc39e71aa60ab08d0fed8535fd46d \
     --hash=sha256:f7613627194c05539e40f6083a20d3464a4b4f0e0966efcb3a181d549bc260ce
-sqlalchemy==1.3.13 \
-    --hash=sha256:64a7b71846db6423807e96820993fa12a03b89127d278290ca25c0b11ed7b4fb
+sqlalchemy==1.3.15 \
+    --hash=sha256:c4cca4aed606297afbe90d4306b49ad3a4cd36feb3f87e4bfd655c57fd9ef445
 stdlib-list==0.6.0 \
     --hash=sha256:133cc99104f5a4e1604dc88ebb393529bd4c2b99ae7e10d46c0b596f3c67c3f0
 structlog==20.1.0 \
