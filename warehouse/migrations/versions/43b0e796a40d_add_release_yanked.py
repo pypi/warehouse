@@ -12,21 +12,26 @@
 """
 Add Release.yanked
 
-Revision ID: c81265f0353c
+Revision ID: 43b0e796a40d
 Revises: 5c029d9ef925
-Create Date: 2019-05-12 16:27:21.993967
+Create Date: 2020-03-13 03:31:03.153039
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "c81265f0353c"
+revision = "43b0e796a40d"
 down_revision = "5c029d9ef925"
 
 
 def upgrade():
-    op.add_column("releases", sa.Column("yanked", sa.Text(), nullable=True))
+    op.add_column(
+        "releases",
+        sa.Column(
+            "yanked", sa.Boolean(), server_default=sa.text("false"), nullable=False
+        ),
+    )
 
 
 def downgrade():

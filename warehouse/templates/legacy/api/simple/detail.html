@@ -19,7 +19,7 @@
   <body>
     <h1>Links for {{ project.name }}</h1>
     {% for file in files -%}
-    <a href="{{ request.route_url('packaging.file', path=file.path) }}#sha256={{ file.sha256_digest }}"{% if file.release.requires_python %} data-requires-python="{{ file.release.requires_python }}"{% endif %}{% if file.release.is_yanked %}data-yanked{%if file.release.yanked %}="file.release.yanked"{% endif %}{% endif %}>{{ file.filename }}</a><br/>
+    <a href="{{ request.route_url('packaging.file', path=file.path) }}#sha256={{ file.sha256_digest }}"{% if file.release.requires_python %} data-requires-python="{{ file.release.requires_python }}"{% endif %}{% if file.release.yanked %}data-yanked{%if file.release.yanked %}="file.release.yanked"{% endif %}{% endif %}>{{ file.filename }}</a><br/>
     {% endfor -%}
   </body>
 </html>
