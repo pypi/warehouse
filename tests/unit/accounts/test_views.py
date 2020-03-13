@@ -339,6 +339,37 @@ class TestLogin:
 
 
 class TestTwoFactor:
+    def test_get_two_factor_data_invalid_after_login(self, pyramid_request):
+        sign_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=30)
+        last_login_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
+
+        query_params = {"userid": 1}
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (query_params, sign_time)
+            )
+        )
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(last_login=last_login_time)
+            ),
+            update_user=lambda *a, **k: None,
+            has_totp=lambda uid: True,
+            has_webauthn=lambda uid: False,
+            has_recovery_codes=lambda uid: False,
+        )
+
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+        pyramid_request.query_string = pretend.stub()
+
+        with pytest.raises(TokenInvalid):
+            views._get_two_factor_data(pyramid_request)
+
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_totp_form(self, pyramid_request, redirect_url):
         query_params = {"userid": 1}
@@ -346,11 +377,18 @@ class TestTwoFactor:
             query_params["redirect_to"] = redirect_url
 
         token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda s: query_params)
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+            )
         )
 
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             update_user=lambda *a, **k: None,
             has_totp=lambda uid: True,
             has_webauthn=lambda uid: False,
@@ -371,7 +409,9 @@ class TestTwoFactor:
             pyramid_request, _form_class=form_class
         )
 
-        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
+        assert token_service.loads.calls == [
+            pretend.call(pyramid_request.query_string, return_timestamp=True)
+        ]
         assert result == {"totp_form": form_obj}
         assert form_class.calls == [
             pretend.call(
@@ -389,11 +429,18 @@ class TestTwoFactor:
             query_params["redirect_to"] = redirect_url
 
         token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda s: query_params)
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+            )
         )
 
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             update_user=lambda *a, **k: None,
             has_totp=lambda uid: False,
             has_webauthn=lambda uid: True,
@@ -410,7 +457,9 @@ class TestTwoFactor:
             pyramid_request, _form_class=pretend.stub()
         )
 
-        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
+        assert token_service.loads.calls == [
+            pretend.call(pyramid_request.query_string, return_timestamp=True)
+        ]
         assert result == {"has_webauthn": True}
 
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
@@ -420,11 +469,18 @@ class TestTwoFactor:
             query_params["redirect_to"] = redirect_url
 
         token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda s: query_params)
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+            )
         )
 
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             update_user=lambda *a, **k: None,
             has_totp=lambda uid: False,
             has_webauthn=lambda uid: False,
@@ -441,7 +497,9 @@ class TestTwoFactor:
             pyramid_request, _form_class=pretend.stub()
         )
 
-        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
+        assert token_service.loads.calls == [
+            pretend.call(pyramid_request.query_string, return_timestamp=True)
+        ]
         assert result == {"has_recovery_codes": True}
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
@@ -454,11 +512,18 @@ class TestTwoFactor:
             query_params["redirect_to"] = redirect_url
 
         token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda s: query_params)
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+            )
         )
 
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             update_user=lambda *a, **k: None,
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
@@ -534,9 +599,18 @@ class TestTwoFactor:
 
     def test_totp_form_invalid(self):
         token_data = {"userid": 1}
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: token_data))
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (token_data, datetime.datetime.utcnow())
+            )
+        )
 
         user_service = pretend.stub(
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             has_totp=lambda userid: True,
             has_webauthn=lambda userid: False,
             has_recovery_codes=lambda userid: False,
@@ -564,11 +638,15 @@ class TestTwoFactor:
 
         result = views.two_factor_and_totp_validate(request, _form_class=form_class)
 
-        assert token_service.loads.calls == [pretend.call(request.query_string)]
+        assert token_service.loads.calls == [
+            pretend.call(request.query_string, return_timestamp=True)
+        ]
         assert result == {"totp_form": form_obj}
 
     def test_two_factor_token_missing_userid(self):
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: {}))
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda *a, **kw: ({}, None))
+        )
 
         request = pretend.stub(
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -581,7 +659,9 @@ class TestTwoFactor:
         )
         result = views.two_factor_and_totp_validate(request)
 
-        assert token_service.loads.calls == [pretend.call(request.query_string)]
+        assert token_service.loads.calls == [
+            pretend.call(request.query_string, return_timestamp=True)
+        ]
         assert request.route_path.calls == [pretend.call("accounts.login")]
         assert request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
@@ -811,11 +891,18 @@ class TestRecoveryCode:
         query_params = {"userid": 1}
 
         token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda s: query_params)
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+            )
         )
 
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             update_user=lambda *a, **k: None,
             has_totp=lambda uid: True,
             has_webauthn=lambda uid: False,
@@ -834,7 +921,9 @@ class TestRecoveryCode:
 
         result = views.recovery_code(pyramid_request, _form_class=form_class)
 
-        assert token_service.loads.calls == [pretend.call(pyramid_request.query_string)]
+        assert token_service.loads.calls == [
+            pretend.call(pyramid_request.query_string, return_timestamp=True)
+        ]
         assert result == {"form": form_obj}
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, user_id=1, user_service=user_service,)
@@ -850,11 +939,18 @@ class TestRecoveryCode:
             query_params["redirect_to"] = redirect_url
 
         token_service = pretend.stub(
-            loads=pretend.call_recorder(lambda s: query_params)
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+            )
         )
 
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             update_user=lambda *a, **k: None,
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
@@ -922,9 +1018,19 @@ class TestRecoveryCode:
 
     def test_recovery_code_form_invalid(self):
         token_data = {"userid": 1}
-        token_service = pretend.stub(loads=pretend.call_recorder(lambda s: token_data))
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (token_data, datetime.datetime.utcnow())
+            )
+        )
 
         user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 1),
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                )
+            ),
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: False,
         )
@@ -950,7 +1056,9 @@ class TestRecoveryCode:
 
         result = views.recovery_code(request, _form_class=form_class)
 
-        assert token_service.loads.calls == [pretend.call(request.query_string)]
+        assert token_service.loads.calls == [
+            pretend.call(request.query_string, return_timestamp=True)
+        ]
         assert result == {"form": form_obj}
 
     def test_recovery_code_auth_invalid_token(self):

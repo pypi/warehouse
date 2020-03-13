@@ -561,17 +561,24 @@ class TokenService:
     def dumps(self, data):
         return self.serializer.dumps({key: str(value) for key, value in data.items()})
 
-    def loads(self, token):
+    def loads(self, token, return_timestamp=False):
         if not token:
             raise TokenMissing
 
         try:
-            data = self.serializer.loads(token, max_age=self.max_age)
+            if return_timestamp:
+                data, timestamp = self.serializer.loads(
+                    token, max_age=self.max_age, return_timestamp=True
+                )
+            else:
+                data = self.serializer.loads(token, max_age=self.max_age)
         except SignatureExpired:
             raise TokenExpired
         except BadData:  #  Catch all other exceptions
             raise TokenInvalid
 
+        if return_timestamp:
+            return data, timestamp
         return data
 
 
