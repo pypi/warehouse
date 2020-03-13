@@ -762,6 +762,16 @@ class TestTokenService:
         token = token_service.dumps({"foo": "bar"})
         assert token_service.loads(token) == {"foo": "bar"}
 
+    def test_loads_return_timestamp(self, token_service):
+        sign_time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(sign_time):
+            token = token_service.dumps({"foo": "bar"})
+
+        assert token_service.loads(token, return_timestamp=True) == (
+            {"foo": "bar"},
+            sign_time.replace(microsecond=0),
+        )
+
     @pytest.mark.parametrize("token", ["", None])
     def test_loads_token_is_none(self, token_service, token):
         with pytest.raises(TokenMissing):

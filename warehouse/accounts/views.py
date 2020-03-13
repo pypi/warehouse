@@ -677,9 +677,16 @@ def verify_email(request):
 
 def _get_two_factor_data(request, _redirect_to="/"):
     token_service = request.find_service(ITokenService, name="two_factor")
-    two_factor_data = token_service.loads(request.query_string)
+    two_factor_data, timestamp = token_service.loads(
+        request.query_string, return_timestamp=True
+    )
 
     if two_factor_data.get("userid") is None:
+        raise TokenInvalid
+
+    user_service = request.find_service(IUserService, context=None)
+    user = user_service.get_user(two_factor_data.get("userid"))
+    if timestamp < user.last_login:
         raise TokenInvalid
 
     # If the user-originating redirection url is not safe, then
