@@ -550,9 +550,9 @@ s3transfer==0.3.3 \
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c
-sqlalchemy-citext==1.5.post0 \
-    --hash=sha256:0bc64312bcc0e83f98c5fa2ddf1c0794ea1bc39e71aa60ab08d0fed8535fd46d \
-    --hash=sha256:f7613627194c05539e40f6083a20d3464a4b4f0e0966efcb3a181d549bc260ce
+sqlalchemy-citext==1.6.post1 \
+    --hash=sha256:1b11d51efc9b772142e22fceb260793265e01f300fdd3af83b0be31cdfb7a5ca \
+    --hash=sha256:8da1ea1b7deba4d1884961bd8a03fe1fd2bb2b3242e849e7696401c1fb4d4606
 sqlalchemy==1.3.15 \
     --hash=sha256:c4cca4aed606297afbe90d4306b49ad3a4cd36feb3f87e4bfd655c57fd9ef445
 stdlib-list==0.6.0 \
