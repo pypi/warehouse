@@ -372,8 +372,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ),
     ]
     assert configurator_obj.add_static_view.calls == [
+        pretend.call("tuf", "warehouse:tuf/dist/metadata.staged/"),
         pretend.call("static", "warehouse:static/dist/", cache_max_age=315360000),
-        pretend.call("tuf", "warehouse:tuf/dist/metadata.staged/")
     ]
     assert configurator_obj.add_cache_buster.calls == [
         pretend.call("warehouse:static/dist/", cachebuster_obj)
