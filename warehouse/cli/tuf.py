@@ -12,8 +12,7 @@
 
 import click
 
-from tuf import repository_tool
-from tuf import formats as tuf_formats
+from tuf import formats as tuf_formats, repository_tool
 
 from warehouse.cli import warehouse
 from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES
