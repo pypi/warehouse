@@ -17,7 +17,7 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import String, cast, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -50,7 +50,18 @@ def email_list(request):
 
         filters = []
         for term in terms:
-            filters.append(EmailMessage.to.ilike(term))
+            if ":" in term:
+                field, value = term.split(":", 1)
+                if field.lower() == "to":
+                    filters.append(EmailMessage.to.ilike(value))
+                if field.lower() == "from":
+                    filters.append(EmailMessage.from_.ilike(value))
+                if field.lower() == "subject":
+                    filters.append(EmailMessage.subject.ilike(value))
+                if field.lower() == "status":
+                    filters.append(cast(EmailMessage.status, String).ilike(value))
+            else:
+                filters.append(EmailMessage.to.ilike(term))
 
         email_query = email_query.filter(or_(*filters))
 
