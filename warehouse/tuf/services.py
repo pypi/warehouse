@@ -17,7 +17,8 @@ import warnings
 from tuf import repository_tool
 from zope.interface import implementer
 
-from warehouse.tuf.interfaces import IKeyService
+from warehouse.tuf.interfaces import IKeyService, IRepositoryService
+from warehouse.tuf.tasks import add_target
 
 
 class InsecureKeyWarning(UserWarning):
@@ -56,3 +57,16 @@ class LocalKeyService:
                 privkey_path, password=self._key_secret
             )
         ]
+
+
+@implementer(IRepositoryService)
+class RepositoryService:
+    def __init__(self, executor):
+        self.executor = executor
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request.task(add_target).delay)
+
+    def add_target(self, file, custom=None):
+        self.executor(file, custom=custom)

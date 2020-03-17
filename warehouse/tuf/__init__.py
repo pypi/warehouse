@@ -10,7 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.tuf.interfaces import IKeyService
+from warehouse.tuf.interfaces import IKeyService, IRepositoryService
+from warehouse.tuf.services import RepositoryService
 
 TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 BINS_ROLE = "bins"
@@ -36,3 +37,7 @@ def includeme(config):
 
     key_service_class = config.maybe_dotted(config.registry.settings["tuf.backend"])
     config.register_service_factory(key_service_class.create_service, IKeyService)
+
+    config.register_service_factory(
+        RepositoryService.create_service, IRepositoryService
+    )

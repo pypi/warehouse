@@ -17,7 +17,7 @@ class IKeyService(Interface):
     def create_service(context, request):
         """
         Create the service, given the context and request for which it is being
-        created for, passing a name for settings.
+        created.
         """
 
     def get_pubkeys():
@@ -35,7 +35,10 @@ class IKeyService(Interface):
 
 class IRepositoryService(Interface):
     def create_service(context, request):
-        pass
+        """
+        Create the service, given the context and request for which it is being
+        created.
+        """
 
     def add_target(file, backsigned=False):
         """

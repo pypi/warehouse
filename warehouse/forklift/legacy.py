@@ -57,6 +57,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
+from warehouse.tuf.interfaces import IRepositoryService
 from warehouse.utils import http, readme
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
@@ -1413,7 +1414,8 @@ def file_upload(request):
                 },
             )
 
-        # TODO: Record file_ in the TUF repository.
+        repository = request.find_service(IRepositoryService)
+        repository.add_target(file_)
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
