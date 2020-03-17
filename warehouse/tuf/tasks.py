@@ -9,3 +9,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+
+from warehouse.tasks import task
+from warehouse.tuf import utils
+
+
+@task(bind=True, ignore_result=True, acks_late=True)
+def add_target(task, request, file):
+    fileinfo = utils.make_fileinfo(file)
+
+    """
+    First, it adds the new file path to the relevant bin-n metadata, increments its version number,
+    signs it with the bin-n role key, and writes it to VERSION_NUMBER.bin-N.json.
+
+    Then, it takes the most recent snapshot metadata, updates its bin-n metadata version numbers,
+    increments its own version number, signs it with the snapshot role key, and writes it to
+    VERSION_NUMBER.snapshot.json.
+
+    And finally, the snapshot process takes the most recent timestamp metadata, updates its
+    snapshot metadata hash and version number, increments its own version number, sets a new
+    expiration time, signs it with the timestamp role key, and writes it to timestamp.json.
+    """

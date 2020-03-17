@@ -12,27 +12,16 @@
 
 import click
 
-from tuf import formats as tuf_formats, repository_tool
+from tuf import repository_tool
 
 from warehouse.cli import warehouse
-from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES
+from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES, utils
 
 TUF_REPO = "warehouse/tuf/dist"
 
 
 def _make_backsigned_fileinfo_from_file(file):
-    """
-    Given a warehouse.packaging.models.File, create a TUF-compliant
-    "fileinfo" dictionary suitable for addition to a delegated bin.
-
-    This "fileinfo" will additionally contain a "backsigned" key in
-    its "custom" value to indicate that it originated from a backsigned
-    release (i.e., one that pre-dates TUF integration).
-    """
-    hashes = {"blake2b": file.blake2_256_digest}
-    fileinfo = tuf_formats.make_fileinfo(file.size, hashes, custom={"backsigned": True})
-
-    return fileinfo
+    return utils.make_fileinfo(file, custom={"backsigned": True})
 
 
 def _key_service_for_role(config, role):
