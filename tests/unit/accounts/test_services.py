@@ -77,7 +77,7 @@ class TestDatabaseUserService:
         crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
-        ratelimiters = {"user": pretend.stub(), "global": pretend.stub()}
+        ratelimiters = {"user.login": pretend.stub(), "global.login": pretend.stub()}
 
         session = pretend.stub()
         service = services.DatabaseUserService(
@@ -114,7 +114,7 @@ class TestDatabaseUserService:
     def test_check_password_global_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
-        user_service.ratelimiters["global"] = limiter
+        user_service.ratelimiters["global.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_password(uuid.uuid4(), None, tags=["foo"])
@@ -144,7 +144,7 @@ class TestDatabaseUserService:
             test=pretend.call_recorder(lambda uid: False),
             resets_in=pretend.call_recorder(lambda uid: resets),
         )
-        user_service.ratelimiters["user"] = limiter
+        user_service.ratelimiters["user.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_password(user.id, None)
@@ -408,7 +408,7 @@ class TestDatabaseUserService:
     def test_check_totp_global_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
-        user_service.ratelimiters["global"] = limiter
+        user_service.ratelimiters["global.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_totp_value(uuid.uuid4(), b"123456", tags=["foo"])
@@ -429,7 +429,7 @@ class TestDatabaseUserService:
             test=pretend.call_recorder(lambda uid: False),
             resets_in=pretend.call_recorder(lambda uid: resets),
         )
-        user_service.ratelimiters["user"] = limiter
+        user_service.ratelimiters["user.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_totp_value(user.id, b"123456")
@@ -450,8 +450,8 @@ class TestDatabaseUserService:
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
         )
-        user_service.ratelimiters["user"] = limiter
-        user_service.ratelimiters["global"] = limiter
+        user_service.ratelimiters["user.login"] = limiter
+        user_service.ratelimiters["global.login"] = limiter
 
         valid = user_service.check_totp_value(user.id, b"123456")
 
@@ -465,8 +465,8 @@ class TestDatabaseUserService:
         )
         user_service.get_totp_secret = lambda uid: "secret"
         monkeypatch.setattr(otp, "verify_totp", lambda secret, value: False)
-        user_service.ratelimiters["user"] = limiter
-        user_service.ratelimiters["global"] = limiter
+        user_service.ratelimiters["user.login"] = limiter
+        user_service.ratelimiters["global.login"] = limiter
 
         valid = user_service.check_totp_value(user.id, b"123456")
 
@@ -689,7 +689,7 @@ class TestDatabaseUserService:
     def test_check_recovery_code_global_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
-        user_service.ratelimiters["global"] = limiter
+        user_service.ratelimiters["global.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_recovery_code(uuid.uuid4(), "recovery_code")
@@ -710,7 +710,7 @@ class TestDatabaseUserService:
             test=pretend.call_recorder(lambda uid: False),
             resets_in=pretend.call_recorder(lambda uid: resets),
         )
-        user_service.ratelimiters["user"] = limiter
+        user_service.ratelimiters["user.login"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_recovery_code(user.id, "recovery_code")
@@ -825,7 +825,10 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics):
         pretend.call(
             request.db,
             metrics=metrics,
-            ratelimiters={"global": global_ratelimiter, "user": user_ratelimiter},
+            ratelimiters={
+                "global.login": global_ratelimiter,
+                "user.login": user_ratelimiter,
+            },
         )
     ]
 

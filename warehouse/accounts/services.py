@@ -122,25 +122,27 @@ class DatabaseUserService:
         # The very first thing we want to do is check to see if we've hit our
         # global rate limit or not, assuming that we've been configured with a
         # global rate limiter anyways.
-        if not self.ratelimiters["global"].test():
+        if not self.ratelimiters["global.login"].test():
             logger.warning("Global failed login threshold reached.")
             self._metrics.increment(
                 "warehouse.authentication.ratelimited",
                 tags=tags + ["ratelimiter:global"],
             )
-            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["global.login"].resets_in()
+            )
 
         user = self.get_user(userid)
         if user is not None:
             # Now, check to make sure that we haven't hitten a rate limit on a
             # per user basis.
-            if not self.ratelimiters["user"].test(user.id):
+            if not self.ratelimiters["user.login"].test(user.id):
                 self._metrics.increment(
                     "warehouse.authentication.ratelimited",
                     tags=tags + ["ratelimiter:user"],
                 )
                 raise TooManyFailedLogins(
-                    resets_in=self.ratelimiters["user"].resets_in(user.id)
+                    resets_in=self.ratelimiters["user.login"].resets_in(user.id)
                 )
 
             # Actually check our hash, optionally getting a new hash for it if
@@ -310,23 +312,25 @@ class DatabaseUserService:
         # The very first thing we want to do is check to see if we've hit our
         # global rate limit or not, assuming that we've been configured with a
         # global rate limiter anyways.
-        if not self.ratelimiters["global"].test():
+        if not self.ratelimiters["global.login"].test():
             logger.warning("Global failed login threshold reached.")
             self._metrics.increment(
                 "warehouse.authentication.two_factor.ratelimited",
                 tags=tags + ["ratelimiter:global"],
             )
-            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["global.login"].resets_in()
+            )
 
         # Now, check to make sure that we haven't hitten a rate limit on a
         # per user basis.
-        if not self.ratelimiters["user"].test(user_id):
+        if not self.ratelimiters["user.login"].test(user_id):
             self._metrics.increment(
                 "warehouse.authentication.two_factor.ratelimited",
                 tags=tags + ["ratelimiter:user"],
             )
             raise TooManyFailedLogins(
-                resets_in=self.ratelimiters["user"].resets_in(user_id)
+                resets_in=self.ratelimiters["user.login"].resets_in(user_id)
             )
 
         totp_secret = self.get_totp_secret(user_id)
@@ -339,8 +343,8 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed totp
             # verification.
-            self.ratelimiters["user"].hit(user_id)
-            self.ratelimiters["global"].hit()
+            self.ratelimiters["user.login"].hit(user_id)
+            self.ratelimiters["global.login"].hit()
             return False
 
         last_totp_value = self.get_last_totp_value(user_id)
@@ -360,8 +364,8 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed totp
             # verification.
-            self.ratelimiters["user"].hit(user_id)
-            self.ratelimiters["global"].hit()
+            self.ratelimiters["user.login"].hit(user_id)
+            self.ratelimiters["global.login"].hit()
 
         return valid
 
@@ -496,23 +500,25 @@ class DatabaseUserService:
         # The very first thing we want to do is check to see if we've hit our
         # global rate limit or not, assuming that we've been configured with a
         # global rate limiter anyways.
-        if not self.ratelimiters["global"].test():
+        if not self.ratelimiters["global.login"].test():
             logger.warning("Global failed login threshold reached.")
             self._metrics.increment(
                 "warehouse.authentication.recovery_code.ratelimited",
                 tags=["ratelimiter:global"],
             )
-            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["global.login"].resets_in()
+            )
 
         # Now, check to make sure that we haven't hitten a rate limit on a
         # per user basis.
-        if not self.ratelimiters["user"].test(user_id):
+        if not self.ratelimiters["user.login"].test(user_id):
             self._metrics.increment(
                 "warehouse.authentication.recovery_code.ratelimited",
                 tags=["ratelimiter:user"],
             )
             raise TooManyFailedLogins(
-                resets_in=self.ratelimiters["user"].resets_in(user_id)
+                resets_in=self.ratelimiters["user.login"].resets_in(user_id)
             )
 
         user = self.get_user(user_id)
@@ -525,8 +531,8 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed recovery code
             # verification.
-            self.ratelimiters["user"].hit(user_id)
-            self.ratelimiters["global"].hit()
+            self.ratelimiters["user.login"].hit(user_id)
+            self.ratelimiters["global.login"].hit()
             return False
 
         valid = False
@@ -546,8 +552,8 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed recovery code
             # verification.
-            self.ratelimiters["user"].hit(user_id)
-            self.ratelimiters["global"].hit()
+            self.ratelimiters["user.login"].hit(user_id)
+            self.ratelimiters["global.login"].hit()
 
         return valid
 
@@ -582,10 +588,12 @@ def database_login_factory(context, request):
         request.db,
         metrics=request.find_service(IMetricsService, context=None),
         ratelimiters={
-            "global": request.find_service(
+            "global.login": request.find_service(
                 IRateLimiter, name="global.login", context=None
             ),
-            "user": request.find_service(IRateLimiter, name="user.login", context=None),
+            "user.login": request.find_service(
+                IRateLimiter, name="user.login", context=None
+            ),
         },
     )
 
