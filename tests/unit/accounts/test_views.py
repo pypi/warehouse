@@ -1227,9 +1227,16 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert create_user.calls == [
-            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
+            pretend.call(
+                "username_value",
+                "full_name",
+                "MyStr0ng!shP455w0rd",
+                db_request.remote_addr,
+            )
         ]
-        assert add_email.calls == [pretend.call(user.id, "foo@bar.com", primary=True)]
+        assert add_email.calls == [
+            pretend.call(user.id, "foo@bar.com", db_request.remote_addr, primary=True)
+        ]
         assert send_email.calls == [pretend.call(db_request, (user, email))]
         assert record_event.calls == [
             pretend.call(

@@ -13,11 +13,23 @@
 from zope.interface import Attribute, Interface
 
 
-class TooManyFailedLogins(Exception):
+class RateLimiterException(Exception):
     def __init__(self, *args, resets_in, **kwargs):
         self.resets_in = resets_in
 
         return super().__init__(*args, **kwargs)
+
+
+class TooManyFailedLogins(RateLimiterException):
+    pass
+
+
+class TooManyAccountsCreated(RateLimiterException):
+    pass
+
+
+class TooManyEmailsAdded(RateLimiterException):
+    pass
 
 
 class TokenException(Exception):
@@ -70,7 +82,7 @@ class IUserService(Interface):
         checking the password.
         """
 
-    def create_user(username, name, password):
+    def create_user(username, name, password, ip_address):
         """
         Accepts a user object, and attempts to create a user with those
         attributes.
@@ -78,7 +90,9 @@ class IUserService(Interface):
         A UserAlreadyExists Exception is raised if the user already exists.
         """
 
-    def add_email(user_id, email_address, primary=False, verified=False, public=False):
+    def add_email(
+        user_id, email_address, ip_address, primary=False, verified=False, public=False
+    ):
         """
         Adds an email for the provided user_id
         """

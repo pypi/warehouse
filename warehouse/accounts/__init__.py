@@ -170,10 +170,16 @@ def includeme(config):
     config.add_request_method(_user, name="user", reify=True)
 
     # Register the rate limits that we're going to be using for our login
-    # attempts
+    # attempts and account creation
+    config.register_service_factory(
+        RateLimit("5 per day"), IRateLimiter, name="user.create"
+    )
     config.register_service_factory(
         RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"
     )
     config.register_service_factory(
         RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
+    )
+    config.register_service_factory(
+        RateLimit("5 per day"), IRateLimiter, name="email.add"
     )

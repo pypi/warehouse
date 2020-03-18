@@ -37,6 +37,8 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyAccountsCreated,
+    TooManyEmailsAdded,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
@@ -174,21 +176,48 @@ class DatabaseUserService:
         # rate limiting before returning False to indicate a failed password
         # verification.
         if user is not None:
-            self.ratelimiters["user"].hit(user.id)
-        self.ratelimiters["global"].hit()
+            self.ratelimiters["user.login"].hit(user.id)
+        self.ratelimiters["global.login"].hit()
 
         return False
 
-    def create_user(self, username, name, password):
+    def create_user(self, username, name, password, ip_address):
+        # Check to make sure that we haven't hitten the rate limit for this IP
+        if not self.ratelimiters["user.create"].test(ip_address):
+            self._metrics.increment(
+                "warehouse.user.create.ratelimited", tags=["ratelimiter:user.create"],
+            )
+            raise TooManyAccountsCreated(
+                resets_in=self.ratelimiters["user.create"].resets_in(ip_address)
+            )
+
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
         self.db.flush()  # flush the db now so user.id is available
 
+        self.ratelimiters["user.create"].hit(ip_address)
+        self._metrics.increment("warehouse.user.create.ok")
+
         return user
 
     def add_email(
-        self, user_id, email_address, primary=None, verified=False, public=False
+        self,
+        user_id,
+        email_address,
+        ip_address,
+        primary=None,
+        verified=False,
+        public=False,
     ):
+        # Check to make sure that we haven't hitten the rate limit for this IP
+        if not self.ratelimiters["email.add"].test(ip_address):
+            self._metrics.increment(
+                "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"],
+            )
+            raise TooManyEmailsAdded(
+                resets_in=self.ratelimiters["email.add"].resets_in(ip_address)
+            )
+
         user = self.get_user(user_id)
 
         # If primary is None, then we're going to auto detect whether this should be the
@@ -207,6 +236,9 @@ class DatabaseUserService:
         )
         self.db.add(email)
         self.db.flush()  # flush the db now so email.id is available
+
+        self.ratelimiters["email.add"].hit(ip_address)
+        self._metrics.increment("warehouse.email.add.ok")
 
         return email
 
@@ -593,6 +625,12 @@ def database_login_factory(context, request):
             ),
             "user.login": request.find_service(
                 IRateLimiter, name="user.login", context=None
+            ),
+            "user.create": request.find_service(
+                IRateLimiter, name="user.create", context=None
+            ),
+            "email.add": request.find_service(
+                IRateLimiter, name="email.add", context=None
             ),
         },
     )
