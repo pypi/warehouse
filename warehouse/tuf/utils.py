@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import tuf.formats
+import tuf.repository_tool
 
 
 def make_fileinfo(file, custom=None):
@@ -27,8 +28,10 @@ def make_fileinfo(file, custom=None):
     return fileinfo
 
 
-def open_repository(request):
-    pass
+def load_repository(request):
+    return tuf.repository_tool.load_repository(
+        request.registry.settings["tuf.repository"]
+    )
 
 
 class RepoLock:
