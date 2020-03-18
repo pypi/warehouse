@@ -22,6 +22,9 @@ def add_target(task, request, file):
 
     with utils.RepoLock(r):
         fileinfo = utils.make_fileinfo(file)
+        repository = utils.open_repository()
+
+        repository.add_target_to_bin(file.path, fileinfo=fileinfo)
 
     """
     First, it adds the new file path to the relevant bin-n metadata, increments its version number,
