@@ -25,3 +25,19 @@ def make_fileinfo(file, custom=None):
     fileinfo = tuf.formats.make_fileinfo(file.size, hashes, custom=custom)
 
     return fileinfo
+
+
+class RepoLock:
+    """
+    Supplies a blocking lock for TUF repository operations.
+    """
+
+    def __init__(self, redis_client):
+        self.lock = redis_client.lock("tuf-repo")
+
+    def __enter__(self):
+        self.lock.acquire()
+        return self
+
+    def __exit__(self, *_exc):
+        self.lock.release()

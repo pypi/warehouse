@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import redis
 
 from warehouse.tasks import task
 from warehouse.tuf import utils
@@ -17,7 +18,10 @@ from warehouse.tuf import utils
 
 @task(bind=True, ignore_result=True, acks_late=True)
 def add_target(task, request, file):
-    fileinfo = utils.make_fileinfo(file)
+    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+
+    with utils.RepoLock(r):
+        fileinfo = utils.make_fileinfo(file)
 
     """
     First, it adds the new file path to the relevant bin-n metadata, increments its version number,
