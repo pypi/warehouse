@@ -66,7 +66,7 @@
   <div class="box-body with-border">
     <form>
       <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
+        <input name="q" type="text" class="form-control input-lg" placeholder="Search: supported terms are to: from: subject: status:"{% if query %} value="{{ query }}"{% endif %}>
         <div class="input-group-btn">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>

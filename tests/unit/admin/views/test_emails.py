@@ -20,6 +20,7 @@ import pytest
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import emails as views
+from warehouse.email.ses.models import EmailStatuses
 
 from ....common.db.accounts import EmailFactory, UserFactory
 from ....common.db.ses import EmailMessageFactory
@@ -63,6 +64,42 @@ class TestEmailList:
         result = views.email_list(db_request)
 
         assert result == {"emails": [emails[0]], "query": emails[0].to}
+
+    def test_query_term_to(self, db_request):
+        email0 = EmailMessageFactory.create(to="foo@bar.com")
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "to:foo@bar.com"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "to:foo@bar.com"}
+
+    def test_query_term_from(self, db_request):
+        email0 = EmailMessageFactory.create(from_="foo@bar.com")
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "from:foo@bar.com"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "from:foo@bar.com"}
+
+    def test_query_term_subject(self, db_request):
+        email0 = EmailMessageFactory.create(subject="foo bar")
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "subject:'foo bar'"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "subject:'foo bar'"}
+
+    def test_query_term_status(self, db_request):
+        email0 = EmailMessageFactory.create(status=EmailStatuses.Bounced.value)
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "status:bounced"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "status:bounced"}
 
     def test_wildcard_query(self, db_request):
         emails = sorted(
