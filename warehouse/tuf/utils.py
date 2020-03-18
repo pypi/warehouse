@@ -27,6 +27,10 @@ def make_fileinfo(file, custom=None):
     return fileinfo
 
 
+def open_repository(request):
+    pass
+
+
 class RepoLock:
     """
     Supplies a blocking lock for TUF repository operations.

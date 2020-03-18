@@ -22,7 +22,7 @@ def add_target(task, request, file):
 
     with utils.RepoLock(r):
         fileinfo = utils.make_fileinfo(file)
-        repository = utils.open_repository()
+        repository = utils.open_repository(request)
 
         repository.add_target_to_bin(file.path, fileinfo=fileinfo)
 
