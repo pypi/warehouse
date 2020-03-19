@@ -426,8 +426,9 @@ class Release(db.Model):
         for urlspec in self.project_urls:
             name, _, url = urlspec.partition(",")
             name = name.strip()
-            if name:
-                _urls[name] = url.strip()
+            url = url.strip()
+            if name and url:
+                _urls[name] = url
 
         return _urls
 

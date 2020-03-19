@@ -243,6 +243,7 @@ class TestRelease:
                     ]
                 ),
             ),
+            # project_urls has more priority than home_page and download_url
             (
                 "https://example.com/home/",
                 "https://example.com/download/",
@@ -256,6 +257,22 @@ class TestRelease:
                         ("Homepage", "https://example.com/home2/"),
                         ("Source Code", "https://example.com/source-code/"),
                         ("Download", "https://example.com/download2/"),
+                    ]
+                ),
+            ),
+            # ignore invalid links
+            (
+                None,
+                None,
+                [
+                    " ,https://example.com/home/",
+                    ",https://example.com/home/",
+                    "https://example.com/home/",
+                    "Download,https://example.com/download/",
+                ],
+                OrderedDict(
+                    [
+                        ("Download", "https://example.com/download/"),
                     ]
                 ),
             ),
