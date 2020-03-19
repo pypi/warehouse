@@ -420,23 +420,23 @@ class Release(db.Model):
 
         if self.home_page:
             _urls["Homepage"] = self.home_page
+        if self.download_url:
+            _urls["Download"] = self.download_url
 
         for urlspec in self.project_urls:
-            name, url = [x.strip() for x in urlspec.split(",", 1)]
-            _urls[name] = url
-
-        if self.download_url and "Download" not in _urls:
-            _urls["Download"] = self.download_url
+            name, _, url = urlspec.partition(",")
+            name = name.strip()
+            if name:
+                _urls[name] = url.strip()
 
         return _urls
 
     @property
     def github_repo_info_url(self):
-        for parsed in [urlparse(url) for url in self.urls.values()]:
-            segments = parsed.path.strip("/").rstrip("/").split("/")
-            if (
-                parsed.netloc == "github.com" or parsed.netloc == "www.github.com"
-            ) and len(segments) >= 2:
+        for url in self.urls.values():
+            parsed = urlparse(url)
+            segments = parsed.path.strip("/").split("/")
+            if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
