@@ -17,7 +17,7 @@ from tuf import repository_tool
 from warehouse.cli import warehouse
 from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES, utils
 
-TUF_REPO = "warehouse/tuf/dist"
+# TUF_REPO = "warehouse/tuf/dist"
 
 
 def _make_backsigned_fileinfo_from_file(file):
@@ -59,7 +59,9 @@ def new_repo(config):
     Initialize the TUF repository from scratch, including a brand new root.
     """
 
-    repository = repository_tool.create_new_repository(TUF_REPO)
+    repository = repository_tool.create_new_repository(
+        config.registry.settings["tuf.repository"]
+    )
 
     for role in TOPLEVEL_ROLES:
         key_service = _key_service_for_role(config, role)
@@ -94,7 +96,9 @@ def build_targets(config):
     targets role (bins) and its hashed bin delegations (each bin-n).
     """
 
-    repository = repository_tool.load_repository(TUF_REPO)
+    repository = repository_tool.load_repository(
+        config.registry.settings["tuf.repository"]
+    )
 
     # Load signing keys. We do this upfront for the top-level roles.
     for role in ["snapshot", "targets", "timestamp"]:
