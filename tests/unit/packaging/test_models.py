@@ -270,11 +270,7 @@ class TestRelease:
                     "https://example.com/home/",
                     "Download,https://example.com/download/",
                 ],
-                OrderedDict(
-                    [
-                        ("Download", "https://example.com/download/"),
-                    ]
-                ),
+                OrderedDict([("Download", "https://example.com/download/")]),
             ),
         ],
     )
