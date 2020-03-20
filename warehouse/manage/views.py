@@ -40,6 +40,7 @@ from warehouse.email import (
     send_primary_email_change_email,
     send_removed_project_email,
     send_removed_project_release_email,
+    send_removed_project_release_file_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
 )
@@ -1241,6 +1242,26 @@ class ManageProjectRelease:
                 "filename": release_file.filename,
             },
         )
+
+        submitter_role = get_user_role_in_project(
+            project_name, self.request.user.username, self.request
+        )
+        contributors = get_project_contributors(project_name, self.request)
+
+        for contributor in contributors:
+            contributor_role = get_user_role_in_project(
+                project_name, contributor.username, self.request
+            )
+
+            send_removed_project_release_file_email(
+                self.request,
+                contributor,
+                file=release_file.filename,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
 
         self.request.db.delete(release_file)
 

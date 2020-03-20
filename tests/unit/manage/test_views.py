@@ -2813,7 +2813,7 @@ class TestManageProjectRelease:
             )
         ]
 
-    def test_delete_project_release_file(self, db_request):
+    def test_delete_project_release_file(self, monkeypatch, db_request):
         user = UserFactory.create()
 
         project = ProjectFactory.create(name="foobar")
@@ -2833,6 +2833,25 @@ class TestManageProjectRelease:
         )
         db_request.user = user
         db_request.remote_addr = "1.2.3.4"
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project_name, username, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        get_project_contributors = pretend.call_recorder(
+            lambda project_name, req: [db_request.user]
+        )
+        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
+
+        send_removed_project_release_file_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_project_release_file_email",
+            send_removed_project_release_file_email,
+        )
 
         view = views.ManageProjectRelease(release, db_request)
 
@@ -2862,6 +2881,27 @@ class TestManageProjectRelease:
                 "manage.project.release",
                 project_name=release.project.name,
                 version=release.version,
+            )
+        ]
+
+        assert get_user_role_in_project.calls == [
+            pretend.call(project.name, db_request.user.username, db_request,),
+            pretend.call(project.name, db_request.user.username, db_request,),
+        ]
+
+        assert get_project_contributors.calls == [
+            pretend.call(project.name, db_request,)
+        ]
+
+        assert send_removed_project_release_file_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                file=release_file.filename,
+                release=release,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
             )
         ]
 
