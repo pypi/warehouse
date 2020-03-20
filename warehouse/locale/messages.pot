@@ -1256,48 +1256,6 @@ msgid ""
 "<code>%(new_email)s</code>"
 msgstr ""
 
-#: warehouse/templates/email/removed-project/body.html:25
-#, python-format
-msgid "The project %(project)s has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:26
-#: warehouse/templates/email/removed-project/body.html:26
-#, python-format
-msgid ""
-"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
-"      %(role)s."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:32
-#: warehouse/templates/email/removed-project/body.html:32
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a\n"
-"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-
-#: warehouse/templates/email/removed-project/body.html:38
-#, python-format
-msgid ""
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:25
-#, python-format
-msgid "The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:38
-#, python-format
-msgid ""
-"\n"
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr ""
-
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
