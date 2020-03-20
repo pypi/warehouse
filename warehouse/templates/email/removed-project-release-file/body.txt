@@ -15,13 +15,13 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-  The file {{ file }} from release {{ release_version }} of the {{ project_name }} project has been deleted.
+The file {{ file }} from release {{ release_version }} of the {{ project_name }} project has been deleted.
 
-  Deleted by: {{ submitter_name }} with a role: {{ submitter_role }}.
+Deleted by: {{ submitter_name }} with a role: {{ submitter_role }}.
 
-  If this was a mistake, you can email admin@pypi.org to communicate with the PyPI administrators.
+If this was a mistake, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
 
 {% block reason %}
-    You are receiving this because you are {{ recipient_role_descr }} of this project.
+You are receiving this because you are {{ recipient_role_descr }} of this project.
 {% endblock %}
