@@ -312,7 +312,7 @@
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ save_account_form.public_email(class_="form-group__select", **{"aria-secribedby":"public-email-errors"}) }}
+          {{ save_account_form.public_email(class_="form-group__input", **{"aria-secribedby":"public-email-errors"}) }}
         </p>
         <div id="public-email-errors">
           {{ field_errors(save_account_form.public_email) }}
