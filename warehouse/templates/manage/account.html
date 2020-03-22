@@ -294,7 +294,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ save_account_form.name(placeholder=gettext("No name set"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"full-name-errors"}) }}
+        {{ save_account_form.name(placeholder=gettext("No name set"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"full-name-errors"}) }}
         <div id="full-name-errors">
           {{ field_errors(save_account_form.name) }}
         </div>
@@ -312,7 +312,7 @@
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ save_account_form.public_email(class_="form-group__select", **{"aria-secribedby":"public-email-errors"}) }}
+          {{ save_account_form.public_email(class_="form-group__field", **{"aria-secribedby":"public-email-errors"}) }}
         </p>
         <div id="public-email-errors">
           {{ field_errors(save_account_form.public_email) }}
@@ -368,7 +368,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}
           </span>{% endif %}
         </label>
-        {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"add-email-errors"}) }}
+        {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"add-email-errors"}) }}
         <div id="add-email-errors">
           {{ field_errors(add_email_form.email) }}
         </div>
@@ -398,7 +398,7 @@
               id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
           </label>
         </div>
-        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__input", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
+        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__field", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
         <div id="current-password-errors">
           {{ field_errors(change_password_form.password) }}
         </div>
@@ -412,7 +412,7 @@
         </label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
+          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
         </div>
         <div id="new-password-errors">
           {{ field_errors(change_password_form.new_password) }}
@@ -426,7 +426,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
+        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
         <div id="confirm-password-errors">
           {{ field_errors(change_password_form.password_confirm) }}
         </div>

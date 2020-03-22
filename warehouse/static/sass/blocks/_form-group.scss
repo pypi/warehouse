@@ -20,7 +20,7 @@
       Label here
       <span class="form-group__required"(required)</span>
     </label>
-    <input class="form-group__input" id="myinput" />
+    <input class="form-group__field" id="myinput" />
     <p class="form-group__text">When a field is not editable, you can use me instead</p>
     <p class="form-group__help-text">Some help text here</p>
   </div>
@@ -44,8 +44,8 @@
     font-weight: normal;
   }
 
-  #{$all-text-inputs}.form-group__input,
-  select.form-group__input {
+  #{$all-text-inputs}.form-group__field,
+  select.form-group__field {
     display: block;
     width: 350px;
     margin-top: 4px;
