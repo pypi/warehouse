@@ -15,15 +15,13 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-  {% trans project=project %}The project {{ project }} has been deleted.{% endtrans  %}
+The project {{ project }} has been deleted.
 
-  {% trans submitter=submitter, role=submitter_role %}Deleted by: {{ submitter }} with a role: {{ role }}.{% endtrans %}
+Deleted by: {{ submitter }} with a role: {{ submitter_role }}.
 
-  {% trans email_address='admin@pypi.org' %}If this was a mistake, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
+If this was a mistake, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
 
 {% block reason %}
-  {% trans recipient_role_descr=recipient_role_descr %}
-    You are receiving this because you are {{ recipient_role_descr }} of this project.
-  {% endtrans %}
+You are receiving this because you are {{ recipient_role_descr }} of this project.
 {% endblock %}

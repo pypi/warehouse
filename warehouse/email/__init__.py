@@ -247,6 +247,24 @@ def send_removed_project_release_email(
     }
 
 
+@_email("removed-project-release-file")
+def send_removed_project_release_file_email(
+    request, user, *, file, release, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "file": file,
+        "project_name": release.project.name,
+        "release_version": release.version,
+        "submitter_name": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)
