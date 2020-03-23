@@ -54,8 +54,6 @@ from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
 
-# 403, 404, 410, 500,
-
 
 @view_config(context=HTTPException)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
