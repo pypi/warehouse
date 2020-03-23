@@ -2818,6 +2818,78 @@ class TestFileUpload:
             ),
         ]
 
+    def test_upload_succeeds_creates_classifier(
+        self, pyramid_config, db_request, metrics, monkeypatch
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        monkeypatch.setattr(legacy, "classifiers", {"AA :: BB", "CC :: DD"})
+
+        db_request.db.add(Classifier(classifier="AA :: BB"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        db_request.user = user
+        db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "AA :: BB"),
+                ("classifiers", "CC :: DD"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("project_urls", "Test, https://example.com/"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a new Classifier has been created
+        classifier = (
+            db_request.db.query(Classifier)
+            .filter(Classifier.classifier == "CC :: DD")
+            .one()
+        )
+        assert classifier.classifier == "CC :: DD"
+
+        # Ensure that the Release has the new classifier
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+        assert release.classifiers == ["AA :: BB", "CC :: DD"]
+
     def test_equivalent_version_one_release(self, pyramid_config, db_request, metrics):
         """
         Test that if a release with a version like '1.0' exists, that a future
