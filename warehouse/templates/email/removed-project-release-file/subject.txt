@@ -11,24 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.html" %}
 
-{% block content %}
-<p>
-  The project {{ project }} has been deleted.
-  <ul>
-    <li>
-      <strong>Deleted by:</strong> {{ submitter }} with a role: {{ submitter_role }}.
-    </li>
-  </ul>
-</p>
-<p>
-  If this was a mistake, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.
-</p>
-{% endblock %}
+{% extends "email/_base/subject.txt" %}
 
-{% block reason %}
-<p>
-  You are receiving this because you are {{ recipient_role_descr }} of this project.
-</p>
-{% endblock %}
+{% block subject %}File deleted for {{ project_name }} {{ release_version }}{% endblock %}
