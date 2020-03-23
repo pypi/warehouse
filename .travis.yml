@@ -24,6 +24,7 @@ services:
 cache:
   directories:
     - ~/.cache/pip
+    - ~/.nvm/versions/
     - node_modules/
 
 install:
