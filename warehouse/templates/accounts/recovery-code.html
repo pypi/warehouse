@@ -42,7 +42,7 @@
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ form.recovery_code_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="one-time-code", **{"aria-describedby":"recovery_code-errors"}) }}
+            {{ form.recovery_code_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__field", autocomplete="one-time-code", **{"aria-describedby":"recovery_code-errors"}) }}
             {% if form.recovery_code_value.errors %}
             <ul id="recovery_code-errors" class="form-errors" role="alert">
               {% for error in form.recovery_code_value.errors %}
