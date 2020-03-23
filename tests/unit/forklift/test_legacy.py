@@ -328,25 +328,42 @@ class TestValidation:
             legacy._validate_description_content_type(form, field)
 
     def test_validate_no_deprecated_classifiers_valid(self, db_request):
-        valid_classifier = ClassifierFactory(deprecated=False)
-        validator = legacy._no_deprecated_classifiers(db_request)
+        valid_classifier = ClassifierFactory(classifier="AA :: BB")
 
         form = pretend.stub()
         field = pretend.stub(data=[valid_classifier.classifier])
 
-        validator(form, field)
+        legacy._validate_no_deprecated_classifiers(form, field)
 
-    def test_validate_no_deprecated_classifiers_invalid(self, db_request):
-        deprecated_classifier = ClassifierFactory(classifier="AA: BB", deprecated=True)
-        validator = legacy._no_deprecated_classifiers(db_request)
-        db_request.registry = pretend.stub(settings={"warehouse.domain": "host"})
-        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/url")
+    @pytest.mark.parametrize(
+        "deprecated_classifiers", [({"AA :: BB": []}), ({"AA :: BB": ["CC :: DD"]})]
+    )
+    def test_validate_no_deprecated_classifiers_invalid(
+        self, db_request, deprecated_classifiers, monkeypatch
+    ):
+        monkeypatch.setattr(legacy, "deprecated_classifiers", deprecated_classifiers)
 
         form = pretend.stub()
-        field = pretend.stub(data=[deprecated_classifier.classifier])
+        field = pretend.stub(data=["AA :: BB"])
 
         with pytest.raises(ValidationError):
-            validator(form, field)
+            legacy._validate_no_deprecated_classifiers(form, field)
+
+    def test_validate_classifiers_valid(self, db_request, monkeypatch):
+        monkeypatch.setattr(legacy, "classifiers", {"AA :: BB"})
+
+        form = pretend.stub()
+        field = pretend.stub(data=["AA :: BB"])
+
+        legacy._validate_classifiers(form, field)
+
+    @pytest.mark.parametrize("data", [(["AA :: BB"]), (["AA :: BB", "CC :: DD"])])
+    def test_validate_classifiers_invalid(self, db_request, data):
+        form = pretend.stub()
+        field = pretend.stub(data=data)
+
+        with pytest.raises(ValidationError):
+            legacy._validate_classifiers(form, field)
 
 
 def test_construct_dependencies():
@@ -1639,7 +1656,7 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
+        db_request.POST.extend([("classifiers", "Invalid :: Classifier")])
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -1648,12 +1665,29 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid value for classifiers. "
-            "Error: 'Environment :: Other Environment' is not a valid choice "
-            "for this field"
+            "400 Invalid value for classifiers. Error: Classifier 'Invalid :: "
+            "Classifier' is not a valid classifier."
         )
 
-    def test_upload_fails_with_deprecated_classifier(self, pyramid_config, db_request):
+    @pytest.mark.parametrize(
+        "deprecated_classifiers, expected",
+        [
+            (
+                {"AA :: BB": ["CC :: DD"]},
+                "400 Invalid value for classifiers. Error: Classifier 'AA :: "
+                "BB' has been deprecated, use the following classifier(s) "
+                "instead: ['CC :: DD']",
+            ),
+            (
+                {"AA :: BB": []},
+                "400 Invalid value for classifiers. Error: Classifier 'AA :: "
+                "BB' has been deprecated.",
+            ),
+        ],
+    )
+    def test_upload_fails_with_deprecated_classifier(
+        self, pyramid_config, db_request, monkeypatch, deprecated_classifiers, expected
+    ):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -1662,7 +1696,9 @@ class TestFileUpload:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
-        classifier = ClassifierFactory(classifier="AA :: BB", deprecated=True)
+        classifier = ClassifierFactory(classifier="AA :: BB")
+
+        monkeypatch.setattr(legacy, "deprecated_classifiers", deprecated_classifiers)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
@@ -1689,11 +1725,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 Invalid value for classifiers. "
-            "Error: Classifier 'AA :: BB' has been deprecated, see /url "
-            "for a list of valid classifiers."
-        )
+        assert resp.status == expected
 
     @pytest.mark.parametrize(
         "digests",

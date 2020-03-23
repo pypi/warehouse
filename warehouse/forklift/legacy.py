@@ -37,6 +37,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
@@ -340,6 +341,38 @@ def _validate_description_content_type(form, field):
         )
 
 
+def _validate_no_deprecated_classifiers(form, field):
+    invalid_classifiers = set(field.data or []) & deprecated_classifiers.keys()
+    if invalid_classifiers:
+        first_invalid_classifier_name = sorted(invalid_classifiers)[0]
+        deprecated_by = deprecated_classifiers[first_invalid_classifier_name]
+
+        if deprecated_by:
+            raise wtforms.validators.ValidationError(
+                f"Classifier {first_invalid_classifier_name!r} has been "
+                "deprecated, use the following classifier(s) instead: "
+                f"{deprecated_by}"
+            )
+        else:
+            raise wtforms.validators.ValidationError(
+                f"Classifier {first_invalid_classifier_name!r} has been deprecated."
+            )
+
+
+def _validate_classifiers(form, field):
+    invalid = sorted(set(field.data or []) - classifiers)
+
+    if invalid:
+        if len(invalid) == 1:
+            raise wtforms.validators.ValidationError(
+                f"Classifier {invalid[0]!r} is not a valid classifier."
+            )
+        else:
+            raise wtforms.validators.ValidationError(
+                f"Classifiers {invalid!r} are not valid classifiers."
+            )
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -437,7 +470,10 @@ class MetadataForm(forms.Form):
     keywords = wtforms.StringField(
         description="Keywords", validators=[wtforms.validators.Optional()]
     )
-    classifiers = wtforms.fields.SelectMultipleField(description="Classifier")
+    classifiers = ListField(
+        description="Classifier",
+        validators=[_validate_no_deprecated_classifiers, _validate_classifiers],
+    )
     platform = wtforms.StringField(
         description="Platform", validators=[wtforms.validators.Optional()]
     )
@@ -702,32 +738,6 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _no_deprecated_classifiers(request):
-    deprecated_classifiers = {
-        classifier.classifier
-        for classifier in (
-            request.db.query(Classifier.classifier)
-            .filter(Classifier.deprecated.is_(True))
-            .all()
-        )
-    }
-
-    def validate_no_deprecated_classifiers(form, field):
-        invalid_classifiers = set(field.data or []) & deprecated_classifiers
-        if invalid_classifiers:
-            first_invalid_classifier = sorted(invalid_classifiers)[0]
-            host = request.registry.settings.get("warehouse.domain")
-            classifiers_url = request.route_url("classifiers", _host=host)
-
-            raise wtforms.validators.ValidationError(
-                f"Classifier {first_invalid_classifier!r} has been "
-                f"deprecated, see {classifiers_url} for a list of valid "
-                "classifiers."
-            )
-
-    return validate_no_deprecated_classifiers
-
-
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -816,16 +826,9 @@ def file_upload(request):
         if any(isinstance(value, FieldStorage) for value in values):
             raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
 
-    # Look up all of the valid classifiers
-    all_classifiers = request.db.query(Classifier).all()
-
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
 
-    # Add a validator for deprecated classifiers
-    form.classifiers.validators.append(_no_deprecated_classifiers(request))
-
-    form.classifiers.choices = [(c.classifier, c.classifier) for c in all_classifiers]
     if not form.validate():
         for field_name in _error_message_order:
             if field_name in form.errors:
