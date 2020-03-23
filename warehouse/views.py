@@ -38,7 +38,7 @@ from pyramid.view import (
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
-from trove_classifiers import classifiers
+from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -305,11 +305,11 @@ def search(request):
     classifiers_q = (
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
-        .filter(Classifier.deprecated.is_(False))
         .filter(
             exists([release_classifiers.c.trove_id]).where(
                 release_classifiers.c.trove_id == Classifier.id
-            )
+            ),
+            Classifier.classifier.notin_(deprecated_classifiers.keys()),
         )
         .order_by(Classifier.classifier)
     )
