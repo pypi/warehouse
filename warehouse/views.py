@@ -38,6 +38,7 @@ from pyramid.view import (
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
+from trove_classifiers import classifiers
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -259,15 +260,8 @@ def locale(request):
 @view_config(
     route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
 )
-def classifiers(request):
-    classifiers = (
-        request.db.query(Classifier.classifier)
-        .filter(Classifier.deprecated.is_(False))
-        .order_by(Classifier.classifier)
-        .all()
-    )
-
-    return {"classifiers": classifiers}
+def list_classifiers(request):
+    return {"classifiers": sorted(classifiers)}
 
 
 @view_config(
