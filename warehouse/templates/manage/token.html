@@ -129,7 +129,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        <input type="text" name="description" id="description" autocomplete="off" autocapitalize="off" spellcheck="false" class="form-group__input" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
+        <input type="text" name="description" id="description" autocomplete="off" autocapitalize="off" spellcheck="false" class="form-group__field" aria-describedby="token-name-errors description-help-text" value="{{ create_macaroon_form.description.data or ""}}">
         <div id="token-name-errors">
           {{ field_errors(create_macaroon_form.description) }}
         </div>
@@ -146,7 +146,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        <select name="token_scope" id="token_scope" class="form-group__input" aria-describedby="scope-errors" autocomplete="off">
+        <select name="token_scope" id="token_scope" class="form-group__field" aria-describedby="scope-errors" autocomplete="off">
           <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">{% trans %}Select scope...{% endtrans %}</option>
           <option value="scope:user">{% trans %}Entire account (all projects){% endtrans %}</option>
         {% for project in project_names %}
