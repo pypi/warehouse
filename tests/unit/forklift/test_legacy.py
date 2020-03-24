@@ -26,6 +26,7 @@ import pytest
 import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
@@ -2895,6 +2896,14 @@ class TestFileUpload:
         for classifier in classifiers:
             db_request.db.add(Classifier(classifier=classifier))
         db_request.db.commit()
+
+    @pytest.mark.parametrize(
+        "parent_classifier", ["private", "Private", "PrIvAtE"],
+    )
+    def test_private_classifiers_cannot_be_created(self, db_request, parent_classifier):
+        with pytest.raises(IntegrityError):
+            db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
+            db_request.db.commit()
 
     def test_equivalent_version_one_release(self, pyramid_config, db_request, metrics):
         """
