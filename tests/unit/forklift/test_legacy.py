@@ -27,6 +27,7 @@ import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from sqlalchemy.orm import joinedload
+from trove_classifiers import classifiers
 from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
@@ -2889,6 +2890,11 @@ class TestFileUpload:
             .one()
         )
         assert release.classifiers == ["AA :: BB", "CC :: DD"]
+
+    def test_all_valid_classifiers_can_be_created(self, db_request):
+        for classifier in classifiers:
+            db_request.db.add(Classifier(classifier=classifier))
+        db_request.db.commit()
 
     def test_equivalent_version_one_release(self, pyramid_config, db_request, metrics):
         """
