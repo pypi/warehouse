@@ -418,6 +418,31 @@ If there's a specific use case you think requires development outside
 Docker please raise an issue in
 `Warehouse's issue tracker <https://github.com/pypa/warehouse/issues>`_.
 
+
+Disabling services locally
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some services, such as Elasticsearch, consume a lot of resources when running
+locally, but might not always be necessary when doing local development.
+
+To disable these locally, you can create a ``docker-compose.override.yaml``
+file to override any settings in the ``docker-compose.yaml`` file. To
+individually disable services, modify their entrypoint to do something else:
+
+.. code-block:: yaml
+
+    version: "3"
+
+    services:
+      elasticsearch:
+        entrypoint: ["echo", "Elasticsearch disabled"]
+
+Note that disabling services might cause things to fail in unexpected ways.
+
+This file is ignored in Warehouse's ``.gitignore`` file, so it's safe to keep
+in the root of your local repo.
+
+
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
 
