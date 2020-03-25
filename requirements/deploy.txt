@@ -3,6 +3,6 @@ gunicorn==20.0.4 \
     --hash=sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==46.1.1 \
-    --hash=sha256:7416e775d09a98aa0422fbe367d15ec0904e4f5aa01043e35bbcb98fa53038de \
-    --hash=sha256:935dcf0e5f967f84187d9abf6f1ba2d8b2e791ae25f915cb43a2e44d21421758
+setuptools==46.1.2 \
+    --hash=sha256:62fd202dea4dd78827a72c0c4eccd364f5faf64d438e2124c288bb3ef61e12de \
+    --hash=sha256:caba6cd842c896ec1721111d1f240340bdd6299104b7c4969b38abbef4223da4
