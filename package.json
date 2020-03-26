@@ -19,7 +19,7 @@
     "@babel/core": "7.6.0",
     "@babel/plugin-proposal-class-properties": "7.8.3",
     "@babel/preset-env": "7.9.0",
-    "@babel/polyfill": "7.8.7",
+    "@babel/polyfill": "7.6.0",
     "@babel/register": "7.9.0",
     "babel-loader": "8.1.0",
     "clipboard": "2.0.6",
