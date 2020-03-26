@@ -10,3 +10,6 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 
 # Run our gulp pipeline
 gulp dist
+
+# Test that our JS source is included in the bundle
+bin/test-sourcemaps
