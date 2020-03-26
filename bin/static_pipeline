@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+set -x
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+# Run our gulp pipeline
+gulp dist
+
+# Test that our JS source is included in the bundle
+bin/test-sourcemaps
