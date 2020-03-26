@@ -33,7 +33,7 @@
     "gulp-brotli": "1.2.1",
     "gulp-concat": "2.6.1",
     "gulp-gzip": "1.4.2",
-    "gulp-image": "^6.1.0",
+    "gulp-image": "^4.4.1",
     "gulp-postcss": "^8.0.0",
     "gulp-rev-all": "^0.9.8",
     "gulp-rev-napkin": "0.1.0",
