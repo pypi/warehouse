@@ -21,4 +21,4 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 RUN set -x \
     && npm install -g npm@latest \
     && npm install -g gulp-cli \
-    && npm install
+    && npm ci
