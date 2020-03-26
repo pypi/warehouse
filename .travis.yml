@@ -25,14 +25,14 @@ cache:
   directories:
     - ~/.cache/pip
     - ~/.nvm/versions/
-    - ~/.npm
+    - node_modules/
 
 install:
   - nvm install $TRAVIS_NODE_VERSION
   - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm i -g npm
-  - npm ci
+  - npm install
 
 script:
   - node -v
@@ -59,6 +59,3 @@ matrix:
     - script: make translations BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Translations
-    - script: make static
-      env:
-        - SUITE=Static
