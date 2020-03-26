@@ -25,7 +25,7 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 RUN set -x \
     && npm install -g npm@latest \
     && npm install -g gulp-cli \
-    && npm ci
+    && npm install
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
