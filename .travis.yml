@@ -32,6 +32,7 @@ install:
   - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm i -g npm
+  - npm install -g gulp-cli
   - npm ci
 
 script:
@@ -61,3 +62,6 @@ matrix:
     - script: bin/static_tests
       env:
         - SUITE="Static Tests"
+    - script: bin/static_pipeline
+      env:
+        - SUITE="Static Pipeline"

@@ -101,6 +101,10 @@ static_tests: .state/docker-build
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/static_tests $(T) $(TESTARGS)
 
+static_pipeline: .state/docker-build
+	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/env/pyvenv.cfg
 	$(BINDIR)/isort -rc *.py warehouse/ tests/
@@ -212,10 +216,5 @@ ifneq ($(TRAVIS), false)
 	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
 else
 endif
-
-static:
-	npm install -g npm@latest
-	npm install -g gulp-cli
-	gulp dist
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
