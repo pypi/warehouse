@@ -213,9 +213,4 @@ ifneq ($(TRAVIS), false)
 else
 endif
 
-static:
-	npm install -g npm@latest
-	npm install -g gulp-cli
-	gulp dist
-
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot

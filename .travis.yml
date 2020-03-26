@@ -59,6 +59,3 @@ matrix:
     - script: make translations BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Translations
-    - script: make static
-      env:
-        - SUITE=Static
