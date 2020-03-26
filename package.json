@@ -38,7 +38,7 @@
     "gulp-rev-all": "^0.9.8",
     "gulp-rev-napkin": "0.1.0",
     "gulp-sass": "^4.0.1",
-    "gulp-sourcemaps": "2.6.5",
+    "gulp-sourcemaps": "2.6.1",
     "gulp-uglify": "3.0.0",
     "imports-loader": "0.7.1",
     "jquery": ">=3.4.0",
