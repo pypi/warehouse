@@ -38,7 +38,6 @@ script:
   - node -v
   - npm -v
   - bin/tests --postgresql-host 127.0.0.1
-  - bin/static_tests
 
 matrix:
   include:
@@ -59,6 +58,6 @@ matrix:
     - script: make translations BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Translations
-    - script: make static
+    - script: bin/static_tests
       env:
-        - SUITE=Static
+        - SUITE="Static Tests"
