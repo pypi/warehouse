@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@testing-library/dom": "6.2.0",
-    "@testing-library/jest-dom": "4.1.0",
+    "@testing-library/jest-dom": "5.2.0",
     "babel-eslint": "8.2.2",
     "babel-jest": "25.2.0",
     "eslint": "4.18.2",
