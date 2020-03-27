@@ -2237,9 +2237,21 @@ class TestManageProjects:
             role_name="Maintainer",
         )
         user_second_owner = UserFactory()
-        RoleFactory.create(user=user_second_owner, project=project_with_older_release, role_name="Owner")
-        RoleFactory.create(user=user_second_owner, project=older_project_with_no_releases, role_name="Owner")
-        RoleFactory.create(user=user_second_owner, project=project_with_newer_release, role_name="Owner")
+        RoleFactory.create(
+            user=user_second_owner,
+            project=project_with_older_release,
+            role_name="Owner",
+        )
+        RoleFactory.create(
+            user=user_second_owner,
+            project=older_project_with_no_releases,
+            role_name="Owner",
+        )
+        RoleFactory.create(
+            user=user_second_owner,
+            project=project_with_newer_release,
+            role_name="Owner",
+        )
 
         assert views.manage_projects(db_request) == {
             "projects": [
@@ -2374,8 +2386,10 @@ class TestManageProjectSettings:
         db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
 
-        role = RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-        db_request.db.refresh(project)  # Refresh project object to make sure project.users is up to date after Role creation
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+        db_request.db.refresh(
+            project
+        )  # Refresh project to ensure project.users is up to date after Role creation
 
         get_user_role_in_project = pretend.call_recorder(
             lambda project_name, username, req: "Owner"
@@ -2578,7 +2592,9 @@ class TestManageProjectRelease:
             version="1.2.3",
             canonical_version="1.2.3",
             project=pretend.stub(
-                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None), users=[user]
+                name="foobar",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                users=[user],
             ),
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
@@ -2777,7 +2793,9 @@ class TestManageProjectRelease:
             release=release, filename=f"foobar-{release.version}.tar.gz"
         )
         RoleFactory.create(project=project, user=user)
-        db_request.db.refresh(project)  # COMMENT YA DUMM
+        db_request.db.refresh(
+            project
+        )  # Refresh project to ensure project.users is up to date after Role creation
 
         db_request.POST = {
             "confirm_project_name": release.project.name,
@@ -3035,7 +3053,9 @@ class TestManageProjectRoles:
         owner_2_role = RoleFactory.create(
             user=owner_2, project=project, role_name="Owner"
         )
-        db_request.db.refresh(project)  # COMMENT LOLS TODO
+        db_request.db.refresh(
+            project
+        )  # Refresh project to ensure project.users is up to date after Role creation
 
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user

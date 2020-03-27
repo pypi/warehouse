@@ -17,12 +17,11 @@ Revises: 5c029d9ef925
 Create Date: 2020-03-04 21:56:32.651065
 """
 
-import sqlalchemy as sa
-
 from alembic import op
 
 revision = "aaa60e8ea12e"
 down_revision = "5c029d9ef925"
+
 
 def upgrade():
     op.create_unique_constraint(
