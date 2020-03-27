@@ -3009,7 +3009,7 @@ class TestManageProjectRoles:
         ]
         assert result == {
             "project": project,
-            "roles": [role],
+            "roles": {role},
             "form": form_obj,
         }
 
@@ -3037,7 +3037,7 @@ class TestManageProjectRoles:
         assert form_obj.validate.calls == [pretend.call()]
         assert result == {
             "project": project,
-            "roles": [role],
+            "roles": {role},
             "form": form_obj,
         }
 
@@ -3127,7 +3127,7 @@ class TestManageProjectRoles:
 
         assert result == {
             "project": project,
-            "roles": [role, owner_1_role, owner_2_role],
+            "roles": {role, owner_1_role, owner_2_role},
             "form": form_obj,
         }
 
@@ -3184,7 +3184,7 @@ class TestManageProjectRoles:
 
         assert result == {
             "project": project,
-            "roles": [role],
+            "roles": {role},
             "form": form_obj,
         }
 
@@ -3234,7 +3234,7 @@ class TestManageProjectRoles:
         # No additional roles are created
         assert db_request.db.query(Role).all() == []
 
-        assert result == {"project": project, "roles": [], "form": form_obj}
+        assert result == {"project": project, "roles": set(), "form": form_obj}
 
 
 class TestChangeProjectRoles:

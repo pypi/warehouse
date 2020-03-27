@@ -1339,7 +1339,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
         form = _form_class(user_service=user_service)
 
-    roles = request.db.query(Role).join(User).filter(Role.project == project).all()
+    roles = set(request.db.query(Role).join(User).filter(Role.project == project).all())
 
     return {"project": project, "roles": roles, "form": form}
 
