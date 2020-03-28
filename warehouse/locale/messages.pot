@@ -723,7 +723,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:120
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr ""
 
@@ -747,8 +747,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:117
-#: warehouse/templates/manage/roles.html:129
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -1864,7 +1864,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/roles.html:101
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr ""
 
@@ -2333,7 +2333,7 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr ""
 
@@ -2685,7 +2685,7 @@ msgstr ""
 
 #: warehouse/templates/manage/roles.html:27
 #: warehouse/templates/manage/roles.html:64
-#: warehouse/templates/manage/roles.html:75
+#: warehouse/templates/manage/roles.html:73
 msgid "Maintainer"
 msgstr ""
 
@@ -2698,7 +2698,7 @@ msgstr ""
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:62
-#: warehouse/templates/manage/roles.html:75
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr ""
 
@@ -2715,31 +2715,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:127
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:81
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:82
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:95
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:98
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:110
-#: warehouse/templates/manage/roles.html:138
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr ""
 
