@@ -66,9 +66,7 @@
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            {% for role in roles %}
-              <input type="hidden" name="role_id" value="{{ role.id }}">
-            {% endfor %}
+            <input type="hidden" name="role_id" value="{{ role.id }}">
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
