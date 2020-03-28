@@ -913,15 +913,13 @@ def manage_project_settings(project, request):
     return {"project": project}
 
 
-def get_user_role_in_project(project_name, username, request):
+def get_user_role_in_project(project, user, request):
     return (
-        request.db.query(Project)
-        .join(User, Project.users)
-        .filter(User.username == username, Project.name == project_name)
-        .with_entities(Role.role_name)
-        .distinct(Role.role_name)
+        request.db.query(Role)
+        .filter(Role.user == user, Role.project == project)
         .one()
-    ).role_name
+        .role_name
+    )
 
 
 @view_config(
@@ -947,14 +945,10 @@ def delete_project(project, request):
 
     confirm_project(project, request, fail_route="manage.project.settings")
 
-    submitter_role = get_user_role_in_project(
-        project.name, request.user.username, request
-    )
+    submitter_role = get_user_role_in_project(project, request.user, request)
 
     for contributor in project.users:
-        contributor_role = get_user_role_in_project(
-            project.name, contributor.username, request
-        )
+        contributor_role = get_user_role_in_project(project, contributor, request)
 
         send_removed_project_email(
             request,
@@ -1098,7 +1092,7 @@ class ManageProjectRelease:
             )
 
         submitter_role = get_user_role_in_project(
-            self.release.project.name, self.request.user.username, self.request
+            self.release.project, self.request.user, self.request
         )
 
         self.request.db.add(
@@ -1128,7 +1122,7 @@ class ManageProjectRelease:
 
         for contributor in self.release.project.users:
             contributor_role = get_user_role_in_project(
-                self.release.project.name, contributor.username, self.request
+                self.release.project, contributor, self.request
             )
 
             send_removed_project_release_email(
@@ -1211,12 +1205,12 @@ class ManageProjectRelease:
         )
 
         submitter_role = get_user_role_in_project(
-            self.release.project.name, self.request.user.username, self.request
+            self.release.project, self.request.user, self.request
         )
 
         for contributor in self.release.project.users:
             contributor_role = get_user_role_in_project(
-                self.release.project.name, contributor.username, self.request
+                self.release.project, contributor, self.request
             )
 
             send_removed_project_release_file_email(

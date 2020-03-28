@@ -2359,7 +2359,7 @@ class TestManageProjectSettings:
         RoleFactory(user=db_request.user, project=project, role_name="Owner")
 
         res = views.get_user_role_in_project(
-            project.name, db_request.user.username, db_request
+            project, db_request.user, db_request
         )
         assert res == "Owner"
 
@@ -2372,7 +2372,7 @@ class TestManageProjectSettings:
         RoleFactory(user=db_request.user, project=project, role_name="Maintainer")
 
         res = views.get_user_role_in_project(
-            project.name, db_request.user.username, db_request
+            project, db_request.user, db_request
         )
         assert res == "Maintainer"
 
@@ -2389,7 +2389,7 @@ class TestManageProjectSettings:
         RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
 
         get_user_role_in_project = pretend.call_recorder(
-            lambda project_name, username, req: "Owner"
+            lambda project, user, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
 
@@ -2410,8 +2410,8 @@ class TestManageProjectSettings:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project.name, db_request.user.username, db_request,),
-            pretend.call(project.name, db_request.user.username, db_request,),
+            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request,),
         ]
 
         assert send_removed_project_email.calls == [
@@ -2612,7 +2612,7 @@ class TestManageProjectRelease:
         journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
 
         get_user_role_in_project = pretend.call_recorder(
-            lambda project_name, username, req: "Owner"
+            lambda project, user, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
 
@@ -2634,8 +2634,8 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(release.project.name, request.user.username, request,),
-            pretend.call(release.project.name, request.user.username, request,),
+            pretend.call(release.project, request.user, request,),
+            pretend.call(release.project, request.user, request,),
         ]
 
         assert send_removed_project_release_email.calls == [
@@ -2804,7 +2804,7 @@ class TestManageProjectRelease:
         db_request.remote_addr = "1.2.3.4"
 
         get_user_role_in_project = pretend.call_recorder(
-            lambda project_name, username, req: "Owner"
+            lambda project, user, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
 
@@ -2849,8 +2849,8 @@ class TestManageProjectRelease:
         ]
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project.name, db_request.user.username, db_request,),
-            pretend.call(project.name, db_request.user.username, db_request,),
+            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request,),
         ]
 
         assert send_removed_project_release_file_email.calls == [
