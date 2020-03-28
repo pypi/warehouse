@@ -2358,9 +2358,7 @@ class TestManageProjectSettings:
         db_request.user = UserFactory.create()
         RoleFactory(user=db_request.user, project=project, role_name="Owner")
 
-        res = views.get_user_role_in_project(
-            project, db_request.user, db_request
-        )
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
         assert res == "Owner"
 
     def test_get_user_role_in_project_single_role_maintainer(self, db_request):
@@ -2371,9 +2369,7 @@ class TestManageProjectSettings:
         db_request.user = UserFactory.create()
         RoleFactory(user=db_request.user, project=project, role_name="Maintainer")
 
-        res = views.get_user_role_in_project(
-            project, db_request.user, db_request
-        )
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
         assert res == "Maintainer"
 
     def test_delete_project(self, monkeypatch, db_request):
