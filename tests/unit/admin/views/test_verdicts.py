@@ -39,7 +39,7 @@ class TestListVerdicts:
         verdicts = [MalwareVerdictFactory.create(check=check) for _ in range(10)]
 
         assert views.get_verdicts(db_request) == {
-            "verdicts": verdicts,
+            "verdicts": verdicts[:25],
             "check_names": set([check.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -71,12 +71,12 @@ class TestListVerdicts:
             if check.name == check_name:
                 result_verdicts = verdicts
 
-        # Emptry string
+        # Empty string
         if not result_verdicts:
             result_verdicts = all_verdicts
 
         response = {
-            "verdicts": result_verdicts,
+            "verdicts": result_verdicts[:25],
             "check_names": set(["check0", "check1", "check2"]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -100,13 +100,13 @@ class TestListVerdicts:
             if c.value == classification:
                 result_verdicts = verdicts
 
-        # Emptry string
+        # Empty string
         if not result_verdicts:
             result_verdicts = all_verdicts
 
         db_request.GET["classification"] = classification
         response = {
-            "verdicts": result_verdicts,
+            "verdicts": result_verdicts[:25],
             "check_names": set([check1.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -128,12 +128,12 @@ class TestListVerdicts:
             if c.value == confidence:
                 result_verdicts = verdicts
 
-        # Emptry string
+        # Empty string
         if not result_verdicts:
             result_verdicts = all_verdicts
 
         response = {
-            "verdicts": result_verdicts,
+            "verdicts": result_verdicts[:25],
             "check_names": set([check1.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -163,7 +163,7 @@ class TestListVerdicts:
         db_request.GET["manually_reviewed"] = str(manually_reviewed)
 
         response = {
-            "verdicts": result_verdicts,
+            "verdicts": result_verdicts[:25],
             "check_names": set([check1.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
