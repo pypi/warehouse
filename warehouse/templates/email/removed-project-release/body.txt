@@ -19,7 +19,7 @@ The {{ project_name }} release {{ release_version }} released on {{ release_date
 
 Deleted by: {{ submitter_name }} with a role: {{ submitter_role }}.
 
-If this was a mistake, you can email admin@pypi.org to communicate with the PyPI administrators.
+If you have questions or concerns, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
 
 {% block reason %}
