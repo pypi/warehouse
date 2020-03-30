@@ -17,8 +17,9 @@ Revises: aaa60e8ea12e
 Create Date: 2020-03-28 01:20:30.453875
 """
 
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 
 revision = "6af76ffb9612"
 down_revision = "aaa60e8ea12e"
