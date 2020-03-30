@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import uuid
 
 from random import randint
@@ -17,6 +18,7 @@ from random import randint
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
 from warehouse.admin.views import verdicts as views
@@ -36,7 +38,13 @@ class TestListVerdicts:
 
     def test_some(self, db_request):
         check = MalwareCheckFactory.create()
-        verdicts = [MalwareVerdictFactory.create(check=check) for _ in range(10)]
+        verdicts = []
+        with freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            for _ in range(10):
+                verdicts.append(
+                    MalwareVerdictFactory.create(check=check, run_date=frozen_time())
+                )
+            frozen_time.tick(datetime.timedelta(microseconds=1))
 
         assert views.get_verdicts(db_request) == {
             "verdicts": verdicts[:25],
@@ -64,19 +72,29 @@ class TestListVerdicts:
     )
     def test_check_name_filter(self, db_request, check_name):
         result_verdicts, all_verdicts = [], []
-        for i in range(3):
-            check = MalwareCheckFactory.create(name="check%d" % i)
-            verdicts = [MalwareVerdictFactory.create(check=check) for _ in range(5)]
-            all_verdicts.extend(verdicts)
-            if check.name == check_name:
-                result_verdicts = verdicts
+        with freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            for i in range(3):
+                verdicts = []
+                check = MalwareCheckFactory.create(name="check%d" % i)
+                for _ in range(5):
+                    verdicts.append(
+                        MalwareVerdictFactory.create(
+                            check=check, run_date=frozen_time()
+                        )
+                    )
+                    frozen_time.tick(datetime.timedelta(microseconds=1))
+                all_verdicts.extend(verdicts)
+                if check.name == check_name:
+                    result_verdicts = verdicts
 
         # Empty string
         if not result_verdicts:
             result_verdicts = all_verdicts
 
         response = {
-            "verdicts": result_verdicts[:25],
+            "verdicts": sorted(result_verdicts, key=lambda x: x.run_date, reverse=True)[
+                :25
+            ],
             "check_names": set(["check0", "check1", "check2"]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -91,14 +109,19 @@ class TestListVerdicts:
     def test_classification_filter(self, db_request, classification):
         check1 = MalwareCheckFactory.create()
         result_verdicts, all_verdicts = [], []
-        for c in VerdictClassification:
-            verdicts = [
-                MalwareVerdictFactory.create(check=check1, classification=c)
-                for _ in range(5)
-            ]
-            all_verdicts.extend(verdicts)
-            if c.value == classification:
-                result_verdicts = verdicts
+        with freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            for c in VerdictClassification:
+                verdicts = []
+                for _ in range(5):
+                    verdicts.append(
+                        MalwareVerdictFactory.create(
+                            check=check1, classification=c, run_date=frozen_time()
+                        )
+                    )
+                    frozen_time.tick(datetime.timedelta(microseconds=1))
+                all_verdicts.extend(verdicts)
+                if c.value == classification:
+                    result_verdicts = verdicts
 
         # Empty string
         if not result_verdicts:
@@ -106,7 +129,9 @@ class TestListVerdicts:
 
         db_request.GET["classification"] = classification
         response = {
-            "verdicts": result_verdicts[:25],
+            "verdicts": sorted(result_verdicts, key=lambda x: x.run_date, reverse=True)[
+                :25
+            ],
             "check_names": set([check1.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -119,40 +144,53 @@ class TestListVerdicts:
     def test_confidence_filter(self, db_request, confidence):
         check1 = MalwareCheckFactory.create()
         result_verdicts, all_verdicts = [], []
-        for c in VerdictConfidence:
-            verdicts = [
-                MalwareVerdictFactory.create(check=check1, confidence=c)
-                for _ in range(5)
-            ]
-            all_verdicts.extend(verdicts)
-            if c.value == confidence:
-                result_verdicts = verdicts
+        with freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            for c in VerdictConfidence:
+                verdicts = []
+                for _ in range(5):
+                    verdicts.append(
+                        MalwareVerdictFactory.create(
+                            check=check1, confidence=c, run_date=frozen_time()
+                        )
+                    )
+                    frozen_time.tick(datetime.timedelta(microseconds=1))
+                all_verdicts.extend(verdicts)
+                if c.value == confidence:
+                    result_verdicts = verdicts
 
         # Empty string
         if not result_verdicts:
             result_verdicts = all_verdicts
 
         response = {
-            "verdicts": result_verdicts[:25],
+            "verdicts": sorted(result_verdicts, key=lambda x: x.run_date, reverse=True)[
+                :25
+            ],
             "check_names": set([check1.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
         }
 
         db_request.GET["confidence"] = confidence
-        assert views.get_verdicts(db_request) == response
+        view_response = views.get_verdicts(db_request)
+        assert view_response == response
 
     @pytest.mark.parametrize(
         "manually_reviewed", [1, 0],
     )
     def test_manually_reviewed_filter(self, db_request, manually_reviewed):
         check1 = MalwareCheckFactory.create()
-        result_verdicts = [
-            MalwareVerdictFactory.create(
-                check=check1, manually_reviewed=bool(manually_reviewed)
-            )
-            for _ in range(5)
-        ]
+        result_verdicts = []
+        with freeze_time(datetime.datetime.utcnow()) as frozen_time:
+            for _ in range(5):
+                result_verdicts.append(
+                    MalwareVerdictFactory.create(
+                        check=check1,
+                        manually_reviewed=bool(manually_reviewed),
+                        run_date=frozen_time(),
+                    )
+                )
+                frozen_time.tick(datetime.timedelta(microseconds=1))
 
         # Create other verdicts to ensure filter works properly
         for _ in range(10):
@@ -163,7 +201,9 @@ class TestListVerdicts:
         db_request.GET["manually_reviewed"] = str(manually_reviewed)
 
         response = {
-            "verdicts": result_verdicts[:25],
+            "verdicts": sorted(result_verdicts, key=lambda x: x.run_date, reverse=True)[
+                :25
+            ],
             "check_names": set([check1.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
