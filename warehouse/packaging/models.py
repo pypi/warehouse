@@ -64,7 +64,7 @@ class Role(db.Model):
 
     __repr__ = make_repr("role_name")
 
-    role_name = Column(Text)
+    role_name = Column(Text, nullable=False)
     user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
