@@ -304,6 +304,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:790
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsor.html:27
+#: warehouse/templates/pages/sponsor.html:49
 #: warehouse/templates/pages/sponsor.html:100
 #: warehouse/templates/pages/sponsor.html:103
 #: warehouse/templates/pages/sponsor.html:121
@@ -4799,7 +4800,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:49
-msgid "For US taxpayers, contributions are tax-deductible."
+#, python-format
+msgid ""
+"For US taxpayers, your <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">donation may be tax-deductible</a>."
 msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:50
