@@ -41,7 +41,7 @@
     "gulp-sourcemaps": "2.6.1",
     "gulp-uglify": "3.0.0",
     "imports-loader": "0.7.1",
-    "jquery": "3.4.0",
+    "jquery": "3.4.1",
     "stimulus": "1.1.1",
     "uglify-js": "3.2.1",
     "vinyl-named": "1.1.0",
