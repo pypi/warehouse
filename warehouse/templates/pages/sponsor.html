@@ -46,7 +46,7 @@
         </div>
         <div class="sponsor-package__body">
           <p>{% trans %}We greatly appreciate both one-time and recurring donations from individuals and small businesses.{% endtrans %}</p>
-          <p>{% trans %}For US taxpayers, contributions are tax-deductible.{% endtrans %}</p>
+          <p>{% trans href='https://www.python.org/psf/donations/', title=gettext('External link') %}For US taxpayers, your <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">donation may be tax-deductible</a>.{% endtrans %}</p>
           <p>{% trans %}Every donation counts!{% endtrans %}</p>
         </div>
         <div class="sponsor-package__button">
