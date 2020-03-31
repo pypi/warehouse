@@ -14,7 +14,7 @@
     "testRegex": ".*_test.js"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "5.1.1",
+    "@fortawesome/fontawesome-free": "5.13.0",
     "@stimulus/polyfills": "1.1.1",
     "@babel/core": "7.6.0",
     "@babel/plugin-proposal-class-properties": "7.5.5",
