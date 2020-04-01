@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-09 21:17+0000\n"
+"PO-Revision-Date: 2020-02-28 22:14+0000\n"
 "Last-Translator: 李博豪 <xiaolizi20070827@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
@@ -131,7 +131,7 @@ msgstr "成功的 WebAuthn 断言"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "接受恢复代码。无法再次使用提供的代码。"
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -214,19 +214,19 @@ msgstr "电子邮件${email_address}已添加 - 请检查邮箱中的验证链�
 #: warehouse/manage/views.py:653 warehouse/manage/views.py:689
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
-msgstr ""
+msgstr "在生成恢复代码之前，必须提供双因素方法"
 
 #: warehouse/manage/views.py:664
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "已生成恢复代码"
 
 #: warehouse/manage/views.py:665
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
+msgstr "生成新的恢复代码将使现有代码失效。"
 
 #: warehouse/manage/views.py:715
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "无效凭据。再试一次"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -887,11 +887,11 @@ msgstr "%(user)s 尚未上传任何项目到 PyPI"
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:472
 msgid "Recovery Codes"
-msgstr ""
+msgstr "恢复代码"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr ""
+msgstr "使用恢复代码登录"
 
 #: warehouse/templates/accounts/recovery-code.html:40
 #, fuzzy
@@ -910,7 +910,7 @@ msgid ""
 "the event that your device or application is lost. Enter one of these codes "
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
-msgstr ""
+msgstr "PyPI允许在设备或应用程序丢失时生成安全脱机存储的恢复代码。在表单中输入这些代码之一以验证您的身份。一旦使用，恢复代码将不再有效。"
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, fuzzy, python-format
@@ -1097,7 +1097,7 @@ msgstr "设置您的应用程序"
 
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using a Recovery Code"
-msgstr ""
+msgstr "使用恢复代码登录"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1106,6 +1106,8 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
+"<p><strong>您尚未生成帐户恢复代码。</strong></p><p>如果您无法访问双因素方法，则可能无法访问您的帐户。<a href=\""
+"%(href)s\">获取有关恢复代码的帮助。</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1771,7 +1773,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:142
 msgid "Generate Recovery Codes"
-msgstr ""
+msgstr "生成恢复代码"
 
 #: warehouse/templates/manage/account.html:147
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -2012,14 +2014,14 @@ msgstr "上次发布于 %(release_date)s"
 
 #: warehouse/templates/manage/account.html:475
 msgid "Regenerate"
-msgstr ""
+msgstr "重新生成"
 
 #: warehouse/templates/manage/account.html:476
 #: warehouse/templates/manage/account.html:477
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr ""
+msgstr "重新生成恢复代码"
 
 #: warehouse/templates/manage/account.html:488
 msgid "You have not enabled two factor authentication on your account."
@@ -2087,7 +2089,7 @@ msgstr "没有"
 
 #: warehouse/templates/manage/account.html:553
 msgid "Recovery Code"
-msgstr ""
+msgstr "恢复代码"
 
 #: warehouse/templates/manage/account.html:558
 msgid "Email added to account"
@@ -2163,15 +2165,15 @@ msgstr "已删除双因素身份验证"
 
 #: warehouse/templates/manage/account.html:612
 msgid "Recovery Codes generated"
-msgstr ""
+msgstr "生成的恢复代码"
 
 #: warehouse/templates/manage/account.html:616
 msgid "Recovery Codes regenerated"
-msgstr ""
+msgstr "重新生成恢复代码"
 
 #: warehouse/templates/manage/account.html:620
 msgid "Recovery Code used for login"
-msgstr ""
+msgstr "用于登录的恢复代码"
 
 #: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/history.html:65
@@ -3115,11 +3117,11 @@ msgstr "添加令牌"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account Recovery Codes"
-msgstr ""
+msgstr "帐户恢复代码"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:36
 msgid "Regenerate recovery codes"
-msgstr ""
+msgstr "Account recovery code"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3127,12 +3129,13 @@ msgid ""
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
+"如果您失去对身份验证应用程序或安全密钥的访问，则需要使用这些恢复代码之一登录到您的PyPI帐户。每个代码只能使用<strong>一次</strong>。"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:47
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
-msgstr ""
+msgstr "这些代码<strong>只能</strong>用于帐户恢复，而不能用于典型登录。"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:48
 msgid ""
@@ -3140,10 +3143,12 @@ msgid ""
 "application or security key(s) and do not have access to these recovery "
 "codes, you may permanently lose access to your PyPI account!"
 msgstr ""
+"<strong>把这些放在安全的地方</strong>。如果您丢失了身份验证应用程序或安全密钥，并且无法访问这些恢复代码，则可能会永久性地失去对您的PyP"
+"I帐户的访问权限！"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
 msgid "Save your Recovery Codes"
-msgstr ""
+msgstr "保存恢复代码"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 #, fuzzy
@@ -3155,15 +3160,15 @@ msgstr "下载文件"
 #: warehouse/templates/manage/account/recovery_codes-provision.html:69
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
 msgid "Continue"
-msgstr ""
+msgstr "继续"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:76
 msgid "These codes will not be visible again."
-msgstr ""
+msgstr "这些代码将不再可见。"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:79
 msgid "Ensure that you have securely stored them before continuing."
-msgstr ""
+msgstr "在继续之前，请确保您已经安全地存储了它们。"
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
@@ -3475,6 +3480,8 @@ msgid ""
 "generate and securely store <a href=\"#recoverycodes\">recovery codes</a> to "
 "regain access in that event.."
 msgstr ""
+"如果您丢失了您的%(method)s并且无法再登录，您可能会<strong>永久地失去对您的帐户的访问</strong>。您应该生成并安全地存储<a "
+"href=\"#recoverycodes\">恢复代码</a>，以便在这种情况下重新获得访问权限。。"
 
 #: warehouse/templates/pages/help.html:37
 msgid ""
@@ -3482,6 +3489,8 @@ msgid ""
 "factor authentication methods and provision <a href=\"#recoverycodes"
 "\">recovery codes</a>."
 msgstr ""
+"我们建议所有PyPI用户<em>至少设置两个</em>受支持的双因素身份验证方法和提供<a href=\"#recoverycodes\""
+">恢复代码</a>。"
 
 #: warehouse/templates/pages/help.html:43
 msgid ""
@@ -3489,6 +3498,8 @@ msgid ""
 "have <a href=\"#recoverycodes\">recovery codes</a>, you can request help <a "
 "href=\"#account-recovery\">with account recovery</a>."
 msgstr ""
+"如果您无法访问帐户的所有两个因素方法，并且没有<a href=\"#recoverycodes\">恢复代码</a>，则可以请求<a href"
+"=\"#account-recovery\">有关帐户恢复</a>的帮助。"
 
 #: warehouse/templates/pages/help.html:52
 msgid "What's a package, project, or release?"
@@ -3585,6 +3596,8 @@ msgid ""
 "Why am I getting a \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
 msgstr ""
+"为什么我会收到“Invalid or non-existent authentication "
+"information.”（无效或不存在的身份验证信息）。上传文件时出错？"
 
 #: warehouse/templates/pages/help.html:74
 msgid ""
@@ -4200,6 +4213,8 @@ msgid ""
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
+"如果您失去了对<a href=\"#totp\">身份验证应用程序</a>或<a href=\"#utfkey\""
+">安全设备</a>的访问，可以使用这些代码登录到PyPI。"
 
 #: warehouse/templates/pages/help.html:410
 msgid ""
@@ -4208,10 +4223,12 @@ msgid ""
 "\">security device</a> and should only be used for recovery. After using a "
 "recovery code to sign in, it becomes inactive."
 msgstr ""
+"恢复代码是<strong>一次性</strong>使用的。它们不能替代<a href=\"#totp\">身份验证应用程序</a>或<a href=\"#"
+"utfkey\">安全设备</a>，只能用于恢复。使用恢复代码登录后，它将变为非活动状态。"
 
 #: warehouse/templates/pages/help.html:416
 msgid "To provision recovery codes:"
-msgstr ""
+msgstr "提供恢复代码："
 
 #: warehouse/templates/pages/help.html:418
 #, fuzzy
@@ -4230,7 +4247,7 @@ msgstr ""
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
-msgstr ""
+msgstr "安全存储显示的恢复代码！考虑将它们打印出来并存储在安全的位置，或者保存在密码管理器中。"
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -4238,21 +4255,23 @@ msgid ""
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
 "settings."
 msgstr ""
+"如果您无法访问存储的恢复代码或使用所有恢复代码，可以通过在帐户设置中选择“Regenerate recovery "
+"codes”（重新生成恢复代码）来获取新的恢复代码。"
 
 #: warehouse/templates/pages/help.html:424
 msgid "To sign in with a recovery code:"
-msgstr ""
+msgstr "要使用恢复代码登录："
 
 #: warehouse/templates/pages/help.html:427
 msgid ""
 "When prompted for Two-Factor Authentication, select \"Login using a Recovery "
 "Code\""
-msgstr ""
+msgstr "当提示您进行双因素身份验证时，请选择“Login using a Recovery Code”（使用恢复代码登录）"
 
 #: warehouse/templates/pages/help.html:428
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
-msgstr ""
+msgstr "由于每个代码只能使用一次，您可能希望将代码标记为已使用"
 
 #: warehouse/templates/pages/help.html:429
 msgid ""
@@ -4260,6 +4279,7 @@ msgid ""
 "new set using the \"Regenerate recovery codes\" button in your account "
 "settings."
 msgstr ""
+"如果只剩下很少的恢复代码，您可能还希望使用帐户设置中的“Regenerate recovery codes”（重新生成恢复代码）按钮生成新的集。"
 
 #: warehouse/templates/pages/help.html:434
 #, fuzzy
@@ -4288,12 +4308,12 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"          <p>API令牌提供了一种在<strong>将包上载</strong>到PyPI时进行身份验证"
-"的替代方法（而不是用户名和密码）。</p>\n"
-"          <p>您可以为整个PyPI帐户创建一个令牌，在这种情况下，该令牌将适用于与"
-"该帐户关联的所有项目。或者，可以将令牌的范围限制为特定项目。</p>\n"
-"          <p><strong>我们强烈建议您尽可能使用API令牌进行身份验证。</strong></"
-"p>\n"
+"          "
+"<p>API令牌提供了一种在<strong>将包上载</strong>到PyPI时进行身份验证的替代方法（而不是用户名和密码）。</p>\n"
+"          "
+"<p>您可以为整个PyPI帐户创建一个令牌，在这种情况下，该令牌将适用于与该帐户关联的所有项目。或者，可以将令牌的范围限制为特定项目。</p>\n"
+"          <p><strong>我们强烈建议您尽可能使用API令牌进行身份验证。</strong></p>\n"
+"\n"
 "        "
 
 #: warehouse/templates/pages/help.html:441
@@ -4601,7 +4621,7 @@ msgstr "您将收到一封带有密码重置链接的电子邮件。"
 
 #: warehouse/templates/pages/help.html:553
 msgid "If you've lost access to your PyPI account due to:"
-msgstr ""
+msgstr "如果由于以下原因而无法访问PyPI帐户："
 
 #: warehouse/templates/pages/help.html:555
 #, fuzzy
@@ -4614,6 +4634,8 @@ msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
+"丢失双因素身份验证<a href=\"#totp\">应用程序</a>、<a href=\"#utfkey\">设备</a>和<a href=\"#"
+"recoverycodes\">恢复代码</a>"
 
 #: warehouse/templates/pages/help.html:559
 #, fuzzy, python-format
