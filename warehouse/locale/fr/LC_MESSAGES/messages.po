@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-27 18:06+0000\n"
+"PO-Revision-Date: 2020-03-03 22:56+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -1445,56 +1445,56 @@ msgstr ""
 "code>"
 
 #: warehouse/templates/email/removed-project/body.html:25
-#, fuzzy, python-format
-#| msgid "This project has no releases"
+#, python-format
 msgid "The project %(project)s has been deleted."
-msgstr "Ce projet n'a pas de version"
+msgstr "Le projet %(project)s a été supprimé."
 
 #: warehouse/templates/email/removed-project-release/body.html:26
 #: warehouse/templates/email/removed-project/body.html:26
-#, fuzzy, python-format
-#| msgid "<strong>Added by</strong>: %(submitter)s"
+#, python-format
 msgid ""
 "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
 "      %(role)s."
-msgstr "<strong>Ajouté par</strong> : %(submitter)s"
+msgstr ""
+"<strong>Supprimé par :</strong>  %(submitter)s avec le rôle de\n"
+"      %(role)s."
 
 #: warehouse/templates/email/removed-project-release/body.html:32
 #: warehouse/templates/email/removed-project/body.html:32
-#, fuzzy, python-format
-#| msgid ""
-#| "If this was a mistake, you can email <a href=\"%(href)s\">"
-#| "%(email_address)s</a> to communicate with the PyPI administrators."
+#, python-format
 msgid ""
 "If this was a mistake, you can email <a\n"
 "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"S'il s'agit d'une erreur, vous pouvez écrire à <a href=\"%(href)s\">"
-"%(email_address)s</a> pour communiquer avec les administrateurs de PyPI."
+"S'il s'agit d'une erreur, vous pouvez écrire à <a \n"
+"   href=\"%(href)s\">%(email_address)s</a> pour communiquer avec les "
+"administrateurs de PyPI."
 
 #: warehouse/templates/email/removed-project/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
+#, python-format
 msgid ""
 "You are receiving this because you are %(recipient_role_descr)s of this "
 "project."
-msgstr "Vous recevez ceci car vous êtes propriétaire de ce projet."
+msgstr "Vous recevez ceci car vous êtes %(recipient_role_descr)s de ce projet."
 
 #: warehouse/templates/email/removed-project-release/body.html:25
 #, python-format
 msgid ""
 "The %(project)s release %(release)s released on %(date)s has been deleted."
 msgstr ""
+"La version %(release)s du projet %(project)s sortie le %(date)s a été "
+"supprimée."
 
 #: warehouse/templates/email/removed-project-release/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
+#, python-format
 msgid ""
 "\n"
 "You are receiving this because you are %(recipient_role_descr)s of this "
 "project."
-msgstr "Vous recevez ceci car vous êtes propriétaire de ce projet."
+msgstr ""
+"\n"
+"Vous recevez ceci car vous êtes %(recipient_role_descr)s de ce projet."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
