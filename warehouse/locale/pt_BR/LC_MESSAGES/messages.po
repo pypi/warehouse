@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-26 22:56+0000\n"
+"PO-Revision-Date: 2020-02-27 18:06+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -21,10 +21,8 @@ msgstr ""
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
-#, fuzzy
-#| msgid "Stay updated:"
 msgid "Locale updated"
-msgstr "Mantenha-se atualizado:"
+msgstr "Localidade atualizada"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
