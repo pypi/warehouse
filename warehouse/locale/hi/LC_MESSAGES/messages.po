@@ -10,10 +10,10 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-03-02 22:09+0000\n"
+"PO-Revision-Date: 2020-03-07 12:37+0000\n"
 "Last-Translator: bkaskar <roypbc@yahoo.com>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
-">\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
+"\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1102,9 +1102,9 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
-"<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। अपनी पहचान "
-"सत्यापित करने के लिए इस कोड को दर्ज करें।</p> <p>अपना आवेदन खो दिया? काम नहीं कर "
-"रहा? <a href=\"%(href)s\">सहायता प्राप्त करें</a>।</ p>"
+"<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। "
+"अपनी पहचान सत्यापित करने के लिए इस कोड को दर्ज करें।</p> <p>अपना आवेदन खो "
+"दिया? काम नहीं कर रहा? <a href=\"%(href)s\">सहायता प्राप्त करें</a>।</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
@@ -1376,56 +1376,56 @@ msgstr ""
 "%(old_email)s</code> से बदलकर <code>%(new_email)s</code> कर दिया गया है"
 
 #: warehouse/templates/email/removed-project/body.html:25
-#, fuzzy, python-format
-#| msgid "This project has no releases"
+#, python-format
 msgid "The project %(project)s has been deleted."
-msgstr "इस परियोजना की कोई विज्ञप्तियां नहीं है"
+msgstr "परियोजना %(project)s हटा दी गयी है।"
 
 #: warehouse/templates/email/removed-project-release/body.html:26
 #: warehouse/templates/email/removed-project/body.html:26
-#, fuzzy, python-format
-#| msgid "<strong>Added by</strong>: %(submitter)s"
+#, python-format
 msgid ""
 "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
 "      %(role)s."
-msgstr "<strong>द्वारा जोड़ा गया</strong>: %(submitter)s"
+msgstr "भूमिका:%(role)s वाले: %(submitter)s द्वारा <strong>हटाया गया:</strong>"
 
 #: warehouse/templates/email/removed-project-release/body.html:32
 #: warehouse/templates/email/removed-project/body.html:32
-#, fuzzy, python-format
-#| msgid ""
-#| "If this was a mistake, you can email <a href=\"%(href)s\">"
-#| "%(email_address)s</a> to communicate with the PyPI administrators."
+#, python-format
 msgid ""
 "If this was a mistake, you can email <a\n"
 "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">"
-"%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a\n"
+"     href=\"%(href)s\">%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
 
 #: warehouse/templates/email/removed-project/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
+#, python-format
 msgid ""
 "You are receiving this because you are %(recipient_role_descr)s of this "
 "project."
-msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
+msgstr ""
+"आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s "
+"हैं।"
 
 #: warehouse/templates/email/removed-project-release/body.html:25
 #, python-format
 msgid ""
 "The %(project)s release %(release)s released on %(date)s has been deleted."
 msgstr ""
+"यह %(project)s विज्ञप्ति %(release)s जो %(date)s पर वितरित हुयी थी, मिटा दी "
+"गयी है।"
 
 #: warehouse/templates/email/removed-project-release/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
+#, python-format
 msgid ""
 "\n"
 "You are receiving this because you are %(recipient_role_descr)s of this "
 "project."
-msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
+msgstr ""
+"\n"
+"आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s "
+"हैं।"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -3023,7 +3023,7 @@ msgstr ""
 #: warehouse/templates/manage/settings.html:28
 #, python-format
 msgid "Create a token for %(project_name)s"
-msgstr ""
+msgstr "%(Project_name)s के लिए एक टोकन बनाएँ"
 
 #: warehouse/templates/manage/settings.html:33
 #, python-format
@@ -3031,10 +3031,12 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
+"%(project_name)s के साथ API टोकन जोड़ने के लिए <a href=\"%(href)s\">अपने "
+"प्राथमिक ईमेल पते को सत्यापित</a> करें।"
 
 #: warehouse/templates/manage/settings.html:41
 msgid "Project description and sidebar"
-msgstr ""
+msgstr "परियोजना विवरण एवं हाशिया"
 
 #: warehouse/templates/manage/settings.html:43
 #, python-format
@@ -4529,19 +4531,15 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:559
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Upgrade your browser</a> to set up two factor authentication with a "
-#| "security device (e.g. USB key)"
+#, python-format
 msgid ""
 "You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
-"सुरक्षा उपकरण (उदा। USB कुंजी) द्वारा द्वी-करक प्रमाणीकरण स्थापित करने हेतु <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">अपने "
-"ब्राउज़र को अपग्रेड</a> करें"
+"अपने खाते कि पुनःर्प्राप्ति की सहायता का अनुरोध करने के लिए <a href=\"%(href)"
+"s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">हमारे ट्रैकर पर "
+"समस्या दर्ज</a> करें।"
 
 #: warehouse/templates/pages/help.html:566
 msgid "If you are using a username and password for uploads:"
