@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-03-10 23:03+0000\n"
-"Last-Translator: anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2020-03-11 04:14+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -2165,14 +2165,14 @@ msgstr "згенеровано %(generated_datetime)s"
 
 #: warehouse/templates/manage/account.html:494
 msgid "Regenerate"
-msgstr "Перегенерувати"
+msgstr "Згенерувати нові"
 
 #: warehouse/templates/manage/account.html:495
 #: warehouse/templates/manage/account.html:496
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr "Згенерувати нові Коди Відновлення"
+msgstr "Згенерувати нові коди відновлення"
 
 #: warehouse/templates/manage/account.html:507
 msgid "You have not enabled two factor authentication on your account."
@@ -3375,10 +3375,10 @@ msgid ""
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
-"Якщо ви втратили доступ до вашого застосунку аутентифікації або до ключа(-"
-"ів) безпеки, ви повинні використати один із кодів відновлення, щоб увійти до "
-"облікового запису PyPI. Кожен код може бути використаний лише <strong>один "
-"раз</strong>."
+"Якщо ви втратили доступ до свого застосунку автентифікації чи до ключа(-ів) "
+"безпеки, вам знадобиться скористатися одним із кодів відновлення, аби увійти "
+"до облікового запису PyPI. Кожен код можна використати лише "
+"<strong>один</strong> раз."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:47
 msgid ""
@@ -3394,9 +3394,9 @@ msgid ""
 "application or security key(s) and do not have access to these recovery "
 "codes, you may permanently lose access to your PyPI account!"
 msgstr ""
-"<strong>Зберігайте їх у безпечному місці</strong>. Якщо ви втратите ваш "
-"застосунок аутентифікації або ключ(і) захисту і не матимете доступу до цих "
-"кодів відновлення, ви можете назавжди втратити доступ до вашого облікового "
+"<strong>Зберігайте їх у безпечному місці</strong>. Якщо ви втратите свій "
+"застосунок аутентифікації або ключ(і) безпеки і не матимете доступу до цих "
+"кодів відновлення, ви можете назавжди втратити доступ до свого облікового "
 "запису PyPI!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
@@ -3415,11 +3415,11 @@ msgstr "Продовжити"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:76
 msgid "These codes will not be visible again."
-msgstr "Ці коди не буде показано знову."
+msgstr "Цих кодів не буде показано знову."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:79
 msgid "Ensure that you have securely stored them before continuing."
-msgstr "Впевніться, що ви надійно зберегли їх перед продовженням."
+msgstr "Перед тим, як продовжити, переконайтесь, що ви зберегли їх надійно."
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
