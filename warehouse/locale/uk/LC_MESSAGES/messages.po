@@ -8,13 +8,14 @@
 # Alex Solonenko <alex.solonencko@gmail.com>, 2019, 2020.
 # Roksolana <roksolana.d22@gmail.com>, 2019.
 # Olexandr <me.olexandr.kovalchuk@gmail.com>, 2020.
+# anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-03-10 23:03+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -2171,7 +2172,7 @@ msgstr "Перегенерувати"
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr "Перегенерувати коди відновлення"
+msgstr "Згенерувати нові Коди Відновлення"
 
 #: warehouse/templates/manage/account.html:507
 msgid "You have not enabled two factor authentication on your account."
