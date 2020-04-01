@@ -15,13 +15,14 @@
 # Hwan Kim <ihwan01@gmail.com>, 2019.
 # Min ho Kim <minho42@gmail.com>, 2019.
 # Seokhwan Moon <miral09@msn.com>, 2020.
+# anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-04-01 15:20+0000\n"
-"Last-Translator: Hyunwoo Park <ez.amiryo@gmail.com>\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -1031,10 +1032,8 @@ msgid "Reset email sent"
 msgstr "재설정 이메일 발송"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-#, fuzzy
-#| msgid "We have sent an email to your registered email address."
 msgid "An email has been sent to your registered email address."
-msgstr "등록된 이메일 주소로 이메일을 보냈습니다."
+msgstr "등록된 주소로 이메일이 전송되었습니다."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
 #, python-format
