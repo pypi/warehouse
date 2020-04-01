@@ -6,7 +6,7 @@
 # Hyung Jin Kim <hyungjin8943@gmail.com>, 2019.
 # Hyeongdo Lee <mylovercorea@gmail.com>, 2019.
 # Kim Namjun <bunseokbot@gmail.com>, 2019.
-# Hyunwoo Park <ez.amiryo@gmail.com>, 2019.
+# Hyunwoo Park <ez.amiryo@gmail.com>, 2019, 2020.
 # Woo-Cheol Kim <wckim213@gmail.com>, 2019.
 # HyeonhoKim <jwalag87@gmail.com>, 2019.
 # Seba Kim <sebatyler@gmail.com>, 2019.
@@ -21,7 +21,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-04-01 15:20+0000\n"
-"Last-Translator: Seokhwan Moon <miral09@msn.com>\n"
+"Last-Translator: Hyunwoo Park <ez.amiryo@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -549,9 +549,8 @@ msgid "Search"
 msgstr "검색"
 
 #: warehouse/templates/base.html:255
-#, fuzzy
 msgid "Help navigation"
-msgstr "메인 내비게이션"
+msgstr "도움말 내비게이션"
 
 #: warehouse/templates/base.html:257
 msgid "Installing packages"
