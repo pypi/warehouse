@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-03-03 22:56+0000\n"
+"PO-Revision-Date: 2020-03-12 03:25+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -1726,7 +1726,7 @@ msgstr "%(username)s n'a pas encore publié de projet sur PyPI."
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:17
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
@@ -2060,22 +2060,17 @@ msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "Affiché sur votre <a href=\"%(href)s\">profil public</a>"
 
 #: warehouse/templates/manage/account.html:307
-#, fuzzy
-#| msgid "Public profile"
 msgid "️Public email"
-msgstr "Profil public"
+msgstr "E-mail public"
 
 #: warehouse/templates/manage/account.html:319
-#, fuzzy, python-format
-#| msgid ""
-#| "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
-#| "changed."
+#, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"Affiché sur votre <a href=\"%(href)s\">profil public</a>. Ne peut pas être "
-"modifié."
+"L'une de vos adresses e-mail vérifiées peut être affichée sur votre <a href="
+"\"%(href)s\">profil public</a>, visible par les utilisateurs connectés."
 
 #: warehouse/templates/manage/account.html:324
 msgid "Update account"
