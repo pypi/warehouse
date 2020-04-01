@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-03-18 18:21+0000\n"
-"Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
+"PO-Revision-Date: 2020-03-20 19:23+0000\n"
+"Last-Translator: bkaskar <roypbc@yahoo.com>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
 "\n"
 "Language: hi\n"
@@ -1104,9 +1104,9 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
-"<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। अपनी पहचान "
-"सत्यापित करने के लिए इस कोड को दर्ज करें।</p> <p>अपना आवेदन खो दिया? काम नहीं कर "
-"रहा? <a href=\"%(href)s\">सहायता प्राप्त करें</a>।</p>"
+"<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। "
+"अपनी पहचान सत्यापित करने के लिए कोड उत्पन्न करें।</p> <p>अपना आवेदन खो दिया? "
+"काम नहीं कर रहा? <a href=\"%(href)s\">सहायता प्राप्त करें</a>।</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
@@ -1388,7 +1388,9 @@ msgstr "परियोजना %(project)s हटा दी गयी है�
 msgid ""
 "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
 "      %(role)s."
-msgstr "भूमिका:%(role)s वाले: %(submitter)s द्वारा <strong>हटाया गया:</strong>"
+msgstr ""
+"इन भूमिका वाले: %(submitter)s द्वारा <strong>हटाया गया:</strong>\n"
+"      %(role)s."
 
 #: warehouse/templates/email/removed-project-release/body.html:32
 #: warehouse/templates/email/removed-project/body.html:32
@@ -1983,22 +1985,17 @@ msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "आपके <a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a>पर प्रदर्शित"
 
 #: warehouse/templates/manage/account.html:307
-#, fuzzy
-#| msgid "Public profile"
 msgid "️Public email"
-msgstr "सार्वजानिक पार्श्वचित्र (प्रोफाइल)"
+msgstr "सार्वजानिक ईमेल"
 
 #: warehouse/templates/manage/account.html:319
-#, fuzzy, python-format
-#| msgid ""
-#| "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
-#| "changed."
+#, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"आपके<a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a> पर प्रदर्शित होता है। अतः "
-"अपरिवर्तनीय है।"
+"आपका एक सत्यापित ईमेल आपके<a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a> पर "
+"दूसरे उपयोगकर्ताओं को प्रदर्शित किया जा सकता है।"
 
 #: warehouse/templates/manage/account.html:324
 msgid "Update account"
@@ -2714,7 +2711,7 @@ msgstr "प्रबंधन '%(project_name)s' - वितरण संस्�
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr "रिलीज संस्करण %(version)s"
+msgstr "विज्ञप्ति संस्करण %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
@@ -3039,12 +3036,12 @@ msgstr "'%(project_name)s' सेटिंग्स प्रबंधित क
 
 #: warehouse/templates/manage/settings.html:21
 msgid "Project settings"
-msgstr ""
+msgstr "परियोजना सेटिंग्स"
 
 #: warehouse/templates/manage/settings.html:28
 #, python-format
 msgid "Create a token for %(project_name)s"
-msgstr "%(Project_name)s के लिए एक टोकन बनाएँ"
+msgstr "%(project_name)s के लिए एक टोकन बनाएँ"
 
 #: warehouse/templates/manage/settings.html:33
 #, python-format
@@ -3072,15 +3069,24 @@ msgid ""
 "\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">the Python "
 "Packaging User Guide</a> for more help."
 msgstr ""
+"अपने के अगले '%(project_name)s' संस्करण का विवरण, लेखक, लिंक, क्लासिफायर और "
+"अन्य विवरण स्थापित करने के लिए, <a href=\"%(setup_args_href)s\" rel=\""
+"noopener\" target=\"_blank\">आपके <code>setup.py</ code> फ़ाइल में <code>"
+"setup ()</code>का उपयोग करें</a>। इन तथ्यों का नवीनीकरण करने से पिछले रिलीज़ "
+"के लिए मेटाडेटा नहीं बदलेगा। साथ ही, फाईले अपलोड करने के लिए आपको करने के लि"
+"ए <strong>आपको अवश्य</strong> <a href=\"%(twine_docs_href)s\" rel=\""
+"noopener\" target=\"_blank\">Twine</a> का उपयोग करना चाहिए। और सहायता "
+"प्राप्ति हेतु <a href=\"%(distribution_href)s\" rel=\"noopener\" target=\""
+"_blank\">पाइथॉन उपयोगकर्ता कुंजी</a> देखें।"
 
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
 msgid "Delete project"
-msgstr ""
+msgstr "परियोजना मिटाएं"
 
 #: warehouse/templates/manage/settings.html:57
 msgid "Deleting this project will:"
-msgstr ""
+msgstr "यह परियोजना मिटाने से:"
 
 #: warehouse/templates/manage/settings.html:62
 #, python-format
@@ -3091,15 +3097,21 @@ msgid_plural ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
 "releases</a>"
 msgstr[0] ""
+"परियोजना एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्ति</a> अपरिवर्तनीय रू"
+"प से मिटाएं"
 msgstr[1] ""
+"परियोजनाए एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्तियां</a> अपरिवर्तनी"
+"य रूप से मिटाएं"
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
-msgstr ""
+msgstr "अपरिवर्तनीय रूप से परियोजना मिटाएं"
 
 #: warehouse/templates/manage/settings.html:72
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
+"इस परियोजना का नाम <strong>किसी भी PyPI</strong> उपयोगकर्ता को मुहैय्या "
+"करवावें"
 
 #: warehouse/templates/manage/settings.html:74
 msgid ""
@@ -4099,7 +4111,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:335
 msgid "Open your authentication application to generate an authentication code"
-msgstr "ऑथेंटिकेशन कोड जेनरेट करने के लिए अपना ऑथेंटिकेशन एप्लीकेशन खोलें"
+msgstr "प्रमाणीकरण कोड जेनरेट करने के लिए अपना प्रमाणीकरण एप्लीकेशन खोलें"
 
 #: warehouse/templates/pages/help.html:336
 msgid "Use this code to finish logging into PyPI"
