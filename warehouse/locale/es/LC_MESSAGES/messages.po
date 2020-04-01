@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-16 01:54+0000\n"
+"PO-Revision-Date: 2020-03-02 22:09+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -20,14 +20,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
-#, fuzzy
-#| msgid "Stay updated:"
 msgid "Locale updated"
-msgstr "Manténgase al día:"
+msgstr "Se actualizó la configuración de idioma."
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
@@ -113,10 +111,8 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "La aserción de WebAuthn no es válida: carga incorrecta"
 
 #: warehouse/accounts/forms.py:344
-#, fuzzy
-#| msgid "Invalid TOTP code."
 msgid "Invalid Recovery Code."
-msgstr "El código TOTP no es válido."
+msgstr "El código de recuperación no es válido."
 
 #: warehouse/accounts/forms.py:362
 msgid "No user found with that username or email"
@@ -139,6 +135,8 @@ msgstr "La aserción de WebAuthn es correcta"
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
+"Se aceptó el código de recuperación. El código proporcionado no puede "
+"utilizarse más."
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -231,18 +229,21 @@ msgstr ""
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
+"Debe suministrar un método de autenticación en dos fases antes de poder "
+"generar códigos de recuperación"
 
 #: warehouse/manage/views.py:664
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "Ya se generaron códigos de recuperación"
 
 #: warehouse/manage/views.py:665
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
+"Generar códigos de recuperación nuevos invalidará sus códigos existentes."
 
 #: warehouse/manage/views.py:715
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "Datos de acceso no válidos. Inténtelo de nuevo"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -927,17 +928,15 @@ msgstr "%(user)s aún no ha cargado ningún proyecto en PyPI"
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:472
 msgid "Recovery Codes"
-msgstr ""
+msgstr "Códigos de recuperación"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr ""
+msgstr "Acceder con código de recuperación"
 
 #: warehouse/templates/accounts/recovery-code.html:40
-#, fuzzy
-#| msgid "Error code"
 msgid "Enter recovery code"
-msgstr "Código de error"
+msgstr "Proporcione el código de recuperación"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
@@ -951,13 +950,15 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
+"PyPI permite generar códigos de recuperación que puede almacenar de manera "
+"física en caso de que pierda su dispositivo o aplicación. Proporcione uno de "
+"estos códigos en el formulario para verificar su identidad. Tras utilizarse, "
+"el código de recuperación deja de ser válido."
 
 #: warehouse/templates/accounts/recovery-code.html:59
-#, fuzzy, python-format
-#| msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+#, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr ""
-"¿Perdió su dispositivo? ¿No funciona? <a href=\"%(href)s\">Consiga ayuda</a>."
+msgstr "<p>¿No funciona? <a href=\"%(href)s\">Consiga ayuda</a>.</p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -1128,7 +1129,7 @@ msgstr "Autenticar con aplicación"
 
 #: warehouse/templates/accounts/two-factor.html:87
 msgid "Enter authentication code"
-msgstr "Escriba el código de autenticación"
+msgstr "Proporcione el código de autenticación"
 
 #: warehouse/templates/accounts/two-factor.html:105
 #, python-format
@@ -1143,14 +1144,12 @@ msgstr ""
 "\">Consiga ayuda</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
-#, fuzzy
-#| msgid "Set up your application"
 msgid "Lost your security key or application?"
-msgstr "Configure su aplicación"
+msgstr "¿Perdió su llave o aplicación de seguridad?"
 
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using a Recovery Code"
-msgstr ""
+msgstr "Acceder con código de recuperación"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1159,6 +1158,10 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
+"<p><strong>No ha generado códigos de recuperación para la "
+"cuenta.</strong></p> <p>Si pierde el acceso a sus métodos de autenticación "
+"en dos fases, podría perder el acceso a su cuenta. <a href=\"%(href)s\">"
+"Conseguir ayuda con los códigos de recuperación.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1426,16 +1429,13 @@ msgstr ""
 "code>"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Alguien, quizá usted, ha cambiado la contraseña de su cuenta de PyPI, "
-"<strong>%(username)s</strong>."
+"Alguien, quizá usted, ha añadido un método de autenticación en dos fases "
+"%(method)s a la cuenta de PypI <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format
