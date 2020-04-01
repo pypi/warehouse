@@ -31,6 +31,10 @@ msgstr ""
 "X-Generator: Weblate 3.9.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
+#: warehouse/views.py:255
+msgid "Locale updated"
+msgstr ""
+
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "해당 이름의 사용자를 찾을 수 없습니다"

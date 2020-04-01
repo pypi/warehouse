@@ -21,6 +21,12 @@ msgstr ""
 "X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
+#: warehouse/views.py:255
+#, fuzzy
+#| msgid "Stay updated:"
+msgid "Locale updated"
+msgstr "Μείνετε ενημερωμένοι:"
+
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα χρήστη"

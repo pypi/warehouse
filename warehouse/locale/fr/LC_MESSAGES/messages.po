@@ -28,6 +28,12 @@ msgstr ""
 "X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
+#: warehouse/views.py:255
+#, fuzzy
+#| msgid "Stay updated:"
+msgid "Locale updated"
+msgstr "Restez informé :"
+
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "Aucun utilisateur trouvé pour ce nom d’utilisateur"
@@ -135,7 +141,8 @@ msgstr "Assertion WebAuthn réussie"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "Code de récupération accepté. Le code fourni ne peut plus être utilisé."
+msgstr ""
+"Code de récupération accepté. Le code fourni ne peut plus être utilisé."
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -1152,8 +1159,8 @@ msgid ""
 msgstr ""
 "<p>Générez un code en utilisant une application d'authentification connectée "
 "à votre compte PyPI. Entrez ce code dans le formulaire pour vérifier votre "
-"identité.</p> <p>Application perdue ? Cela ne fonctionne pas ? <a href=\""
-"%(href)s\">Obtenir de l'aide</a>.</p>"
+"identité.</p> <p>Application perdue ? Cela ne fonctionne pas ? <a href="
+"\"%(href)s\">Obtenir de l'aide</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
@@ -1170,11 +1177,10 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
-"<p><strong>Vous n'avez pas généré de codes de récupération de "
-"compte.</strong></p> <p>Si vous perdez l'accès à votre méthode "
-"d'authentification à deux facteurs, vous pourriez perdre l'accès à votre "
-"compte.<a href=\"%(href)s\">Obtenir de l'aide sur les codes de "
-"récupération.</a></p>"
+"<p><strong>Vous n'avez pas généré de codes de récupération de compte.</"
+"strong></p> <p>Si vous perdez l'accès à votre méthode d'authentification à "
+"deux facteurs, vous pourriez perdre l'accès à votre compte.<a href=\"%(href)s"
+"\">Obtenir de l'aide sur les codes de récupération.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -3321,8 +3327,8 @@ msgid ""
 msgstr ""
 "Si vous perdez l'accès à votre application d'authentification ou votre/vos "
 "clé(s) de sécurité, vous devrez utiliser l'un de ces codes pour vous "
-"connecter à votre compte PyPI. Chaque code ne peut être utilisé qu'<strong>"
-"une seule fois</strong>."
+"connecter à votre compte PyPI. Chaque code ne peut être utilisé "
+"qu'<strong>une seule fois</strong>."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:47
 msgid ""
@@ -3725,9 +3731,9 @@ msgid ""
 "href=\"#account-recovery\">with account recovery</a>."
 msgstr ""
 "Si vous avez perdu l'accès à toutes les méthodes d'authentification à deux "
-"facteurs de votre compte et que vous n'avez pas de <a href=\"#recoverycodes\""
-">codes de récupération</a>, vous pouvez demander de l'aide <a href"
-"=\"#account-recovery\">sur la récupération de compte</a>."
+"facteurs de votre compte et que vous n'avez pas de <a href=\"#recoverycodes"
+"\">codes de récupération</a>, vous pouvez demander de l'aide <a href="
+"\"#account-recovery\">sur la récupération de compte</a>."
 
 #: warehouse/templates/pages/help.html:52
 msgid "What's a package, project, or release?"
@@ -3766,16 +3772,16 @@ msgid ""
 "on PyPI?"
 msgstr ""
 "Comment l'authentification à deux facteurs avec une application "
-"d'authentification (<abbr title=\"Time-based One-Time Password\">TOTP</abbr>)"
-" fonctionne-t'elle ? Comment la configurer sur PyPI ?"
+"d'authentification (<abbr title=\"Time-based One-Time Password\">TOTP</"
+"abbr>) fonctionne-t'elle ? Comment la configurer sur PyPI ?"
 
 #: warehouse/templates/pages/help.html:61
 msgid ""
 "How does two factor authentication with a security device (e.g. USB key) "
 "work? How do I set it up on PyPI?"
 msgstr ""
-"Comment l'authentification à deux facteurs avec un périphérique de sécurité ("
-"ex : clé USB) fonctionne-t'elle ? Comment la configurer sur PyPI ?"
+"Comment l'authentification à deux facteurs avec un périphérique de sécurité "
+"(ex : clé USB) fonctionne-t'elle ? Comment la configurer sur PyPI ?"
 
 #: warehouse/templates/pages/help.html:62
 msgid "What devices (other than a USB key) can I use as a security device?"
@@ -5008,7 +5014,8 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:566
 msgid "If you are using a username and password for uploads:"
-msgstr "SI vous utilisez un nom d'utilisateur et un mot de passe pour publier :"
+msgstr ""
+"SI vous utilisez un nom d'utilisateur et un mot de passe pour publier :"
 
 #: warehouse/templates/pages/help.html:568
 msgid "Check to see if your username or password are incorrect."

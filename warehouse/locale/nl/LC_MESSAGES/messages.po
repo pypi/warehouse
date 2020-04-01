@@ -20,6 +20,10 @@ msgstr ""
 "X-Generator: Weblate 3.9-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
+#: warehouse/views.py:255
+msgid "Locale updated"
+msgstr ""
+
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "Geen gebruiker met deze gebruikersnaam gevonden"

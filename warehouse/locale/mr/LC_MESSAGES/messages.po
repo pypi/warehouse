@@ -20,6 +20,12 @@ msgstr ""
 "X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
+#: warehouse/views.py:255
+#, fuzzy
+#| msgid "Date last updated"
+msgid "Locale updated"
+msgstr "अंतिम अद्यतनित तारीख"
+
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "त्या वापरकर्तानावासह कोणताही वापरकर्ता आढळला नाही"
