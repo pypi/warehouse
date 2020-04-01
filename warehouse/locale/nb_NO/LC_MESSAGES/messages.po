@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-16 19:46+0000\n"
+"PO-Revision-Date: 2020-03-24 21:59+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/pypa/"
 "warehouse/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.10.2-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
@@ -662,8 +662,9 @@ msgid "Donate today!"
 msgstr "Doner"
 
 #: warehouse/templates/base.html:316 warehouse/templates/pages/sitemap.html:16
+#, fuzzy
 msgid "Site map"
-msgstr ""
+msgstr "Sidekart"
 
 #: warehouse/templates/base.html:322
 msgid "Switch to desktop version"
@@ -1356,8 +1357,9 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Noen, kanskje deg, har endret passordet på din PyPI-konto <strong>"
-"%(username)s</strong>."
+"Noen, kanskje deg, har lagt til en %(method)s-"
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format
@@ -1368,8 +1370,9 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Noen, kanskje deg, har endret passordet på din PyPI-konto <strong>"
-"%(username)s</strong>."
+"Noen, kanskje deg, har fjernet en %(method)s-"
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
