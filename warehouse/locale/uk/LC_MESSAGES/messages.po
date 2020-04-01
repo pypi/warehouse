@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-27 14:01+0000\n"
-"Last-Translator: Olexandr <me.olexandr.kovalchuk@gmail.com>\n"
+"PO-Revision-Date: 2020-02-27 15:52+0000\n"
+"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -128,7 +128,7 @@ msgstr "Перевірка WebAuthn успішна"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "Код відновлення прийнято. Введений код не можна використати ще раз."
+msgstr "Код відновлення прийнято. Введений код не можна використати повторно."
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -1446,7 +1446,7 @@ msgid ""
 "link to verify your email address</a>."
 msgstr ""
 "Якщо ви бажаєте продовжити виконання цього запиту, <a href=\"%(href)s\">"
-"клікніть на це посилання, щоб підтвердити вашу електронну адресу</a>"
+"клікніть на це посилання, щоб підтвердити вашу електронну адресу</a>."
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -3795,7 +3795,7 @@ msgid ""
 "error when uploading files?"
 msgstr ""
 "Чому я отримую помилку \"Неправильна або неіснуюча аутентифікаційна "
-"інформація.\", коли завантажую файли?"
+"інформація.\" при завантаженні файлів?"
 
 #: warehouse/templates/pages/help.html:74
 msgid ""
@@ -4494,13 +4494,12 @@ msgstr ""
 "облікового запису та оберіть \"Згенерувати коди відновлення\""
 
 #: warehouse/templates/pages/help.html:419
-#, fuzzy
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
 msgstr ""
-"Надійно збережіть показані коди відновлення! Подумайте надрукувати їх і "
-"зберегти в безпечному місці або додати в менеджер паролів."
+"Надійно збережіть показані коди відновлення! Подумайте про те, щоб "
+"надрукувати їх і зберегти в безпечному місці або додати в менеджер паролів."
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -5606,15 +5605,11 @@ msgid "Top projects by total package size"
 msgstr "Топ-проекти за загальним розміром пакунків"
 
 #: warehouse/templates/pages/stats.html:32
-#, fuzzy
-#| msgid ""
-#| "Here is a list of the top 100 packages based on sum of their packages "
-#| "sizes (in bytes)."
 msgid ""
 "Here is a list of the top 100 projects based on the sum of their packages' "
 "sizes (in bytes)."
 msgstr ""
-"Ось перелік із топ-100 пакунків, впорядкованих за сумою розмірів їх пакунків "
+"Ось перелік із топ-100 проектів, впорядкованих за сумою розмірів їх пакунків "
 "(у байтах)."
 
 #: warehouse/templates/pages/stats.html:39
