@@ -7,13 +7,14 @@
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2019, 2020.
 # Alex Solonenko <alex.solonencko@gmail.com>, 2019, 2020.
 # Roksolana <roksolana.d22@gmail.com>, 2019.
+# Olexandr <me.olexandr.kovalchuk@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-27 13:55+0000\n"
-"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
+"PO-Revision-Date: 2020-02-27 13:57+0000\n"
+"Last-Translator: Olexandr <me.olexandr.kovalchuk@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -4919,6 +4920,9 @@ msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
+"Втрачено <a href=\"#totp\">застосунок</a> двофакторної автентифікації, <a "
+"href=\"#utfkey\">пристрій</a> та <a href=\"#recoverycodes\">коди "
+"відновлення</a>"
 
 #: warehouse/templates/pages/help.html:559
 #, fuzzy, python-format
@@ -4936,10 +4940,8 @@ msgstr ""
 "\" rel=\"noopener\">створіть іш'ю на нашому трекері</a>."
 
 #: warehouse/templates/pages/help.html:566
-#, fuzzy
-#| msgid "Provide your username and password, as normal"
 msgid "If you are using a username and password for uploads:"
-msgstr "Надати своє ім'я користувача і пароль, як зазвичай"
+msgstr "Якщо ви використовуєте ім'я користувача і пароль для завантажень:"
 
 #: warehouse/templates/pages/help.html:568
 #, fuzzy
@@ -4956,10 +4958,11 @@ msgstr ""
 #: warehouse/templates/pages/help.html:571
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr ""
+"Якщо ви використовуєте <a href=\"#apitoken\">API-токен</a> для завантажень:"
 
 #: warehouse/templates/pages/help.html:573
 msgid "Ensure that your API Token is valid and has not been revoked."
-msgstr ""
+msgstr "Переконайтеся, що ваш API-токен дійсний і не був відкликаний."
 
 #: warehouse/templates/pages/help.html:574
 msgid ""
