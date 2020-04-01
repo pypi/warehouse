@@ -12,8 +12,8 @@ msgstr ""
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-03-02 22:09+0000\n"
 "Last-Translator: bkaskar <roypbc@yahoo.com>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
-"\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
+">\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -205,27 +205,26 @@ msgstr "यह आपका प्राथमिक पता है"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पता ${email_address} सत्यापित। ${confirm_message}।"
 
-#: warehouse/manage/views.py:172
+#: warehouse/manage/views.py:174
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ईमेल ${email_address} जोड़ा गया - सत्यापन लिंक के लिए अपने ईमेल की जांच करें"
 
-#: warehouse/manage/views.py:653 warehouse/manage/views.py:689
+#: warehouse/manage/views.py:655 warehouse/manage/views.py:691
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
-"इससे पहले की पुनर्प्राप्ति कुंजी उत्पन्न की जा सके, आपको द्वी-करक प्रमाणीकरण "
-"विधि का प्रावधान करना होगा"
+"इससे पहले की पुनर्प्राप्ति कुंजी उत्पन्न की जा सके, आपको द्वी-करक प्रमाणीकरण विधि का "
+"प्रावधान करना होगा"
 
-#: warehouse/manage/views.py:664
+#: warehouse/manage/views.py:666
 msgid "Recovery codes already generated"
 msgstr "पुनर्प्राप्ति कोड प्रउत्पादित"
 
-#: warehouse/manage/views.py:665
+#: warehouse/manage/views.py:667
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
-"नयी पुनर्प्राप्ति कुंजी उत्पन्न करने पर मौजूदा कुंजियाँ अमान्य हो जाएंगी।"
+msgstr "नयी पुनर्प्राप्ति कुंजी उत्पन्न करने पर मौजूदा कुंजियाँ अमान्य हो जाएंगी।"
 
-#: warehouse/manage/views.py:715
+#: warehouse/manage/views.py:717
 msgid "Invalid credentials. Try again"
 msgstr "अवैध प्रत्यय पत्र। पुनः प्रयास करें"
 
@@ -922,10 +921,9 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
-"आपके उपकरण या आवेदन खोने जैसे दुर्घटना में PyPI पुनःप्राप्ति कुंजी उत्पन्न "
-"करके सुरक्षित रूप से ऑफ़लाइन संग्रहीत कि अनुमति देता है। अपनी पहचान सत्यापित "
-"करने के लिए इनमें से किसी एक कुंजी को फॉर्म में दर्ज करें। एक उपयोग के बाद, "
-"पुनःप्राप्ति कुंजी अमान्य होगी।"
+"आपके उपकरण या आवेदन खोने जैसे दुर्घटना में PyPI पुनःप्राप्ति कुंजी उत्पन्न करके सुरक्षित रूप से "
+"ऑफ़लाइन संग्रहीत कि अनुमति देता है। अपनी पहचान सत्यापित करने के लिए इनमें से किसी एक कुंजी "
+"को फॉर्म में दर्ज करें। एक उपयोग के बाद, पुनःप्राप्ति कुंजी अमान्य होगी।"
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, python-format
@@ -1123,10 +1121,9 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
-"<p><strong>आपने खाता पुनःप्राप्ति कुंजी उत्पन्न नहीं की है।</strong></p> <p>"
-"अगर आप अपनी द्वि-कारक विधियां खो देते हैं, तो आप अपने खाते तक कि पहुंच खो "
-"सकते हैं। <a href=\"%(href)s\">पुनःप्राप्ति कुंजी उत्पन्न करने में सहायता "
-"प्राप्त करें।</a></p>"
+"<p><strong>आपने खाता पुनःप्राप्ति कुंजी उत्पन्न नहीं की है।</strong></p> <p>अगर आप "
+"अपनी द्वि-कारक विधियां खो देते हैं, तो आप अपने खाते तक कि पहुंच खो सकते हैं। <a href="
+"\"%(href)s\">पुनःप्राप्ति कुंजी उत्पन्न करने में सहायता प्राप्त करें।</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1378,14 +1375,66 @@ msgstr ""
 "आपके PyPI खाते <strong>%(username)s</strong> के प्राथमिक ईमेल को <code>"
 "%(old_email)s</code> से बदलकर <code>%(new_email)s</code> कर दिया गया है"
 
+#: warehouse/templates/email/removed-project/body.html:25
+#, fuzzy, python-format
+#| msgid "This project has no releases"
+msgid "The project %(project)s has been deleted."
+msgstr "इस परियोजना की कोई विज्ञप्तियां नहीं है"
+
+#: warehouse/templates/email/removed-project-release/body.html:26
+#: warehouse/templates/email/removed-project/body.html:26
+#, fuzzy, python-format
+#| msgid "<strong>Added by</strong>: %(submitter)s"
+msgid ""
+"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+"      %(role)s."
+msgstr "<strong>द्वारा जोड़ा गया</strong>: %(submitter)s"
+
+#: warehouse/templates/email/removed-project-release/body.html:32
+#: warehouse/templates/email/removed-project/body.html:32
+#, fuzzy, python-format
+#| msgid ""
+#| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If this was a mistake, you can email <a\n"
+"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+"administrators."
+msgstr ""
+"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">"
+"%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+
+#: warehouse/templates/email/removed-project/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
+
+#: warehouse/templates/email/removed-project-release/body.html:25
+#, python-format
+msgid ""
+"The %(project)s release %(release)s released on %(date)s has been deleted."
+msgstr ""
+
+#: warehouse/templates/email/removed-project-release/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"\n"
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
+
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> में "
-"%(method)s द्वी-करक प्रमाणीकरण विधि का प्रावधान किया है।"
+"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> में %(method)s "
+"द्वी-करक प्रमाणीकरण विधि का प्रावधान किया है।"
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, python-format
@@ -1393,8 +1442,8 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> से %(method)"
-"s द्वी-करक प्रमाणीकरण विधि को हटा दिया है।"
+"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> से %(method)s "
+"द्वी-करक प्रमाणीकरण विधि को हटा दिया है।"
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1411,8 +1460,8 @@ msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
 msgstr ""
-"यदि आप इस अनुरोध के साथ आगे बढ़ना चाहते हैं, तो <a href=\"%(href)s\">अपने ईमे"
-"ल को सत्यापित करने के लिए इस लिंक पर क्लिक करें</a>।"
+"यदि आप इस अनुरोध के साथ आगे बढ़ना चाहते हैं, तो <a href=\"%(href)s\">अपने ईमेल को "
+"सत्यापित करने के लिए इस लिंक पर क्लिक करें</a>।"
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -2631,9 +2680,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
 msgstr ""
-"आपने अभी तक किसी भी परियोजना को PyPI पर अपलोड नहीं की है। कैसे आरम्भ करें, "
-"सीखने के लिए <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">पाइथॉन "
-"संकलन उपयोगकर्ता कुंजी</a> पर जाएं"
+"आपने अभी तक किसी भी परियोजना को PyPI पर अपलोड नहीं की है। कैसे आरम्भ करें, सीखने के "
+"लिए <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">पाइथॉन संकलन "
+"उपयोगकर्ता कुंजी</a> पर जाएं"
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
@@ -2740,8 +2789,8 @@ msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/manage/release.html:122
 msgid "Release settings"
@@ -2766,13 +2815,13 @@ msgid_plural ""
 "      "
 msgstr[0] ""
 "\n"
-"        मिटाने पर %(count)s फाइल भी अपरिवर्तनीय रूप से इस विज्ञप्ति के साथ "
-"हटा दी जाएँगी।\n"
+"        मिटाने पर %(count)s फाइल भी अपरिवर्तनीय रूप से इस विज्ञप्ति के साथ हटा दी "
+"जाएँगी।\n"
 "      "
 msgstr[1] ""
 "\n"
-"        मिटाने पर %(count)s फाइलें भी अपरिवर्तनीय रूप से इस विज्ञप्ति के साथ "
-"हटा दी जाएँगी।\n"
+"        मिटाने पर %(count)s फाइलें भी अपरिवर्तनीय रूप से इस विज्ञप्ति के साथ हटा दी "
+"जाएँगी।\n"
 "      "
 
 #: warehouse/templates/manage/release.html:135
@@ -2788,9 +2837,9 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
 "release</a> instead."
 msgstr ""
-"आप एक ही प्रकार के संस्करण संख्या के साथ नए वितरण को फिर से अपलोड नहीं कर "
-"पाएंगे। इसके बजाय एक नया संस्करण या एक <a href=\"%(href)s\" title=\"%(title)"
-"s\" target=\"_blank\" rel=\"noopener\">अवतरण</a> बनाने पर विचार करें।"
+"आप एक ही प्रकार के संस्करण संख्या के साथ नए वितरण को फिर से अपलोड नहीं कर पाएंगे। इसके "
+"बजाय एक नया संस्करण या एक <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">अवतरण</a> बनाने पर विचार करें।"
 
 #: warehouse/templates/manage/release.html:142
 #: warehouse/templates/manage/releases.html:27
@@ -2876,9 +2925,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 msgstr ""
-"नई विज्ञप्ति बनाने का तरीका सीखने के लिए <a href=\"%(href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता "
-"कुंजी</a> पर जाएं"
+"नई विज्ञप्ति बनाने का तरीका सीखने के लिए <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> पर जाएं"
 
 #: warehouse/templates/manage/roles.html:18
 #, python-format
@@ -2891,8 +2939,8 @@ msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s"
 msgstr ""
-"PyPI के कौन से उपयोगकर्ता आपको %(project_name)s प्रबंधन में मदद कर सकते हैं "
-"यह नियंत्रित करने के लिए इस पृष्ठ का उपयोग करें"
+"PyPI के कौन से उपयोगकर्ता आपको %(project_name)s प्रबंधन में मदद कर सकते हैं यह नियंत्रित "
+"करने के लिए इस पृष्ठ का उपयोग करें"
 
 #: warehouse/templates/manage/roles.html:25
 #: warehouse/templates/pages/help.html:509
@@ -2911,8 +2959,8 @@ msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
 msgstr ""
-"पैकेज के लिए विज्ञप्तियां अपलोड कर सकते हैं। सहयोगियों को नहीं जोड़ सकते। "
-"फाइलें, विज्ञप्तियां, या परियोजना मिटा नहीं सकते ।"
+"पैकेज के लिए विज्ञप्तियां अपलोड कर सकते हैं। सहयोगियों को नहीं जोड़ सकते। फाइलें, "
+"विज्ञप्तियां, या परियोजना मिटा नहीं सकते ।"
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:71
@@ -2926,8 +2974,8 @@ msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
-"विज्ञप्तियां अपलोड कर सकते हैं। सहयोगियों को जोड़ सकते हैं। फाइलें, "
-"विज्ञप्तियां, या परियोजना सकते हैं।"
+"विज्ञप्तियां अपलोड कर सकते हैं। सहयोगियों को जोड़ सकते हैं। फाइलें, विज्ञप्तियां, या "
+"परियोजना सकते हैं।"
 
 #: warehouse/templates/manage/roles.html:34
 #, python-format
@@ -3500,9 +3548,9 @@ msgid ""
 "are expected to follow the <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">PyPA Code of Conduct</a>."
 msgstr ""
-"सभी उपयोगकर्ताओं ने वेयरहाउस में प्रतिक्रिया, रिपोर्टिंग मुद्दों या योगदान को"
-" सबमिट करने की अपेक्षा की है कि वे <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\"> PyPA कोड का पालन करें </a> आचरण।"
+"सभी उपयोगकर्ताओं ने वेयरहाउस में प्रतिक्रिया, रिपोर्टिंग मुद्दों या योगदान को सबमिट करने "
+"की अपेक्षा की है कि वे <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"\" rel=\"noopener\"> PyPA कोड का पालन करें </a> आचरण।"
 
 #: warehouse/templates/pages/help.html:31
 #, python-format

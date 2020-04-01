@@ -210,30 +210,30 @@ msgstr "Este é o seu endereço principal"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Endereço de e-mail ${email_address} verificado. ${confirm_message}."
 
-#: warehouse/manage/views.py:172
+#: warehouse/manage/views.py:174
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} adicionado - verifique seu e-mail para um link de "
 "verificação"
 
-#: warehouse/manage/views.py:653 warehouse/manage/views.py:689
+#: warehouse/manage/views.py:655 warehouse/manage/views.py:691
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "O usuário deve fornecer um método de dois fatores antes que os códigos de "
 "recuperação possam ser gerados"
 
-#: warehouse/manage/views.py:664
+#: warehouse/manage/views.py:666
 msgid "Recovery codes already generated"
 msgstr "Códigos de recuperação já gerados"
 
-#: warehouse/manage/views.py:665
+#: warehouse/manage/views.py:667
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "A geração de novos códigos de recuperação invalidará os seus códigos "
 "existentes."
 
-#: warehouse/manage/views.py:715
+#: warehouse/manage/views.py:717
 msgid "Invalid credentials. Try again"
 msgstr "Credenciais inválidas. Tente novamente"
 
@@ -1402,6 +1402,58 @@ msgid ""
 msgstr ""
 "O e-mail principal da sua conta PyPI <strong>%(username)s</strong> foi "
 "alterado de <code>%(old_email)s</code> para <code>%(new_email)s</code>"
+
+#: warehouse/templates/email/removed-project/body.html:25
+#, fuzzy, python-format
+#| msgid "This project has no releases"
+msgid "The project %(project)s has been deleted."
+msgstr "Este projeto não possui lançamentos"
+
+#: warehouse/templates/email/removed-project-release/body.html:26
+#: warehouse/templates/email/removed-project/body.html:26
+#, fuzzy, python-format
+#| msgid "<strong>Added by</strong>: %(submitter)s"
+msgid ""
+"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+"      %(role)s."
+msgstr "<strong>Adicionado por</strong>: %(submitter)s"
+
+#: warehouse/templates/email/removed-project-release/body.html:32
+#: warehouse/templates/email/removed-project/body.html:32
+#, fuzzy, python-format
+#| msgid ""
+#| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If this was a mistake, you can email <a\n"
+"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+"administrators."
+msgstr ""
+"Se isso foi um erro, você pode enviar um e-mail para <a href=\"%(href)s\">"
+"%(email_address)s</a> para se comunicar com os administradores do PyPI."
+
+#: warehouse/templates/email/removed-project/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr "Você está recebendo isso porque você é um proprietário deste projeto."
+
+#: warehouse/templates/email/removed-project-release/body.html:25
+#, python-format
+msgid ""
+"The %(project)s release %(release)s released on %(date)s has been deleted."
+msgstr ""
+
+#: warehouse/templates/email/removed-project-release/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"\n"
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr "Você está recebendo isso porque você é um proprietário deste projeto."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format

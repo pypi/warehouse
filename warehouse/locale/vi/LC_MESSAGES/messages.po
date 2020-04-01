@@ -209,26 +209,26 @@ msgstr "Đây là địa chỉ chính của bạn"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Địa chỉ email ${email_address} đã được xác thực. ${confirm_message}."
 
-#: warehouse/manage/views.py:172
+#: warehouse/manage/views.py:174
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Đã thêm email ${email_address} - kiểm tra email của bạn để biết liên kết xác "
 "minh"
 
-#: warehouse/manage/views.py:653 warehouse/manage/views.py:689
+#: warehouse/manage/views.py:655 warehouse/manage/views.py:691
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:664
+#: warehouse/manage/views.py:666
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:665
+#: warehouse/manage/views.py:667
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:715
+#: warehouse/manage/views.py:717
 msgid "Invalid credentials. Try again"
 msgstr ""
 
@@ -1377,6 +1377,60 @@ msgid ""
 msgstr ""
 "Thư điện tử chính cho tài khoản PyPI của bạn <strong>%(username)s</strong>, "
 "đã được đổi từ <code>%(old_email)s</code> sang <code>%(new_email)s</code>"
+
+#: warehouse/templates/email/removed-project/body.html:25
+#, fuzzy, python-format
+#| msgid "This project has no releases"
+msgid "The project %(project)s has been deleted."
+msgstr "Dự án này không có bản phát hành nào"
+
+#: warehouse/templates/email/removed-project-release/body.html:26
+#: warehouse/templates/email/removed-project/body.html:26
+#, fuzzy, python-format
+#| msgid "<strong>Added by</strong>: %(submitter)s"
+msgid ""
+"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+"      %(role)s."
+msgstr "<strong>Thêm bởi</strong>: %(submitter)s"
+
+#: warehouse/templates/email/removed-project-release/body.html:32
+#: warehouse/templates/email/removed-project/body.html:32
+#, fuzzy, python-format
+#| msgid ""
+#| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If this was a mistake, you can email <a\n"
+"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+"administrators."
+msgstr ""
+"Nếu đây là một lỗi, bạn có thể gửi email <a href=\"%(href)s\">"
+"%(email_address)s</a> để liên lạc với quản trị viên PyPI."
+
+#: warehouse/templates/email/removed-project/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr ""
+"Bạn đang nhận được thông tin này bởi vì bạn là một chủ sở hữu của dự án này."
+
+#: warehouse/templates/email/removed-project-release/body.html:25
+#, python-format
+msgid ""
+"The %(project)s release %(release)s released on %(date)s has been deleted."
+msgstr ""
+
+#: warehouse/templates/email/removed-project-release/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"\n"
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr ""
+"Bạn đang nhận được thông tin này bởi vì bạn là một chủ sở hữu của dự án này."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, fuzzy, python-format

@@ -207,24 +207,24 @@ msgstr "这是您的主邮件地址"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "电子邮件地址$ {email_address}已验证。 ${confirm_message}。"
 
-#: warehouse/manage/views.py:172
+#: warehouse/manage/views.py:174
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "电子邮件${email_address}已添加 - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views.py:653 warehouse/manage/views.py:689
+#: warehouse/manage/views.py:655 warehouse/manage/views.py:691
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr "在生成恢复代码之前，必须提供双因素方法"
 
-#: warehouse/manage/views.py:664
+#: warehouse/manage/views.py:666
 msgid "Recovery codes already generated"
 msgstr "已生成恢复代码"
 
-#: warehouse/manage/views.py:665
+#: warehouse/manage/views.py:667
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views.py:715
+#: warehouse/manage/views.py:717
 msgid "Invalid credentials. Try again"
 msgstr "无效凭据。再试一次"
 
@@ -1345,6 +1345,58 @@ msgid ""
 msgstr ""
 "您的 PyPI 帐户（ <strong>%(username)s</strong>）的主电子邮件已经从 <code>"
 "%(old_email)s</code> 更改为 <code>%(new_email)s</code>"
+
+#: warehouse/templates/email/removed-project/body.html:25
+#, fuzzy, python-format
+#| msgid "This project has no releases"
+msgid "The project %(project)s has been deleted."
+msgstr "此项目没有发布过版本"
+
+#: warehouse/templates/email/removed-project-release/body.html:26
+#: warehouse/templates/email/removed-project/body.html:26
+#, fuzzy, python-format
+#| msgid "<strong>Added by</strong>: %(submitter)s"
+msgid ""
+"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+"      %(role)s."
+msgstr "<strong>添加人</strong>：%(submitter)s"
+
+#: warehouse/templates/email/removed-project-release/body.html:32
+#: warehouse/templates/email/removed-project/body.html:32
+#, fuzzy, python-format
+#| msgid ""
+#| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If this was a mistake, you can email <a\n"
+"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+"administrators."
+msgstr ""
+"如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送电"
+"子邮件并于  PyPI 管理员沟通。"
+
+#: warehouse/templates/email/removed-project/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr "您收到此邮件是因为您是该项目的所有者。"
+
+#: warehouse/templates/email/removed-project-release/body.html:25
+#, python-format
+msgid ""
+"The %(project)s release %(release)s released on %(date)s has been deleted."
+msgstr ""
+
+#: warehouse/templates/email/removed-project-release/body.html:38
+#, fuzzy, python-format
+#| msgid "You are receiving this because you are an owner of this project."
+msgid ""
+"\n"
+"You are receiving this because you are %(recipient_role_descr)s of this "
+"project."
+msgstr "您收到此邮件是因为您是该项目的所有者。"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, fuzzy, python-format
