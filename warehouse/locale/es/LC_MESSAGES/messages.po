@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-03-02 22:09+0000\n"
+"PO-Revision-Date: 2020-03-10 16:05+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -1429,59 +1429,54 @@ msgstr ""
 "code>"
 
 #: warehouse/templates/email/removed-project/body.html:25
-#, fuzzy, python-format
-#| msgid "This project has no releases"
+#, python-format
 msgid "The project %(project)s has been deleted."
-msgstr "Este proyecto no tiene versiones"
+msgstr "Se eliminó el proyecto %(project)s."
 
 #: warehouse/templates/email/removed-project-release/body.html:26
 #: warehouse/templates/email/removed-project/body.html:26
-#, fuzzy, python-format
-#| msgid "<strong>Added by</strong>: %(submitter)s"
+#, python-format
 msgid ""
 "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
 "      %(role)s."
-msgstr "<strong>Incorporado/a por</strong>: %(submitter)s"
+msgstr ""
+"<strong>Eliminado por:</strong> %(submitter)s, cuyo puesto es:\n"
+"      %(role)s."
 
 #: warehouse/templates/email/removed-project-release/body.html:32
 #: warehouse/templates/email/removed-project/body.html:32
-#, fuzzy, python-format
-#| msgid ""
-#| "If this was a mistake, you can email <a href=\"%(href)s\">"
-#| "%(email_address)s</a> to communicate with the PyPI administrators."
+#, python-format
 msgid ""
 "If this was a mistake, you can email <a\n"
 "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Si esto fue un error, puede enviar un mensaje a <a href=\"%(href)s\">"
-"%(email_address)s</a> (en inglés) para ponerse en contacto con los "
+"Si esto fue un error, puede enviar un mensaje a <a href=\"%(href)s\""
+">%(email_address)s</a> (en inglés) para ponerse en contacto con los "
 "administradores de PyPI."
 
 #: warehouse/templates/email/removed-project/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
+#, python-format
 msgid ""
 "You are receiving this because you are %(recipient_role_descr)s of this "
 "project."
-msgstr ""
-"Ha recibido esto porque forma parte de los propietarios de este proyecto."
+msgstr "Ha recibido esto porque es %(recipient_role_descr)s de este proyecto."
 
 #: warehouse/templates/email/removed-project-release/body.html:25
 #, python-format
 msgid ""
 "The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr ""
+msgstr "Se eliminó la versión %(release)s de %(project)s publicada el %(date)s."
 
 #: warehouse/templates/email/removed-project-release/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
+#, python-format
 msgid ""
 "\n"
 "You are receiving this because you are %(recipient_role_descr)s of this "
 "project."
 msgstr ""
-"Ha recibido esto porque forma parte de los propietarios de este proyecto."
+"\n"
+"Ha recibido esto porque es %(recipient_role_descr)s de este proyecto."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -1490,19 +1485,16 @@ msgid ""
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
 "Alguien, quizá usted, ha añadido un método de autenticación en dos fases "
-"%(method)s a la cuenta de PypI <strong>%(username)s</strong>."
+"%(method)s a la cuenta de PyPI <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Alguien, quizá usted, ha cambiado la contraseña de su cuenta de PyPI, "
-"<strong>%(username)s</strong>."
+"Alguien, quizá usted, ha retirado un método de autenticación en dos fases "
+"%(method)s de la cuenta de PyPI <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1514,16 +1506,13 @@ msgstr ""
 "%(email_address)s</code>) a su cuenta de PyPI."
 
 #: warehouse/templates/email/verify-email/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
-#| "link to verify your email address</a>"
+#, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
 msgstr ""
 "Si quiere continuar con esta solicitud, <a href=\"%(href)s\">pulse en este "
-"enlace para verificar la dirección de correo</a>"
+"enlace para verificar la dirección de correo</a>."
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -1918,7 +1907,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:142
 msgid "Generate Recovery Codes"
-msgstr ""
+msgstr "Generar códigos de recuperación"
 
 #: warehouse/templates/manage/account.html:147
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -2165,21 +2154,20 @@ msgid "Device name"
 msgstr "Nombre del aparato"
 
 #: warehouse/templates/manage/account.html:472
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
+#, python-format
 msgid "generated %(generated_datetime)s"
-msgstr "Publicación: %(release_date)s"
+msgstr "generado el %(generated_datetime)s"
 
 #: warehouse/templates/manage/account.html:475
 msgid "Regenerate"
-msgstr ""
+msgstr "Volver a generar"
 
 #: warehouse/templates/manage/account.html:476
 #: warehouse/templates/manage/account.html:477
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr ""
+msgstr "Volver a generar códigos de recuperación"
 
 #: warehouse/templates/manage/account.html:488
 msgid "You have not enabled two factor authentication on your account."
@@ -2250,7 +2238,7 @@ msgstr "Ninguno"
 
 #: warehouse/templates/manage/account.html:553
 msgid "Recovery Code"
-msgstr ""
+msgstr "Código de recuperación"
 
 #: warehouse/templates/manage/account.html:558
 msgid "Email added to account"
@@ -2328,15 +2316,15 @@ msgstr "Retirada de autenticación en dos fases"
 
 #: warehouse/templates/manage/account.html:612
 msgid "Recovery Codes generated"
-msgstr ""
+msgstr "Se generaron códigos de recuperación"
 
 #: warehouse/templates/manage/account.html:616
 msgid "Recovery Codes regenerated"
-msgstr ""
+msgstr "Se volvieron a generar códigos de recuperación"
 
 #: warehouse/templates/manage/account.html:620
 msgid "Recovery Code used for login"
-msgstr ""
+msgstr "Código de recuperación utilizado para acceder"
 
 #: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/history.html:65
@@ -3356,11 +3344,11 @@ msgstr "Añadir ficha"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account Recovery Codes"
-msgstr ""
+msgstr "Códigos de recuperación de la cuenta"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:36
 msgid "Regenerate recovery codes"
-msgstr ""
+msgstr "Volver a generar códigos de recuperación"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3368,12 +3356,18 @@ msgid ""
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
+"Si pierde el acceso a su aplicación de autenticación o a su llave de "
+"seguridad, habrá de utilizar uno de estos códigos de recuperación para "
+"acceder a su cuenta de PyPI. Cada código puede utilizarse <strong>una "
+"vez</strong>."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:47
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
 msgstr ""
+"Estos códigos deberían utilizarse <strong>solamente</strong> para recuperar "
+"la cuenta, no para accesos típicos."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:48
 msgid ""
@@ -3381,30 +3375,31 @@ msgid ""
 "application or security key(s) and do not have access to these recovery "
 "codes, you may permanently lose access to your PyPI account!"
 msgstr ""
+"<strong>Almacénelos en un sitio seguro</strong>. ¡Si pierde su aplicación de "
+"autenticación o su llave de seguridad y no cuenta con sus códigos, podría "
+"perder permanentemente el acceso a su cuenta de PyPI!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
 msgid "Save your Recovery Codes"
-msgstr ""
+msgstr "Guarde sus códigos de recuperación"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
-#, fuzzy
-#| msgid "Download files"
 msgid "Download as file"
-msgstr "Archivos de descarga"
+msgstr "Descargar como archivo"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:67
 #: warehouse/templates/manage/account/recovery_codes-provision.html:69
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
 msgid "Continue"
-msgstr ""
+msgstr "Continuar"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:76
 msgid "These codes will not be visible again."
-msgstr ""
+msgstr "Estos códigos no serán visibles de nuevo."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:79
 msgid "Ensure that you have securely stored them before continuing."
-msgstr ""
+msgstr "Cerciórese de que los ha almacenado de manera segura antes de proceder."
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
@@ -3733,6 +3728,10 @@ msgid ""
 "generate and securely store <a href=\"#recoverycodes\">recovery codes</a> to "
 "regain access in that event.."
 msgstr ""
+"Si pierde su %(method)s y ya no puede conectarse, es posible que <strong>"
+"pierda permanentemente el acceso a su cuenta</strong>. Si eso ocurre, "
+"recobrará el acceso si genera y almacena con seguridad <a href=\"#"
+"recoverycodes\">códigos de recuperación</a>."
 
 #: warehouse/templates/pages/help.html:37
 msgid ""
@@ -3740,6 +3739,9 @@ msgid ""
 "factor authentication methods and provision <a href=\"#recoverycodes"
 "\">recovery codes</a>."
 msgstr ""
+"Recomendamos que todos los usuarios de PyPI configuren <em>por lo menos</em> "
+"dos métodos de autenticación en dos fases compatibles y se creen <a href=\"#"
+"recoverycodes\">códigos de recuperación</a>."
 
 #: warehouse/templates/pages/help.html:43
 msgid ""
@@ -3747,6 +3749,9 @@ msgid ""
 "have <a href=\"#recoverycodes\">recovery codes</a>, you can request help <a "
 "href=\"#account-recovery\">with account recovery</a>."
 msgstr ""
+"Si ha perdido el acceso a ambos métodos de autenticación y no cuenta con <a "
+"href=\"#recoverycodes\">códigos de recuperación</a>, puede pedir ayuda <a "
+"href=\"#account-recovery\">para recuperar su cuenta</a>."
 
 #: warehouse/templates/pages/help.html:52
 msgid "What's a package, project, or release?"
@@ -3801,16 +3806,12 @@ msgstr ""
 "seguridad?"
 
 #: warehouse/templates/pages/help.html:63
-#, fuzzy
-#| msgid ""
-#| "How does two factor authentication with a security device (e.g. USB key) "
-#| "work? How do I set it up on PyPI?"
 msgid ""
 "How does two factor authentication with a recovery code work? How do I set "
 "it up on PyPI?"
 msgstr ""
-"¿Cómo funciona la autenticación en dos fases con aparato de seguridad "
-"(p. ej., llave USB)? ¿Cómo la configuro en PyPI?"
+"¿Cómo funciona la autenticación en dos fases con código de recuperación? ¿"
+"Cómo la configuro en PyPI?"
 
 #: warehouse/templates/pages/help.html:64
 msgid "How can I use API tokens to authenticate with PyPI?"
@@ -3842,16 +3843,16 @@ msgid "I forgot my PyPI password. Can you help me?"
 msgstr "Olvidé mi contraseña de PyPI. Necesito ayuda."
 
 #: warehouse/templates/pages/help.html:72
-#, fuzzy
-#| msgid "I forgot my PyPI password. Can you help me?"
 msgid "I've lost access to my PyPI account. Can you help me?"
-msgstr "Olvidé mi contraseña de PyPI. Necesito ayuda."
+msgstr "He perdido el acceso a mi cuenta de PyPI. Necesito ayuda."
 
 #: warehouse/templates/pages/help.html:73
 msgid ""
 "Why am I getting a \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
 msgstr ""
+"¿Por qué recibo el error «Información de autenticación no válida o "
+"inexistente» al cargar archivos?"
 
 #: warehouse/templates/pages/help.html:74
 msgid ""
@@ -4532,6 +4533,9 @@ msgid ""
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
+"Si pierde el acceso a su <a href=\"#totp\">aplicación de autenticación</a> o "
+"<a href=\"#utfkey\">aparato de seguridad</a>, puede emplear estos códigos "
+"para acceder a PyPI."
 
 #: warehouse/templates/pages/help.html:410
 msgid ""
@@ -4540,30 +4544,32 @@ msgid ""
 "\">security device</a> and should only be used for recovery. After using a "
 "recovery code to sign in, it becomes inactive."
 msgstr ""
+"Los códigos de recuperación <strong>funcionan una sola vez</strong>. No "
+"constituyen sustitutos para una <a href=\"#totp\">aplicación de "
+"autenticación</a> o un <a href=\"#utfkey\">aparato de seguridad</a> y "
+"deberían utilizarse solo para propósitos de recuperación. Tras acceder "
+"utilizando un código de recuperación, este se inactivará."
 
 #: warehouse/templates/pages/help.html:416
 msgid "To provision recovery codes:"
-msgstr ""
+msgstr "Para crear códigos de recuperación:"
 
 #: warehouse/templates/pages/help.html:418
-#, fuzzy
-#| msgid ""
-#| "Log in to your PyPI account, go to your account settings, and choose "
-#| "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
-#| "authentication application\""
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
 "\"Generate recovery codes\""
 msgstr ""
 "Acceda a su cuenta de PyPI, diríjase a la configuración de la cuenta y "
-"seleccione «Añadir <abbr title=\"autenticación en dos fases\">A2F</abbr> con "
-"una aplicación de autenticación»"
+"seleccione «Generar códigos de recuperación»"
 
 #: warehouse/templates/pages/help.html:419
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
 msgstr ""
+"Almacene cuidadosamente los códigos de recuperación mostrados. Considere "
+"imprimirlos y almacenarlos en un lugar seguro, o bien, guardarlos en un "
+"gestor de contraseñas."
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -4571,21 +4577,28 @@ msgid ""
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
 "settings."
 msgstr ""
+"Si pierde sus códigos de recuperación almacenados o los utiliza todos, puede "
+"obtener unos nuevos mediante la herramienta «Volver a generar códigos de "
+"recuperación» en la configuración de la cuenta."
 
 #: warehouse/templates/pages/help.html:424
 msgid "To sign in with a recovery code:"
-msgstr ""
+msgstr "Para acceder con un código de recuperación:"
 
 #: warehouse/templates/pages/help.html:427
 msgid ""
 "When prompted for Two-Factor Authentication, select \"Login using a Recovery "
 "Code\""
 msgstr ""
+"Cuando se le solicite la autenticación en dos fases, seleccione «Acceder con "
+"código de recuperación»"
 
 #: warehouse/templates/pages/help.html:428
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
+"Puesto que cada código puede utilizarse solo una vez, puede que quiera "
+"marcar el código como usado"
 
 #: warehouse/templates/pages/help.html:429
 msgid ""
@@ -4593,20 +4606,11 @@ msgid ""
 "new set using the \"Regenerate recovery codes\" button in your account "
 "settings."
 msgstr ""
+"Si le quedan pocos códigos de recuperación, tal vez quiera generar un "
+"conjunto nuevo mediante el botón «Volver a generar códigos de recuperación» "
+"que se encuentra en la configuración de su cuenta."
 
 #: warehouse/templates/pages/help.html:434
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "          <p>API tokens provide an alternative way (instead of username "
-#| "and password) to authenticate when <strong>uploading packages</strong> to "
-#| "PyPI.</p>\n"
-#| "          <p>You can create a token for an entire PyPI account, in which "
-#| "case, the token will work for all projects associated with that account. "
-#| "Alternatively, you can limit a token's scope to a specific project.</p>\n"
-#| "          <p><strong>We strongly recommend you authenticate with an API "
-#| "token where possible.</strong></p>\n"
-#| "        "
 msgid ""
 "\n"
 "          <p>API tokens provide an alternative way (instead of username and "
@@ -4622,14 +4626,15 @@ msgid ""
 msgstr ""
 "\n"
 "          <p>Las fichas de API son una alternativa de autenticación (en "
-"sustitución de una combinación usuario/contraseña) que utilizar al "
-"<strong>cargar paquetes</strong> en PyPI.</p>\n"
+"sustitución de una combinación usuario/contraseña) que utilizar al <strong>"
+"cargar paquetes</strong> en PyPI.</p>\n"
 "          <p>Puede crear una ficha para toda una cuenta de PyPI, en cuyo "
 "caso la ficha funcionará en todos los proyectos asociados con la cuenta. "
 "Como alternativa, puede limitar el margen de actuación de la ficha a un "
 "proyecto determinado.</p>\n"
 "          <p><strong>Recomendamos encarecidamente que se autentique a través "
 "de una ficha de API cuando sea posible.</strong></p>\n"
+"\n"
 "        "
 
 #: warehouse/templates/pages/help.html:441
@@ -4976,66 +4981,66 @@ msgstr "Recibirá un mensaje con un enlace de restablecimiento de contraseña."
 
 #: warehouse/templates/pages/help.html:553
 msgid "If you've lost access to your PyPI account due to:"
-msgstr ""
+msgstr "Si ya no puede acceder a su cuenta de PyPI debido a:"
 
 #: warehouse/templates/pages/help.html:555
-#, fuzzy
-#| msgid "Emails associated with your account"
 msgid "Lost access to the email address associated with your account"
-msgstr "Correos asociados con su cuenta"
+msgstr "Pérdida de acceso al buzón de correo electrónico asociado con su cuenta"
 
 #: warehouse/templates/pages/help.html:556
 msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
+"Pérdida de <a href=\"#totp\">aplicación</a>, <a href=\"#utfkey\">aparato</a> "
+"y <a href=\"#recoverycodes\">códigos de recuperación</a> para la "
+"autenticación en dos fases"
 
 #: warehouse/templates/pages/help.html:559
-#, fuzzy, python-format
-#| msgid ""
-#| "If you no longer have access to the email address associated with your "
-#| "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">file an issue on our tracker</a>."
+#, python-format
 msgid ""
 "You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
-"Si ya no tiene acceso a la dirección de correo asociada con su cuenta, <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">cree un informe en nuestro sitio de seguimiento de errores</a>."
+"Puede <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">crear un informe en nuestro sitio de seguimiento de errores</a> "
+"para solicitar ayuda con la recuperación de la cuenta."
 
 #: warehouse/templates/pages/help.html:566
-#, fuzzy
-#| msgid "Provide your username and password, as normal"
 msgid "If you are using a username and password for uploads:"
-msgstr "Proporcionar su nombre de usuario y contraseña, como es habitual"
+msgstr ""
+"Si utiliza una combinación de nombre de usuario y contraseña para realizar "
+"cargas:"
 
 #: warehouse/templates/pages/help.html:568
-#, fuzzy
-#| msgid "Provide your username and password, as normal"
 msgid "Check to see if your username or password are incorrect."
-msgstr "Proporcionar su nombre de usuario y contraseña, como es habitual"
+msgstr "Compruebe que el nombre de usuario y la contraseña no sean incorrectos."
 
 #: warehouse/templates/pages/help.html:569
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr ""
+"Asegúrese de que ni su nombre de usuario ni su contraseña contengan "
+"caracteres como saltos de renglón al final."
 
 #: warehouse/templates/pages/help.html:571
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
-msgstr ""
+msgstr "Si emplea una <a href=\"#apitoken\">ficha de API</a> para las cargas:"
 
 #: warehouse/templates/pages/help.html:573
 msgid "Ensure that your API Token is valid and has not been revoked."
-msgstr ""
+msgstr "Revise que la ficha de API sea válida y que no se haya revocado."
 
 #: warehouse/templates/pages/help.html:574
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
 msgstr ""
+"Cerciórese de que la ficha de API esté <a href=\"#apitoken\">formateada "
+"adecuadamente</a> y no contenga caracteres tales como saltos de renglón al "
+"final."
 
 #: warehouse/templates/pages/help.html:579
 #, python-format
@@ -5490,10 +5495,8 @@ msgstr ""
 "con el mismo rigor que otras funciones del sitio."
 
 #: warehouse/templates/pages/help.html:763
-#, fuzzy
-#| msgid "Currently, the following features are in beta:"
 msgid "Currently, no features are in beta."
-msgstr "Actualmente, las siguientes funciones están en beta:"
+msgstr "Actualmente, no hay ninguna función en beta."
 
 #: warehouse/templates/pages/help.html:767
 #, python-format
@@ -5694,19 +5697,15 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:30
 msgid "Top projects by total package size"
-msgstr ""
+msgstr "Principales proyectos por tamaño total de paquete"
 
 #: warehouse/templates/pages/stats.html:32
-#, fuzzy
-#| msgid ""
-#| "Here is a list of the top 100 packages based on sum of their packages "
-#| "sizes (in bytes)."
 msgid ""
 "Here is a list of the top 100 projects based on the sum of their packages' "
 "sizes (in bytes)."
 msgstr ""
-"Aquí hay una lista de los primeros 100 paquetes según la suma del tamaño de "
-"sus paquete (en bytes)."
+"Aquí hay una lista de los primeros 100 proyectos según la suma del tamaño de "
+"sus paquetes (en bytes)."
 
 #: warehouse/templates/pages/stats.html:39
 msgid "Statistics by project"
