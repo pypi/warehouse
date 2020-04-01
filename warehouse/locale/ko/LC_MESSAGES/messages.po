@@ -14,13 +14,14 @@
 # Bae KwonHan <darjeeling@gmail.com>, 2019.
 # Hwan Kim <ihwan01@gmail.com>, 2019.
 # Min ho Kim <minho42@gmail.com>, 2019.
+# Seokhwan Moon <miral09@msn.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-10-26 06:00+0000\n"
-"Last-Translator: Min ho Kim <minho42@gmail.com>\n"
+"PO-Revision-Date: 2020-04-01 15:20+0000\n"
+"Last-Translator: Seokhwan Moon <miral09@msn.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -28,12 +29,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
 msgid "Locale updated"
-msgstr ""
+msgstr "지역이 변경되었습니다"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
@@ -138,7 +139,7 @@ msgstr "WebAuthn 승인 성공"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "복구 코드가 승인되었습니다. 주어진 코드는 재사용이 불가능합니다."
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -223,15 +224,15 @@ msgstr ""
 #: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
-msgstr ""
+msgstr "복구 코드를 생성하려면 2단계 인증이 설정되어야 합니다"
 
 #: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "복구 코드가 이미 생성되었습니다"
 
 #: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
+msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다."
 
 #: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
@@ -910,17 +911,15 @@ msgstr "%(user)s 사용자는 아직 PyPI에 프로젝트를 등록하지 않았
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:491
 msgid "Recovery Codes"
-msgstr ""
+msgstr "복구 코드"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr ""
+msgstr "복구 코드를 사용하여 로그인"
 
 #: warehouse/templates/accounts/recovery-code.html:40
-#, fuzzy
-#| msgid "Error code"
 msgid "Enter recovery code"
-msgstr "오류 코드"
+msgstr "복구 코드를 입력하세요"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
@@ -934,6 +933,8 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
+"장치 또는 응용 프로그램이 손실 된 경우를 대비해 PyPI는 오프라인에 안전하게 보관할 수 있는 복구 코드를 생성할 수 있습니다. 이 "
+"코드 중 하나를 양식에 입력해서 본인을 인증하세요. 사용 된 복구 코드는 더 이상 유효하지 않습니다."
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, fuzzy, python-format
