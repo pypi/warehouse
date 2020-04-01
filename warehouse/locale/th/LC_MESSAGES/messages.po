@@ -4,21 +4,22 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Yothin Muangsommuk <m@yothinix.com>, 2019.
 # Jaruwit Jaiya <poiiiii4yy@gmail.com>, 2019.
+# Wannaphong Phatthiyaphaibun <wannaphong@yahoo.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-10-23 13:46+0000\n"
-"Last-Translator: Jaruwit Jaiya <poiiiii4yy@gmail.com>\n"
-"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
-">\n"
+"PO-Revision-Date: 2020-02-28 22:14+0000\n"
+"Last-Translator: Wannaphong Phatthiyaphaibun <wannaphong@yahoo.com>\n"
+"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/>"
+"\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
@@ -934,7 +935,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr ""
+msgstr "แบบฟอร์มยืนยัน"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
