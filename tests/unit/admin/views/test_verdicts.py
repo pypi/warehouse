@@ -17,10 +17,17 @@ from random import randint
 import pretend
 import pytest
 
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
 from warehouse.admin.views import verdicts as views
-from warehouse.malware.models import VerdictClassification, VerdictConfidence
+from warehouse.malware.models import (
+    MalwareCheck,
+    MalwareVerdict,
+    VerdictClassification,
+    VerdictConfidence,
+)
+from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.malware import MalwareCheckFactory, MalwareVerdictFactory
 
@@ -36,7 +43,19 @@ class TestListVerdicts:
 
     def test_some(self, db_request):
         check = MalwareCheckFactory.create()
-        verdicts = [MalwareVerdictFactory.create(check=check) for _ in range(10)]
+        for _ in range(10):
+            MalwareVerdictFactory.create(check=check)
+
+        query = db_request.db.query(MalwareVerdict).order_by(
+            MalwareVerdict.run_date.desc()
+        )
+
+        verdicts = SQLAlchemyORMPage(
+            query,
+            page=1,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
+        )
 
         assert views.get_verdicts(db_request) == {
             "verdicts": verdicts,
@@ -48,12 +67,23 @@ class TestListVerdicts:
     def test_some_with_multipage(self, db_request):
         check1 = MalwareCheckFactory.create()
         check2 = MalwareCheckFactory.create()
-        verdicts = [MalwareVerdictFactory.create(check=check2) for _ in range(60)]
+        for _ in range(60):
+            MalwareVerdictFactory.create(check=check2)
 
         db_request.GET["page"] = "2"
 
+        query = db_request.db.query(MalwareVerdict).order_by(
+            MalwareVerdict.run_date.desc()
+        )
+        verdicts = SQLAlchemyORMPage(
+            query,
+            page=2,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
+        )
+
         assert views.get_verdicts(db_request) == {
-            "verdicts": verdicts[25:50],
+            "verdicts": verdicts,
             "check_names": set([check1.name, check2.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -63,20 +93,25 @@ class TestListVerdicts:
         "check_name", ["check0", "check1", ""],
     )
     def test_check_name_filter(self, db_request, check_name):
-        result_verdicts, all_verdicts = [], []
         for i in range(3):
             check = MalwareCheckFactory.create(name="check%d" % i)
-            verdicts = [MalwareVerdictFactory.create(check=check) for _ in range(5)]
-            all_verdicts.extend(verdicts)
-            if check.name == check_name:
-                result_verdicts = verdicts
+            for _ in range(5):
+                MalwareVerdictFactory.create(check=check)
 
-        # Emptry string
-        if not result_verdicts:
-            result_verdicts = all_verdicts
+        query = db_request.db.query(MalwareVerdict)
+        if check_name:
+            query = query.join(MalwareCheck).filter(MalwareCheck.name == check_name)
+        query = query.order_by(MalwareVerdict.run_date.desc())
+
+        verdicts = SQLAlchemyORMPage(
+            query,
+            page=1,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
+        )
 
         response = {
-            "verdicts": result_verdicts,
+            "verdicts": verdicts,
             "check_names": set(["check0", "check1", "check2"]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
@@ -89,25 +124,28 @@ class TestListVerdicts:
         "classification", ["benign", "indeterminate", "threat", ""],
     )
     def test_classification_filter(self, db_request, classification):
-        check1 = MalwareCheckFactory.create()
-        result_verdicts, all_verdicts = [], []
+        check = MalwareCheckFactory.create()
         for c in VerdictClassification:
-            verdicts = [
-                MalwareVerdictFactory.create(check=check1, classification=c)
-                for _ in range(5)
-            ]
-            all_verdicts.extend(verdicts)
-            if c.value == classification:
-                result_verdicts = verdicts
-
-        # Emptry string
-        if not result_verdicts:
-            result_verdicts = all_verdicts
+            for _ in range(5):
+                MalwareVerdictFactory.create(check=check, classification=c)
 
         db_request.GET["classification"] = classification
+
+        query = db_request.db.query(MalwareVerdict)
+        if classification:
+            query = query.filter(MalwareVerdict.classification == classification)
+        query = query.order_by(MalwareVerdict.run_date.desc())
+
+        verdicts = SQLAlchemyORMPage(
+            query,
+            page=1,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
+        )
+
         response = {
-            "verdicts": result_verdicts,
-            "check_names": set([check1.name]),
+            "verdicts": verdicts,
+            "check_names": set([check.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
         }
@@ -117,54 +155,68 @@ class TestListVerdicts:
         "confidence", ["low", "medium", "high", ""],
     )
     def test_confidence_filter(self, db_request, confidence):
-        check1 = MalwareCheckFactory.create()
-        result_verdicts, all_verdicts = [], []
+        check = MalwareCheckFactory.create()
         for c in VerdictConfidence:
-            verdicts = [
-                MalwareVerdictFactory.create(check=check1, confidence=c)
-                for _ in range(5)
-            ]
-            all_verdicts.extend(verdicts)
-            if c.value == confidence:
-                result_verdicts = verdicts
+            for _ in range(5):
+                MalwareVerdictFactory.create(check=check, confidence=c)
 
-        # Emptry string
-        if not result_verdicts:
-            result_verdicts = all_verdicts
+        db_request.GET["confidence"] = confidence
+
+        query = db_request.db.query(MalwareVerdict)
+        if confidence:
+            query = query.filter(MalwareVerdict.confidence == confidence)
+        query = query.order_by(MalwareVerdict.run_date.desc())
+
+        verdicts = SQLAlchemyORMPage(
+            query,
+            page=1,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
+        )
 
         response = {
-            "verdicts": result_verdicts,
-            "check_names": set([check1.name]),
+            "verdicts": verdicts,
+            "check_names": set([check.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
         }
 
-        db_request.GET["confidence"] = confidence
         assert views.get_verdicts(db_request) == response
 
     @pytest.mark.parametrize(
         "manually_reviewed", [1, 0],
     )
     def test_manually_reviewed_filter(self, db_request, manually_reviewed):
-        check1 = MalwareCheckFactory.create()
-        result_verdicts = [
+        check = MalwareCheckFactory.create()
+        for _ in range(5):
             MalwareVerdictFactory.create(
-                check=check1, manually_reviewed=bool(manually_reviewed)
+                check=check, manually_reviewed=bool(manually_reviewed)
             )
-            for _ in range(5)
-        ]
 
         # Create other verdicts to ensure filter works properly
         for _ in range(10):
             MalwareVerdictFactory.create(
-                check=check1, manually_reviewed=not bool(manually_reviewed)
+                check=check, manually_reviewed=not bool(manually_reviewed)
             )
 
         db_request.GET["manually_reviewed"] = str(manually_reviewed)
 
+        query = (
+            db_request.db.query(MalwareVerdict)
+            .filter(MalwareVerdict.manually_reviewed == bool(manually_reviewed))
+            .order_by(MalwareVerdict.run_date.desc())
+        )
+
+        verdicts = SQLAlchemyORMPage(
+            query,
+            page=1,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
+        )
+
         response = {
-            "verdicts": result_verdicts,
-            "check_names": set([check1.name]),
+            "verdicts": verdicts,
+            "check_names": set([check.name]),
             "classifications": set(["threat", "indeterminate", "benign"]),
             "confidences": set(["low", "medium", "high"]),
         }

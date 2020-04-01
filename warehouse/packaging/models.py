@@ -57,11 +57,14 @@ from warehouse.utils.attrs import make_repr
 class Role(db.Model):
 
     __tablename__ = "roles"
-    __table_args__ = (Index("roles_user_id_idx", "user_id"),)
+    __table_args__ = (
+        Index("roles_user_id_idx", "user_id"),
+        UniqueConstraint("user_id", "project_id", name="_roles_user_project_uc"),
+    )
 
-    __repr__ = make_repr("role_name", "user_name", "package_name")
+    __repr__ = make_repr("role_name")
 
-    role_name = Column(Text)
+    role_name = Column(Text, nullable=False)
     user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
@@ -72,16 +75,6 @@ class Role(db.Model):
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
-
-    def __gt__(self, other):
-        """
-        Temporary hack to allow us to only display the 'highest' role when
-        there are multiple for a given user
-
-        TODO: This should be removed when fixing GH-2745.
-        """
-        order = ["Maintainer", "Owner"]  # from lowest to highest
-        return order.index(self.role_name) > order.index(other.role_name)
 
 
 class ProjectFactory:
