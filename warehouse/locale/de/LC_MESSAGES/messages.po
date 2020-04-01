@@ -2684,6 +2684,7 @@ msgstr "Dieses Projekt hat keine Veröffentlichungen"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Ansehen"
 
@@ -3599,10 +3600,6 @@ msgstr "Dateityp"
 #: warehouse/templates/packaging/detail.html:310
 msgid "Hashes"
 msgstr "Hashes"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "<span>Hashes</span> anzeigen"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -5800,6 +5797,9 @@ msgstr[1] ""
 "\n"
 "                  Es gab keine Treffer für die '%(filters)s' Filter\n"
 "                "
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "<span>Hashes</span> anzeigen"
 
 #~ msgid "Beta feature"
 #~ msgstr "Beta-Feature"

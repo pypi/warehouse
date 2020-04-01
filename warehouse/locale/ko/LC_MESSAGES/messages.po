@@ -2633,6 +2633,7 @@ msgstr "이 프로젝트에는 릴리즈가 없습니다"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "보기"
 
@@ -3488,10 +3489,6 @@ msgstr ""
 #| msgid "View Hashes"
 msgid "Hashes"
 msgstr "해시 보기"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""

@@ -2706,6 +2706,7 @@ msgstr "Ce projet n'a pas de version"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Voir"
 
@@ -3635,10 +3636,6 @@ msgstr "Type de fichier"
 #: warehouse/templates/packaging/detail.html:310
 msgid "Hashes"
 msgstr "Hachages"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "Voir les <span>hachages</span>"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -5860,6 +5857,9 @@ msgstr[1] ""
 "\n"
 "                  Aucun résultat pour les filtres '%(filters)s'\n"
 "                "
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "Voir les <span>hachages</span>"
 
 #~ msgid "Beta feature"
 #~ msgstr "En version bêta"

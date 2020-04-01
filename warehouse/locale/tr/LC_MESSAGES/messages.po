@@ -2673,6 +2673,7 @@ msgstr "Bu proje için hiçbir sürüm yayınlanmadı"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Görüntüle"
 
@@ -3621,10 +3622,6 @@ msgstr "Dosya türü"
 #| msgid "View Hashes"
 msgid "Hashes"
 msgstr "Hashleri Gör"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "<span>hash</span>' leri görüntüle"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -5678,6 +5675,9 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "<span>hash</span>' leri görüntüle"
 
 #~ msgid "Beta feature"
 #~ msgstr "Beta özelliği"

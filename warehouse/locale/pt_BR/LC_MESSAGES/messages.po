@@ -2658,6 +2658,7 @@ msgstr "Este projeto não possui lançamentos"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Ver"
 
@@ -3581,10 +3582,6 @@ msgstr "Tipo de arquivo"
 #: warehouse/templates/packaging/detail.html:310
 msgid "Hashes"
 msgstr "Hashes"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "Ver <span>hashes</span>"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -5765,6 +5762,9 @@ msgstr[1] ""
 "\n"
 "                  Nenhuma ocorrência para os filtros \"%(filters)s\"\n"
 "                "
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "Ver <span>hashes</span>"
 
 #~ msgid "Beta feature"
 #~ msgstr "Recurso beta"

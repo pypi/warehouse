@@ -2704,6 +2704,7 @@ msgstr "Этот проект не имеет опубликованных ве�
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Посмотреть"
 
@@ -3629,10 +3630,6 @@ msgstr "Тип файла"
 #: warehouse/templates/packaging/detail.html:310
 msgid "Hashes"
 msgstr "Хэши"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "Посмотреть <span>хэши</span>"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -5323,6 +5320,9 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "Посмотреть <span>хэши</span>"
 
 #~ msgid "Beta feature"
 #~ msgstr "Бета-функция"

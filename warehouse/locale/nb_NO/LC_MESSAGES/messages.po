@@ -1358,8 +1358,8 @@ msgid ""
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
 "Noen, kanskje deg, har lagt til en %(method)s-"
-"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
-"<strong>%(username)s</strong>."
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto <strong>"
+"%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format
@@ -1371,8 +1371,8 @@ msgid ""
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
 "Noen, kanskje deg, har fjernet en %(method)s-"
-"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto "
-"<strong>%(username)s</strong>."
+"tofaktoridentitetsbekreftelsesmetode til din PyPI-konto <strong>"
+"%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -2542,6 +2542,7 @@ msgstr ""
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Vis"
 
@@ -3376,10 +3377,6 @@ msgstr ""
 #| msgid "View Hashes"
 msgid "Hashes"
 msgstr "Vis sjekksummer"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""

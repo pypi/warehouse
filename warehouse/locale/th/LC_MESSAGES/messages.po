@@ -12,8 +12,8 @@ msgstr ""
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-02-28 22:14+0000\n"
 "Last-Translator: Wannaphong Phatthiyaphaibun <wannaphong@yahoo.com>\n"
-"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/>"
-"\n"
+"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
+">\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2438,6 +2438,7 @@ msgstr ""
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr ""
 
@@ -3243,10 +3244,6 @@ msgstr ""
 #: warehouse/templates/packaging/detail.html:280
 #: warehouse/templates/packaging/detail.html:310
 msgid "Hashes"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
 msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22

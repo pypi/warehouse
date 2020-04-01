@@ -2681,6 +2681,7 @@ msgstr "Цей проект не має публікацій"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Дивитися"
 
@@ -3610,10 +3611,6 @@ msgstr "Тип файлу"
 #: warehouse/templates/packaging/detail.html:310
 msgid "Hashes"
 msgstr "Хеші"
-
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "Переглянути <span>хеші</span>"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -5776,6 +5773,9 @@ msgstr[2] ""
 "\n"
 "                  Немає результатів для '%(filters)s' фільтрів\n"
 "                "
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "Переглянути <span>хеші</span>"
 
 #~ msgid "Beta feature"
 #~ msgstr "Бета-функція"
