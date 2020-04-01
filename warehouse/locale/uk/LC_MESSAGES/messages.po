@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-27 13:57+0000\n"
-"Last-Translator: Olexandr <me.olexandr.kovalchuk@gmail.com>\n"
+"PO-Revision-Date: 2020-02-27 14:01+0000\n"
+"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -4920,40 +4920,36 @@ msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
-"Втрачено <a href=\"#totp\">застосунок</a> двофакторної автентифікації, <a "
+"Втрачено <a href=\"#totp\">застосунок</a> двофакторної аутентифікації, <a "
 "href=\"#utfkey\">пристрій</a> та <a href=\"#recoverycodes\">коди "
 "відновлення</a>"
 
 #: warehouse/templates/pages/help.html:559
-#, fuzzy, python-format
-#| msgid ""
-#| "If you no longer have access to the email address associated with your "
-#| "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">file an issue on our tracker</a>."
+#, python-format
 msgid ""
 "You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
-"Якщо у вас більше немає доступу до електронної адреси, пов'язаної з вашим "
-"обліковим записом, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">створіть іш'ю на нашому трекері</a>."
+"Ви можете перейти до, <a href=\"%(href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">створіть іш'ю на нашому трекері</a>, щоб запросити "
+"допомогу з відновленням облікового запису."
 
 #: warehouse/templates/pages/help.html:566
 msgid "If you are using a username and password for uploads:"
 msgstr "Якщо ви використовуєте ім'я користувача і пароль для завантажень:"
 
 #: warehouse/templates/pages/help.html:568
-#, fuzzy
-#| msgid "Provide your username and password, as normal"
 msgid "Check to see if your username or password are incorrect."
-msgstr "Надати своє ім'я користувача і пароль, як зазвичай"
+msgstr "Перевірте, чи ваші ім'я користувача і пароль є неправильними."
 
 #: warehouse/templates/pages/help.html:569
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr ""
+"Переконайтеся, що ваші ім'я користувача та пароль не містять зайвих "
+"символів, таких як переноси рядка."
 
 #: warehouse/templates/pages/help.html:571
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
@@ -4969,6 +4965,8 @@ msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
 msgstr ""
+"Переконайтеся, що ваш API-токен у <a href=\"#apitoken\">коректному "
+"форматі</a> та не містить зайвих символів, таких як перенесення рядка."
 
 #: warehouse/templates/pages/help.html:579
 #, python-format
@@ -5407,10 +5405,8 @@ msgstr ""
 "але воно нове і менш перевірене за інші функції сайту."
 
 #: warehouse/templates/pages/help.html:763
-#, fuzzy
-#| msgid "Currently, the following features are in beta:"
 msgid "Currently, no features are in beta."
-msgstr "Наразі, наступні функції є в бета:"
+msgstr "Наразі, немає функцій в бета."
 
 #: warehouse/templates/pages/help.html:767
 #, python-format
