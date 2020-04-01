@@ -25,20 +25,20 @@ cache:
   directories:
     - ~/.cache/pip
     - ~/.nvm/versions/
-    - node_modules/
+    - ~/.npm
 
 install:
   - nvm install $TRAVIS_NODE_VERSION
   - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm i -g npm
-  - npm install
+  - npm install -g gulp-cli
+  - npm ci
 
 script:
   - node -v
   - npm -v
   - bin/tests --postgresql-host 127.0.0.1
-  - bin/static_tests
 
 matrix:
   include:
@@ -59,3 +59,9 @@ matrix:
     - script: make translations BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Translations
+    - script: bin/static_tests
+      env:
+        - SUITE="Static Tests"
+    - script: bin/static_pipeline
+      env:
+        - SUITE="Static Pipeline"

@@ -2217,20 +2217,41 @@ class TestManageProjects:
         newer_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2018, 1, 1)
         )
-        db_request.user = UserFactory(
-            projects=[
-                project_with_older_release,
-                project_with_newer_release,
-                newer_project_with_no_releases,
-                older_project_with_no_releases,
-            ]
+        db_request.user = UserFactory()
+        RoleFactory.create(
+            user=db_request.user,
+            project=project_with_older_release,
+            role_name="Maintainer",
         )
-        user_second_owner = UserFactory(
-            projects=[project_with_older_release, older_project_with_no_releases]
+        RoleFactory.create(
+            user=db_request.user, project=project_with_newer_release, role_name="Owner"
         )
-        RoleFactory.create(user=db_request.user, project=project_with_newer_release)
-        RoleFactory.create(user=db_request.user, project=newer_project_with_no_releases)
-        RoleFactory.create(user=user_second_owner, project=project_with_newer_release)
+        RoleFactory.create(
+            user=db_request.user,
+            project=newer_project_with_no_releases,
+            role_name="Owner",
+        )
+        RoleFactory.create(
+            user=db_request.user,
+            project=older_project_with_no_releases,
+            role_name="Maintainer",
+        )
+        user_second_owner = UserFactory()
+        RoleFactory.create(
+            user=user_second_owner,
+            project=project_with_older_release,
+            role_name="Owner",
+        )
+        RoleFactory.create(
+            user=user_second_owner,
+            project=older_project_with_no_releases,
+            role_name="Owner",
+        )
+        RoleFactory.create(
+            user=user_second_owner,
+            project=project_with_newer_release,
+            role_name="Owner",
+        )
 
         assert views.manage_projects(db_request) == {
             "projects": [
@@ -2329,30 +2350,15 @@ class TestManageProjectSettings:
             pretend.call("manage.project.settings", project_name="foo")
         ]
 
-    def test_get_project_contributors(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
-        )
-
-        db_request.user = UserFactory.create()
-        project.users = [db_request.user]
-
-        res = views.get_project_contributors(project.name, db_request)
-        assert res == [db_request.user]
-
     def test_get_user_role_in_project_single_role_owner(self, db_request):
         project = ProjectFactory.create(name="foo")
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
         db_request.user = UserFactory.create()
-        project.users = [db_request.user]
-        RoleFactory(user=db_request.user, project=project)
+        RoleFactory(user=db_request.user, project=project, role_name="Owner")
 
-        res = views.get_user_role_in_project(
-            project.name, db_request.user.username, db_request
-        )
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
         assert res == "Owner"
 
     def test_get_user_role_in_project_single_role_maintainer(self, db_request):
@@ -2361,41 +2367,10 @@ class TestManageProjectSettings:
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
         db_request.user = UserFactory.create()
-        project.users = [db_request.user]
         RoleFactory(user=db_request.user, project=project, role_name="Maintainer")
 
-        res = views.get_user_role_in_project(
-            project.name, db_request.user.username, db_request
-        )
+        res = views.get_user_role_in_project(project, db_request.user, db_request)
         assert res == "Maintainer"
-
-    def test_get_user_role_in_project_two_roles_owner_and_maintainer(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        db_request.user = UserFactory.create()
-        project.users = [db_request.user]
-        RoleFactory(user=db_request.user, project=project, role_name="Owner")
-        RoleFactory(user=db_request.user, project=project, role_name="Maintainer")
-
-        res = views.get_user_role_in_project(
-            project.name, db_request.user.username, db_request
-        )
-        assert res == "Owner"
-
-    def test_get_user_role_in_project_no_role(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        db_request.user = UserFactory.create()
-        project.users = [db_request.user]
-
-        res = views.get_user_role_in_project(
-            project.name, db_request.user.username, db_request
-        )
-        assert res == ""
 
     def test_delete_project(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
@@ -2407,15 +2382,12 @@ class TestManageProjectSettings:
         db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
 
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
         get_user_role_in_project = pretend.call_recorder(
-            lambda project_name, username, req: "Owner"
+            lambda project, user, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
-
-        get_project_contributors = pretend.call_recorder(
-            lambda project_name, req: [db_request.user]
-        )
-        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
 
         send_removed_project_email = pretend.call_recorder(lambda req, user, **k: None)
         monkeypatch.setattr(
@@ -2434,12 +2406,8 @@ class TestManageProjectSettings:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project.name, db_request.user.username, db_request,),
-            pretend.call(project.name, db_request.user.username, db_request,),
-        ]
-
-        assert get_project_contributors.calls == [
-            pretend.call(project.name, db_request,)
+            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request,),
         ]
 
         assert send_removed_project_email.calls == [
@@ -2612,11 +2580,14 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release(self, monkeypatch):
+        user = pretend.stub(username=pretend.stub())
         release = pretend.stub(
             version="1.2.3",
             canonical_version="1.2.3",
             project=pretend.stub(
-                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+                name="foobar",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                users=[user],
             ),
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
@@ -2630,20 +2601,16 @@ class TestManageProjectRelease:
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(username=pretend.stub()),
+            user=user,
             remote_addr=pretend.stub(),
         )
         journal_obj = pretend.stub()
         journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
 
         get_user_role_in_project = pretend.call_recorder(
-            lambda project_name, username, req: "Owner"
+            lambda project, user, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
-        get_project_contributors = pretend.call_recorder(
-            lambda project_name, request: [request.user]
-        )
-        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
 
         monkeypatch.setattr(views, "JournalEntry", journal_cls)
         send_removed_project_release_email = pretend.call_recorder(
@@ -2663,11 +2630,8 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(release.project.name, request.user.username, request,),
-            pretend.call(release.project.name, request.user.username, request,),
-        ]
-        assert get_project_contributors.calls == [
-            pretend.call(release.project.name, request,)
+            pretend.call(release.project, request.user, request,),
+            pretend.call(release.project, request.user, request,),
         ]
 
         assert send_removed_project_release_email.calls == [
@@ -2821,6 +2785,7 @@ class TestManageProjectRelease:
         release_file = FileFactory.create(
             release=release, filename=f"foobar-{release.version}.tar.gz"
         )
+        RoleFactory.create(project=project, user=user)
 
         db_request.POST = {
             "confirm_project_name": release.project.name,
@@ -2835,14 +2800,9 @@ class TestManageProjectRelease:
         db_request.remote_addr = "1.2.3.4"
 
         get_user_role_in_project = pretend.call_recorder(
-            lambda project_name, username, req: "Owner"
+            lambda project, user, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
-
-        get_project_contributors = pretend.call_recorder(
-            lambda project_name, req: [db_request.user]
-        )
-        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
 
         send_removed_project_release_file_email = pretend.call_recorder(
             lambda req, user, **k: None
@@ -2885,12 +2845,8 @@ class TestManageProjectRelease:
         ]
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project.name, db_request.user.username, db_request,),
-            pretend.call(project.name, db_request.user.username, db_request,),
-        ]
-
-        assert get_project_contributors.calls == [
-            pretend.call(project.name, db_request,)
+            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request,),
         ]
 
         assert send_removed_project_release_file_email.calls == [
@@ -3043,7 +2999,7 @@ class TestManageProjectRoles:
         ]
         assert result == {
             "project": project,
-            "roles_by_user": {user.username: [role]},
+            "roles": {role},
             "form": form_obj,
         }
 
@@ -3071,7 +3027,7 @@ class TestManageProjectRoles:
         assert form_obj.validate.calls == [pretend.call()]
         assert result == {
             "project": project,
-            "roles_by_user": {user.username: [role]},
+            "roles": {role},
             "form": form_obj,
         }
 
@@ -3158,11 +3114,7 @@ class TestManageProjectRoles:
 
         assert result == {
             "project": project,
-            "roles_by_user": {
-                new_user.username: [role],
-                owner_1.username: [owner_1_role],
-                owner_2.username: [owner_2_role],
-            },
+            "roles": {role, owner_1_role, owner_2_role},
             "form": form_obj,
         }
 
@@ -3219,7 +3171,7 @@ class TestManageProjectRoles:
 
         assert result == {
             "project": project,
-            "roles_by_user": {user.username: [role]},
+            "roles": {role},
             "form": form_obj,
         }
 
@@ -3269,7 +3221,7 @@ class TestManageProjectRoles:
         # No additional roles are created
         assert db_request.db.query(Role).all() == []
 
-        assert result == {"project": project, "roles_by_user": {}, "form": form_obj}
+        assert result == {"project": project, "roles": set(), "form": form_obj}
 
 
 class TestChangeProjectRoles:
@@ -3328,51 +3280,6 @@ class TestChangeProjectRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    def test_change_role_when_multiple(self, db_request):
-        project = ProjectFactory.create(name="foobar")
-        user = UserFactory.create(username="testuser")
-        owner_role = RoleFactory.create(user=user, project=project, role_name="Owner")
-        maintainer_role = RoleFactory.create(
-            user=user, project=project, role_name="Maintainer"
-        )
-        new_role_name = "Maintainer"
-
-        db_request.method = "POST"
-        db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
-        db_request.POST = MultiDict(
-            [
-                ("role_id", owner_role.id),
-                ("role_id", maintainer_role.id),
-                ("role_name", new_role_name),
-            ]
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        result = views.change_project_role(project, db_request)
-
-        assert db_request.db.query(Role).all() == [maintainer_role]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=project.name)
-        ]
-        assert db_request.session.flash.calls == [
-            pretend.call("Changed role", queue="success")
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-
-        entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
-        )
-
-        assert entry.name == project.name
-        assert entry.action == "remove Owner testuser"
-        assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
-
     def test_change_missing_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
@@ -3401,36 +3308,6 @@ class TestChangeProjectRoles:
         db_request.method = "POST"
         db_request.user = user
         db_request.POST = MultiDict({"role_id": role.id, "role_name": "Maintainer"})
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-
-        result = views.change_project_role(project, db_request)
-
-        assert db_request.session.flash.calls == [
-            pretend.call("Cannot remove yourself as Owner", queue="error")
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-
-    def test_change_own_owner_role_when_multiple(self, db_request):
-        project = ProjectFactory.create(name="foobar")
-        user = UserFactory.create(username="testuser")
-        owner_role = RoleFactory.create(user=user, project=project, role_name="Owner")
-        maintainer_role = RoleFactory.create(
-            user=user, project=project, role_name="Maintainer"
-        )
-
-        db_request.method = "POST"
-        db_request.user = user
-        db_request.POST = MultiDict(
-            [
-                ("role_id", owner_role.id),
-                ("role_id", maintainer_role.id),
-                ("role_name", "Maintainer"),
-            ]
-        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )

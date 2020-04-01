@@ -296,13 +296,13 @@ class TestProjectJournalsList:
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "user:{}".format(journals[3].submitted_by)
+        db_request.GET["q"] = "user:username"
         result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": journals[:25],
             "project": project,
-            "query": "user:{}".format(journals[3].submitted_by),
+            "query": "user:username",
         }
 
     def test_basic_query(self, db_request):

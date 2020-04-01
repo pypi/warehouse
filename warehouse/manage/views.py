@@ -13,8 +13,6 @@
 import base64
 import io
 
-from collections import defaultdict
-
 import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -915,44 +913,13 @@ def manage_project_settings(project, request):
     return {"project": project}
 
 
-def get_project_contributors(project_name, request):
-    query_res = (
-        request.db.query(Project)
-        .join(User, Project.users)
-        .filter(Project.name == project_name)
+def get_user_role_in_project(project, user, request):
+    return (
+        request.db.query(Role)
+        .filter(Role.user == user, Role.project == project)
         .one()
+        .role_name
     )
-    return query_res.users
-
-
-def get_user_role_in_project(project_name, username, request):
-    raw_res = (
-        request.db.query(Project)
-        .join(User, Project.users)
-        .filter(User.username == username, Project.name == project_name)
-        .with_entities(Role.role_name)
-        .distinct(Role.role_name)
-        .all()
-    )
-
-    query_res = []
-    for el in raw_res:
-        if el.role_name is not None:
-            query_res.append(el)
-
-    user_role = ""
-    # This check is needed because of
-    # issue https://github.com/pypa/warehouse/issues/2745
-    # which is not yet resolved and a user could be an owner
-    # and a maintainer at the same time
-    if len(query_res) == 2 and (
-        query_res[0].role_name == "Owner" or query_res[1].role_name == "Owner"
-    ):
-        user_role = "Owner"
-    if len(query_res) == 1:
-        user_role = query_res[0].role_name
-
-    return user_role
 
 
 @view_config(
@@ -978,15 +945,10 @@ def delete_project(project, request):
 
     confirm_project(project, request, fail_route="manage.project.settings")
 
-    submitter_role = get_user_role_in_project(
-        project.name, request.user.username, request
-    )
-    contributors = get_project_contributors(project.name, request)
+    submitter_role = get_user_role_in_project(project, request.user, request)
 
-    for contributor in contributors:
-        contributor_role = get_user_role_in_project(
-            project.name, contributor.username, request
-        )
+    for contributor in project.users:
+        contributor_role = get_user_role_in_project(project, contributor, request)
 
         send_removed_project_email(
             request,
@@ -1130,9 +1092,8 @@ class ManageProjectRelease:
             )
 
         submitter_role = get_user_role_in_project(
-            self.release.project.name, self.request.user.username, self.request
+            self.release.project, self.request.user, self.request
         )
-        contributors = get_project_contributors(self.release.project.name, self.request)
 
         self.request.db.add(
             JournalEntry(
@@ -1159,9 +1120,9 @@ class ManageProjectRelease:
             f"Deleted release {self.release.version!r}", queue="success"
         )
 
-        for contributor in contributors:
+        for contributor in self.release.project.users:
             contributor_role = get_user_role_in_project(
-                self.release.project.name, contributor.username, self.request
+                self.release.project, contributor, self.request
             )
 
             send_removed_project_release_email(
@@ -1244,13 +1205,12 @@ class ManageProjectRelease:
         )
 
         submitter_role = get_user_role_in_project(
-            project_name, self.request.user.username, self.request
+            self.release.project, self.request.user, self.request
         )
-        contributors = get_project_contributors(project_name, self.request)
 
-        for contributor in contributors:
+        for contributor in self.release.project.users:
             contributor_role = get_user_role_in_project(
-                project_name, contributor.username, self.request
+                self.release.project, contributor, self.request
             )
 
             send_removed_project_release_file_email(
@@ -1297,15 +1257,17 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         userid = user_service.find_userid(username)
         user = user_service.get_user(userid)
 
-        if request.db.query(
+        existing_role = (
             request.db.query(Role)
-            .filter(
-                Role.user == user, Role.project == project, Role.role_name == role_name
-            )
-            .exists()
-        ).scalar():
+            .filter(Role.user == user, Role.project == project)
+            .first()
+        )
+        if existing_role:
             request.session.flash(
-                f"User '{username}' already has {role_name} role for project",
+                (
+                    f"User '{username}' already has {existing_role.role_name} "
+                    "role for project"
+                ),
                 queue="error",
             )
         elif user.primary_email is None or not user.primary_email.verified:
@@ -1371,15 +1333,9 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
         form = _form_class(user_service=user_service)
 
-    roles = request.db.query(Role).join(User).filter(Role.project == project).all()
+    roles = set(request.db.query(Role).join(User).filter(Role.project == project).all())
 
-    # TODO: The following lines are a hack to handle multiple roles for a
-    # single user and should be removed when fixing GH-2745
-    roles_by_user = defaultdict(list)
-    for role in roles:
-        roles_by_user[role.user.username].append(role)
-
-    return {"project": project, "roles_by_user": roles_by_user, "form": form}
+    return {"project": project, "roles": roles, "form": form}
 
 
 @view_config(
@@ -1391,95 +1347,43 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     has_translations=True,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
-    # TODO: This view was modified to handle deleting multiple roles for a
-    # single user and should be updated when fixing GH-2745
-
     form = _form_class(request.POST)
 
     if form.validate():
-        role_ids = request.POST.getall("role_id")
-
-        if len(role_ids) > 1:
-            # This user has more than one role, so just delete all the ones
-            # that aren't what we want.
-            #
-            # TODO: This branch should be removed when fixing GH-2745.
-            roles = (
+        role_id = request.POST["role_id"]
+        try:
+            role = (
                 request.db.query(Role)
                 .join(User)
-                .filter(
-                    Role.id.in_(role_ids),
-                    Role.project == project,
-                    Role.role_name != form.role_name.data,
-                )
-                .all()
+                .filter(Role.id == role_id, Role.project == project)
+                .one()
             )
-            removing_self = any(
-                role.role_name == "Owner" and role.user == request.user
-                for role in roles
-            )
-            if removing_self:
+            if role.role_name == "Owner" and role.user == request.user:
                 request.session.flash("Cannot remove yourself as Owner", queue="error")
             else:
-                for role in roles:
-                    request.db.delete(role)
-                    request.db.add(
-                        JournalEntry(
-                            name=project.name,
-                            action=f"remove {role.role_name} {role.user.username}",
-                            submitted_by=request.user,
-                            submitted_from=request.remote_addr,
-                        )
+                request.db.add(
+                    JournalEntry(
+                        name=project.name,
+                        action="change {} {} to {}".format(
+                            role.role_name, role.user.username, form.role_name.data
+                        ),
+                        submitted_by=request.user,
+                        submitted_from=request.remote_addr,
                     )
-                    project.record_event(
-                        tag="project:role:delete",
-                        ip_address=request.remote_addr,
-                        additional={
-                            "submitted_by": request.user.username,
-                            "role_name": role.role_name,
-                            "target_user": role.user.username,
-                        },
-                    )
-                request.session.flash("Changed role", queue="success")
-        else:
-            # This user only has one role, so get it and change the type.
-            try:
-                role = (
-                    request.db.query(Role)
-                    .join(User)
-                    .filter(
-                        Role.id == request.POST.get("role_id"), Role.project == project
-                    )
-                    .one()
                 )
-                if role.role_name == "Owner" and role.user == request.user:
-                    request.session.flash(
-                        "Cannot remove yourself as Owner", queue="error"
-                    )
-                else:
-                    request.db.add(
-                        JournalEntry(
-                            name=project.name,
-                            action="change {} {} to {}".format(
-                                role.role_name, role.user.username, form.role_name.data
-                            ),
-                            submitted_by=request.user,
-                            submitted_from=request.remote_addr,
-                        )
-                    )
-                    role.role_name = form.role_name.data
-                    project.record_event(
-                        tag="project:role:change",
-                        ip_address=request.remote_addr,
-                        additional={
-                            "submitted_by": request.user.username,
-                            "role_name": form.role_name.data,
-                            "target_user": role.user.username,
-                        },
-                    )
-                    request.session.flash("Changed role", queue="success")
-            except NoResultFound:
-                request.session.flash("Could not find role", queue="error")
+                role.role_name = form.role_name.data
+                project.record_event(
+                    tag="project:role:change",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by": request.user.username,
+                        "role_name": form.role_name.data,
+                        "target_user": role.user.username,
+                    },
+                )
+                request.session.flash("Changed role", queue="success")
+        except NoResultFound:
+            request.session.flash("Could not find role", queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
@@ -1495,25 +1399,17 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     has_translations=True,
 )
 def delete_project_role(project, request):
-    # TODO: This view was modified to handle deleting multiple roles for a
-    # single user and should be updated when fixing GH-2745
-
-    roles = (
-        request.db.query(Role)
-        .join(User)
-        .filter(Role.id.in_(request.POST.getall("role_id")), Role.project == project)
-        .all()
-    )
-    removing_self = any(
-        role.role_name == "Owner" and role.user == request.user for role in roles
-    )
-
-    if not roles:
-        request.session.flash("Could not find role", queue="error")
-    elif removing_self:
-        request.session.flash("Cannot remove yourself as Owner", queue="error")
-    else:
-        for role in roles:
+    try:
+        role = (
+            request.db.query(Role)
+            .join(User)
+            .filter(Role.id == request.POST["role_id"])
+            .one()
+        )
+        removing_self = role.role_name == "Owner" and role.user == request.user
+        if removing_self:
+            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        else:
             request.db.delete(role)
             request.db.add(
                 JournalEntry(
@@ -1532,7 +1428,9 @@ def delete_project_role(project, request):
                     "target_user": role.user.username,
                 },
             )
-        request.session.flash("Removed role", queue="success")
+            request.session.flash("Removed role", queue="success")
+    except NoResultFound:
+        request.session.flash("Could not find role", queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)

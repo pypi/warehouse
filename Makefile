@@ -91,16 +91,20 @@ serve: .state/docker-build
 debug: .state/docker-build
 	docker-compose run --rm --service-ports web
 
-tests:
+tests: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
-static_tests:
+static_tests: .state/docker-build
 	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/static_tests $(T) $(TESTARGS)
 
+static_pipeline: .state/docker-build
+	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/env/pyvenv.cfg
 	$(BINDIR)/isort -rc *.py warehouse/ tests/
@@ -150,6 +154,7 @@ ifneq ($(PR), false)
 endif
 
 initdb:
+	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -

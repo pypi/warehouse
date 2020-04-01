@@ -174,9 +174,6 @@ class TestReleaseDetail:
         for user in users:
             RoleFactory.create(user=user, project=project)
 
-        # Add an extra role for one user, to ensure deduplication
-        RoleFactory.create(user=users[0], project=project, role_name="another role")
-
         result = views.release_detail(releases[1], db_request)
 
         assert result == {
@@ -217,9 +214,6 @@ class TestReleaseDetail:
         # Create a role for each user
         for user in users:
             RoleFactory.create(user=user, project=project)
-
-        # Add an extra role for one user, to ensure deduplication
-        RoleFactory.create(user=users[0], project=project, role_name="another role")
 
         # patch the readme rendering logic.
         render_description = pretend.call_recorder(
