@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-15 12:25+0000\n"
+"PO-Revision-Date: 2020-03-19 08:45+0000\n"
 "Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
 "Language-Team: Marathi <https://hosted.weblate.org/projects/pypa/warehouse/"
 "mr/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
@@ -870,7 +870,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr ""
+msgstr "रिकव्हरी कोड वापरून लॉगिन करा"
 
 #: warehouse/templates/accounts/recovery-code.html:40
 #, fuzzy
@@ -4414,19 +4414,19 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:635
 msgid "PyPI will return these errors for one of these reasons:"
-msgstr ""
+msgstr "PyPI यापैकी एका कारणास्तव या चुका दाखवेल:"
 
 #: warehouse/templates/pages/help.html:637
 msgid "Filename has been used and file exists"
-msgstr ""
+msgstr "फाईलनाव वापरले गेले आहे आणि फाईल अस्तित्वात आहे"
 
 #: warehouse/templates/pages/help.html:638
 msgid "Filename has been used but file no longer exists"
-msgstr ""
+msgstr "फाइलनाव वापरले गेले आहे परंतु फाइल यापुढे अस्तित्वात नाही"
 
 #: warehouse/templates/pages/help.html:639
 msgid "A file with the exact same content exists"
-msgstr ""
+msgstr "तंतोतंत समान सामग्री असलेली फाईल विद्यमान आहे"
 
 #: warehouse/templates/pages/help.html:641
 msgid ""
@@ -4550,7 +4550,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:724
 msgid "Development:"
-msgstr ""
+msgstr "विकास:"
 
 #: warehouse/templates/pages/help.html:724
 msgid ""
@@ -4585,7 +4585,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:741
 msgid "Stay updated:"
-msgstr ""
+msgstr "अद्यतनित रहा"
 
 #: warehouse/templates/pages/help.html:742
 #, python-format
@@ -4619,7 +4619,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:763
 msgid "Currently, no features are in beta."
-msgstr ""
+msgstr "सद्यास बीटा मध्ये कोणतीही वैशिष्ट्ये नाहीत"
 
 #: warehouse/templates/pages/help.html:767
 #, python-format
@@ -4633,35 +4633,35 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:779
 msgid "Resources"
-msgstr ""
+msgstr "संसाधने"
 
 #: warehouse/templates/pages/help.html:780
 msgid "Looking for something else? Perhaps these links will help:"
-msgstr ""
+msgstr "आपण काही शोधताय का? कदाचित खालील दुवे मदत करतील:"
 
 #: warehouse/templates/pages/help.html:782
 msgid "Python Packaging User Guide"
-msgstr ""
+msgstr "पायथॉन पॅकेजिंग वापरकर्ता निर्देशिका"
 
 #: warehouse/templates/pages/help.html:783
 msgid "Python documentation"
-msgstr ""
+msgstr "पायथॉन दस्तऐवजीकरण"
 
 #: warehouse/templates/pages/help.html:784
 msgid "(main Python website)"
-msgstr ""
+msgstr "(मुख्य पायथॉन संकेतस्थळ)"
 
 #: warehouse/templates/pages/help.html:785
 msgid "Python community page"
-msgstr ""
+msgstr "पायथॉन समुदाय पृष्ठ"
 
 #: warehouse/templates/pages/help.html:785
 msgid "(lists IRC channels, mailing lists, etc.)"
-msgstr ""
+msgstr "(IRC वाहिन्या, ई-मेल याद्या इत्यादींची यादी करते.)"
 
 #: warehouse/templates/pages/help.html:788
 msgid "Contact"
-msgstr ""
+msgstr "संपर्क साधा"
 
 #: warehouse/templates/pages/help.html:790
 #, python-format
@@ -4791,7 +4791,7 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:30
 msgid "Top projects by total package size"
-msgstr ""
+msgstr "अव्वल प्रकल्प संपूर्ण पॅकेज आकारानुसार"
 
 #: warehouse/templates/pages/stats.html:32
 #, fuzzy
@@ -4809,11 +4809,11 @@ msgstr "प्रकल्पानुसार आकडेवारी"
 
 #: warehouse/templates/pages/stats.html:43
 msgid "Sum of release files (bytes)"
-msgstr ""
+msgstr "प्रकाशित फाईलींची बेरीज (बाईट मध्ये)"
 
 #: warehouse/templates/pages/stats.html:48
 msgid "All of PyPI"
-msgstr ""
+msgstr "PyPI मधील सर्व"
 
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:106
@@ -4833,7 +4833,7 @@ msgstr "पॅनेल बंद करा"
 #: warehouse/templates/search/results.html:78
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
-msgstr ""
+msgstr "याद्वारे गाळा <a href=\"%(href)s\">वर्गीकरण घटक </a>"
 
 #: warehouse/templates/search/results.html:109
 msgid "Enter a search query, or select a filter from the list of classifiers."
@@ -4891,7 +4891,7 @@ msgstr[1] ""
 
 #: warehouse/templates/search/results.html:169
 msgid "Order by"
-msgstr ""
+msgstr "याद्वारे क्रमित करा"
 
 #: warehouse/templates/search/results.html:171
 msgid "Relevance"
