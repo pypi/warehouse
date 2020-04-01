@@ -226,30 +226,30 @@ msgstr ""
 "E-mail ${email_address} verifié.\n"
 "${confirm_message}."
 
-#: warehouse/manage/views.py:187
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} ajouté - consultez votre boîte mail pour le lien de "
 "vérification"
 
-#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Vous devez définir une méthode d'authentification à deux facteurs avant de "
 "pouvoir générer des codes de récupération"
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
 msgstr "Les codes de récupération ont déjà été générés"
 
-#: warehouse/manage/views.py:680
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "La génération de nouveaux codes de récupération rendra invalide vos codes "
 "existants."
 
-#: warehouse/manage/views.py:730
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
 msgstr "Identifiants incorrects. Veuillez réessayer"
 
@@ -819,7 +819,7 @@ msgstr "Se connecter à %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "Nom d’utilisateur"
 
@@ -843,8 +843,8 @@ msgstr "Nom d’utilisateur"
 #: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -891,7 +891,7 @@ msgstr "Profil de %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar pour {user} via gravatar.com"
 
@@ -1218,45 +1218,6 @@ msgstr ""
 "Vous recevez ceci car vous avez été ajouté à un projet sur %(site)s par "
 "%(submitter)s."
 
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr ""
-"Un nouveau collaborateur a été ajouté à un projet que vous posséder sur "
-"PyPI :"
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>Nom d'utilisateur</strong> : %(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>Role</strong> : %(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>Collaborateur pour</strong> : %(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>Ajouté par</strong> : %(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"S'il s'agit d'une erreur, vous pouvez écrire à <a href=\"%(href)s\">"
-"%(email_address)s</a> pour communiquer avec les administrateurs de PyPI."
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "Vous recevez ceci car vous êtes propriétaire de ce projet."
-
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
@@ -1444,58 +1405,6 @@ msgstr ""
 "L'adresse e-mail principale de votre compte PyPI <strong>%(username)s</"
 "strong> a été modifié de <code>%(old_email)s</code> à <code>%(new_email)s</"
 "code>"
-
-#: warehouse/templates/email/removed-project/body.html:25
-#, python-format
-msgid "The project %(project)s has been deleted."
-msgstr "Le projet %(project)s a été supprimé."
-
-#: warehouse/templates/email/removed-project-release/body.html:26
-#: warehouse/templates/email/removed-project/body.html:26
-#, python-format
-msgid ""
-"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
-"      %(role)s."
-msgstr ""
-"<strong>Supprimé par :</strong>  %(submitter)s avec le rôle de\n"
-"      %(role)s."
-
-#: warehouse/templates/email/removed-project-release/body.html:32
-#: warehouse/templates/email/removed-project/body.html:32
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a\n"
-"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"S'il s'agit d'une erreur, vous pouvez écrire à <a \n"
-"   href=\"%(href)s\">%(email_address)s</a> pour communiquer avec les "
-"administrateurs de PyPI."
-
-#: warehouse/templates/email/removed-project/body.html:38
-#, python-format
-msgid ""
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr "Vous recevez ceci car vous êtes %(recipient_role_descr)s de ce projet."
-
-#: warehouse/templates/email/removed-project-release/body.html:25
-#, python-format
-msgid ""
-"The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr ""
-"La version %(release)s du projet %(project)s sortie le %(date)s a été "
-"supprimée."
-
-#: warehouse/templates/email/removed-project-release/body.html:38
-#, python-format
-msgid ""
-"\n"
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr ""
-"\n"
-"Vous recevez ceci car vous êtes %(recipient_role_descr)s de ce projet."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -2160,7 +2069,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "Supprimer"
 
@@ -2678,7 +2587,7 @@ msgstr "Date"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "Utilisateur"
 
@@ -3059,8 +2968,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "Il y a deux rôles possibles pour les collaborateurs :"
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "Mainteneur"
 
@@ -3074,8 +2983,8 @@ msgstr ""
 "collaborateurs. Ne peut pas supprimer de fichiers, versions ou le projet."
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr "Propriétaire"
 
@@ -3094,31 +3003,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr "Utilisateurs pouvant gérer %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr "Rôle"
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr "Enregistrer le rôle"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr "Enregistrer"
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr "Vous ne pouvez pas vous supprimer vous-même en tant que propriétaire"
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "Supprimer %(user)s de ce projet"
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr "Ajouter un collaborateur"
 
@@ -5927,6 +5836,72 @@ msgstr[1] ""
 "\n"
 "                  Aucun résultat pour les filtres '%(filters)s'\n"
 "                "
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr ""
+#~ "Un nouveau collaborateur a été ajouté à un projet que vous posséder sur "
+#~ "PyPI :"
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>Nom d'utilisateur</strong> : %(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>Role</strong> : %(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>Collaborateur pour</strong> : %(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>Ajouté par</strong> : %(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "S'il s'agit d'une erreur, vous pouvez écrire à <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> pour communiquer avec les administrateurs de PyPI."
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "Vous recevez ceci car vous êtes propriétaire de ce projet."
+
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "Le projet %(project)s a été supprimé."
+
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr ""
+#~ "<strong>Supprimé par :</strong>  %(submitter)s avec le rôle de\n"
+#~ "      %(role)s."
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "S'il s'agit d'une erreur, vous pouvez écrire à <a \n"
+#~ "   href=\"%(href)s\">%(email_address)s</a> pour communiquer avec les "
+#~ "administrateurs de PyPI."
+
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "Vous recevez ceci car vous êtes %(recipient_role_descr)s de ce projet."
+
+#~ msgid ""
+#~ "The %(project)s release %(release)s released on %(date)s has been deleted."
+#~ msgstr ""
+#~ "La version %(release)s du projet %(project)s sortie le %(date)s a été "
+#~ "supprimée."
+
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "\n"
+#~ "Vous recevez ceci car vous êtes %(recipient_role_descr)s de ce projet."
 
 #~ msgid "View <span>hashes</span>"
 #~ msgstr "Voir les <span>hachages</span>"

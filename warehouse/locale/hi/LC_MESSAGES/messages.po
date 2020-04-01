@@ -13,8 +13,8 @@ msgstr ""
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-03-20 19:23+0000\n"
 "Last-Translator: bkaskar <roypbc@yahoo.com>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
-"\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
+">\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -206,26 +206,26 @@ msgstr "यह आपका प्राथमिक पता है"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पता ${email_address} सत्यापित। ${confirm_message}।"
 
-#: warehouse/manage/views.py:187
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ईमेल ${email_address} जोड़ा गया - सत्यापन लिंक के लिए अपने ईमेल की जांच करें"
 
-#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "इससे पहले की पुनर्प्राप्ति कुंजी उत्पन्न की जा सके, आपको द्वी-करक प्रमाणीकरण विधि का "
 "प्रावधान करना होगा"
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
 msgstr "पुनर्प्राप्ति कोड प्रउत्पादित"
 
-#: warehouse/manage/views.py:680
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "नयी पुनर्प्राप्ति कुंजी उत्पन्न करने पर मौजूदा कुंजियाँ अमान्य हो जाएंगी।"
 
-#: warehouse/manage/views.py:730
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
 msgstr "अवैध प्रत्यय पत्र। पुनः प्रयास करें"
 
@@ -777,7 +777,7 @@ msgstr "%(title)s में लॉग इन करें"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "उपयोगकर्ता का नाम"
 
@@ -801,8 +801,8 @@ msgstr "उपयोगकर्ता का नाम"
 #: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -849,7 +849,7 @@ msgstr "%(username)s की प्रोफाइल"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Gravatar.com से {user} का अवतार"
 
@@ -1104,9 +1104,9 @@ msgid ""
 "PyPI account. Enter this code in the form to verify your identity.</p> "
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
-"<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। "
-"अपनी पहचान सत्यापित करने के लिए कोड उत्पन्न करें।</p> <p>अपना आवेदन खो दिया? "
-"काम नहीं कर रहा? <a href=\"%(href)s\">सहायता प्राप्त करें</a>।</p>"
+"<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। अपनी पहचान "
+"सत्यापित करने के लिए कोड उत्पन्न करें।</p> <p>अपना आवेदन खो दिया? काम नहीं कर रहा? <a "
+"href=\"%(href)s\">सहायता प्राप्त करें</a>।</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
@@ -1162,43 +1162,6 @@ msgid ""
 msgstr ""
 "आपको यह प्राप्त हो रहा है क्योंकि आपको %(site)s पर एक परियोजना में %(submitter)s "
 "द्वारा जोड़ा गया है।"
-
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr "PyPI पर आपके प्रोजेक्ट में एक नया सहयोगी जोड़ा गया है:"
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>उपयोगकर्ता नाम</strong>: %(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>भूमिका</ strong>:%(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>सहयोगी</strong>: %(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>द्वारा जोड़ा गया</strong>: %(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">"
-"%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1376,57 +1339,6 @@ msgid ""
 msgstr ""
 "आपके PyPI खाते <strong>%(username)s</strong> के प्राथमिक ईमेल को <code>"
 "%(old_email)s</code> से बदलकर <code>%(new_email)s</code> कर दिया गया है"
-
-#: warehouse/templates/email/removed-project/body.html:25
-#, python-format
-msgid "The project %(project)s has been deleted."
-msgstr "परियोजना %(project)s हटा दी गयी है।"
-
-#: warehouse/templates/email/removed-project-release/body.html:26
-#: warehouse/templates/email/removed-project/body.html:26
-#, python-format
-msgid ""
-"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
-"      %(role)s."
-msgstr ""
-"इन भूमिका वाले: %(submitter)s द्वारा <strong>हटाया गया:</strong>\n"
-"      %(role)s."
-
-#: warehouse/templates/email/removed-project-release/body.html:32
-#: warehouse/templates/email/removed-project/body.html:32
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a\n"
-"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a\n"
-"     href=\"%(href)s\">%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
-
-#: warehouse/templates/email/removed-project/body.html:38
-#, python-format
-msgid ""
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s हैं।"
-
-#: warehouse/templates/email/removed-project-release/body.html:25
-#, python-format
-msgid ""
-"The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr ""
-"यह %(project)s विज्ञप्ति %(release)s जो %(date)s पर वितरित हुयी थी, मिटा दी गयी "
-"है।"
-
-#: warehouse/templates/email/removed-project-release/body.html:38
-#, python-format
-msgid ""
-"\n"
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr ""
-"\n"
-"आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s हैं।"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -1994,8 +1906,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"आपका एक सत्यापित ईमेल आपके<a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a> पर "
-"दूसरे उपयोगकर्ताओं को प्रदर्शित किया जा सकता है।"
+"आपका एक सत्यापित ईमेल आपके<a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a> पर दूसरे "
+"उपयोगकर्ताओं को प्रदर्शित किया जा सकता है।"
 
 #: warehouse/templates/manage/account.html:324
 msgid "Update account"
@@ -2083,7 +1995,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "हटाएं"
 
@@ -2589,7 +2501,7 @@ msgstr "दिनांक"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "उपयोगकर्ता"
 
@@ -2966,8 +2878,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "सहयोगियों के लिए दो संभावित भूमिकाएं हैं:"
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "अनुरक्षक"
 
@@ -2981,8 +2893,8 @@ msgstr ""
 "विज्ञप्तियां, या परियोजना मिटा नहीं सकते ।"
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr "आयोजक"
 
@@ -3001,31 +2913,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr "वे उपयोगकर्ता जो %(project_name)s का प्रबंधन कर सकते हैं"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr "भूमिका"
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr "भूमिका सहेजें"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr "सहेजें"
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr "स्वामी खुद को नहीं हटा सकते"
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "इस परियोजना से %(user)s निकालें"
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr "सहयोगी जोड़ें"
 
@@ -3069,15 +2981,14 @@ msgid ""
 "\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">the Python "
 "Packaging User Guide</a> for more help."
 msgstr ""
-"अपने के अगले '%(project_name)s' संस्करण का विवरण, लेखक, लिंक, क्लासिफायर और "
-"अन्य विवरण स्थापित करने के लिए, <a href=\"%(setup_args_href)s\" rel=\""
-"noopener\" target=\"_blank\">आपके <code>setup.py</ code> फ़ाइल में <code>"
-"setup ()</code>का उपयोग करें</a>। इन तथ्यों का नवीनीकरण करने से पिछले रिलीज़ "
-"के लिए मेटाडेटा नहीं बदलेगा। साथ ही, फाईले अपलोड करने के लिए आपको करने के लि"
-"ए <strong>आपको अवश्य</strong> <a href=\"%(twine_docs_href)s\" rel=\""
-"noopener\" target=\"_blank\">Twine</a> का उपयोग करना चाहिए। और सहायता "
-"प्राप्ति हेतु <a href=\"%(distribution_href)s\" rel=\"noopener\" target=\""
-"_blank\">पाइथॉन उपयोगकर्ता कुंजी</a> देखें।"
+"अपने के अगले '%(project_name)s' संस्करण का विवरण, लेखक, लिंक, क्लासिफायर और अन्य "
+"विवरण स्थापित करने के लिए, <a href=\"%(setup_args_href)s\" rel=\"noopener\" "
+"target=\"_blank\">आपके <code>setup.py</ code> फ़ाइल में <code>setup ()</code>का "
+"उपयोग करें</a>। इन तथ्यों का नवीनीकरण करने से पिछले रिलीज़ के लिए मेटाडेटा नहीं बदलेगा। "
+"साथ ही, फाईले अपलोड करने के लिए आपको करने के लिए <strong>आपको अवश्य</strong> <a "
+"href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> का "
+"उपयोग करना चाहिए। और सहायता प्राप्ति हेतु <a href=\"%(distribution_href)s\" rel="
+"\"noopener\" target=\"_blank\">पाइथॉन उपयोगकर्ता कुंजी</a> देखें।"
 
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
@@ -3097,11 +3008,11 @@ msgid_plural ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
 "releases</a>"
 msgstr[0] ""
-"परियोजना एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्ति</a> अपरिवर्तनीय रू"
-"प से मिटाएं"
+"परियोजना एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्ति</a> अपरिवर्तनीय रूप से "
+"मिटाएं"
 msgstr[1] ""
-"परियोजनाए एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्तियां</a> अपरिवर्तनी"
-"य रूप से मिटाएं"
+"परियोजनाए एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्तियां</a> अपरिवर्तनीय रूप "
+"से मिटाएं"
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
@@ -3110,8 +3021,7 @@ msgstr "अपरिवर्तनीय रूप से परियोजन
 #: warehouse/templates/manage/settings.html:72
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
-"इस परियोजना का नाम <strong>किसी भी PyPI</strong> उपयोगकर्ता को मुहैय्या "
-"करवावें"
+"इस परियोजना का नाम <strong>किसी भी PyPI</strong> उपयोगकर्ता को मुहैय्या करवावें"
 
 #: warehouse/templates/manage/settings.html:74
 msgid ""
@@ -5213,6 +5123,69 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr "PyPI पर आपके प्रोजेक्ट में एक नया सहयोगी जोड़ा गया है:"
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>उपयोगकर्ता नाम</strong>: %(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>भूमिका</ strong>:%(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>सहयोगी</strong>: %(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>द्वारा जोड़ा गया</strong>: %(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
+
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "परियोजना %(project)s हटा दी गयी है।"
+
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr ""
+#~ "इन भूमिका वाले: %(submitter)s द्वारा <strong>हटाया गया:</strong>\n"
+#~ "      %(role)s."
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a\n"
+#~ "     href=\"%(href)s\">%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s हैं।"
+
+#~ msgid ""
+#~ "The %(project)s release %(release)s released on %(date)s has been deleted."
+#~ msgstr ""
+#~ "यह %(project)s विज्ञप्ति %(release)s जो %(date)s पर वितरित हुयी थी, मिटा दी "
+#~ "गयी है।"
+
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "\n"
+#~ "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s हैं।"
 
 #~ msgid "Beta feature"
 #~ msgstr "अप्रमाणित (बीटा) सुविधा"

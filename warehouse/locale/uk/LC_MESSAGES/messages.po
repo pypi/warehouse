@@ -22,8 +22,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
-"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
@@ -214,29 +214,29 @@ msgstr "Це ваша основна адреса"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Електронну адресу ${email_address} підтверджено. ${confirm_message}."
 
-#: warehouse/manage/views.py:187
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Електронну адресу ${email_address} додано — знайдіть посилання-підтвердження "
 "у своїй електронній скриньці"
 
-#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Ви повинні увімкнути двофакторну авторизацію, щоб коди відновлення можна "
 "було згенерувати"
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
 msgstr "Коди відновлення вже згенеровано"
 
-#: warehouse/manage/views.py:680
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Генерування нових кодів відновлення зробить недійсними ваші існуючі коди."
 
-#: warehouse/manage/views.py:730
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
 msgstr "Неправильні персональні дані. Спробуйте знову"
 
@@ -799,7 +799,7 @@ msgstr "Увійти до %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "Ім'я користувача"
 
@@ -823,8 +823,8 @@ msgstr "Ім'я користувача"
 #: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -871,7 +871,7 @@ msgstr "Профіль %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Аватар для {user} із gravatar.com"
 
@@ -1196,44 +1196,6 @@ msgid ""
 "project on %(site)s."
 msgstr "Ви отримали це, бо %(submitter)s додає вас до проекту на %(site)s."
 
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr ""
-"Нового поплічника було додано до проекту на PyPI, власником якого є ви:"
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>Ім'я користувача</strong>: %(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>Роль</strong>: %(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>Поплічник у</strong>: %(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>Додано</strong>: %(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"Якщо це було помилкою, ви можете надіслати листа на <a href=\"%(href)s\">"
-"%(email_address)s</a>, щоб зв'язатися з адміністраторами PyPI."
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "Ви отримали це, оскільки ви власник цього проекту."
-
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
@@ -1417,56 +1379,6 @@ msgstr ""
 "Основну електронну адресу для вашого облікового запису <strong>%(username)s</"
 "strong> на PyPI було змінено з <code>%(old_email)s</code> на <code>"
 "%(new_email)s</code>"
-
-#: warehouse/templates/email/removed-project/body.html:25
-#, python-format
-msgid "The project %(project)s has been deleted."
-msgstr "Проект %(project)s було видалено."
-
-#: warehouse/templates/email/removed-project-release/body.html:26
-#: warehouse/templates/email/removed-project/body.html:26
-#, python-format
-msgid ""
-"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
-"      %(role)s."
-msgstr ""
-"<strong>Видалив(-ла):</strong> %(submitter)s, що має роль:\n"
-"      %(role)s."
-
-#: warehouse/templates/email/removed-project-release/body.html:32
-#: warehouse/templates/email/removed-project/body.html:32
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a\n"
-"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"Якщо це було помилкою, ви можете надіслати листа на <a\n"
-"    href=\"%(href)s\">%(email_address)s</a>, щоб зв'язатися з "
-"адміністраторами PyPI."
-
-#: warehouse/templates/email/removed-project/body.html:38
-#, python-format
-msgid ""
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr "Ви отримали це, оскільки ви %(recipient_role_descr)s цього проекту."
-
-#: warehouse/templates/email/removed-project-release/body.html:25
-#, python-format
-msgid ""
-"The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr "Випуск %(project)s %(release)s, опублікований %(date)s було видалено."
-
-#: warehouse/templates/email/removed-project-release/body.html:38
-#, python-format
-msgid ""
-"\n"
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr ""
-"\n"
-"Ви отримали це, оскільки ви %(recipient_role_descr)s цього проекту."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -2036,8 +1948,8 @@ msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"Одна з підтверджених адрес може відображатися у вашому <a href=\"%(href)s\">"
-"публічному профілі</a> для автентифікованих користувачів."
+"Одна з підтверджених адрес може відображатися у вашому <a href=\"%(href)s"
+"\">публічному профілі</a> для автентифікованих користувачів."
 
 #: warehouse/templates/manage/account.html:324
 msgid "Update account"
@@ -2127,7 +2039,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "Видалити"
 
@@ -2650,7 +2562,7 @@ msgstr "Дата"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "Користувач"
 
@@ -3039,8 +2951,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "Поплічники можуть належати до однієї з двох ролей:"
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "Доглядач"
 
@@ -3054,8 +2966,8 @@ msgstr ""
 "може видаляти файли, випуски чи проект."
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr "Власник"
 
@@ -3074,31 +2986,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr "Користувачі, які можуть керувати %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr "Роль"
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr "Зберегти роль"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr "Зберегти"
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr "Неможливо видалити себе як власника"
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "Видалити %(user)s з цього проекта"
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr "Додати поплічника"
 
@@ -3377,8 +3289,8 @@ msgid ""
 msgstr ""
 "Якщо ви втратили доступ до свого застосунку автентифікації чи до ключа(-ів) "
 "безпеки, вам знадобиться скористатися одним із кодів відновлення, аби увійти "
-"до облікового запису PyPI. Кожен код можна використати лише "
-"<strong>один</strong> раз."
+"до облікового запису PyPI. Кожен код можна використати лише <strong>один</"
+"strong> раз."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:47
 msgid ""
@@ -5840,6 +5752,69 @@ msgstr[2] ""
 "\n"
 "                  Немає результатів для '%(filters)s' фільтрів\n"
 "                "
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr ""
+#~ "Нового поплічника було додано до проекту на PyPI, власником якого є ви:"
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>Ім'я користувача</strong>: %(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>Роль</strong>: %(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>Поплічник у</strong>: %(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>Додано</strong>: %(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "Якщо це було помилкою, ви можете надіслати листа на <a href=\"%(href)s\">"
+#~ "%(email_address)s</a>, щоб зв'язатися з адміністраторами PyPI."
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "Ви отримали це, оскільки ви власник цього проекту."
+
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "Проект %(project)s було видалено."
+
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr ""
+#~ "<strong>Видалив(-ла):</strong> %(submitter)s, що має роль:\n"
+#~ "      %(role)s."
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Якщо це було помилкою, ви можете надіслати листа на <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a>, щоб зв'язатися з "
+#~ "адміністраторами PyPI."
+
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "Ви отримали це, оскільки ви %(recipient_role_descr)s цього проекту."
+
+#~ msgid ""
+#~ "The %(project)s release %(release)s released on %(date)s has been deleted."
+#~ msgstr ""
+#~ "Випуск %(project)s %(release)s, опублікований %(date)s було видалено."
+
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "\n"
+#~ "Ви отримали це, оскільки ви %(recipient_role_descr)s цього проекту."
 
 #~ msgid "View <span>hashes</span>"
 #~ msgstr "Переглянути <span>хеші</span>"

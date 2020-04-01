@@ -205,25 +205,25 @@ msgstr "Dit is het primaire adres"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailadres ${email_address} geverifieerd. ${confirm_message}."
 
-#: warehouse/manage/views.py:187
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mailadres ${email_address} toegevoegd -- e-mailverificatielink is onderweg"
 
-#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:680
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:730
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
 msgstr ""
 
@@ -760,7 +760,7 @@ msgstr "Inloggen op %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "Gebruikersnaam"
 
@@ -784,8 +784,8 @@ msgstr "Gebruikersnaam"
 #: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -833,7 +833,7 @@ msgstr "Kies een gebruikersnaam"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -1128,41 +1128,6 @@ msgstr ""
 "U ontvangt dit omdat u door %(submitter)s toegevoegd bent aan een project op "
 "%(site)s."
 
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr ""
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>Gebruikersnaam</strong>: %(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr ""
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr ""
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>Toegevoegd door</strong>: %(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr ""
-
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
@@ -1298,60 +1263,6 @@ msgid ""
 "The primary email for your PyPI account <strong>%(username)s</strong> has "
 "been changed from <code>%(old_email)s</code> to <code>%(new_email)s</code>"
 msgstr ""
-
-#: warehouse/templates/email/removed-project/body.html:25
-#, python-format
-msgid "The project %(project)s has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:26
-#: warehouse/templates/email/removed-project/body.html:26
-#, fuzzy, python-format
-#| msgid "<strong>Added by</strong>: %(submitter)s"
-msgid ""
-"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
-"      %(role)s."
-msgstr "<strong>Toegevoegd door</strong>: %(submitter)s"
-
-#: warehouse/templates/email/removed-project-release/body.html:32
-#: warehouse/templates/email/removed-project/body.html:32
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a\n"
-"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-
-#: warehouse/templates/email/removed-project/body.html:38
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
-msgid ""
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr ""
-"U ontvangt dit omdat u door %(submitter)s toegevoegd bent aan een project op "
-"%(site)s."
-
-#: warehouse/templates/email/removed-project-release/body.html:25
-#, python-format
-msgid ""
-"The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:38
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
-msgid ""
-"\n"
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr ""
-"U ontvangt dit omdat u door %(submitter)s toegevoegd bent aan een project op "
-"%(site)s."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
@@ -1957,7 +1868,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr ""
 
@@ -2426,7 +2337,7 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr ""
 
@@ -2777,8 +2688,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr ""
 
@@ -2790,8 +2701,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr ""
 
@@ -2808,31 +2719,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr ""
 
@@ -4954,6 +4865,42 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>Gebruikersnaam</strong>: %(username)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>Toegevoegd door</strong>: %(submitter)s"
+
+#, fuzzy
+#~| msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr "<strong>Toegevoegd door</strong>: %(submitter)s"
+
+#, fuzzy
+#~| msgid ""
+#~| "You are receiving this because you have been added by %(submitter)s to a "
+#~| "project on %(site)s."
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "U ontvangt dit omdat u door %(submitter)s toegevoegd bent aan een project "
+#~ "op %(site)s."
+
+#, fuzzy
+#~| msgid ""
+#~| "You are receiving this because you have been added by %(submitter)s to a "
+#~| "project on %(site)s."
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "U ontvangt dit omdat u door %(submitter)s toegevoegd bent aan een project "
+#~ "op %(site)s."
 
 #~ msgid "Log Out"
 #~ msgstr "Uitloggen"

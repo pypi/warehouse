@@ -208,26 +208,26 @@ msgstr "Ini adalah alamat utama Anda"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Alamat email ${email_address} terverifikasi. ${confirm_message}."
 
-#: warehouse/manage/views.py:187
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Email ${email_address} ditambahkan - periksa email Anda untuk tautan "
 "verifikasi"
 
-#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:680
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:730
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
 msgstr ""
 
@@ -789,7 +789,7 @@ msgstr "Masuk ke %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "Nama pengguna"
 
@@ -813,8 +813,8 @@ msgstr "Nama pengguna"
 #: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -861,7 +861,7 @@ msgstr "Profil %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar untuk {user} dari gravatar.com"
 
@@ -1174,43 +1174,6 @@ msgstr ""
 "Anda menerima ini karena telah ditambahkan oleh %(submitter)s ke proyek di "
 "%(site)s."
 
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr "Kolaborator baru telah ditambahkan ke proyek yang Anda miliki di PyPI:"
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>Nama pengguna</strong>: %(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>Peran</strong>: %(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>Kolaborator untuk</strong>: %(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>Ditambahkan oleh</strong>: %(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"Jika ini sebuah kesalahan, Anda bisa mengemail <a href=\"%(href)s\">"
-"%(email_address)s</a> untuk berkomunikasi dengan administrator PyPI."
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "Anda menerima ini karena Anda pemilik proyek ini."
-
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
@@ -1392,58 +1355,6 @@ msgid ""
 msgstr ""
 "Aamat email utama untuk akun PyPI anda<strong>%(username)s</strong> telah "
 "dirubah dari <code>%(old_email)s</code> menjadi <code>%(new_email)s</code>"
-
-#: warehouse/templates/email/removed-project/body.html:25
-#, fuzzy, python-format
-#| msgid "This project has no releases"
-msgid "The project %(project)s has been deleted."
-msgstr "Proyek ini tidak memiliki rilis"
-
-#: warehouse/templates/email/removed-project-release/body.html:26
-#: warehouse/templates/email/removed-project/body.html:26
-#, fuzzy, python-format
-#| msgid "<strong>Added by</strong>: %(submitter)s"
-msgid ""
-"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
-"      %(role)s."
-msgstr "<strong>Ditambahkan oleh</strong>: %(submitter)s"
-
-#: warehouse/templates/email/removed-project-release/body.html:32
-#: warehouse/templates/email/removed-project/body.html:32
-#, fuzzy, python-format
-#| msgid ""
-#| "If this was a mistake, you can email <a href=\"%(href)s\">"
-#| "%(email_address)s</a> to communicate with the PyPI administrators."
-msgid ""
-"If this was a mistake, you can email <a\n"
-"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"Jika ini sebuah kesalahan, Anda bisa mengemail <a href=\"%(href)s\">"
-"%(email_address)s</a> untuk berkomunikasi dengan administrator PyPI."
-
-#: warehouse/templates/email/removed-project/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
-msgid ""
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr "Anda menerima ini karena Anda pemilik proyek ini."
-
-#: warehouse/templates/email/removed-project-release/body.html:25
-#, python-format
-msgid ""
-"The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
-msgid ""
-"\n"
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr "Anda menerima ini karena Anda pemilik proyek ini."
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, fuzzy, python-format
@@ -2122,7 +2033,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "Hapus"
 
@@ -2626,7 +2537,7 @@ msgstr "Tanggal"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "Pengguna"
 
@@ -2984,8 +2895,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr ""
 
@@ -2997,8 +2908,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr ""
 
@@ -3015,31 +2926,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr ""
 
@@ -5172,6 +5083,71 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr ""
+#~ "Kolaborator baru telah ditambahkan ke proyek yang Anda miliki di PyPI:"
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>Nama pengguna</strong>: %(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>Peran</strong>: %(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>Kolaborator untuk</strong>: %(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>Ditambahkan oleh</strong>: %(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "Jika ini sebuah kesalahan, Anda bisa mengemail <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> untuk berkomunikasi dengan administrator PyPI."
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "Anda menerima ini karena Anda pemilik proyek ini."
+
+#, fuzzy
+#~| msgid "This project has no releases"
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "Proyek ini tidak memiliki rilis"
+
+#, fuzzy
+#~| msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr "<strong>Ditambahkan oleh</strong>: %(submitter)s"
+
+#, fuzzy
+#~| msgid ""
+#~| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~| "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Jika ini sebuah kesalahan, Anda bisa mengemail <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> untuk berkomunikasi dengan administrator PyPI."
+
+#, fuzzy
+#~| msgid "You are receiving this because you are an owner of this project."
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "Anda menerima ini karena Anda pemilik proyek ini."
+
+#, fuzzy
+#~| msgid "You are receiving this because you are an owner of this project."
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "Anda menerima ini karena Anda pemilik proyek ini."
 
 #~ msgid "Beta feature"
 #~ msgstr "Fitur beta"

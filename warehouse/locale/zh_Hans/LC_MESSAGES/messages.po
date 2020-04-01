@@ -207,24 +207,24 @@ msgstr "这是您的主邮件地址"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "电子邮件地址$ {email_address}已验证。 ${confirm_message}。"
 
-#: warehouse/manage/views.py:187
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "电子邮件${email_address}已添加 - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr "在生成恢复代码之前，必须提供双因素方法"
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
 msgstr "已生成恢复代码"
 
-#: warehouse/manage/views.py:680
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views.py:730
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
 msgstr "无效凭据。再试一次"
 
@@ -770,7 +770,7 @@ msgstr "登录到 %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "用户名"
 
@@ -794,8 +794,8 @@ msgstr "用户名"
 #: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -842,7 +842,7 @@ msgstr "%(username)s 的档案"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com 上 {user} 的头像"
 
@@ -1146,43 +1146,6 @@ msgid ""
 "project on %(site)s."
 msgstr "您收到此邮件是因为您已被 %(submitter)s 添加到 %(site)s 的项目中。"
 
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr "新的协作者已添加到您在 PyPI 上拥有的项目中："
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>用户名</strong>：%(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>角色</strong>：%(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>协作者关联项目</strong>：%(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>添加人</strong>：%(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送电"
-"子邮件并于  PyPI 管理员沟通。"
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "您收到此邮件是因为您是该项目的所有者。"
-
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
 msgid ""
@@ -1346,58 +1309,6 @@ msgid ""
 msgstr ""
 "您的 PyPI 帐户（ <strong>%(username)s</strong>）的主电子邮件已经从 <code>"
 "%(old_email)s</code> 更改为 <code>%(new_email)s</code>"
-
-#: warehouse/templates/email/removed-project/body.html:25
-#, fuzzy, python-format
-#| msgid "This project has no releases"
-msgid "The project %(project)s has been deleted."
-msgstr "此项目没有发布过版本"
-
-#: warehouse/templates/email/removed-project-release/body.html:26
-#: warehouse/templates/email/removed-project/body.html:26
-#, fuzzy, python-format
-#| msgid "<strong>Added by</strong>: %(submitter)s"
-msgid ""
-"<strong>Deleted by:</strong> %(submitter)s with a role:\n"
-"      %(role)s."
-msgstr "<strong>添加人</strong>：%(submitter)s"
-
-#: warehouse/templates/email/removed-project-release/body.html:32
-#: warehouse/templates/email/removed-project/body.html:32
-#, fuzzy, python-format
-#| msgid ""
-#| "If this was a mistake, you can email <a href=\"%(href)s\">"
-#| "%(email_address)s</a> to communicate with the PyPI administrators."
-msgid ""
-"If this was a mistake, you can email <a\n"
-"    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送电"
-"子邮件并于  PyPI 管理员沟通。"
-
-#: warehouse/templates/email/removed-project/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
-msgid ""
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr "您收到此邮件是因为您是该项目的所有者。"
-
-#: warehouse/templates/email/removed-project-release/body.html:25
-#, python-format
-msgid ""
-"The %(project)s release %(release)s released on %(date)s has been deleted."
-msgstr ""
-
-#: warehouse/templates/email/removed-project-release/body.html:38
-#, fuzzy, python-format
-#| msgid "You are receiving this because you are an owner of this project."
-msgid ""
-"\n"
-"You are receiving this because you are %(recipient_role_descr)s of this "
-"project."
-msgstr "您收到此邮件是因为您是该项目的所有者。"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, fuzzy, python-format
@@ -2052,7 +1963,7 @@ msgstr "申请认证(<abbr title=\"time-based one-time password\">TOTP2</abbr>)"
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "删除"
 
@@ -2537,7 +2448,7 @@ msgstr "日期"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "用户"
 
@@ -2901,8 +2812,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "协作者有两种可能的角色："
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "维护者"
 
@@ -2914,8 +2825,8 @@ msgid ""
 msgstr "可以上传软件包的发行版。无法添加协作者。无法删除文件，发行版或项目。"
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr "所有者"
 
@@ -2932,31 +2843,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr "可以管理  %(project_name)s 项目的用户"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr "角色"
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr "保存角色"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr "保存"
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr "无法删除您的所有者身份"
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "从此项目中删除  %(user)s"
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr "添加协作者"
 
@@ -5506,6 +5417,70 @@ msgstr[0] ""
 "\n"
 "                  “%(filters)s”过滤器没有结果\n"
 "                "
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr "新的协作者已添加到您在 PyPI 上拥有的项目中："
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>用户名</strong>：%(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>角色</strong>：%(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>协作者关联项目</strong>：%(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>添加人</strong>：%(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送"
+#~ "电子邮件并于  PyPI 管理员沟通。"
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "您收到此邮件是因为您是该项目的所有者。"
+
+#, fuzzy
+#~| msgid "This project has no releases"
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "此项目没有发布过版本"
+
+#, fuzzy
+#~| msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr "<strong>添加人</strong>：%(submitter)s"
+
+#, fuzzy
+#~| msgid ""
+#~| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~| "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送"
+#~ "电子邮件并于  PyPI 管理员沟通。"
+
+#, fuzzy
+#~| msgid "You are receiving this because you are an owner of this project."
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "您收到此邮件是因为您是该项目的所有者。"
+
+#, fuzzy
+#~| msgid "You are receiving this because you are an owner of this project."
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "您收到此邮件是因为您是该项目的所有者。"
 
 #~ msgid "View <span>hashes</span>"
 #~ msgstr "查看<span>哈希值</span>"
