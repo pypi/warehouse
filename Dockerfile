@@ -2,7 +2,7 @@
 # our static assets with. It is important that the steps in this remain the
 # same as the steps in Dockerfile.static, EXCEPT this may include additional
 # steps appended onto the end.
-FROM node:8.9.4 as static
+FROM node:8.15.1 as static
 
 WORKDIR /opt/warehouse/src/
 
@@ -12,7 +12,7 @@ WORKDIR /opt/warehouse/src/
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libjpeg-dev
+        libjpeg-dev nasm
 
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
@@ -23,8 +23,9 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
 RUN set -x \
+    && npm install -g npm@latest \
     && npm install -g gulp-cli \
-    && npm install
+    && npm ci
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
@@ -44,7 +45,7 @@ RUN gulp dist
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.6.3-slim-stretch as build
+FROM python:3.7.3-slim-stretch as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -61,7 +62,7 @@ ARG IPYTHON=no
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev \
+        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
         $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
 # We need a way for the build system to pass in a repository that will be used
@@ -107,7 +108,8 @@ RUN set -x \
 RUN set -x \
     && PIP_EXTRA_INDEX_URL=$THEME_REPO \
         pip --no-cache-dir --disable-pip-version-check \
-            install -r /tmp/requirements/deploy.txt \
+            install --no-binary hiredis \
+                    -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt'; fi) \
                     $(if [ "$THEME_REPO" != "" ]; then echo '-r /tmp/requirements/theme.txt'; fi) \
@@ -119,7 +121,7 @@ RUN set -x \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.6.3-slim-stretch
+FROM python:3.7.3-slim-stretch
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -144,7 +146,7 @@ RUN set -x \
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1  \
+        libpq5 libxml2 libxslt1.1 libcurl3  \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

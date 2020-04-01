@@ -16,23 +16,27 @@ from warehouse.utils.static import ManifestCacheBuster
 
 
 class TestManifestCacheBuster:
-    def test_returns_when_valid(self):
+    def test_returns_when_valid(self, monkeypatch):
+        monkeypatch.setattr(
+            ManifestCacheBuster,
+            "get_manifest",
+            lambda x: {"/the/path/style.css": "/the/busted/path/style.css"},
+        )
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")
-        cb._manifest = {"/the/path/style.css": "/the/busted/path/style.css"}
         result = cb(None, "/the/path/style.css", {"keyword": "arg"})
 
         assert result == ("/the/busted/path/style.css", {"keyword": "arg"})
 
-    def test_raises_when_invalid(self):
+    def test_raises_when_invalid(self, monkeypatch):
+        monkeypatch.setattr(ManifestCacheBuster, "get_manifest", lambda x: {})
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")
-        cb._manifest = {}
 
         with pytest.raises(ValueError):
             cb(None, "/the/path/style.css", {"keyword": "arg"})
 
-    def test_returns_when_invalid_and_not_strict(self):
+    def test_returns_when_invalid_and_not_strict(self, monkeypatch):
+        monkeypatch.setattr(ManifestCacheBuster, "get_manifest", lambda x: {})
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json", strict=False)
-        cb._manifest = {}
         result = cb(None, "/the/path/style.css", {"keyword": "arg"})
 
         assert result == ("/the/path/style.css", {"keyword": "arg"})

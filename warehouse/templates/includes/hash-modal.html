@@ -1,0 +1,71 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+
+<div id="copy-hash-modal-{{ file.id }}" class="modal modal--wide">
+  <div class="modal__content" role="dialog">
+    <a href="#modal-close" title="{% trans %}Close{% endtrans %}" class="modal__close">
+      <i class="fa fa-times" aria-hidden="true"></i>
+      <span class="sr-only">{% trans %}Close{% endtrans %}</span>
+    </a>
+    <div class="modal__body">
+      <h3 class="modal__title">
+        {% trans trimmed href='https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode', title=gettext('External link'), filename=file.filename %}
+        <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Hashes</a> for {{ filename }}
+        {% endtrans %}
+      </h3>
+      <table class="table table--hashes">
+        <caption class="sr-only">{% trans filename=file.filename %}Hashes for {{ filename }}{% endtrans %}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{% trans %}Algorithm{% endtrans %}</th>
+            <th scope="col">{% trans %}Hash digest{% endtrans %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">SHA256</th>
+            <td><code>{{ file.sha256_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.sha256_digest }}">
+                {% trans %}Copy{% endtrans %}
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">MD5</th>
+            <td><code>{{ file.md5_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.md5_digest }}">
+                {% trans %}Copy{% endtrans %}
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">BLAKE2-256</th>
+            <td><code>{{ file.blake2_256_digest }}</code></td>
+            <td class="table__align-right">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.blake2_256_digest }}">
+                {% trans %}Copy{% endtrans %}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal__footer">
+      <a href="#modal-close" class="button button--primary modal__action">{% trans %}Close{% endtrans %}</a>
+    </div>
+  </div>
+</div>

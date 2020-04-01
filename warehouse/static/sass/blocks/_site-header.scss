@@ -33,6 +33,8 @@
     padding: ($spacing-unit / 2) 0;
     max-width: 65px;
     float: left;
+    @include link-without-underline;
+    @include link-focus-state($white);
 
     @media screen and (max-width: $small-tablet) {
       max-width: 50px;

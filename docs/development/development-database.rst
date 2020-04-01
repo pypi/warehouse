@@ -1,10 +1,10 @@
 Updating Development Database
 =============================
 
-Occassionally, the database dump supplied for local development should be
+Occasionally, the database dump supplied for local development should be
 refreshed.
 
-This dump is created from the database behind test.pypi.org, not prodution.
+This dump is created from the database behind test.pypi.org, not production.
 
 Use ``pg_dump`` to create the initial file::
 

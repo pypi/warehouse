@@ -41,7 +41,7 @@ def test_cli_no_settings(monkeypatch, cli):
     def cli_test_command(obj):
         assert obj is config
 
-    result = cli.invoke(warehouse.cli.warehouse, ["cli_test_command"])
+    result = cli.invoke(warehouse.cli.warehouse, ["cli-test-command"])
 
     assert result.exit_code == 0
     assert configure.calls == [pretend.call()]

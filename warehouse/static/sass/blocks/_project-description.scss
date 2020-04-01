@@ -48,6 +48,10 @@
     margin-top: $spacing-unit;
   }
 
+  a > img {
+    background-color: #fff;
+  }
+
   // Remove top margin on elements at the top of the description
   > div:first-child > *:first-child,
   > *:first-child,
@@ -149,8 +153,44 @@
   }
 
   table {
-    @include table;
+    @include card;
+    @include border-width(1px null);
+    border-collapse: collapse;
+    border-spacing: 0;
+    text-align: left;
+    width: 100%;
     margin: $spacing-unit 0 0;
+
+    tr {
+      border-bottom: 1px solid $border-color;
+    }
+
+    th,
+    td {
+      margin: 0;
+      border: 0;
+      padding: 10px 7px;
+      border-right: 1px solid $border-color;
+    }
+
+    thead tr {
+      background-color: $white;
+
+      th {
+        vertical-align: bottom;
+        font-weight: $bold-font-weight;
+      }
+    }
+
+    tbody {
+      tr {
+        background-color: darken($background-color, 0.75);
+      }
+
+      tr:nth-child(even) {
+        background-color: darken($background-color, 2);
+      }
+    }
   }
 
   hr {
@@ -162,6 +202,34 @@
   > a  {
     margin-top: $spacing-unit / 2;
   }
+
+  img.align-left,
+  .figure.align-left,
+  object.align-left {
+    clear: left;
+    float: left;
+    margin-top: $spacing-unit / 2;
+    margin-right: $spacing-unit / 2;
+  }
+
+  img.align-right,
+  .figure.align-right,
+  object.align-right {
+    clear: right;
+    float: right;
+    margin-top: $spacing-unit / 2;
+    margin-left: $spacing-unit / 2;
+  }
+
+  img.align-center,
+  .figure.align-center,
+  object.align-center {
+    display: block;
+    margin-top: $spacing-unit / 2;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
 }
 
 
@@ -194,8 +262,7 @@ $black:         #000;
   }
 
   .k { /* Keyword */
-    color: $green;
-    font-weight: bold;
+    color: $darkest-blue;
   }
 
   .cm { /* Comment.Multiline */
@@ -204,7 +271,6 @@ $black:         #000;
 
   .cp { /* Comment.Preproc */
     color: $dark-red;
-    font-weight: bold;
   }
 
   .c1 {/* Comment.Single */
@@ -213,7 +279,6 @@ $black:         #000;
 
   .cs { /* Comment.Special */
     color: $dark-red;
-    font-weight: bold;
   }
 
   .gd { /* Generic.Deleted */
@@ -244,10 +309,6 @@ $black:         #000;
     color: $mid-grey;
   }
 
-  .gs { /* Generic.Strong */
-    font-weight: bold;
-  }
-
   .gu { /* Generic.Subheading */
     color: $mid-grey;
   }
@@ -258,17 +319,14 @@ $black:         #000;
 
   .kc { /* Keyword.Constant */
     color: $green;
-    font-weight: bold;
   }
 
   .kd { /* Keyword.Declaration */
     color: $green;
-    font-weight: bold;
   }
 
   .kn { /* Keyword.Namespace */
-    color: $green;
-    font-weight: bold;
+    color: $darkest-blue;
   }
 
   .kp {  /* Keyword.Pseudo */
@@ -277,17 +335,14 @@ $black:         #000;
 
   .kr { /* Keyword.Reserved */
     color: $green;
-    font-weight: bold;
   }
 
   .kt { /* Keyword.Type */
     color: $light-grey;
-    font-weight: bold;
   }
 
   .m { /* Literal.Number */
     color: $blue;
-    font-weight: bold;
   }
 
   .s { /* Literal.String */
@@ -304,12 +359,10 @@ $black:         #000;
 
   .nc { /* Name.Class */
     color: $purple;
-    font-weight: bold;
   }
 
   .no { /* Name.Constant */
     color: $darkest-blue;
-    font-weight: bold;
   }
 
   .nd { /* Name.Decorator */
@@ -318,12 +371,10 @@ $black:         #000;
 
   .ne { /* Name.Exception */
     color: $purple;
-    font-weight: bold;
   }
 
   .nf { /* Name.Function */
     color: $blue;
-    font-weight: bold;
   }
 
   .nl { /* Name.Label */
@@ -333,17 +384,14 @@ $black:         #000;
 
   .nn { /* Name.Namespace */
     color: $purple;
-    font-weight: bold;
   }
 
   .py { /* Name.Property */
     color: $light-blue;
-    font-weight: bold;
   }
 
   .nt { /* Name.Tag */
     color: $purple;
-    font-weight: bold;
   }
 
   .nv { /* Name.Variable */
@@ -360,22 +408,18 @@ $black:         #000;
 
   .mf { /* Literal.Number.Float */
     color: $blue;
-    font-weight: bold;
   }
 
   .mh { /* Literal.Number.Hex */
     color: $blue;
-    font-weight: bold;
   }
 
   .mi { /* Literal.Number.Integer */
-    color: $blue;
-    font-weight: bold;
+    color: $green;
   }
 
   .mo { /* Literal.Number.Oct */
     color: $blue;
-    font-weight: bold;
   }
 
   .sb { /* Literal.String.Backtick */
@@ -440,6 +484,5 @@ $black:         #000;
 
   .il { /* Literal.Number.Integer.Long */
     color: $blue;
-    font-weight: bold;
   }
 }

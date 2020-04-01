@@ -14,8 +14,12 @@
 
 <div class="callout-block no-top-margin">
   {% if user.id == request.user.id %}
-  <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/">Python Packaging User Guide</a></p>
+  <p>
+    {% trans trimmed href='https://packaging.python.org/', title=gettext('External link') %}
+      You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>
+    {% endtrans %}
+  </p>
   {% else %}
-  <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet.</p>
+  <p>{% trans username=user.name|default(user.username, true) %}{{ username }} has not uploaded any projects to PyPI, yet.{% endtrans %}</p>
   {% endif %}
 </div>

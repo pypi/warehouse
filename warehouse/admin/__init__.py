@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.utils.static import ManifestCacheBuster
+
 
 def includeme(config):
     from warehouse.accounts.views import login, logout
@@ -18,8 +20,25 @@ def includeme(config):
     config.add_jinja2_search_path("templates", name=".html")
 
     # Setup our static assets
+    prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)
     config.add_static_view(
-        "admin/static", "warehouse.admin:static/dist", cache_max_age=0
+        "admin/static",
+        "warehouse.admin:static/dist",
+        # Don't cache at all if prevent_http_cache is true, else we'll cache
+        # the files for 10 years.
+        cache_max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+    )
+    config.add_cache_buster(
+        "warehouse.admin:static/dist/",
+        ManifestCacheBuster(
+            "warehouse.admin:static/dist/manifest.json",
+            reload=config.registry.settings["pyramid.reload_assets"],
+            strict=not prevent_http_cache,
+        ),
+    )
+    config.whitenoise_add_files("warehouse.admin:static/dist/", prefix="/admin/static/")
+    config.whitenoise_add_manifest(
+        "warehouse.admin:static/dist/manifest.json", prefix="/admin/static/"
     )
 
     # Add our routes
@@ -35,6 +54,7 @@ def includeme(config):
         uses_session=True,
         require_csrf=True,
         require_methods=False,
+        has_translations=True,
     )
     config.add_view(
         logout,
@@ -43,4 +63,5 @@ def includeme(config):
         uses_session=True,
         require_csrf=True,
         require_methods=False,
+        has_translations=True,
     )

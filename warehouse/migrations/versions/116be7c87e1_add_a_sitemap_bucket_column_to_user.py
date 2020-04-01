@@ -17,9 +17,9 @@ Revises: 5345b1bc8b9
 Create Date: 2015-09-06 20:28:24.073366
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "116be7c87e1"
 down_revision = "5345b1bc8b9"

@@ -23,18 +23,29 @@ def includeme(config):
 
     # Internal route to make it easier to force a particular status for
     # debugging HTTPException templates.
-    config.add_route("force-status", "/_force-status/{status:[45]\d\d}/")
+    config.add_route("force-status", r"/_force-status/{status:[45]\d\d}/")
 
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
+    config.add_route("locale", "/locale/", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
-    config.add_template_view("help", "/help/", "pages/help.html")
-    config.add_template_view("security", "/security/", "pages/security.html")
+    config.add_template_view(
+        "sitemap", "/sitemap/", "pages/sitemap.html", view_kw={"has_translations": True}
+    )
+    config.add_template_view(
+        "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+    )
+    config.add_template_view(
+        "security",
+        "/security/",
+        "pages/security.html",
+        view_kw={"has_translations": True},
+    )
     config.add_template_view("credits", "/credits/", "templates/pages/credits.html")
     config.add_template_view(
         "sponsors",
@@ -42,6 +53,7 @@ def includeme(config):
         # Use the full resource path here to make it able to be overridden by
         # pypi-theme.
         "warehouse:templates/pages/sponsors.html",
+        view_kw={"has_translations": True},
     )
 
     # Our legal policies
@@ -55,6 +67,11 @@ def includeme(config):
     )
     config.add_route(
         "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
+    )
+    config.add_route(
+        "includes.session-notifications",
+        "/_includes/session-notifications/",
+        domain=warehouse,
     )
     config.add_route(
         "includes.current-user-profile-callout",
@@ -77,12 +94,25 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.profile-public-email",
+        "/_includes/profile-public-email/{username}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
+
+    # Stats Routes
+    config.add_route("stats", "/stats/", accept="text/html", domain=warehouse)
+    config.add_route(
+        "stats.json", "/stats/", accept="application/json", domain=warehouse
+    )
 
     # Accounts
     config.add_route(
@@ -93,6 +123,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("accounts.login", "/account/login/", domain=warehouse)
+    config.add_route("accounts.two-factor", "/account/two-factor/", domain=warehouse)
+    config.add_route(
+        "accounts.webauthn-authenticate.options",
+        "/account/webauthn-authenticate/options",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.webauthn-authenticate.validate",
+        "/account/webauthn-authenticate/validate",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.recovery-code", "/account/recovery-code/", domain=warehouse,
+    )
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route("accounts.register", "/account/register/", domain=warehouse)
     config.add_route(
@@ -109,6 +153,47 @@ def includeme(config):
 
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
+    config.add_route(
+        "manage.account.totp-provision",
+        "/manage/account/totp-provision",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.totp-provision.image",
+        "/manage/account/totp-provision/image",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.webauthn-provision",
+        "/manage/account/webauthn-provision",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.webauthn-provision.options",
+        "/manage/account/webauthn-provision/options",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.webauthn-provision.validate",
+        "/manage/account/webauthn-provision/validate",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.webauthn-provision.delete",
+        "/manage/account/webauthn-provision/delete",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.recovery-codes.generate",
+        "/manage/account/recovery-codes/generate",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.recovery-codes.regenerate",
+        "/manage/account/recovery-codes/regenerate",
+        domain=warehouse,
+    )
+    config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",
@@ -180,6 +265,13 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.project.journal",
+        "/manage/project/{project_name}/journal/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Packaging
     config.add_redirect("/p/{name}/", "/project/{name}/", domain=warehouse)
@@ -216,6 +308,7 @@ def includeme(config):
         read_only=True,
         domain=warehouse,
     )
+
     config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
@@ -225,8 +318,25 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "legacy.api.json.project_slash",
+        "/pypi/{name}/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/{version}",
+        read_only=True,
+        domain=warehouse,
+    )
+    config.add_route(
+        "legacy.api.json.release_slash",
+        "/pypi/{name}/{version}/json/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
         read_only=True,

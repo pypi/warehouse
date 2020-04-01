@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+
 import redis
 
 from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError
@@ -45,13 +46,13 @@ class RedisLru(object):
             self.metric_reporter = StubMetricReporter()
 
     def format_key(self, func_name, tag):
-        if tag is not None:
+        if tag is not None and tag != "None":
             return ":".join([self.name, tag, func_name])
         return ":".join([self.name, "tag", func_name])
 
     def get(self, func_name, key, tag):
         try:
-            value = self.conn.hget(self.format_key(func_name, tag), key)
+            value = self.conn.hget(self.format_key(func_name, tag), str(key))
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
             self.metric_reporter.increment(f"{self.name}.cache.error")
             return None
@@ -64,7 +65,7 @@ class RedisLru(object):
         try:
             self.metric_reporter.increment(f"{self.name}.cache.miss")
             pipeline = self.conn.pipeline()
-            pipeline.hset(self.format_key(func_name, tag), key, json.dumps(value))
+            pipeline.hset(self.format_key(func_name, tag), str(key), json.dumps(value))
             ttl = expires if expires else self.expires
             pipeline.expire(self.format_key(func_name, tag), ttl)
             pipeline.execute()
@@ -75,7 +76,7 @@ class RedisLru(object):
 
     def purge(self, tag):
         try:
-            keys = self.conn.scan_iter(":".join([self.name, tag, "*"]))
+            keys = self.conn.scan_iter(":".join([self.name, tag, "*"]), count=1000)
             pipeline = self.conn.pipeline()
             for key in keys:
                 pipeline.delete(key)
@@ -86,6 +87,6 @@ class RedisLru(object):
             raise CacheError()
 
     def fetch(self, func, args, kwargs, key, tag, expires):
-        return self.get(func.__name__, key, tag) or self.add(
-            func.__name__, key, func(*args, **kwargs), tag, expires
+        return self.get(func.__name__, str(key), str(tag)) or self.add(
+            func.__name__, str(key), func(*args, **kwargs), str(tag), expires
         )

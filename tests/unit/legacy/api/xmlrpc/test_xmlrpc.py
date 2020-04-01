@@ -12,6 +12,7 @@
 
 import datetime
 
+import elasticsearch
 import pretend
 import pytest
 
@@ -20,16 +21,16 @@ from warehouse.packaging.models import Classifier
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
+    FileFactory,
+    JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
-    JournalEntryFactory,
 )
 
 
 class TestSearch:
-    def test_fails_with_invalid_operator(self, pyramid_request):
+    def test_fails_with_invalid_operator(self, pyramid_request, metrics):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pyramid_request, {}, "lol nope")
 
@@ -37,19 +38,9 @@ class TestSearch:
             exc.value.faultString
             == "ValueError: Invalid operator, must be one of 'and' or 'or'."
         )
-        assert pyramid_request.registry.datadog.histogram.calls == []
+        assert metrics.histogram.calls == []
 
-    def test_fails_if_spec_not_mapping(self, pyramid_request):
-        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.search(pyramid_request, "a string")
-
-        assert (
-            exc.value.faultString
-            == "TypeError: Invalid spec, must be a mapping/dictionary."
-        )
-        assert pyramid_request.registry.datadog.histogram.calls == []
-
-    def test_default_search_operator(self, pyramid_request):
+    def test_default_search_operator(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -110,11 +101,13 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_default_search_operator_with_spaces_in_values(self, pyramid_request):
+    def test_default_search_operator_with_spaces_in_values(
+        self, pyramid_request, metrics
+    ):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -180,11 +173,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_searches_with_and(self, pyramid_request):
+    def test_searches_with_and(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -245,11 +238,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_searches_with_or(self, pyramid_request):
+    def test_searches_with_or(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, should):
                 self.type = type
@@ -310,11 +303,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_version_search(self, pyramid_request):
+    def test_version_search(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -368,11 +361,11 @@ class TestSearch:
                 "version": "1.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_version_search_returns_latest(self, pyramid_request):
+    def test_version_search_returns_latest(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -423,9 +416,30 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
+
+    def test_version_search_wraps_connection_error(self, pyramid_request, metrics):
+        class FakeQuery:
+            def __init__(self, type, must):
+                pass
+
+            def __getitem__(self, name):
+                return self
+
+            def execute(self):
+                raise elasticsearch.TransportError()
+
+        pyramid_request.es = pretend.stub(query=FakeQuery)
+
+        with pytest.raises(xmlrpc.XMLRPCServiceUnavailable):
+            xmlrpc.search(pyramid_request, {"name": "foo"}, "and")
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.xmlrpc.search.error")
+        ]
+        assert metrics.histogram.calls == []
 
 
 def test_list_packages(db_request):
@@ -446,12 +460,12 @@ def test_list_packages_with_serial(db_request):
 
 
 def test_package_hosting_mode_shows_none(db_request):
-    assert xmlrpc.package_hosting_mode(db_request, "nope") is None
+    assert xmlrpc.package_hosting_mode(db_request, "nope") == "pypi-only"
 
 
 def test_package_hosting_mode_results(db_request):
-    project = ProjectFactory.create(hosting_mode="pypi-explicit")
-    assert xmlrpc.package_hosting_mode(db_request, project.name) == "pypi-explicit"
+    project = ProjectFactory.create()
+    assert xmlrpc.package_hosting_mode(db_request, project.name) == "pypi-only"
 
 
 def test_user_packages(db_request):
@@ -578,8 +592,8 @@ def test_release_data(db_request):
     assert xmlrpc.release_data(db_request, project.name, release.version) == {
         "name": release.project.name,
         "version": release.version,
-        "stable_version": release.project.stable_version,
-        "bugtrack_url": release.project.bugtrack_url,
+        "stable_version": None,
+        "bugtrack_url": None,
         "package_url": urls[0],
         "release_url": urls[1],
         "docs_url": release.project.documentation_url,
@@ -591,7 +605,7 @@ def test_release_data(db_request):
         "maintainer": release.maintainer,
         "maintainer_email": release.maintainer_email,
         "summary": release.summary,
-        "description": release.description,
+        "description": release.description.raw,
         "license": release.license,
         "keywords": release.keywords,
         "platform": release.platform,
@@ -605,7 +619,6 @@ def test_release_data(db_request):
         "requires_python": release.requires_python,
         "requires_external": list(release.requires_external),
         "_pypi_ordering": release._pypi_ordering,
-        "_pypi_hidden": release._pypi_hidden,
         "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
         "cheesecake_code_kwalitee_id": None,
         "cheesecake_documentation_id": None,
@@ -641,6 +654,7 @@ def test_release_urls(db_request):
             "digests": {"md5": file_.md5_digest, "sha256": file_.sha256_digest},
             "has_sig": file_.has_signature,
             "upload_time": file_.upload_time.isoformat() + "Z",
+            "upload_time_iso_8601": file_.upload_time.isoformat() + "Z",
             "comment_text": file_.comment_text,
             "downloads": -1,
             "path": file_.path,
@@ -772,7 +786,7 @@ def test_browse(db_request):
     expected_release._classifiers = classifiers
 
     assert set(xmlrpc.browse(db_request, ["Environment :: Other Environment"])) == {
-        (r.name, r.version) for r in releases
+        (r.project.name, r.version) for r in releases
     }
     assert set(
         xmlrpc.browse(
@@ -782,7 +796,7 @@ def test_browse(db_request):
                 "Development Status :: 5 - Production/Stable",
             ],
         )
-    ) == {(expected_release.name, expected_release.version)}
+    ) == {(expected_release.project.name, expected_release.version)}
     assert set(
         xmlrpc.browse(
             db_request,
@@ -792,7 +806,7 @@ def test_browse(db_request):
                 "Programming Language :: Python",
             ],
         )
-    ) == {(expected_release.name, expected_release.version)}
+    ) == {(expected_release.project.name, expected_release.version)}
     assert set(
         xmlrpc.browse(
             db_request,
@@ -801,7 +815,7 @@ def test_browse(db_request):
                 "Programming Language :: Python",
             ],
         )
-    ) == {(expected_release.name, expected_release.version)}
+    ) == {(expected_release.project.name, expected_release.version)}
 
 
 def test_multicall(pyramid_request):
@@ -812,3 +826,10 @@ def test_multicall(pyramid_request):
         "ValueError: MultiCall requests have been deprecated, use individual "
         "requests instead."
     )
+
+
+@pytest.mark.parametrize(
+    "string, expected", [("Hello…", "Hello&#8230;"), ("Stripe\x1b", "Stripe")]
+)
+def test_clean_for_xml(string, expected):
+    assert xmlrpc._clean_for_xml(string) == expected

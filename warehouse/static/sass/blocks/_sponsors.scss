@@ -36,7 +36,6 @@
 
   &__title {
     display: none;
-    font-style: italic;
     padding-bottom: 10px;
     margin-bottom: 10px;
     border-bottom: 1px solid transparentize($white, 0.8);
@@ -52,10 +51,10 @@
     text-align: center;
     padding: ($spacing-unit / 2) 13px 10px 13px;
     opacity: 0.95;
-    text-decoration: none;
+    @include link-without-underline;
+    @include link-focus-state($white);
 
     &:hover {
-      text-decoration: none;
       opacity: 1;
 
       .sponsors__image {
@@ -85,7 +84,7 @@
   &__service {
     max-width: 100px;
     display: block;
-    font-size: 13px;
+    font-size: 0.75rem;
     color: $white;
   }
 
@@ -100,7 +99,6 @@
   }
 
   &__service {
-    font-style: italic;
 
     @media only screen and (max-width: $small-tablet) {
       display: none;

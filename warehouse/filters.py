@@ -22,8 +22,8 @@ import html5lib
 import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
-
 import packaging.version
+import pytz
 
 from pyramid.threadlocal import get_current_request
 
@@ -132,7 +132,7 @@ def format_classifiers(classifiers):
         if value:
             structured[key].append(value[0])
 
-    # Go thorugh and ensure that all of the lists in our classifiers are in
+    # Go through and ensure that all of the lists in our classifiers are in
     # sorted order.
     structured = {k: sorted(v) for k, v in structured.items()}
 
@@ -144,6 +144,10 @@ def format_classifiers(classifiers):
     return structured
 
 
+def classifier_id(classifier):
+    return classifier.replace(" ", "_").replace("::", ".")
+
+
 def contains_valid_uris(items):
     """Returns boolean representing whether the input list contains any valid
     URIs
@@ -153,6 +157,10 @@ def contains_valid_uris(items):
 
 def parse_version(version_str):
     return packaging.version.parse(version_str)
+
+
+def localize_datetime(timestamp):
+    return pytz.utc.localize(timestamp)
 
 
 def includeme(config):

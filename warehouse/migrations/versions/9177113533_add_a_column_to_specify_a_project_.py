@@ -17,9 +17,9 @@ Revises: 10cb17aea73
 Create Date: 2015-09-04 21:06:59.950947
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "9177113533"
 down_revision = "10cb17aea73"

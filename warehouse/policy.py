@@ -18,7 +18,6 @@ import mistune
 
 import warehouse
 
-
 DEFAULT_POLICY_DIRECTORY = os.path.abspath(
     os.path.join(os.path.dirname(os.path.dirname(warehouse.__file__)), "policies")
 )
@@ -51,6 +50,7 @@ def add_policy_view(config, name, filename):
         markdown_view_factory(filename=filename),
         route_name="policy.{}".format(name),
         renderer="policy.html",
+        has_translations=True,
     )
 
 

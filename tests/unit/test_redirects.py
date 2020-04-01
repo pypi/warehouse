@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 
 from warehouse import redirects
 

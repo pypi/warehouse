@@ -17,13 +17,13 @@ from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
-from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.models import File, Project, Release, Role
-from warehouse.packaging.tasks import compute_trending
+from warehouse.packaging.tasks import compute_trending, update_description_html
 
 
 @pytest.mark.parametrize("with_trending", [True, False])
-def test_includme(monkeypatch, with_trending):
+def test_includeme(monkeypatch, with_trending):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -106,5 +106,10 @@ def test_includme(monkeypatch, with_trending):
 
     if with_trending:
         assert config.add_periodic_task.calls == [
-            pretend.call(crontab(minute=0, hour=3), compute_trending)
+            pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute=0, hour=3), compute_trending),
+        ]
+    else:
+        assert config.add_periodic_task.calls == [
+            pretend.call(crontab(minute="*/5"), update_description_html)
         ]

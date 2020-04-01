@@ -12,6 +12,7 @@
 
 import pretend
 import pytest
+import sqlalchemy
 
 from warehouse.admin.views import classifiers as views
 from warehouse.classifiers.models import Classifier
@@ -79,6 +80,44 @@ class TestAddClassifier:
         assert new.l3 == 0
         assert new.l4 == 0
         assert new.l5 == 0
+
+    @pytest.mark.parametrize(
+        "parent_classifier, parent_levels, expected_levels",
+        [
+            ("private", (2, 0, 0, 0), (2, None, 0, 0)),
+            ("private", (2, 3, 0, 0), (2, 3, None, 0)),
+            ("private", (2, 3, 4, 0), (2, 3, 4, None)),
+            ("Private", (2, 0, 0, 0), (2, None, 0, 0)),
+            ("Private", (2, 3, 0, 0), (2, 3, None, 0)),
+            ("Private", (2, 3, 4, 0), (2, 3, 4, None)),
+            ("PrIvAtE", (2, 0, 0, 0), (2, None, 0, 0)),
+            ("PrIvAtE", (2, 3, 0, 0), (2, 3, None, 0)),
+            ("PrIvAtE", (2, 3, 4, 0), (2, 3, 4, None)),
+        ],
+    )
+    def test_add_private_child_classifier(
+        self, db_request, parent_classifier, parent_levels, expected_levels
+    ):
+        l2, l3, l4, l5 = parent_levels
+        parent = ClassifierFactory(
+            l2=l2, l3=l3, l4=l4, l5=l5, classifier=parent_classifier
+        )
+
+        db_request.params = {"parent_id": parent.id, "child": "Foobar"}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: "/the/path"
+
+        with pytest.raises(sqlalchemy.exc.IntegrityError):
+            views.AddClassifier(db_request).add_child_classifier()
+
+    @pytest.mark.parametrize("parent_classifier", ["private", "Private", "PrIvAtE"])
+    def test_add_private_parent_classifier(self, db_request, parent_classifier):
+        db_request.params = {"parent": f"{parent_classifier} :: Do Not Upload"}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: "/the/path"
+
+        with pytest.raises(sqlalchemy.exc.IntegrityError):
+            views.AddClassifier(db_request).add_parent_classifier()
 
 
 class TestDeprecateClassifier:

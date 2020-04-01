@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from datetime import datetime
 
 try:
     import sphinx_rtd_theme
@@ -21,10 +22,6 @@ except ImportError:
 
 
 base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-
-about = {}
-with open(os.path.join(base_dir, "warehouse", "__about__.py")) as f:
-    exec(f.read(), about)
 
 # -- General configuration ------------------------------------------------
 
@@ -48,12 +45,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Warehouse"
-copyright = about["__copyright__"]
-
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-version = release = about["__version__"]
+copyright = str(datetime.now().year)
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

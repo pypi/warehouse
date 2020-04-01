@@ -23,11 +23,11 @@ from warehouse.packaging.models import BlacklistedProject, Project
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
+    BlacklistedProjectFactory,
+    FileFactory,
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
-    FileFactory,
-    BlacklistedProjectFactory,
 )
 
 
@@ -149,6 +149,29 @@ class TestAddBlacklist:
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
+    def test_already_existing_blacklist(self, db_request):
+        blacklist = BlacklistedProjectFactory.create()
+
+        db_request.db.expire_all()
+        db_request.user = UserFactory.create()
+        db_request.POST["project"] = blacklist.name
+        db_request.POST["confirm"] = blacklist.name
+        db_request.POST["comment"] = "This is a comment"
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = lambda a: "/admin/blacklist/"
+
+        result = views.add_blacklist(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"{blacklist.name!r} has already been blacklisted.", queue="error"
+            )
+        ]
+        assert result.status_code == 303
+        assert result.headers["Location"] == "/admin/blacklist/"
+
     def test_adds_blacklist(self, db_request):
         db_request.user = UserFactory.create()
         db_request.POST["project"] = "foo"
@@ -188,9 +211,7 @@ class TestAddBlacklist:
 
         project = ProjectFactory.create(name="foo")
         release = ReleaseFactory.create(project=project)
-        FileFactory.create(
-            name=project.name, version=release.version, filename="who cares"
-        )
+        FileFactory.create(release=release, filename="who cares")
         RoleFactory.create(project=project, user=db_request.user)
 
         views.add_blacklist(db_request)

@@ -17,9 +17,9 @@ Revises: 3d2b8a42219a
 Create Date: 2016-09-15 04:12:53.430363
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "be4cf6b58557"
 down_revision = "3d2b8a42219a"

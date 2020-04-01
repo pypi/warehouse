@@ -20,27 +20,23 @@
     - shown over other content after being launched by a button
 
   <div class="filter-panel">
-    <a class="filter-panel__close">
-      // close button
-    </a>
+    <button type="button" class="filter-panel__close -js-close-panel" aria-label="Close panel">
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </button>
     // Panel content here
   </div>
 */
 
 .filter-panel {
-
   &__close {
     display: none;
-    border: 0;
-    color: $white;
-    background: transparent;
   }
 
   @media only screen and (max-width: $desktop) {
     display: none;
     margin: 0;
     padding: 25px;
-    overflow: scroll;
+    overflow: auto;
     position: fixed;
     height: 100%;
     top: 0;
@@ -50,19 +46,22 @@
     max-width: 100%;
     z-index: index($z-index-scale, "filter-panel");
 
+    &__close {
+      display: inline-block;
+      @include dismiss-button;
+      color: $white;
+      @include link-focus-state($white);
+    }
+
     h2,
     label,
     a {
       color: $white;
     }
 
-    &__close {
-      display: inline-block;
-      position: absolute;
-      padding: 10px ($spacing-unit / 2);
-      top: 0;
-      right: 0;
-      cursor: pointer;
+    a {
+      color: $white;
+      @include white-underlined-link;
     }
   }
 }

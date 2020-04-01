@@ -10,8 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import BigInteger, Column, Text
-from sqlalchemy import sql
+from sqlalchemy import BigInteger, Column, Text, sql
 
 from warehouse import db
 

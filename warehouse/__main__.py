@@ -14,6 +14,5 @@ import sys
 
 from warehouse.cli import warehouse
 
-
 if __name__ == "__main__":
     sys.exit(warehouse())

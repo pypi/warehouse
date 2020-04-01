@@ -33,11 +33,26 @@ Detailed installation instructions
 
 Getting the Warehouse source code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Clone the Warehouse repository from `GitHub`_:
+`Fork <https://help.github.com/articles/fork-a-repo/>`_ the repository
+on `GitHub`_ and
+`clone <https://help.github.com/articles/cloning-a-repository/>`_ it to
+your local machine:
 
 .. code-block:: console
 
-    git clone git@github.com:pypa/warehouse.git
+    git clone git@github.com:YOUR-USERNAME/warehouse.git
+
+Add a `remote
+<https://help.github.com/articles/configuring-a-remote-for-a-fork/>`_ and
+regularly `sync <https://help.github.com/articles/syncing-a-fork/>`_ to make sure
+you stay up-to-date with our repository:
+
+.. code-block:: console
+
+    git remote add upstream https://github.com/pypa/warehouse.git
+    git checkout master
+    git fetch upstream
+    git merge upstream/master
 
 
 Configure the development environment
@@ -95,7 +110,7 @@ Verifying Docker Compose installation
 Check that Docker Compose is installed: ``docker-compose -v``
 
 
-Verifying the neccessary ports are available
+Verifying the necessary ports are available
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Warehouse needs access to a few local ports in order to run, namely ports
@@ -106,7 +121,7 @@ For example, checking port ``80``:
 
 .. code-block:: console
 
-    lsof -i:80 | grep LISTEN
+    sudo lsof -i:80 | grep LISTEN
 
 If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
@@ -124,30 +139,79 @@ Once you have Docker and Docker Compose installed, run:
 
 in the repository root directory.
 
-This will pull down all of the required docker containers, build
-Warehouse and run all of the needed services. The Warehouse repository will be
-mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
+This will pull down all of the required docker containers, build Warehouse and
+run all of the needed services. The Warehouse repository will be mounted inside
+the Docker container at :file:`/opt/warehouse/src/`. After the initial build,
+you should not have to run this command again.
 
+
+.. _running-warehouse-containers:
 
 Running the Warehouse container and services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You have to start the Docker services that make up the Warehouse
-application. These need ~4 GB of RAM dedicated to Docker to work. This is more
-than the default setting of the Docker Engine of 2 GB. Thus, you need to
-increase the memory allocated to Docker in
-`Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_ (on Mac)
-or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
-(on Windows) by moving the slider to 4 GB in the GUI.
+application.
 
-Then, in a terminal run the command:
+.. tip::
+
+   These services need ~4 GB of RAM dedicated to Docker to work. This is more
+   than the default setting of the Docker Engine of 2 GB. Thus, you
+   need to increase the memory allocated to Docker in
+   `Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_
+   (on Mac) or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
+   (on Windows) by moving the slider to 4 GB in the GUI.
+
+   If you are using Linux, you may need to configure the maximum map count to get
+   the `elasticsearch` up and running. According to the
+   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
+   this can be set temporarily:
+
+   .. code-block:: console
+
+       # sysctl -w vm.max_map_count=262144
+
+   or permanently by modifying the ``vm.max_map_count`` setting in your
+   :file:`/etc/sysctl.conf`.
+
+   Also check that you have more than 5% disk space free, otherwise
+   elasticsearch will become read only. See ``flood_stage`` in the
+   `elasticsearch disk allocation docs
+   <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/disk-allocator.html>`_.
+
+
+Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
     make serve
 
-This command will produce output for a while, and will not exit. While it runs,
-open a second terminal, and run:
+This command starts the containers that run Warehouse on your local machine.
+After the initial build process, you will only need this command each time you
+want to startup Warehouse locally.
+
+``make serve`` will produce output for a while, and will not exit. Eventually
+the output will cease, and you will see a log message indicating that either
+the ``web`` service has started listening:
+
+.. code-block:: console
+
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
+    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
+
+or that the ``static`` container has finished compiling the static assets:
+
+.. code-block:: console
+
+    static_1 | [20:28:37] Starting 'dist:compress'...
+    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
+    static_1 | [20:28:37] Finished 'dist' after 43 s
+    static_1 | [20:28:37] Starting 'watch'...
+    static_1 | [20:28:37] Finished 'watch' after 11 ms
+
+After the docker containers are setup in the previous step, run:
 
 .. code-block:: console
 
@@ -172,28 +236,7 @@ Once the ``make initdb`` command has finished, you are ready to continue.
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Eventually the output of the ``make serve`` command will cease, and you will
-see a log message indicating that either the ``web`` service has started
-listening:
-
-.. code-block:: console
-
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
-    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
-    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
-
-or that the ``static`` container has finished compiling the static assets:
-
-.. code-block:: console
-
-    static_1 | [20:28:37] Starting 'dist:compress'...
-    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
-    static_1 | [20:28:37] Finished 'dist' after 43 s
-    static_1 | [20:28:37] Starting 'watch'...
-    static_1 | [20:28:37] Finished 'watch' after 11 ms
-
-This means that all the services are up, and web container is listening on port
+At this point all the services are up, and web container is listening on port
 80. It's accessible at http://localhost:80/.
 
 .. note::
@@ -202,6 +245,16 @@ This means that all the services are up, and web container is listening on port
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
+
+.. note::
+
+    In development mode, the official logos are replaced with placeholders due to
+    copyright.
+
+    On Firefox, the logos might show up as black rectangles due to  the
+    *Content Security Policy* used and an implementation bug in Firefox (see
+    `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
+    for more info).
 
 
 Logging in to Warehouse
@@ -260,6 +313,16 @@ into a shell, you can use ``make debug`` instead of ``make serve``.
 Troubleshooting
 ---------------
 
+Errors when executing ``make build``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If you are using Ubuntu and ``invalid reference format`` error is displayed,
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+
+.. code-block:: console
+
+    snap install docker
+
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -278,6 +341,29 @@ Errors when executing ``make serve``
   ``make serve`` has been executed, shut down the Docker containers. When the
   containers have shut down, run ``make serve`` in one terminal window while
   running ``make initdb`` in a separate terminal window.
+
+Errors when executing ``make purge``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If ``make purge`` fails with a permission error, check ownership
+  and permissions on ``warehouse/static``. ``docker-compose`` is spawning
+  containers with docker. Generally on Linux that process is running as root.
+  So when it writes files back to the file system as the static container
+  does those are owned by root. So your docker daemon would be running as root,
+  so your user doesn't have permission to remove the files written by the
+  containers. ``sudo make purge`` will work.
+
+Errors when executing ``make initdb``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If ``make initdb`` fails with a timeout like::
+
+    urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPConnection object at 0x8beca733c3c8>, 'Connection to elasticsearch timed out. (connect timeout=30)')
+
+  you might need to increase the amount of memory allocated to docker, since
+  elasticsearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
+  Refer to the tip under :ref:`running-warehouse-containers` section for more details.
+
 
 "no space left on device" when using ``docker-compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -313,6 +399,48 @@ If you do not need the data in your databases, it might be best to just blow
 away your builds + ``docker`` containers and start again:
 ``make purge``
 ``docker volume rm $(docker volume ls -q --filter dangling=true)``
+
+
+Compilation errors in non-Docker development
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+While Warehouse is designed to be developed in using Docker, you may
+have tried to install Warehouse's requirements in your
+system or virtual environment. This is discouraged as it can result in
+compilation errors due to your system not including libraries
+or binaries required by some of Warehouse's dependencies.
+
+An example of such dependency is
+`psycopg2 <http://initd.org/psycopg/docs/install.html#prerequisites>`_
+which requires PostgreSQL binaries and will fail if not present.
+
+If there's a specific use case you think requires development outside
+Docker please raise an issue in
+`Warehouse's issue tracker <https://github.com/pypa/warehouse/issues>`_.
+
+
+Disabling services locally
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some services, such as Elasticsearch, consume a lot of resources when running
+locally, but might not always be necessary when doing local development.
+
+To disable these locally, you can create a ``docker-compose.override.yaml``
+file to override any settings in the ``docker-compose.yaml`` file. To
+individually disable services, modify their entrypoint to do something else:
+
+.. code-block:: yaml
+
+    version: "3"
+
+    services:
+      elasticsearch:
+        entrypoint: ["echo", "Elasticsearch disabled"]
+
+Note that disabling services might cause things to fail in unexpected ways.
+
+This file is ignored in Warehouse's ``.gitignore`` file, so it's safe to keep
+in the root of your local repo.
 
 
 Docker and Windows Subsystem for Linux Quirks
@@ -417,16 +545,6 @@ To run all tests, in the root of the repository:
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
 
-.. tip::
-   Currently, running ``make tests`` from a clean checkout of
-   Warehouse (namely, before trying to compile any static assets) will
-   fail multiple tests because the tests depend on a file
-   (:file:`/app/warehouse/static/dist/manifest.json`) that gets
-   created during deployment. So until we fix `bug 1536
-   <https://github.com/pypa/warehouse/issues/1536>`_, you'll need to
-   install Warehouse in a developer environment and run ``make serve``
-   before running tests; see :ref:`dev-env-install` for instructions.
-
 If you want to run a specific test, you can use the ``T`` variable:
 
 .. code-block:: console
@@ -463,12 +581,12 @@ Use :command:`make` to build the documentation. For example:
 The HTML documentation index can now be found at
 :file:`docs/_build/html/index.html`.
 
-Building the docs requires Python 3.6. If it is not installed, the
+Building the docs requires Python 3.7. If it is not installed, the
 :command:`make` command will give the following error message:
 
 .. code-block:: console
 
-  make: python3.6: Command not found
+  make: python3.7: Command not found
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 

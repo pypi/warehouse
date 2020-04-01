@@ -36,6 +36,6 @@ export default class extends Controller {
   }
 
   setScreenReaderMessage(msg) {
-    this.strengthGaugeTarget.querySelector(".sr-only").innerHTML = msg;
+    this.strengthGaugeTarget.querySelector(".sr-only").textContent = msg;
   }
 }

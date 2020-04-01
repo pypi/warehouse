@@ -1,0 +1,28 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+{% trans username=username %}Someone, perhaps you, has made a password reset request for your PyPI account
+'{{ username }}'.{% endtrans %}
+
+{% trans %}If you wish to proceed with this request, follow the link below to reset your
+password:{% endtrans %}
+
+  {{ request.route_url('accounts.reset-password', _query={'token': token}) }}
+
+{% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hour.{% pluralize %}This link will expire in {{ n_hours }} hours.{% endtrans %}
+
+{% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}
+{% endblock %}

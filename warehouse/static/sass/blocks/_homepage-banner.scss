@@ -46,15 +46,7 @@
     margin: $spacing-unit 0 10px 0;
 
     a {
-      color: $white;
-      text-decoration: underline;
-      text-decoration-color: $transparent-white;
-
-      &:hover {
-        text-decoration-color: $white;
-      }
-
-      @include link-focus(underline);
+      @include white-underlined-link;
     }
   }
 }

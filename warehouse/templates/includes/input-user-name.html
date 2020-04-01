@@ -11,11 +11,13 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{{ form.username_or_email(placeholder="Your username or email", autocorrect="off", autocapitalize="off", spellcheck="false", class="form-group__input", required="true", autofocus="true") }}
-{% if form.username_or_email.errors %}
-  <ul class="form-errors">
+{{ form.username_or_email(autocapitalize="off", autocomplete="off", spellcheck="false", class="form-group__field", required="required", **{"aria-describedby":"username-errors"}) }}
+<div id="username-errors">
+  {% if form.username_or_email.errors %}
+  <ul class="form-errors" role="alert">
     {% for error in form.username_or_email.errors %}
     <li>{{ error }}</li>
     {% endfor %}
   </ul>
-{% endif %}
+  {% endif %}
+</div>

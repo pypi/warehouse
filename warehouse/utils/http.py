@@ -14,7 +14,7 @@ import unicodedata
 
 from urllib.parse import urlparse
 
-from rfc3986 import uri_reference, validators, exceptions
+from rfc3986 import exceptions, uri_reference, validators
 
 
 # FROM https://github.com/django/django/blob/

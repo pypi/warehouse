@@ -1,4 +1,4 @@
-FROM node:8.9.4 as static
+FROM node:8.15.1 as static
 
 WORKDIR /opt/warehouse/src/
 
@@ -8,7 +8,7 @@ WORKDIR /opt/warehouse/src/
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libjpeg-dev
+        libjpeg-dev nasm
 
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
@@ -19,5 +19,6 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
 RUN set -x \
+    && npm install -g npm@latest \
     && npm install -g gulp-cli \
-    && npm install
+    && npm ci

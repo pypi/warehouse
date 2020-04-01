@@ -1,6 +1,0 @@
-You have been added as {{ role }} to the PyPI project {{ project }} by {{ submitter }}.
-
-Congratulations!
-
-If this was a mistake, you can reply to this email directly to communicate with
-the PyPI administrators.

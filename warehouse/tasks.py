@@ -11,8 +11,21 @@
 # limitations under the License.
 
 import functools
+import urllib.parse
 
+import celery
 import celery.app.backends
+import celery.backends.redis
+import pyramid.scripting
+import pyramid_retry
+import transaction
+import venusian
+
+from kombu import Queue
+from pyramid.threadlocal import get_current_request
+
+from warehouse.config import Environment
+from warehouse.metrics import IMetricsService
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
@@ -20,16 +33,9 @@ celery.app.backends.BACKEND_ALIASES[
     "rediss"
 ] = "warehouse.tasks:TLSRedisBackend"  # noqa
 
-import celery
-import celery.backends.redis
-import pyramid.scripting
-import pyramid_retry
-import transaction
-import venusian
 
-from pyramid.threadlocal import get_current_request
-
-from warehouse.config import Environment
+# We need to register that the sqs:// url scheme uses a netloc
+urllib.parse.uses_netloc.append("sqs")
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
@@ -52,15 +58,21 @@ class WarehouseTask(celery.Task):
         def run(*args, **kwargs):
             original_run = obj._wh_original_run
             request = obj.get_request()
+            metrics = request.find_service(IMetricsService, context=None)
+            metric_tags = [f"task:{obj.name}"]
 
-            with request.tm:
+            with request.tm, metrics.timed("warehouse.task.run", tags=metric_tags):
                 try:
-                    return original_run(*args, **kwargs)
+                    result = original_run(*args, **kwargs)
+                    metrics.increment("warehouse.task.complete", tags=metric_tags)
+                    return result
                 except BaseException as exc:
                     if isinstance(
                         exc, pyramid_retry.RetryableException
                     ) or pyramid_retry.IRetryableError.providedBy(exc):
+                        metrics.increment("warehouse.task.retried", tags=metric_tags)
                         raise obj.retry(exc=exc)
+                    metrics.increment("warehouse.task.failed", tags=metric_tags)
                     raise
 
         obj._wh_original_run, obj.run = obj.run, run
@@ -154,14 +166,40 @@ def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **
 def includeme(config):
     s = config.registry.settings
 
+    broker_transport_options = {}
+
+    broker_url = s["celery.broker_url"]
+    if broker_url.startswith("sqs://"):
+        parsed_url = urllib.parse.urlparse(broker_url)
+        parsed_query = urllib.parse.parse_qs(parsed_url.query)
+        # Celery doesn't handle paths/query arms being passed into the SQS broker,
+        # so we'll just remove them from here.
+        broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
+
+        if "queue_name_prefix" in parsed_query:
+            broker_transport_options["queue_name_prefix"] = (
+                parsed_query["queue_name_prefix"][0] + "-"
+            )
+
+        if "region" in parsed_query:
+            broker_transport_options["region"] = parsed_query["region"][0]
+
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False
     )
     config.registry["celery.app"].conf.update(
         accept_content=["json", "msgpack"],
-        broker_url=s["celery.broker_url"],
+        broker_url=broker_url,
         broker_use_ssl=s["warehouse.env"] == Environment.production,
+        broker_transport_options=broker_transport_options,
+        task_default_queue="default",
+        task_default_routing_key="task.default",
         task_queue_ha_policy="all",
+        task_queues=(
+            Queue("default", routing_key="task.#"),
+            Queue("malware", routing_key="malware.#"),
+        ),
+        task_routes={"warehouse.malware.tasks.*": {"queue": "malware"}},
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],

@@ -74,8 +74,9 @@ def test_routes(warehouse):
 
     assert config.add_route.calls == [
         pretend.call("health", "/_health/"),
-        pretend.call("force-status", "/_force-status/{status:[45]\d\d}/"),
+        pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
+        pretend.call("locale", "/locale/", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
@@ -87,6 +88,11 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
+        ),
+        pretend.call(
+            "includes.session-notifications",
+            "/_includes/session-notifications/",
+            domain=warehouse,
         ),
         pretend.call(
             "includes.current-user-profile-callout",
@@ -109,8 +115,19 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.profile-public-email",
+            "/_includes/profile-public-email/{username}",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
+        pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
+        pretend.call(
+            "stats.json", "/stats/", accept="application/json", domain=warehouse
+        ),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",
@@ -119,6 +136,20 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("accounts.login", "/account/login/", domain=warehouse),
+        pretend.call("accounts.two-factor", "/account/two-factor/", domain=warehouse),
+        pretend.call(
+            "accounts.webauthn-authenticate.options",
+            "/account/webauthn-authenticate/options",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.webauthn-authenticate.validate",
+            "/account/webauthn-authenticate/validate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.recovery-code", "/account/recovery-code/", domain=warehouse
+        ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call("accounts.register", "/account/register/", domain=warehouse),
         pretend.call(
@@ -133,6 +164,49 @@ def test_routes(warehouse):
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
+        pretend.call(
+            "manage.account.totp-provision",
+            "/manage/account/totp-provision",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.totp-provision.image",
+            "/manage/account/totp-provision/image",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision",
+            "/manage/account/webauthn-provision",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.options",
+            "/manage/account/webauthn-provision/options",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.validate",
+            "/manage/account/webauthn-provision/validate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.webauthn-provision.delete",
+            "/manage/account/webauthn-provision/delete",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.recovery-codes.generate",
+            "/manage/account/recovery-codes/generate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.recovery-codes.regenerate",
+            "/manage/account/recovery-codes/regenerate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.token", "/manage/account/token/", domain=warehouse
+        ),
         pretend.call("manage.projects", "/manage/projects/", domain=warehouse),
         pretend.call(
             "manage.project.settings",
@@ -205,6 +279,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.project.journal",
+            "/manage/project/{project_name}/journal/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "packaging.project",
             "/project/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -240,8 +321,24 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "legacy.api.json.project_slash",
+            "/pypi/{name}/json/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
             "legacy.api.json.release",
             "/pypi/{name}/{version}/json",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/{version}",
+            read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
+            "legacy.api.json.release_slash",
+            "/pypi/{name}/{version}/json/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
             read_only=True,
@@ -251,11 +348,27 @@ def test_routes(warehouse):
     ]
 
     assert config.add_template_view.calls == [
-        pretend.call("help", "/help/", "pages/help.html"),
-        pretend.call("security", "/security/", "pages/security.html"),
+        pretend.call(
+            "sitemap",
+            "/sitemap/",
+            "pages/sitemap.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+        ),
+        pretend.call(
+            "security",
+            "/security/",
+            "pages/security.html",
+            view_kw={"has_translations": True},
+        ),
         pretend.call("credits", "/credits/", "templates/pages/credits.html"),
         pretend.call(
-            "sponsors", "/sponsors/", "warehouse:templates/pages/sponsors.html"
+            "sponsors",
+            "/sponsors/",
+            "warehouse:templates/pages/sponsors.html",
+            view_kw={"has_translations": True},
         ),
     ]
 

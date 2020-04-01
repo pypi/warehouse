@@ -20,10 +20,10 @@ from sqlalchemy.orm.session import Session
 
 from warehouse import db
 from warehouse.accounts.models import Email, User
-from warehouse.legacy.api.xmlrpc.cache.fncache import RedisLru
 from warehouse.legacy.api.xmlrpc.cache.derivers import cached_return_view
-from warehouse.legacy.api.xmlrpc.cache.services import NullXMLRPCCache, RedisXMLRPCCache
+from warehouse.legacy.api.xmlrpc.cache.fncache import RedisLru
 from warehouse.legacy.api.xmlrpc.cache.interfaces import IXMLRPCCache
+from warehouse.legacy.api.xmlrpc.cache.services import NullXMLRPCCache, RedisXMLRPCCache
 
 __all__ = ["RedisLru"]
 
@@ -65,7 +65,7 @@ def execute_purge(config, session):
 
     try:
         xmlrpc_cache_factory = config.find_service_factory(IXMLRPCCache)
-    except ValueError:
+    except LookupError:
         return
 
     xmlrpc_cache = xmlrpc_cache_factory(None, config)

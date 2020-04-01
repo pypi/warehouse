@@ -17,9 +17,9 @@ Revises: fb3278418206
 Create Date: 2016-05-04 21:47:04.133779
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "104b4c56862b"
 down_revision = "fb3278418206"

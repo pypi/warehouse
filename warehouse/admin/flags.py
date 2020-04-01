@@ -10,14 +10,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, Boolean, Text, sql
+import enum
+
+from sqlalchemy import Boolean, Column, Text, sql
 
 from warehouse import db
 
 
+class AdminFlagValue(enum.Enum):
+    DISALLOW_DELETION = "disallow-deletion"
+    DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
+    DISALLOW_NEW_UPLOAD = "disallow-new-upload"
+    DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
+    READ_ONLY = "read-only"
+
+
 class AdminFlag(db.ModelBase):
 
-    __tablename__ = "warehouse_admin_flag"
+    __tablename__ = "admin_flags"
 
     id = Column(Text, primary_key=True, nullable=False)
     description = Column(Text, nullable=False)
@@ -36,8 +46,8 @@ class Flags:
             .all()
         )
 
-    def enabled(self, flag_name):
-        flag = self.request.db.query(AdminFlag).get(flag_name)
+    def enabled(self, flag_member):
+        flag = self.request.db.query(AdminFlag).get(flag_member.value)
         return flag.enabled if flag else False
 
 

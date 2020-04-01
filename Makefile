@@ -4,6 +4,7 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
+LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -42,13 +43,19 @@ if extra_in_left or extra_in_right:
 endef
 
 default:
-	@echo "Call a specific subcommand"
+	@echo "Call a specific subcommand:"
+	@echo
+	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null\
+	| awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}'\
+	| sort\
+	| egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
+	@echo
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.6 virtual environment
+	# Create our Python 3.7 virtual environment
 	rm -rf .state/env
-	python3.6 -m venv .state/env
+	python3.7 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -65,53 +72,59 @@ endif
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
-	docker-compose build worker
-	docker-compose build static
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
+	docker-compose build --force-rm worker
+	docker-compose build --force-rm static
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
 	touch .state/docker-build
 
 build:
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
-	docker-compose build worker
-	docker-compose build static
+	@$(MAKE) .state/docker-build
 
-	# Mark this state so that the other target will known it's recently been
-	# rebuilt.
-	mkdir -p .state
-	touch .state/docker-build
+	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
 serve: .state/docker-build
-	docker-compose up
+	docker-compose up --remove-orphans
 
 debug: .state/docker-build
 	docker-compose run --rm --service-ports web
 
-tests:
+tests: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
+static_tests: .state/docker-build
+	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/static_tests $(T) $(TESTARGS)
+
+static_pipeline: .state/docker-build
+	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/black warehouse/ tests/
+	$(BINDIR)/isort -rc *.py warehouse/ tests/
+	$(BINDIR)/black *.py warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
-	$(BINDIR)/black --check warehouse/ tests/
+	$(BINDIR)/black --check *.py warehouse/ tests/
+	$(BINDIR)/isort -rc -c *.py warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation,boolean_attribute `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
-	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
+	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
 	./node_modules/.bin/sass-lint --verbose
 else
 	# We're not on Travis, so we should lint static files inside the static container
-	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
+	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
 	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
 endif
 
@@ -141,11 +154,10 @@ ifneq ($(PR), false)
 endif
 
 initdb:
+	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	xz -d -f -k dev/$(DB).sql.xz
-	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
-	rm dev/$(DB).sql
+	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
 	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
 
@@ -167,4 +179,43 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
+compile-pot: .state/env/pyvenv.cfg
+	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
+		-F babel.cfg \
+		--omit-header \
+		--output="warehouse/locale/messages.pot" \
+		warehouse
+
+init-po: .state/env/pyvenv.cfg
+	$(BINDIR)/pybabel init \
+		--input-file="warehouse/locale/messages.pot" \
+		--output-dir="warehouse/locale/" \
+		--locale="$(L)"
+
+update-po: .state/env/pyvenv.cfg
+	$(BINDIR)/pybabel update \
+		--input-file="warehouse/locale/messages.pot" \
+		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
+		--locale="$(L)"
+
+compile-po: .state/env/pyvenv.cfg
+	$(BINDIR)/pybabel compile \
+		--input-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
+		--directory="warehouse/locale/" \
+		--locale="$(L)"
+
+build-mos: compile-pot
+	for LOCALE in $(LOCALES) ; do \
+		if [[ -f warehouse/locale/$$LOCALE/LC_MESSAGES/messages.mo ]]; then \
+			L=$$LOCALE $(MAKE) update-po ; \
+		fi ; \
+		L=$$LOCALE $(MAKE) compile-po ; \
+		done
+
+translations: compile-pot
+ifneq ($(TRAVIS), false)
+	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
+else
+endif
+
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot

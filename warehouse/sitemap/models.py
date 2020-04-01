@@ -20,4 +20,5 @@ class SitemapMixin:
         nullable=False,
         server_default=FetchedValue(),
         server_onupdate=FetchedValue(),
+        index=True,
     )

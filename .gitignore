@@ -1,5 +1,4 @@
 *.py[co]
-*.mo
 
 *.egg-info/
 *.egg
@@ -16,6 +15,8 @@ dist/*.tar.gz
 dist/*.whl
 htmlcov/
 
+docker-compose.override.yaml
+
 node_modules/
 
 dev/example.sql
@@ -30,3 +31,5 @@ warehouse/admin/static/dist
 
 tags
 *.sw*
+
+.DS_Store

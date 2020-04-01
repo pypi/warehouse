@@ -13,122 +13,90 @@
 import json
 import os.path
 
-from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid.path import AssetResolver
-from pyramid.tweens import INGRESS, EXCVIEW
-from pyramid.response import FileResponse
-from webob.multidict import MultiDict
-from whitenoise import WhiteNoise as _WhiteNoise
-
+from whitenoise import WhiteNoise
 
 resolver = AssetResolver()
 
 
-class WhiteNoise(_WhiteNoise):
+class ImmutableManifestFiles:
+    def __init__(self):
+        self.manifests = {}
 
-    config_attrs = _WhiteNoise.config_attrs + ("manifest",)
+    def __call__(self, path, url):
+        manifest_path, manifest = self.get_manifest(url)
+        if manifest_path is not None:
+            manifest_dir = os.path.dirname(manifest_path)
+            if os.path.commonpath([manifest_path, path]) == manifest_dir:
+                if os.path.relpath(path, manifest_dir) in manifest:
+                    return True
 
-    def __init__(self, *args, manifest=None, **kwargs):
-        self.manifest_path = (
-            resolver.resolve(manifest).abspath() if manifest is not None else None
-        )
-        return super().__init__(*args, **kwargs)
+        return False
 
-    @property
-    def manifest(self):
-        if not hasattr(self, "_manifest"):
-            manifest_files = set()
+    def add_manifest(self, manifest_path, prefix):
+        self.manifests[prefix] = resolver.resolve(manifest_path).abspath()
 
-            if self.manifest_path is not None:
-                with open(self.manifest_path, "r", encoding="utf8") as fp:
+    def get_manifest(self, url):
+        for prefix, manifest_path in self.manifests.items():
+            if url.startswith(prefix):
+                manifest_files = set()
+
+                with open(manifest_path, "r", encoding="utf8") as fp:
                     data = json.load(fp)
                 manifest_files.update(data.values())
 
-            if not self.autorefresh:
-                self._manifest = manifest_files
+                return manifest_path, manifest_files
 
-            return manifest_files
-        else:
-            return self._manifest
-
-    def is_immutable_file(self, path, url):
-        if self.manifest_path is not None:
-            manifest_dir = os.path.dirname(self.manifest_path)
-            if os.path.commonpath([self.manifest_path, path]) == manifest_dir:
-                if os.path.relpath(path, manifest_dir) in self.manifest:
-                    return True
-
-        return super().is_immutable_file(path, url)
+        return None, None
 
 
-def whitenoise_tween_factory(handler, registry):
-    def whitenoise_tween(request):
-        whn = request.registry.whitenoise
+def _create_whitenoise(app, config):
+    wh_config = config.registry.settings.get("whitenoise", {}).copy()
+    if wh_config:
+        # Create our Manifest immutable file checker.
+        manifest = ImmutableManifestFiles()
+        for manifest_spec, prefix in config.registry.settings.get(
+            "whitenoise.manifests", []
+        ):
+            manifest.add_manifest(manifest_spec, prefix)
 
-        if whn.autorefresh:
-            static_file = whn.find_file(request.path_info)
-        else:
-            static_file = whn.files.get(request.path_info)
+        # Wrap our WSGI application with WhiteNoise
+        app = WhiteNoise(app, **wh_config, immutable_file_test=manifest)
 
-        # We could not find a static file, so we'll just continue processing
-        # this as normal.
-        if static_file is None:
-            return handler(request)
+        # Go through and add all of the files we were meant to add.
+        for path, kwargs in config.registry.settings.get("whitenoise.files", []):
+            app.add_files(resolver.resolve(path).abspath(), **kwargs)
 
-        request_headers = dict(
-            kv for kv in request.environ.items() if kv[0].startswith("HTTP_")
-        )
-
-        if request.method not in {"GET", "HEAD"}:
-            return HTTPMethodNotAllowed()
-        else:
-            path, headers = static_file.get_path_and_headers(request_headers)
-            headers = MultiDict(headers)
-
-            resp = FileResponse(
-                path,
-                request=request,
-                content_type=headers.pop("Content-Type", None),
-                content_encoding=headers.pop("Content-Encoding", None),
-            )
-            resp.md5_etag()
-            resp.headers.update(headers)
-
-            return resp
-
-    return whitenoise_tween
+    return app
 
 
 def whitenoise_serve_static(config, **kwargs):
-    unsupported = kwargs.keys() - set(WhiteNoise.config_attrs)
-    if unsupported:
-        raise TypeError("Unexpected keyword arguments: {!r}".format(unsupported))
-
     def register():
-        config.registry.whitenoise = WhiteNoise(None, **kwargs)
+        config.registry.settings["whitenoise"] = kwargs
 
     config.action(("whitenoise", "create instance"), register)
 
 
 def whitenoise_add_files(config, path, prefix=None):
     def add_files():
-        config.registry.whitenoise.add_files(
-            resolver.resolve(path).abspath(), prefix=prefix
+        config.registry.settings.setdefault("whitenoise.files", []).append(
+            (path, {"prefix": prefix})
         )
 
     config.action(("whitenoise", "add files", path, prefix), add_files)
 
 
+def whitenoise_add_manifest(config, manifest, prefix):
+    def add_manifest():
+        config.registry.settings.setdefault("whitenoise.manifests", []).append(
+            (manifest, prefix)
+        )
+
+    config.action(("whitenoise", "add manifest", manifest), add_manifest)
+
+
 def includeme(config):
+    config.add_wsgi_middleware(_create_whitenoise, config)
     config.add_directive("whitenoise_serve_static", whitenoise_serve_static)
     config.add_directive("whitenoise_add_files", whitenoise_add_files)
-    config.add_tween(
-        "warehouse.static.whitenoise_tween_factory",
-        over=["warehouse.utils.compression.compression_tween_factory", EXCVIEW],
-        under=[
-            "warehouse.csp.content_security_policy_tween_factory",
-            "warehouse.referrer_policy.referrer_policy_tween_factory",
-            "warehouse.config.require_https_tween_factory",
-            INGRESS,
-        ],
-    )
+    config.add_directive("whitenoise_add_manifest", whitenoise_add_manifest)

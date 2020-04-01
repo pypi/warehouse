@@ -5,3 +5,6 @@ set -eo pipefail
 
 # Migrate our database to the latest revision.
 python -m warehouse db upgrade head
+
+# Insert/upgrade malware checks.
+python -m warehouse malware sync-checks

@@ -10,41 +10,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
-import re
 
+import collections
+
+import elasticsearch
+
+from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPException,
-    HTTPSeeOther,
     HTTPMovedPermanently,
     HTTPNotFound,
-    HTTPBadRequest,
+    HTTPSeeOther,
+    HTTPServiceUnavailable,
     exception_response,
 )
-from pyramid.exceptions import PredicateMismatch
+from pyramid.i18n import make_localizer
+from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.view import (
-    notfound_view_config,
-    forbidden_view_config,
     exception_view_config,
+    forbidden_view_config,
+    notfound_view_config,
     view_config,
 )
-from elasticsearch_dsl import Q
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
+from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.cache.http import cache_control
 from warehouse.classifiers.models import Classifier
-from warehouse.packaging.models import Project, Release, File, release_classifiers
-from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
-from warehouse.utils.row_counter import RowCount
+from warehouse.db import DatabaseNotAvailable
+from warehouse.forms import SetLocaleForm
+from warehouse.i18n import LOCALE_ATTR
+from warehouse.metrics import IMetricsService
+from warehouse.packaging.models import File, Project, Release, release_classifiers
+from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
+from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
-
+from warehouse.utils.row_counter import RowCount
 
 # 403, 404, 410, 500,
 
@@ -109,6 +117,11 @@ def forbidden_include(exc, request):
     return Response(status=403)
 
 
+@view_config(context=DatabaseNotAvailable)
+def service_unavailable(exc, request):
+    return httpexception_view(HTTPServiceUnavailable(), request)
+
+
 @view_config(
     route_name="robots.txt",
     renderer="robots.txt",
@@ -154,12 +167,13 @@ def opensearchxml(request):
             keys=["all-projects", "trending"],
         )
     ],
+    has_translations=True,
 )
 def index(request):
-    project_names = [
+    project_ids = [
         r[0]
         for r in (
-            request.db.query(Project.name)
+            request.db.query(Project.id)
             .order_by(Project.zscore.desc().nullslast(), func.random())
             .limit(5)
             .all()
@@ -168,10 +182,10 @@ def index(request):
     release_a = aliased(
         Release,
         request.db.query(Release)
-        .distinct(Release.name)
-        .filter(Release.name.in_(project_names))
+        .distinct(Release.project_id)
+        .filter(Release.project_id.in_(project_ids))
         .order_by(
-            Release.name,
+            Release.project_id,
             Release.is_prerelease.nullslast(),
             Release._pypi_ordering.desc(),
         )
@@ -180,7 +194,7 @@ def index(request):
     trending_projects = (
         request.db.query(release_a)
         .options(joinedload(release_a.project))
-        .order_by(func.array_idx(project_names, release_a.name))
+        .order_by(func.array_idx(project_ids, release_a.project_id))
         .all()
     )
 
@@ -217,7 +231,36 @@ def index(request):
     }
 
 
-@view_config(route_name="classifiers", renderer="pages/classifiers.html")
+@view_config(
+    route_name="locale",
+    request_method="GET",
+    request_param=SetLocaleForm.__params__,
+    uses_session=True,
+)
+def locale(request):
+    form = SetLocaleForm(**request.GET)
+
+    redirect_to = request.referer
+    if not is_safe_url(redirect_to, host=request.host):
+        redirect_to = request.route_path("index")
+    resp = HTTPSeeOther(redirect_to)
+
+    if form.validate():
+        # Build a localizer for the locale we're about to switch to. This will
+        # happen automatically once the cookie is set, but if we want the flash
+        # message indicating success to be in the new language as well, we need
+        # to do it here.
+        tdirs = request.registry.queryUtility(ITranslationDirectories)
+        _ = make_localizer(form.locale_id.data, tdirs).translate
+        request.session.flash(_("Locale updated"), queue="success")
+        resp.set_cookie(LOCALE_ATTR, form.locale_id.data)
+
+    return resp
+
+
+@view_config(
+    route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
+)
 def classifiers(request):
     classifiers = (
         request.db.query(Classifier.classifier)
@@ -235,50 +278,35 @@ def classifiers(request):
     decorator=[
         origin_cache(
             1 * 60 * 60,  # 1 hour
-            stale_while_revalidate=10 * 60,  # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
             keys=["all-projects"],
         )
     ],
+    has_translations=True,
 )
 def search(request):
+    metrics = request.find_service(IMetricsService, context=None)
 
-    q = request.params.get("q", "")
-    q = q.replace("'", '"')
-
-    if q:
-        bool_query = gather_es_queries(q)
-
-        query = request.es.query(bool_query)
-
-        query = query.suggest("name_suggestion", q, term={"field": "name"})
-    else:
-        query = request.es.query()
-
-    if request.params.get("o"):
-        sort_key = request.params["o"]
-        if sort_key.startswith("-"):
-            sort = {sort_key[1:]: {"order": "desc", "unmapped_type": "long"}}
-        else:
-            sort = {sort_key: {"unmapped_type": "long"}}
-
-        query = query.sort(sort)
-
-    # Require match to all specified classifiers
-    for classifier in request.params.getall("c"):
-        query = query.filter("terms", classifiers=[classifier])
+    querystring = request.params.get("q", "").replace("'", '"')
+    order = request.params.get("o", "")
+    classifiers = request.params.getall("c")
+    query = get_es_query(request.es, querystring, order, classifiers)
 
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.")
 
-    page = ElasticsearchPage(
-        query, page=page_num, url_maker=paginate_url_factory(request)
-    )
+    try:
+        page = ElasticsearchPage(
+            query, page=page_num, url_maker=paginate_url_factory(request)
+        )
+    except elasticsearch.TransportError:
+        metrics.increment("warehouse.views.search.error")
+        raise HTTPServiceUnavailable
 
     if page.page_count and page_num > page.page_count:
-        return HTTPNotFound()
+        raise HTTPNotFound
 
     available_filters = collections.defaultdict(list)
 
@@ -304,23 +332,99 @@ def search(request):
         except ValueError:
             return 1, 0, item[0]
 
-    request.registry.datadog.histogram(
-        "warehouse.views.search.results", page.item_count
-    )
+    def form_filters_tree(split_list):
+        """
+        Takes a list of lists, each of them containing a filter and
+        one of its children.
+        Returns a dictionary, each key being a filter and each value being
+        the filter's children.
+        """
+        d = {}
+        for l in split_list:
+            current_level = d
+            for part in l:
+                if part not in current_level:
+                    current_level[part] = {}
+                current_level = current_level[part]
+        return d
+
+    def process_available_filters():
+        """
+        Processes available filters and returns a list of dictionaries.
+        The value of a key in the dictionary represents its children
+        """
+        sorted_filters = sorted(available_filters.items(), key=filter_key)
+        output = []
+        for f in sorted_filters:
+            classifier_list = f[1]
+            split_list = [i.split(" :: ") for i in classifier_list]
+            tree = form_filters_tree(split_list)
+            output.append(tree)
+        return output
+
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.histogram("warehouse.views.search.results", page.item_count)
 
     return {
         "page": page,
-        "term": q,
-        "order": request.params.get("o", ""),
-        "available_filters": sorted(available_filters.items(), key=filter_key),
+        "term": querystring,
+        "order": order,
+        "available_filters": process_available_filters(),
         "applied_filters": request.params.getall("c"),
     }
+
+
+@view_config(
+    route_name="stats",
+    renderer="pages/stats.html",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+    has_translations=True,
+)
+@view_config(
+    route_name="stats.json",
+    renderer="json",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+    accept="application/json",
+)
+def stats(request):
+    total_size = int(request.db.query(func.sum(Project.total_size)).first()[0])
+    top_100_packages = (
+        request.db.query(Project)
+        .with_entities(Project.name, Project.total_size)
+        .order_by(Project.total_size.desc())
+        .limit(100)
+        .all()
+    )
+    # Move top packages into a dict to make JSON more self describing
+    top_packages = {
+        pkg_name: {"size": int(pkg_bytes) if pkg_bytes is not None else 0}
+        for pkg_name, pkg_bytes in top_100_packages
+    }
+
+    return {"total_packages_size": total_size, "top_packages": top_packages}
 
 
 @view_config(
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
     uses_session=True,
+    has_translations=True,
 )
 def current_user_indicator(request):
     return {}
@@ -330,8 +434,19 @@ def current_user_indicator(request):
     route_name="includes.flash-messages",
     renderer="includes/flash-messages.html",
     uses_session=True,
+    has_translations=True,
 )
 def flash_messages(request):
+    return {}
+
+
+@view_config(
+    route_name="includes.session-notifications",
+    renderer="includes/session-notifications.html",
+    uses_session=True,
+    has_translations=True,
+)
+def session_notifications(request):
     return {}
 
 
@@ -352,40 +467,3 @@ def force_status(request):
         raise exception_response(int(request.matchdict["status"]))
     except KeyError:
         raise exception_response(404) from None
-
-
-def filter_query(s):
-    """
-    Filters given query with the below regex
-    and returns lists of quoted and unquoted strings
-    """
-    matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
-    result_quoted = [t[0].strip() for t in matches if t[0]]
-    result_unquoted = [t[1].strip() for t in matches if t[1]]
-    return result_quoted, result_unquoted
-
-
-def form_query(query_type, query):
-    """
-    Returns a multi match query
-    """
-    fields = [
-        field + "^" + str(SEARCH_BOOSTS[field]) if field in SEARCH_BOOSTS else field
-        for field in SEARCH_FIELDS
-    ]
-    return Q("multi_match", fields=fields, query=query, type=query_type)
-
-
-def gather_es_queries(q):
-    quoted_string, unquoted_string = filter_query(q)
-    must = [form_query("phrase", i) for i in quoted_string] + [
-        form_query("best_fields", i) for i in unquoted_string
-    ]
-
-    bool_query = Q("bool", must=must)
-
-    # Allow to optionally match on prefix
-    # if ``q`` is longer than one character.
-    if len(q) > 1:
-        bool_query = bool_query | Q("prefix", normalized_name=q)
-    return bool_query

@@ -26,7 +26,15 @@ def includeme(config):
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
     config.add_route("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse)
     config.add_route(
+        "admin.user.add_email", "/admin/users/{user_id}/add_email/", domain=warehouse
+    )
+    config.add_route(
         "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
+    )
+    config.add_route(
+        "admin.user.reset_password",
+        "/admin/users/{user_id}/reset_password/",
+        domain=warehouse,
     )
 
     # Project related Admin pages
@@ -67,6 +75,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.add_role",
+        "/admin/projects/{project_name}/add_role/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.delete_role",
+        "/admin/projects/{project_name}/delete_role/{role_id}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.delete",
         "/admin/projects/{project_name}/delete/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -95,6 +117,7 @@ def includeme(config):
 
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
+    config.add_route("admin.emails.mass", "/admin/emails/mass/", domain=warehouse)
     config.add_route(
         "admin.emails.detail", "/admin/emails/{email_id}/", domain=warehouse
     )
@@ -102,3 +125,30 @@ def includeme(config):
     # Flags
     config.add_route("admin.flags", "/admin/flags/", domain=warehouse)
     config.add_route("admin.flags.edit", "/admin/flags/edit/", domain=warehouse)
+
+    # Squats
+    config.add_route("admin.squats", "/admin/squats/", domain=warehouse)
+    config.add_route("admin.squats.review", "/admin/squats/review/", domain=warehouse)
+
+    # Malware checks
+    config.add_route("admin.checks.list", "/admin/checks/", domain=warehouse)
+    config.add_route(
+        "admin.checks.detail", "/admin/checks/{check_name}", domain=warehouse
+    )
+    config.add_route(
+        "admin.checks.change_state",
+        "/admin/checks/{check_name}/change_state",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.checks.run_evaluation",
+        "/admin/checks/{check_name}/run_evaluation",
+        domain=warehouse,
+    )
+    config.add_route("admin.verdicts.list", "/admin/verdicts/", domain=warehouse)
+    config.add_route(
+        "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
+    )
+    config.add_route(
+        "admin.verdicts.review", "/admin/verdicts/{verdict_id}/review", domain=warehouse
+    )

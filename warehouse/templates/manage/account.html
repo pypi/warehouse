@@ -14,103 +14,118 @@
 {% extends "manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Account settings" %}
+{% set title = gettext("Account settings") %}
 
-{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% set active_tab = 'account' %}
 
-{% block title %}{{ title }}{% endblock %}
-
-{% macro form_error_anchor(form) %}
-  {% if form.errors %}
-  <div id="errors"></div>
+{% block title %}
+  {% if add_email_form.errors or change_password_form.errors %}
+  {% trans %}Error processing form{% endtrans %} –
   {% endif %}
-{% endmacro %}
+  {{ title }}
+{% endblock %}
 
-{% macro form_errors(form) %}
-  {% if form.errors.__all__ %}
-  <ul class="form-errors">
-    {% for error in form.errors.__all__ %}
-    <li>{{ error }}</li>
-    {% endfor %}
-  </ul>
+{% macro email_verification_label(email) -%}
+{% if email.verified %}
+  {% if email.transient_bounces %}
+  <span class="badge badge--warning">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+    {% trans %}Verified*{% endtrans %}
+  </span>
+  <span class="table__status-detail">{% trans %}*Intermittent delivery problems may lead to verification loss{% endtrans %}</span>
+  {% else %}
+  <span class="badge badge--success">
+    <i class="fa fa-check" aria-hidden="true"></i>
+    {% trans %}Verified{% endtrans %}
+  </span>
   {% endif %}
-{% endmacro %}
-
-{% macro field_errors(field) %}
-  {% if field.errors %}
-  <ul class="form-errors">
-    {% for error in field.errors %}
-    <li>{{ error }}</li>
-    {% endfor %}
-  </ul>
+{% else %}
+  {% if email.unverify_reason.value == "spam complaint" %}
+  <span class="badge badge--danger">
+    <i class="fa fa-ban" aria-hidden="true"></i>
+    {% trans %}Unverified*{% endtrans %}
+  </span>
+  <span class="table__status-detail">{% trans %}*Email from PyPI being treated as spam{% endtrans %}</span>
+  {% elif email.unverify_reason.value == "hard bounce" %}
+  <span class="badge badge--danger">
+    <i class="fa fa-ban" aria-hidden="true"></i>
+    {% trans %}Unverified*{% endtrans %}
+  </span>
+  <span class="table__status-detail">{% trans %}*Hard failure during delivery{% endtrans %}</span>
+  {% elif email.unverify_reason.value == "soft bounce" %}
+  <span class="badge badge--danger">
+    <i class="fa fa-ban" aria-hidden="true"></i>
+    {% trans %}Unverified*{% endtrans %}
+  </span>
+  <span class="table__status-detail">{% trans %}*Too many delivery problems{% endtrans %}</span>
+  {% else %}
+  <span class="badge badge--danger">
+    <i class="fa fa-times" aria-hidden="true"></i>
+    {% trans %}Unverified{% endtrans %}
+  </span>
   {% endif %}
+{% endif %}
 {% endmacro %}
 
 {% macro email_row(email) -%}
   <tr>
-    <td class="table__email">
+    <th class="table__email" scope="row">
       {{ email.email }}
-    </td>
-    <td class="table__status">
-      <div class="table__status-badges">
+    </th>
+    <td>
+      <span class="table__status-badges">
         {% if email.primary %}
-        <span class="badge">Primary</span>
+        <span class="badge">{% trans %}Primary{% endtrans %}</span>
         {% endif %}
-        {% if email.verified %}
-        <span class="badge badge--success">Verified</span>
-        {% else %}
-        <span class="badge badge--danger">Unverified</span>
-        {% endif %}
-      </div>
+        {{ email_verification_label(email) }}
+      </span>
     </td>
-    <td class="table__action">
-      {% if not email.verified or user.emails|length > 1 and not email.primary%}
+    <td class="table__align-right">
+      {% if not email.verified or not email.primary %}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
-        <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
-          Options
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View email options{% endtrans %}">
+          {% trans %}Options{% endtrans %}
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
-            <span class="sr-only">view submenu</span>
           </span>
         </button>
-        <ul class="dropdown__content">
+        <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans email=email.email %}Options for {{ email }}{% endtrans %}">
+          {% if not email.verified %}
           <li>
-            {% if not email.verified %}
             <form method="POST">
               <input hidden name="reverify_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button class="dropdown__link" type="submit" title="Resend verification email">
+              <button type="submit" class="dropdown__link" title="{% trans %}Resend verification email{% endtrans %}">
                 <i class="fa fa-envelope" aria-hidden="true"></i>
-                Resend Verification Email
+                {% trans %}Resend verification email{% endtrans %}
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
+          {% if not email.primary and email.verified %}
           <li>
-            {% if not email.primary and email.verified %}
             <form method="POST">
               <input hidden name="primary_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button class="dropdown__link" type="submit" title="Set this email address as primary">
+              <button type="submit" class="dropdown__link" title="{% trans %}Set this email address as primary{% endtrans %}">
                 <i class="fa fa-cog" aria-hidden="true"></i>
-                Set as Primary
+                {% trans %}Set as primary{% endtrans %}
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
+          {% if user.emails|length > 1 and not email.primary %}
           <li>
-            {% if user.emails|length > 1 and not email.primary %}
             <form method="POST">
               <input hidden name="delete_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button class="dropdown__link" type="submit" title="Remove this email address">
+              <button type="submit" class="dropdown__link" title="{% trans %}Remove this email address{% endtrans %}">
                 <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                Remove Email
+                {% trans %}Remove email{% endtrans %}
               </button>
             </form>
-            {% endif %}
           </li>
+          {% endif %}
         </ul>
       </nav>
       {% endif %}
@@ -118,21 +133,130 @@
   </tr>
 {%- endmacro %}
 
+{% macro twofa_buttons() %}
+  <div class="wrap-children">
+    {% if not user.totp_secret %}
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
+    {% endif %}
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
+    {% if user.has_two_factor and not user.has_recovery_codes %}
+    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate Recovery Codes{% endtrans %}</a>
+    {% endif %}
+  </div>
+
+  <noscript>
+    <p>{% trans %}Enable JavaScript to set up two factor authentication with a security device (e.g. USB key){% endtrans %}</p>
+  </noscript>
+
+  <ul id="webauthn-errors" class="form-errors form-errors--full-width">
+    <li id="webauthn-browser-support" class="hidden margin-top--large">
+      {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
+      <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+      {% endtrans %}
+    </li>
+  </ul>
+{% endmacro %}
+
+{% macro api_row(macaroon) -%}
+  <tr>
+    <th scope="row">
+      <span class="table__mobile-label">{% trans %}Name{% endtrans %}</span>
+      {{ macaroon.description }}
+    </th>
+    <td>
+      <span class="table__mobile-label">{% trans %}Scope{% endtrans %}</span>
+      {% if macaroon.caveats.get("permissions") == 'user' %}
+      {% trans %}All projects{% endtrans %}
+      {% else %}
+        {% for project in macaroon.caveats.get("permissions")['projects'] %}
+        <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
+        {% endfor %}
+      {% endif %}
+    </td>
+    <td>
+      <span class="table__mobile-label">{% trans %}Created{% endtrans %}</span>
+      {{ humanize(macaroon.created) }}
+    </td>
+    <td>
+      <span class="table__mobile-label">{% trans %}Last used{% endtrans %}</span>
+      {{ humanize(macaroon.last_used) if macaroon.last_used else gettext("Never") }}
+    </td>
+    <td class="table__align-right">
+      <nav class="dropdown dropdown--with-icons dropdown--wide">
+        <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View token options{% endtrans %}">
+          {% trans %}Options{% endtrans %}
+          <span class="dropdown__trigger-caret">
+            <i class="fa fa-caret-down" aria-hidden="true"></i>
+          </span>
+        </button>
+        <ul class="dropdown__content">
+          <li>
+            <a href="#remove-API-token--{{ macaroon.id }}" class="dropdown__link">
+              <i class="fa fa-trash-alt" aria-hidden="true"></i>
+              {% trans %}Remove token{% endtrans %}
+            </a>
+          </li>
+          <li>
+            <a href="#view-identifier--{{ macaroon.id }}" class="dropdown__link">
+              <i class="fa fa-hashtag" aria-hidden="true"></i>
+              {% trans %}View unique identifier{% endtrans %}
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      {# modal to remove token #}
+      {% set slug="remove-API-token--" + macaroon.id | string %}
+      {% set title=gettext("Remove API token") + " - " + macaroon.description %}
+      {% set action=request.route_path('manage.account.token') %}
+      {% set confirm_button_label=gettext("Remove API token") %}
+      {% set extra_fields %}
+        <input type="hidden" name="macaroon_id" value="{{ macaroon.id }}" autocomplete="off">
+      {% endset %}
+      {% set token_warning_text %}
+        <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
+      {% endset %}
+      {{ confirm_password_modal(title=title, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, custom_warning_text=token_warning_text) }}
+      {# modal to view token ID #}
+      <div id="view-identifier--{{ macaroon.id }}" class="modal">
+        <div class="modal__content" role="dialog">
+          <a href="#modal-close" title="{% trans %}Close{% endtrans %}" class="modal__close">
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span class="sr-only">{% trans %}Close{% endtrans %}</span>
+          </a>
+          <div class="modal__body">
+            <h3 class="modal__title">{% trans token_description=macaroon.description %}Unique identifier for API token "{{ token_description }}"{% endtrans %}</h3>
+            <p><code>{{ macaroon.id }}</code></p>
+            <button type="button" class="button copy-tooltip copy-tooltip-e" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ macaroon.id }}">
+              {% trans %}Copy{% endtrans %}
+            </button>
+          </div>
+          <div class="modal__footer">
+            <a href="#modal-close" class="button button--primary modal__action">{% trans %}Close{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </td>
+  </tr>
+{%- endmacro %}
+
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>
   <section id="profile-picture">
-    <h2 class="no-top-padding sub-title">Profile picture</h2>
-    {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
+    <h2 class="no-top-padding sub-title">{% trans %}Profile picture{% endtrans %}</h2>
+    {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
     <div class="gravatar-form">
       <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
       <div class="gravatar-form__content">
         <p>
-        We use <a href="https://gravatar.com/">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
+        {% trans trimmed href='https://gravatar.com/', title=gettext('External link')%}
+          We use
+          <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">gravatar.com</a>
+          to generate your profile picture based on your primary email address
+        {% endtrans %} — <code class="break">{{ user.email }}</code>
         </p>
-        <a href="{{ gravatar_profile(user.email) }}" target="_blank" rel="noopener" class="button">
-          Change image<span class="hide-on-mobile"> on gravatar.com</span>
-          <i class="fa fa-external-link-alt" aria-hidden="true"></i>
-          <span class="sr-only">Opens in new window</span>
+        <a href="{{ gravatar_profile(user.email) }}" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener" class="button">
+          {% trans %}Change image on gravatar.com{% endtrans %}
         </a>
       </div>
     </div>
@@ -142,24 +266,64 @@
 
   {{ form_error_anchor(save_account_form) }}
   <section id="account-details">
-    <h2 class="sub-title">Account details</h2>
+    <h2 class="sub-title">{% trans %}Account details{% endtrans %}</h2>
 
     <div class="form-group">
-      <span class="form-group__label">Username</span>
+      <span class="form-group__label">{% trans %}Username{% endtrans %}</span>
       <p class="form-group__text">{{ user.username }}</p>
-      <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>. Cannot be changed.</p>
+      {% if user.date_joined %}
+      <span class="form-group__label">{% trans %}Date Joined{% endtrans %}</span>
+      <p class="form-group__text">
+        {{ humanize(user.date_joined) }}
+      </p>
+      {% endif %}
+      <p class="form-group__help-text">
+        {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+          Displayed on your <a href="{{ href }}">public profile</a>. Cannot be changed.
+        {% endtrans %}
+      </p>
     </div>
 
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(save_account_form) }}
       <div class="form-group">
-        <label class="form-group__label" for="name">Full name</label>
-        {{ save_account_form.name(placeholder="No name set", class_="form-group__input") }}
-        {{ field_errors(save_account_form.name) }}
-        <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a></p>
+        <label class="form-group__label" for="name">
+          {% trans %}Full name{% endtrans %}
+          {% if save_account_form.name.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ save_account_form.name(placeholder=gettext("No name set"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"full-name-errors"}) }}
+        <div id="full-name-errors">
+          {{ field_errors(save_account_form.name) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+            Displayed on your <a href="{{ href }}">public profile</a>
+          {% endtrans %}
+        </p>
       </div>
-      <input value="Update account" class="button button--primary" type="submit">
+      <div class="form-group">
+        <label class="form-group__label" for="public_email">
+          {% trans %}️Public email{% endtrans %}
+          {% if save_account_form.public_email.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ save_account_form.public_email(class_="form-group__field", **{"aria-secribedby":"public-email-errors"}) }}
+        </p>
+        <div id="public-email-errors">
+          {{ field_errors(save_account_form.public_email) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+            One of your verified emails can be displayed on your <a href="{{ href }}">public profile</a> to logged-in users.
+          {% endtrans %}
+        </p>
+      </div>
+      <input value="{% trans %}Update account{% endtrans %}" class="button button--primary" type="submit">
     </form>
   </section>
 
@@ -167,8 +331,10 @@
 
   {{ form_error_anchor(add_email_form) }}
   <section id="account-emails">
-    <h2 class="sub-title">Account emails</h2>
-    <p>You can associate several emails with your account. You can use any <strong>verified</strong> email to recover your account, but only your primary email will receive notifications.</p>
+    <h2 class="sub-title">{% trans %}Account emails{% endtrans %}</h2>
+    <p>
+      {% trans %}You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check" aria-hidden="true"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.{% endtrans %}
+    </p>
 
     {# Sort the emails as follows:
       * Primary email
@@ -177,11 +343,12 @@
     #}
     {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
 
-    <table class="table table--light table--emails">
+    <table class="table table--emails">
+      <caption class="sr-only">{% trans %}Emails associated with your account{% endtrans %}</caption>
       <thead>
         <tr>
-          <th>Email address</th>
-          <th>Status</th>
+          <th scope="col">{% trans %}Email address{% endtrans %}</th>
+          <th scope="col">{% trans %}Status{% endtrans %}</th>
           <th></th>
         </tr>
       </thead>
@@ -195,52 +362,74 @@
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
-        <label class="form-group__label" for="email">Add email</label>
-        <div class="form-group__horizontal">
-          <div class="form-group__horizontal-left">
-            {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
-            {{ field_errors(add_email_form.email) }}
-          </div>
-          <div class="form-group__horizontal-right">
-            <input value="Add" class="button button--primary" type="submit">
-          </div>
+        <label class="form-group__label" for="email">
+          {% trans %}Add email{% endtrans %}
+          {% if add_email_form.email.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}
+          </span>{% endif %}
+        </label>
+        {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"add-email-errors"}) }}
+        <div id="add-email-errors">
+          {{ field_errors(add_email_form.email) }}
         </div>
       </div>
+      <input value="{% trans %}Add email{% endtrans %}" class="button button--primary" type="submit">
     </form>
   </section>
 
   <hr>
 
   <section id="change-password">
-    <h2 class="sub-title">Change password</h2>
+    <h2 class="sub-title">{% trans %}Change password{% endtrans %}</h2>
     {{ form_error_anchor(change_password_form) }}
     <form data-controller="password password-match password-strength-gauge" method="POST" action="#errors">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(change_password_form) }}
       <div class="form-group">
         <div class="split-layout">
-          <label class="form-group__label" for="name">Old password</label>
+          <label class="form-group__label" for="name">
+            {% trans %}Old password{% endtrans %}
+            {% if change_password_form.password.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
           <label for="show-password">
             <input data-action="change->password#togglePasswords" data-target="password.showPassword"
-              id="show-password" type="checkbox">&nbsp;Show passwords
+              id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
           </label>
         </div>
-        {{ change_password_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password")}}
-        {{ field_errors(change_password_form.password) }}
+        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__field", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
+        <div id="current-password-errors">
+          {{ field_errors(change_password_form.password) }}
+        </div>
       </div>
       <div class="form-group">
-        <label class="form-group__label" for="name">New password</label>
+        <label class="form-group__label" for="name">
+          {% trans %}New password{% endtrans %}
+          {% if change_password_form.new_password.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength") }}
+          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
         </div>
-        {{ field_errors(change_password_form.new_password) }}
+        <div id="new-password-errors">
+          {{ field_errors(change_password_form.new_password) }}
+        </div>
         {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
       </div>
       <div class="form-group">
-        <label class="form-group__label" for="name">Confirm new password</label>
-        {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
-        {{ field_errors(change_password_form.password_confirm) }}
+        <label class="form-group__label" for="name">
+          {% trans %}Confirm new password{% endtrans %}
+          {% if change_password_form.password_confirm.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
+        <div id="confirm-password-errors">
+          {{ field_errors(change_password_form.password_confirm) }}
+        </div>
       </div>
       <div class="form-group">
         <ul class="form-errors">
@@ -254,48 +443,292 @@
   </section>
 
   <hr>
+  <section id="two-factor">
+    <h2 class="sub-title">{% trans %}Two factor authentication (2FA){% endtrans %}</h2>
+    <p>{% trans href='/help#twofa' %}Two factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.{% endtrans %}</p>
+
+    {% if user.has_primary_verified_email %}
+      {% if user.totp_secret or user.webauthn %}
+      <table class="table table--2fa">
+        <caption class="sr-only">{% trans %}Two factor authentication methods enabled{% endtrans %}</caption>
+        <thead>
+          <tr>
+            <th scope="col" colspan="2">{% trans %}Two factor method{% endtrans %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if user.totp_secret %}
+          <tr>
+            <th scope="row">{% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}</th>
+            <td class="table__align-right">
+              <a href="#disable-totp" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
+              {% set title=gettext("Remove authentication application") %}
+              {% set confirm_button_label=gettext("Remove application") %}
+              {% set action=request.route_path('manage.account.totp-provision') %}
+              {{ confirm_password_modal(title=title, action=action, slug="disable-totp", warning=False, confirm_button_label=confirm_button_label) }}
+            </td>
+          </tr>
+          {% endif %}
+          {% for credential in user.webauthn %}
+          <tr>
+            <th scope="row">
+              <strong>"{{ credential.label }}"</strong> - {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
+            </th>
+            <td class="table__align-right">
+              <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
+              {% set title=gettext("Remove two factor security device") + " - " + credential.label %}
+              {% set confirm_button_label=gettext("Remove device") %}
+              {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
+              {% set slug="disable-webauthn-" + credential.id | string %}
+              {% set extra_fields %}
+                <input type="hidden" name="label" value="{{ credential.label }}" autocomplete="off">
+              {% endset %}
+              {{ confirm_modal(title=title, label=gettext("Device name"), confirm_name="device_name", confirm_string=credential.label, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, warning=False, confirm_string_in_title=False) }}
+            </td>
+          </tr>
+          {% endfor %}
+          {% if user.has_recovery_codes %}
+          <tr>
+            <th scope="row">
+              {% trans %}Recovery Codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
+            </th>
+            <td class="table__align-right">
+              <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
+              {% set title=gettext("Regenerate Recovery Codes") %}
+              {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
+              {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
+              {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+      {{ twofa_buttons() }}
+      {% else %}
+      <div class="callout-block">
+        <p>{% trans %}You have not enabled two factor authentication on your account.{% endtrans %}</p>
+        {{ twofa_buttons() }}
+      </div>
+      {% endif %}
+    {% else %}
+      <p><strong>{% trans href='#account-emails' %}<a href="{{ href }}">Verify your primary email address</a> to add two factor authentication to your account.{% endtrans %}</strong></p>
+    {% endif %}
+  </section>
+
+  <hr>
+
+  <section id="api-tokens">
+    <h2>{% trans %}API tokens{% endtrans %}</h2>
+    <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %} <a href="/help#apitoken">{% trans %}Learn more about API tokens{% endtrans %}</a>.</p>
+
+    {% if user.macaroons|length > 0 %}
+    <table class="table table--api-tokens">
+      <caption class="sr-only">{% trans %}Active API tokens for this account{% endtrans %}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Name{% endtrans %}</th>
+          <th scope="col">{% trans %}Scope{% endtrans %}</th>
+          <th scope="col">{% trans %}Created{% endtrans %}</th>
+          <th scope="col" colspan="2">{% trans %}Last used{% endtrans %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for macaroon in user.macaroons %}
+          {{ api_row(macaroon) }}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if user.has_primary_verified_email %}
+    <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">{% trans %}Add API token{% endtrans %}</a>
+    {% else %}
+    <p><strong>{% trans href='#account-emails' %}<a href="{{ href }}">Verify your primary email address</a> to add API tokens to your account.{% endtrans %}</strong></p>
+    {% endif %}
+
+  </section>
+
+  <hr>
+
+  <section id="account-events">
+    <h2>{% trans %}Security history{% endtrans %}</h2>
+
+    {% set recent_events = user.recent_events %}
+    {% if recent_events|length > 0 %}
+
+    {% macro event_summary(event) -%}
+      {% if event.tag == "account:create" %}
+      <strong>{% trans %}Account created{% endtrans %}</strong>
+
+      {% elif event.tag == "account:login:success" %}
+      <strong>{% trans %}Logged in{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Two factor method:{% endtrans %}
+        {% if event.additional.two_factor_method == None %}
+          {% trans %}None{% endtrans %}
+        {% elif event.additional.two_factor_method  == "webauthn" %}
+          {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
+        {% elif event.additional.two_factor_method  == "totp" %}
+          {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
+        {% elif event.additional.two_factor_method  == "recovery-code" %}
+          {% trans %}Recovery Code{% endtrans %}
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:email:add" %}
+      <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:remove" %}
+      <strong>{% trans %}Email removed from account{% endtrans %}</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:verified" %}
+      <strong>{% trans %}Email verified{% endtrans %}</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:reverify" %}
+      <strong>{% trans %}Email reverified{% endtrans %}</strong><br>
+      <small>{{ event.additional.email }}<small>
+      {% elif event.tag  == "account:email:primary:change" %}
+        {% if event.additional.old_primary %}
+        <strong>{% trans %}Primary email changed{% endtrans %}</strong><br>
+        <small>
+          {% trans %}Old primary email:{% endtrans %} {{ event.additional.old_primary }}<br>
+          {% trans %}New primary email:{% endtrans %} {{ event.additional.new_primary }}
+        <small>
+        {% else %}
+        <strong>{% trans %}Primary email set{% endtrans %}</strong><br>
+        <small>
+          {{ event.additional.new_primary }}
+        </small>
+        {% endif %}
+
+      {% elif event.tag  == "account:password:reset:request" %}
+      <strong>{% trans %}Password reset requested{% endtrans %}</strong>
+      {% elif event.tag  == "account:password:reset" %}
+      <strong>{% trans %}Password successfully reset{% endtrans %}</strong>
+      {% elif event.tag  == "account:password:change" %}
+      <strong>{% trans %}Password successfully changed{% endtrans %}</strong>
+
+      {% elif event.tag  == "account:two_factor:method_added" %}
+      <strong>{% trans %}Two factor authentication added{% endtrans %}</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          {% trans %}Method: Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}<br>
+          {% trans %}Device name:{% endtrans %} {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          {% trans %}Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
+        {% endif %}
+      </small>
+      {% elif event.tag  == "account:two_factor:method_removed" %}
+      <strong>{% trans %}Two factor authentication removed{% endtrans %}</strong><br>
+      <small>
+        {% if event.additional.method == "webauthn" %}
+          {% trans %}Method: Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}<br>
+          {% trans %}Device name:{% endtrans %} {{ event.additional.label }}
+        {% elif event.additional.method == "totp" %}
+          {% trans %}Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
+        {% endif %}
+      </small>
+
+      {% elif event.tag == "account:recovery_codes:generated" %}
+      <strong>{% trans %}Recovery Codes generated{% endtrans %}</strong><br>
+      <small>
+      </small>
+      {% elif event.tag == "account:recovery_codes:regenerated" %}
+      <strong>{% trans %}Recovery Codes regenerated{% endtrans %}</strong><br>
+      <small>
+      </small>
+      {% elif event.tag == "account:recovery_codes:used" %}
+      <strong>{% trans %}Recovery Code used for login{% endtrans %}</strong><br>
+      <small>
+      </small>
+
+
+      {% elif event.tag  == "account:api_token:added" %}
+      <strong>{% trans %}API token added{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
+        {% if event.additional.caveats.permissions == "user" %}
+          {% trans %}Token scope: entire account{% endtrans %}
+        {% else %}
+          {% trans project_name=event.additional.caveats.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+        {% endif %}
+      </small>
+
+      {% elif event.tag  == "account:api_token:removed" %}
+      <strong>{% trans %}API token removed{% endtrans %}</strong><br>
+      <small>{% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}</small>
+      {% else %}
+      <strong>{{ event.tag }}</strong>
+      {% endif %}
+    {%- endmacro %}
+
+    <p>{% trans %}Events appear here as security-related actions occur on your account.{% endtrans %}</p>
+    <table class="table table--security-logs">
+      <caption class="sr-only">{% trans %}Recent account activity{% endtrans %}</caption>
+      <thead>
+        <th scope="col">{% trans %}Event{% endtrans %}</th>
+        <th scope="col">{% trans %}Date / time{% endtrans %}</th>
+        <th scope="col">{% trans %}IP address{% endtrans %}</th>
+      </thead>
+      <tbody>
+        {% for event in recent_events %}
+        <tr>
+          <td>{{ event_summary(event) }}</td>
+          <td>
+            <span class="table__mobile-label">{% trans %}Date / time{% endtrans %}</span>
+            {{ humanize(event.time, time="true") }}
+          </td>
+          <td>
+            <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
+            {{ event.ip_address }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>{% trans %}Events will appear here as security-related actions occur on your account.{% endtrans %}</p>
+    {% endif %}
+  </section>
+
+  <hr>
 
   <section id="delete-account">
-    <h2>Delete account</h2>
+    <h2>{% trans %}Delete account{% endtrans %}</h2>
     <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
       {% if active_projects %}
-      <h3>Cannot delete account</h3>
+      <h3>{% trans %}Cannot delete account{% endtrans %}</h3>
       <p>
-        Your account is currently the <strong>sole owner</strong> of {{ active_projects|length }}
         {% trans count=active_projects|length %}
-          project.
+          Your account is currently the <strong>sole owner</strong> of {{ count }} project.
         {% pluralize %}
-          projects.
+          Your account is currently the <strong>sole owner</strong> of {{ count }} projects.
         {% endtrans %}
-        You must transfer ownership or delete
         {% trans count=active_projects|length %}
-          this project
+          You must transfer ownership or delete this project before you can delete your account.
         {% pluralize %}
-          these projects
+          You must transfer ownership or delete these projects before you can delete your account.
         {% endtrans %}
-        before you can delete your account.
       </p>
       <ul class="no-bottom-margin">
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          <a href="{{ request.route_path('manage.project.roles', project_name=project.name) }}">
-            transfer ownership
-          </a>
-          or
-          <a href="{{ request.route_path('manage.project.settings', project_name=project.name) }}">
-            delete
-          </a>
+          {% trans trimmed transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+            <a href="{{ transfer_href }}">transfer ownership</a>
+            or
+            <a href="{{ delete_href }}">delete project</a>
+          {% endtrans %}
         </li>
         {% endfor %}
       </ul>
       {% else %}
-      <h3>Proceed with caution!</h3>
+      <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
       <p>
-        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
-        You will not be able to recover your account after you delete it
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+        {% trans %}You will not be able to recover your account after you delete it{% endtrans %}
       </p>
-      {{ confirm_button("Delete your PyPI account", "Username", user.username) }}
+      {{ confirm_password_button(gettext("Delete your PyPI account")) }}
       {% endif %}
     </div>
   </section>

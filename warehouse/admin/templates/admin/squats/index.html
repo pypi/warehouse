@@ -1,0 +1,80 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Squats{% endblock %}
+
+{% block breadcrumb %}
+  <li class="active">Squats</li>
+{% endblock %}
+
+{% set csrf_token = request.session.get_csrf_token() %}
+
+{% block content %}
+<div class="box box-primary">
+  <div class="box-header with-border">
+    <h3 class="box-title">List Squats</h3>
+  </div>
+  <div class="box-body table-responsive no-padding">
+    <table class="table table-hover">
+      <tr>
+        <th>Potential Squatter</th>
+        <th>Squatting on</th>
+        <th>Created</th>
+        <th>Created by</th>
+        <th></th>
+      </tr>
+      {% for squat in squats %}
+      <tr>
+        <td>
+          <a href="{{ request.route_path('admin.project.detail', project_name=squat.squatter.normalized_name) }}">
+            {{ squat.squatter.normalized_name }}
+          </a>
+        </td>
+        <td>
+          <a href="{{ request.route_path('admin.project.detail', project_name=squat.squattee.normalized_name) }}">
+            {{ squat.squattee.normalized_name }}
+          </a>
+        </td>
+        <td>{{ squat.created }}</td>
+        <td>
+        {% for user in squat.squatter.users %}
+          <a href="{{ request.route_path("admin.user.detail", user_id=user.id) }}">
+            {{ user.username }}
+          </a>{{ "," if not loop.last }}
+        {% endfor %}
+        </td>
+        <td>
+          <form method="POST" action="{{ request.route_path('admin.squats.review') }}">
+            <input type="hidden" name="id" value="{{ squat.id }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="submit" value="Mark as reviewed" title="{{ "Marking requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5">
+          <center>
+            <i>No squats!</i>
+          </center>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock content %}

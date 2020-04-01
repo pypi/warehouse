@@ -13,6 +13,7 @@
 import collections
 import functools
 import operator
+
 from itertools import chain
 
 from sqlalchemy.orm.session import Session
@@ -47,7 +48,7 @@ def execute_purge(config, session):
 
     try:
         cacher_factory = config.find_service_factory(IOriginCache)
-    except ValueError:
+    except LookupError:
         return
 
     cacher = cacher_factory(None, config)
@@ -69,7 +70,7 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
 
             try:
                 cacher = request.find_service(IOriginCache)
-            except ValueError:
+            except LookupError:
                 pass
             else:
                 request.add_response_callback(

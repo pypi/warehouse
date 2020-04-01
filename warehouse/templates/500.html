@@ -13,26 +13,38 @@
 -#}
 {% extends "error-base.html" %}
 
-{% block title %}Internal server error (500){% endblock %}
+{% block title %}{% trans %}Internal server error (500){% endtrans %}{% endblock %}
 
-{% block error_heading %}Sorry, something went wrong{% endblock %}
+{% block error_heading %}{% trans %}Something went wrong{% endtrans %}{% endblock %}
 
 {% block error_text %}
 <div class="viewport-section__text no-top-margin no-top-padding">
+  {% trans trimmed %}
   <p>We are experiencing technical issues that are affecting our ability to serve you this site.</p>
   <p>We are aware of the problem and are working to resolve it as soon as possible.</p>
+  {% endtrans %}
 
   <ul class="unstyled">
-    <li><a href="https://status.python.org/">Check our status page</a></li>
-    <li><a href="https://twitter.com/PythonStatus">View Python Status on Twitter</a></li>
+    <li><a href="https://status.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Check our status page{% endtrans %}</a></li>
+    <li><a href="https://twitter.com/PythonStatus" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}View Python Status on Twitter{% endtrans %}</a></li>
   </ul>
   <br>
-  <p class="no-bottom-padding"><strong>Error code 500</strong></p>
+  <p class="no-bottom-padding"><strong>{% trans %}Error code 500{% endtrans %}</strong></p>
   <hr class="viewport-section__rule">
   <p>
     <strong>
-      Rely on PyPI to get your job done?<br>
-      Consider <a href="https://github.com/pypa/warehouse">contributing</a> or <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=13">donating</a> to help us build a more stable and secure platform.
+      {% trans %}Rely on PyPI to get your job done?{% endtrans %}<br>
+      {% trans trimmed %}
+      Consider
+      <a href="https://github.com/pypa/warehouse" target="_blank" rel="noopener">
+        contributing
+      </a>
+      or
+      <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=13" target="_blank" rel="noopener">
+        donating
+      </a>
+      to help us build a more stable and secure platform.
+      {% endtrans %}
     </strong>
   </p>
 </div>

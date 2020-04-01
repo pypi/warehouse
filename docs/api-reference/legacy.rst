@@ -120,7 +120,7 @@ The API endpoint served at `upload.pypi.org/legacy/
 <https://upload.pypi.org/legacy/>`_ is Warehouse's emulation of the
 legacy PyPI upload API. This is the endpoint that tools such as `twine
 <https://twine.readthedocs.io/>`_ and `distutils
-<https://docs.python.org/3.6/distutils/packageindex.html#the-upload-command>`_
+<https://docs.python.org/3.7/distutils/packageindex.html#the-upload-command>`_
 use to `upload distributions to PyPI
 <https://packaging.python.org/tutorials/distributing-packages/>`_.
 
@@ -135,7 +135,7 @@ POST request with the following fields:
   with no padding
 - ``filetype`` set to the type of the artifact, i.e. ``bdist_wheel``
   or ``sdist``
-- When used with ``bdist_wheel`` for ``filetype`, ``pyversion`` must be set to
+- When used with ``bdist_wheel`` for ``filetype``, ``pyversion`` must be set to
   a specific release, i.e. ``cp36``, when used with ``sdist`` it must be set to
   ``source``
 - ``metadata_version``, ``name`` and ``version`` set according to the

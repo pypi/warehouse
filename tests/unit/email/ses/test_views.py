@@ -15,8 +15,9 @@ import uuid
 
 import pretend
 import pytest
+import requests
 
-from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
 
 from warehouse.email.ses import views
 from warehouse.email.ses.models import EmailMessage, EmailStatuses, Event, EventTypes
@@ -131,11 +132,26 @@ class TestConfirmSubscription:
 
 
 class TestNotification:
-    def test_raises_when_invalid_type(self):
-        request = pretend.stub(json_body={"Type": "SubscriptionConfirmation"})
+    def test_raises_when_invalid_type(self, pyramid_request):
+        pyramid_request.json_body = {"Type": "SubscriptionConfirmation"}
 
         with pytest.raises(HTTPBadRequest):
-            views.notification(request)
+            views.notification(pyramid_request)
+
+    def test_error_fetching_pubkey(self, pyramid_request, monkeypatch, metrics):
+        def raiser(*args, **kwargs):
+            raise requests.HTTPError
+
+        monkeypatch.setattr(views, "_verify_sns_message", raiser)
+
+        pyramid_request.json_body = {"Type": "Notification"}
+
+        with pytest.raises(HTTPServiceUnavailable):
+            views.notification(pyramid_request)
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.ses.sns_verify.error")
+        ]
 
     def test_returns_200_existing_event(self, db_request, monkeypatch):
         verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)

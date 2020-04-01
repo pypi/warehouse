@@ -11,20 +11,21 @@
 # limitations under the License.
 
 import celery
-import redis
 import pretend
 import pytest
+import redis
 
 from pyramid.exceptions import ConfigurationError
 
 import warehouse.legacy.api.xmlrpc.cache
-from warehouse.legacy.api.xmlrpc.cache import services
+
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import (
-    cached_return_view,
     NullXMLRPCCache,
     RedisLru,
     RedisXMLRPCCache,
+    cached_return_view,
+    services,
 )
 from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError, IXMLRPCCache
 
@@ -323,7 +324,7 @@ class TestDeriver:
         if service_available:
             _find_service = pretend.call_recorder(lambda *args, **kwargs: service)
         else:
-            _find_service = pretend.raiser(ValueError)
+            _find_service = pretend.raiser(LookupError)
         request = pretend.stub(
             find_service=_find_service, rpc_method="rpc_method", rpc_args=(0, 1)
         )
@@ -354,7 +355,7 @@ class TestDeriver:
         if service_available:
             _find_service = pretend.call_recorder(lambda *args, **kwargs: service)
         else:
-            _find_service = pretend.raiser(ValueError)
+            _find_service = pretend.raiser(LookupError)
         request = pretend.stub(
             find_service=_find_service,
             rpc_method="rpc_method",
@@ -387,7 +388,7 @@ class TestDeriver:
         if service_available:
             _find_service = pretend.call_recorder(lambda *args, **kwargs: service)
         else:
-            _find_service = pretend.raiser(ValueError)
+            _find_service = pretend.raiser(LookupError)
         request = pretend.stub(
             find_service=_find_service, rpc_method="rpc_method", rpc_args=(0, 1)
         )
@@ -519,7 +520,7 @@ class TestPurgeTask:
     def test_execute_unsuccessful_purge(self):
         @pretend.call_recorder
         def find_service_factory(interface):
-            raise ValueError
+            raise LookupError
 
         config = pretend.stub(find_service_factory=find_service_factory)
         session = pretend.stub(

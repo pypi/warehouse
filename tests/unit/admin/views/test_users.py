@@ -10,17 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
-import pytest
 import uuid
 
+import pretend
+import pytest
+
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
+from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import DisableReason
 from warehouse.admin.views import users as views
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import JournalEntry, Project
 
-from ....common.db.accounts import User, UserFactory, EmailFactory
+from ....common.db.accounts import EmailFactory, User, UserFactory
 from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFactory
 
 
@@ -104,7 +108,7 @@ class TestUserList:
 
 
 class TestUserDetail:
-    def test_404s_on_nonexistant_user(self, db_request):
+    def test_404s_on_nonexistent_user(self, db_request):
         user = UserFactory.create()
         user_id = uuid.uuid4()
         while user.id == user_id:
@@ -144,14 +148,65 @@ class TestUserDetail:
         assert user.name == "Jane Doe"
 
 
+class TestUserAddEmail:
+    def test_add_email(self, db_request):
+        user = UserFactory.create(emails=[])
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.method = "POST"
+        db_request.POST["email"] = "foo@bar.com"
+        db_request.POST["primary"] = True
+        db_request.POST["verified"] = True
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+        )
+
+        resp = views.user_add_email(db_request)
+
+        db_request.db.flush()
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert len(user.emails) == 1
+
+        email = user.emails[0]
+
+        assert email.email == "foo@bar.com"
+        assert email.primary
+        assert email.verified
+
+    def test_add_invalid(self, db_request):
+        user = UserFactory.create(emails=[])
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.method = "POST"
+        db_request.POST["email"] = ""
+        db_request.POST["primary"] = True
+        db_request.POST["verified"] = True
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/users/{}/".format(user.id)
+        )
+
+        resp = views.user_add_email(db_request)
+
+        db_request.db.flush()
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/users/{}/".format(user.id)
+        assert user.emails == []
+
+
 class TestUserDelete:
     def test_deletes_user(self, db_request, monkeypatch):
         user = UserFactory.create()
         project = ProjectFactory.create()
         another_project = ProjectFactory.create()
-        journal = JournalEntryFactory(submitted_by=user)
         RoleFactory(project=project, user=user, role_name="Owner")
         deleted_user = UserFactory.create(username="deleted-user")
+
+        # Create an extra JournalEntry by this user which should be
+        # updated with the deleted-user user.
+        JournalEntryFactory(submitted_by=user, action="some old journal")
 
         db_request.matchdict["user_id"] = str(user.id)
         db_request.params = {"username": user.username}
@@ -168,7 +223,27 @@ class TestUserDelete:
         assert db_request.route_path.calls == [pretend.call("admin.user.list")]
         assert result.status_code == 303
         assert result.location == "/foobar"
-        assert journal.submitted_by == deleted_user
+
+        # Check that the correct journals were written/modified
+        old_journal = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .filter(JournalEntry.action == "some old journal")
+            .one()
+        )
+        assert old_journal.submitted_by == deleted_user
+        remove_journal = (
+            db_request.db.query(JournalEntry)
+            .filter(JournalEntry.action == "remove project")
+            .one()
+        )
+        assert remove_journal.name == project.name
+        nuke_journal = (
+            db_request.db.query(JournalEntry)
+            .filter(JournalEntry.action == "nuke user")
+            .one()
+        )
+        assert nuke_journal.name == f"user:{user.username}"
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
@@ -185,6 +260,68 @@ class TestUserDelete:
 
         assert db_request.db.query(User).get(user.id)
         assert db_request.db.query(Project).all() == [project]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", user_id=user.id)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+
+class TestUserResetPassword:
+    def test_resets_password(self, db_request, monkeypatch):
+        user = UserFactory.create()
+
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "10.10.10.10"
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.id),
+            disable_password=pretend.call_recorder(lambda userid, reason: None),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+
+        result = views.user_reset_password(db_request)
+
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None)
+        ]
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert service.disable_password.calls == [
+            pretend.call(user.id, reason=DisableReason.CompromisedPassword)
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", user_id=user.id)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_resets_password_bad_confirm(self, db_request, monkeypatch):
+        user = UserFactory.create()
+
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.params = {"username": "wrong"}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "10.10.10.10"
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.id),
+            disable_password=pretend.call_recorder(lambda userid, reason: None),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+
+        result = views.user_reset_password(db_request)
+
+        assert db_request.find_service.calls == []
+        assert send_email.calls == []
+        assert service.disable_password.calls == []
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", user_id=user.id)
         ]

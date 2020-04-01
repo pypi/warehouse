@@ -21,16 +21,16 @@
     <a href="/">
       <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
     </a>
-    <h2 class="viewport-section__heading">{% block error_heading %}{% endblock %}</h2>
+    <h1 class="viewport-section__heading">{% block error_heading %}{% endblock %}</h1>
 
     {% block error_search %}{% endblock error_search %}
 
     {% block error_text %}
     <div class="viewport-section__text">
       <p>
-        <strong>Error code {% block error_code %}{% endblock %}</strong>
+        <strong>{% trans %}Error code{% endtrans %} {% block error_code %}{% endblock %}</strong>
         <br>
-        <a href="/">Back to the homepage</a>
+        <a href="/">{% trans %}Back to the homepage{% endtrans %}</a>
       </p>
     </div>
     {% endblock error_text %}

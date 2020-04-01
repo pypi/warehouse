@@ -19,8 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Release, Project
-
+from warehouse.packaging.models import File, Project, Release
 
 # Generate appropriate CORS headers for the JSON endpoint.
 # We want to allow Cross-Origin requests here so that users can interact
@@ -41,19 +40,21 @@ _CORS_HEADERS = {
     "Access-Control-Expose-Headers": ", ".join(["X-PyPI-Last-Serial"]),
 }
 
+_CACHE_DECORATOR = [
+    cache_control(15 * 60),  # 15 minutes
+    origin_cache(
+        1 * 24 * 60 * 60,  # 1 day
+        stale_while_revalidate=5 * 60,  # 5 minutes
+        stale_if_error=1 * 24 * 60 * 60,  # 1 day
+    ),
+]
+
 
 @view_config(
     route_name="legacy.api.json.project",
     context=Project,
     renderer="json",
-    decorator=[
-        cache_control(15 * 60),  # 15 minutes
-        origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=5 * 60,  # 5 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
-        ),
-    ],
+    decorator=_CACHE_DECORATOR,
 )
 def json_project(project, request):
     if project.name != request.matchdict.get("name", project.name):
@@ -76,17 +77,23 @@ def json_project(project, request):
 
 
 @view_config(
+    route_name="legacy.api.json.project_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_project_slash(project, request):
+    return HTTPMovedPermanently(
+        # Respond with redirect to url without trailing slash
+        request.route_path("legacy.api.json.project", name=project.name),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
     route_name="legacy.api.json.release",
     context=Release,
     renderer="json",
-    decorator=[
-        cache_control(15 * 60),  # 15 minutes
-        origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=5 * 60,  # 5 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
-        ),
-    ],
+    decorator=_CACHE_DECORATOR,
 )
 def json_release(release, request):
     project = release.project
@@ -105,7 +112,7 @@ def json_release(release, request):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
-        .options(Load(Release).load_only("version"))
+        .options(Load(Release).load_only("version", "requires_python"))
         .outerjoin(File)
         .filter(Release.project == project)
         .order_by(Release._pypi_ordering.desc(), File.filename)
@@ -137,7 +144,9 @@ def json_release(release, request):
                 #       here to consider it no longer in use.
                 "downloads": -1,
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                "upload_time_iso_8601": f.upload_time.isoformat() + "Z",
                 "url": request.route_url("packaging.file", path=f.path),
+                "requires_python": r.requires_python if r.requires_python else None,
             }
             for f in fs
         ]
@@ -149,8 +158,8 @@ def json_release(release, request):
             "name": project.name,
             "version": release.version,
             "summary": release.summary,
-            "description_content_type": release.description_content_type,
-            "description": release.description,
+            "description_content_type": release.description.content_type,
+            "description": release.description.raw,
             "keywords": release.keywords,
             "license": release.license,
             "classifiers": list(release.classifiers),
@@ -171,7 +180,7 @@ def json_release(release, request):
                 list(release.requires_dist) if release.requires_dist else None
             ),
             "docs_url": project.documentation_url,
-            "bugtrack_url": project.bugtrack_url,
+            "bugtrack_url": None,
             "home_page": release.home_page,
             "download_url": release.download_url,
         },
@@ -179,3 +188,20 @@ def json_release(release, request):
         "releases": releases,
         "last_serial": project.last_serial,
     }
+
+
+@view_config(
+    route_name="legacy.api.json.release_slash",
+    context=Release,
+    decorator=_CACHE_DECORATOR,
+)
+def json_release_slash(release, request):
+    return HTTPMovedPermanently(
+        # Respond with redirect to url without trailing slash
+        request.route_path(
+            "legacy.api.json.release",
+            name=release.project.name,
+            version=release.version,
+        ),
+        headers=_CORS_HEADERS,
+    )

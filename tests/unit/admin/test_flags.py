@@ -10,14 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 from ...common.db.admin import AdminFlagFactory
+
+
+class TestAdminFlagValues(enum.Enum):
+    NOT_A_REAL_FLAG = "not-a-real-flag"
+    THIS_FLAG_IS_ENABLED = "this-flag-is-enabled"
 
 
 class TestAdminFlag:
     def test_default(self, db_request):
-        assert not db_request.flags.enabled("not-a-real-flag")
+        assert not db_request.flags.enabled(TestAdminFlagValues.NOT_A_REAL_FLAG)
 
     def test_enabled(self, db_request):
         AdminFlagFactory(id="this-flag-is-enabled")
 
-        assert db_request.flags.enabled("this-flag-is-enabled")
+        assert db_request.flags.enabled(TestAdminFlagValues.THIS_FLAG_IS_ENABLED)

@@ -10,8 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
 import uuid
+
+import pretend
 
 from pyramid import authentication
 from pyramid.interfaces import IAuthenticationPolicy

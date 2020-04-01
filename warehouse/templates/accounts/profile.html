@@ -13,23 +13,36 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}{{ user.username }}{% endblock %}
+{% block title %}{% trans username=user.username %}Profile of {{ username }}{% endtrans %}{% endblock %}
 
 {% block content %}
-<section class="horizontal-section horizontal-section--medium">
+<div class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
     <div class="left-layout__sidebar">
       <div class="author-profile">
-        {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
+        {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
         <img src="{{ gravatar(request, user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
         <div class="author-profile__info">
           {% if user.name %}
           <h1 class="author-profile__name">{{ user.name }}</h1>
           {% endif %}
           <div class="author-profile__meta">
-            <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
+            <p>
+              <i class="fa fa-user-circle" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Username{% endtrans %}</span>
+              &nbsp;&nbsp;
+              <span class="break">{{ user.username }}</span>
+            </p>
+            {% if user.public_email %}
+            {% csi request.route_url("includes.profile-public-email", username=user.username), 'p' %}
+            {% endcsi %}
+            {% endif %}
             {% if user.date_joined %}
-            <p><i class="fa fa-calendar-alt" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
+            <p>
+              <i class="fa fa-calendar-alt" aria-hidden="true"></i>
+              <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
+              &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined on {{ start_date }}{% endtrans %}
+            </p>
             {% endif %}
           </div>
           {% csi request.route_path("includes.profile-actions", username=user.username) %}
@@ -48,31 +61,31 @@
             {{ count }} projects
           {% endtrans %}
         {% else %}
-          No projects
+          {% trans %}No projects{% endtrans %}
         {% endif %}
       </h2>
       <div class="package-list">
         {% if projects %}
         {% for project in projects %}
-        <div class="package-snippet">
-          <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">{{ project.name }}</a></h3>
+        <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+          <h3 class="package-snippet__title">{{ project.name }}</h3>
           <p class="package-snippet__meta">
-            <em>Last released on {{ project.releases[0].created|format_date() }}</em>
+            {% trans release_date=humanize(project.releases[0].created) %}Last released on {{ release_date }}{% endtrans %}
           </p>
           <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
-        </div>
+        </a>
         {% endfor %}
         {% else %}
           {% csi request.route_url("includes.current-user-profile-callout", username=user.username) %}
           <div class="callout-block no-top-margin">
-            <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet</p>
+            <p>{% trans user=user.name|default(user.username, true) %}{{ user }} has not uploaded any projects to PyPI, yet{% endtrans %}</p>
           </div>
           {% endcsi %}
         {% endif %}
       </div>
     </div>
   </div>
-</section>
+</div>
 
 
 {% endblock %}

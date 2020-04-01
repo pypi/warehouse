@@ -17,11 +17,10 @@ Revises: None
 Create Date: 2015-02-01 14:07:10.983672
 """
 
-from alembic import op
-
 import citext
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "283c68f2ab2"
 down_revision = None

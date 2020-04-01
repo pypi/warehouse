@@ -20,10 +20,14 @@
       // footer icon image goes here
     </div>
     <div class="footer__menus"> // menu wrapper
-      <ul class="footer__menu"> // 3 of these!
-        <li><h3>Menu Title</h3></li>
-        <li><a>Menu Link</a></li>
-      </ul>
+      <div class="footer__menu">
+        // H2: Menu title
+        <nav aria-label="menu label">
+          <ul>
+            <li><a>Menu Link</a></li>
+          </ul>
+        </nav>
+      </div>
     </div>
 
     <hr class="footer__divider">
@@ -35,7 +39,6 @@
 */
 
 .footer {
-  $footer-link-color: mix($white, $primary-color, 95%);
   background-color: lighten($primary-color, 2);
   color: $white;
   padding: 60px 0;
@@ -67,26 +70,25 @@
     margin: 0 ($spacing-unit / 2) 40px ($spacing-unit / 2);
     padding: 0;
 
+    h2 {
+      color: $white;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+
     li {
       padding: 2px 0;
       list-style: none;
       text-align: center;
 
       a {
-        color: $footer-link-color;
-        text-decoration: none;
-
-        &:hover {
-          color: $white;
-          text-decoration: underline;
-        }
-
-        @include link-focus(underline);
-      }
-
-      h2 {
-        color: $white;
-        margin-bottom: 5px;
+        background-image: none;
+        @include white-underlined-link;
       }
     }
   }
@@ -100,18 +102,15 @@
   }
 
   &__text {
-    color: $footer-link-color;
-    font-size: $base-font-size * 0.9;
+    color: transparentize($white, 0.05);
+    font-size: 0.9rem;
     margin: auto;
     max-width: 600px;
     text-align: center;
     padding: 0 20px;
 
     a {
-      color: $white;
-      text-decoration: underline;
-
-      @include link-focus(underline);
+      @include white-underlined-link;
     }
   }
 }

@@ -21,7 +21,10 @@ code, which will make Warehouse easier to maintain in the long term.
 ---------------------------------------
 
 Ensuring Warehouse follows usability and accessibility best practices will make
-the site easier to use for everybody. At a minimum:
+the site easier to use for everybody.
+
+Warehouse follows the `WCAG 2.0 AA standard <https://www.w3.org/TR/WCAG20/>`_.
+When working on the UI:
 
 - Ensure contrast is high, particularly on text. This can be checked:
    - On Chrome by installing `Accessibility Developer Tools
@@ -61,12 +64,17 @@ help content).
 -------------------------------------------------------
 
 Warehouse follows the `Material design writing style guide
-<https://material.io/design/usability/accessibility.html#writing>`_.
+<https://web.archive.org/web/20180410101124/https://material.io/guidelines/style/writing.html>`_.
 
 When writing interfaces use direct, clear and simple language. This is
 especially important as Warehouse caters to an international audience with
 varying proficiency in English. If you're unsure, `check the readability of
 your text <http://www.webpagefx.com/tools/read-able/>`_.
+For consistency, we prefer using American English spellings over British
+English.
+
+Do not use directional prompts when writing user interface copy. For example
+"Click the button on the left" should be avoided.
 
 Be consistent, particularly when it comes to domain specific words. Use this
 glossary as a guide:

@@ -18,22 +18,21 @@ import pretend
 import pytest
 
 from cryptography import x509
-from cryptography.x509.oid import NameOID
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
+    NoEncryption,
     PrivateFormat,
     PublicFormat,
-    NoEncryption,
     load_pem_private_key,
     load_pem_public_key,
 )
+from cryptography.x509.oid import NameOID
 
-from warehouse.utils.sns import MessageVerifier, InvalidMessage
-
+from warehouse.utils.sns import InvalidMessage, MessageVerifier
 
 VALID_SIGNATURE = object()
 

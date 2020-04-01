@@ -17,22 +17,67 @@
   Use for small strings, or numbers.
 
   <span class="badge">Contributor</span>
+  or
+  <a class="badge">Sole owner</span>
 */
 
 .badge {
   font-size: $small-font-size;
   text-transform: uppercase;
+  border: 1px solid $primary-color;
   background-color: $primary-color;
   color: $white;
-  padding: 2px 7px;
+  padding: 0 7px;
   border-radius: 3px;
   font-weight: 600;
+  @include link-without-underline;
+
+  &:hover {
+    color: $white;
+  }
+
+  &:focus,
+  &:active {
+    border-color: $white;
+    outline: 1px solid $primary-color;
+  }
 
   &--success {
     background-color: $success-color;
+    border-color: $success-color;
+
+    &:focus,
+    &:active {
+      outline: 1px solid $success-color;
+    }
   }
 
   &--danger {
     background-color: $danger-color;
+    border-color: $danger-color;
+
+    &:focus,
+    &:active {
+      outline: 1px solid $danger-color;
+    }
   }
+
+  &--warning {
+    background-color: $warning-background-color;
+    border-color: $warning-background-color;
+    color: $warning-color;
+
+    &:hover {
+      color: $warning-color;
+    }
+
+    &:focus,
+    &:active {
+      outline: 1px solid $warning-color;
+    }
+  }
+}
+
+a.badge {
+  text-decoration: underline;
 }

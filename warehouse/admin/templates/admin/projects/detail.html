@@ -46,6 +46,7 @@
         <div class="box box-primary">
           <div class="box-body box-profile">
             <h3 class="project-name text-center">{{ project.name }}</h3>
+            <h4>Attributes:</h4>
             <div class="box-body box-attributes">
               <table class="table table-hover">
                 <tr>
@@ -64,41 +65,101 @@
                 </tr>
               </table>
             </div>
+            <h4>Maintainers:</h4>
             <div class="box-body box-maintainers">
               <table class="table table-hover">
                 <tr>
                   <th>User</th>
-                  <th>Email</th>
                   <th>Role</th>
                 </tr>
                 {% for role in maintainers %}
                 <tr>
                   <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
-                  <td>{{ role.user.email }}</td>
                   <td>{{ role.role_name }}</td>
+                  <td>
+                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('admin') }}>
+                      <i class="fa fa-trash"></i>
+                    </button>
+                    <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
+                      <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, role_id=role.id) }}">
+                        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title" id="exampleModalLabel">Remove role for {{ role.user.username }}?</h4>
+                              <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <p>
+                                This will remove the role for the user.
+                              </p>
+                              <hr>
+                              <p>
+                                To delete role "{{ role.role_name }}" for "{{role.user.username}}", type the username:
+                              </p>
+                              <input type="text" name="username" placeholder="{{ role.user.username }}" required>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </td>
                 </tr>
                 {% endfor %}
+                <tr id="add_role">
+                  <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>
+                    <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('admin') }}>
+                  </td>
+                  <td>
+                    <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('admin') }}>
+                      <option disabled selected>Select a role</option>
+                      {% for role_name in ['Maintainer', 'Owner'] %}
+                      <option value="{{ role_name }}">
+                        {{ role_name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ "disabled" if not request.has_permission('admin') }}>
+                      <i class="fa fa-plus"></i>
+                    </button>
+                  </td>
+                  </form>
+                </tr>
               </table>
             </div>
+            <h4>Releases:</h4>
             <div class="box-body box-releases">
               <table class="table table-hover">
                 <th>Release version</th>
                 <th>Created</th>
-                <th>Hidden</th>
                 <th>Uploader</th>
                 <th>Author email</th>
                 {% for release in releases %}
                 <tr>
-                  <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.name }}-{{ release.version }}</a></td>
+                  <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.project.name }}-{{ release.version }}</a></td>
                   <td>{{ release.created }}</td>
-                  <td>{{ release._pypi_hidden }}</td>
-                  <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
+                  <td>
+                    {% if release.uploader %}
+                    <a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a>
+                    {% endif %}
+                  </td>
                   <td>{{ release.author_email }}</td>
                 </tr>
                 {% endfor %}
               </table>
               <a href="{{ request.route_path('admin.project.releases', project_name=project.normalized_name) }}">All releases</a>
             </div>
+            <h4>Journals:</h4>
             <div class="box-body box-journals">
               <table class="table table-hover">
                 <tr>
@@ -122,6 +183,74 @@
               </table>
               <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
             </div>
+            {% if squatters %}
+            <h4>Projects that might be squatting on this project:</h4>
+            <div class="box-body box-squats">
+              <table class="table table-hover">
+                <tr>
+                  <th>name</th>
+                  <th>created</th>
+                </tr>
+                {% for project in squatters %}
+                <tr>
+                  <td>
+                    <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+                      {{ project.normalized_name }}
+                    </a>
+                  </td>
+                  <td>{{ project.created }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+            {% endif %}
+
+            {% if squattees %}
+            <h4>Projects that this project might be squatting on:</h4>
+            <div class="box-body box-squats">
+              <table class="table table-hover">
+                <tr>
+                  <th>name</th>
+                  <th>created</th>
+                </tr>
+                {% for project in squattees %}
+                <tr>
+                  <td>
+                    <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+                      {{ project.normalized_name }}
+                    </a>
+                  </td>
+                  <td>{{ project.created }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="box">
+          <div class="box-header with-border">
+            <h3 class="box-title">Project activity</h3>
+          </div>
+          <div class="box-body">
+            <table class="table table-hover">
+              <thead>
+                <th scope="col">Event</th>
+                <th scope="col">Time</th>
+                <th scope="col">IP address</th>
+                <th scope="col">Additional information</th>
+              </thead>
+              <tbody>
+                {% for event in project.events %}
+                <tr>
+                  <td>{{ event.tag }}</td>
+                  <td>{{ event.time }}</td>
+                  <td>{{ event.ip_address }}</td>
+                  <td>{{ event.additional }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -144,13 +273,13 @@
       <div class="box-body">
         <div class="form-group col-sm-12">
           <label for="blacklistedComment">Comment</label>
-          <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..."></textarea>
+          <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
         </div>
       </div>
 
       <div class="box-footer">
         <div class="pull-right">
-          <button type="submit" class="btn btn-primary">Submit</button>
+          <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
         </div>
       </div>
     </form>

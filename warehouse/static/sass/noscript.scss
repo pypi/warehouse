@@ -34,3 +34,8 @@
     display: inherit;
   }
 }
+
+.stick-to-top {
+  // Avoid hiding navigation bar with notification
+  position: relative;
+}

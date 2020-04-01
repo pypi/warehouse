@@ -39,14 +39,6 @@
 
   button {
     color: $white;
-    text-decoration: underline;
-    text-decoration-color: $transparent-white;
-
-    &:hover {
-      text-decoration-color: $white;
-    }
-
-    @include link-focus
   }
 
   &__left {
@@ -62,18 +54,19 @@
   @media screen and (max-width: $tablet) {
     display: block;
 
-    &__left {
+    &__left,
+    &__right {
       width: 100%;
       padding-right: 0;
+      text-align: left;
     }
 
     &__right {
-      display: none;
+      margin-top: $spacing-unit / 2;
     }
   }
 
   &__name {
-    @include add-ellipsis;
     padding: 0;
     margin-top: -10px;
   }
@@ -86,21 +79,19 @@
     span {
       font-family: $code-font;
       font-weight: 500;
-      font-size: 22px;
+      font-size: 1.2rem;
       float: left;
       background-color: transparentize($black, 0.85);
-      padding: 10px;
+      padding: 8px;
       border: 1px dotted $transparent-white;
       line-height: $spacing-unit;
 
       @media only screen and (max-width: $tablet) {
-        font-size: 20px;
-        line-height: 25px;
+        font-size: 1.1rem;
       }
 
       @media only screen and (max-width: $mobile) {
-        font-size: 18px;
-        line-height: 22px;
+        font-size: 1rem;
       }
     }
 
@@ -109,7 +100,7 @@
       line-height: $spacing-unit;
       float: left;
       cursor: pointer;
-      padding: 10px ($spacing-unit / 2);
+      padding: 8px ($spacing-unit / 2);
       background-color: transparentize($black, 0.85);
       border-right: 1px dotted $transparent-white;
       border-top: 1px dotted $transparent-white;
@@ -120,20 +111,17 @@
         background-color: transparentize($black, 0.8);
       }
 
-      @media only screen and (max-width: $tablet) {
-        line-height: 25px;
-        padding: 10px;
-      }
-
-      @media only screen and (max-width: $mobile) {
-        display: none;
-      }
+      @include link-focus-state($white);
     }
   }
 
   &__date {
-    font-style: italic;
     margin-top: 20px;
     padding-bottom: 5px;
+
+    @media screen and (max-width: $tablet) {
+      margin-top: $spacing-unit / 2;
+      padding-bottom: 0;
+    }
   }
 }

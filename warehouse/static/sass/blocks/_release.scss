@@ -23,10 +23,10 @@
       <div class="release__line"></div>
       <img class="release__node">
     </div>
-    <div class="release__card">
+    <a class="release__card" href="/link/to/version">
       <p class="release__version"></p>
       <p class="release__version-date"></p>
-    </div>
+    </a>
   </div>
 
   Modifiers:
@@ -47,10 +47,17 @@
     width: 110px;
     display: table-cell;
     vertical-align: middle;
-    text-align: right;
+    text-align: center;
+
+    & > .badge {
+      float: right;
+    }
 
     @media screen and (max-width: $tablet) {
-      text-align: left;
+      & > .badge {
+        float: left;
+        margin-right: 10px;
+      }
     }
 
     @media screen and (max-width: $mobile) {
@@ -88,22 +95,20 @@
   }
 
   &__card {
-    border: 1px solid darken(#ececec, 5);
-    background-color: $white;
-    box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
+    display: block;
+    @include card;
     padding: $spacing-unit / 2;
     margin: ($spacing-unit / 2) 0;
   }
 
   &__version {
-    @include add-ellipsis;
     padding-bottom: 0;
-    font-size: 20px;
+    font-size: 1.25rem;
     font-weight: $bold-font-weight;
   }
 
-  &__version-date {
-    font-style: italic;
+  &__version-badge {
+    margin-left: 4px;
   }
 
   &--current {

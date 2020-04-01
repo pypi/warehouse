@@ -17,10 +17,10 @@ Revises: 5b3f9e687d94
 Create Date: 2017-09-15 16:24:03.201478
 """
 
-from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
+from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision = "b6a20b9c888d"
 down_revision = "5b3f9e687d94"

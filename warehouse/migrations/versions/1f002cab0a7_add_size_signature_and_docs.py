@@ -17,9 +17,9 @@ Revises: 283c68f2ab2
 Create Date: 2015-06-02 23:50:02.029186
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "1f002cab0a7"
 down_revision = "283c68f2ab2"

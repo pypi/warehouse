@@ -1,0 +1,57 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  <div class="twofa-login">
+    <div class="twofa-login__method">
+      // method here
+    </div>
+    <div class="twofa-login__divider">
+      // add divider
+    </div>
+  </div>
+*/
+
+.twofa-login {
+  @media only screen and (min-width: $tablet) {
+    display: flex;
+  }
+
+  &__method:first-of-type {
+    @media only screen and (min-width: $tablet) {
+      flex-shrink: 0;
+    }
+  }
+
+  &__method--padded {
+    padding: $spacing-unit 0;
+
+    @media only screen and (max-width: $tablet) {
+      padding: 0 0 $spacing-unit 0;
+    }
+  }
+
+  &__divider {
+    margin: 0 $spacing-unit * 2;
+    width: 2px;
+    background-image: linear-gradient(to bottom, $border-color, $white);
+
+    @media only screen and (max-width: $tablet) {
+      margin: 0 0 $spacing-unit 0;
+      width: 100%;
+      height: 2px;
+      background-image: linear-gradient(to right, $border-color, $white);
+    }
+  }
+}

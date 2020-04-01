@@ -13,24 +13,76 @@
  */
 
 /*
-  A tree of checkboxes with sub levels. Level padding is added with html spaces.
+  A tree of checkboxes with sub levels.
 
   <div class="checkbox-tree">
-    <div class="checkbox-tree__item"
-      <input class="checkbox-tree__checkbox">
-      <label class="checkbox-tree__label"></label>
-    </div>
+    <ul>
+      <li>
+        <input class="checkbox-tree__checkbox" id="mycheckbox">
+        <label class="checkbox-tree__label" for="mycheckbox"></label>
+        <!-- more tree here -->
+      </li>
+    </ul>
   </div>
 */
 
 .checkbox-tree {
-  &__item {
-    padding: 2px 0;
+  margin-left: 8px;
+
+  ul {
+    margin: 5px 0 0 12px;
+    list-style: none;
+    position: relative;
+    padding: 0 0 0 5px;
+  }
+
+  li {
+    position: relative;
+    padding: 0 0 0 5px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: -12px;
+      top: 13px;
+      width: 12px;
+      height: 0;
+      border-top: 2px solid $light-grey;
+
+      @media only screen and (max-width: $desktop) {
+        border-top-color: $primary-color-light;
+      }
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: -12px;
+      height: 100%;
+      width: 0px;
+      top: -2px;
+      border-left: 2px solid $light-grey;
+
+      @media only screen and (max-width: $desktop) {
+        border-left-color: $primary-color-light;
+      }
+    }
+  }
+
+  ul > li:last-child::after {
+    height: 17px;
   }
 
   &__checkbox {
     position: relative;
     top: 3px;
+  }
+
+  @media only screen and (max-width: $desktop) {
+    &__checkbox[type="checkbox"]:active,
+    &__checkbox[type="checkbox"]:focus {
+      outline: 1px solid $white;
+    }
   }
 
   &__label {

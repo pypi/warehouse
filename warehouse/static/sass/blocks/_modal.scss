@@ -88,22 +88,23 @@
   }
 
   &__close {
-    line-height: 35px;
-    width: 35px;
-    font-size: 80%;
-    position: absolute;
-    right: 0;
-    text-align: center;
-    top: 0;
-    text-decoration: none;
-    border-radius: 0 3px 0 4px;
-    color: $border-color;
+    @include dismiss-button;
+    color: $text-color;
+
+    &:hover {
+      color: $text-color;
+    }
   }
 
   // Styles for inline forms
   &__form {
     label {
       font-weight: bold;
+
+      input {
+        width: auto;
+        min-width: auto;
+      }
     }
 
     input {

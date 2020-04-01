@@ -16,10 +16,11 @@ import pytest
 from google.cloud.bigquery import Row
 
 from warehouse.cache.origin import IOriginCache
-from warehouse.packaging.models import Project
-from warehouse.packaging.tasks import compute_trending
+from warehouse.packaging.models import Description, Project
+from warehouse.packaging.tasks import compute_trending, update_description_html
+from warehouse.utils import readme
 
-from ...common.db.packaging import ProjectFactory
+from ...common.db.packaging import DescriptionFactory, ProjectFactory
 
 
 class TestComputeTrending:
@@ -47,7 +48,7 @@ class TestComputeTrending:
             if with_purges and issubclass(iface, IOriginCache):
                 return cacher
 
-            raise ValueError
+            raise LookupError
 
         db_request.find_service = find_service
         db_request.registry.settings = {
@@ -108,3 +109,28 @@ class TestComputeTrending:
             projects[1].name: 2,
             projects[2].name: -1,
         }
+
+
+def test_update_description_html(monkeypatch, db_request):
+    current_version = "24.0"
+    previous_version = "23.0"
+
+    monkeypatch.setattr(readme, "renderer_version", lambda: current_version)
+
+    descriptions = [
+        DescriptionFactory.create(html="rendered", rendered_by=current_version),
+        DescriptionFactory.create(html="not this one", rendered_by=previous_version),
+        DescriptionFactory.create(html="", rendered_by=""),  # Initial migration state
+    ]
+
+    update_description_html(db_request)
+
+    assert set(
+        db_request.db.query(
+            Description.raw, Description.html, Description.rendered_by
+        ).all()
+    ) == {
+        (descriptions[0].raw, "rendered", current_version),
+        (descriptions[1].raw, readme.render(descriptions[1].raw), current_version),
+        (descriptions[2].raw, readme.render(descriptions[2].raw), current_version),
+    }

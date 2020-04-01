@@ -20,7 +20,7 @@ class IEmailSender(Interface):
         created for.
         """
 
-    def send(subject, body, *, recipient):
+    def send(recipient, message):
         """
-        Sends an email with the given subject and body to the given recipient.
+        Sends an EmailMessage to the given recipient.
         """

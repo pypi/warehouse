@@ -15,12 +15,19 @@ import uuid
 import pretend
 import pytest
 
+from jinja2.exceptions import TemplateNotFound
 from pyramid_mailer.mailer import DummyMailer
 from zope.interface.verify import verifyClass
 
+from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
-from warehouse.email.services import SMTPEmailSender, SESEmailSender, _format_sender
-from warehouse.email.ses.models import EmailMessage
+from warehouse.email.services import (
+    EmailMessage,
+    SESEmailSender,
+    SMTPEmailSender,
+    _format_sender,
+)
+from warehouse.email.ses.models import EmailMessage as SESEmailMessage
 
 
 @pytest.mark.parametrize(
@@ -32,6 +39,59 @@ from warehouse.email.ses.models import EmailMessage
 )
 def test_format_sender(sitename, sender, expected):
     assert _format_sender(sitename, sender) == expected
+
+
+class TestEmailMessage:
+    def test_renders_plaintext(self, pyramid_config, pyramid_request, monkeypatch):
+        real_render = email_services.render
+
+        def render(template, *args, **kwargs):
+            if template.endswith(".html"):
+                raise TemplateNotFound(template)
+            return real_render(template, *args, **kwargs)
+
+        monkeypatch.setattr(email_services, "render", render)
+
+        subject_renderer = pyramid_config.testing_add_renderer("email/foo/subject.txt")
+        subject_renderer.string_response = "Email Subject"
+
+        body_renderer = pyramid_config.testing_add_renderer("email/foo/body.txt")
+        body_renderer.string_response = "Email Body"
+
+        msg = EmailMessage.from_template(
+            "foo", {"my_var": "my value"}, request=pyramid_request
+        )
+
+        subject_renderer.assert_(my_var="my value")
+        body_renderer.assert_(my_var="my value")
+
+        assert msg.subject == "Email Subject"
+        assert msg.body_text == "Email Body"
+        assert msg.body_html is None
+
+    def test_renders_html(self, pyramid_config, pyramid_request):
+        subject_renderer = pyramid_config.testing_add_renderer("email/foo/subject.txt")
+        subject_renderer.string_response = "Email Subject"
+
+        body_renderer = pyramid_config.testing_add_renderer("email/foo/body.txt")
+        body_renderer.string_response = "Email Body"
+
+        html_renderer = pyramid_config.testing_add_renderer("email/foo/body.html")
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        msg = EmailMessage.from_template(
+            "foo", {"my_var": "my value"}, request=pyramid_request
+        )
+
+        subject_renderer.assert_(my_var="my value")
+        body_renderer.assert_(my_var="my value")
+        html_renderer.assert_(my_var="my value")
+
+        assert msg.subject == "Email Subject"
+        assert msg.body_text == "Email Body"
+        assert msg.body_html == (
+            "<html>\n<head></head>\n<body><p>Email HTML Body</p></body>\n</html>\n"
+        )
 
 
 class TestSMTPEmailSender:
@@ -58,7 +118,12 @@ class TestSMTPEmailSender:
         mailer = DummyMailer()
         service = SMTPEmailSender(mailer, sender="DevPyPI <noreply@example.com>")
 
-        service.send("a subject", "a body", recipient="sombody@example.com")
+        service.send(
+            "sombody@example.com",
+            EmailMessage(
+                subject="a subject", body_text="a body", body_html="a html body"
+            ),
+        )
 
         assert len(mailer.outbox) == 1
 
@@ -66,6 +131,7 @@ class TestSMTPEmailSender:
 
         assert msg.subject == "a subject"
         assert msg.body == "a body"
+        assert msg.html == "a html body"
         assert msg.recipients == ["sombody@example.com"]
         assert msg.sender == "DevPyPI <noreply@example.com>"
 
@@ -101,7 +167,52 @@ class TestSESEmailSender:
         assert sender._sender == "DevPyPI <noreply@example.com>"
         assert sender._db is request.db
 
-    def test_send(self, db_session):
+    def test_send_with_plaintext(self, db_session):
+        resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
+        aws_client = pretend.stub(
+            send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
+        )
+        sender = SESEmailSender(
+            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
+
+        sender.send(
+            "Foobar <somebody@example.com>",
+            EmailMessage(
+                subject="This is a Subject", body_text="This is a plain text body"
+            ),
+        )
+
+        assert aws_client.send_raw_email.calls == [
+            pretend.call(
+                Source="DevPyPI <noreply@example.com>",
+                Destinations=["Foobar <somebody@example.com>"],
+                RawMessage={
+                    "Data": (
+                        b"Subject: This is a Subject\n"
+                        b"From: DevPyPI <noreply@example.com>\n"
+                        b"To: Foobar <somebody@example.com>\n"
+                        b'Content-Type: text/plain; charset="utf-8"\n'
+                        b"Content-Transfer-Encoding: 7bit\n"
+                        b"MIME-Version: 1.0\n"
+                        b"\n"
+                        b"This is a plain text body\n"
+                    )
+                },
+            )
+        ]
+
+        em = (
+            db_session.query(SESEmailMessage)
+            .filter_by(message_id=resp["MessageId"])
+            .one()
+        )
+
+        assert em.from_ == "noreply@example.com"
+        assert em.to == "somebody@example.com"
+        assert em.subject == "This is a Subject"
+
+    def test_send_with_unicode_and_html(self, db_session):
         # Determine what the random boundary token will be
         import random
         import sys
@@ -119,38 +230,51 @@ class TestSESEmailSender:
         )
 
         sender.send(
-            "This is a Subject",
-            "This is a Body",
-            recipient="FooBar <somebody@example.com>",
+            "Fööbar <somebody@example.com>",
+            EmailMessage(
+                subject="This is a Subject",
+                body_text="This is a plain text body",
+                body_html="<p>This is a html body! 💩</p>",
+            ),
         )
 
         assert aws_client.send_raw_email.calls == [
             pretend.call(
                 Source="DevPyPI <noreply@example.com>",
-                Destinations=["FooBar <somebody@example.com>"],
+                Destinations=["Fööbar <somebody@example.com>"],
                 RawMessage={
                     "Data": (
-                        'Content-Type: multipart/mixed; boundary="==============={token}=="\n'  # noqa
-                        "MIME-Version: 1.0\n"
-                        "Subject: This is a Subject\n"
-                        "From: DevPyPI <noreply@example.com>\n"
-                        "To: FooBar <somebody@example.com>\n"
-                        "\n"
-                        "--==============={token}==\n"
-                        'Content-Type: text/plain; charset="utf-8"\n'
-                        "MIME-Version: 1.0\n"
-                        "Content-Transfer-Encoding: base64\n"
-                        "\n"
-                        "VGhpcyBpcyBhIEJvZHk=\n"
-                        "\n"
-                        "--==============={token}==--\n"
-                    ).format(token=token)
+                        b"Subject: This is a Subject\n"
+                        b"From: DevPyPI <noreply@example.com>\n"
+                        b"To: =?utf-8?q?F=C3=B6=C3=B6bar?= <somebody@example.com>\n"
+                        b"MIME-Version: 1.0\n"
+                        b"Content-Type: multipart/alternative;\n"
+                        b' boundary="===============%(token)d=="\n'
+                        b"\n"
+                        b"--===============%(token)d==\n"
+                        b'Content-Type: text/plain; charset="utf-8"\n'
+                        b"Content-Transfer-Encoding: 7bit\n"
+                        b"\n"
+                        b"This is a plain text body\n"
+                        b"\n"
+                        b"--===============%(token)d==\n"
+                        b'Content-Type: text/html; charset="utf-8"\n'
+                        b"Content-Transfer-Encoding: 8bit\n"
+                        b"MIME-Version: 1.0\n"
+                        b"\n"
+                        b"<p>This is a html body! \xf0\x9f\x92\xa9</p>\n"
+                        b"\n"
+                        b"--===============%(token)d==--\n"
+                    )
+                    % {b"token": token}
                 },
             )
         ]
 
         em = (
-            db_session.query(EmailMessage).filter_by(message_id=resp["MessageId"]).one()
+            db_session.query(SESEmailMessage)
+            .filter_by(message_id=resp["MessageId"])
+            .one()
         )
 
         assert em.from_ == "noreply@example.com"

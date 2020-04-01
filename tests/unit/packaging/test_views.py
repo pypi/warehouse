@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
@@ -20,9 +21,10 @@ from warehouse.utils import readme
 from ...common.db.accounts import UserFactory
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
+    DescriptionFactory,
+    FileFactory,
     ProjectFactory,
     ReleaseFactory,
-    FileFactory,
     RoleFactory,
 )
 
@@ -48,8 +50,9 @@ class TestProjectDetail:
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
-        resp = views.project_detail(project, db_request)
-        assert isinstance(resp, HTTPNotFound)
+
+        with pytest.raises(HTTPNotFound):
+            views.project_detail(project, db_request)
 
     def test_calls_release_detail(self, monkeypatch, db_request):
         project = ProjectFactory.create()
@@ -143,15 +146,18 @@ class TestReleaseDetail:
             pretend.call(name=release.project.name, version=release.version)
         ]
 
-    def test_detail_renders(self, monkeypatch, db_request):
+    def test_detail_rendered(self, db_request):
         users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
         project = ProjectFactory.create()
         releases = [
             ReleaseFactory.create(
                 project=project,
                 version=v,
-                description="unrendered description",
-                description_content_type="text/plain",
+                description=DescriptionFactory.create(
+                    raw="unrendered description",
+                    html="rendered description",
+                    content_type="text/plain",
+                ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
         ]
@@ -168,8 +174,46 @@ class TestReleaseDetail:
         for user in users:
             RoleFactory.create(user=user, project=project)
 
-        # Add an extra role for one user, to ensure deduplication
-        RoleFactory.create(user=users[0], project=project, role_name="another role")
+        result = views.release_detail(releases[1], db_request)
+
+        assert result == {
+            "project": project,
+            "release": releases[1],
+            "files": [files[1]],
+            "description": "rendered description",
+            "latest_version": project.latest_version,
+            "all_versions": [
+                (r.version, r.created, r.is_prerelease) for r in reversed(releases)
+            ],
+            "maintainers": sorted(users, key=lambda u: u.username.lower()),
+            "license": None,
+        }
+
+    def test_detail_renders(self, monkeypatch, db_request):
+        users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
+        project = ProjectFactory.create()
+        releases = [
+            ReleaseFactory.create(
+                project=project,
+                version=v,
+                description=DescriptionFactory.create(
+                    raw="unrendered description", html="", content_type="text/plain"
+                ),
+            )
+            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ]
+        files = [
+            FileFactory.create(
+                release=r,
+                filename="{}-{}.tar.gz".format(project.name, r.version),
+                python_version="source",
+            )
+            for r in releases
+        ]
+
+        # Create a role for each user
+        for user in users:
+            RoleFactory.create(user=user, project=project)
 
         # patch the readme rendering logic.
         render_description = pretend.call_recorder(

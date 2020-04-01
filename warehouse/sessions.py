@@ -21,8 +21,12 @@ from pyramid import viewderivers
 from pyramid.interfaces import ISession, ISessionFactory
 from zope.interface import implementer
 
+import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
+
 from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
+from warehouse.utils.msgpack import object_encode
 
 
 def _invalid_method(method):
@@ -81,6 +85,8 @@ class Session(dict):
 
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
+    _totp_secret_key = "_totp_secret"
+    _webauthn_challenge_key = "_webauthn_challenge"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -168,6 +174,25 @@ class Session(dict):
             token = self.new_csrf_token()
         return token
 
+    def get_totp_secret(self):
+        totp_secret = self.get(self._totp_secret_key)
+        if totp_secret is None:
+            totp_secret = self[self._totp_secret_key] = otp.generate_totp_secret()
+        return totp_secret
+
+    def clear_totp_secret(self):
+        self[self._totp_secret_key] = None
+
+    def get_webauthn_challenge(self):
+        webauthn_challenge = self.get(self._webauthn_challenge_key)
+        if webauthn_challenge is None:
+            self[self._webauthn_challenge_key] = webauthn.generate_webauthn_challenge()
+            webauthn_challenge = self[self._webauthn_challenge_key]
+        return webauthn_challenge
+
+    def clear_webauthn_challenge(self):
+        self[self._webauthn_challenge_key] = None
+
 
 @implementer(ISessionFactory)
 class SessionFactory:
@@ -215,7 +240,7 @@ class SessionFactory:
 
         # De-serialize our session data
         try:
-            data = msgpack.unpackb(bdata, encoding="utf8", use_list=True)
+            data = msgpack.unpackb(bdata, raw=False, use_list=True)
         except (msgpack.exceptions.UnpackException, msgpack.exceptions.ExtraData):
             # If the session data was invalid we'll give the user a new session
             return Session()
@@ -250,7 +275,9 @@ class SessionFactory:
             self.redis.setex(
                 self._redis_key(request.session.sid),
                 self.max_age,
-                msgpack.packb(request.session, encoding="utf8", use_bin_type=True),
+                msgpack.packb(
+                    request.session, default=object_encode, use_bin_type=True,
+                ),
             )
 
             # Send our session cookie to the client
@@ -281,7 +308,7 @@ def session_view(view, info):
             # sure that we don't actually *access* request.session, because
             # doing so triggers the machinery to create a new session. So
             # instead we will dig into the request object __dict__ to
-            # effectively do the same thing, jsut without triggering an access
+            # effectively do the same thing, just without triggering an access
             # on request.session.
 
             # Save the original session so that we can restore it once the

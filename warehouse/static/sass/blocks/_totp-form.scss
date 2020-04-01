@@ -1,0 +1,70 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  TOTP qr code and form, found on the TOTP provisioning page:
+
+  <div class="totp-form">
+    <div>
+      <div class="totp-form__qr">
+        // QR code here
+      </div>
+      <div class="totp-form__manual-code">
+        // code for manual entry here
+      </div>
+    </div>
+    <form class="totp-form__form">
+      // form here
+    </form>
+  </div>
+*/
+
+.totp-form {
+  display: flex;
+  margin: $spacing-unit 0;
+
+  &__qr {
+    border: 1px solid $border-color;
+    margin-bottom: $spacing-unit;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  &__manual-code {
+    code {
+      display: inline-block;
+      margin: 0 5px 5px 0;
+    }
+  }
+
+  &__form {
+    padding-left: $spacing-unit;
+    margin-top: $spacing-unit / 2;
+  }
+
+  @media only screen and (max-width: $small-tablet) {
+    display: block;
+
+    &__qr {
+      display: inline-block;
+    }
+
+    &__form {
+      padding-left: 0;
+      margin-top: $spacing-unit;
+    }
+  }
+}

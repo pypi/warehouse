@@ -7,42 +7,41 @@ PyPI's XML-RPC methods
    recommended, and existing consumers of the API should migrate to the RSS
    and/or JSON APIs instead.
 
-Example usage::
+   Users of this API are **strongly** encouraged to subscribe to the
+   pypi-announce_ mailing list for notices as we begin the process of removing
+   XML-RPC from PyPI.
 
-  >>> import xmlrpclib
+Example usage (Python 3)::
+
+  >>> import xmlrpc.client
   >>> import pprint
-  >>> client = xmlrpclib.ServerProxy('https://pypi.org/pypi')
+  >>> client = xmlrpc.client.ServerProxy('https://pypi.org/pypi')
   >>> client.package_releases('roundup')
-  ['1.4.10']
-  >>> pprint.pprint(client.release_urls('roundup', '1.4.10'))
+  ['1.6.0']
+  >>> pprint.pprint(client.release_urls('roundup', '1.6.0'))
   [{'comment_text': '',
-    'downloads': 3163,
-    'filename': 'roundup-1.1.2.tar.gz',
-    'has_sig': True,
-    'md5_digest': '7c395da56412e263d7600fa7f0afa2e5',
-    'packagetype': 'sdist',
-    'python_version': 'source',
-    'size': 876455,
-    'upload_time': <DateTime '20060427T06:22:35' at 912fecc>,
-    'url': 'https://pypi.org/packages/source/r/roundup/roundup-1.1.2.tar.gz'},
-   {'comment_text': '',
-    'downloads': 2067,
-    'filename': 'roundup-1.1.2.win32.exe',
-    'has_sig': True,
-    'md5_digest': '983d565b0b87f83f1b6460e54554a845',
-    'packagetype': 'bdist_wininst',
-    'python_version': 'any',
-    'size': 614270,
-    'upload_time': <DateTime '20060427T06:26:04' at 912fdec>,
-    'url': 'https://pypi.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
+  'digests': {'md5': '54d587da7c3d9c83f13d04674cacdc2a',
+              'sha256': '1814c74b40c4a6287e0a97b810f6adc6a3312168201eaa0badd1dd8c216b1bcb'},
+  'downloads': -1,
+  'filename': 'roundup-1.6.0.tar.gz',
+  'has_sig': True,
+  'md5_digest': '54d587da7c3d9c83f13d04674cacdc2a',
+  'packagetype': 'sdist',
+  'path': 'f0/07/6f4e2164ed82dfff873ee55181f782926bcb4a29f6a83fe4f8b9cbf5489c/roundup-1.6.0.tar.gz',
+  'python_version': 'source',
+  'sha256_digest': '1814c74b40c4a6287e0a97b810f6adc6a3312168201eaa0badd1dd8c216b1bcb',
+  'size': 2893499,
+  'upload_time_iso_8601': '2018-07-13T11:30:36.405653Z',
+  'url': 'https://files.pythonhosted.org/packages/f0/07/6f4e2164ed82dfff873ee55181f782926bcb4a29f6a83fe4f8b9cbf5489c/roundup-1.6.0.tar.gz'}]
 
 .. _changes-to-legacy-api:
 
 Changes to Legacy API
 ---------------------
 
-``package_releases`` The `show_hidden` flag is now ignored. All versions are
-returned.
+``package_releases`` As Warehouse does not support the concept of hidden
+releases, the `show_hidden` flag now controls whether the latest version or all
+versions are returned.
 
 ``release_data`` The `stable_version` flag is always an empty string. It was
 never fully supported anyway.
@@ -65,7 +64,8 @@ Package querying
   Retrieve a list of the releases registered for the given `package_name`,
   ordered by version.
 
-  The `show_hidden` flag is now ignored. All versions are returned.
+  If `show_hidden` is `False` (the default), only the latest version is
+  returned.  Otherwise, all versions are returned.
 
 ``package_roles(package_name)``
   Retrieve a list of `[role, user]` for a given `package_name`.
@@ -86,7 +86,7 @@ Package querying
   * md5_digest
   * digests (a dict with two keys, "md5" and "sha256")
   * has_sig (a boolean)
-  * upload_time (a ``DateTime`` object)
+  * upload_time_iso_8601 (a ``DateTime`` object)
   * comment_text
   * downloads (always says "-1")
   * url
@@ -192,8 +192,10 @@ Mirroring Support
 ``changelog_since_serial(since_serial)``
   Retrieve a list of `(name, version, timestamp, action, serial)` since the
   event identified by the given ``since_serial``. All timestamps are UTC
-  values. The argument is a UTC integer seconds since the epoch.
+  values.
 
 ``list_packages_with_serial()``
   Retrieve a dictionary mapping package names to the last serial for each
   package.
+
+.. _pypi-announce: https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/

@@ -13,13 +13,15 @@
 import time
 
 import msgpack
-import redis
 import pretend
 import pytest
+import redis
 
 from pyramid import viewderivers
 
 import warehouse.sessions
+import warehouse.utils.otp as otp
+import warehouse.utils.webauthn as webauthn
 
 from warehouse.sessions import (
     InvalidSession,
@@ -29,6 +31,7 @@ from warehouse.sessions import (
     session_view,
 )
 from warehouse.utils import crypto
+from warehouse.utils.msgpack import object_encode
 
 
 class TestInvalidSession:
@@ -249,6 +252,52 @@ class TestSession:
         assert session.get_csrf_token() == "123456"
         assert session.new_csrf_token.calls == [pretend.call()]
 
+    def test_get_totp_secret(self):
+        session = Session()
+        session[session._totp_secret_key] = b"foobar"
+
+        assert session.get_totp_secret() == b"foobar"
+
+    def test_get_totp_secret_empty(self, monkeypatch):
+        generate_totp_secret = pretend.call_recorder(lambda: b"foobar")
+        monkeypatch.setattr(otp, "generate_totp_secret", generate_totp_secret)
+
+        session = Session()
+        assert session.get_totp_secret() == b"foobar"
+        assert session._totp_secret_key in session
+
+    def test_clear_totp_secret(self):
+        session = Session()
+        session[session._totp_secret_key] = b"foobar"
+
+        session.clear_totp_secret()
+        assert not session[session._totp_secret_key]
+
+    def test_get_webauthn_challenge(self):
+        session = Session()
+        session[session._webauthn_challenge_key] = "not_a_real_challenge"
+
+        assert session.get_webauthn_challenge() == "not_a_real_challenge"
+
+    def test_get_webauthn_challenge_empty(self, monkeypatch):
+        generate_webauthn_challenge = pretend.call_recorder(
+            lambda: "not_a_real_challenge"
+        )
+        monkeypatch.setattr(
+            webauthn, "generate_webauthn_challenge", generate_webauthn_challenge
+        )
+
+        session = Session()
+        assert session.get_webauthn_challenge() == "not_a_real_challenge"
+        assert session._webauthn_challenge_key in session
+
+    def test_clear_webauthn_challenge(self):
+        session = Session()
+        session[session._webauthn_challenge_key] = "not_a_real_challenge"
+
+        session.clear_webauthn_challenge()
+        assert not session[session._webauthn_challenge_key]
+
 
 class TestSessionFactory:
     def test_initialize(self, monkeypatch):
@@ -372,7 +421,7 @@ class TestSessionFactory:
 
     def test_valid_session_id_valid_data(self, monkeypatch, pyramid_request):
         msgpack_unpackb = pretend.call_recorder(
-            lambda bdata, encoding, use_list: {"foo": "bar"}
+            lambda bdata, raw, use_list: {"foo": "bar"}
         )
         monkeypatch.setattr(msgpack, "unpackb", msgpack_unpackb)
 
@@ -402,7 +451,7 @@ class TestSessionFactory:
         ]
 
         assert msgpack_unpackb.calls == [
-            pretend.call(b"valid data", encoding="utf8", use_list=True)
+            pretend.call(b"valid data", raw=False, use_list=True)
         ]
 
         assert isinstance(session, Session)
@@ -449,9 +498,7 @@ class TestSessionFactory:
         assert response.delete_cookie.calls == [pretend.call("session_id")]
 
     def test_invalidated_deletes_save_non_secure(self, monkeypatch, pyramid_request):
-        msgpack_packb = pretend.call_recorder(
-            lambda data, encoding, use_bin_type: b"msgpack data"
-        )
+        msgpack_packb = pretend.call_recorder(lambda *a, **kw: b"msgpack data")
         monkeypatch.setattr(msgpack, "packb", msgpack_packb)
 
         session_factory = SessionFactory("mysecret", "redis://redis://localhost:6379/0")
@@ -476,7 +523,9 @@ class TestSessionFactory:
             pretend.call("warehouse/session/data/2"),
         ]
         assert msgpack_packb.calls == [
-            pretend.call(pyramid_request.session, encoding="utf8", use_bin_type=True)
+            pretend.call(
+                pyramid_request.session, default=object_encode, use_bin_type=True,
+            )
         ]
         assert session_factory.redis.setex.calls == [
             pretend.call("warehouse/session/data/123456", 12 * 60 * 60, b"msgpack data")

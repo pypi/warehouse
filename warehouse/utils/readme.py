@@ -19,7 +19,6 @@ import readme_renderer.markdown
 import readme_renderer.rst
 import readme_renderer.txt
 
-
 _RENDERERS = {
     None: readme_renderer.rst,  # Default if description_content_type is None
     "": readme_renderer.rst,  # Default if description_content_type is None

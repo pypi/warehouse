@@ -40,7 +40,7 @@
   }
 
   .button-group__button + .button-group__button {
-    margin-left: -2px;
+    margin-left: -1px;
   }
 
   &__button:first-child {
@@ -53,5 +53,11 @@
 
   &--pagination {
     margin-top: 40px;
+
+    @media only screen and (max-width: $tablet) {
+      .button-group__button:not(:first-child):not(:last-child) {
+        display: none; // Avoid button group's ugly wrapping on tablet / mobile
+      }
+    }
   }
 }

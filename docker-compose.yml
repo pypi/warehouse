@@ -11,13 +11,22 @@ services:
       - "5433:5432"
 
   redis:
-    image: redis:latest
+    image: redis:4.0
 
-  rabbitmq:
-    image: rabbitmq:latest
+  localstack:
+    image: localstack/localstack:0.8.7
+    environment:
+      SERVICES: "sqs"
+      HOSTNAME: "localstack"
+      HOSTNAME_EXTERNAL: "localstack"
+      DEFAULT_REGION: "us-east-2"
+    ports:
+      - "4576:4576"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
+    environment:
+      - xpack.security.enabled=false
 
   camo:
     image: pypa/warehouse-camo:latest
@@ -36,7 +45,7 @@ services:
         # working on pypi-theme, this is a private repository due to the fact
         # that other people's IP is contained in it.
         #THEME_REPO:
-    command: hupper -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn.conf warehouse.wsgi:application
+    command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify all of these directories instead of just . because we want to
@@ -59,7 +68,7 @@ services:
     links:
       - db
       - redis
-      - rabbitmq
+      - localstack
       - elasticsearch
       - notdatadog
 
@@ -84,10 +93,11 @@ services:
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"
+      FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
     links:
       - db
       - redis
-      - rabbitmq
+      - localstack
       - elasticsearch
       - smtp
       - notdatadog
@@ -102,6 +112,8 @@ services:
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
+      - ./bin:/opt/warehouse/src/bin:z
 
   smtp:
     build:

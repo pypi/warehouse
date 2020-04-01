@@ -13,17 +13,21 @@
 import datetime
 
 import pretend
+import redis
 
 from limits import storage
 
 from warehouse import rate_limiting
-from warehouse.rate_limiting import RateLimiter, DummyRateLimiter, RateLimit
+from warehouse.rate_limiting import DummyRateLimiter, RateLimit, RateLimiter
 
 
 class TestRateLimiter:
-    def test_basic(self):
+    def test_basic(self, metrics):
         limiter = RateLimiter(
-            storage.MemoryStorage(), "1 per minute", identifiers=["foo"]
+            storage.MemoryStorage(),
+            "1 per minute",
+            identifiers=["foo"],
+            metrics=metrics,
         )
 
         assert limiter.test("foo")
@@ -35,10 +39,35 @@ class TestRateLimiter:
         assert limiter.test("foo")
         assert not limiter.test("bar")
 
-    def test_namespacing(self):
+    def test_error(self, metrics):
+        limiter = RateLimiter(
+            storage.MemoryStorage(),
+            "1 per minute",
+            identifiers=["foo"],
+            metrics=metrics,
+        )
+
+        def raiser(*args, **kwargs):
+            raise redis.ConnectionError()
+
+        limiter._window = pretend.stub(hit=raiser, test=raiser, get_window_stats=raiser)
+
+        assert limiter.test("foo")
+        assert limiter.hit("foo")
+        assert limiter.resets_in("foo") is None
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.ratelimiter.error", tags=["call:test"]),
+            pretend.call("warehouse.ratelimiter.error", tags=["call:hit"]),
+            pretend.call("warehouse.ratelimiter.error", tags=["call:resets_in"]),
+        ]
+
+    def test_namespacing(self, metrics):
         storage_ = storage.MemoryStorage()
-        limiter1 = RateLimiter(storage_, "1 per minute", identifiers=["foo"])
-        limiter2 = RateLimiter(storage_, "1 per minute")
+        limiter1 = RateLimiter(
+            storage_, "1 per minute", identifiers=["foo"], metrics=metrics
+        )
+        limiter2 = RateLimiter(storage_, "1 per minute", metrics=metrics)
 
         assert limiter1.test("bar")
         assert limiter2.test("bar")
@@ -49,8 +78,8 @@ class TestRateLimiter:
         assert limiter2.test("bar")
         assert not limiter1.test("bar")
 
-    def test_results_in(self):
-        limiter = RateLimiter(storage.MemoryStorage(), "1 per minute")
+    def test_results_in(self, metrics):
+        limiter = RateLimiter(storage.MemoryStorage(), "1 per minute", metrics=metrics)
 
         assert limiter.resets_in("foo") is None
 
@@ -60,9 +89,11 @@ class TestRateLimiter:
         assert limiter.resets_in("foo") > datetime.timedelta(seconds=0)
         assert limiter.resets_in("foo") < datetime.timedelta(seconds=60)
 
-    def test_results_in_expired(self):
+    def test_results_in_expired(self, metrics):
         limiter = RateLimiter(
-            storage.MemoryStorage(), "1 per minute; 1 per hour; 1 per day"
+            storage.MemoryStorage(),
+            "1 per minute; 1 per hour; 1 per day",
+            metrics=metrics,
         )
 
         current = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -92,25 +123,35 @@ class TestDummyRateLimiter:
 
 
 class TestRateLimit:
-    def test_basic(self):
+    def test_basic(self, pyramid_request, metrics):
         limiter_obj = pretend.stub()
         limiter_class = pretend.call_recorder(lambda *a, **kw: limiter_obj)
 
         context = pretend.stub()
-        request = pretend.stub(registry={"ratelimiter.storage": pretend.stub()})
+        pyramid_request.registry["ratelimiter.storage"] = pretend.stub()
 
         result = RateLimit(
             "1 per 5 minutes", identifiers=["foo"], limiter_class=limiter_class
-        )(context, request)
+        )(context, pyramid_request)
 
         assert result is limiter_obj
         assert limiter_class.calls == [
             pretend.call(
-                request.registry["ratelimiter.storage"],
+                pyramid_request.registry["ratelimiter.storage"],
                 limit="1 per 5 minutes",
                 identifiers=["foo"],
+                metrics=metrics,
             )
         ]
+
+    def test_eq(self):
+        assert RateLimit("1 per 5 minutes", identifiers=["foo"]) == RateLimit(
+            "1 per 5 minutes", identifiers=["foo"]
+        )
+        assert RateLimit("1 per 5 minutes", identifiers=["foo"]) != RateLimit(
+            "1 per 5 minutes", identifiers=["bar"]
+        )
+        assert RateLimit("1 per 5 minutes", identifiers=["foo"]) != object()
 
 
 def test_includeme():

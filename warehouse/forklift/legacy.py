@@ -15,15 +15,15 @@ import hashlib
 import hmac
 import os.path
 import re
+import tarfile
 import tempfile
 import zipfile
-from cgi import parse_header
 
-from cgi import FieldStorage
+from cgi import FieldStorage, parse_header
 from itertools import chain
 
-import packaging.specifiers
 import packaging.requirements
+import packaging.specifiers
 import packaging.utils
 import packaging.version
 import pkg_resources
@@ -39,21 +39,24 @@ from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
+from warehouse.admin.flags import AdminFlagValue
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
-    Project,
-    Release,
+    BlacklistedProject,
     Dependency,
     DependencyKind,
-    Role,
+    Description,
     File,
     Filename,
     JournalEntry,
-    BlacklistedProject,
+    Project,
+    Release,
+    Role,
 )
-from warehouse.utils import http
-
+from warehouse.utils import http, readme
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024  # 8K
@@ -68,7 +71,7 @@ def namespace_stdlib_list(module_list):
             yield ".".join(parts[: i + 1])
 
 
-STDLIB_PROHIBITTED = {
+STDLIB_PROHIBITED = {
     packaging.utils.canonicalize_name(s.rstrip("-_.").lstrip("-_."))
     for s in chain.from_iterable(
         namespace_stdlib_list(stdlib_list.stdlib_list(version))
@@ -77,6 +80,19 @@ STDLIB_PROHIBITTED = {
 }
 
 # Wheel platform checking
+
+# Note: defining new platform ABI compatibility tags that don't
+#       have a python.org binary release to anchor them is a
+#       complex task that needs more than just OS+architecture info.
+#       For Linux specifically, the platform ABI is defined by each
+#       individual distro version, so wheels built on one version may
+#       not even work on older versions of the same distro, let alone
+#       a completely different distro.
+#
+#       That means new entries should only be added given an
+#       accompanying ABI spec that explains how to build a
+#       compatible binary (see the manylinux specs as examples).
+
 # These platforms can be handled by a simple static list:
 _allowed_platforms = {
     "any",
@@ -87,11 +103,18 @@ _allowed_platforms = {
     "manylinux1_i686",
     "manylinux2010_x86_64",
     "manylinux2010_i686",
+    "manylinux2014_x86_64",
+    "manylinux2014_i686",
+    "manylinux2014_aarch64",
+    "manylinux2014_armv7l",
+    "manylinux2014_ppc64",
+    "manylinux2014_ppc64le",
+    "manylinux2014_s390x",
     "linux_armv6l",
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_10_(\d+)+_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
@@ -212,7 +235,10 @@ def _validate_legacy_non_dist_req(requirement):
             "Can't direct dependency: {!r}".format(requirement)
         )
 
-    if not req.name.isalnum() or req.name[0].isdigit():
+    if any(
+        not identifier.isalnum() or identifier[0].isdigit()
+        for identifier in req.name.split(".")
+    ):
         raise wtforms.validators.ValidationError("Use a valid Python identifier.")
 
 
@@ -538,6 +564,8 @@ class MetadataForm(forms.Form):
 
 
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
+# .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
+_tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
 
 
 def _is_valid_dist_file(filename, filetype):
@@ -557,7 +585,26 @@ def _is_valid_dist_file(filename, filetype):
                 }:
                     return False
 
-    if filename.endswith(".exe"):
+    tar_fn_match = _tar_filenames_re.search(filename)
+    if tar_fn_match:
+        # Ensure that this is a valid tar file, and that it contains PKG-INFO.
+        z_type = tar_fn_match.group("z_type") or ""
+        try:
+            with tarfile.open(filename, f"r:{z_type}") as tar:
+                # This decompresses the entire stream to validate it and the
+                # tar within.  Easy CPU DoS attack. :/
+                bad_tar = True
+                member = tar.next()
+                while member:
+                    parts = os.path.split(member.name)
+                    if len(parts) == 2 and parts[1] == "PKG-INFO":
+                        bad_tar = False
+                    member = tar.next()
+                if bad_tar:
+                    return False
+        except tarfile.ReadError:
+            return False
+    elif filename.endswith(".exe"):
         # The only valid filetype for a .exe file is "bdist_wininst".
         if filetype != "bdist_wininst":
             return False
@@ -686,23 +733,41 @@ def _no_deprecated_classifiers(request):
     uses_session=True,
     require_csrf=False,
     require_methods=["POST"],
+    has_translations=True,
 )
 def file_upload(request):
     # If we're in read-only mode, let upload clients know
-    if request.flags.enabled("read-only"):
+    if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
             HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
         )
+
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
+        raise _exc_with_message(
+            HTTPForbidden,
+            "New uploads are temporarily disabled. "
+            "See {projecthelp} for details".format(
+                projecthelp=request.help_url(_anchor="admin-intervention")
+            ),
+        )
+
+    # Log an attempt to upload
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.increment("warehouse.upload.attempt")
 
     # Before we do anything, if there isn't an authenticated user with this
     # request, then we'll go ahead and bomb out.
     if request.authenticated_userid is None:
         raise _exc_with_message(
-            HTTPForbidden, "Invalid or non-existent authentication information."
+            HTTPForbidden,
+            "Invalid or non-existent authentication information. "
+            "See {projecthelp} for details".format(
+                projecthelp=request.help_url(_anchor="invalid-auth")
+            ),
         )
 
     # Ensure that user has a verified, primary email address. This should both
-    # reduce the ease of spam account creation and activty, as well as act as
+    # reduce the ease of spam account creation and activity, as well as act as
     # a forcing function for https://github.com/pypa/warehouse/issues/3632.
     # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
     #       we might consider a different condition, possibly looking at
@@ -807,7 +872,7 @@ def file_upload(request):
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
         # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if request.flags.enabled("disallow-new-project-registration"):
+        if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
             raise _exc_with_message(
                 HTTPForbidden,
                 (
@@ -837,7 +902,7 @@ def file_upload(request):
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
-        if packaging.utils.canonicalize_name(form.name.data) in STDLIB_PROHIBITTED:
+        if packaging.utils.canonicalize_name(form.name.data) in STDLIB_PROHIBITED:
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
@@ -850,10 +915,29 @@ def file_upload(request):
                 ),
             ) from None
 
-        # The project doesn't exist in our database, so we'll add it along with
-        # a role setting the current user as the "Owner" of the project.
+        # The project doesn't exist in our database, so first we'll check for
+        # projects with a similar name
+        squattees = (
+            request.db.query(Project)
+            .filter(
+                func.levenshtein(
+                    Project.normalized_name, func.normalize_pep426_name(form.name.data)
+                )
+                <= 2
+            )
+            .all()
+        )
+
+        # Next we'll create the project
         project = Project(name=form.name.data)
         request.db.add(project)
+
+        # Now that the project exists, add any squats which it is the squatter for
+        for squattee in squattees:
+            request.db.add(Squat(squatter=project, squattee=squattee))
+
+        # Then we'll add a role setting the current user as the "Owner" of the
+        # project.
         request.db.add(Role(user=request.user, project=project, role_name="Owner"))
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -875,12 +959,28 @@ def file_upload(request):
             )
         )
 
+        project.record_event(
+            tag="project:create",
+            ip_address=request.remote_addr,
+            additional={"created_by": request.user.username},
+        )
+        project.record_event(
+            tag="project:role:add",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": "Owner",
+                "target_user": request.user.username,
+            },
+        )
+
     # Check that the user has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
-    if not request.has_permission("upload", project):
-        raise _exc_with_message(
-            HTTPForbidden,
+    allowed = request.has_permission("upload", project)
+    if not allowed:
+        reason = getattr(allowed, "reason", None)
+        msg = (
             (
                 "The user '{0}' isn't allowed to upload to project '{1}'. "
                 "See {2} for more information."
@@ -888,38 +988,49 @@ def file_upload(request):
                 request.user.username,
                 project.name,
                 request.help_url(_anchor="project-name"),
-            ),
+            )
+            if reason is None
+            else allowed.msg
+        )
+        raise _exc_with_message(HTTPForbidden, msg)
+
+    # Update name if it differs but is still equivalent. We don't need to check if
+    # they are equivalent when normalized because that's already been done when we
+    # queried for the project.
+    if project.name != form.name.data:
+        project.name = form.name.data
+
+    # Render our description so we can save from having to render this data every time
+    # we load a project description page.
+    rendered = None
+    if form.description.data:
+        description_content_type = form.description_content_type.data
+        if not description_content_type:
+            description_content_type = "text/x-rst"
+
+        rendered = readme.render(
+            form.description.data, description_content_type, use_fallback=False
         )
 
-    # Uploading should prevent broken rendered descriptions.
-    # Temporarily disabled, see
-    # https://github.com/pypa/warehouse/issues/4079
-    # if form.description.data:
-    #     description_content_type = form.description_content_type.data
-    #     if not description_content_type:
-    #         description_content_type = "text/x-rst"
-    #     rendered = readme.render(
-    #         form.description.data, description_content_type, use_fallback=False
-    #     )
-
-    #     if rendered is None:
-    #         if form.description_content_type.data:
-    #             message = (
-    #                 "The description failed to render "
-    #                 "for '{description_content_type}'."
-    #             ).format(description_content_type=description_content_type)
-    #         else:
-    #             message = (
-    #                 "The description failed to render "
-    #                 "in the default format of reStructuredText."
-    #             )
-    #         raise _exc_with_message(
-    #             HTTPBadRequest,
-    #             "{message} See {projecthelp} for more information.".format(
-    #                 message=message,
-    #                 projecthelp=request.help_url(_anchor="description-content-type"),
-    #             ),
-    #         ) from None
+        # Uploading should prevent broken rendered descriptions.
+        if rendered is None:
+            if form.description_content_type.data:
+                message = (
+                    "The description failed to render "
+                    "for '{description_content_type}'."
+                ).format(description_content_type=description_content_type)
+            else:
+                message = (
+                    "The description failed to render "
+                    "in the default format of reStructuredText."
+                )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "{message} See {projecthelp} for more information.".format(
+                    message=message,
+                    projecthelp=request.help_url(_anchor="description-content-type"),
+                ),
+            ) from None
 
     try:
         canonical_version = packaging.utils.canonicalize_version(form.version.data)
@@ -948,7 +1059,6 @@ def file_upload(request):
             _classifiers=[
                 c for c in all_classifiers if c.classifier in form.classifiers.data
             ],
-            _pypi_hidden=False,
             dependencies=list(
                 _construct_dependencies(
                     form,
@@ -965,6 +1075,12 @@ def file_upload(request):
                 )
             ),
             canonical_version=canonical_version,
+            description=Description(
+                content_type=form.description_content_type.data,
+                raw=form.description.data or "",
+                html=rendered or "",
+                rendered_by=readme.renderer_version(),
+            ),
             **{
                 k: getattr(form, k).data
                 for k in {
@@ -972,8 +1088,6 @@ def file_upload(request):
                     # should pull off and insert into our new release.
                     "version",
                     "summary",
-                    "description",
-                    "description_content_type",
                     "license",
                     "author",
                     "author_email",
@@ -986,6 +1100,8 @@ def file_upload(request):
                     "requires_python",
                 }
             },
+            uploader=request.user,
+            uploaded_via=request.user_agent,
         )
         request.db.add(release)
         # TODO: This should be handled by some sort of database trigger or
@@ -1001,25 +1117,28 @@ def file_upload(request):
             )
         )
 
+        project.record_event(
+            tag="project:release:add",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "canonical_version": release.canonical_version,
+            },
+        )
+
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but
     #       at least this should be some sort of hook or trigger.
     releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .options(orm.load_only(Release._pypi_ordering, Release._pypi_hidden))
+        .options(orm.load_only(Release._pypi_ordering))
         .all()
     )
     for i, r in enumerate(
         sorted(releases, key=lambda x: packaging.version.parse(x.version))
     ):
         r._pypi_ordering = i
-
-    # TODO: Again, we should figure out a better solution to doing this than
-    #       just inlining this inside this method.
-    if project.autohide:
-        for r in releases:
-            r._pypi_hidden = bool(not r == release)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
@@ -1227,6 +1346,7 @@ def file_upload(request):
                     filename,
                 ]
             ),
+            uploaded_via=request.user_agent,
         )
         request.db.add(file_)
 
@@ -1271,6 +1391,9 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+    # Log a successful upload
+    metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
 
     return Response()
 

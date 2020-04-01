@@ -10,13 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import pretend
 import pytest
 import raven as real_raven
 
 from pyramid.tweens import EXCVIEW, INGRESS
 from raven.middleware import Sentry as SentryMiddleware
-from unittest import mock
 
 from warehouse import raven
 
@@ -112,6 +113,23 @@ def test_includeme(monkeypatch):
             include_paths=["warehouse"],
             release="blargh",
             transport="the transport",
+            ignore_exceptions=[
+                SystemExit,
+                "gunicorn.http.errors.ParseException",
+                "gunicorn.http.errors.NoMoreData",
+                "gunicorn.http.errors.InvalidRequestLine",
+                "gunicorn.http.errors.InvalidRequestMethod",
+                "gunicorn.http.errors.InvalidHTTPVersion",
+                "gunicorn.http.errors.InvalidHeader",
+                "gunicorn.http.errors.InvalidHeaderName",
+                "gunicorn.http.errors.InvalidChunkSize",
+                "gunicorn.http.errors.ChunkMissingTerminator",
+                "gunicorn.http.errors.LimitRequestLine",
+                "gunicorn.http.errors.LimitRequestHeaders",
+                "gunicorn.http.errors.InvalidProxyLine",
+                "gunicorn.http.errors.ForbiddenProxyRequest",
+                "gunicorn.http.errors.InvalidSchemeHeaders",
+            ],
         )
     ]
     assert config.registry["raven.client"] is client_obj

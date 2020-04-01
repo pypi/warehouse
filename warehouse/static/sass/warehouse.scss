@@ -30,6 +30,7 @@
 @import "tools/neat/neat"; // Also imports neat's default settings
 @import "tools/design-utilities";
 @import "tools/layout-utilities";
+@import "tools/link-utilities";
 @import "tools/typography";
 
 // SETTINGS LAYER: settings we use throughout the codebase
@@ -73,6 +74,8 @@
 @import "blocks/callout-block";
 @import "blocks/centered-heading";
 @import "blocks/checkbox-tree";
+@import "blocks/code-block";
+@import "blocks/copy-tooltip";
 @import "blocks/dark-overlay";
 @import "blocks/dropdown";
 @import "blocks/faq-group";
@@ -86,6 +89,7 @@
 @import "blocks/homepage-banner";
 @import "blocks/horizontal-menu";
 @import "blocks/horizontal-section";
+@import "blocks/language-switcher";
 @import "blocks/large-input";
 @import "blocks/lede-paragraph";
 @import "blocks/mobile-search-bar";
@@ -107,19 +111,48 @@
 @import "blocks/status-badge";
 @import "blocks/statistics-bar";
 @import "blocks/table";
-@import "blocks/tooltip";
+@import "blocks/totp-form";
+@import "blocks/twofa-login";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
 
 // TRUMPS LAYER: Overwrites everything else
 
-// Remove all styling
+// RESETS
+// Remove all styling from lists
 .unstyled {
   padding: 0;
   margin: 0;
   list-style-type: none;
 }
 
+// Reset text to default
+.reset-text {
+  font-size: $base-font-size;
+  font-weight: normal;
+}
+
+// TYPE
+.break {
+  word-break: break-all;
+}
+
+.public-email {
+  @include ellipsis;
+  max-width: 85%;
+
+  &::after {
+    content: none !important;
+  }
+}
+
+// COLORS
+// Make text or icons red to draw attention
+.danger {
+  color: $danger-color;
+}
+
+// ALIGNMENT, PADDING & MARGINS
 // Make inline elements centered
 .centered {
   text-align: center;
@@ -150,14 +183,59 @@
   margin-top: $spacing-unit / 4;
 }
 
-// Make text or icons red to draw attention
-.danger {
-  color: $danger-color;
+// Add larger margin to the top of elements
+.margin-top--large {
+  margin-top: $spacing-unit / 2;
 }
 
+// Add small margin to the bottom of elements
+.margin-bottom {
+  margin-bottom: $spacing-unit / 4;
+}
+
+// Add larger margin to the bottom of elements
+.margin-bottom--large {
+  margin-bottom: $spacing-unit / 2;
+}
+
+// Add small margin to the left of elements
+.margin-left {
+  margin-left: $spacing-unit / 4;
+}
+
+// Add larger margin to the left of elements
+.margin-left--large {
+  margin-left: $spacing-unit / 2;
+}
+
+// Add small margin to the right of elements
+.margin-right {
+  margin-right: $spacing-unit / 4;
+}
+
+// Add larger margin to the right of elements
+.margin-right--large {
+  margin-right: $spacing-unit / 2;
+}
+
+// Apply spacing between elements when they wrap (usually on mobile)
+.wrap-children {
+  margin-bottom: -5px;
+
+  > * {
+    margin-bottom: 5px;
+  }
+}
+
+// TITLES
 // Adjust size of h1s on standalone pages
 .page-title {
   @include h1-title;
+}
+
+// Resolve conflict between .page-title and .heading-wsubtitle
+.page-title--wsubtitle {
+  padding-bottom: 5px;
 }
 
 // Add extra padding to subtitles
@@ -165,20 +243,17 @@
   padding-bottom: 25px;
 }
 
-// Reset text to default
-.reset-text {
-  font-size: $base-font-size;
-  font-weight: normal;
-}
-
-// Visibility helpers
+// VISIBILITY
 .hidden,
 .confirm-form {
   display: none;
 }
 
-// Desktop specific visibility
+.display-block {
+  display: block;
+}
 
+// Desktop specific visibility
 @media screen and (min-width: $desktop + 1px) {
   .hide-on-desktop {
     display: none;
@@ -191,21 +266,18 @@
   }
 }
 
-.display-block {
-  display: block;
-}
-
-// Mobile specific visibility
-@media screen and (max-width: $mobile) {
-  .hide-on-mobile {
+// Tablet specific visibility
+@media screen and (max-width: $tablet) {
+  .hide-on-tablet {
     display: none;
   }
 
-  .break-on-mobile {
-    word-break: break-all;
+  .show-on-tablet {
+    display: block;
   }
 }
 
+// ACCESSIBILITY
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read. Great for extra labels, etc.

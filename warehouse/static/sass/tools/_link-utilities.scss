@@ -1,0 +1,63 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@mixin link-focus-state($color) {
+  &:focus,
+  &:active {
+    outline: 1px solid $color;
+  }
+}
+
+@mixin colored-link($color) {
+  color: $color;
+  background-image: linear-gradient(to right, $color, transparentize($color, 0.3));
+
+  &:hover {
+    color: darken($color, 10);
+    background-image: linear-gradient(to right, darken($color, 10), darken($color, 10));
+  }
+
+  @include link-focus-state($color);
+}
+
+@mixin primary-underlined-link {
+  @include colored-link($primary-color);
+}
+
+@mixin danger-underlined-link {
+  @include colored-link($danger-color);
+}
+
+@mixin warning-underlined-link {
+  @include colored-link($warning-color);
+}
+
+@mixin success-underlined-link {
+  @include colored-link($success-color);
+}
+
+@mixin white-underlined-link {
+  color: transparentize($white, 0.05);
+  background-image: linear-gradient(to right, $white, transparentize($white, 0.3));
+
+  @include link-focus-state($white);
+}
+
+@mixin link-without-underline {
+  background-image: none;
+
+  &:hover {
+    background-image: none;
+  }
+}

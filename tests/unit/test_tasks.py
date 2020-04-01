@@ -10,15 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ssl import VerifyMode
-
 from unittest import mock
 
 import pretend
 import pytest
 import transaction
 
-from celery import Celery
+from celery import Celery, Task
+from kombu import Queue
 from pyramid import scripting
 from pyramid_retry import RetryableException
 
@@ -34,7 +33,7 @@ def test_tls_redis_backend():
         "connection_class": backend.redis.SSLConnection,
         "host": "localhost",
         "db": 0,
-        "ssl_cert_reqs": VerifyMode.CERT_REQUIRED,
+        "ssl_cert_reqs": "CERT_REQUIRED",
     }
 
 
@@ -79,17 +78,7 @@ class TestWarehouseTask:
 
     def test_without_request(self, monkeypatch):
         async_result = pretend.stub()
-        super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: async_result)
-        )
-        real_super = __builtins__["super"]
-        inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
-
-        def fake_super(*args, **kwargs):
-            if not args and not kwargs:
-                return inner_super(*args, **kwargs)
-            else:
-                return real_super(*args, **kwargs)
+        apply_async = pretend.call_recorder(lambda *a, **kw: async_result)
 
         get_current_request = pretend.call_recorder(lambda: None)
         monkeypatch.setattr(tasks, "get_current_request", get_current_request)
@@ -97,27 +86,16 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(Task, "apply_async", apply_async)
 
         assert task.apply_async() is async_result
 
-        assert super_class.apply_async.calls == [pretend.call()]
+        assert apply_async.calls == [pretend.call(task)]
         assert get_current_request.calls == [pretend.call()]
-        assert inner_super.calls == [pretend.call()]
 
     def test_request_without_tm(self, monkeypatch):
         async_result = pretend.stub()
-        super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: async_result)
-        )
-        real_super = __builtins__["super"]
-        inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
-
-        def fake_super(*args, **kwargs):
-            if not args and not kwargs:
-                return inner_super(*args, **kwargs)
-            else:
-                return real_super(*args, **kwargs)
+        apply_async = pretend.call_recorder(lambda *a, **kw: async_result)
 
         request = pretend.stub()
         get_current_request = pretend.call_recorder(lambda: request)
@@ -126,13 +104,12 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(Task, "apply_async", apply_async)
 
         assert task.apply_async() is async_result
 
-        assert super_class.apply_async.calls == [pretend.call()]
+        assert apply_async.calls == [pretend.call(task)]
         assert get_current_request.calls == [pretend.call()]
-        assert inner_super.calls == [pretend.call()]
 
     def test_request_after_commit(self, monkeypatch):
         manager = pretend.stub(
@@ -162,29 +139,19 @@ class TestWarehouseTask:
         args = [pretend.stub(), pretend.stub()]
         kwargs = {"foo": pretend.stub(), "bar": pretend.stub()}
 
-        super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        real_super = __builtins__["super"]
-        inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
-
-        def fake_super(*args, **kwargs):
-            if not args and not kwargs:
-                return inner_super(*args, **kwargs)
-            else:
-                return real_super(*args, **kwargs)
+        apply_async = pretend.call_recorder(lambda *a, **kw: None)
 
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(Task, "apply_async", apply_async)
 
         task._after_commit_hook(success, *args, **kwargs)
 
         if success:
-            assert inner_super.calls == [pretend.call()]
+            assert apply_async.calls == [pretend.call(task, *args, **kwargs)]
         else:
-            assert inner_super.calls == []
+            assert apply_async.calls == []
 
     def test_creates_request(self, monkeypatch):
         registry = pretend.stub()
@@ -209,7 +176,7 @@ class TestWarehouseTask:
 
         assert obj.get_request() is pyramid_env["request"]
 
-    def test_run_creates_transaction(self):
+    def test_run_creates_transaction(self, metrics):
         result = pretend.stub()
         arg = pretend.stub()
         kwarg = pretend.stub()
@@ -218,7 +185,8 @@ class TestWarehouseTask:
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            )
+            ),
+            find_service=lambda *a, **kw: metrics,
         )
 
         @pretend.call_recorder
@@ -227,7 +195,11 @@ class TestWarehouseTask:
             assert kwarg_ is kwarg
             return result
 
-        task_type = type("Foo", (tasks.WarehouseTask,), {"run": staticmethod(run)})
+        task_type = type(
+            "Foo",
+            (tasks.WarehouseTask,),
+            {"name": "warehouse.test.task", "run": staticmethod(run)},
+        )
 
         obj = task_type()
         obj.get_request = lambda: request
@@ -236,8 +208,14 @@ class TestWarehouseTask:
         assert run.calls == [pretend.call(arg, kwarg_=kwarg)]
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [pretend.call(None, None, None)]
+        assert metrics.timed.calls == [
+            pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
+        ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.complete", tags=["task:warehouse.test.task"])
+        ]
 
-    def test_run_retries_failed_transaction(self):
+    def test_run_retries_failed_transaction(self, metrics):
         class RetryThisException(RetryableException):
             pass
 
@@ -250,14 +228,19 @@ class TestWarehouseTask:
         task_type = type(
             "Foo",
             (tasks.WarehouseTask,),
-            {"run": staticmethod(run), "retry": lambda *a, **kw: Retry()},
+            {
+                "name": "warehouse.test.task",
+                "run": staticmethod(run),
+                "retry": lambda *a, **kw: Retry(),
+            },
         )
 
         request = pretend.stub(
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            )
+            ),
+            find_service=lambda *a, **kw: metrics,
         )
 
         obj = task_type()
@@ -268,21 +251,32 @@ class TestWarehouseTask:
 
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [pretend.call(Retry, mock.ANY, mock.ANY)]
+        assert metrics.timed.calls == [
+            pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
+        ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
+        ]
 
-    def test_run_doesnt_retries_failed_transaction(self):
+    def test_run_doesnt_retries_failed_transaction(self, metrics):
         class DontRetryThisException(Exception):
             pass
 
         def run():
             raise DontRetryThisException
 
-        task_type = type("Foo", (tasks.WarehouseTask,), {"run": staticmethod(run)})
+        task_type = type(
+            "Foo",
+            (tasks.WarehouseTask,),
+            {"name": "warehouse.test.task", "run": staticmethod(run)},
+        )
 
         request = pretend.stub(
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            )
+            ),
+            find_service=lambda *a, **kw: metrics,
         )
 
         obj = task_type()
@@ -294,6 +288,12 @@ class TestWarehouseTask:
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
             pretend.call(DontRetryThisException, mock.ANY, mock.ANY)
+        ]
+        assert metrics.timed.calls == [
+            pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
+        ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.failed", tags=["task:warehouse.test.task"])
         ]
 
     def test_after_return_without_pyramid_env(self):
@@ -406,9 +406,69 @@ def test_make_celery_app():
 
 
 @pytest.mark.parametrize(
-    ("env", "ssl"), [(Environment.development, False), (Environment.production, True)]
+    ("env", "ssl", "broker_url", "expected_url", "transport_options"),
+    [
+        (
+            Environment.development,
+            False,
+            "amqp://guest@rabbitmq:5672//",
+            "amqp://guest@rabbitmq:5672//",
+            {},
+        ),
+        (
+            Environment.production,
+            True,
+            "amqp://guest@rabbitmq:5672//",
+            "amqp://guest@rabbitmq:5672//",
+            {},
+        ),
+        (Environment.development, False, "sqs://", "sqs://", {}),
+        (Environment.production, True, "sqs://", "sqs://", {}),
+        (
+            Environment.development,
+            False,
+            "sqs://?queue_name_prefix=warehouse",
+            "sqs://",
+            {"queue_name_prefix": "warehouse-"},
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs://?queue_name_prefix=warehouse",
+            "sqs://",
+            {"queue_name_prefix": "warehouse-"},
+        ),
+        (
+            Environment.development,
+            False,
+            "sqs://?region=us-east-2",
+            "sqs://",
+            {"region": "us-east-2"},
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs://?region=us-east-2",
+            "sqs://",
+            {"region": "us-east-2"},
+        ),
+        (
+            Environment.development,
+            False,
+            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
+            "sqs://",
+            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
+            "sqs://",
+            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
+        ),
+    ],
 )
-def test_includeme(env, ssl):
+def test_includeme(env, ssl, broker_url, expected_url, transport_options):
     registry_dict = {}
     config = pretend.stub(
         action=pretend.call_recorder(lambda *a, **kw: None),
@@ -419,7 +479,7 @@ def test_includeme(env, ssl):
             __setitem__=registry_dict.__setitem__,
             settings={
                 "warehouse.env": env,
-                "celery.broker_url": pretend.stub(),
+                "celery.broker_url": broker_url,
                 "celery.result_url": pretend.stub(),
                 "celery.scheduler_url": pretend.stub(),
             },
@@ -432,12 +492,20 @@ def test_includeme(env, ssl):
     assert app.Task is tasks.WarehouseTask
     assert app.pyramid_config is config
     for key, value in {
-        "broker_url": config.registry.settings["celery.broker_url"],
+        "broker_transport_options": transport_options,
+        "broker_url": expected_url,
         "broker_use_ssl": ssl,
         "worker_disable_rate_limits": True,
+        "task_default_queue": "default",
+        "task_default_routing_key": "task.default",
         "task_serializer": "json",
         "accept_content": ["json", "msgpack"],
         "task_queue_ha_policy": "all",
+        "task_queues": (
+            Queue("default", routing_key="task.#"),
+            Queue("malware", routing_key="malware.#"),
+        ),
+        "task_routes": {"warehouse.malware.tasks.*": {"queue": "malware"}},
         "REDBEAT_REDIS_URL": (config.registry.settings["celery.scheduler_url"]),
     }.items():
         assert app.conf[key] == value

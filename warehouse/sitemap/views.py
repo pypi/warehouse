@@ -17,11 +17,10 @@ from pyramid.view import view_config
 from sqlalchemy import func
 
 from warehouse.accounts.models import User
-from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
+from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project
 from warehouse.xml import XML_CSP
-
 
 SITEMAP_MAXSIZE = 50000
 

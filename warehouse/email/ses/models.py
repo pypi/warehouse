@@ -14,15 +14,13 @@ import enum
 
 import automat
 
-from sqlalchemy import sql, orm
-from sqlalchemy import Boolean, Column, Enum, ForeignKey, DateTime, Text
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Text, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
-
 
 MAX_TRANSIENT_BOUNCES = 5
 
@@ -100,7 +98,7 @@ class EmailStatus:
     @_machine.input()
     def complain(self):
         """
-        A recipient can complain about our emaill :(
+        A recipient can complain about our email :(
         """
 
     # Outputs
@@ -162,7 +160,7 @@ class EmailStatus:
         collector=lambda iterable: list(iterable)[-1],
     )
 
-    # This is an OOTO response, it's techincally a bounce, but we don't
+    # This is an OOTO response, it's technically a bounce, but we don't
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
     delivered.upon(soft_bounce, enter=delivered, outputs=[])
@@ -263,8 +261,11 @@ class Event(db.Model):
 
     email_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("ses_emails.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey(
+            "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
+        ),
         nullable=False,
+        index=True,
     )
 
     event_id = Column(Text, nullable=False, unique=True, index=True)

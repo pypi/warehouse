@@ -14,10 +14,10 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.utils import readme
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release, Role
+from warehouse.utils import readme
 
 
 @view_config(
@@ -26,11 +26,10 @@ from warehouse.packaging.models import Project, Release, Role
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
+    has_translations=True,
 )
 def project_detail(project, request):
     if project.name != request.matchdict.get("name", project.name):
@@ -45,7 +44,7 @@ def project_detail(project, request):
             .one()
         )
     except NoResultFound:
-        return HTTPNotFound()
+        raise HTTPNotFound
 
     return release_detail(release, request)
 
@@ -56,11 +55,10 @@ def project_detail(project, request):
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,  # 5 days
+            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
         )
     ],
+    has_translations=True,
 )
 def release_detail(release, request):
     project = release.project
@@ -81,8 +79,16 @@ def release_detail(release, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(request.current_route_path(name=project.name))
 
-    # Render the release description.
-    description = readme.render(release.description, release.description_content_type)
+    # Grab the rendered description if it exists, and if it doesn't, then we will render
+    # it inline.
+    # TODO: Remove the fallback to rendering inline and only support displaying the
+    #       already rendered content.
+    if release.description.html:
+        description = release.description.html
+    else:
+        description = readme.render(
+            release.description.raw, release.description.content_type
+        )
 
     # Get all of the maintainers for this project.
     maintainers = [
@@ -129,6 +135,7 @@ def release_detail(release, request):
     renderer="includes/manage-project-button.html",
     uses_session=True,
     permission="manage:project",
+    has_translations=True,
 )
 def edit_project_button(project, request):
     return {"project": project}

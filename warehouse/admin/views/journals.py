@@ -16,6 +16,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.models import JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
@@ -24,7 +25,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.journals.list",
     renderer="admin/journals/list.html",
-    permission="admin",
+    permission="moderator",
     uses_session=True,
 )
 def journals_list(request):
@@ -35,8 +36,10 @@ def journals_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    journals_query = request.db.query(JournalEntry).order_by(
-        JournalEntry.submitted_date.desc(), JournalEntry.id.desc()
+    journals_query = (
+        request.db.query(JournalEntry)
+        .options(joinedload(JournalEntry.submitted_by))
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
     )
 
     if q:

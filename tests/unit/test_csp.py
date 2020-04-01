@@ -46,7 +46,7 @@ class TestCSPTween:
         tween = csp.content_security_policy_tween_factory(handler, registry)
 
         request = pretend.stub(
-            path="/path/to/nowhere/", find_service=pretend.raiser(ValueError)
+            path="/path/to/nowhere/", find_service=pretend.raiser(LookupError)
         )
 
         assert tween(request) is response
@@ -203,6 +203,7 @@ def test_includeme():
                         "https://api.github.com/repos/",
                         "*.fastly-insights.com",
                         "sentry.io",
+                        "https://api.pwnedpasswords.com",
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],

@@ -21,17 +21,20 @@ import venusian
 import zope.sqlalchemy
 
 from sqlalchemy import event
+from sqlalchemy.exc import OperationalError
 
 from warehouse import db
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.db import (
     DEFAULT_ISOLATION,
+    DatabaseNotAvailable,
     ModelBase,
-    includeme,
     _configure_alembic,
     _create_engine,
     _create_session,
     _readonly,
     _reset,
+    includeme,
 )
 
 
@@ -145,6 +148,25 @@ def test_creates_engine(monkeypatch):
     assert listen.calls == [pretend.call(engine, "reset", _reset)]
 
 
+def test_raises_db_available_error(pyramid_services, metrics):
+    def raiser():
+        raise OperationalError("foo", {}, psycopg2.OperationalError())
+
+    engine = pretend.stub(connect=raiser)
+    request = pretend.stub(
+        find_service=pyramid_services.find_service,
+        registry={"sqlalchemy.engine": engine},
+    )
+
+    with pytest.raises(DatabaseNotAvailable):
+        _create_session(request)
+
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.db.session.start"),
+        pretend.call("warehouse.db.session.error", tags=["error_in:connecting"]),
+    ]
+
+
 @pytest.mark.parametrize(
     ("read_only", "tx_status"),
     [
@@ -154,7 +176,7 @@ def test_creates_engine(monkeypatch):
         (False, psycopg2.extensions.TRANSACTION_STATUS_INTRANS),
     ],
 )
-def test_create_session(monkeypatch, read_only, tx_status):
+def test_create_session(monkeypatch, pyramid_services, read_only, tx_status):
     session_obj = pretend.stub(
         close=pretend.call_recorder(lambda: None),
         query=lambda *a: pretend.stub(get=lambda *a: None),
@@ -173,6 +195,7 @@ def test_create_session(monkeypatch, read_only, tx_status):
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
+        find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(),
         read_only=read_only,
@@ -219,7 +242,7 @@ def test_create_session(monkeypatch, read_only, tx_status):
     ],
 )
 def test_create_session_read_only_mode(
-    admin_flag, is_superuser, doom_calls, monkeypatch
+    admin_flag, is_superuser, doom_calls, monkeypatch, pyramid_services
 ):
     get = pretend.call_recorder(lambda *a: admin_flag)
     session_obj = pretend.stub(
@@ -242,6 +265,7 @@ def test_create_session_read_only_mode(
     )
     engine = pretend.stub(connect=pretend.call_recorder(lambda: connection))
     request = pretend.stub(
+        find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
         read_only=False,
@@ -250,7 +274,7 @@ def test_create_session_read_only_mode(
     )
 
     assert _create_session(request) is session_obj
-    assert get.calls == [pretend.call("read-only")]
+    assert get.calls == [pretend.call(AdminFlagValue.READ_ONLY.value)]
     assert request.tm.doom.calls == doom_calls
 
 

@@ -14,14 +14,10 @@
 // The nature of the web being what it is, we often will need to use Polyfills
 // to get support for what we want. This will pull in babel-polyfill which will
 // ensure we have an ES6 like environment.
-import "babel-polyfill";
-
-// manually import IE11 Stimulus polyfills
-// TODO: use @stimulus/polyfills once 1.1 is released https://github.com/stimulusjs/stimulus/pull/134
-import "element-closest";
-import "mutation-observer-inner-html-shim";
+import "@babel/polyfill";
 
 // Import stimulus
+import "@stimulus/polyfills";
 import { Application } from "stimulus";
 import { definitionsFromContext } from "stimulus/webpack-helpers";
 
@@ -32,7 +28,6 @@ import docReady from "warehouse/utils/doc-ready";
 
 // Import our utility functions
 import Analytics from "warehouse/utils/analytics";
-import enterView from "enter-view";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
@@ -40,15 +35,16 @@ import PositionWarning from "warehouse/utils/position-warning";
 import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
-import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
+import BindFilterKeys from "warehouse/utils/bind-filter-keys";
+import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
 
 // Do this before anything else, to potentially capture errors down the line
 docReady(() => {
+  /* global Raven */
   let element = document.querySelector("script[data-sentry-frontend-dsn]");
-  if (element) {
-    /* global Raven */
+  if (element && typeof Raven !== "undefined") {
     Raven.config(element.dataset.sentryFrontendDsn).install();
   }
 });
@@ -59,7 +55,7 @@ docReady(() => {
     if (document.getElementById("unsupported-browser") !== null) return;
 
     let warning_div = document.createElement("div");
-    warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--danger'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
+    warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--warning' role='status'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
 
     document.getElementById("sticky-notifications").appendChild(warning_div);
   }
@@ -87,28 +83,29 @@ docReady(formUtils.registerFormValidation);
 
 docReady(Statuspage);
 
-// Copy handler for
+// Copy handler for copy tooltips, e.g.
 //   - the pip command on package detail page
 //   - the copy hash on package detail page
 //   - the copy hash on release maintainers page
 docReady(() => {
   let setCopiedTooltip = (e) => {
-    e.trigger.setAttribute("aria-label", "Copied!");
+    e.trigger.setAttribute("data-tooltip-label", "Copied!");
+    e.trigger.setAttribute("role", "alert");
     e.clearSelection();
   };
 
-  new Clipboard(".-js-copy-pip-command").on("success", setCopiedTooltip);
-  new Clipboard(".-js-copy-hash").on("success", setCopiedTooltip);
+  new Clipboard(".copy-tooltip").on("success", setCopiedTooltip);
 
-  // Get all elements with class "tooltipped" and bind to focousout and
-  // mouseout events. Change the "aria-label" to "original-label" attribute
-  // value.
   let setOriginalLabel = (element) => {
-    element.setAttribute("aria-label", element.dataset.originalLabel);
+    element.setAttribute("data-tooltip-label", "Copy to clipboard");
+    element.removeAttribute("role");
+    element.blur();
   };
-  let tooltippedElems = Array.from(document.querySelectorAll(".tooltipped"));
+
+  let tooltippedElems = Array.from(document.querySelectorAll(".copy-tooltip"));
+
   tooltippedElems.forEach((element) => {
-    element.addEventListener("focousout",
+    element.addEventListener("focusout",
       setOriginalLabel.bind(undefined, element),
       false
     );
@@ -148,63 +145,70 @@ docReady(() => {
 });
 
 docReady(() => {
-  if (document.querySelector(".-js-autoplay-when-visible")) {
-    YouTubeIframeLoader.load((YT) => {
-      enterView({
-        selector: ".-js-autoplay-when-visible",
-        trigger: (el) => {
-          new YT.Player(el.id, {
-            events: { "onReady": (e) => { e.target.playVideo(); } },
-          });
-        },
-      });
-    });
-  }
-});
-
-docReady(() => {
-  let changeRoleForms = document.querySelectorAll("form.change-role");
+  let changeRoleForms = document.querySelectorAll("form.table__change-role");
 
   if (changeRoleForms) {
     for (let form of changeRoleForms) {
-      let changeButton = form.querySelector("button.change-button");
-      let changeSelect = form.querySelector("select.change-field");
+      let changeButton = form.querySelector("button.table__change-button");
+      let changeSelect = form.querySelector("select.table__change-field");
 
       changeSelect.addEventListener("change", function (event) {
         if (event.target.value === changeSelect.dataset.original) {
           changeButton.style.display = "none";
         } else {
-          changeButton.style.display = "inline-block";
+          changeButton.style.display = "block";
         }
       });
     }
   }
 });
 
-var bindDropdowns = function () {
+let bindDropdowns = function () {
   // Bind click handlers to dropdowns for keyboard users
   let dropdowns = document.querySelectorAll(".dropdown");
   for (let dropdown of dropdowns) {
     let trigger = dropdown.querySelector(".dropdown__trigger");
     let content = dropdown.querySelector(".dropdown__content");
 
+    let openDropdown = function () {
+      content.classList.add("display-block");
+      content.removeAttribute("aria-hidden");
+      trigger.setAttribute("aria-expanded", "true");
+    };
+
+    let closeDropdown = function () {
+      content.classList.remove("display-block");
+      content.setAttribute("aria-hidden", "true");
+      trigger.setAttribute("aria-expanded", "false");
+    };
+
     if (!trigger.dataset.dropdownBound) {
-      // If the user has clicked the trigger (either with a mouse or by pressing
-      // space/enter on the keyboard) show the content
+      // If the user has clicked the trigger (either with a mouse or by
+      // pressing space/enter on the keyboard) show the content
       trigger.addEventListener("click", function () {
-        // Toggle the visibility of the content
         if (content.classList.contains("display-block")) {
-          content.classList.remove("display-block");
+          closeDropdown();
         } else {
-          content.classList.add("display-block");
+          openDropdown();
         }
       });
 
-      // If the user has moused onto the trigger and has happened to click it,
-      // remove the `display-block` class so that it doesn't stay visable when
-      // they mouse out
-      trigger.addEventListener("mouseout", function() {
-        content.classList.remove("display-block");
+      // Close the dropdown when a user moves away with their mouse or keyboard
+      let closeInactiveDropdown = function (event) {
+        if (dropdown.contains(event.relatedTarget)) {
+          return;
+        }
+        closeDropdown();
+      };
+
+      dropdown.addEventListener("focusout", closeInactiveDropdown, false);
+      dropdown.addEventListener("mouseout", closeInactiveDropdown, false);
+
+      // Close the dropdown if the user presses the escape key
+      document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+          closeDropdown();
+        }
       });
 
       // Set the 'data-dropdownBound' attribute so we don't bind multiple
@@ -219,6 +223,36 @@ docReady(bindDropdowns);
 
 // Get modal keypress event listeners ready
 docReady(BindModalKeys);
+
+// Get filter pane keypress event listeners ready
+docReady(BindFilterKeys);
+
+// Get WebAuthn compatibility checks ready
+docReady(GuardWebAuthn);
+
+// Get WebAuthn provisioning ready
+docReady(ProvisionWebAuthn);
+
+// Get WebAuthn authentication ready
+docReady(AuthenticateWebAuthn);
+
+docReady(() => {
+  const tokenSelect = document.getElementById("token_scope");
+
+  if (tokenSelect === null) {
+    return;
+  }
+
+  tokenSelect.addEventListener("change", () => {
+    const tokenScopeWarning = document.getElementById("api-token-scope-warning");
+    if (tokenScopeWarning === null) {
+      return;
+    }
+
+    const tokenScope = tokenSelect.options[tokenSelect.selectedIndex].value;
+    tokenScopeWarning.hidden = (tokenScope !== "scope:user");
+  });
+});
 
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)

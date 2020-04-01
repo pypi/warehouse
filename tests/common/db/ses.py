@@ -17,7 +17,7 @@ import factory.fuzzy
 
 from warehouse.email.ses.models import EmailMessage, Event, EventTypes
 
-from .base import WarehouseFactory, FuzzyEmail
+from .base import FuzzyEmail, WarehouseFactory
 
 
 class EmailMessageFactory(WarehouseFactory):

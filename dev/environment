@@ -5,7 +5,9 @@ WAREHOUSE_TOKEN=insecuretoken
 # repository due to the fact that other people's IP is contained in it.
 #WAREHOUSE_THEME=pypi_theme.pypi
 
-AMQP_URL=amqp://guest@rabbitmq:5672//
+AWS_ACCESS_KEY_ID=foo
+AWS_SECRET_ACCESS_KEY=foo
+BROKER_URL=sqs://localstack:4576/?region=us-east-1&queue_name_prefix=warehouse-dev
 
 DATABASE_URL=postgresql://postgres@db/warehouse
 
@@ -25,11 +27,16 @@ DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehou
 
 MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=smtp port=2525 ssl=false sender=noreply@pypi.org
 
+BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
+
+MALWARE_CHECK_BACKEND=warehouse.malware.services.PrinterMalwareCheckService
+
+METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
+
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
 
 TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
-
-DATADOG_HOST=notdatadog
+TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org

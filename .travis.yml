@@ -1,13 +1,11 @@
 language: python
-python: 3.6.1
+python: 3.7.3
 
 env:
   global:
-    - TRAVIS_NODE_VERSION=6.6.0
-    - PGPORT=5433
+    - TRAVIS_NODE_VERSION=8.9.4
 
-dist: trusty
-sudo: true
+dist: xenial
 
 addons:
   hosts:
@@ -17,6 +15,8 @@ addons:
     packages:
     - postgresql-10
     - postgresql-client-10
+    - nasm
+    - libgnutls28-dev
 
 services:
   - postgresql
@@ -24,20 +24,20 @@ services:
 cache:
   directories:
     - ~/.cache/pip
-    - node_modules/
+    - ~/.nvm/versions/
+    - ~/.npm
 
 install:
-  - 'rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION'
+  - nvm install $TRAVIS_NODE_VERSION
   - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
-  - npm install
-  - sudo cp /etc/postgresql/{9.6,10}/main/pg_hba.conf
-  - sudo service postgresql restart
+  - npm i -g npm
+  - npm install -g gulp-cli
+  - npm ci
 
 script:
   - node -v
   - npm -v
-  - ./node_modules/.bin/gulp dist
   - bin/tests --postgresql-host 127.0.0.1
 
 matrix:
@@ -56,17 +56,12 @@ matrix:
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
-branches:
-  only:
-    - master
-
-notifications:
-  irc:
-    channels:
-      - "irc.freenode.org#pypa-dev"
-    use_notice: true
-    skip_join: true
+    - script: make translations BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=Translations
+    - script: bin/static_tests
+      env:
+        - SUITE="Static Tests"
+    - script: bin/static_pipeline
+      env:
+        - SUITE="Static Pipeline"

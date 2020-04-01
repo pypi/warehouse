@@ -15,7 +15,6 @@ import hashlib
 
 from collections.abc import Sequence
 
-
 ENCODINGS = ["identity", "gzip"]
 DEFAULT_ENCODING = "identity"
 BUFFER_MAX = 1 * 1024 * 1024  # We'll buffer up to 1MB

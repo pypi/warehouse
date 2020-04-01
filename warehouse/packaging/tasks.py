@@ -12,7 +12,8 @@
 
 from warehouse import tasks
 from warehouse.cache.origin import IOriginCache
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import Description, Project
+from warehouse.utils import readme
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -77,10 +78,10 @@ def compute_trending(request):
     # turn it into the primary key of the Project object and construct a list
     # of primary key: new zscore, including a default of None if the item isn't
     # in the result set.
-    query = request.db.query(Project.name, Project.normalized_name).all()
+    query = request.db.query(Project.id, Project.normalized_name).all()
     to_update = [
-        {"name": name, "zscore": zscores[normalized_name]}
-        for name, normalized_name in query
+        {"id": id, "zscore": zscores[normalized_name]}
+        for id, normalized_name in query
         if normalized_name in zscores
     ]
 
@@ -90,7 +91,23 @@ def compute_trending(request):
     # Trigger a purge of the trending surrogate key.
     try:
         cacher = request.find_service(IOriginCache)
-    except ValueError:
+    except LookupError:
         pass
     else:
         cacher.purge(["trending"])
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def update_description_html(request):
+    renderer_version = readme.renderer_version()
+
+    descriptions = (
+        request.db.query(Description)
+        .filter(Description.rendered_by != renderer_version)
+        .yield_per(100)
+        .limit(500)
+    )
+
+    for description in descriptions:
+        description.html = readme.render(description.raw, description.content_type)
+        description.rendered_by = renderer_version

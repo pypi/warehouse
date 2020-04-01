@@ -39,12 +39,20 @@ export default class extends Controller {
     // Handle hash change events to update the displayed content
     this._handleHashChange = this._handleHashChange.bind(this);
     window.addEventListener("hashchange", this._handleHashChange, false);
+    // force scrolling after hiding element, only necessary in Firefox
+    if (contentId) {
+      window.location.hash = "#" + contentId;
+    }
   }
 
   onTabClick(event) {
     event.preventDefault();
     let btn = event.target;
     this.toggleTabAndPushState(btn);
+
+    // Focus tab, only on click
+    let contentId = window.location.hash.substr(1);
+    document.getElementById(contentId).focus();
   }
 
   toggleTab(btn) {
@@ -68,14 +76,20 @@ export default class extends Controller {
     content.style.display = "none";
     let contentId = content.getAttribute("id");
     this._getAllTabsForContentId(contentId)
-      .forEach(tab => tab.classList.remove(activeClass));
+      .forEach(tab => {
+        tab.classList.remove(activeClass);
+        tab.removeAttribute("aria-selected");
+      });
   }
 
   _show(content) {
     content.style.display = "block";
     let contentId = content.getAttribute("id");
     this._getAllTabsForContentId(contentId)
-      .forEach(tab => tab.classList.add(activeClass));
+      .forEach(tab => {
+        tab.classList.add(activeClass);
+        tab.setAttribute("aria-selected", "true");
+      });
     this.data.set("content", contentId);
   }
 
@@ -110,9 +124,13 @@ export default class extends Controller {
 
   _handleHashChange() {
     let contentId = window.location.hash.substr(1);
-    let tab = this._getTabForContentId(contentId);
-    if (tab) {
-      this.toggleTabAndPushState(tab);
+    if (!contentId) {
+      this.toggleTab(this._getTabs()[0]);
+    } else {
+      let tab = this._getTabForContentId(contentId);
+      if (tab) {
+        this.toggleTabAndPushState(tab);
+      }
     }
   }
 }

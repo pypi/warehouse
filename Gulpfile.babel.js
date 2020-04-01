@@ -1,23 +1,37 @@
-import brotli from "gulp-brotli";
-import composer from "gulp-uglify/composer";
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import cssnano from "cssnano";
+import debounce from "debounce";
 import del from "del";
 import gulp from "gulp";
-import gulpBatch from "gulp-batch";
-import gulpCSSNano from "gulp-cssnano";
-import gulpImage from "gulp-image";
-import gulpSass from "gulp-sass";
-import gulpSequence  from "gulp-sequence";
-import gulpWatch from "gulp-watch";
-import gulpWebpack  from "webpack-stream";
+import brotli from "gulp-brotli";
 import gulpConcat from "gulp-concat";
 import gzip from "gulp-gzip";
+import gulpImage from "gulp-image";
+import postcss from "gulp-postcss";
 import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
-import named from "vinyl-named";
-import path from "path";
+import gulpSass from "gulp-sass";
 import sourcemaps from "gulp-sourcemaps";
+import composer from "gulp-uglify/composer";
+import path from "path";
 import uglifyjs from "uglify-js";
+import named from "vinyl-named";
 import webpack from "webpack";
+import gulpWebpack from "webpack-stream";
 
 
 // Configure where our files come from, where they get saved too, and what path
@@ -33,6 +47,11 @@ let publicPath = "/static/";
 // control over the exact version of uglify-js used.
 var uglify = composer(uglifyjs, console);
 
+// Configure what plugins are used for postcss
+var postCSSPlugins = [
+  cssnano(),
+];
+
 // Configure webpack so that it compiles all of our javascript into a bundle.
 let webpackConfig = {
   module: {
@@ -43,8 +62,8 @@ let webpackConfig = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["env"],
-            plugins: ["transform-class-properties"],
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-proposal-class-properties"],
           },
         },
       },
@@ -67,7 +86,7 @@ let webpackConfig = {
     chunkFilename: "chunks/[chunkhash].js",
   },
   resolve: {
-    modules: [ path.resolve(staticPrefix, "js"), "node_modules" ],
+    modules: [path.resolve(staticPrefix, "js"), "node_modules"],
     alias: {
       "clipboard": "clipboard/dist/clipboard",
     },
@@ -98,7 +117,7 @@ gulp.task("dist:js", () => {
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(uglify(
       // We don't care about IE6-8 so there's no reason to have
-      // uglify contain to maintain compatability for it.
+      // uglify contain to maintain compatibility for it.
       { compress: { ie8: false }, mangle: { ie8: false } }
     ))
     .pipe(sourcemaps.write("."))
@@ -113,27 +132,26 @@ gulp.task("dist:noscript", () => {
     .pipe(
       gulpSass({ includePaths: [sassPath] })
         .on("error", gulpSass.logError))
-    .pipe(gulpCSSNano({
-      safe: true,
-      discardComments: {removeAll: true},
-    }))
+    .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
 });
 
 
-gulp.task("dist:admin:fonts", () => {
+gulp.task("dist:admin:fonts", (done) => {
   gulp.src("warehouse/admin/static/fonts/*.*")
     .pipe(gulp.dest("warehouse/admin/static/dist/fonts"));
   gulp.src("warehouse/admin/static/webfonts/*.*")
     .pipe(gulp.dest("warehouse/admin/static/dist/webfonts"));
+
+  done();
 });
 
 
 gulp.task("dist:admin:css", () => {
   let files = [ // Order matters!
     "warehouse/admin/static/css/bootstrap.min.css",
-    "warehouse/admin/static/css/fontawesome-all.min.css",
+    "warehouse/admin/static/css/fontawesome.min.css",
     "warehouse/admin/static/css/ionicons.min.css",
     "warehouse/admin/static/css/AdminLTE.min.css",
     "warehouse/admin/static/css/skins/skin-purple.min.css",
@@ -156,6 +174,108 @@ gulp.task("dist:admin:js", () => {
 });
 
 
+gulp.task("dist:admin:compress:gz", () => {
+  return gulp.src(path.join("warehouse/admin/static/dist", "**", "*"))
+    .pipe(gzip({
+      skipGrowingFiles: true,
+      gzipOptions: { level: 9, memLevel: 9 },
+    }))
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
+gulp.task("dist:admin:compress:br:generic", () => {
+  let paths = [
+    path.join("warehouse/admin/static/dist", "fonts", "*.otf"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.woff"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.woff2"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.ttf"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.eot"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.svg"),
+
+    path.join("warehouse/admin/static/dist", "images", "*.jpg"),
+    path.join("warehouse/admin/static/dist", "images", "*.png"),
+    path.join("warehouse/admin/static/dist", "images", "*.svg"),
+    path.join("warehouse/admin/static/dist", "images", "*.ico"),
+  ];
+
+  return gulp.src(paths, { base: "warehouse/admin/static/dist" })
+    .pipe(brotli.compress({ skipLarger: true, mode: 0, quality: 11 }))
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
+gulp.task("dist:admin:compress:br:text", () => {
+  let paths = [
+    path.join("warehouse/admin/static/dist", "css", "*.css"),
+    path.join("warehouse/admin/static/dist", "css", "*.map"),
+    path.join("warehouse/admin/static/dist", "js", "*.js"),
+    path.join("warehouse/admin/static/dist", "js", "*.map"),
+    path.join("warehouse/admin/static/dist", "manifest.json"),
+  ];
+
+  return gulp.src(paths, { base: "warehouse/admin/static/dist" })
+    .pipe(brotli.compress({ skipLarger: true, mode: 1, quality: 11 }))
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
+gulp.task(
+  "dist:admin:compress:br",
+  gulp.parallel("dist:admin:compress:br:generic", "dist:admin:compress:br:text")
+);
+
+
+gulp.task("dist:admin:compress", gulp.parallel("dist:admin:compress:gz", "dist:admin:compress:br"));
+
+
+gulp.task("dist:admin:manifest", () => {
+  let paths = [
+    // Cachebust our CSS files and the source maps for them.
+    path.join("warehouse/admin/static/dist", "css", "*.css"),
+    path.join("warehouse/admin/static/dist", "css", "*.map"),
+
+    // Cachebust our Font files.
+    path.join("warehouse/admin/static/dist", "fonts", "*"),
+    path.join("warehouse/admin/static/dist", "webfonts", "*"),
+
+    // Cachebust our JS files and the source maps for them.
+    path.join("warehouse/admin/static/dist", "js", "*.js"),
+    path.join("warehouse/admin/static/dist", "js", "*.map"),
+
+    // Cachebust our vendored JS files and the source maps for them.
+    path.join("warehouse/admin/static/dist", "js", "vendor", "*.js"),
+    path.join("warehouse/admin/static/dist", "js", "vendor", "*.map"),
+
+    // Cachebust our Image files.
+    path.join("warehouse/admin/static/dist", "images", "*"),
+  ];
+
+  return gulp.src(paths, { base: "warehouse/admin/static/dist" })
+    .pipe(manifest.revision({
+      fileNameManifest: "manifest.json",
+      includeFilesInManifest: [
+        ".css",
+        ".map",
+        ".woff",
+        ".woff2",
+        ".svg",
+        ".eot",
+        ".ttf",
+        ".otf",
+        ".png",
+        ".jpg",
+        ".ico",
+        ".js",
+      ],
+    }))
+    .pipe(gulp.dest("warehouse/admin/static/dist"))
+    .pipe(manifestClean({ verbose: false }))
+    .pipe(manifest.manifestFile())
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
 
 gulp.task("dist:css", () => {
   let sassPath = path.join(staticPrefix, "sass");
@@ -165,10 +285,7 @@ gulp.task("dist:css", () => {
     .pipe(
       gulpSass({ includePaths: [sassPath] })
         .on("error", gulpSass.logError))
-    .pipe(gulpCSSNano({
-      safe: true,
-      discardComments: {removeAll: true},
-    }))
+    .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
 });
@@ -180,10 +297,7 @@ gulp.task("dist:fontawesome:css", () => {
 
   return gulp.src(fACSSPath)
     .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(gulpCSSNano({
-      safe: true,
-      discardComments: {removeAll: true},
-    }))
+    .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
 });
@@ -197,8 +311,7 @@ gulp.task("dist:fontawesome:fonts", () => {
 });
 
 
-gulp.task("dist:fontawesome",
-  ["dist:fontawesome:css", "dist:fontawesome:fonts"]);
+gulp.task("dist:fontawesome", gulp.parallel("dist:fontawesome:css", "dist:fontawesome:fonts"));
 
 
 gulp.task("dist:images", () => {
@@ -223,6 +336,7 @@ gulp.task("dist:manifest", () => {
 
     // Cachebust our Font files.
     path.join(distPath, "fonts", "*"),
+    path.join(distPath, "webfonts", "*"),
 
     // Cachebust our JS files and the source maps for them.
     path.join(distPath, "js", "*.js"),
@@ -287,7 +401,7 @@ gulp.task("dist:compress:br:generic", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-    .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
+    .pipe(brotli.compress({ skipLarger: true, mode: 0, quality: 11 }))
     .pipe(gulp.dest(distPath));
 });
 
@@ -302,67 +416,68 @@ gulp.task("dist:compress:br:text", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-    .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
+    .pipe(brotli.compress({ skipLarger: true, mode: 1, quality: 11 }))
     .pipe(gulp.dest(distPath));
 });
 
 
 gulp.task(
   "dist:compress:br",
-  ["dist:compress:br:generic", "dist:compress:br:text"]
+  gulp.parallel("dist:compress:br:generic", "dist:compress:br:text")
 );
 
 
-gulp.task("dist:compress", ["dist:compress:gz", "dist:compress:br"]);
+gulp.task("dist:compress", gulp.parallel("dist:compress:gz", "dist:compress:br"));
 
 
-gulp.task("dist", (cb) => {
-  return gulpSequence(
-    // Ensure that we have a good clean base to start out with, by blowing away
-    // any previously built files.
-    "clean",
-    // Build all of our static assets.
-    [
-      "dist:fontawesome",
-      "dist:css",
-      "dist:noscript",
-      "dist:js",
-      "dist:admin:fonts",
-      "dist:admin:css",
-      "dist:admin:js",
-      "dist:vendor",
-    ],
-    // We have this here, instead of in the list above even though there is no
-    // ordering dependency so that all of it's output shows up together which
-    // makes it easier to read.
-    "dist:images",
-    // This has to be on it's own, and it has to be one of the last things we do
-    // because otherwise we won't catch all of the files in the revisioning
-    // process.
-    "dist:manifest",
-    // Finally, once we've done everything else, we'll compress everything that
-    // we've gotten.
-    "dist:compress"
-  )(cb);
-});
+gulp.task("clean", () => { return del([distPath, "warehouse/admin/static/dist"]); });
+
+gulp.task("dist", gulp.series(
+  // Ensure that we have a good clean base to start out with, by blowing away
+  // any previously built files.
+  "clean",
+  // Build all of our static assets.
+  gulp.parallel(
+    "dist:fontawesome",
+    "dist:css",
+    "dist:noscript",
+    "dist:js",
+    "dist:admin:fonts",
+    "dist:admin:css",
+    "dist:admin:js",
+    "dist:vendor",
+  ),
+  // We have this here, instead of in the list above even though there is no
+  // ordering dependency so that all of it's output shows up together which
+  // makes it easier to read.
+  "dist:images",
+  // This has to be on it's own, and it has to be one of the last things we do
+  // because otherwise we won't catch all of the files in the revisioning
+  // process.
+  gulp.parallel("dist:manifest", "dist:admin:manifest"),
+  // Finally, once we've done everything else, we'll compress everything that
+  // we've gotten.
+  gulp.parallel("dist:compress", "dist:admin:compress"),
+));
 
 
-gulp.task("clean", () => { return del(distPath); });
+gulp.task("watch", gulp.series(
+  // We need to build our static files at least once to start.
+  "dist",
+
+  // Finally we can start our watch task, which will watch our static files, and then
+  // kick off a new dist task whenever it finds changes.
+  () => {
+    let watchPaths = [
+      "warehouse/static/**/*",
+      "!warehouse/static/dist",
+      "warehouse/admin/static/**/*",
+      "!warehouse/admin/static/dist/**/*",
+    ];
+
+    gulp.watch(watchPaths, debounce(gulp.series("dist"), 200));
+  },
+));
 
 
-gulp.task("watch", ["dist"], () => {
-  let watchPaths = [
-    path.join(staticPrefix, "**", "*"),
-    path.join("!" + distPath, "**", "*"),
-    path.join("warehouse/admin/static", "**", "*"),
-    path.join("!warehouse/admin/static/dist", "**", "*"),
-  ];
-
-  gulpWatch(
-    watchPaths,
-    gulpBatch((_, done) => { gulp.start("dist", done); })
-  );
-});
-
-
-gulp.task("default", ["dist"]);
+gulp.task("default", gulp.series("dist"));

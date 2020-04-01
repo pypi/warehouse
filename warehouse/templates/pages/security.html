@@ -12,36 +12,36 @@
  # limitations under the License.
 -#}
 {% extends "base.html" %}
-{% block title %}Security{% endblock %}
+{% block title %}{% trans %}Security{% endtrans %}{% endblock %}
 
 {% block content %}
-  <section class="horizontal-section">
+  <div class="horizontal-section">
     <div class="narrow-container">
-      <h1 class="page-title">Reporting a security issue</h1>
+      <h1 class="page-title">{% trans %}Reporting a security issue{% endtrans %}</h1>
 
-      <p>We take security very seriously and ask that you follow our security policy carefully.</p>
+      <p>{% trans %}We take security very seriously and ask that you follow our security policy carefully.{% endtrans %}</p>
       <div class="callout-block callout-block--danger">
-        <p><strong>Important!</strong> If you believe you've identified a security issue with Warehouse, <strong>DO NOT</strong> report the issue in any public forum, including (but not limited to):</p>
+        <p><strong>{% trans %}Important!{% endtrans %}</strong> {% trans %}If you believe you've identified a security issue with Warehouse, <strong>DO NOT</strong> report the issue in any public forum, including (but not limited to):{% endtrans %}</p>
 
         <ul class="unstyled">
-          <li><i class="fa fa-times danger" aria-hidden="true"></i> Our GitHub issue tracker</li>
-          <li><i class="fa fa-times danger" aria-hidden="true"></i> Official or unofficial chat channels</li>
-          <li><i class="fa fa-times danger" aria-hidden="true"></i> Official or unofficial mailing lists</li>
+          <li><i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Our GitHub issue tracker{% endtrans %}</li>
+          <li><i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Official or unofficial chat channels{% endtrans %}</li>
+          <li><i class="fa fa-times danger" aria-hidden="true"></i> {% trans %}Official or unofficial mailing lists{% endtrans %}</li>
         </ul>
       </div>
 
       <br>
 
-      <p>Instead, email <a href="mailto:security@python.org">security at python dot org</a> directly, providing as much relevant information as possible.</p>
-      <p>Messages may be optionally encrypted with GPG using key fingerprints available <a href="https://www.python.org/news/security/">at the Python Security page</a>.</p>
+      <p>{% trans href='mailto:security@python.org' %}Instead, email <a href="{{ href }}">security at python dot org</a> directly, providing as much relevant information as possible.{% endtrans %}</p>
+      <p>{% trans href='https://www.python.org/dev/security/', title=gettext('External link') %}Messages may be optionally encrypted with GPG using key fingerprints available <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">at the Python Security page</a>.{% endtrans %}</p>
 
-      <h2>What happens next?</h2>
+      <h2>{% trans %}What happens next?{% endtrans %}</h2>
 
-      <p>Once you've submitted an issue via email, you should receive an acknowledgment within 48 hours.</p>
-      <p>Depending on the action to be taken, you may receive further follow-up emails.</p>
+      <p>{% trans %}Once you've submitted an issue via email, you should receive an acknowledgment within 48 hours.{% endtrans %}</p>
+      <p>{% trans %}Depending on the action to be taken, you may receive further follow-up emails.{% endtrans %}</p>
 
       <br>
-      <p><strong>This security policy was last updated on March 14, 2018.</strong></p>
+      <p><strong>{% trans %}This security policy was last updated on March 14, 2018.{% endtrans %}</strong></p>
     </div>
-  </section>
+  </div>
 {% endblock %}

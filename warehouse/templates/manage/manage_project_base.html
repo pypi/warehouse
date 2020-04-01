@@ -18,7 +18,7 @@
 {% set current_project = project %}
 {% set active_tab = active_tab|default('releases') %}
 
-{% block title %}Manage '{{ project.name }}'{% endblock %}
+{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}'{% endtrans %}{% endblock %}
 
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
@@ -29,31 +29,27 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.projects') }}">Your projects ({{ projects|length }})</a>
+            <a href="{{ request.route_path('manage.projects') }}">{% trans project_count=projects|length %}Your projects ({{ project_count }}){% endtrans %}</a>
           </h3>
           {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
         </div>
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <nav>
-          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
-            <i class="fa fa-arrow-left" aria-hidden="true"></i>
-            Back to projects
-          </a>
-        </nav>
+        <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
+          <i class="fa fa-arrow-left" aria-hidden="true"></i>
+          {% trans %}Back to projects{% endtrans %}
+        </a>
         <div class="vertical-tabs__content">
-          <div class="package-snippet package-snippet--margin-bottom">
+          <a class="package-snippet package-snippet--margin-bottom" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
             {% set release = project.releases[0] if project.releases else None %}
             {% if release %}
-            <h1 class="package-snippet__title package-snippet__title--page-title">
-              <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">{{ project.name }}</a>
-            </h1>
+            <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
             <p class="package-snippet__description">{{ release.summary }}</p>
             {% else %}
             <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
             {% endif %}
-          </div>
+          </a>
           <!-- mobile nav -->
           {% with mode="mobile" %}
             {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}

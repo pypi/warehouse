@@ -13,7 +13,7 @@
  */
 
 /*
-  A heading with a subtitle nested directly underneith:
+  A heading with a subtitle nested directly underneath:
 
   <div class="heading-wsubtitle">
     <h2 class="heading-wsubtitle__heading">Heading</h2>
@@ -31,7 +31,6 @@
   }
 
   &__subtitle {
-    font-style: italic;
     margin-bottom: 15px;
   }
 

@@ -18,22 +18,14 @@ import pytest
 from pyramid.location import lineage
 from pyramid.security import Allow
 
-from warehouse.packaging.models import ProjectFactory, Dependency, DependencyKind, File
+from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
 
 from ...common.db.packaging import (
+    FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
-    FileFactory as DBFileFactory,
     RoleFactory as DBRoleFactory,
 )
-
-
-class TestRole:
-    def test_role_ordering(self, db_request):
-        project = DBProjectFactory.create()
-        owner_role = DBRoleFactory.create(project=project, role_name="Owner")
-        maintainer_role = DBRoleFactory.create(project=project, role_name="Maintainer")
-        assert max([maintainer_role, owner_role]) == owner_role
 
 
 class TestProjectFactory:
@@ -123,11 +115,20 @@ class TestProject:
 
         assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
-            (Allow, str(maintainer1.user.id), ["upload"]),
-            (Allow, str(maintainer2.user.id), ["upload"]),
-        ]
+            (Allow, "group:moderators", "moderator"),
+        ] + sorted(
+            [
+                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, str(maintainer1.user.id), ["upload"]),
+                (Allow, str(maintainer2.user.id), ["upload"]),
+            ],
+            key=lambda x: x[1],
+        )
 
 
 class TestRelease:
@@ -234,6 +235,7 @@ class TestRelease:
                     ]
                 ),
             ),
+            # project_urls has more priority than home_page and download_url
             (
                 "https://example.com/home/",
                 "https://example.com/download/",
@@ -250,6 +252,18 @@ class TestRelease:
                     ]
                 ),
             ),
+            # ignore invalid links
+            (
+                None,
+                None,
+                [
+                    " ,https://example.com/home/",
+                    ",https://example.com/home/",
+                    "https://example.com/home/",
+                    "Download,https://example.com/download/",
+                ],
+                OrderedDict([("Download", "https://example.com/download/")]),
+            ),
         ],
     )
     def test_urls(self, db_session, home_page, download_url, project_urls, expected):
@@ -260,8 +274,7 @@ class TestRelease:
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=release.project.name,
-                    version=release.version,
+                    release=release,
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )
@@ -292,11 +305,20 @@ class TestRelease:
 
         assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
-            (Allow, str(maintainer1.user.id), ["upload"]),
-            (Allow, str(maintainer2.user.id), ["upload"]),
-        ]
+            (Allow, "group:moderators", "moderator"),
+        ] + sorted(
+            [
+                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+            ],
+            key=lambda x: x[1],
+        ) + sorted(
+            [
+                (Allow, str(maintainer1.user.id), ["upload"]),
+                (Allow, str(maintainer2.user.id), ["upload"]),
+            ],
+            key=lambda x: x[1],
+        )
 
     @pytest.mark.parametrize(
         ("home_page", "expected"),

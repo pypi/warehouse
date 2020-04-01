@@ -13,7 +13,10 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}
+  {% if form.errors %}{% trans %}Error processing form{% endtrans %} -{% endif %}
+  {% trans %}Log in{% endtrans %}
+{% endblock %}
 
 {% block content %}
   {% if testPyPI %}
@@ -22,9 +25,9 @@
     {% set title = "PyPI" %}
   {% endif %}
 
-  <section class="horizontal-section">
+  <div class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">Log in to {{ title }}</h1>
+      <h1 class="page-title">{% trans title=title %}Log in to {{ title }}{% endtrans %}</h1>
 
       <form method="POST" action="{{ request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -34,7 +37,7 @@
         {% endif %}
 
         {% if form.errors.__all__ %}
-        <ul class="form-errors">
+        <ul class="form-errors" role="alert">
           {% for error in form.errors.__all__ %}
           <li>{{ error }}</li>
           {% endfor %}
@@ -42,46 +45,60 @@
         {% endif %}
 
         <div class="form-group">
-          <label for="username" class="form-group__label">Username</label>
-          {{ form.username(placeholder="Your username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
-          {% if form.username.errors %}
-          <ul class="form-errors">
-            {% for error in form.username.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          <label for="username" class="form-group__label">
+            {% trans %}Username{% endtrans %}
+            {% if form.username.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.username(placeholder=gettext("Your username"), autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"username-errors"}) }}
+          <div id="username-errors">
+            {% if form.username.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.username.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div data-controller="password" class="form-group">
           <div class="split-layout">
-            <label for="password" class="form-group__label">Password</label>
+            <label for="password" class="form-group__label">
+              {% trans %}Password{% endtrans %}
+              {% if form.password.flags.required %}
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+              {% endif %}
+            </label>
             <label for="show-password">
               <input data-action="change->password#togglePasswords" data-target="password.showPassword"
-                id="show-password" type="checkbox" tabindex="4">&nbsp;Show password
+                id="show-password" type="checkbox">&nbsp;{% trans %}Show password{% endtrans %}
             </label>
           </div>
-          {{ form.password(placeholder="Your password", required="required", class_="form-group__input", autocomplete="current-password", tabindex="2", data_target="password.password") }}
-          {% if form.password.errors %}
-          <ul class="form-errors">
-            {% for error in form.password.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          {{ form.password(placeholder=gettext("Your password"), required="required", class_="form-group__field", autocomplete="current-password", spellcheck="false", data_target="password.password", **{"aria-describedby":"password-errors"}) }}
+          <div id="password-errors">
+            {% if form.password.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.password.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
         </div>
 
         <div class="form-group">
           <div class="split-layout split-layout--table">
             <div>
-              <input type="submit" value="Log in" class="button button--primary" tabindex="3">
+              <input type="submit" value="{% trans %}Log in{% endtrans %}" class="button button--primary">
             </div>
             <span>
-              <a href="{{request.route_url('accounts.request-password-reset')}}" tabindex="5">Forgot password?</a>
+              <a href="{{request.route_url('accounts.request-password-reset')}}">{% trans %}Forgot password?{% endtrans %}</a>
             </span>
           </div>
         </div>
       </form>
     </div>
-  </section>
+  </div>
 {% endblock %}

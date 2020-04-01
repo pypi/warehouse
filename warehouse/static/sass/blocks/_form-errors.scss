@@ -15,10 +15,18 @@
 /*
   A list of form errors:
 
-  <ul class="form-errors">
-    <li>This is a form error</li>
-    <li>This is another error</li>
-  </ul>
+  <input aria-describedby="my-field-errors">
+
+  <div id="my-field-errors">
+    <ul class="form-errors" role="alert">
+      <li>This is a form error</li>
+      <li>This is another error</li>
+    </ul>
+  </div>
+
+  Accessibility:
+    - Wrap the error in a div associated with the field via 'aria-describedby' 
+    - Add 'role=alert'to notify screen readers
 
   Modifiers:
     - full-width: makes error take entire available horizontal space
@@ -39,6 +47,10 @@
       content: "\f06a";
       margin-right: 5px;
       color: $danger-color;
+    }
+
+    a {
+      @include danger-underlined-link;
     }
   }
 

@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, Index, Integer, Text, sql
+from sqlalchemy import Boolean, CheckConstraint, Column, Integer, Text, sql
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
@@ -19,9 +19,9 @@ from warehouse.utils.attrs import make_repr
 class Classifier(db.ModelBase):
 
     __tablename__ = "trove_classifiers"
-    __table_args__ = (
-        Index("trove_class_class_idx", "classifier"),
-        Index("trove_class_id_idx", "id"),
+    __tableargs__ = CheckConstraint(
+        "classifier not ilike 'private ::%'",
+        name="ck_disallow_private_top_level_classifier",
     )
 
     __repr__ = make_repr("classifier")

@@ -15,15 +15,27 @@
 /*
   A block for highlighting important information:
 
+  // Basic component
   <div class="callput-block">
     <h3 class="callout-block__heading">Optional Heading</h3>
     // Any important message here.
   </div>
 
-  By default this component is styled with the primary color.
+  // Dismissable
+    - Add data attributes to connect to JS script
+    - Add ARIA labels to close button
+
+  <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">
+    <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="Close">
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </button>
+    <h3 class="callout-block__heading">Optional Heading</h3>
+    // Any important message here.
+  </div>
 
   Modifiers:
     - danger: Makes border red
+    - warning: Makes border brown
     - success: Makes border green
     - bottom-margin: Adds extra margin below the callout
 */
@@ -35,6 +47,10 @@
   position: relative;
   z-index: index($z-index-scale, "callout-block");
   border-radius: 4px;
+
+  &__dismiss {
+    @include dismiss-button;
+  }
 
   &__heading {
     @include h3;
@@ -52,6 +68,14 @@
     border-radius: 3px 0 0 3px;
   }
 
+  &--bottom-margin {
+    margin-bottom: $spacing-unit / 2;
+  }
+
+  &--dismissed {
+    display: none;
+  }
+
   &--danger {
     border-color: $danger-color;
 
@@ -59,29 +83,56 @@
       color: $danger-color;
 
       a:not(.button) {
-        color: $danger-color;
-        text-decoration: underline;
-
-        &:hover {
-          color: darken($danger-color, 4);
-        }
+        @include danger-underlined-link;
       }
     }
 
     &:before {
       background-color: $danger-color;
     }
+
+    .callout-block__dismiss {
+      @include link-focus-state($danger-color);
+    }
+  }
+
+  &--warning {
+    border-color: $warning-color;
+
+    > :not(.modal):not(.button) {
+      color: $warning-color;
+
+      a:not(.button) {
+        @include warning-underlined-link;
+      }
+    }
+
+    &:before {
+      background-color: $warning-color;
+    }
+
+    .callout-block__dismiss {
+      @include link-focus-state($warning-color);
+    }
   }
 
   &--success {
     border-color: $success-color;
 
+    > :not(.modal):not(.button) {
+      color: $success-color;
+
+      a:not(.button) {
+        @include success-underlined-link;
+      }
+    }
+
     &:before {
       background-color: $success-color;
     }
-  }
 
-  &--bottom-margin {
-    margin-bottom: $spacing-unit / 2;
+    .callout-block__dismiss {
+      @include link-focus-state($success-color);
+    }
   }
 }

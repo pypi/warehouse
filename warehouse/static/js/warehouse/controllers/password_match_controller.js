@@ -28,11 +28,11 @@ export default class extends Controller {
     } else {
       this.matchMessageTarget.classList.remove("hidden");
       if (this.passwordMatchTargets.every((field, i, arr) => field.value === arr[0].value)) {
-        this.matchMessageTarget.innerHTML = "Passwords match";
+        this.matchMessageTarget.textContent = "Passwords match";
         this.matchMessageTarget.classList.add("form-error--valid");
         this.submitTarget.removeAttribute("disabled");
       } else {
-        this.matchMessageTarget.innerHTML = "Passwords do not match";
+        this.matchMessageTarget.textContent = "Passwords do not match";
         this.matchMessageTarget.classList.remove("form-error--valid");
         this.submitTarget.setAttribute("disabled", "");
       }

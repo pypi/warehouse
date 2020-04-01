@@ -10,14 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import csv
+import io
 import shlex
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import String, cast, or_
 from sqlalchemy.orm.exc import NoResultFound
 
+from warehouse.accounts.models import User
+from warehouse.email import send_email
 from warehouse.email.ses.models import EmailMessage
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -25,7 +29,8 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.emails.list",
     renderer="admin/emails/list.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def email_list(request):
@@ -45,7 +50,18 @@ def email_list(request):
 
         filters = []
         for term in terms:
-            filters.append(EmailMessage.to.ilike(term))
+            if ":" in term:
+                field, value = term.split(":", 1)
+                if field.lower() == "to":
+                    filters.append(EmailMessage.to.ilike(value))
+                if field.lower() == "from":
+                    filters.append(EmailMessage.from_.ilike(value))
+                if field.lower() == "subject":
+                    filters.append(EmailMessage.subject.ilike(value))
+                if field.lower() == "status":
+                    filters.append(cast(EmailMessage.status, String).ilike(value))
+            else:
+                filters.append(EmailMessage.to.ilike(term))
 
         email_query = email_query.filter(or_(*filters))
 
@@ -60,9 +76,41 @@ def email_list(request):
 
 
 @view_config(
+    route_name="admin.emails.mass",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def email_mass(request):
+    input_file = request.params["csvfile"].file
+    wrapper = io.TextIOWrapper(input_file, encoding="utf-8")
+    rows = list(csv.DictReader(wrapper))
+    if rows:
+        for row in rows:
+            user = request.db.query(User).get(row["user_id"])
+            email = user.primary_email
+
+            if email:
+                request.task(send_email).delay(
+                    email.email,
+                    {
+                        "subject": row["subject"],
+                        "body_text": row["body_text"],
+                        "body_html": row.get("body_html"),
+                    },
+                )
+        request.session.flash("Mass emails sent", queue="success")
+    else:
+        request.session.flash("No emails to send", queue="error")
+    return HTTPSeeOther(request.route_path("admin.emails.list"))
+
+
+@view_config(
     route_name="admin.emails.detail",
     renderer="admin/emails/detail.html",
-    permission="admin",
+    permission="moderator",
+    request_method="GET",
     uses_session=True,
 )
 def email_detail(request):

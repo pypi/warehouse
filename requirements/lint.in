@@ -2,4 +2,5 @@ doc8
 flake8
 html-linter
 pep8-naming
-black==18.6b2
+black==19.10b0
+isort

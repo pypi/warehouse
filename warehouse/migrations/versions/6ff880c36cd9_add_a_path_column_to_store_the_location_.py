@@ -17,9 +17,9 @@ Revises: f392e419ea1b
 Create Date: 2016-01-06 20:37:45.190833
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 revision = "6ff880c36cd9"
 down_revision = "f392e419ea1b"

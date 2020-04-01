@@ -13,7 +13,6 @@
 from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid.viewderivers import INGRESS, csrf_view
 
-
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
 

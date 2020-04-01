@@ -12,13 +12,16 @@
 
 import json
 
-from pyramid.httpexceptions import HTTPBadRequest
+import requests
+
+from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists
 
 from warehouse.email.ses.models import EmailMessage, EmailStatus, Event, EventTypes
+from warehouse.metrics import IMetricsService
 from warehouse.utils import sns
 
 
@@ -67,13 +70,18 @@ def confirm_subscription(request):
     header="x-amz-sns-message-type:Notification",
 )
 def notification(request):
+    metrics = request.find_service(IMetricsService, context=None)
     data = request.json_body
 
     # Check to ensure that the Type is what we expect.
     if data.get("Type") != "Notification":
         raise HTTPBadRequest("Expected Type of Notification")
 
-    _verify_sns_message(request, data)
+    try:
+        _verify_sns_message(request, data)
+    except requests.HTTPError:
+        metrics.increment("warehouse.ses.sns_verify.error")
+        raise HTTPServiceUnavailable from None
 
     event_exists = request.db.query(
         exists().where(Event.event_id == data["MessageId"])

@@ -13,15 +13,15 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Log out{% endblock %}
+{% block title %}{% trans %}Log out{% endtrans %}{% endblock %}
 
 {% block content %}
-  <h1>Log out of {{ request.user.username }}</h1>
+  <h1>{% trans account_name=request.user.username %}Log out of {{ account_name }}{% endtrans %}</h1>
   <form method="POST" action="{{ request.current_route_path() }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     {% if redirect.data %}
     <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
     {% endif %}
-    <input type="submit" value="Log Out">
+    <input type="submit" value="{% trans %}Log out{% endtrans %}">
   </form>
 {% endblock %}

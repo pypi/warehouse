@@ -19,7 +19,6 @@ Create Date: 2015-04-05 00:45:54.649441
 
 from alembic import op
 
-
 revision = "28a7e805fd0"
 down_revision = "91508cc5c2"
 

@@ -57,6 +57,38 @@ def includeme(config):
         include_paths=["warehouse"],
         release=config.registry.settings["warehouse.commit"],
         transport=config.registry.settings.get("sentry.transport"),
+        # For some reason we get periodic SystemExit exceptions, I think it is because
+        # of OpenSSL generating a SIGABRT when OpenSSL_Die() is called, and then
+        # Gunicorn treating that as being told to exit the process. Either way, there
+        # isn't anything we can do about them, so they just cause noise.
+        ignore_exceptions=[
+            # For some reason we get periodic SystemExit exceptions, I think it is
+            # because of OpenSSL generating a SIGABRT when OpenSSL_Die() is called, and
+            # then Gunicorn treating that as being told to exit the process. Either way,
+            # there isn't anything we can do about them, so they just cause noise.
+            SystemExit,
+            # Gunicorn internally raises these errors, and will catch them and handle
+            # them correctly... however they have to first pass through our WSGI
+            # middleware for Raven which is catching them and logging them. Instead we
+            # will ignore them.
+            # We have to list these as strings, and list all of them because we don't
+            # want to import Gunicorn in our application, and when using strings Raven
+            # doesn't handle inheritance.
+            "gunicorn.http.errors.ParseException",
+            "gunicorn.http.errors.NoMoreData",
+            "gunicorn.http.errors.InvalidRequestLine",
+            "gunicorn.http.errors.InvalidRequestMethod",
+            "gunicorn.http.errors.InvalidHTTPVersion",
+            "gunicorn.http.errors.InvalidHeader",
+            "gunicorn.http.errors.InvalidHeaderName",
+            "gunicorn.http.errors.InvalidChunkSize",
+            "gunicorn.http.errors.ChunkMissingTerminator",
+            "gunicorn.http.errors.LimitRequestLine",
+            "gunicorn.http.errors.LimitRequestHeaders",
+            "gunicorn.http.errors.InvalidProxyLine",
+            "gunicorn.http.errors.ForbiddenProxyRequest",
+            "gunicorn.http.errors.InvalidSchemeHeaders",
+        ],
     )
     config.registry["raven.client"] = client
 

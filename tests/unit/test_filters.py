@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import urllib.parse
 
 from functools import partial
@@ -152,6 +153,13 @@ def test_format_classifiers(inp, expected):
 
 
 @pytest.mark.parametrize(
+    ("inp", "expected"), [("Foo", "Foo"), ("Foo :: Foo", "Foo_._Foo")]
+)
+def test_classifier_id(inp, expected):
+    assert filters.classifier_id(inp) == expected
+
+
+@pytest.mark.parametrize(
     ("inp", "expected"),
     [
         (["abcdef", "ghijkl"], False),
@@ -186,3 +194,17 @@ def test_format_package_type(inp, expected):
 )
 def test_parse_version(inp, expected):
     assert filters.parse_version(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            datetime.datetime(2018, 12, 26, 13, 36, 5, 789013),
+            "2018-12-26 13:36:05.789013 UTC",
+        )
+    ],
+)
+def test_localize_datetime(inp, expected):
+    datetime_format = "%Y-%m-%d %H:%M:%S.%f %Z"
+    assert filters.localize_datetime(inp).strftime(datetime_format) == expected

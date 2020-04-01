@@ -54,15 +54,25 @@
     @include split-table-layout;
   }
 
+  &--no-wrap {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
   &--wrap-on-tablet {
     @media only screen and (max-width: $tablet) {
+      flex-wrap: wrap;
+
       > :first-child,
       > :last-child {
         display: block;
+        width: 100%;
+        padding: 0;
       }
 
       > :last-child {
         margin-top: 10px;
+        text-align: left;
       }
     }
   }

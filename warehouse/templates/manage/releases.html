@@ -15,82 +15,99 @@
 
 {% set active_tab = 'releases' %}
 
-{% block title %}Manage '{{ project.name }}' releases{% endblock %}
+{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' releases{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>Releases ({{ project.releases|length }})</h2>
+  <h2>{% trans release_count=project.releases|length %}Releases ({{ release_count }}){% endtrans %}</h2>
   {% if project.releases %}
-    <table class="table table--light table--releases no-top-margin">
+    <table class="table table--releases">
+      <caption class="sr-only">{% trans project_name=project.name %}Releases for {{ project_name }}{% endtrans %}</caption>
       <thead>
-        <th class="table__version">Version</th>
-        <th class="table__date">Release date</th>
-        <th class="table__summary">Summary</th>
-        <th class="table__options"></th>
+        <tr>
+          <th scope="col">{% trans %}Version{% endtrans %}</th>
+          <th scope="col">{% trans %}Release date{% endtrans %}</th>
+          <th scope="col">{% trans %}Files{% endtrans %}</th>
+          <th scope="col"></th>
+        </tr>
       </thead>
       <tbody>
       {% for release in project.releases %}
         <tr>
-          <td class="table__version">
-            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="Manage version">
+          <th scope="row">
+            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="{% trans %}Manage version{% endtrans %}">
               {{ release.version }}
             </a>
-          </td>
-          <td class="table__date">{{ humanize(release.created) }}</time></td>
-          <td class="table__summary">
-            {% if release.summary %}
-              {{ release.summary }}
+          </th>
+          <td>{{ humanize(release.created) }}</td>
+          <td>
+            {% set num_files = version_to_file_counts[release.version]['total'] %}
+            {% if num_files %}
+            {% trans count=num_files %}
+              {{ count }} file
+            {% pluralize %}
+              {{ count }} files
+            {% endtrans %}
+              ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
+              {%- if packagetype != 'total' -%}
+              {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
+              {%- endif -%}
+              {% endfor %})
             {% else %}
-              —
+            {% trans %}No files{% endtrans %}
             {% endif %}
-            </td>
-          <td class="table__options">
+          </td>
+          <td class="table__align-right">
             <nav class="dropdown dropdown--with-icons">
-              <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
-                Options
+              <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View release options{% endtrans %}">
+                {% trans %}Options{% endtrans %}
                 <span class="dropdown__trigger-caret">
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
-                  <span class="sr-only">view submenu</span>
                 </span>
               </button>
-              <ul class="dropdown__content">
+              <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans version=release.version %}Options for {{ version }}{% endtrans %}">
                 <li>
                   <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
                     <i class="fa fa-pencil-alt" aria-hidden="true"></i>
-                    Manage
+                    {% trans %}Manage{% endtrans %}
                   </a>
                 </li>
                 <li>
                   <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
                     <i class="fa fa-eye" aria-hidden="true"></i>
-                    View
+                    {% trans %}View{% endtrans %}
                   </a>
                 </li>
                 <li>
-                  {% set title = "Delete Release" %}
-                  {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
+                  {% set title = gettext("Delete Release") %}
+                  {% set confirm_name = "delete_release" %}
+                  {% set slug = confirm_name + '-modal-{}'.format(loop.index) %}
                   <a href="#{{ slug }}" class="dropdown__link">
                     <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                    Delete
+                    {% trans %}Delete{% endtrans %}
                   </a>
                 </li>
               </ul>
             </nav>
             {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
-            {{ confirm_modal(title, "Version", release.version, slug, index=loop.index, action=action) }}
+            {% set version_warning_text %}
+            <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
+            {% endset %}
+
+            {{ confirm_modal(title, gettext('Version'), 'version', release.version, slug, custom_warning_text=version_warning_text, action=action) }}
           </td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
-    <br>
   {% endif %}
 
-  <div class="callout-block">
+  <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">
     {% if project.releases %}
-    <h3>Creating a new release</h3>
+    <h3>{% trans %}Creating a new release{% endtrans %}</h3>
     {% else %}
-    <h3>No releases found</h3>
+    <h3>{% trans %}No releases found{% endtrans %}</h3>
     {% endif %}
-    <p>Learn how to create a new release on the <a href="https://packaging.python.org/tutorials/distributing-packages/">Python Packaging User Guide</a></p>
+    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/', title=gettext('External link') %}Learn how to create a new release on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
   </div>
 {% endblock %}

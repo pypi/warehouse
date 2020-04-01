@@ -15,7 +15,7 @@ import pytest
 
 from wtforms.validators import StopValidation, ValidationError
 
-from warehouse.forms import Form, DBForm, URIValidator, PasswordStrengthValidator
+from warehouse.forms import DBForm, Form, PasswordStrengthValidator, URIValidator
 
 
 class TestURIValidator:

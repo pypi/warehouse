@@ -11,7 +11,10 @@
 # limitations under the License.
 
 import threading
+
 import requests
+
+from requests.adapters import HTTPAdapter
 
 
 class ThreadLocalSessionFactory:
@@ -26,7 +29,12 @@ class ThreadLocalSessionFactory:
             return session
         except AttributeError:
             request.log.debug("creating new session")
+
+            adapter = HTTPAdapter(max_retries=1)
+
             session = requests.Session()
+            session.mount("http://", adapter)
+            session.mount("https://", adapter)
 
             if self.config is not None:
                 for attr, val in self.config.items():

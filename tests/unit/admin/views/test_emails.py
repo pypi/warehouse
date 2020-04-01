@@ -10,15 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import csv
+import io
 import uuid
 
-import pytest
 import pretend
+import pytest
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import emails as views
+from warehouse.email.ses.models import EmailStatuses
 
+from ....common.db.accounts import EmailFactory, UserFactory
 from ....common.db.ses import EmailMessageFactory
 
 
@@ -61,6 +65,42 @@ class TestEmailList:
 
         assert result == {"emails": [emails[0]], "query": emails[0].to}
 
+    def test_query_term_to(self, db_request):
+        email0 = EmailMessageFactory.create(to="foo@bar.com")
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "to:foo@bar.com"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "to:foo@bar.com"}
+
+    def test_query_term_from(self, db_request):
+        email0 = EmailMessageFactory.create(from_="foo@bar.com")
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "from:foo@bar.com"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "from:foo@bar.com"}
+
+    def test_query_term_subject(self, db_request):
+        email0 = EmailMessageFactory.create(subject="foo bar")
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "subject:'foo bar'"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "subject:'foo bar'"}
+
+    def test_query_term_status(self, db_request):
+        email0 = EmailMessageFactory.create(status=EmailStatuses.Bounced.value)
+        EmailMessageFactory.create()
+
+        db_request.GET["q"] = "status:bounced"
+        result = views.email_list(db_request)
+
+        assert result == {"emails": [email0], "query": "status:bounced"}
+
     def test_wildcard_query(self, db_request):
         emails = sorted(
             [EmailMessageFactory.create() for _ in range(30)],
@@ -71,6 +111,128 @@ class TestEmailList:
         result = views.email_list(db_request)
 
         assert result == {"emails": [emails[0]], "query": emails[0].to[:-1] + "%"}
+
+
+class TestEmailMass:
+    def test_sends_emails(self, db_request):
+        user1 = UserFactory.create()
+        email1 = EmailFactory.create(user=user1, primary=True)
+        user2 = UserFactory.create()
+        email2 = EmailFactory.create(user=user2, primary=True)
+
+        input_file = io.BytesIO()
+        wrapper = io.TextIOWrapper(input_file, encoding="utf-8")
+        fieldnames = ["user_id", "subject", "body_text"]
+        writer = csv.DictWriter(wrapper, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerow(
+            {
+                "user_id": user1.id,
+                "subject": "Test Subject 1",
+                "body_text": "Test Body 1",
+            }
+        )
+        writer.writerow(
+            {
+                "user_id": user2.id,
+                "subject": "Test Subject 2",
+                "body_text": "Test Body 2",
+            }
+        )
+        wrapper.seek(0)
+
+        delay = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.params = {"csvfile": pretend.stub(file=input_file)}
+        db_request.task = lambda a: pretend.stub(delay=delay)
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.email_mass(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.route_path.calls == [pretend.call("admin.emails.list")]
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Mass emails sent", queue="success")
+        ]
+        assert delay.calls == [
+            pretend.call(
+                email1.email,
+                {
+                    "subject": "Test Subject 1",
+                    "body_text": "Test Body 1",
+                    "body_html": None,
+                },
+            ),
+            pretend.call(
+                email2.email,
+                {
+                    "subject": "Test Subject 2",
+                    "body_text": "Test Body 2",
+                    "body_html": None,
+                },
+            ),
+        ]
+
+    def test_user_without_email_sends_no_emails(self, db_request):
+        user = UserFactory.create()
+
+        input_file = io.BytesIO()
+        wrapper = io.TextIOWrapper(input_file, encoding="utf-8")
+        fieldnames = ["user_id", "subject", "body_text"]
+        writer = csv.DictWriter(wrapper, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerow(
+            {
+                "user_id": user.id,
+                "subject": "Test Subject 1",
+                "body_text": "Test Body 1",
+            }
+        )
+        wrapper.seek(0)
+
+        delay = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.params = {"csvfile": pretend.stub(file=input_file)}
+        db_request.task = lambda a: pretend.stub(delay=delay)
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.email_mass(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.route_path.calls == [pretend.call("admin.emails.list")]
+        assert result.headers["Location"] == "/the-redirect"
+        assert delay.calls == []
+
+    def test_no_rows_sends_no_emails(self):
+        input_file = io.BytesIO()
+        wrapper = io.TextIOWrapper(input_file, encoding="utf-8")
+        fieldnames = ["user_id", "subject", "body_text"]
+        writer = csv.DictWriter(wrapper, fieldnames=fieldnames)
+        writer.writeheader()
+        wrapper.seek(0)
+
+        delay = pretend.call_recorder(lambda *a, **kw: None)
+        request = pretend.stub(
+            params={"csvfile": pretend.stub(file=input_file)},
+            task=lambda a: pretend.stub(delay=delay),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+
+        result = views.email_mass(request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.route_path.calls == [pretend.call("admin.emails.list")]
+        assert result.headers["Location"] == "/the-redirect"
+        assert request.session.flash.calls == [
+            pretend.call("No emails to send", queue="error")
+        ]
+        assert delay.calls == []
 
 
 class TestEmailDetail:
