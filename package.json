@@ -14,7 +14,7 @@
     "testRegex": ".*_test.js"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "5.1.1",
+    "@fortawesome/fontawesome-free": "5.13.0",
     "@stimulus/polyfills": "1.1.1",
     "@babel/core": "7.6.0",
     "@babel/plugin-proposal-class-properties": "7.5.5",
@@ -23,7 +23,7 @@
     "@babel/register": "7.6.0",
     "babel-loader": "8.0.6",
     "clipboard": "1.7.1",
-    "cookie": "0.3.1",
+    "cookie": "0.4.0",
     "cssnano": "4.1.10",
     "date-fns": "1.29.0",
     "debounce": "1.2.0",
@@ -32,7 +32,7 @@
     "gulp": "4.0.0",
     "gulp-brotli": "1.2.1",
     "gulp-concat": "2.6.1",
-    "gulp-gzip": "1.4.0",
+    "gulp-gzip": "1.4.2",
     "gulp-image": "4.4.1",
     "gulp-postcss": "8.0.0",
     "gulp-rev-all": "0.9.8",
