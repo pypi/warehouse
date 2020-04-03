@@ -147,6 +147,7 @@ def json_release(release, request):
                 "upload_time_iso_8601": f.upload_time.isoformat() + "Z",
                 "url": request.route_url("packaging.file", path=f.path),
                 "requires_python": r.requires_python if r.requires_python else None,
+                "yanked": r.yanked,
             }
             for f in fs
         ]
@@ -183,6 +184,7 @@ def json_release(release, request):
             "bugtrack_url": None,
             "home_page": release.home_page,
             "download_url": release.download_url,
+            "yanked": release.yanked,
         },
         "urls": releases[release.version],
         "releases": releases,
