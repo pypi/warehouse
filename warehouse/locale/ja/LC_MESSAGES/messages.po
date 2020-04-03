@@ -9,13 +9,14 @@
 # Ryo/Liàng KAJI <kaji@code.ac.jp>, 2019.
 # Yuichi OMATA <yuichi.omata@gmail.com>, 2019.
 # Masashi Kondo <m-kondo@safie.jp>, 2019.
+# Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-29 12:01+0000\n"
-"Last-Translator: komo_fr <komo.mdrms@gmail.com>\n"
+"PO-Revision-Date: 2020-04-03 03:48+0000\n"
+"Last-Translator: Dustin Ingram <dustin.ingram@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ja/>\n"
 "Language: ja\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
@@ -2055,10 +2056,9 @@ msgid "Device name"
 msgstr "端末名"
 
 #: warehouse/templates/manage/account.html:491
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
+#, python-format
 msgid "generated %(generated_datetime)s"
-msgstr "リリース日: %(release_date)s"
+msgstr "リリース日: %(generated_datetime)s"
 
 #: warehouse/templates/manage/account.html:494
 msgid "Regenerate"

@@ -11,13 +11,14 @@
 # eronglee <larbbt@163.com>, 2019.
 # Eana Hufwe <ilove@1a23.com>, 2020.
 # 李博豪 <xiaolizi20070827@163.com>, 2020.
+# Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-28 22:14+0000\n"
-"Last-Translator: 李博豪 <xiaolizi20070827@163.com>\n"
+"PO-Revision-Date: 2020-04-03 03:48+0000\n"
+"Last-Translator: Dustin Ingram <dustin.ingram@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -1993,10 +1994,9 @@ msgid "Device name"
 msgstr "设备名称"
 
 #: warehouse/templates/manage/account.html:491
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
+#, python-format
 msgid "generated %(generated_datetime)s"
-msgstr "上次发布于 %(release_date)s"
+msgstr "上次发布于 %(generated_datetime)s"
 
 #: warehouse/templates/manage/account.html:494
 msgid "Regenerate"
