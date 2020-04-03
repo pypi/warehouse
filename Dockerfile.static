@@ -20,5 +20,4 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # of installed dependencies just because files have been modified.
 RUN set -x \
     && npm install -g npm@latest \
-    && npm install -g gulp-cli \
     && npm ci

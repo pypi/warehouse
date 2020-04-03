@@ -24,7 +24,6 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # of installed dependencies just because files have been modified.
 RUN set -x \
     && npm install -g npm@latest \
-    && npm install -g gulp-cli \
     && npm ci
 
 # Actually copy over our static files, we only copy over the static files to
@@ -35,8 +34,9 @@ RUN set -x \
 COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
 COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
 COPY Gulpfile.babel.js /opt/warehouse/src/
+COPY webpack.config.js /opt/warehouse/src/
 
-RUN gulp dist
+RUN npx webpack --mode production
 
 
 
