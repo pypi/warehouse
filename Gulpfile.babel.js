@@ -54,7 +54,7 @@ var postCSSPlugins = [
       discardComments: {
         removeAll: true,
       },
-    }]
+    }],
   }),
 ];
 
