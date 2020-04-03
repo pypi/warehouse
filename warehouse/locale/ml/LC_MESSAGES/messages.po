@@ -1,21 +1,17 @@
-# Translations template for Warehouse.
-# Copyright (C) 2019 PyPA
-# This file is distributed under the same license as the Warehouse project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Alexander Baghramyan <aleksandr.baghramyan@gmail.com>, 2019.
+# Fahad Shihab <fahadshihab@gmail.com>, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: Warehouse VERSION\n"
-"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 20:11+0200\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-17 06:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: hy\n"
+"Language: ml\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"X-Generator: Translate Toolkit 2.5.0\n"
 
 #: warehouse/views.py:255
 msgid "Locale updated"
