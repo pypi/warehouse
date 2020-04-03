@@ -116,7 +116,7 @@ a {
   &[target="_blank"]:not(.copy-tooltip):not(.sponsors__sponsor) {
     &::after {
       white-space: nowrap;
-      font-size: 0.8rem;
+      font-size: 0.8em;
       font-family: "Font Awesome 5 Free";
       font-weight: 900;
       content: "\f35d";
