@@ -114,7 +114,7 @@ def json_release(release, request):
         request.db.query(Release, File)
         .options(Load(Release).load_only("version", "requires_python"))
         .outerjoin(File)
-        .filter(Release.project == project, Release.yanked.is_(False))
+        .filter(Release.project == project)
         .order_by(Release._pypi_ordering.desc(), File.filename)
         .all()
     )
