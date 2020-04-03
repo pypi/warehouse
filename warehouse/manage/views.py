@@ -1081,9 +1081,8 @@ class ManageProjectRelease:
             )
 
         submitter_role = get_user_role_in_project(
-            self.release.project.name, self.request.user.username, self.request
+            self.release.project, self.request.user, self.request
         )
-        contributors = get_project_contributors(self.release.project.name, self.request)
 
         self.request.db.add(
             JournalEntry(
@@ -1110,9 +1109,9 @@ class ManageProjectRelease:
             f"Yanked release {self.release.version!r}", queue="success"
         )
 
-        for contributor in contributors:
+        for contributor in self.release.project.users:
             contributor_role = get_user_role_in_project(
-                self.release.project.name, contributor.username, self.request
+                self.release.project, contributor, self.request
             )
 
             send_yanked_project_release_email(
@@ -1158,9 +1157,8 @@ class ManageProjectRelease:
             )
 
         submitter_role = get_user_role_in_project(
-            self.release.project.name, self.request.user.username, self.request
+            self.release.project, self.request.user, self.request
         )
-        contributors = get_project_contributors(self.release.project.name, self.request)
 
         self.request.db.add(
             JournalEntry(
@@ -1187,9 +1185,9 @@ class ManageProjectRelease:
             f"Un-yanked release {self.release.version!r}", queue="success"
         )
 
-        for contributor in contributors:
+        for contributor in self.release.project.users:
             contributor_role = get_user_role_in_project(
-                self.release.project.name, contributor.username, self.request
+                self.release.project, contributor, self.request
             )
 
             send_unyanked_project_release_email(

@@ -13,7 +13,7 @@
 Add Release.yanked
 
 Revision ID: 43b0e796a40d
-Revises: 5c029d9ef925
+Revises: 6af76ffb9612
 Create Date: 2020-03-13 03:31:03.153039
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "43b0e796a40d"
-down_revision = "5c029d9ef925"
+down_revision = "6af76ffb9612"
 
 
 def upgrade():

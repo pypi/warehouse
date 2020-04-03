@@ -2596,11 +2596,14 @@ class TestManageProjectRelease:
         ]
 
     def test_yank_project_release(self, monkeypatch):
+        user = pretend.stub(username=pretend.stub())
         release = pretend.stub(
             version="1.2.3",
             canonical_version="1.2.3",
             project=pretend.stub(
-                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+                name="foobar",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                users=[user],
             ),
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
             yanked=False,
@@ -2612,20 +2615,16 @@ class TestManageProjectRelease:
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(username=pretend.stub()),
+            user=user,
             remote_addr=pretend.stub(),
         )
         journal_obj = pretend.stub()
         journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
 
         get_user_role_in_project = pretend.call_recorder(
-            lambda project_name, username, req: "Owner"
+            lambda project, user, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
-        get_project_contributors = pretend.call_recorder(
-            lambda project_name, request: [request.user]
-        )
-        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
 
         monkeypatch.setattr(views, "JournalEntry", journal_cls)
         send_yanked_project_release_email = pretend.call_recorder(
@@ -2647,11 +2646,8 @@ class TestManageProjectRelease:
         assert release.yanked
 
         assert get_user_role_in_project.calls == [
-            pretend.call(release.project.name, request.user.username, request,),
-            pretend.call(release.project.name, request.user.username, request,),
-        ]
-        assert get_project_contributors.calls == [
-            pretend.call(release.project.name, request,)
+            pretend.call(release.project, request.user, request,),
+            pretend.call(release.project, request.user, request,),
         ]
 
         assert send_yanked_project_release_email.calls == [
@@ -2759,11 +2755,14 @@ class TestManageProjectRelease:
         ]
 
     def test_unyank_project_release(self, monkeypatch):
+        user = pretend.stub(username=pretend.stub())
         release = pretend.stub(
             version="1.2.3",
             canonical_version="1.2.3",
             project=pretend.stub(
-                name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
+                name="foobar",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                users=[user],
             ),
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
             yanked=True,
@@ -2775,7 +2774,7 @@ class TestManageProjectRelease:
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            user=pretend.stub(username=pretend.stub()),
+            user=user,
             remote_addr=pretend.stub(),
         )
         journal_obj = pretend.stub()
@@ -2785,10 +2784,6 @@ class TestManageProjectRelease:
             lambda project_name, username, req: "Owner"
         )
         monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
-        get_project_contributors = pretend.call_recorder(
-            lambda project_name, request: [request.user]
-        )
-        monkeypatch.setattr(views, "get_project_contributors", get_project_contributors)
 
         monkeypatch.setattr(views, "JournalEntry", journal_cls)
         send_unyanked_project_release_email = pretend.call_recorder(
@@ -2810,11 +2805,8 @@ class TestManageProjectRelease:
         assert not release.yanked
 
         assert get_user_role_in_project.calls == [
-            pretend.call(release.project.name, request.user.username, request,),
-            pretend.call(release.project.name, request.user.username, request,),
-        ]
-        assert get_project_contributors.calls == [
-            pretend.call(release.project.name, request,)
+            pretend.call(release.project, request.user, request),
+            pretend.call(release.project, request.user, request),
         ]
 
         assert send_unyanked_project_release_email.calls == [
