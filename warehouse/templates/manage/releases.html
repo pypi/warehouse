@@ -91,7 +91,7 @@
             <li>
               {% set slug = 'yank_release-modal-{}'.format(loop.index) %}
               <a href="#{{ slug }}" class="dropdown__link">
-                <i class="fa fa-folder-minus" aria-hidden="true"></i>
+                <i class="fa fa-long-arrow-alt-left" aria-hidden="true"></i>
                 {% trans %}Yank{% endtrans %}
               </a>
             </li>
@@ -110,17 +110,17 @@
 
         {% if release.yanked %}
           {% set slug = 'unyank_release-modal-{}'.format(loop.index) %}
-          {% set title = gettext("Un-yank Release") %}
+          {% set title = gettext("Un-yank release") %}
           {{ confirm_modal(title, gettext('Version'), 'unyank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False) }}
         {% else %}
           {% set slug = 'yank_release-modal-{}'.format(loop.index) %}
-          {% set title = gettext("Yank Release") %}
+          {% set title = gettext("Yank release") %}
           {{ confirm_modal(title, gettext('Version'), 'yank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False) }}
 
           {% set slug = 'delete_release-modal-{}'.format(loop.index) %}
-          {% set title = gettext("Delete Release") %}
+          {% set title = gettext("Delete release") %}
           {% set custom_warning_text %}
-          <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider yanking this irelease, making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
+          <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider yanking this release, making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
           {% endset %}
           {{ confirm_modal(title, gettext('Version'), 'delete_version', release.version, slug, custom_warning_text=custom_warning_text, action=action) }}
         {% endif %}
