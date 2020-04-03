@@ -1,0 +1,256 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+{% block title %}{% trans %}Sponsor the Packaging Working Group{% endtrans %}{% endblock %}
+
+{% block content %}
+<div class="horizontal-section">
+  <div class="site-container">
+    <div class="sponsorship-intro">
+      <div class="sponsorship-intro__text">
+        <div class="heading-wsubtitle">
+          <h1 class="heading-wsubtitle__heading">{% trans %}Sponsor PyPI and related projects{% endtrans %}</h1>
+          <p class="heading-wsubtitle__subtitle">{% trans %}Donate to the Packaging Working Group{% endtrans %}</p>
+        </div>
+        <p class="lede-paragraph">
+          {% trans href='https://wiki.python.org/psf/PackagingWG', title=gettext('External link') %}The <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Packaging Working Group</a> is a work group of the Python Software Foundation which raises and distributes funds to improve Python's packaging ecosystem.{% endtrans %}
+        </p>
+        <p>{% trans %}Recent projects funded through the working group include:{% endtrans %}</p>
+        <ul class="hooray-list">
+          <li>
+            {% trans %}The successful relaunch of the Python Package Index, powered by the new 'Warehouse' codebase{% endtrans %}
+            <br><small>{% trans project_href="https://pyfound.blogspot.com/2017/11/the-psf-awarded-moss-grant-pypi.html", funder_href="https://www.mozilla.org/en-US/moss/", title=gettext('External link') %}With <a href="{{ project_href }}" title="{{ title }}" target="_blank" rel="noopener">$170,000 in funding</a> from the <a href="{{ funder_href }}" title="{{ title }}" target="_blank" rel="noopener">Mozilla Open Source Support Program</a> in 2018{% endtrans %}</small>
+          </li>
+          <li>
+            {% trans %}Improving PyPI's security and accessibility, and adding support for multiple locales{% endtrans %}
+            <br><small>{% trans funder_href="https://www.opentech.fund/results/supported-projects/pypi-improvements/", title=gettext('External link') %}With $80,000 in funding from the <a href="{{ funder_href }}" title="{{ title }}" target="_blank" rel="noopener">Open Technology Fund</a> in 2019{% endtrans %}</small>
+          </li>
+          <li>
+            {% trans %}Additional security-focused features for PyPI{% endtrans %}
+            <br><small>{% trans project_href="http://pyfound.blogspot.com/2018/12/upcoming-pypi-improvements-for-2019.html", funder_href="https://research.fb.com/", title=gettext('External link') %}With <a href="{{ project_href }}" title="{{ title }}" target="_blank" rel="noopener">$100,000 in funding</a> from <a href="{{ funder_href }}" title="{{ title }}" target="_blank" rel="noopener">Facebook Research</a> in 2019 and 2020{% endtrans %}</small>
+          </li>
+          <li>
+            {% trans %}Overhauling pip's user experience and dependency resolver{% endtrans %}
+            <br><small>{% trans project_href="https://pyfound.blogspot.com/2019/12/moss-czi-support-pip.html", funder0_href="https://chanzuckerberg.com/eoss/", funder1_href="https://www.mozilla.org/en-US/moss/", title=gettext('External link') %}With <a href="{{ project_href }}" title="{{ title }}" target="_blank" rel="noopener">$407,000 in funding</a> from the <a href="{{ funder0_href }}" title="{{ title }}" target="_blank" rel="noopener">Chan Zuckerberg Initiative</a> and the <a href="{{ funder1_href }}" title="{{ title }}" target="_blank" rel="noopener">Mozilla Open Source Support Program</a> in 2020{% endtrans %}</small>
+          </li>
+        </ul>
+        <p>
+          {% trans %}With your support, the working group can continue to fund packaging improvements, benefiting millions of Python users around the world.{% endtrans %}
+        </p>
+      </div>
+      <div class="sponsorship-intro__donations sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fas fa-donate" aria-hidden="true"></i>
+          </div>
+          <h2>{% trans %}Community donations{% endtrans %}</h2>
+        </div>
+        <div class="sponsor-package__body">
+          <p>{% trans %}We greatly appreciate both one-time and recurring donations.{% endtrans %}</p>
+          <p>{% trans href='https://www.python.org/psf/donations/', title=gettext('External link') %}For US taxpayers, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">your donation may be tax-deductible</a>.{% endtrans %}</p>
+          <p>{% trans %}Every donation counts!{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__button">
+          <a class="button" href="https://donate.pypi.org">{% trans %}Donate here{% endtrans %}</a>
+          <p>{% trans href='#sponsorship-packages' %}Donating over $5,000? <a href="{{ href }}">Become a sponsor</a> instead.{% endtrans %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="horizontal-section horizontal-section--grey horizontal-section--thin">
+  <div class="site-container">
+    <div class="sponsorship-benefits">
+      <div class="sponsorship-benefits__benefit">
+        <h3>{% trans %}Get your logo on PyPI.org{% endtrans %}</h3>
+        <p>{% trans %}Looking for brand visibility? In the last year*, 21.1 million people from 237 countries visited PyPI.org.{% endtrans %}</p>
+        <p><small>{% trans %}* Data as of March 2020{% endtrans %}</small></p>
+      </div>
+      <div class="sponsorship-benefits__benefit">
+        <h3>{% trans %}Strengthen the Python ecosystem{% endtrans %}</h3>
+        <p>{% trans %}Funds raised by the packaging working group go directly towards improving the tools your company uses every day.{% endtrans %}</p>
+      </div>
+      <div class="sponsorship-benefits__benefit">
+        <h3>{% trans %}Boost your reputation{% endtrans %}</h3>
+        <p>{% trans %}Enhance your company's reputation by investing in Python and the open source community.{% endtrans %}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="horizontal-section" id="sponsorship-packages">
+  <div class="site-container">
+    <div class="centered-heading">
+      <h2 class="centered-heading__title">{% trans %}Sponsorship packages{% endtrans %}</h2>
+      <p class="centered-heading__subtitle">{% trans %}All figures are in USD{% endtrans %}</p>
+    </div>
+
+    <div class="sponsor-packages">
+      <div class="sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fas fa-heart" aria-hidden="true"></i>
+          </div>
+          <h3>{% trans %}Lifetime{% endtrans %}</h3>
+          <p>{% trans %}One time donation of $1,000,000{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__body">
+          <ul>
+            <li>{% trans %}Logo in a prominent position on the PyPI project detail page, <strong>in perpetuity</strong>{% endtrans %}</li>
+            <li>{% trans href='http://pyfound.blogspot.com/', title=gettext('External link') %}<strong>Individual</strong> blog post on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Sofware Foundation blog</a>{% endtrans %}</li>
+          </ul>
+        </div>
+        <a class="button sponsor-package__button" href="https://docs.google.com/forms/d/e/1FAIpQLSe3pvmpCYLTPB-V_9hpT6vrarm9GE6Wko_fy_KhJKm7NFqF_Q/viewform?usp=pp_url&entry.830976800=Lifetime+(single+donation+of+$1,000,000)"title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          {% trans %}Become a sponsor{% endtrans %}
+        </a>
+      </div>
+
+      <div class="sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fa fa-gem" aria-hidden="true"></i>
+          </div>
+          <h3>{% trans %}Diamond{% endtrans %}</h3>
+          <p>{% trans %}$50,000 per year, or equivalent in donated services{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__body">
+          <ul>
+            <li>{% trans %}Logo in a <strong>prominent position</strong> on the PyPI project detail page{% endtrans %}</li>
+            <li>{% trans %}Logo on the PyPI footer{% endtrans %}</li>
+            <li>{% trans href='https://pypi.org/sponsors/' %}Logo <strong>and write up</strong> on the <a href="{{ href }}">PyPI sponsors page</a>{% endtrans %}</li>
+            <li>{% trans href='http://pyfound.blogspot.com/', title=gettext('External link') %}<strong>Individual</strong> blog post on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Sofware Foundation blog</a>{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/thepsf', title=gettext('External link') %}<strong>Quarterly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a>{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/pypi', title=gettext('External link') %}<strong>Quarterly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Twitter account</a>{% endtrans %}</li>
+          </ul>
+        </div>
+        <a class="button sponsor-package__button" href="https://docs.google.com/forms/d/e/1FAIpQLSe3pvmpCYLTPB-V_9hpT6vrarm9GE6Wko_fy_KhJKm7NFqF_Q/viewform?usp=pp_url&entry.830976800=Diamond+($50,000+per+year)"title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          {% trans %}Become a sponsor{% endtrans %}
+        </a>
+      </div>
+
+      <div class="sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fas fa-trophy" aria-hidden="true"></i>
+          </div>
+          <h3>{% trans %}Platinum{% endtrans %}</h3>
+          <p>{% trans %}$30,000 per year, or equivalent in donated services{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__body">
+          <ul>
+            <li>{% trans %}Logo on <strong>high rotation</strong> in a prominent position on the PyPI project detail page{% endtrans %}</li>
+            <li>{% trans %}Logo on the PyPI footer{% endtrans %}</li>
+            <li>{% trans href='https://pypi.org/sponsors/' %}Logo <strong>and write up</strong> on the <a href="{{ href }}">PyPI sponsors page</a>{% endtrans %}</li>
+            <li>{% trans href='http://pyfound.blogspot.com/', title=gettext('External link') %}Inclusion in a blog post on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Sofware Foundation blog</a>, <strong>with other sponsors</strong> whose sponsorship commenced during the same quarter{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/thepsf', title=gettext('External link') %}<strong>Quarterly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a>{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/pypi', title=gettext('External link') %}<strong>Quarterly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Twitter account</a>{% endtrans %}</li>
+          </ul>
+        </div>
+        <a class="button sponsor-package__button" href="https://docs.google.com/forms/d/e/1FAIpQLSe3pvmpCYLTPB-V_9hpT6vrarm9GE6Wko_fy_KhJKm7NFqF_Q/viewform?usp=pp_url&entry.830976800=Platinum+($30,000+per+year)"title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          {% trans %}Become a sponsor{% endtrans %}
+        </a>
+      </div>
+
+      <div class="sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fa fa-medal" aria-hidden="true"></i>
+          </div>
+          <h3>{% trans %}Gold{% endtrans %}</h3>
+          <p>{% trans %}$20,000 per year, or equivalent in donated services{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__body">
+          <ul>
+            <li>{% trans %}Logo on <strong>medium rotation</strong> in a prominent position on the PyPI project detail page{% endtrans %}</li>
+            <li>{% trans %}Logo on the PyPI footer{% endtrans %}</li>
+            <li>{% trans href='https://pypi.org/sponsors/' %}Logo <strong>and write up</strong> on the <a href="{{ href }}">PyPI sponsors page</a>{% endtrans %}</li>
+            <li>{% trans href='http://pyfound.blogspot.com/', title=gettext('External link') %}Inclusion in a blog post on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Sofware Foundation blog</a>, <strong>with other sponsors</strong> whose sponsorship commenced during the same quarter{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/thepsf', title=gettext('External link') %}<strong>Quarterly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a>{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/pypi', title=gettext('External link') %}<strong>Quarterly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Twitter account</a>{% endtrans %}</li>
+          </ul>
+        </div>
+        <a class="button sponsor-package__button" href="https://docs.google.com/forms/d/e/1FAIpQLSe3pvmpCYLTPB-V_9hpT6vrarm9GE6Wko_fy_KhJKm7NFqF_Q/viewform?usp=pp_url&entry.830976800=Gold+($20,000+per+year)"title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          {% trans %}Become a sponsor{% endtrans %}
+        </a>
+      </div>
+
+      <div class="sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fa fa-medal" aria-hidden="true"></i>
+          </div>
+          <h3>{% trans %}Silver{% endtrans %}</h3>
+          <p>{% trans %}$10,000 per year, or equivalent in donated services{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__body">
+          <ul>
+            <li>{% trans %}Logo on <strong>low rotation</strong> in a prominent position on the PyPI project detail page{% endtrans %}</li>
+            <li>{% trans href='https://pypi.org/sponsors/' %}Logo on the <a href="{{ href }}">PyPI sponsors page</a>{% endtrans %}</li>
+            <li>{% trans href='http://pyfound.blogspot.com/', title=gettext('External link') %}Inclusion in a blog post on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Sofware Foundation blog</a>, <strong>with other sponsors</strong> whose sponsorship commenced during the same quarter{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/thepsf', title=gettext('External link') %}<strong>Bi-yearly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a>{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/pypi', title=gettext('External link') %}<strong>Bi-yearly</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Twitter account</a>{% endtrans %}</li>
+          </ul>
+        </div>
+        <a class="button sponsor-package__button" href="https://docs.google.com/forms/d/e/1FAIpQLSe3pvmpCYLTPB-V_9hpT6vrarm9GE6Wko_fy_KhJKm7NFqF_Q/viewform?usp=pp_url&entry.830976800=Silver+($10,000+per+year)"title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          {% trans %}Become a sponsor{% endtrans %}
+        </a>
+      </div>
+
+      <div class="sponsor-package">
+        <div class="sponsor-package__header">
+          <div class="sponsor-package__icon">
+            <i class="fa fa-medal" aria-hidden="true"></i>
+          </div>
+          <h3>{% trans %}Bronze{% endtrans %}</h3>
+          <p>{% trans %}$5,000 per year, or equivalent in donated services{% endtrans %}</p>
+        </div>
+        <div class="sponsor-package__body">
+          <ul>
+            <li>{% trans href='https://pypi.org/sponsors/' %}Logo on the <a href="{{ href }}">PyPI sponsors page</a>{% endtrans %}</li>
+            <li>{% trans href='http://pyfound.blogspot.com/', title=gettext('External link') %}Inclusion in a blog post on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Sofware Foundation blog</a>, <strong>with other sponsors</strong> whose sponsorship commenced during the same quarter{% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/thepsf', title=gettext('External link') %}<strong>Single</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> (on initial sponsorship, and on each subsequent renewal){% endtrans %}</li>
+            <li>{% trans href='https://twitter.com/pypi', title=gettext('External link') %}<strong>Single</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Twitter account</a> (on initial sponsorship, and on each subsequent renewal){% endtrans %}</li>
+          </ul>
+        </div>
+        <a class="button sponsor-package__button" href="https://docs.google.com/forms/d/e/1FAIpQLSe3pvmpCYLTPB-V_9hpT6vrarm9GE6Wko_fy_KhJKm7NFqF_Q/viewform?usp=pp_url&entry.830976800=Bronze+($5,000+per+year)"title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          {% trans %}Become a sponsor{% endtrans %}
+        </a>
+      </div>
+    </div>
+
+    <div class="sponsor-package">
+      <div class="sponsor-package__header">
+        <div class="sponsor-package__icon">
+          <i class="fas fa-code" aria-hidden="true"></i>
+        </div>
+        <h3>{% trans %}One time grants / custom donations{% endtrans %}</h3>
+        <p>{% trans href='https://wiki.python.org/psf/Fundable%20Packaging%20Improvements', title=gettext('External link') %}Sponsorship of a specific feature, feature set, or community sprint, valued at over $50,000. See <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">fundable packaging improvements</a> for ideas.{% endtrans %}</p>
+      </div>
+      <div class="sponsor-package__body">
+        <ul>
+          <li>{% trans href='https://pypi.org/sponsors/' %}Logo <strong>and write up</strong> on the <a href="{{ href }}">PyPI sponsors page</a>{% endtrans %}, displayed for 12 months from when the grant is paid</li>
+          <li>{% trans href='http://pyfound.blogspot.com/', title=gettext('External link') %}<strong>Individual</strong> blog post on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Sofware Foundation blog</a>, explaining what the funds will be used for{% endtrans %}</li>
+          <li>{% trans href='https://twitter.com/thepsf', title=gettext('External link') %}<strong>Single</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a>{% endtrans %}</li>
+          <li>{% trans href='https://twitter.com/pypi', title=gettext('External link') %}<strong>Single</strong> thank you tweet from the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Twitter account</a>{% endtrans %}</li>
+        </ul>
+        <p>{% trans %}Note: A record of working group grants will be listed on the PyPI sponsorship page in perpetuity.{% endtrans %}</p>
+        <a class="button sponsor-package__button" href="https://docs.google.com/forms/d/e/1FAIpQLSe3pvmpCYLTPB-V_9hpT6vrarm9GE6Wko_fy_KhJKm7NFqF_Q/viewform?usp=pp_url&entry.830976800=One+time+grant+/+custom+donation+(sponsorship+of+a+specific+feature,+feature+set,+or+community+sprint,+valued+at+over+$50,000)" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">
+          {% trans %}Become a sponsor{% endtrans %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

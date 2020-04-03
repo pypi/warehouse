@@ -47,6 +47,12 @@ def includeme(config):
         view_kw={"has_translations": True},
     )
     config.add_template_view(
+        "sponsor",
+        "/sponsor/",
+        "pages/sponsor.html",
+        view_kw={"has_translations": True},
+    )
+    config.add_template_view(
         "sponsors",
         "/sponsors/",
         # Use the full resource path here to make it able to be overridden by
