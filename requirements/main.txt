@@ -569,6 +569,9 @@ transaction==3.0.0 \
 translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4
+trove-classifiers==2020.4.1 \
+    --hash=sha256:9e1dcd47920817eaeb4cc67004b3fee430f3fc692e926f6ab1e337035b7a590d \
+    --hash=sha256:d8adb5d687ee15fe83c4c23404a8fbc0ff267ca997c6870419cc625fdea449e0
 typeguard==2.7.1 \
     --hash=sha256:1d3710251d3d3d6c64e0c49f45edec2e88ddc386a51e89c3ec0703efeb8b3b81 \
     --hash=sha256:2d545c71e9439c21bcd7c28f5f55b3606e6106f7031ab58375656a1aed483ef2
