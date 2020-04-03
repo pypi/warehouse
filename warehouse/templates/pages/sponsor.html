@@ -28,10 +28,26 @@
         </p>
         <p>{% trans %}Recent projects funded through the working group include:{% endtrans %}</p>
         <ul class="hooray-list">
-          <li>{% trans %}The successful relaunch of the Python Package Index, powered by the new 'Warehouse' codebase{% endtrans %}</li>
-          <li>{% trans %}Adding security features to PyPI, including two-factor authentication{% endtrans %}</li>
-          <li>{% trans %}Improving PyPI's web interface for users with disabilities, and adding support for multiple locales{% endtrans %}</li>
-          <li>{% trans %}Improving pip's dependency resolver and user experience{% endtrans %}</li>
+          <li>
+            {% trans %}The successful relaunch of the Python Package Index, powered by the new 'Warehouse' codebase{% endtrans %}
+            <br><small>{% trans project_href="https://pyfound.blogspot.com/2017/11/the-psf-awarded-moss-grant-pypi.html", funder_href="https://www.mozilla.org/en-US/moss/" %}With <a href="{{ project_href }}">$170,000 in funding</a> from the <a href="{{ funder_href }}">Mozilla Open Source Support Program</a> in 2018{% endtrans %}</small>
+          </li>
+          <li>
+            {% trans %}Adding security features to PyPI, including two-factor authentication{% endtrans %}
+            <br><small>{% trans funder_href="https://www.opentech.fund/results/supported-projects/pypi-improvements/" %}With $80,000 in funding from the <a href="{{ funder_href }}">Open Technology Fund</a> in 2019{% endtrans %}</small>
+          </li>
+          <li>
+            {% trans %}Improving PyPI's web interface for users with disabilities, and adding support for multiple locales{% endtrans %}
+            <br><small>{% trans funder_href="https://www.opentech.fund/results/supported-projects/pypi-improvements/" %}With $80,000 in funding from the <a href="{{ funder_href }}">Open Technology Fund</a> in 2019{% endtrans %}</small>
+          </li>
+          <li>
+            {% trans %}Additional security-focused features for PyPI{% endtrans %}
+            <br><small>{% trans project_href="http://pyfound.blogspot.com/2018/12/upcoming-pypi-improvements-for-2019.html", funder_href="https://research.fb.com/" %}With <a href="{{ project_href }}">$100,000 in funding</a> from <a href="{{ funder_href }}">Facebook Research</a> in 2019 and 2020{% endtrans %}</small>
+          </li>
+          <li>
+            {% trans %}Overhauling pip's user experience and dependency resolver{% endtrans %}
+            <br><small>{% trans project_href="https://pyfound.blogspot.com/2019/12/moss-czi-support-pip.html", funder0_href="https://chanzuckerberg.com/eoss/", funder1_href="https://www.mozilla.org/en-US/moss/" %}With <a href="{{ project_href }}">$407,000 in funding</a> from the <a href="{{ funder0_href }}">Chan Zuckerberg Initiative</a> and the <a href="{{ funder1_href }}">Mozilla Open Source Support Program</a> in 2020{% endtrans %}</small>
+          </li>
         </ul>
         <p>
           {% trans %}With your support, the working group can continue to fund packaging improvements, benefiting millions of Python users around the world.{% endtrans %}
