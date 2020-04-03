@@ -30,6 +30,7 @@ KNOWN_LOCALES = {
     "uk": "Українська",  # Ukrainian
     "el": "Ελληνικά",  # Greek
     "de": "Deutsch",  # German
+    "zh_Hans": "简体中文",  # Simplified Chinese
 }
 
 LOCALE_ATTR = "_LOCALE_"
