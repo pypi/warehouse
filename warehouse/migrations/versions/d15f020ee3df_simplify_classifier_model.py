@@ -13,7 +13,7 @@
 Simplify classifier model
 
 Revision ID: d15f020ee3df
-Revises: 5c029d9ef925
+Revises: 6af76ffb9612
 Create Date: 2020-02-03 03:28:22.838779
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "d15f020ee3df"
-down_revision = "5c029d9ef925"
+down_revision = "6af76ffb9612"
 
 
 def upgrade():
