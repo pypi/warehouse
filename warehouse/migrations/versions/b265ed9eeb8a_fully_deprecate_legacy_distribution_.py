@@ -28,13 +28,4 @@ def upgrade():
 
 
 def downgrade():
-    op.add_column(
-        "projects",
-        sa.Column(
-            "allow_legacy_files",
-            sa.BOOLEAN(),
-            server_default=sa.text("false"),
-            autoincrement=False,
-            nullable=False,
-        ),
-    )
+    raise RuntimeError("Order No. 227 - Ни шагу назад!")
