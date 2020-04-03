@@ -29,7 +29,7 @@ paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
 premailer
-psycopg2
+psycopg2-binary
 pycurl
 pyqrcode
 pyramid>=1.9,<1.11.0
