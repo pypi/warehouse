@@ -240,7 +240,7 @@ class SessionFactory:
 
         # De-serialize our session data
         try:
-            data = msgpack.unpackb(bdata, encoding="utf8", use_list=True)
+            data = msgpack.unpackb(bdata, raw=False, use_list=True)
         except (msgpack.exceptions.UnpackException, msgpack.exceptions.ExtraData):
             # If the session data was invalid we'll give the user a new session
             return Session()
@@ -276,10 +276,7 @@ class SessionFactory:
                 self._redis_key(request.session.sid),
                 self.max_age,
                 msgpack.packb(
-                    request.session,
-                    encoding="utf8",
-                    default=object_encode,
-                    use_bin_type=True,
+                    request.session, default=object_encode, use_bin_type=True,
                 ),
             )
 

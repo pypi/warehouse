@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
 import attr
 import celery.exceptions
 import pretend
@@ -1090,6 +1092,614 @@ class TestAddedAsCollaboratorEmail:
 
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
+
+
+class TestRemovedProjectEmail:
+    def test_removed_project_email_to_maintainer(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_removed_project_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            project_name="test_project",
+            submitter_name=stub_submitter_user.username,
+            submitter_role="Owner",
+            recipient_role="Maintainer",
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "submitter_name": stub_submitter_user.username,
+            "submitter_role": "owner",
+            "recipient_role_descr": "a maintainer",
+        }
+
+        subject_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
+        body_renderer.assert_(submitter_role="owner")
+        body_renderer.assert_(recipient_role_descr="a maintainer")
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    ),
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
+
+    def test_removed_project_email_to_owner(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_removed_project_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            project_name="test_project",
+            submitter_name=stub_submitter_user.username,
+            submitter_role="Owner",
+            recipient_role="Owner",
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "submitter_name": stub_submitter_user.username,
+            "submitter_role": "owner",
+            "recipient_role_descr": "an owner",
+        }
+
+        subject_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
+        body_renderer.assert_(submitter_role="owner")
+        body_renderer.assert_(recipient_role_descr="an owner")
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    ),
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
+
+
+class TestRemovedReleaseEmail:
+    def test_send_removed_project_release_email_to_maintainer(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        release = pretend.stub(
+            version="0.0.0",
+            project=pretend.stub(name="test_project"),
+            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+        )
+
+        result = email.send_removed_project_release_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            release=release,
+            submitter_name=stub_submitter_user.username,
+            submitter_role="Owner",
+            recipient_role="Maintainer",
+        )
+
+        assert result == {
+            "project_name": release.project.name,
+            "release_version": release.version,
+            "release_date": release.created.strftime("%Y-%m-%d"),
+            "submitter_name": stub_submitter_user.username,
+            "submitter_role": "owner",
+            "recipient_role_descr": "a maintainer",
+        }
+
+        subject_renderer.assert_(project_name="test_project")
+        subject_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(release_date=release.created.strftime("%Y-%m-%d"))
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
+        body_renderer.assert_(submitter_role="owner")
+        body_renderer.assert_(recipient_role_descr="a maintainer")
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    ),
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
+
+    def test_send_removed_project_release_email_to_owner(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        release = pretend.stub(
+            version="0.0.0",
+            project=pretend.stub(name="test_project"),
+            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+        )
+
+        result = email.send_removed_project_release_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            release=release,
+            submitter_name=stub_submitter_user.username,
+            submitter_role="Owner",
+            recipient_role="Owner",
+        )
+
+        assert result == {
+            "project_name": release.project.name,
+            "release_version": release.version,
+            "release_date": release.created.strftime("%Y-%m-%d"),
+            "submitter_name": stub_submitter_user.username,
+            "submitter_role": "owner",
+            "recipient_role_descr": "an owner",
+        }
+
+        subject_renderer.assert_(project_name="test_project")
+        subject_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(release_date=release.created.strftime("%Y-%m-%d"))
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
+        body_renderer.assert_(submitter_role="owner")
+        body_renderer.assert_(recipient_role_descr="an owner")
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    ),
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
+
+
+class TestRemovedReleaseFileEmail:
+    def test_send_removed_project_release_file_email_to_owner(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release-file/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release-file/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release-file/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        release = pretend.stub(
+            version="0.0.0",
+            project=pretend.stub(name="test_project"),
+            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+        )
+
+        result = email.send_removed_project_release_file_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            file="test-file-0.0.0.tar.gz",
+            release=release,
+            submitter_name=stub_submitter_user.username,
+            submitter_role="Owner",
+            recipient_role="Owner",
+        )
+
+        assert result == {
+            "file": "test-file-0.0.0.tar.gz",
+            "project_name": release.project.name,
+            "release_version": release.version,
+            "submitter_name": stub_submitter_user.username,
+            "submitter_role": "owner",
+            "recipient_role_descr": "an owner",
+        }
+
+        subject_renderer.assert_(project_name="test_project")
+        subject_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(file="test-file-0.0.0.tar.gz")
+        body_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
+        body_renderer.assert_(submitter_role="owner")
+        body_renderer.assert_(recipient_role_descr="an owner")
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    ),
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
+
+    def test_send_removed_project_release_file_email_to_maintainer(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release-file/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release-file/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-project-release-file/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        release = pretend.stub(
+            version="0.0.0",
+            project=pretend.stub(name="test_project"),
+            created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+        )
+
+        result = email.send_removed_project_release_file_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            file="test-file-0.0.0.tar.gz",
+            release=release,
+            submitter_name=stub_submitter_user.username,
+            submitter_role="Owner",
+            recipient_role="Maintainer",
+        )
+
+        assert result == {
+            "file": "test-file-0.0.0.tar.gz",
+            "project_name": release.project.name,
+            "release_version": release.version,
+            "submitter_name": stub_submitter_user.username,
+            "submitter_role": "owner",
+            "recipient_role_descr": "a maintainer",
+        }
+
+        subject_renderer.assert_(project_name="test_project")
+        subject_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(file="test-file-0.0.0.tar.gz")
+        body_renderer.assert_(release_version="0.0.0")
+        body_renderer.assert_(project_name="test_project")
+        body_renderer.assert_(submitter_name=stub_submitter_user.username)
+        body_renderer.assert_(submitter_role="owner")
+        body_renderer.assert_(recipient_role_descr="a maintainer")
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    ),
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
 
 
 class TestTwoFactorEmail:

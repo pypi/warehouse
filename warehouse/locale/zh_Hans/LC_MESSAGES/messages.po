@@ -11,13 +11,14 @@
 # eronglee <larbbt@163.com>, 2019.
 # Eana Hufwe <ilove@1a23.com>, 2020.
 # 李博豪 <xiaolizi20070827@163.com>, 2020.
+# Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-09 21:17+0000\n"
-"Last-Translator: 李博豪 <xiaolizi20070827@163.com>\n"
+"PO-Revision-Date: 2020-04-03 03:48+0000\n"
+"Last-Translator: Dustin Ingram <dustin.ingram@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -25,8 +26,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
+
+#: warehouse/views.py:255
+#, fuzzy
+#| msgid "Stay updated:"
+msgid "Locale updated"
+msgstr "保持更新："
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
@@ -125,7 +132,7 @@ msgstr "成功的 WebAuthn 断言"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "接受恢复代码。无法再次使用提供的代码。"
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -201,26 +208,26 @@ msgstr "这是您的主邮件地址"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "电子邮件地址$ {email_address}已验证。 ${confirm_message}。"
 
-#: warehouse/manage/views.py:172
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "电子邮件${email_address}已添加 - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views.py:653 warehouse/manage/views.py:689
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
-msgstr ""
+msgstr "在生成恢复代码之前，必须提供双因素方法"
 
-#: warehouse/manage/views.py:664
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "已生成恢复代码"
 
-#: warehouse/manage/views.py:665
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
+msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views.py:715
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "无效凭据。再试一次"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -479,7 +486,7 @@ msgstr "切换到手机版本"
 #: warehouse/templates/base.html:156 warehouse/templates/base.html:165
 #: warehouse/templates/base.html:175
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:706
+#: warehouse/templates/manage/account.html:725
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:105
 #: warehouse/templates/manage/manage_base.html:157
@@ -764,7 +771,7 @@ msgstr "登录到 %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "用户名"
 
@@ -781,14 +788,15 @@ msgstr "用户名"
 #: warehouse/templates/accounts/reset-password.html:63
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:292
-#: warehouse/templates/manage/account.html:347
-#: warehouse/templates/manage/account.html:372
-#: warehouse/templates/manage/account.html:389
-#: warehouse/templates/manage/account.html:405
+#: warehouse/templates/manage/account.html:309
+#: warehouse/templates/manage/account.html:366
+#: warehouse/templates/manage/account.html:391
+#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -835,20 +843,20 @@ msgstr "%(username)s 的档案"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com 上 {user} 的头像"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:43
 msgid "Date joined"
 msgstr "加入日期"
 
-#: warehouse/templates/accounts/profile.html:40
+#: warehouse/templates/accounts/profile.html:44
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "%(start_date)s 加入"
 
-#: warehouse/templates/accounts/profile.html:54
+#: warehouse/templates/accounts/profile.html:58
 #, python-format
 msgid ""
 "\n"
@@ -863,29 +871,29 @@ msgstr[0] ""
 "            %(count)s个项目\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:60
+#: warehouse/templates/accounts/profile.html:64
 msgid "No projects"
 msgstr "没有项目"
 
-#: warehouse/templates/accounts/profile.html:69
+#: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "上次发布于 %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:77
+#: warehouse/templates/accounts/profile.html:81
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s 尚未上传任何项目到 PyPI"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/account.html:472
+#: warehouse/templates/manage/account.html:491
 msgid "Recovery Codes"
-msgstr ""
+msgstr "恢复代码"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr ""
+msgstr "使用恢复代码登录"
 
 #: warehouse/templates/accounts/recovery-code.html:40
 #, fuzzy
@@ -905,6 +913,8 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
+"PyPI允许在设备或应用程序丢失时生成安全脱机存储的恢复代码。在表单中输入这些代"
+"码之一以验证您的身份。一旦使用，恢复代码将不再有效。"
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, fuzzy, python-format
@@ -923,7 +933,7 @@ msgstr "在 %(title)s 上创建一个帐户"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:162
-#: warehouse/templates/manage/account.html:508
+#: warehouse/templates/manage/account.html:527
 msgid "Name"
 msgstr "姓名"
 
@@ -932,12 +942,12 @@ msgid "Your name"
 msgstr "您的姓名"
 
 #: warehouse/templates/accounts/register.html:64
-#: warehouse/templates/manage/account.html:329
+#: warehouse/templates/manage/account.html:348
 msgid "Email address"
 msgstr "电子邮件地址"
 
 #: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/manage/account.html:350
+#: warehouse/templates/manage/account.html:369
 msgid "Your email address"
 msgstr "您的电子邮件地址"
 
@@ -951,7 +961,7 @@ msgstr "选择用户名"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
-#: warehouse/templates/manage/account.html:377
+#: warehouse/templates/manage/account.html:396
 msgid "Show passwords"
 msgstr "显示密码"
 
@@ -963,7 +973,7 @@ msgstr "选择密码"
 #: warehouse/templates/accounts/register.html:140
 #: warehouse/templates/accounts/reset-password.html:61
 #: warehouse/templates/accounts/reset-password.html:66
-#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:427
 msgid "Confirm password"
 msgstr "确认密码"
 
@@ -1019,7 +1029,7 @@ msgid "Reset your password"
 msgstr "重置密码"
 
 #: warehouse/templates/accounts/reset-password.html:48
-#: warehouse/templates/manage/account.html:394
+#: warehouse/templates/manage/account.html:413
 msgid "Select a new password"
 msgstr "选择新密码"
 
@@ -1091,7 +1101,7 @@ msgstr "设置您的应用程序"
 
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using a Recovery Code"
-msgstr ""
+msgstr "使用恢复代码登录"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1100,6 +1110,8 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
+"<p><strong>您尚未生成帐户恢复代码。</strong></p><p>如果您无法访问双因素方法，"
+"则可能无法访问您的帐户。<a href=\"%(href)s\">获取有关恢复代码的帮助。</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1134,43 +1146,6 @@ msgid ""
 "You are receiving this because you have been added by %(submitter)s to a "
 "project on %(site)s."
 msgstr "您收到此邮件是因为您已被 %(submitter)s 添加到 %(site)s 的项目中。"
-
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr "新的协作者已添加到您在 PyPI 上拥有的项目中："
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>用户名</strong>：%(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>角色</strong>：%(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>协作者关联项目</strong>：%(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>添加人</strong>：%(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送电"
-"子邮件并于  PyPI 管理员沟通。"
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "您收到此邮件是因为您是该项目的所有者。"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1566,6 +1541,10 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s 尚未将任何项目上载到 PyPI。"
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+msgid "Email"
+msgstr ""
+
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
@@ -1581,7 +1560,7 @@ msgid "Collaborators"
 msgstr "协作者"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:552
 #: warehouse/templates/manage/history.html:23
 msgid "Security history"
 msgstr "历史安全记录"
@@ -1765,7 +1744,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:142
 msgid "Generate Recovery Codes"
-msgstr ""
+msgstr "生成恢复代码"
 
 #: warehouse/templates/manage/account.html:147
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1786,7 +1765,7 @@ msgstr ""
 "升级浏览器</a> 以使用安全设备（例如USB密钥）设置两因素身份验证"
 
 #: warehouse/templates/manage/account.html:166
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:528
 #: warehouse/templates/manage/token.html:144
 msgid "Scope"
 msgstr "作用域"
@@ -1796,12 +1775,12 @@ msgid "All projects"
 msgstr "所有项目"
 
 #: warehouse/templates/manage/account.html:176
-#: warehouse/templates/manage/account.html:510
+#: warehouse/templates/manage/account.html:529
 msgid "Created"
 msgstr "已创建"
 
 #: warehouse/templates/manage/account.html:180
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:530
 msgid "Last used"
 msgstr "最后使用"
 
@@ -1885,15 +1864,31 @@ msgstr "未设置名称"
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "显示在您的<a href=\"%(href)s\">公开资料</a>"
 
-#: warehouse/templates/manage/account.html:305
+#: warehouse/templates/manage/account.html:307
+#, fuzzy
+#| msgid "Public profile"
+msgid "️Public email"
+msgstr "公开个人资料"
+
+#: warehouse/templates/manage/account.html:319
+#, fuzzy, python-format
+#| msgid ""
+#| "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
+#| "changed."
+msgid ""
+"One of your verified emails can be displayed on your <a href=\"%(href)s"
+"\">public profile</a> to logged-in users."
+msgstr "显示在您的 <a href=\"%(href)s\">公开资料</a>。无法更改。"
+
+#: warehouse/templates/manage/account.html:324
 msgid "Update account"
 msgstr "更新帐户"
 
-#: warehouse/templates/manage/account.html:313
+#: warehouse/templates/manage/account.html:332
 msgid "Account emails"
 msgstr "帐户电子邮件"
 
-#: warehouse/templates/manage/account.html:315
+#: warehouse/templates/manage/account.html:334
 msgid ""
 "You can associate several emails with your account. You can use any <span "
 "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
@@ -1905,44 +1900,44 @@ msgstr ""
 "已验证</span>的电子邮件来恢复您的帐户，但只有您的<span class=\"badge\">主电子"
 "邮件</span>将收到通知。"
 
-#: warehouse/templates/manage/account.html:326
+#: warehouse/templates/manage/account.html:345
 msgid "Emails associated with your account"
 msgstr "与您的帐户关联的电子邮件"
 
-#: warehouse/templates/manage/account.html:330
+#: warehouse/templates/manage/account.html:349
 msgid "Status"
 msgstr "状态"
 
-#: warehouse/templates/manage/account.html:345
-#: warehouse/templates/manage/account.html:355
+#: warehouse/templates/manage/account.html:364
+#: warehouse/templates/manage/account.html:374
 msgid "Add email"
 msgstr "添加电子邮件"
 
-#: warehouse/templates/manage/account.html:362
+#: warehouse/templates/manage/account.html:381
 msgid "Change password"
 msgstr "更改密码"
 
-#: warehouse/templates/manage/account.html:370
+#: warehouse/templates/manage/account.html:389
 msgid "Old password"
 msgstr "旧密码"
 
-#: warehouse/templates/manage/account.html:380
+#: warehouse/templates/manage/account.html:399
 msgid "Your current password"
 msgstr "您当前的密码"
 
-#: warehouse/templates/manage/account.html:387
+#: warehouse/templates/manage/account.html:406
 msgid "New password"
 msgstr "新密码"
 
-#: warehouse/templates/manage/account.html:403
+#: warehouse/templates/manage/account.html:422
 msgid "Confirm new password"
 msgstr "确认新密码"
 
-#: warehouse/templates/manage/account.html:426
+#: warehouse/templates/manage/account.html:445
 msgid "Two factor authentication (2FA)"
 msgstr "双要素身份验证 （2FA）"
 
-#: warehouse/templates/manage/account.html:427
+#: warehouse/templates/manage/account.html:446
 #, python-format
 msgid ""
 "Two factor authentication adds an additional layer of security to your "
@@ -1952,74 +1947,73 @@ msgstr ""
 "双因素身份验证可以为您的帐户添加一层额外的安全保护。<a href=\"%(href)s\">进一"
 "步了解 <abbr title=\"two factor authentication\">2FA</abbr></a>。"
 
-#: warehouse/templates/manage/account.html:432
+#: warehouse/templates/manage/account.html:451
 msgid "Two factor authentication methods enabled"
 msgstr "启用双因素身份验证"
 
-#: warehouse/templates/manage/account.html:435
+#: warehouse/templates/manage/account.html:454
 msgid "Two factor method"
 msgstr "双因素身份验证"
 
-#: warehouse/templates/manage/account.html:441
-#: warehouse/templates/manage/account.html:551
+#: warehouse/templates/manage/account.html:460
+#: warehouse/templates/manage/account.html:570
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 msgstr "申请认证(<abbr title=\"time-based one-time password\">TOTP2</abbr>)"
 
-#: warehouse/templates/manage/account.html:443
-#: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/account.html:462
+#: warehouse/templates/manage/account.html:476
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "删除"
 
-#: warehouse/templates/manage/account.html:444
+#: warehouse/templates/manage/account.html:463
 msgid "Remove authentication application"
 msgstr "删除认证申请"
 
-#: warehouse/templates/manage/account.html:445
+#: warehouse/templates/manage/account.html:464
 msgid "Remove application"
 msgstr "删除申请"
 
-#: warehouse/templates/manage/account.html:454
-#: warehouse/templates/manage/account.html:549
+#: warehouse/templates/manage/account.html:473
+#: warehouse/templates/manage/account.html:568
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "安全设备（<abbr title=\"web authentication\">网络认证</abbr>）"
 
-#: warehouse/templates/manage/account.html:458
+#: warehouse/templates/manage/account.html:477
 msgid "Remove two factor security device"
 msgstr "删除双因素安全设备"
 
-#: warehouse/templates/manage/account.html:459
+#: warehouse/templates/manage/account.html:478
 msgid "Remove device"
 msgstr "删除设备"
 
-#: warehouse/templates/manage/account.html:465
+#: warehouse/templates/manage/account.html:484
 msgid "Device name"
 msgstr "设备名称"
 
-#: warehouse/templates/manage/account.html:472
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
+#: warehouse/templates/manage/account.html:491
+#, python-format
 msgid "generated %(generated_datetime)s"
-msgstr "上次发布于 %(release_date)s"
+msgstr "上次发布于 %(generated_datetime)s"
 
-#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/account.html:494
 msgid "Regenerate"
-msgstr ""
+msgstr "重新生成"
 
-#: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/account.html:495
+#: warehouse/templates/manage/account.html:496
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr ""
+msgstr "重新生成恢复代码"
 
-#: warehouse/templates/manage/account.html:488
+#: warehouse/templates/manage/account.html:507
 msgid "You have not enabled two factor authentication on your account."
 msgstr "您的帐户尚未启用双因素身份验证。"
 
-#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/account.html:512
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
@@ -2027,32 +2021,32 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">验证主要电子邮件地址</a>以向您的帐户添加两要素身份验证。"
 
-#: warehouse/templates/manage/account.html:500
+#: warehouse/templates/manage/account.html:519
 #: warehouse/templates/manage/settings.html:23
 msgid "API tokens"
 msgstr "API 令牌"
 
-#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:520
 #: warehouse/templates/manage/settings.html:24
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
 msgstr "API 令牌提供了将软件包上载到 PyPI 时进行身份验证的替代方法。"
 
-#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:520
 msgid "Learn more about API tokens"
 msgstr "了解有关 API 令牌的更多信息"
 
-#: warehouse/templates/manage/account.html:505
+#: warehouse/templates/manage/account.html:524
 msgid "Active API tokens for this account"
 msgstr "此帐户的有效 API 令牌"
 
-#: warehouse/templates/manage/account.html:523
+#: warehouse/templates/manage/account.html:542
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
 msgstr "添加 API 令牌"
 
-#: warehouse/templates/manage/account.html:525
+#: warehouse/templates/manage/account.html:544
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
@@ -2061,89 +2055,89 @@ msgstr ""
 "<a href=\"%(href)s\">验证主要电子邮件地址</a> ，以便将API令牌添加到您的帐户"
 "中。"
 
-#: warehouse/templates/manage/account.html:540
+#: warehouse/templates/manage/account.html:559
 msgid "Account created"
 msgstr "帐户已创建"
 
-#: warehouse/templates/manage/account.html:543
+#: warehouse/templates/manage/account.html:562
 msgid "Logged in"
 msgstr "已登录"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:564
 msgid "Two factor method:"
 msgstr "双因素身份验证："
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:566
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:302
 msgid "None"
 msgstr "没有"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:572
 msgid "Recovery Code"
-msgstr ""
+msgstr "恢复代码"
 
-#: warehouse/templates/manage/account.html:558
+#: warehouse/templates/manage/account.html:577
 msgid "Email added to account"
 msgstr "电子邮件已添加到帐户"
 
-#: warehouse/templates/manage/account.html:561
+#: warehouse/templates/manage/account.html:580
 msgid "Email removed from account"
 msgstr "电子邮件已从帐户中删除"
 
-#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:583
 msgid "Email verified"
 msgstr "电子邮件已验证"
 
-#: warehouse/templates/manage/account.html:567
+#: warehouse/templates/manage/account.html:586
 msgid "Email reverified"
 msgstr "电子邮件已重新验证"
 
-#: warehouse/templates/manage/account.html:571
+#: warehouse/templates/manage/account.html:590
 msgid "Primary email changed"
 msgstr "主电子邮件已更改"
 
-#: warehouse/templates/manage/account.html:573
+#: warehouse/templates/manage/account.html:592
 msgid "Old primary email:"
 msgstr "原主要电子邮件："
 
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:593
 msgid "New primary email:"
 msgstr "新主电子邮件："
 
-#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:596
 msgid "Primary email set"
 msgstr "主要的电子邮件"
 
-#: warehouse/templates/manage/account.html:584
+#: warehouse/templates/manage/account.html:603
 msgid "Password reset requested"
 msgstr "密码重置请求已提交"
 
-#: warehouse/templates/manage/account.html:586
+#: warehouse/templates/manage/account.html:605
 msgid "Password successfully reset"
 msgstr "密码重置成功"
 
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:607
 msgid "Password successfully changed"
 msgstr "密码已成功更改"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:610
 msgid "Two factor authentication added"
 msgstr "已添加双因素身份验证"
 
-#: warehouse/templates/manage/account.html:594
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:623
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "方式：安全设备（<abbr title=\"web authentication\">WebAuthn</abbr>）"
 
-#: warehouse/templates/manage/account.html:595
-#: warehouse/templates/manage/account.html:605
+#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:624
 msgid "Device name:"
 msgstr "设备名称："
 
-#: warehouse/templates/manage/account.html:597
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:626
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2151,92 +2145,92 @@ msgstr ""
 "方式：身份验证程序（<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>）"
 
-#: warehouse/templates/manage/account.html:601
+#: warehouse/templates/manage/account.html:620
 msgid "Two factor authentication removed"
 msgstr "已删除双因素身份验证"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:631
 msgid "Recovery Codes generated"
-msgstr ""
+msgstr "生成的恢复代码"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:635
 msgid "Recovery Codes regenerated"
-msgstr ""
+msgstr "重新生成恢复代码"
 
-#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:639
 msgid "Recovery Code used for login"
-msgstr ""
+msgstr "用于登录的恢复代码"
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:645
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "已添加 API 令牌"
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:647
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "令牌名称："
 
-#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:649
 msgid "Token scope: entire account"
 msgstr "令牌作用域：整个帐户"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:651
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "令牌作用域：%(project_name)s 项目"
 
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "已删除 API 令牌"
 
-#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:657
 msgid "Unique identifier:"
 msgstr "唯一标识符："
 
-#: warehouse/templates/manage/account.html:643
+#: warehouse/templates/manage/account.html:662
 msgid "Events appear here as security-related actions occur on your account."
 msgstr "当与安全相关的操作在您的帐户上发生时，事件将显示在此处。"
 
-#: warehouse/templates/manage/account.html:645
+#: warehouse/templates/manage/account.html:664
 msgid "Recent account activity"
 msgstr "最近的帐户活动"
 
-#: warehouse/templates/manage/account.html:647
+#: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:87
 msgid "Event"
 msgstr "事件"
 
-#: warehouse/templates/manage/account.html:648
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:667
+#: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/history.html:88
 #: warehouse/templates/manage/history.html:97
 msgid "Date / time"
 msgstr "日期/时间"
 
-#: warehouse/templates/manage/account.html:649
-#: warehouse/templates/manage/account.html:660
+#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:679
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:101
 msgid "IP address"
 msgstr "IP 地址"
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:687
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "当您的帐户发生与安全相关的操作时，事件将显示在此处。"
 
-#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:694
 msgid "Delete account"
 msgstr "删除帐户"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:697
 msgid "Cannot delete account"
 msgstr "无法删除帐户"
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:699
 #, python-format
 msgid ""
 "\n"
@@ -2253,7 +2247,7 @@ msgstr[0] ""
 "          您当前是 %(count)s 个项目的<strong>唯一所有者</strong>。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:704
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2269,7 +2263,7 @@ msgstr[0] ""
 "          在删除您的帐号前，您必须将这些项目转移给他人或删除。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:714
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2278,16 +2272,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">转移</a>或者<a href=\"%(delete_href)s\">删除</"
 "a>"
 
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:723
 #: warehouse/templates/manage/token.html:162
 msgid "Proceed with caution!"
 msgstr "小心操作！"
 
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:726
 msgid "You will not be able to recover your account after you delete it"
 msgstr "删除帐户后将无法恢复帐户"
 
-#: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/account.html:728
 msgid "Delete your PyPI account"
 msgstr "删除您的 PyPI 帐户"
 
@@ -2454,7 +2448,7 @@ msgstr "日期"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "用户"
 
@@ -2552,6 +2546,7 @@ msgstr "此项目没有发布过版本"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "视图"
 
@@ -2817,8 +2812,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "协作者有两种可能的角色："
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "维护者"
 
@@ -2830,8 +2825,8 @@ msgid ""
 msgstr "可以上传软件包的发行版。无法添加协作者。无法删除文件，发行版或项目。"
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr "所有者"
 
@@ -2848,31 +2843,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr "可以管理  %(project_name)s 项目的用户"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr "角色"
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr "保存角色"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr "保存"
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr "无法删除您的所有者身份"
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "从此项目中删除  %(user)s"
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr "添加协作者"
 
@@ -3109,11 +3104,11 @@ msgstr "添加令牌"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account Recovery Codes"
-msgstr ""
+msgstr "帐户恢复代码"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:36
 msgid "Regenerate recovery codes"
-msgstr ""
+msgstr "Account recovery code"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3121,12 +3116,14 @@ msgid ""
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
+"如果您失去对身份验证应用程序或安全密钥的访问，则需要使用这些恢复代码之一登录"
+"到您的PyPI帐户。每个代码只能使用<strong>一次</strong>。"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:47
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
-msgstr ""
+msgstr "这些代码<strong>只能</strong>用于帐户恢复，而不能用于典型登录。"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:48
 msgid ""
@@ -3134,10 +3131,12 @@ msgid ""
 "application or security key(s) and do not have access to these recovery "
 "codes, you may permanently lose access to your PyPI account!"
 msgstr ""
+"<strong>把这些放在安全的地方</strong>。如果您丢失了身份验证应用程序或安全密"
+"钥，并且无法访问这些恢复代码，则可能会永久性地失去对您的PyPI帐户的访问权限！"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
 msgid "Save your Recovery Codes"
-msgstr ""
+msgstr "保存恢复代码"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 #, fuzzy
@@ -3149,15 +3148,15 @@ msgstr "下载文件"
 #: warehouse/templates/manage/account/recovery_codes-provision.html:69
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
 msgid "Continue"
-msgstr ""
+msgstr "继续"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:76
 msgid "These codes will not be visible again."
-msgstr ""
+msgstr "这些代码将不再可见。"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:79
 msgid "Ensure that you have securely stored them before continuing."
-msgstr ""
+msgstr "在继续之前，请确保您已经安全地存储了它们。"
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
@@ -3407,10 +3406,6 @@ msgstr "文件类型"
 msgid "Hashes"
 msgstr "查看哈希值"
 
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "查看<span>哈希值</span>"
-
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
 "Each project's maintainers provide PyPI with a list of \"trove classifiers\" "
@@ -3469,6 +3464,9 @@ msgid ""
 "generate and securely store <a href=\"#recoverycodes\">recovery codes</a> to "
 "regain access in that event.."
 msgstr ""
+"如果您丢失了您的%(method)s并且无法再登录，您可能会<strong>永久地失去对您的帐"
+"户的访问</strong>。您应该生成并安全地存储<a href=\"#recoverycodes\">恢复代码"
+"</a>，以便在这种情况下重新获得访问权限。。"
 
 #: warehouse/templates/pages/help.html:37
 msgid ""
@@ -3476,6 +3474,8 @@ msgid ""
 "factor authentication methods and provision <a href=\"#recoverycodes"
 "\">recovery codes</a>."
 msgstr ""
+"我们建议所有PyPI用户<em>至少设置两个</em>受支持的双因素身份验证方法和提供<a "
+"href=\"#recoverycodes\">恢复代码</a>。"
 
 #: warehouse/templates/pages/help.html:43
 msgid ""
@@ -3483,6 +3483,8 @@ msgid ""
 "have <a href=\"#recoverycodes\">recovery codes</a>, you can request help <a "
 "href=\"#account-recovery\">with account recovery</a>."
 msgstr ""
+"如果您无法访问帐户的所有两个因素方法，并且没有<a href=\"#recoverycodes\">恢复"
+"代码</a>，则可以请求<a href=\"#account-recovery\">有关帐户恢复</a>的帮助。"
 
 #: warehouse/templates/pages/help.html:52
 msgid "What's a package, project, or release?"
@@ -3579,6 +3581,8 @@ msgid ""
 "Why am I getting a \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
 msgstr ""
+"为什么我会收到“Invalid or non-existent authentication information.”（无效或不"
+"存在的身份验证信息）。上传文件时出错？"
 
 #: warehouse/templates/pages/help.html:74
 msgid ""
@@ -4194,6 +4198,8 @@ msgid ""
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
+"如果您失去了对<a href=\"#totp\">身份验证应用程序</a>或<a href=\"#utfkey\">安"
+"全设备</a>的访问，可以使用这些代码登录到PyPI。"
 
 #: warehouse/templates/pages/help.html:410
 msgid ""
@@ -4202,10 +4208,13 @@ msgid ""
 "\">security device</a> and should only be used for recovery. After using a "
 "recovery code to sign in, it becomes inactive."
 msgstr ""
+"恢复代码是<strong>一次性</strong>使用的。它们不能替代<a href=\"#totp\">身份验"
+"证应用程序</a>或<a href=\"#utfkey\">安全设备</a>，只能用于恢复。使用恢复代码"
+"登录后，它将变为非活动状态。"
 
 #: warehouse/templates/pages/help.html:416
 msgid "To provision recovery codes:"
-msgstr ""
+msgstr "提供恢复代码："
 
 #: warehouse/templates/pages/help.html:418
 #, fuzzy
@@ -4225,6 +4234,8 @@ msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
 msgstr ""
+"安全存储显示的恢复代码！考虑将它们打印出来并存储在安全的位置，或者保存在密码"
+"管理器中。"
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -4232,21 +4243,25 @@ msgid ""
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
 "settings."
 msgstr ""
+"如果您无法访问存储的恢复代码或使用所有恢复代码，可以通过在帐户设置中选"
+"择“Regenerate recovery codes”（重新生成恢复代码）来获取新的恢复代码。"
 
 #: warehouse/templates/pages/help.html:424
 msgid "To sign in with a recovery code:"
-msgstr ""
+msgstr "要使用恢复代码登录："
 
 #: warehouse/templates/pages/help.html:427
 msgid ""
 "When prompted for Two-Factor Authentication, select \"Login using a Recovery "
 "Code\""
 msgstr ""
+"当提示您进行双因素身份验证时，请选择“Login using a Recovery Code”（使用恢复代"
+"码登录）"
 
 #: warehouse/templates/pages/help.html:428
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
-msgstr ""
+msgstr "由于每个代码只能使用一次，您可能希望将代码标记为已使用"
 
 #: warehouse/templates/pages/help.html:429
 msgid ""
@@ -4254,6 +4269,8 @@ msgid ""
 "new set using the \"Regenerate recovery codes\" button in your account "
 "settings."
 msgstr ""
+"如果只剩下很少的恢复代码，您可能还希望使用帐户设置中的“Regenerate recovery "
+"codes”（重新生成恢复代码）按钮生成新的集。"
 
 #: warehouse/templates/pages/help.html:434
 #, fuzzy
@@ -4288,6 +4305,7 @@ msgstr ""
 "该帐户关联的所有项目。或者，可以将令牌的范围限制为特定项目。</p>\n"
 "          <p><strong>我们强烈建议您尽可能使用API令牌进行身份验证。</strong></"
 "p>\n"
+"\n"
 "        "
 
 #: warehouse/templates/pages/help.html:441
@@ -4595,7 +4613,7 @@ msgstr "您将收到一封带有密码重置链接的电子邮件。"
 
 #: warehouse/templates/pages/help.html:553
 msgid "If you've lost access to your PyPI account due to:"
-msgstr ""
+msgstr "如果由于以下原因而无法访问PyPI帐户："
 
 #: warehouse/templates/pages/help.html:555
 #, fuzzy
@@ -4608,6 +4626,8 @@ msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
+"丢失双因素身份验证<a href=\"#totp\">应用程序</a>、<a href=\"#utfkey\">设备</"
+"a>和<a href=\"#recoverycodes\">恢复代码</a>"
 
 #: warehouse/templates/pages/help.html:559
 #, fuzzy, python-format
@@ -5397,6 +5417,73 @@ msgstr[0] ""
 "\n"
 "                  “%(filters)s”过滤器没有结果\n"
 "                "
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr "新的协作者已添加到您在 PyPI 上拥有的项目中："
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>用户名</strong>：%(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>角色</strong>：%(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>协作者关联项目</strong>：%(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>添加人</strong>：%(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送"
+#~ "电子邮件并于  PyPI 管理员沟通。"
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "您收到此邮件是因为您是该项目的所有者。"
+
+#, fuzzy
+#~| msgid "This project has no releases"
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "此项目没有发布过版本"
+
+#, fuzzy
+#~| msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr "<strong>添加人</strong>：%(submitter)s"
+
+#, fuzzy
+#~| msgid ""
+#~| "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~| "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "如果这是一个错误，您可以向 <a href=\"%(href)s\">%(email_address)s</a> 发送"
+#~ "电子邮件并于  PyPI 管理员沟通。"
+
+#, fuzzy
+#~| msgid "You are receiving this because you are an owner of this project."
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "您收到此邮件是因为您是该项目的所有者。"
+
+#, fuzzy
+#~| msgid "You are receiving this because you are an owner of this project."
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "您收到此邮件是因为您是该项目的所有者。"
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "查看<span>哈希值</span>"
 
 #~ msgid "Beta feature"
 #~ msgstr "测试版功能"

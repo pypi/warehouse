@@ -57,11 +57,14 @@ from warehouse.utils.attrs import make_repr
 class Role(db.Model):
 
     __tablename__ = "roles"
-    __table_args__ = (Index("roles_user_id_idx", "user_id"),)
+    __table_args__ = (
+        Index("roles_user_id_idx", "user_id"),
+        UniqueConstraint("user_id", "project_id", name="_roles_user_project_uc"),
+    )
 
-    __repr__ = make_repr("role_name", "user_name", "package_name")
+    __repr__ = make_repr("role_name")
 
-    role_name = Column(Text)
+    role_name = Column(Text, nullable=False)
     user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
@@ -72,16 +75,6 @@ class Role(db.Model):
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
-
-    def __gt__(self, other):
-        """
-        Temporary hack to allow us to only display the 'highest' role when
-        there are multiple for a given user
-
-        TODO: This should be removed when fixing GH-2745.
-        """
-        order = ["Maintainer", "Owner"]  # from lowest to highest
-        return order.index(self.role_name) > order.index(other.role_name)
 
 
 class ProjectFactory:
@@ -420,23 +413,24 @@ class Release(db.Model):
 
         if self.home_page:
             _urls["Homepage"] = self.home_page
+        if self.download_url:
+            _urls["Download"] = self.download_url
 
         for urlspec in self.project_urls:
-            name, url = [x.strip() for x in urlspec.split(",", 1)]
-            _urls[name] = url
-
-        if self.download_url and "Download" not in _urls:
-            _urls["Download"] = self.download_url
+            name, _, url = urlspec.partition(",")
+            name = name.strip()
+            url = url.strip()
+            if name and url:
+                _urls[name] = url
 
         return _urls
 
     @property
     def github_repo_info_url(self):
-        for parsed in [urlparse(url) for url in self.urls.values()]:
-            segments = parsed.path.strip("/").rstrip("/").split("/")
-            if (
-                parsed.netloc == "github.com" or parsed.netloc == "www.github.com"
-            ) and len(segments) >= 2:
+        for url in self.urls.values():
+            parsed = urlparse(url)
+            segments = parsed.path.strip("/").split("/")
+            if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 

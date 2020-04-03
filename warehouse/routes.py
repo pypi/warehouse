@@ -47,6 +47,12 @@ def includeme(config):
         view_kw={"has_translations": True},
     )
     config.add_template_view(
+        "sponsor",
+        "/sponsor/",
+        "pages/sponsor.html",
+        view_kw={"has_translations": True},
+    )
+    config.add_template_view(
         "sponsors",
         "/sponsors/",
         # Use the full resource path here to make it able to be overridden by
@@ -89,6 +95,13 @@ def includeme(config):
     config.add_route(
         "includes.profile-actions",
         "/_includes/profile-actions/{username}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "includes.profile-public-email",
+        "/_includes/profile-public-email/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,

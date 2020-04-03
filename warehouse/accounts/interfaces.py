@@ -78,7 +78,7 @@ class IUserService(Interface):
         A UserAlreadyExists Exception is raised if the user already exists.
         """
 
-    def add_email(user_id, email_address, primary=False, verified=False):
+    def add_email(user_id, email_address, primary=False, verified=False, public=False):
         """
         Adds an email for the provided user_id
         """

@@ -24,7 +24,7 @@ services:
       - "4576:4576"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
     environment:
       - xpack.security.enabled=false
 
@@ -45,7 +45,7 @@ services:
         # working on pypi-theme, this is a private repository due to the fact
         # that other people's IP is contained in it.
         #THEME_REPO:
-    command: hupper -w 'warehouse/locale/**/*.mo' -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn.conf.py warehouse.wsgi:application
+    command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify all of these directories instead of just . because we want to

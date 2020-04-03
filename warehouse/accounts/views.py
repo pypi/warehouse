@@ -677,9 +677,16 @@ def verify_email(request):
 
 def _get_two_factor_data(request, _redirect_to="/"):
     token_service = request.find_service(ITokenService, name="two_factor")
-    two_factor_data = token_service.loads(request.query_string)
+    two_factor_data, timestamp = token_service.loads(
+        request.query_string, return_timestamp=True
+    )
 
     if two_factor_data.get("userid") is None:
+        raise TokenInvalid
+
+    user_service = request.find_service(IUserService, context=None)
+    user = user_service.get_user(two_factor_data.get("userid"))
+    if timestamp < user.last_login:
         raise TokenInvalid
 
     # If the user-originating redirection url is not safe, then
@@ -759,4 +766,15 @@ def profile_callout(user, request):
     has_translations=True,
 )
 def edit_profile_button(user, request):
+    return {"user": user}
+
+
+@view_config(
+    route_name="includes.profile-public-email",
+    context=User,
+    renderer="includes/accounts/profile-public-email.html",
+    uses_session=True,
+    has_translations=True,
+)
+def profile_public_email(user, request):
     return {"user": user}

@@ -93,10 +93,6 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
-
         assert simple.simple_detail(project, db_request) == {
             "project": project,
             "files": [],
@@ -118,10 +114,6 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
-
         assert simple.simple_detail(project, db_request) == {
             "project": project,
             "files": files,
@@ -142,10 +134,6 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
-
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -200,10 +188,6 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
-
-        # Make sure that we get any changes made since the JournalEntry was
-        # saved.
-        db_request.db.refresh(project)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,

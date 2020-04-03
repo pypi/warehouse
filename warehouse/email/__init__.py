@@ -213,6 +213,58 @@ def send_two_factor_removed_email(request, user, method):
     return {"method": pretty_methods[method], "username": user.username}
 
 
+@_email("removed-project")
+def send_removed_project_email(
+    request, user, *, project_name, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "project_name": project_name,
+        "submitter_name": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
+@_email("removed-project-release")
+def send_removed_project_release_email(
+    request, user, *, release, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "project_name": release.project.name,
+        "release_version": release.version,
+        "release_date": release.created.strftime("%Y-%m-%d"),
+        "submitter_name": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
+@_email("removed-project-release-file")
+def send_removed_project_release_file_email(
+    request, user, *, file, release, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "file": file,
+        "project_name": release.project.name,
+        "release_version": release.version,
+        "submitter_name": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

@@ -115,6 +115,13 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.profile-public-email",
+            "/_includes/profile-public-email/{username}",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -354,6 +361,12 @@ def test_routes(warehouse):
             "security",
             "/security/",
             "pages/security.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "sponsor",
+            "/sponsor/",
+            "pages/sponsor.html",
             view_kw={"has_translations": True},
         ),
         pretend.call(
