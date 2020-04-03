@@ -1,4 +1,4 @@
-#: warehouse/views.py:255
+#: warehouse/views.py:254
 msgid "Locale updated"
 msgstr ""
 

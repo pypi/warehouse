@@ -53,6 +53,7 @@ sqlalchemy-citext
 stdlib-list
 structlog
 transaction
+trove-classifiers
 typeguard
 webauthn
 whitenoise
