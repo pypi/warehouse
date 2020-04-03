@@ -15,15 +15,13 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-  {% trans project=project, release=release, date=release_date %}The {{ project }} release {{ release }} released on {{ date }} has been yanked.{% endtrans  %}
+  The {{ project }} release {{ release }} released on {{ release_date }} has been yanked.
 
-  {% trans submitter=submitter, role=submitter_role %}Yanked by: {{ submitter }} with a role: {{ role }}.{% endtrans %}
+  Yanked by: {{ submitter }} with a role: {{ submitter_role }}.
 
-  {% trans email_address='admin@pypi.org' %}If this was a mistake, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
+  If you have questions or concerns, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
 
 {% block reason %}
-  {% trans recipient_role_descr=recipient_role_descr %}
-    You are receiving this because you are {{ recipient_role_descr }} of this project.
-  {% endtrans %}
+  You are receiving this because you are {{ recipient_role_descr }} of this project.
 {% endblock %}
