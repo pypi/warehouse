@@ -108,9 +108,17 @@
 
     <div class="package-header__right">
       {% if release.version|parse_version > latest_version.version|parse_version %}
+      {% if release.yanked %}
+      <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+        <span>
+          {% trans %}This release has been yanked{% endtrans %}<br>
+        </span>
+      </a>
+      {% else %}
       <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
         <span>{% trans version=latest_version.version %}Stable version available ({{ version }}){% endtrans %}</span>
       </a>
+      {% endif %}
       {% elif release.version|parse_version != latest_version.version|parse_version %}
       <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
         <span>{% trans version=latest_version.version %}Newer version available ({{ version }}){% endtrans %}</span>
