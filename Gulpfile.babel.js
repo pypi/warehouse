@@ -61,7 +61,7 @@ var postCSSPlugins = [
 // Configure webpack so that it compiles all of our javascript into a bundle.
 let webpackConfig = {
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
