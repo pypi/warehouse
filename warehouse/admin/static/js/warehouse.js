@@ -11,10 +11,6 @@
  * limitations under the License.
  */
 
-// Import stimulus
-import { Application } from "stimulus";
-import { definitionsFromContext } from "stimulus/webpack-helpers";
-
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   element.addEventListener("click", function(event) {
     // We're turning this element into a form submission, so instead of the
@@ -25,7 +21,3 @@ document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
     document.querySelector("form#" + element.dataset.formSubmit).submit();
   });
 });
-
-const application = Application.start();
-const context = require.context("./controllers", true, /\.js$/);
-application.load(definitionsFromContext(context));

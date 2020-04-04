@@ -22,11 +22,11 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
 )
+from trove_classifiers import classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
 from warehouse.views import (
-    classifiers,
     current_user_indicator,
     flash_messages,
     forbidden,
@@ -35,6 +35,7 @@ from warehouse.views import (
     health,
     httpexception_view,
     index,
+    list_classifiers,
     locale,
     opensearchxml,
     robotstxt,
@@ -424,12 +425,7 @@ class TestSearch:
 
 
 def test_classifiers(db_request):
-    classifier_a = ClassifierFactory(classifier="I am first")
-    classifier_b = ClassifierFactory(classifier="I am last")
-
-    assert classifiers(db_request) == {
-        "classifiers": [(classifier_a.classifier,), (classifier_b.classifier,)]
-    }
+    assert list_classifiers(db_request) == {"classifiers": sorted(classifiers)}
 
 
 def test_stats(db_request):
