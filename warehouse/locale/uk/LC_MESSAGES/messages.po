@@ -5,15 +5,17 @@
 # Sviatoslav Sydorenko <wk.cvs.github@sydorenko.org.ua>, 2019.
 # okawo <okawo.198@gmail.com>, 2019.
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2019, 2020.
-# Alex Solonenko <alex.solonencko@gmail.com>, 2019.
+# Alex Solonenko <alex.solonencko@gmail.com>, 2019, 2020.
 # Roksolana <roksolana.d22@gmail.com>, 2019.
+# Olexandr <me.olexandr.kovalchuk@gmail.com>, 2020.
+# anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-01-16 19:46+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"PO-Revision-Date: 2020-03-11 04:14+0000\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -22,8 +24,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.10.2-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
+
+#: warehouse/views.py:255
+msgid "Locale updated"
+msgstr "Локаль оновлено"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
@@ -104,10 +110,8 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недійсна перевірка WebAuthn: Неправильний вміст"
 
 #: warehouse/accounts/forms.py:344
-#, fuzzy
-#| msgid "Invalid TOTP code."
 msgid "Invalid Recovery Code."
-msgstr "Недійсний код TOTP."
+msgstr "Недійсний код відновлення."
 
 #: warehouse/accounts/forms.py:362
 msgid "No user found with that username or email"
@@ -129,7 +133,7 @@ msgstr "Перевірка WebAuthn успішна"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "Код відновлення прийнято. Введений код не можна використати повторно."
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -210,28 +214,31 @@ msgstr "Це ваша основна адреса"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Електронну адресу ${email_address} підтверджено. ${confirm_message}."
 
-#: warehouse/manage/views.py:172
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Електронну адресу ${email_address} додано — знайдіть посилання-підтвердження "
 "у своїй електронній скриньці"
 
-#: warehouse/manage/views.py:653 warehouse/manage/views.py:689
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
+"Ви повинні увімкнути двофакторну авторизацію, щоб коди відновлення можна "
+"було згенерувати"
 
-#: warehouse/manage/views.py:664
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "Коди відновлення вже згенеровано"
 
-#: warehouse/manage/views.py:665
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
+"Генерування нових кодів відновлення зробить недійсними ваші існуючі коди."
 
-#: warehouse/manage/views.py:715
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "Неправильні персональні дані. Спробуйте знову"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -494,7 +501,7 @@ msgstr "Перемкнутися на мобільну версію"
 #: warehouse/templates/base.html:156 warehouse/templates/base.html:165
 #: warehouse/templates/base.html:175
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:706
+#: warehouse/templates/manage/account.html:725
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:105
 #: warehouse/templates/manage/manage_base.html:157
@@ -792,7 +799,7 @@ msgstr "Увійти до %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "Ім'я користувача"
 
@@ -809,14 +816,15 @@ msgstr "Ім'я користувача"
 #: warehouse/templates/accounts/reset-password.html:63
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:292
-#: warehouse/templates/manage/account.html:347
-#: warehouse/templates/manage/account.html:372
-#: warehouse/templates/manage/account.html:389
-#: warehouse/templates/manage/account.html:405
+#: warehouse/templates/manage/account.html:309
+#: warehouse/templates/manage/account.html:366
+#: warehouse/templates/manage/account.html:391
+#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -863,20 +871,20 @@ msgstr "Профіль %(username)s"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Аватар для {user} із gravatar.com"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:43
 msgid "Date joined"
 msgstr "Дата приєднання"
 
-#: warehouse/templates/accounts/profile.html:40
+#: warehouse/templates/accounts/profile.html:44
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "Приєднується %(start_date)s"
 
-#: warehouse/templates/accounts/profile.html:54
+#: warehouse/templates/accounts/profile.html:58
 #, python-format
 msgid ""
 "\n"
@@ -899,35 +907,33 @@ msgstr[2] ""
 "            %(count)s проектів\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:60
+#: warehouse/templates/accounts/profile.html:64
 msgid "No projects"
 msgstr "Жодних проектів"
 
-#: warehouse/templates/accounts/profile.html:69
+#: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "Востаннє опубліковано %(release_date)s"
 
-#: warehouse/templates/accounts/profile.html:77
+#: warehouse/templates/accounts/profile.html:81
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s ще не завантажував(-ла) жодних проектів до PyPI"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/account.html:472
+#: warehouse/templates/manage/account.html:491
 msgid "Recovery Codes"
-msgstr ""
+msgstr "Коди Відновлення"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr ""
+msgstr "Увійти за допомогою Кодів Відновлення"
 
 #: warehouse/templates/accounts/recovery-code.html:40
-#, fuzzy
-#| msgid "Error code"
 msgid "Enter recovery code"
-msgstr "Код помилки"
+msgstr "Введіть код відновлення"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
@@ -941,14 +947,15 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
+"PyPI дозволяє генерувати коди відновлення, які будуть зберігатись надійно "
+"оффлайн, у випадку, якщо ваш пристрій чи застосунок втрачено. Введіть один "
+"із цих кодів для того, щоб ідентифікувати вашу особистість. Після "
+"використання код відновлення перестає бути дійсним."
 
 #: warehouse/templates/accounts/recovery-code.html:59
-#, fuzzy, python-format
-#| msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+#, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr ""
-"Втратили свій пристрій? Не працює? <a href=\"%(href)s\">Отримайте допомогу</"
-"a>."
+msgstr "<p>Не працює? <a href=\"%(href)s\">Отримати допомогу</a>.</p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -961,7 +968,7 @@ msgstr "Створити обліковий запис на %(title)s"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:162
-#: warehouse/templates/manage/account.html:508
+#: warehouse/templates/manage/account.html:527
 msgid "Name"
 msgstr "Ім'я"
 
@@ -970,12 +977,12 @@ msgid "Your name"
 msgstr "Ваше ім'я"
 
 #: warehouse/templates/accounts/register.html:64
-#: warehouse/templates/manage/account.html:329
+#: warehouse/templates/manage/account.html:348
 msgid "Email address"
 msgstr "Електронна адреса"
 
 #: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/manage/account.html:350
+#: warehouse/templates/manage/account.html:369
 msgid "Your email address"
 msgstr "Ваша електронна адреса"
 
@@ -989,7 +996,7 @@ msgstr "Оберіть ім'я користувача"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
-#: warehouse/templates/manage/account.html:377
+#: warehouse/templates/manage/account.html:396
 msgid "Show passwords"
 msgstr "Показати паролі"
 
@@ -1001,7 +1008,7 @@ msgstr "Оберіть пароль"
 #: warehouse/templates/accounts/register.html:140
 #: warehouse/templates/accounts/reset-password.html:61
 #: warehouse/templates/accounts/reset-password.html:66
-#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:427
 msgid "Confirm password"
 msgstr "Підтвердіть пароль"
 
@@ -1061,7 +1068,7 @@ msgid "Reset your password"
 msgstr "Скиньте свій пароль"
 
 #: warehouse/templates/accounts/reset-password.html:48
-#: warehouse/templates/manage/account.html:394
+#: warehouse/templates/manage/account.html:413
 msgid "Select a new password"
 msgstr "Оберіть новий пароль"
 
@@ -1135,14 +1142,12 @@ msgstr ""
 "\"%(href)s\">Отримайте допомогу</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
-#, fuzzy
-#| msgid "Set up your application"
 msgid "Lost your security key or application?"
-msgstr "Налаштуйте свій застосунок"
+msgstr "Втратили ваш ключ захисту чи застосунок?"
 
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using a Recovery Code"
-msgstr ""
+msgstr "Увійти за допомогою Коду Відновлення"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1151,6 +1156,10 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
+"<p><strong>Ви не згенерували коди відновлення для вашого облікового запису.</"
+"strong></p> <p>Якщо ви втратите доступ до ваших методів двофакторної "
+"авторизації, то ви можете втратити доступ до вашого облікового запису. <a "
+"href=\"%(href)s\">Отримайте допомогу з кодами відновлення.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1186,44 +1195,6 @@ msgid ""
 "You are receiving this because you have been added by %(submitter)s to a "
 "project on %(site)s."
 msgstr "Ви отримали це, бо %(submitter)s додає вас до проекту на %(site)s."
-
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr ""
-"Нового поплічника було додано до проекту на PyPI, власником якого є ви:"
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>Ім'я користувача</strong>: %(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>Роль</strong>: %(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>Поплічник у</strong>: %(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>Додано</strong>: %(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"Якщо це було помилкою, ви можете надіслати листа на <a href=\"%(href)s\">"
-"%(email_address)s</a>, щоб зв'язатися з адміністраторами PyPI."
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "Ви отримали це, оскільки ви власник цього проекту."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1410,28 +1381,22 @@ msgstr ""
 "%(new_email)s</code>"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Хтось, можливо ви, змінив пароль до вашого облікового запису <strong>"
-"%(username)s</strong> на PyPI."
+"Хтось, можливо ви, додав %(method)s двофакторну аутентифікацію до вашого "
+"PyPI облікового запису<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Хтось, можливо ви, змінив пароль до вашого облікового запису <strong>"
-"%(username)s</strong> на PyPI."
+"Хтось, можливо ви, видалив %(method)s метод двофакторної аутентифікації з "
+"вашого PyPI облікового запису<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1443,16 +1408,13 @@ msgstr ""
 "code>) до свого облікового запису на PyPI."
 
 #: warehouse/templates/email/verify-email/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
-#| "link to verify your email address</a>"
+#, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
 msgstr ""
 "Якщо ви бажаєте продовжити виконання цього запиту, <a href=\"%(href)s"
-"\">клікніть на це посилання, щоб підтвердити свою електронну адресу</a>"
+"\">клікніть на це посилання, щоб підтвердити вашу електронну адресу</a>."
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -1643,6 +1605,10 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s ще не завантажував(-ла) жодних проектів до PyPI."
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+msgid "Email"
+msgstr "Електронна адреса"
+
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
@@ -1658,7 +1624,7 @@ msgid "Collaborators"
 msgstr "Поплічники"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:552
 #: warehouse/templates/manage/history.html:23
 msgid "Security history"
 msgstr "Історія безпеки"
@@ -1844,7 +1810,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:142
 msgid "Generate Recovery Codes"
-msgstr ""
+msgstr "Згенерувати Коди ВІдновлення"
 
 #: warehouse/templates/manage/account.html:147
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1868,7 +1834,7 @@ msgstr ""
 "через пристрій безпеки (напр. USB-ключ)"
 
 #: warehouse/templates/manage/account.html:166
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:528
 #: warehouse/templates/manage/token.html:144
 msgid "Scope"
 msgstr "Обмеження"
@@ -1878,12 +1844,12 @@ msgid "All projects"
 msgstr "Усі проекти"
 
 #: warehouse/templates/manage/account.html:176
-#: warehouse/templates/manage/account.html:510
+#: warehouse/templates/manage/account.html:529
 msgid "Created"
 msgstr "Створено"
 
 #: warehouse/templates/manage/account.html:180
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:530
 msgid "Last used"
 msgstr "Використано востаннє"
 
@@ -1972,15 +1938,28 @@ msgstr "Ім'я не встановлено"
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "Відображається у вашому <a href=\"%(href)s\">публічному профілі</a>"
 
-#: warehouse/templates/manage/account.html:305
+#: warehouse/templates/manage/account.html:307
+msgid "️Public email"
+msgstr "Публічна електронна адреса"
+
+#: warehouse/templates/manage/account.html:319
+#, python-format
+msgid ""
+"One of your verified emails can be displayed on your <a href=\"%(href)s"
+"\">public profile</a> to logged-in users."
+msgstr ""
+"Одна з підтверджених адрес може відображатися у вашому <a href=\"%(href)s"
+"\">публічному профілі</a> для автентифікованих користувачів."
+
+#: warehouse/templates/manage/account.html:324
 msgid "Update account"
 msgstr "Оновити обліковий запис"
 
-#: warehouse/templates/manage/account.html:313
+#: warehouse/templates/manage/account.html:332
 msgid "Account emails"
 msgstr "Електронні адреси облікового запису"
 
-#: warehouse/templates/manage/account.html:315
+#: warehouse/templates/manage/account.html:334
 msgid ""
 "You can associate several emails with your account. You can use any <span "
 "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
@@ -1993,44 +1972,44 @@ msgstr ""
 "адресу, щоб відновити свій обліковий запис, але лише ваша <span class=\"badge"
 "\">Основна</span> адреса отримуватиме сповіщення."
 
-#: warehouse/templates/manage/account.html:326
+#: warehouse/templates/manage/account.html:345
 msgid "Emails associated with your account"
 msgstr "Електронні адреси, пов'язані з вашим обліковим записом"
 
-#: warehouse/templates/manage/account.html:330
+#: warehouse/templates/manage/account.html:349
 msgid "Status"
 msgstr "Статус"
 
-#: warehouse/templates/manage/account.html:345
-#: warehouse/templates/manage/account.html:355
+#: warehouse/templates/manage/account.html:364
+#: warehouse/templates/manage/account.html:374
 msgid "Add email"
 msgstr "Додати електронну адресу"
 
-#: warehouse/templates/manage/account.html:362
+#: warehouse/templates/manage/account.html:381
 msgid "Change password"
 msgstr "Змінити пароль"
 
-#: warehouse/templates/manage/account.html:370
+#: warehouse/templates/manage/account.html:389
 msgid "Old password"
 msgstr "Старий пароль"
 
-#: warehouse/templates/manage/account.html:380
+#: warehouse/templates/manage/account.html:399
 msgid "Your current password"
 msgstr "Ваш поточний пароль"
 
-#: warehouse/templates/manage/account.html:387
+#: warehouse/templates/manage/account.html:406
 msgid "New password"
 msgstr "Новий пароль"
 
-#: warehouse/templates/manage/account.html:403
+#: warehouse/templates/manage/account.html:422
 msgid "Confirm new password"
 msgstr "Підтвердіть новий пароль"
 
-#: warehouse/templates/manage/account.html:426
+#: warehouse/templates/manage/account.html:445
 msgid "Two factor authentication (2FA)"
 msgstr "Двофакторна автентифікація (2FA)"
 
-#: warehouse/templates/manage/account.html:427
+#: warehouse/templates/manage/account.html:446
 #, python-format
 msgid ""
 "Two factor authentication adds an additional layer of security to your "
@@ -2041,16 +2020,16 @@ msgstr ""
 "облікового запису. <a href=\"%(href)s\">Дізнайтеся більше про <abbr title="
 "\"двофакторна автентифікація (two factor authentication)\">2FA</abbr></a>."
 
-#: warehouse/templates/manage/account.html:432
+#: warehouse/templates/manage/account.html:451
 msgid "Two factor authentication methods enabled"
 msgstr "Методи двофакторної автентифікації увімкнено"
 
-#: warehouse/templates/manage/account.html:435
+#: warehouse/templates/manage/account.html:454
 msgid "Two factor method"
 msgstr "Двофакторний метод"
 
-#: warehouse/templates/manage/account.html:441
-#: warehouse/templates/manage/account.html:551
+#: warehouse/templates/manage/account.html:460
+#: warehouse/templates/manage/account.html:570
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
@@ -2058,61 +2037,60 @@ msgstr ""
 "Застосунок автентифікації (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:443
-#: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/account.html:462
+#: warehouse/templates/manage/account.html:476
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "Видалити"
 
-#: warehouse/templates/manage/account.html:444
+#: warehouse/templates/manage/account.html:463
 msgid "Remove authentication application"
 msgstr "Видалити застосунок автентифікації"
 
-#: warehouse/templates/manage/account.html:445
+#: warehouse/templates/manage/account.html:464
 msgid "Remove application"
 msgstr "Видалити застосунок"
 
-#: warehouse/templates/manage/account.html:454
-#: warehouse/templates/manage/account.html:549
+#: warehouse/templates/manage/account.html:473
+#: warehouse/templates/manage/account.html:568
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Пристрій безпеки (<abbr title=\"веб-автентифікація (web "
 "authentication)\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:458
+#: warehouse/templates/manage/account.html:477
 msgid "Remove two factor security device"
 msgstr "Видалити двофакторний пристрій безпеки"
 
-#: warehouse/templates/manage/account.html:459
+#: warehouse/templates/manage/account.html:478
 msgid "Remove device"
 msgstr "Видалити пристрій"
 
-#: warehouse/templates/manage/account.html:465
+#: warehouse/templates/manage/account.html:484
 msgid "Device name"
 msgstr "Назва пристрою"
 
-#: warehouse/templates/manage/account.html:472
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
+#: warehouse/templates/manage/account.html:491
+#, python-format
 msgid "generated %(generated_datetime)s"
-msgstr "Опубліковано: %(release_date)s"
+msgstr "згенеровано %(generated_datetime)s"
 
-#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/account.html:494
 msgid "Regenerate"
-msgstr ""
+msgstr "Згенерувати нові"
 
-#: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/account.html:495
+#: warehouse/templates/manage/account.html:496
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr ""
+msgstr "Згенерувати нові коди відновлення"
 
-#: warehouse/templates/manage/account.html:488
+#: warehouse/templates/manage/account.html:507
 msgid "You have not enabled two factor authentication on your account."
 msgstr "Ви не ввімкнули двофакторну автентифікацію у своєму обліковому записі."
 
-#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/account.html:512
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
@@ -2121,12 +2099,12 @@ msgstr ""
 "<a href=\"%(href)s\">Підтвердіть свою основну адресу електронної пошти</a>, "
 "щоб додати двофакторну автентифікацію до свого облікового запису."
 
-#: warehouse/templates/manage/account.html:500
+#: warehouse/templates/manage/account.html:519
 #: warehouse/templates/manage/settings.html:23
 msgid "API tokens"
 msgstr "API-токени"
 
-#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:520
 #: warehouse/templates/manage/settings.html:24
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
@@ -2135,20 +2113,20 @@ msgstr ""
 "API-токени забезпечують альтернативний спосіб автентифікації під час "
 "завантаження пакунків до PyPI."
 
-#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:520
 msgid "Learn more about API tokens"
 msgstr "Дізнатися більше про API-токени"
 
-#: warehouse/templates/manage/account.html:505
+#: warehouse/templates/manage/account.html:524
 msgid "Active API tokens for this account"
 msgstr "Активні API-токени для цього облікового запису"
 
-#: warehouse/templates/manage/account.html:523
+#: warehouse/templates/manage/account.html:542
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
 msgstr "Додати API-токен"
 
-#: warehouse/templates/manage/account.html:525
+#: warehouse/templates/manage/account.html:544
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
@@ -2157,90 +2135,90 @@ msgstr ""
 "<a href=\"%(href)s\">Підтвердіть свою основну електронну адресу</a>, щоб "
 "додати API-токени до свого облікового запису."
 
-#: warehouse/templates/manage/account.html:540
+#: warehouse/templates/manage/account.html:559
 msgid "Account created"
 msgstr "Обліковий запис створено"
 
-#: warehouse/templates/manage/account.html:543
+#: warehouse/templates/manage/account.html:562
 msgid "Logged in"
 msgstr "Здійснено вхід"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:564
 msgid "Two factor method:"
 msgstr "Двофакторний метод:"
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:566
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:302
 msgid "None"
 msgstr "Нема"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:572
 msgid "Recovery Code"
-msgstr ""
+msgstr "Код Відновлення"
 
-#: warehouse/templates/manage/account.html:558
+#: warehouse/templates/manage/account.html:577
 msgid "Email added to account"
 msgstr "Електронну адресу додано до облікового запису"
 
-#: warehouse/templates/manage/account.html:561
+#: warehouse/templates/manage/account.html:580
 msgid "Email removed from account"
 msgstr "Електронну адресу видалено з облікового запису"
 
-#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:583
 msgid "Email verified"
 msgstr "Електронну адресу підтверджено"
 
-#: warehouse/templates/manage/account.html:567
+#: warehouse/templates/manage/account.html:586
 msgid "Email reverified"
 msgstr "Електронну адресу підтверджено повторно"
 
-#: warehouse/templates/manage/account.html:571
+#: warehouse/templates/manage/account.html:590
 msgid "Primary email changed"
 msgstr "Основну електронну адресу змінено"
 
-#: warehouse/templates/manage/account.html:573
+#: warehouse/templates/manage/account.html:592
 msgid "Old primary email:"
 msgstr "Стара основна електронна адреса:"
 
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:593
 msgid "New primary email:"
 msgstr "Нова основна електронна адреса:"
 
-#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:596
 msgid "Primary email set"
 msgstr "Основну електронну адресу встановлено"
 
-#: warehouse/templates/manage/account.html:584
+#: warehouse/templates/manage/account.html:603
 msgid "Password reset requested"
 msgstr "Запит на скидання пароля здійснено"
 
-#: warehouse/templates/manage/account.html:586
+#: warehouse/templates/manage/account.html:605
 msgid "Password successfully reset"
 msgstr "Пароль успішно скинуто"
 
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:607
 msgid "Password successfully changed"
 msgstr "Пароль успішно змінено"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:610
 msgid "Two factor authentication added"
 msgstr "Двофакторну автентифікацію додано"
 
-#: warehouse/templates/manage/account.html:594
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:623
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Спосіб: Пристрій безпеки (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:595
-#: warehouse/templates/manage/account.html:605
+#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:624
 msgid "Device name:"
 msgstr "Назва пристрою:"
 
-#: warehouse/templates/manage/account.html:597
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:626
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2248,96 +2226,96 @@ msgstr ""
 "Спосіб: Застосунок для автентифікації (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:601
+#: warehouse/templates/manage/account.html:620
 msgid "Two factor authentication removed"
 msgstr "Двофакторну автентифікацію видалено"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:631
 msgid "Recovery Codes generated"
-msgstr ""
+msgstr "Коди відновлення згенеровано"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:635
 msgid "Recovery Codes regenerated"
-msgstr ""
+msgstr "Коди Відновлення перегенеровано"
 
-#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:639
 msgid "Recovery Code used for login"
-msgstr ""
+msgstr "Код Відновлення було використано для входу"
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:645
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "API-токен додано"
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:647
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "Назва токена:"
 
-#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:649
 msgid "Token scope: entire account"
 msgstr "Область дії токена: увесь обліковий запис"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:651
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Область дії токена: проект %(project_name)s"
 
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "API-токен видалено"
 
-#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:657
 msgid "Unique identifier:"
 msgstr "Унікальний ідентифікатор:"
 
-#: warehouse/templates/manage/account.html:643
+#: warehouse/templates/manage/account.html:662
 msgid "Events appear here as security-related actions occur on your account."
 msgstr ""
 "Події з'являються тут, щойно дії, пов'язані з безпекою, виникатимуть у "
 "вашому обліковому записі."
 
-#: warehouse/templates/manage/account.html:645
+#: warehouse/templates/manage/account.html:664
 msgid "Recent account activity"
 msgstr "Нещодавня активність облікового запису"
 
-#: warehouse/templates/manage/account.html:647
+#: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:87
 msgid "Event"
 msgstr "Подія"
 
-#: warehouse/templates/manage/account.html:648
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:667
+#: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/history.html:88
 #: warehouse/templates/manage/history.html:97
 msgid "Date / time"
 msgstr "Дата / час"
 
-#: warehouse/templates/manage/account.html:649
-#: warehouse/templates/manage/account.html:660
+#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:679
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:101
 msgid "IP address"
 msgstr "IP-адреса"
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:687
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Події з'являтимуться тут, щойно дії, пов'язані з безпекою, виникатимуть у "
 "вашому обліковому записі."
 
-#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:694
 msgid "Delete account"
 msgstr "Видалити обліковий запис"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:697
 msgid "Cannot delete account"
 msgstr "Неможливо видалити обліковий запис"
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:699
 #, python-format
 msgid ""
 "\n"
@@ -2365,7 +2343,7 @@ msgstr[2] ""
 "%(count)s проектів.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:704
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2392,7 +2370,7 @@ msgstr[2] ""
 "видалити свій обліковий запис.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:714
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2401,17 +2379,17 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">перенести право власності</a> чи <a href="
 "\"%(delete_href)s\">видалити проект</a>"
 
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:723
 #: warehouse/templates/manage/token.html:162
 msgid "Proceed with caution!"
 msgstr "Продовжуйте обережно!"
 
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:726
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 "Ви не зможете відносити свій обліковий запис після того, як видалите його"
 
-#: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/account.html:728
 msgid "Delete your PyPI account"
 msgstr "Видалити свій обліковий запис на PyPI"
 
@@ -2584,7 +2562,7 @@ msgstr "Дата"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "Користувач"
 
@@ -2682,6 +2660,7 @@ msgstr "Цей проект не має публікацій"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
 msgstr "Дивитися"
 
@@ -2972,8 +2951,8 @@ msgid "There are two possible roles for collaborators:"
 msgstr "Поплічники можуть належати до однієї з двох ролей:"
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
 msgstr "Доглядач"
 
@@ -2987,8 +2966,8 @@ msgstr ""
 "може видаляти файли, випуски чи проект."
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
 msgstr "Власник"
 
@@ -3007,31 +2986,31 @@ msgid "Users who can manage %(project_name)s"
 msgstr "Користувачі, які можуть керувати %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
 msgstr "Роль"
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
 msgstr "Зберегти роль"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
 msgstr "Зберегти"
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
 msgstr "Неможливо видалити себе як власника"
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr "Видалити %(user)s з цього проекта"
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
 msgstr "Додати поплічника"
 
@@ -3296,11 +3275,11 @@ msgstr "Додати токен"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
 msgid "Account Recovery Codes"
-msgstr ""
+msgstr "Коди Відновлення Облікового Запису"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:36
 msgid "Regenerate recovery codes"
-msgstr ""
+msgstr "Згенерувати нові коди відновлення"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3308,12 +3287,18 @@ msgid ""
 "you’ll need to use one of these recovery codes to log into your PyPI "
 "account. Each code can only be used <strong>once</strong>."
 msgstr ""
+"Якщо ви втратили доступ до свого застосунку автентифікації чи до ключа(-ів) "
+"безпеки, вам знадобиться скористатися одним із кодів відновлення, аби увійти "
+"до облікового запису PyPI. Кожен код можна використати лише <strong>один</"
+"strong> раз."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:47
 msgid ""
 "These codes should <strong>only</strong> be used for account recovery, not "
 "for typical logins."
 msgstr ""
+"Ці коди повинні використовуватись <strong>тільки</strong> для відновлення "
+"облікового запису, а не звичайного входу в обліковий запис."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:48
 msgid ""
@@ -3321,30 +3306,32 @@ msgid ""
 "application or security key(s) and do not have access to these recovery "
 "codes, you may permanently lose access to your PyPI account!"
 msgstr ""
+"<strong>Зберігайте їх у безпечному місці</strong>. Якщо ви втратите свій "
+"застосунок аутентифікації або ключ(і) безпеки і не матимете доступу до цих "
+"кодів відновлення, ви можете назавжди втратити доступ до свого облікового "
+"запису PyPI!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
 msgid "Save your Recovery Codes"
-msgstr ""
+msgstr "Збережіть ваші Коди Відновлення"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
-#, fuzzy
-#| msgid "Download files"
 msgid "Download as file"
-msgstr "Завантаження файлів"
+msgstr "Завантажити як файл"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:67
 #: warehouse/templates/manage/account/recovery_codes-provision.html:69
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
 msgid "Continue"
-msgstr ""
+msgstr "Продовжити"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:76
 msgid "These codes will not be visible again."
-msgstr ""
+msgstr "Цих кодів не буде показано знову."
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:79
 msgid "Ensure that you have securely stored them before continuing."
-msgstr ""
+msgstr "Перед тим, як продовжити, переконайтесь, що ви зберегли їх надійно."
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
@@ -3604,10 +3591,6 @@ msgstr "Тип файлу"
 msgid "Hashes"
 msgstr "Хеші"
 
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr "Переглянути <span>хеші</span>"
-
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
 "Each project's maintainers provide PyPI with a list of \"trove classifiers\" "
@@ -3672,6 +3655,10 @@ msgid ""
 "generate and securely store <a href=\"#recoverycodes\">recovery codes</a> to "
 "regain access in that event.."
 msgstr ""
+"Якщо ви втратите ваш %(method)s і не зможете увійти, ви можете "
+"<strong>назавжди втратити доступ до вашого акаунту</strong>. Вам варто "
+"згенерувати та безпечно зберегти <a href=\"#recoverycodes\">коди "
+"відновлення</a>, щоб відновити доступ у такому випадку."
 
 #: warehouse/templates/pages/help.html:37
 msgid ""
@@ -3679,6 +3666,9 @@ msgid ""
 "factor authentication methods and provision <a href=\"#recoverycodes"
 "\">recovery codes</a>."
 msgstr ""
+"Ми рекомендуємо усім користувачам PyPI встановити <em>як найменше два</em> з "
+"доступних методів двофакторної аутентифікації і отримати <a href="
+"\"#recoverycodes\">коди відновлення</a>."
 
 #: warehouse/templates/pages/help.html:43
 msgid ""
@@ -3686,6 +3676,9 @@ msgid ""
 "have <a href=\"#recoverycodes\">recovery codes</a>, you can request help <a "
 "href=\"#account-recovery\">with account recovery</a>."
 msgstr ""
+"Якщо ви втратили доступ до всіх двофакторних методів і не маєте <a href="
+"\"#recoverycodes\">кодів відновлення</a>, ви можете звернутися за допомогою "
+"для <a href=\"#account-recovery\">відновлення акаунту</a>."
 
 #: warehouse/templates/pages/help.html:52
 msgid "What's a package, project, or release?"
@@ -3740,16 +3733,12 @@ msgstr ""
 "безпеки?"
 
 #: warehouse/templates/pages/help.html:63
-#, fuzzy
-#| msgid ""
-#| "How does two factor authentication with a security device (e.g. USB key) "
-#| "work? How do I set it up on PyPI?"
 msgid ""
 "How does two factor authentication with a recovery code work? How do I set "
 "it up on PyPI?"
 msgstr ""
-"Як працює двофакторна автентифікація за допомогою пристрою безпеки (напр. "
-"USB-ключа)? Як налаштувати це на PyPI?"
+"Як працює двофакторна автентифікація за допомогою кодів відновлення? Як "
+"налаштувати це на PyPI?"
 
 #: warehouse/templates/pages/help.html:64
 msgid "How can I use API tokens to authenticate with PyPI?"
@@ -3779,16 +3768,16 @@ msgid "I forgot my PyPI password. Can you help me?"
 msgstr "Мій пароль від PyPI втрачено. Ви можете мені допомогти?"
 
 #: warehouse/templates/pages/help.html:72
-#, fuzzy
-#| msgid "I forgot my PyPI password. Can you help me?"
 msgid "I've lost access to my PyPI account. Can you help me?"
-msgstr "Мій пароль від PyPI втрачено. Ви можете мені допомогти?"
+msgstr "Я втратив доступ до облікового запису PyPI. Ви можете мені допомогти?"
 
 #: warehouse/templates/pages/help.html:73
 msgid ""
 "Why am I getting a \"Invalid or non-existent authentication information.\" "
 "error when uploading files?"
 msgstr ""
+"Чому я отримую помилку \"Неправильна або неіснуюча аутентифікаційна "
+"інформація.\" при завантаженні файлів?"
 
 #: warehouse/templates/pages/help.html:74
 msgid ""
@@ -4458,6 +4447,9 @@ msgid ""
 "or <a href=\"#utfkey\">security device</a>, you can use these codes to sign "
 "into PyPI."
 msgstr ""
+"Якщо ви втратите доступ до вашого <a href=\"#totp\">застосунку "
+"аутентифікації</a> або <a href=\"#utfkey\">пристрою безпеки</a>, ви можете "
+"використати ці коди, щоб увійти до PyPI."
 
 #: warehouse/templates/pages/help.html:410
 msgid ""
@@ -4466,30 +4458,31 @@ msgid ""
 "\">security device</a> and should only be used for recovery. After using a "
 "recovery code to sign in, it becomes inactive."
 msgstr ""
+"Коди відновлення <strong>використовуються одноразово</strong>. Вони не "
+"можуть бути заміною для <a href=\"#totp\">застосунку аутентифікації</a> або "
+"<a href=\"#utfkey\">пристрою безпеки</a> і повинні використовуватись лише "
+"для відновлення. Після входу за допомогою коду відновлення, він стає "
+"неактивним."
 
 #: warehouse/templates/pages/help.html:416
 msgid "To provision recovery codes:"
-msgstr ""
+msgstr "Для управління кодами відновлення:"
 
 #: warehouse/templates/pages/help.html:418
-#, fuzzy
-#| msgid ""
-#| "Log in to your PyPI account, go to your account settings, and choose "
-#| "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
-#| "authentication application\""
 msgid ""
 "Log in to your PyPI account, go to your account settings, and choose "
 "\"Generate recovery codes\""
 msgstr ""
 "Увійдіть до свого облікового запису на PyPI, перейдіть до налаштувань свого "
-"облікового запису та оберіть «Додати <abbr title=\"two factor authentication"
-"\">2FA</abbr> за допомогою застосунку автентифікації»"
+"облікового запису та оберіть \"Згенерувати коди відновлення\""
 
 #: warehouse/templates/pages/help.html:419
 msgid ""
 "Securely store the displayed recovery codes! Consider printing them out and "
 "storing them in a safe location or saving them in a password manager."
 msgstr ""
+"Надійно збережіть показані коди відновлення! Подумайте про те, щоб "
+"надрукувати їх і зберегти в безпечному місці або додати в менеджер паролів."
 
 #: warehouse/templates/pages/help.html:422
 msgid ""
@@ -4497,21 +4490,28 @@ msgid ""
 "get new ones by selecting \"Regenerate recovery codes\" in your account "
 "settings."
 msgstr ""
+"Якщо ви втратите доступ до збережених кодів відновлення або використаєте "
+"всі, ви можете отримати нові, обравши \"Перегенерувати коди відновлення\" в "
+"налаштуваннях вашого облікового запису."
 
 #: warehouse/templates/pages/help.html:424
 msgid "To sign in with a recovery code:"
-msgstr ""
+msgstr "Увійти за допомогою коду відновлення:"
 
 #: warehouse/templates/pages/help.html:427
 msgid ""
 "When prompted for Two-Factor Authentication, select \"Login using a Recovery "
 "Code\""
 msgstr ""
+"Коли буде запропоновано Двофакторну Аутентифікацію, оберіть \"Увійти за "
+"допомогою Коду Відновлення\""
 
 #: warehouse/templates/pages/help.html:428
 msgid ""
 "As each code can be used only once, you might want to mark the code as used"
 msgstr ""
+"Оскільки кожен код може бути використаний лише один раз, ви можете позначити "
+"код, як використаний"
 
 #: warehouse/templates/pages/help.html:429
 msgid ""
@@ -4519,20 +4519,11 @@ msgid ""
 "new set using the \"Regenerate recovery codes\" button in your account "
 "settings."
 msgstr ""
+"Якщо у вас залишилось мало кодів відновлення, ви можете згенерувати новий "
+"набір кодів за допомогою кнопки \"Перегенерувати коди відновлення\" в "
+"налаштуваннях вашого облікового запису."
 
 #: warehouse/templates/pages/help.html:434
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "          <p>API tokens provide an alternative way (instead of username "
-#| "and password) to authenticate when <strong>uploading packages</strong> to "
-#| "PyPI.</p>\n"
-#| "          <p>You can create a token for an entire PyPI account, in which "
-#| "case, the token will work for all projects associated with that account. "
-#| "Alternatively, you can limit a token's scope to a specific project.</p>\n"
-#| "          <p><strong>We strongly recommend you authenticate with an API "
-#| "token where possible.</strong></p>\n"
-#| "        "
 msgid ""
 "\n"
 "          <p>API tokens provide an alternative way (instead of username and "
@@ -4556,6 +4547,7 @@ msgstr ""
 "певного проекта.</p>\n"
 "          <p><strong>Ми наполегливо радимо автентифікуватися за допомогою "
 "API-токена за можливості.</strong></p>\n"
+"\n"
 "        "
 
 #: warehouse/templates/pages/help.html:441
@@ -4898,66 +4890,65 @@ msgstr "Ви одержите електронного листа із поси�
 
 #: warehouse/templates/pages/help.html:553
 msgid "If you've lost access to your PyPI account due to:"
-msgstr ""
+msgstr "Якщо ви втратили доступ до облікового запису PyPI з причини:"
 
 #: warehouse/templates/pages/help.html:555
-#, fuzzy
-#| msgid "Emails associated with your account"
 msgid "Lost access to the email address associated with your account"
-msgstr "Електронні адреси, пов'язані з вашим обліковим записом"
+msgstr ""
+"Втрачений доступ до електронних адресів, пов'язаних з вашим обліковим записом"
 
 #: warehouse/templates/pages/help.html:556
 msgid ""
 "Lost two factor authentication <a href=\"#totp\">application</a>, <a href="
 "\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</a>"
 msgstr ""
+"Втрачено <a href=\"#totp\">застосунок</a> двофакторної аутентифікації, <a "
+"href=\"#utfkey\">пристрій</a> та <a href=\"#recoverycodes\">коди "
+"відновлення</a>"
 
 #: warehouse/templates/pages/help.html:559
-#, fuzzy, python-format
-#| msgid ""
-#| "If you no longer have access to the email address associated with your "
-#| "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">file an issue on our tracker</a>."
+#, python-format
 msgid ""
 "You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
-"Якщо у вас більше немає доступу до електронної адреси, пов'язаної з вашим "
-"обліковим записом, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">створіть іш'ю на нашому трекері</a>."
+"Ви можете перейти до, <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">створіть іш'ю на нашому трекері</a>, щоб "
+"запросити допомогу з відновленням облікового запису."
 
 #: warehouse/templates/pages/help.html:566
-#, fuzzy
-#| msgid "Provide your username and password, as normal"
 msgid "If you are using a username and password for uploads:"
-msgstr "Надати своє ім'я користувача і пароль, як зазвичай"
+msgstr "Якщо ви використовуєте ім'я користувача і пароль для завантажень:"
 
 #: warehouse/templates/pages/help.html:568
-#, fuzzy
-#| msgid "Provide your username and password, as normal"
 msgid "Check to see if your username or password are incorrect."
-msgstr "Надати своє ім'я користувача і пароль, як зазвичай"
+msgstr "Перевірте, чи ваші ім'я користувача і пароль є неправильними."
 
 #: warehouse/templates/pages/help.html:569
 msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr ""
+"Переконайтеся, що ваші ім'я користувача та пароль не містять зайвих "
+"символів, таких як переноси рядка."
 
 #: warehouse/templates/pages/help.html:571
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr ""
+"Якщо ви використовуєте <a href=\"#apitoken\">API-токен</a> для завантажень:"
 
 #: warehouse/templates/pages/help.html:573
 msgid "Ensure that your API Token is valid and has not been revoked."
-msgstr ""
+msgstr "Переконайтеся, що ваш API-токен дійсний і не був відкликаний."
 
 #: warehouse/templates/pages/help.html:574
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
 msgstr ""
+"Переконайтеся, що ваш API-токен у <a href=\"#apitoken\">коректному форматі</"
+"a> та не містить зайвих символів, таких як перенесення рядка."
 
 #: warehouse/templates/pages/help.html:579
 #, python-format
@@ -5396,10 +5387,8 @@ msgstr ""
 "але воно нове і менш перевірене за інші функції сайту."
 
 #: warehouse/templates/pages/help.html:763
-#, fuzzy
-#| msgid "Currently, the following features are in beta:"
 msgid "Currently, no features are in beta."
-msgstr "Наразі, наступні функції є в бета:"
+msgstr "Наразі, немає функцій в бета."
 
 #: warehouse/templates/pages/help.html:767
 #, python-format
@@ -5596,18 +5585,14 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:30
 msgid "Top projects by total package size"
-msgstr ""
+msgstr "Топ-проекти за загальним розміром пакунків"
 
 #: warehouse/templates/pages/stats.html:32
-#, fuzzy
-#| msgid ""
-#| "Here is a list of the top 100 packages based on sum of their packages "
-#| "sizes (in bytes)."
 msgid ""
 "Here is a list of the top 100 projects based on the sum of their packages' "
 "sizes (in bytes)."
 msgstr ""
-"Ось перелік із топ-100 пакунків, впорядкованих за сумою розмірів їх пакунків "
+"Ось перелік із топ-100 проектів, впорядкованих за сумою розмірів їх пакунків "
 "(у байтах)."
 
 #: warehouse/templates/pages/stats.html:39
@@ -5767,6 +5752,72 @@ msgstr[2] ""
 "\n"
 "                  Немає результатів для '%(filters)s' фільтрів\n"
 "                "
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr ""
+#~ "Нового поплічника було додано до проекту на PyPI, власником якого є ви:"
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>Ім'я користувача</strong>: %(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>Роль</strong>: %(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>Поплічник у</strong>: %(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>Додано</strong>: %(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "Якщо це було помилкою, ви можете надіслати листа на <a href=\"%(href)s\">"
+#~ "%(email_address)s</a>, щоб зв'язатися з адміністраторами PyPI."
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "Ви отримали це, оскільки ви власник цього проекту."
+
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "Проект %(project)s було видалено."
+
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr ""
+#~ "<strong>Видалив(-ла):</strong> %(submitter)s, що має роль:\n"
+#~ "      %(role)s."
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Якщо це було помилкою, ви можете надіслати листа на <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a>, щоб зв'язатися з "
+#~ "адміністраторами PyPI."
+
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr "Ви отримали це, оскільки ви %(recipient_role_descr)s цього проекту."
+
+#~ msgid ""
+#~ "The %(project)s release %(release)s released on %(date)s has been deleted."
+#~ msgstr ""
+#~ "Випуск %(project)s %(release)s, опублікований %(date)s було видалено."
+
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "\n"
+#~ "Ви отримали це, оскільки ви %(recipient_role_descr)s цього проекту."
+
+#~ msgid "View <span>hashes</span>"
+#~ msgstr "Переглянути <span>хеші</span>"
 
 #~ msgid "Beta feature"
 #~ msgstr "Бета-функція"

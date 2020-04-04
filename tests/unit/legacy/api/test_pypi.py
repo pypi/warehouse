@@ -14,6 +14,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
+from trove_classifiers import classifiers
 
 from warehouse.legacy.api import pypi
 
@@ -67,14 +68,10 @@ def test_forbidden_legacy():
 
 
 def test_list_classifiers(db_request):
-    ClassifierFactory.create(classifier="foo :: bar")
-    ClassifierFactory.create(classifier="foo :: baz")
-    ClassifierFactory.create(classifier="fiz :: buz")
-
     resp = pypi.list_classifiers(db_request)
 
     assert resp.status_code == 200
-    assert resp.text == "fiz :: buz\nfoo :: bar\nfoo :: baz"
+    assert resp.text == "\n".join(sorted(classifiers))
 
 
 def test_search():

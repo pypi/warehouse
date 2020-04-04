@@ -5,12 +5,13 @@
 # bkaskar <roypbc@yahoo.com>, 2019, 2020.
 # Michal Čihař <michal@cihar.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
+# Prachi Joshi <josprachi@yahoo.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-18 07:18+0000\n"
+"PO-Revision-Date: 2020-03-20 19:23+0000\n"
 "Last-Translator: bkaskar <roypbc@yahoo.com>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
 ">\n"
@@ -19,8 +20,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.11\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
+
+#: warehouse/views.py:255
+msgid "Locale updated"
+msgstr "स्थानीय अद्यतन"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
@@ -101,10 +106,8 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अमान्य WebAuthn दावा: खराब पेलोड"
 
 #: warehouse/accounts/forms.py:344
-#, fuzzy
-#| msgid "Invalid TOTP code."
 msgid "Invalid Recovery Code."
-msgstr "अमान्य TOTP कोड।"
+msgstr "पुनर्प्राप्ति कुंजी अमान्य।"
 
 #: warehouse/accounts/forms.py:362
 msgid "No user found with that username or email"
@@ -126,7 +129,7 @@ msgstr "सफल WebAuthn दावा"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "पुनर्प्राप्ति कुंजी स्वीकार्य. अपूर्तित कुंजी पुनः उपयोग वर्जित।"
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -203,26 +206,28 @@ msgstr "यह आपका प्राथमिक पता है"
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पता ${email_address} सत्यापित। ${confirm_message}।"
 
-#: warehouse/manage/views.py:172
+#: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ईमेल ${email_address} जोड़ा गया - सत्यापन लिंक के लिए अपने ईमेल की जांच करें"
 
-#: warehouse/manage/views.py:653 warehouse/manage/views.py:689
+#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
+"इससे पहले की पुनर्प्राप्ति कुंजी उत्पन्न की जा सके, आपको द्वी-करक प्रमाणीकरण विधि का "
+"प्रावधान करना होगा"
 
-#: warehouse/manage/views.py:664
+#: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "पुनर्प्राप्ति कोड प्रउत्पादित"
 
-#: warehouse/manage/views.py:665
+#: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
+msgstr "नयी पुनर्प्राप्ति कुंजी उत्पन्न करने पर मौजूदा कुंजियाँ अमान्य हो जाएंगी।"
 
-#: warehouse/manage/views.py:715
+#: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "अवैध प्रत्यय पत्र। पुनः प्रयास करें"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -481,7 +486,7 @@ msgstr "मोबाइल संस्करण पर स्विच कर�
 #: warehouse/templates/base.html:156 warehouse/templates/base.html:165
 #: warehouse/templates/base.html:175
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:706
+#: warehouse/templates/manage/account.html:725
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:105
 #: warehouse/templates/manage/manage_base.html:157
@@ -772,7 +777,7 @@ msgstr "%(title)s में लॉग इन करें"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:140
+#: warehouse/templates/manage/roles.html:118
 msgid "Username"
 msgstr "उपयोगकर्ता का नाम"
 
@@ -789,14 +794,15 @@ msgstr "उपयोगकर्ता का नाम"
 #: warehouse/templates/accounts/reset-password.html:63
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:292
-#: warehouse/templates/manage/account.html:347
-#: warehouse/templates/manage/account.html:372
-#: warehouse/templates/manage/account.html:389
-#: warehouse/templates/manage/account.html:405
+#: warehouse/templates/manage/account.html:309
+#: warehouse/templates/manage/account.html:366
+#: warehouse/templates/manage/account.html:391
+#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:424
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:137
-#: warehouse/templates/manage/roles.html:149
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
 #: warehouse/templates/manage/token.html:129
 #: warehouse/templates/manage/token.html:146
 msgid "(required)"
@@ -843,20 +849,20 @@ msgstr "%(username)s की प्रोफाइल"
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:245
-#: warehouse/templates/manage/roles.html:56
+#: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Gravatar.com से {user} का अवतार"
 
-#: warehouse/templates/accounts/profile.html:39
+#: warehouse/templates/accounts/profile.html:43
 msgid "Date joined"
 msgstr "शामिल होने की तिथि"
 
-#: warehouse/templates/accounts/profile.html:40
+#: warehouse/templates/accounts/profile.html:44
 #, python-format
 msgid "Joined on %(start_date)s"
 msgstr "%(start_date)s पर शामिल हुए"
 
-#: warehouse/templates/accounts/profile.html:54
+#: warehouse/templates/accounts/profile.html:58
 #, python-format
 msgid ""
 "\n"
@@ -877,35 +883,33 @@ msgstr[1] ""
 "………\n"
 "          "
 
-#: warehouse/templates/accounts/profile.html:60
+#: warehouse/templates/accounts/profile.html:64
 msgid "No projects"
 msgstr "कोई परियोजना नहीं"
 
-#: warehouse/templates/accounts/profile.html:69
+#: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:36
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "अंतिम बार %(release_date)s पर वितरण किया गया"
 
-#: warehouse/templates/accounts/profile.html:77
+#: warehouse/templates/accounts/profile.html:81
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s ने अभी तक PyPI पर कोई भी प्रोजेक्ट अपलोड नहीं किया है"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/account.html:472
+#: warehouse/templates/manage/account.html:491
 msgid "Recovery Codes"
-msgstr ""
+msgstr "पुनर्प्राप्ति कुंजी"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr ""
+msgstr "पुनःप्राप्त कुंजी द्वारा लॉगिन करें"
 
 #: warehouse/templates/accounts/recovery-code.html:40
-#, fuzzy
-#| msgid "Error code"
 msgid "Enter recovery code"
-msgstr "त्रुटि कोड"
+msgstr "पुनर्प्राप्ति कुंजी प्रदान करें"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
@@ -919,14 +923,14 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
+"आपके उपकरण या आवेदन खोने जैसे दुर्घटना में PyPI पुनःप्राप्ति कुंजी उत्पन्न करके सुरक्षित रूप से "
+"ऑफ़लाइन संग्रहीत कि अनुमति देता है। अपनी पहचान सत्यापित करने के लिए इनमें से किसी एक कुंजी "
+"को फॉर्म में दर्ज करें। एक उपयोग के बाद, पुनःप्राप्ति कुंजी अमान्य होगी।"
 
 #: warehouse/templates/accounts/recovery-code.html:59
-#, fuzzy, python-format
-#| msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+#, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr ""
-"अपना उपकरण खो दिया? काम नहीं कर रहा? <a href=\"%(href)s\"> सहायता प्राप्त करें </"
-"a>।"
+msgstr "<p>काम नहीं कर रहा? <a href=\"%(href)s\"> सहायता प्राप्त करें </a>।</p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -939,7 +943,7 @@ msgstr "%(title)s पर एक खाता बनाएं"
 
 #: warehouse/templates/accounts/register.html:45
 #: warehouse/templates/manage/account.html:162
-#: warehouse/templates/manage/account.html:508
+#: warehouse/templates/manage/account.html:527
 msgid "Name"
 msgstr "नाम"
 
@@ -948,12 +952,12 @@ msgid "Your name"
 msgstr "आपका नाम"
 
 #: warehouse/templates/accounts/register.html:64
-#: warehouse/templates/manage/account.html:329
+#: warehouse/templates/manage/account.html:348
 msgid "Email address"
 msgstr "ईमेल पता"
 
 #: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/manage/account.html:350
+#: warehouse/templates/manage/account.html:369
 msgid "Your email address"
 msgstr "आपका ईमेल पता"
 
@@ -967,7 +971,7 @@ msgstr "उपयोगकर्ता नाम का चयन करें"
 
 #: warehouse/templates/accounts/register.html:117
 #: warehouse/templates/accounts/reset-password.html:45
-#: warehouse/templates/manage/account.html:377
+#: warehouse/templates/manage/account.html:396
 msgid "Show passwords"
 msgstr "पासवर्ड दिखाएं"
 
@@ -979,7 +983,7 @@ msgstr "पासवर्ड चुनें"
 #: warehouse/templates/accounts/register.html:140
 #: warehouse/templates/accounts/reset-password.html:61
 #: warehouse/templates/accounts/reset-password.html:66
-#: warehouse/templates/manage/account.html:408
+#: warehouse/templates/manage/account.html:427
 msgid "Confirm password"
 msgstr "पासवर्ड की पुष्टि करें"
 
@@ -1038,7 +1042,7 @@ msgid "Reset your password"
 msgstr "अपना पासवर्ड रीसेट करें"
 
 #: warehouse/templates/accounts/reset-password.html:48
-#: warehouse/templates/manage/account.html:394
+#: warehouse/templates/manage/account.html:413
 msgid "Select a new password"
 msgstr "एक नया पासवर्ड चुनें"
 
@@ -1101,16 +1105,16 @@ msgid ""
 "<p>Lost your application? Not working? <a href=\"%(href)s\">Get help</a>.</p>"
 msgstr ""
 "<p>अपने PyPI खाते से जुड़े प्रमाणीकरण एप्लिकेशन का उपयोग करके एक कोड बनाएं। अपनी पहचान "
-"सत्यापित करने के लिए इस कोड को दर्ज करें।</p> <p>अपना आवेदन खो दिया? काम नहीं कर "
-"रहा? <a href=\"%(href)s\">सहायता प्राप्त करें</a>।</ p>"
+"सत्यापित करने के लिए कोड उत्पन्न करें।</p> <p>अपना आवेदन खो दिया? काम नहीं कर रहा? <a "
+"href=\"%(href)s\">सहायता प्राप्त करें</a>।</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr ""
+msgstr "अपनी सुरक्षा कुंजी या आवेदन खो दिया है?"
 
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using a Recovery Code"
-msgstr ""
+msgstr "पुनःप्राप्त कुंजी द्वारा लॉगिन करें"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1119,6 +1123,9 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
+"<p><strong>आपने खाता पुनःप्राप्ति कुंजी उत्पन्न नहीं की है।</strong></p> <p>अगर आप "
+"अपनी द्वि-कारक विधियां खो देते हैं, तो आप अपने खाते तक कि पहुंच खो सकते हैं। <a href="
+"\"%(href)s\">पुनःप्राप्ति कुंजी उत्पन्न करने में सहायता प्राप्त करें।</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1155,43 +1162,6 @@ msgid ""
 msgstr ""
 "आपको यह प्राप्त हो रहा है क्योंकि आपको %(site)s पर एक परियोजना में %(submitter)s "
 "द्वारा जोड़ा गया है।"
-
-#: warehouse/templates/email/collaborator-added/body.html:26
-msgid "A new collaborator has been added to a project you own on PyPI:"
-msgstr "PyPI पर आपके प्रोजेक्ट में एक नया सहयोगी जोड़ा गया है:"
-
-#: warehouse/templates/email/collaborator-added/body.html:29
-#, python-format
-msgid "<strong>Username</strong>: %(username)s"
-msgstr "<strong>उपयोगकर्ता नाम</strong>: %(username)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:30
-#, python-format
-msgid "<strong>Role</strong>: %(role)s"
-msgstr "<strong>भूमिका</ strong>:%(role)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:31
-#, python-format
-msgid "<strong>Collaborator for</strong>: %(project)s"
-msgstr "<strong>सहयोगी</strong>: %(project)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:32
-#, python-format
-msgid "<strong>Added by</strong>: %(submitter)s"
-msgstr "<strong>द्वारा जोड़ा गया</strong>: %(submitter)s"
-
-#: warehouse/templates/email/collaborator-added/body.html:36
-#, python-format
-msgid ""
-"If this was a mistake, you can email <a href=\"%(href)s\">%(email_address)s</"
-"a> to communicate with the PyPI administrators."
-msgstr ""
-"यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">"
-"%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
-
-#: warehouse/templates/email/collaborator-added/body.html:41
-msgid "You are receiving this because you are an owner of this project."
-msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1371,28 +1341,22 @@ msgstr ""
 "%(old_email)s</code> से बदलकर <code>%(new_email)s</code> कर दिया गया है"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> का पासवर्ड बदल "
-"दिया है।"
+"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> में %(method)s "
+"द्वी-करक प्रमाणीकरण विधि का प्रावधान किया है।"
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> का पासवर्ड बदल "
-"दिया है।"
+"किसी ने, शायद आपने, आपके PyPI खाते <strong>%(username)s</strong> से %(method)s "
+"द्वी-करक प्रमाणीकरण विधि को हटा दिया है।"
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1404,16 +1368,13 @@ msgstr ""
 "जोड़ा है।"
 
 #: warehouse/templates/email/verify-email/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
-#| "link to verify your email address</a>"
+#, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
 msgstr ""
 "यदि आप इस अनुरोध के साथ आगे बढ़ना चाहते हैं, तो <a href=\"%(href)s\">अपने ईमेल को "
-"सत्यापित करने के लिए इस लिंक पर क्लिक करें</a>"
+"सत्यापित करने के लिए इस लिंक पर क्लिक करें</a>।"
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -1604,6 +1565,10 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s ने अभी तक PyPI पर कोई भी प्रोजेक्ट अपलोड नहीं किया है।"
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+msgid "Email"
+msgstr "ईमेल"
+
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
 msgid "Navigation for managing %(project)s"
@@ -1619,7 +1584,7 @@ msgid "Collaborators"
 msgstr "सहयोगी (बहु.)"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
-#: warehouse/templates/manage/account.html:533
+#: warehouse/templates/manage/account.html:552
 #: warehouse/templates/manage/history.html:23
 msgid "Security history"
 msgstr "सुरक्षा इतिहास"
@@ -1805,7 +1770,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:142
 msgid "Generate Recovery Codes"
-msgstr ""
+msgstr "पुनर्प्राप्ति कोड उत्पन्न करें"
 
 #: warehouse/templates/manage/account.html:147
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1829,7 +1794,7 @@ msgstr ""
 "ब्राउज़र को अपग्रेड</a> करें"
 
 #: warehouse/templates/manage/account.html:166
-#: warehouse/templates/manage/account.html:509
+#: warehouse/templates/manage/account.html:528
 #: warehouse/templates/manage/token.html:144
 msgid "Scope"
 msgstr "क्षेत्र"
@@ -1839,12 +1804,12 @@ msgid "All projects"
 msgstr "सभी परियोजनाएं"
 
 #: warehouse/templates/manage/account.html:176
-#: warehouse/templates/manage/account.html:510
+#: warehouse/templates/manage/account.html:529
 msgid "Created"
 msgstr "बनाया"
 
 #: warehouse/templates/manage/account.html:180
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:530
 msgid "Last used"
 msgstr "अन्तः उपयोगित"
 
@@ -1931,15 +1896,28 @@ msgstr "कोई नाम सेट नहीं है"
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "आपके <a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a>पर प्रदर्शित"
 
-#: warehouse/templates/manage/account.html:305
+#: warehouse/templates/manage/account.html:307
+msgid "️Public email"
+msgstr "सार्वजानिक ईमेल"
+
+#: warehouse/templates/manage/account.html:319
+#, python-format
+msgid ""
+"One of your verified emails can be displayed on your <a href=\"%(href)s"
+"\">public profile</a> to logged-in users."
+msgstr ""
+"आपका एक सत्यापित ईमेल आपके<a href=\"%(href)s\">सार्वजनिक प्रोफ़ाइल</a> पर दूसरे "
+"उपयोगकर्ताओं को प्रदर्शित किया जा सकता है।"
+
+#: warehouse/templates/manage/account.html:324
 msgid "Update account"
 msgstr "अपडेट खाता"
 
-#: warehouse/templates/manage/account.html:313
+#: warehouse/templates/manage/account.html:332
 msgid "Account emails"
 msgstr "खाता ईमेल"
 
-#: warehouse/templates/manage/account.html:315
+#: warehouse/templates/manage/account.html:334
 msgid ""
 "You can associate several emails with your account. You can use any <span "
 "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true"
@@ -1951,44 +1929,44 @@ msgstr ""
 "ईमेल से अपना खाता ठीक कर सकते हैं, लेकिन ईमेल सूचनाएं केवल <span class=\"badge"
 "\">प्राथमिक</span> ईमेल से ही प्राप्त होंगी।"
 
-#: warehouse/templates/manage/account.html:326
+#: warehouse/templates/manage/account.html:345
 msgid "Emails associated with your account"
 msgstr "आपके खाते से संबद्ध ईमेल"
 
-#: warehouse/templates/manage/account.html:330
+#: warehouse/templates/manage/account.html:349
 msgid "Status"
 msgstr "स्थिति"
 
-#: warehouse/templates/manage/account.html:345
-#: warehouse/templates/manage/account.html:355
+#: warehouse/templates/manage/account.html:364
+#: warehouse/templates/manage/account.html:374
 msgid "Add email"
 msgstr "ईमेल जोड़ें"
 
-#: warehouse/templates/manage/account.html:362
+#: warehouse/templates/manage/account.html:381
 msgid "Change password"
 msgstr "पासवर्ड बदलें"
 
-#: warehouse/templates/manage/account.html:370
+#: warehouse/templates/manage/account.html:389
 msgid "Old password"
 msgstr "पुराना पासवर्ड"
 
-#: warehouse/templates/manage/account.html:380
+#: warehouse/templates/manage/account.html:399
 msgid "Your current password"
 msgstr "आपका वर्तमान पासवर्ड"
 
-#: warehouse/templates/manage/account.html:387
+#: warehouse/templates/manage/account.html:406
 msgid "New password"
 msgstr "नया पासवर्ड"
 
-#: warehouse/templates/manage/account.html:403
+#: warehouse/templates/manage/account.html:422
 msgid "Confirm new password"
 msgstr "नए पासवर्ड की पुष्टि करें"
 
-#: warehouse/templates/manage/account.html:426
+#: warehouse/templates/manage/account.html:445
 msgid "Two factor authentication (2FA)"
 msgstr "द्वी-करक प्रमाणीकरण (2FA)"
 
-#: warehouse/templates/manage/account.html:427
+#: warehouse/templates/manage/account.html:446
 #, python-format
 msgid ""
 "Two factor authentication adds an additional layer of security to your "
@@ -1999,75 +1977,74 @@ msgstr ""
 "\"%(href)s\"><abbr title=\"two factor authentication\">2FA</abbr> के बारे में और "
 "अधिक जानें</a>।"
 
-#: warehouse/templates/manage/account.html:432
+#: warehouse/templates/manage/account.html:451
 msgid "Two factor authentication methods enabled"
 msgstr "द्वी-कारक प्रमाणीकरण विधियां उपयोगित हैं"
 
-#: warehouse/templates/manage/account.html:435
+#: warehouse/templates/manage/account.html:454
 msgid "Two factor method"
 msgstr "द्वी-कारक विधि"
 
-#: warehouse/templates/manage/account.html:441
-#: warehouse/templates/manage/account.html:551
+#: warehouse/templates/manage/account.html:460
+#: warehouse/templates/manage/account.html:570
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
 msgstr ""
 "प्रमाणीकरण आवेदन (<abbr title=\"time-based one-time password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:443
-#: warehouse/templates/manage/account.html:457
-#: warehouse/templates/manage/roles.html:121
+#: warehouse/templates/manage/account.html:462
+#: warehouse/templates/manage/account.html:476
+#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "हटाएं"
 
-#: warehouse/templates/manage/account.html:444
+#: warehouse/templates/manage/account.html:463
 msgid "Remove authentication application"
 msgstr "प्रमाणीकरण आवेदन हटाएं"
 
-#: warehouse/templates/manage/account.html:445
+#: warehouse/templates/manage/account.html:464
 msgid "Remove application"
 msgstr "एप्लिकेशन हटाएं"
 
-#: warehouse/templates/manage/account.html:454
-#: warehouse/templates/manage/account.html:549
+#: warehouse/templates/manage/account.html:473
+#: warehouse/templates/manage/account.html:568
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "सुरक्षा उपकरण (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:458
+#: warehouse/templates/manage/account.html:477
 msgid "Remove two factor security device"
 msgstr "द्वी-कारक सुरक्षा उपकरण हटाएं"
 
-#: warehouse/templates/manage/account.html:459
+#: warehouse/templates/manage/account.html:478
 msgid "Remove device"
 msgstr "उपकरण हटाएं"
 
-#: warehouse/templates/manage/account.html:465
+#: warehouse/templates/manage/account.html:484
 msgid "Device name"
 msgstr "उपकरण नाम"
 
-#: warehouse/templates/manage/account.html:472
-#, fuzzy, python-format
-#| msgid "Released: %(release_date)s"
+#: warehouse/templates/manage/account.html:491
+#, python-format
 msgid "generated %(generated_datetime)s"
-msgstr "वितरण: %(release_date)s"
+msgstr "उत्पादित %(generated_datetime)s"
 
-#: warehouse/templates/manage/account.html:475
+#: warehouse/templates/manage/account.html:494
 msgid "Regenerate"
-msgstr ""
+msgstr "पुन्ह्रोत्पादित"
 
-#: warehouse/templates/manage/account.html:476
-#: warehouse/templates/manage/account.html:477
+#: warehouse/templates/manage/account.html:495
+#: warehouse/templates/manage/account.html:496
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr ""
+msgstr "पुनर्प्राप्ति कुंजी पुन्ह्रोत्पादित करें"
 
-#: warehouse/templates/manage/account.html:488
+#: warehouse/templates/manage/account.html:507
 msgid "You have not enabled two factor authentication on your account."
 msgstr "आपने खाते में द्वी-कारक प्रमाणीकरण विधियां उपयोगित नहीं हैं।"
 
-#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/account.html:512
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
@@ -2076,12 +2053,12 @@ msgstr ""
 "द्वी-करक प्रमाणीकरण स्थापित करने हेतु <a href=\"%(href)s\">अपना प्राथमिक ईमेल पता "
 "सत्यापित</a> करें।"
 
-#: warehouse/templates/manage/account.html:500
+#: warehouse/templates/manage/account.html:519
 #: warehouse/templates/manage/settings.html:23
 msgid "API tokens"
 msgstr "API टोकन"
 
-#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:520
 #: warehouse/templates/manage/settings.html:24
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
@@ -2089,20 +2066,20 @@ msgid ""
 msgstr ""
 "API टोकन PyPI पर पैकेज अपलोड करते समय अपने प्रमाणन का एक वैकल्पिक तरीका प्रदान करते हैं।"
 
-#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:520
 msgid "Learn more about API tokens"
 msgstr "API टोकन के बारे में अधिक जानें"
 
-#: warehouse/templates/manage/account.html:505
+#: warehouse/templates/manage/account.html:524
 msgid "Active API tokens for this account"
 msgstr "इस खाते के सक्रिय API टोकन"
 
-#: warehouse/templates/manage/account.html:523
+#: warehouse/templates/manage/account.html:542
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
 msgstr "API टोकन जोड़ें"
 
-#: warehouse/templates/manage/account.html:525
+#: warehouse/templates/manage/account.html:544
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
@@ -2111,89 +2088,89 @@ msgstr ""
 "खाते में API टोकन जोड़ने के लिए <a href=\"%(href)s\">अपने प्राथमिक ईमेल पते को सत्यापित "
 "करें</a>।"
 
-#: warehouse/templates/manage/account.html:540
+#: warehouse/templates/manage/account.html:559
 msgid "Account created"
 msgstr "खाता बना"
 
-#: warehouse/templates/manage/account.html:543
+#: warehouse/templates/manage/account.html:562
 msgid "Logged in"
 msgstr "लॉग इन किया हुआ है"
 
-#: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/account.html:564
 msgid "Two factor method:"
 msgstr "द्वी-कारक विधि:"
 
-#: warehouse/templates/manage/account.html:547
+#: warehouse/templates/manage/account.html:566
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:302
 msgid "None"
 msgstr "कोई नहीं"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:572
 msgid "Recovery Code"
-msgstr ""
+msgstr "पुनर्प्राप्ति कुंजी"
 
-#: warehouse/templates/manage/account.html:558
+#: warehouse/templates/manage/account.html:577
 msgid "Email added to account"
 msgstr "खाते में ईमेल जोड़ दिया"
 
-#: warehouse/templates/manage/account.html:561
+#: warehouse/templates/manage/account.html:580
 msgid "Email removed from account"
 msgstr "खाते से ईमेल निकाला गया"
 
-#: warehouse/templates/manage/account.html:564
+#: warehouse/templates/manage/account.html:583
 msgid "Email verified"
 msgstr "ईमेल सत्यापित"
 
-#: warehouse/templates/manage/account.html:567
+#: warehouse/templates/manage/account.html:586
 msgid "Email reverified"
 msgstr "पुन: सत्यापित ईमेल"
 
-#: warehouse/templates/manage/account.html:571
+#: warehouse/templates/manage/account.html:590
 msgid "Primary email changed"
 msgstr "प्राथमिक ईमेल बदला"
 
-#: warehouse/templates/manage/account.html:573
+#: warehouse/templates/manage/account.html:592
 msgid "Old primary email:"
 msgstr "पुराना प्राथमिक ईमेल:"
 
-#: warehouse/templates/manage/account.html:574
+#: warehouse/templates/manage/account.html:593
 msgid "New primary email:"
 msgstr "नया प्राथमिक ईमेल:"
 
-#: warehouse/templates/manage/account.html:577
+#: warehouse/templates/manage/account.html:596
 msgid "Primary email set"
 msgstr "प्राथमिक ईमेल सेट"
 
-#: warehouse/templates/manage/account.html:584
+#: warehouse/templates/manage/account.html:603
 msgid "Password reset requested"
 msgstr "पासवर्ड रीसेट अनुरोधित"
 
-#: warehouse/templates/manage/account.html:586
+#: warehouse/templates/manage/account.html:605
 msgid "Password successfully reset"
 msgstr "पासवर्ड सफलतापूर्वक रीसेट"
 
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:607
 msgid "Password successfully changed"
 msgstr "पासवर्ड सफलतापूर्वक बदला"
 
-#: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/account.html:610
 msgid "Two factor authentication added"
 msgstr "द्वी-करक प्रमाणन जोड़ा"
 
-#: warehouse/templates/manage/account.html:594
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:623
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "विधि: सुरक्षा उपकरण (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:595
-#: warehouse/templates/manage/account.html:605
+#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:624
 msgid "Device name:"
 msgstr "उपकरण नाम:"
 
-#: warehouse/templates/manage/account.html:597
-#: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:626
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -2201,92 +2178,92 @@ msgstr ""
 "विधि: प्रमाणीकरण आवेदन (<abbr title=\"time-based one-time password\">TOTP</"
 "abbr>)"
 
-#: warehouse/templates/manage/account.html:601
+#: warehouse/templates/manage/account.html:620
 msgid "Two factor authentication removed"
 msgstr "द्वी-करक प्रमाणन हटा"
 
-#: warehouse/templates/manage/account.html:612
+#: warehouse/templates/manage/account.html:631
 msgid "Recovery Codes generated"
-msgstr ""
+msgstr "पुनर्प्राप्ति कोड उत्पादित"
 
-#: warehouse/templates/manage/account.html:616
+#: warehouse/templates/manage/account.html:635
 msgid "Recovery Codes regenerated"
-msgstr ""
+msgstr "पुनर्प्राप्ति कोड पुन्ह्रोत्पादित"
 
-#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:639
 msgid "Recovery Code used for login"
-msgstr ""
+msgstr "लॉगिन के लिए उपयोगित पुनःप्राप्ति कुंजी"
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:645
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr "API टोकन जोड़ा गया"
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:647
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr "टोकन नाम:"
 
-#: warehouse/templates/manage/account.html:630
+#: warehouse/templates/manage/account.html:649
 msgid "Token scope: entire account"
 msgstr "टोकन दायरा: पूरा खाता"
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:651
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "टोकन दायरा: परियोजना %(project_name)s"
 
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr "API टोकन हटाया गया"
 
-#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:657
 msgid "Unique identifier:"
 msgstr "अद्वितीय पहचानकर्ता:"
 
-#: warehouse/templates/manage/account.html:643
+#: warehouse/templates/manage/account.html:662
 msgid "Events appear here as security-related actions occur on your account."
 msgstr "आपके खाते पर सुरक्षा से संबंधित कार्रवाई होने के कारण घटनाएँ यहां दिखाई देती हैं."
 
-#: warehouse/templates/manage/account.html:645
+#: warehouse/templates/manage/account.html:664
 msgid "Recent account activity"
 msgstr "अभी हाल ही की खाता गतिविधि"
 
-#: warehouse/templates/manage/account.html:647
+#: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:87
 msgid "Event"
 msgstr "घटना"
 
-#: warehouse/templates/manage/account.html:648
-#: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:667
+#: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/history.html:88
 #: warehouse/templates/manage/history.html:97
 msgid "Date / time"
 msgstr "दिनांक / समय"
 
-#: warehouse/templates/manage/account.html:649
-#: warehouse/templates/manage/account.html:660
+#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:679
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:101
 msgid "IP address"
 msgstr "IP पता"
 
-#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:687
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "आपके खाते पर सुरक्षा से संबंधित कार्रवाई होने पर घटनाएँ यहां दिखाई देंगी।"
 
-#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:694
 msgid "Delete account"
 msgstr "खाता हटाएं"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:697
 msgid "Cannot delete account"
 msgstr "खाता नहीं हटाया जा सकता"
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:699
 #, python-format
 msgid ""
 "\n"
@@ -2309,7 +2286,7 @@ msgstr[1] ""
 "strong> है।\n"
 "        "
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:704
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you can "
@@ -2331,7 +2308,7 @@ msgstr[1] ""
 "परियोजनाओं को हटाना होगा।\n"
 "        "
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:714
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -2340,16 +2317,16 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">स्वामित्व स्थानांतरण</a> या <a href="
 "\"%(delete_href)s\"> परियोजना हटाएं </a>"
 
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:723
 #: warehouse/templates/manage/token.html:162
 msgid "Proceed with caution!"
 msgstr "सावधानी के साथ आगे बढ़ें!"
 
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:726
 msgid "You will not be able to recover your account after you delete it"
 msgstr "इसे हटाने के बाद आप अपने खाते को पुनर्प्राप्त नहीं कर पाएंगे"
 
-#: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/account.html:728
 msgid "Delete your PyPI account"
 msgstr "अपना PyPI खाता हटाएं"
 
@@ -2524,7 +2501,7 @@ msgstr "दिनांक"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:113
 msgid "User"
 msgstr "उपयोगकर्ता"
 
@@ -2593,37 +2570,38 @@ msgstr "आपकी परियोजनाएं (%(project_count)s)"
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr ""
+msgstr "वापस परियोजनाओं को"
 
 #: warehouse/templates/manage/projects.html:31
 msgid "Sole owner"
-msgstr ""
+msgstr "एकमात्र स्वामी"
 
 #: warehouse/templates/manage/projects.html:43
 #, python-format
 msgid "Created on %(creation_date)s"
-msgstr ""
+msgstr "%(creation_date)s पर बनाया गया"
 
 #: warehouse/templates/manage/projects.html:52
 msgid "Manage this project"
-msgstr ""
+msgstr "इस परियोजना का प्रबंधन करें"
 
 #: warehouse/templates/manage/projects.html:55
 msgid "You are not an owner of this project"
-msgstr ""
+msgstr "आप इस परियोजना के स्वामी नहीं हैं"
 
 #: warehouse/templates/manage/projects.html:62
 msgid "View this project's public page"
-msgstr ""
+msgstr "इस परियोजना का सार्वजनिक पृष्ठ देखें"
 
 #: warehouse/templates/manage/projects.html:65
 msgid "This project has no releases"
-msgstr ""
+msgstr "इस परियोजना की कोई विज्ञप्तियां नहीं है"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/packaging/detail.html:312
 msgid "View"
-msgstr ""
+msgstr "दृश्य"
 
 #: warehouse/templates/manage/projects.html:74
 #, python-format
@@ -2632,105 +2610,108 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
 msgstr ""
+"आपने अभी तक किसी भी परियोजना को PyPI पर अपलोड नहीं की है। कैसे आरम्भ करें, सीखने के "
+"लिए <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">पाइथॉन संकलन "
+"उपयोगकर्ता कुंजी</a> पर जाएं"
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
 msgid "Manage '%(project_name)s' – release version %(version)s"
-msgstr ""
+msgstr "प्रबंधन '%(project_name)s' - वितरण संस्करण %(version)s"
 
 #: warehouse/templates/manage/release.html:22
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr "रिलीज संस्करण %(version)s"
+msgstr "विज्ञप्ति संस्करण %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
-msgstr ""
+msgstr "क्षुद्रार्ण्यरेखा"
 
 #: warehouse/templates/manage/release.html:26
 #, python-format
 msgid "All %(project_name)s releases"
-msgstr ""
+msgstr "सभी %(project_name)s विज्ञप्तियां"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
-msgstr ""
+msgstr "विज्ञप्ति देखें"
 
 #: warehouse/templates/manage/release.html:34
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s के %(version)s कि फाइल विज्ञप्ति"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
 #: warehouse/templates/packaging/detail.html:276
 #: warehouse/templates/packaging/detail.html:287
 msgid "Filename, size"
-msgstr ""
+msgstr "फाइलनाम, आकार"
 
 #: warehouse/templates/manage/release.html:38
 #: warehouse/templates/manage/release.html:53
 msgid "Type"
-msgstr ""
+msgstr "प्रकार"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
 #: warehouse/templates/packaging/detail.html:278
 #: warehouse/templates/packaging/detail.html:298
 msgid "Python version"
-msgstr ""
+msgstr "पाइथॉन संस्करण"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
 #: warehouse/templates/packaging/detail.html:279
 #: warehouse/templates/packaging/detail.html:306
 msgid "Upload date"
-msgstr ""
+msgstr "अपलोड करने की तारीख"
 
 #: warehouse/templates/manage/release.html:66
 msgid "View file options"
-msgstr ""
+msgstr "फ़ाइल विकल्प देखें"
 
 #: warehouse/templates/manage/release.html:72
 msgid "File options"
-msgstr ""
+msgstr "फाइल विकल्प"
 
 #: warehouse/templates/manage/release.html:76
 msgid "Download"
-msgstr ""
+msgstr "डाउनलोड"
 
 #: warehouse/templates/manage/release.html:82
 msgid "View Hashes"
-msgstr ""
+msgstr "हैश देखें"
 
 #: warehouse/templates/manage/release.html:87
 msgid "Delete file from"
-msgstr ""
+msgstr "फ़ाइल को मिटाएँ"
 
 #: warehouse/templates/manage/release.html:89
 msgid "Delete file"
-msgstr ""
+msgstr "फ़ाइल मिटाएँ"
 
 #: warehouse/templates/manage/release.html:93
 #: warehouse/templates/manage/releases.html:84
 msgid "Delete"
-msgstr ""
+msgstr "मिटाएँ"
 
 #: warehouse/templates/manage/release.html:114
 msgid "Uploading new files"
-msgstr ""
+msgstr "नई फाइलें अपलोड हो रही"
 
 #: warehouse/templates/manage/release.html:116
 msgid "No files found"
-msgstr ""
+msgstr "कोई फाइल नहीं मिली"
 
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:108
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
-msgstr ""
+msgstr "खारिज"
 
 #: warehouse/templates/manage/release.html:119
 #, python-format
@@ -2738,15 +2719,17 @@ msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
 #: warehouse/templates/manage/release.html:122
 msgid "Release settings"
-msgstr ""
+msgstr "रिलीज सेटिंग्स"
 
 #: warehouse/templates/manage/release.html:125
 #: warehouse/templates/manage/release.html:142
 msgid "Delete release"
-msgstr ""
+msgstr "विज्ञप्ति मिटाएँ"
 
 #: warehouse/templates/manage/release.html:129
 #, python-format
@@ -2761,11 +2744,19 @@ msgid_plural ""
 "files.\n"
 "      "
 msgstr[0] ""
+"\n"
+"        मिटाने पर %(count)s फाइल भी अपरिवर्तनीय रूप से इस विज्ञप्ति के साथ हटा दी "
+"जाएँगी।\n"
+"      "
 msgstr[1] ""
+"\n"
+"        मिटाने पर %(count)s फाइलें भी अपरिवर्तनीय रूप से इस विज्ञप्ति के साथ हटा दी "
+"जाएँगी।\n"
+"      "
 
 #: warehouse/templates/manage/release.html:135
 msgid "Deleting will irreversibly delete this release."
-msgstr ""
+msgstr "मिटाने पर विज्ञप्ति भी अपरिवर्तनीय रूप से मिटा दी जाएगी।"
 
 #: warehouse/templates/manage/release.html:137
 #: warehouse/templates/manage/releases.html:91
@@ -2776,39 +2767,42 @@ msgid ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
 "release</a> instead."
 msgstr ""
+"आप एक ही प्रकार के संस्करण संख्या के साथ नए वितरण को फिर से अपलोड नहीं कर पाएंगे। इसके "
+"बजाय एक नया संस्करण या एक <a href=\"%(href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">अवतरण</a> बनाने पर विचार करें।"
 
 #: warehouse/templates/manage/release.html:142
 #: warehouse/templates/manage/releases.html:27
 #: warehouse/templates/manage/releases.html:94
 msgid "Version"
-msgstr ""
+msgstr "संस्करण"
 
 #: warehouse/templates/manage/releases.html:18
 #, python-format
 msgid "Manage '%(project_name)s' releases"
-msgstr ""
+msgstr "'%(project_name)s' विज्ञप्तियां प्रबंधित करें"
 
 #: warehouse/templates/manage/releases.html:21
 #, python-format
 msgid "Releases (%(release_count)s)"
-msgstr ""
+msgstr "विज्ञप्तियां (%(release_count)s)"
 
 #: warehouse/templates/manage/releases.html:24
 #, python-format
 msgid "Releases for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s कि विज्ञप्तियां"
 
 #: warehouse/templates/manage/releases.html:28
 msgid "Release date"
-msgstr ""
+msgstr "विज्ञप्ति तिथि"
 
 #: warehouse/templates/manage/releases.html:29
 msgid "Files"
-msgstr ""
+msgstr "फ़ाइलें"
 
 #: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
-msgstr ""
+msgstr "प्रबंधन संस्करण"
 
 #: warehouse/templates/manage/releases.html:45
 #, python-format
@@ -2821,32 +2815,38 @@ msgid_plural ""
 "              %(count)s files\n"
 "            "
 msgstr[0] ""
+"\n"
+"              %(count)s फ़ाइल\n"
+"            "
 msgstr[1] ""
+"\n"
+"              %(count)s फाइलें\n"
+"            "
 
 #: warehouse/templates/manage/releases.html:54
 msgid "No files"
-msgstr ""
+msgstr "कोई फाइल नहीं"
 
 #: warehouse/templates/manage/releases.html:59
 msgid "View release options"
-msgstr ""
+msgstr "विज्ञप्ति के विकल्प देखें"
 
 #: warehouse/templates/manage/releases.html:65
 #, python-format
 msgid "Options for %(version)s"
-msgstr ""
+msgstr "%(version)s के लिए विकल्प"
 
 #: warehouse/templates/manage/releases.html:79
 msgid "Delete Release"
-msgstr ""
+msgstr "रिलीज मिटाएं"
 
 #: warehouse/templates/manage/releases.html:104
 msgid "Creating a new release"
-msgstr ""
+msgstr "एक नई विज्ञप्ति बनाना"
 
 #: warehouse/templates/manage/releases.html:106
 msgid "No releases found"
-msgstr ""
+msgstr "कोई विज्ञप्तियां नहीं मिली"
 
 #: warehouse/templates/manage/releases.html:109
 #, python-format
@@ -2855,11 +2855,13 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
 "Guide</a>"
 msgstr ""
+"नई विज्ञप्ति बनाने का तरीका सीखने के लिए <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> पर जाएं"
 
 #: warehouse/templates/manage/roles.html:18
 #, python-format
 msgid "Manage '%(project_name)s' collaborators"
-msgstr ""
+msgstr "'%(project_name)s' सहयोगी प्रबंधन"
 
 #: warehouse/templates/manage/roles.html:22
 #, python-format
@@ -2867,17 +2869,19 @@ msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s"
 msgstr ""
+"PyPI के कौन से उपयोगकर्ता आपको %(project_name)s प्रबंधन में मदद कर सकते हैं यह नियंत्रित "
+"करने के लिए इस पृष्ठ का उपयोग करें"
 
 #: warehouse/templates/manage/roles.html:25
 #: warehouse/templates/pages/help.html:509
 msgid "There are two possible roles for collaborators:"
-msgstr ""
+msgstr "सहयोगियों के लिए दो संभावित भूमिकाएं हैं:"
 
 #: warehouse/templates/manage/roles.html:27
+#: warehouse/templates/manage/roles.html:64
 #: warehouse/templates/manage/roles.html:73
-#: warehouse/templates/manage/roles.html:84
 msgid "Maintainer"
-msgstr ""
+msgstr "अनुरक्षक"
 
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/pages/help.html:510
@@ -2885,12 +2889,14 @@ msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
 msgstr ""
+"पैकेज के लिए विज्ञप्तियां अपलोड कर सकते हैं। सहयोगियों को नहीं जोड़ सकते। फाइलें, "
+"विज्ञप्तियां, या परियोजना मिटा नहीं सकते ।"
 
 #: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:84
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:73
 msgid "Owner"
-msgstr ""
+msgstr "आयोजक"
 
 #: warehouse/templates/manage/roles.html:30
 #: warehouse/templates/pages/help.html:511
@@ -2898,54 +2904,56 @@ msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
+"विज्ञप्तियां अपलोड कर सकते हैं। सहयोगियों को जोड़ सकते हैं। फाइलें, विज्ञप्तियां, या "
+"परियोजना सकते हैं।"
 
 #: warehouse/templates/manage/roles.html:34
 #, python-format
 msgid "Users who can manage %(project_name)s"
-msgstr ""
+msgstr "वे उपयोगकर्ता जो %(project_name)s का प्रबंधन कर सकते हैं"
 
 #: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:82
-#: warehouse/templates/manage/roles.html:147
+#: warehouse/templates/manage/roles.html:71
+#: warehouse/templates/manage/roles.html:125
 msgid "Role"
-msgstr ""
+msgstr "भूमिका"
 
-#: warehouse/templates/manage/roles.html:90
+#: warehouse/templates/manage/roles.html:79
 msgid "Save role"
-msgstr ""
+msgstr "भूमिका सहेजें"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:91
+#: warehouse/templates/manage/roles.html:80
 msgid "Save"
-msgstr ""
+msgstr "सहेजें"
 
-#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:93
 msgid "Cannot remove yourself as owner"
-msgstr ""
+msgstr "स्वामी खुद को नहीं हटा सकते"
 
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:96
 #, python-format
 msgid "Remove %(user)s from this project"
-msgstr ""
+msgstr "इस परियोजना से %(user)s निकालें"
 
-#: warehouse/templates/manage/roles.html:130
-#: warehouse/templates/manage/roles.html:158
+#: warehouse/templates/manage/roles.html:108
+#: warehouse/templates/manage/roles.html:136
 msgid "Add collaborator"
-msgstr ""
+msgstr "सहयोगी जोड़ें"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
 msgid "Manage '%(project_name)s' settings"
-msgstr ""
+msgstr "'%(project_name)s' सेटिंग्स प्रबंधित करें"
 
 #: warehouse/templates/manage/settings.html:21
 msgid "Project settings"
-msgstr ""
+msgstr "परियोजना सेटिंग्स"
 
 #: warehouse/templates/manage/settings.html:28
 #, python-format
 msgid "Create a token for %(project_name)s"
-msgstr ""
+msgstr "%(project_name)s के लिए एक टोकन बनाएँ"
 
 #: warehouse/templates/manage/settings.html:33
 #, python-format
@@ -2953,10 +2961,12 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
+"%(project_name)s के साथ API टोकन जोड़ने के लिए <a href=\"%(href)s\">अपने प्राथमिक "
+"ईमेल पते को सत्यापित</a> करें।"
 
 #: warehouse/templates/manage/settings.html:41
 msgid "Project description and sidebar"
-msgstr ""
+msgstr "परियोजना विवरण एवं हाशिया"
 
 #: warehouse/templates/manage/settings.html:43
 #, python-format
@@ -2971,15 +2981,23 @@ msgid ""
 "\"%(distribution_href)s\" rel=\"noopener\" target=\"_blank\">the Python "
 "Packaging User Guide</a> for more help."
 msgstr ""
+"अपने के अगले '%(project_name)s' संस्करण का विवरण, लेखक, लिंक, क्लासिफायर और अन्य "
+"विवरण स्थापित करने के लिए, <a href=\"%(setup_args_href)s\" rel=\"noopener\" "
+"target=\"_blank\">आपके <code>setup.py</ code> फ़ाइल में <code>setup ()</code>का "
+"उपयोग करें</a>। इन तथ्यों का नवीनीकरण करने से पिछले रिलीज़ के लिए मेटाडेटा नहीं बदलेगा। "
+"साथ ही, फाईले अपलोड करने के लिए आपको करने के लिए <strong>आपको अवश्य</strong> <a "
+"href=\"%(twine_docs_href)s\" rel=\"noopener\" target=\"_blank\">Twine</a> का "
+"उपयोग करना चाहिए। और सहायता प्राप्ति हेतु <a href=\"%(distribution_href)s\" rel="
+"\"noopener\" target=\"_blank\">पाइथॉन उपयोगकर्ता कुंजी</a> देखें।"
 
 #: warehouse/templates/manage/settings.html:54
 #: warehouse/templates/manage/settings.html:85
 msgid "Delete project"
-msgstr ""
+msgstr "परियोजना मिटाएं"
 
 #: warehouse/templates/manage/settings.html:57
 msgid "Deleting this project will:"
-msgstr ""
+msgstr "यह परियोजना मिटाने से:"
 
 #: warehouse/templates/manage/settings.html:62
 #, python-format
@@ -2990,15 +3008,20 @@ msgid_plural ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s "
 "releases</a>"
 msgstr[0] ""
+"परियोजना एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्ति</a> अपरिवर्तनीय रूप से "
+"मिटाएं"
 msgstr[1] ""
+"परियोजनाए एवं इसकी <a href=\"%(href)s\">%(count)sविज्ञप्तियां</a> अपरिवर्तनीय रूप "
+"से मिटाएं"
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
-msgstr ""
+msgstr "अपरिवर्तनीय रूप से परियोजना मिटाएं"
 
 #: warehouse/templates/manage/settings.html:72
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
+"इस परियोजना का नाम <strong>किसी भी PyPI</strong> उपयोगकर्ता को मुहैय्या करवावें"
 
 #: warehouse/templates/manage/settings.html:74
 msgid ""
@@ -3430,10 +3453,6 @@ msgstr ""
 msgid "Hashes"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:312
-msgid "View <span>hashes</span>"
-msgstr ""
-
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
 "Each project's maintainers provide PyPI with a list of \"trove classifiers\" "
@@ -3474,6 +3493,9 @@ msgid ""
 "are expected to follow the <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">PyPA Code of Conduct</a>."
 msgstr ""
+"सभी उपयोगकर्ताओं ने वेयरहाउस में प्रतिक्रिया, रिपोर्टिंग मुद्दों या योगदान को सबमिट करने "
+"की अपेक्षा की है कि वे <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"\" rel=\"noopener\"> PyPA कोड का पालन करें </a> आचरण।"
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -3999,7 +4021,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:335
 msgid "Open your authentication application to generate an authentication code"
-msgstr "ऑथेंटिकेशन कोड जेनरेट करने के लिए अपना ऑथेंटिकेशन एप्लीकेशन खोलें"
+msgstr "प्रमाणीकरण कोड जेनरेट करने के लिए अपना प्रमाणीकरण एप्लीकेशन खोलें"
 
 #: warehouse/templates/pages/help.html:336
 msgid "Use this code to finish logging into PyPI"
@@ -4452,19 +4474,15 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:559
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Upgrade your browser</a> to set up two factor authentication with a "
-#| "security device (e.g. USB key)"
+#, python-format
 msgid ""
 "You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
-"सुरक्षा उपकरण (उदा। USB कुंजी) द्वारा द्वी-करक प्रमाणीकरण स्थापित करने हेतु <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">अपने "
-"ब्राउज़र को अपग्रेड</a> करें"
+"अपने खाते कि पुनःर्प्राप्ति की सहायता का अनुरोध करने के लिए <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">हमारे ट्रैकर पर समस्या "
+"दर्ज</a> करें।"
 
 #: warehouse/templates/pages/help.html:566
 msgid "If you are using a username and password for uploads:"
@@ -5105,6 +5123,69 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "A new collaborator has been added to a project you own on PyPI:"
+#~ msgstr "PyPI पर आपके प्रोजेक्ट में एक नया सहयोगी जोड़ा गया है:"
+
+#~ msgid "<strong>Username</strong>: %(username)s"
+#~ msgstr "<strong>उपयोगकर्ता नाम</strong>: %(username)s"
+
+#~ msgid "<strong>Role</strong>: %(role)s"
+#~ msgstr "<strong>भूमिका</ strong>:%(role)s"
+
+#~ msgid "<strong>Collaborator for</strong>: %(project)s"
+#~ msgstr "<strong>सहयोगी</strong>: %(project)s"
+
+#~ msgid "<strong>Added by</strong>: %(submitter)s"
+#~ msgstr "<strong>द्वारा जोड़ा गया</strong>: %(submitter)s"
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> to communicate with the PyPI administrators."
+#~ msgstr ""
+#~ "यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a href=\"%(href)s\">"
+#~ "%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+
+#~ msgid "You are receiving this because you are an owner of this project."
+#~ msgstr "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के आयोजक हैं।"
+
+#~ msgid "The project %(project)s has been deleted."
+#~ msgstr "परियोजना %(project)s हटा दी गयी है।"
+
+#~ msgid ""
+#~ "<strong>Deleted by:</strong> %(submitter)s with a role:\n"
+#~ "      %(role)s."
+#~ msgstr ""
+#~ "इन भूमिका वाले: %(submitter)s द्वारा <strong>हटाया गया:</strong>\n"
+#~ "      %(role)s."
+
+#~ msgid ""
+#~ "If this was a mistake, you can email <a\n"
+#~ "    href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "यदि यह परिवर्तन गलत है, तो आप PyPI व्यवस्थापकों के ईमेल <a\n"
+#~ "     href=\"%(href)s\">%(email_address)s</a> द्वारा संवाद कर सकते हैं।"
+
+#~ msgid ""
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s हैं।"
+
+#~ msgid ""
+#~ "The %(project)s release %(release)s released on %(date)s has been deleted."
+#~ msgstr ""
+#~ "यह %(project)s विज्ञप्ति %(release)s जो %(date)s पर वितरित हुयी थी, मिटा दी "
+#~ "गयी है।"
+
+#~ msgid ""
+#~ "\n"
+#~ "You are receiving this because you are %(recipient_role_descr)s of this "
+#~ "project."
+#~ msgstr ""
+#~ "\n"
+#~ "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस परियोजना के %(recipient_role_descr)s हैं।"
 
 #~ msgid "Beta feature"
 #~ msgstr "अप्रमाणित (बीटा) सुविधा"

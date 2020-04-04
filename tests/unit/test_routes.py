@@ -364,6 +364,12 @@ def test_routes(warehouse):
             view_kw={"has_translations": True},
         ),
         pretend.call(
+            "sponsor",
+            "/sponsor/",
+            "pages/sponsor.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
             "sponsors",
             "/sponsors/",
             "warehouse:templates/pages/sponsors.html",
