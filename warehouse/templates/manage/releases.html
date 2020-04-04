@@ -134,16 +134,16 @@
 {% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' releases{% endtrans %}{% endblock %}
 
 {% block main %}
-  {% set releases = project.releases|rejectattr("yanked")|list %}
-  <h2>{% trans release_count=releases|length %}Releases ({{ release_count }}){% endtrans %}</h2>
+{% set releases = project.releases|rejectattr("yanked")|list %}
   {% if releases %}
-    {{ release_table(releases) }}
+  <h2>{% trans release_count=releases|length %}Releases ({{ release_count }}){% endtrans %}</h2>
+  {{ release_table(releases) }}
   {% endif %}
 
   {% set yanked_releases = project.releases|selectattr("yanked")|list %}
   {% if yanked_releases %}
-    <h2>{% trans release_count=yanked_releases|length %}Yanked Releases ({{ release_count }}){% endtrans %}</h2>
-    {{ release_table(yanked_releases) }}
+  <h2>{% trans release_count=yanked_releases|length %}Yanked Releases ({{ release_count }}){% endtrans %}</h2>
+  {{ release_table(yanked_releases) }}
   {% endif %}
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">
