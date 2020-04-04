@@ -647,9 +647,8 @@
 
         <h3 id="new-classifier">{{ new_classifier() }}</h3>
         <p>
-          {% trans trimmed href='https://github.com/pypa/warehouse/issues/new?title=Request+trove+classifier&template=new-trove-classifier.md', title=gettext('External link') %}
-            If you would like to request a new trove classifier file a bug on our <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
-            Include the name of the requested classifier and a brief justification of why it is important.
+          {% trans trimmed href='https://github.com/pypa/trove-classifiers/', title=gettext('External link') %}
+          If you would like to request a new trove classifier file a pull request on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a brief justification of why it is important.
           {% endtrans %}
         </p>
         {{ code_of_conduct() }}

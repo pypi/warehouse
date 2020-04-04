@@ -144,6 +144,8 @@
 .public-email {
   @include ellipsis;
   max-width: 85%;
+  position: relative;
+  top: 3px;
 
   &::after {
     content: none !important;
