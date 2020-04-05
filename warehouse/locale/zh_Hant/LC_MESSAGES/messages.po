@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Josix <wilson8507@gmail.com>, 2019.
-# Josix <josixwang@gmail.com>, 2019.
+# Josix <josixwang@gmail.com>, 2019, 2020.
 # Tom Chen <ctchen@gmail.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # Tzu-ping Chung <uranusjr@gmail.com>, 2020.
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-04-03 16:47+0000\n"
-"Last-Translator: Tzu-ping Chung <uranusjr@gmail.com>\n"
+"Last-Translator: Josix <josixwang@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -117,7 +117,7 @@ msgstr "兩階段驗證登入失效或過期。"
 
 #: warehouse/accounts/views.py:256
 msgid "Already authenticated"
-msgstr "已經身份驗證過"
+msgstr "身份已經驗證過"
 
 #: warehouse/accounts/views.py:320
 msgid "Successful WebAuthn assertion"
