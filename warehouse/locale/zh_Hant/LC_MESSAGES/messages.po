@@ -6,13 +6,14 @@
 # Josix <josixwang@gmail.com>, 2019.
 # Tom Chen <ctchen@gmail.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
+# Tzu-ping Chung <uranusjr@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-10-29 18:48+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2020-04-03 16:47+0000\n"
+"Last-Translator: Tzu-ping Chung <uranusjr@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -20,19 +21,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
+#, fuzzy
 msgid "Locale updated"
-msgstr ""
+msgstr "已更新語系"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
 msgstr "找不到使用該用戶名的用戶"
 
 #: warehouse/accounts/forms.py:52
-#, fuzzy
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "一次性密碼 (TOTP) 必須剛好是 ${totp_length} 位數。"
 
@@ -92,7 +93,6 @@ msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名稱太長。選擇不超過 100 個字的名稱。"
 
 #: warehouse/accounts/forms.py:302
-#, fuzzy
 msgid "Invalid TOTP code."
 msgstr "錯誤的一次性密碼 (TOTP)。"
 
@@ -103,7 +103,7 @@ msgstr "無效的 WebAuthn 斷言：負載錯誤"
 #: warehouse/accounts/forms.py:344
 #, fuzzy
 msgid "Invalid Recovery Code."
-msgstr "錯誤的一次性密碼 (TOTP)。"
+msgstr "無效的重設碼。"
 
 #: warehouse/accounts/forms.py:362
 msgid "No user found with that username or email"
@@ -125,7 +125,7 @@ msgstr "成功的 WebAuthn 斷言"
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "重設碼已接受，將無法再次使用。"
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -144,9 +144,8 @@ msgid "Invalid token: request a new password reset link"
 msgstr "token 無效：請求新的密碼重置連結"
 
 #: warehouse/accounts/views.py:556 warehouse/accounts/views.py:634
-#, fuzzy
 msgid "Invalid token: no token supplied"
-msgstr "token 無效：為提供 token"
+msgstr "token 無效：未提供 token"
 
 #: warehouse/accounts/views.py:560
 #, fuzzy
