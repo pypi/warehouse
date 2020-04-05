@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-04 20:02+0000\n"
-"Last-Translator: anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2020-04-04 20:42+0000\n"
+"Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -533,15 +533,15 @@ msgstr "RSS: 40 последних обновлений"
 
 #: warehouse/templates/base.html:93
 msgid "RSS: 40 newest packages"
-msgstr "RSS:40 новейших пакетов"
+msgstr "RSS: 40 новейших пакетов"
 
 #: warehouse/templates/base.html:144
 msgid "Skip to main content"
-msgstr "Перейти к основному содержанию"
+msgstr "Перейти к основному содержимому"
 
 #: warehouse/templates/base.html:147
 msgid "Switch to mobile version"
-msgstr "Перейти на мобильную версию"
+msgstr "Переключиться на мобильную версию"
 
 #: warehouse/templates/base.html:156 warehouse/templates/base.html:165
 #: warehouse/templates/base.html:175
@@ -566,9 +566,9 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"Вы используете TestPyPI – изолированная версия Python Package Index, которая "
-"позволяет вам попробовать инструменты распространения программного "
-"обеспечения и рабочие процессы, не влияя на реальный PyPI."
+"Вы используете TestPyPI – изолированную версию Указателя пакетов Python’а, "
+"которая позволяет вам попробовать инструменты распространения программного "
+"обеспечения и рабочие процессы, не влияя на реальный указатель."
 
 #: warehouse/templates/base.html:177
 msgid ""
@@ -582,7 +582,7 @@ msgstr ""
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:52
 msgid "Search PyPI"
-msgstr "Поиск PyPI"
+msgstr "Поиск по PyPI"
 
 #: warehouse/templates/base.html:211 warehouse/templates/base.html:232
 #: warehouse/templates/error-base-with-search.html:21
@@ -622,7 +622,7 @@ msgstr "О PyPI"
 
 #: warehouse/templates/base.html:267
 msgid "About PyPI navigation"
-msgstr "Навигация \"О PyPI\""
+msgstr "Навигация по блоку ссылок «О PyPI»"
 
 #: warehouse/templates/base.html:269
 msgid "PyPI on Twitter"
@@ -634,7 +634,7 @@ msgstr "Панель мониторинга инфраструктуры"
 
 #: warehouse/templates/base.html:271
 msgid "Package index name retention"
-msgstr "Сохранение имени пакета"
+msgstr "Сохранение наименований в указателе пакетов"
 
 #: warehouse/templates/base.html:272
 msgid "Our sponsors"
@@ -642,11 +642,11 @@ msgstr "Наши спонсоры"
 
 #: warehouse/templates/base.html:278
 msgid "Contributing to PyPI"
-msgstr "Принять участие в разработке PyPI"
+msgstr "Внесение вклада в PyPI"
 
 #: warehouse/templates/base.html:279
 msgid "How to contribute navigation"
-msgstr "Навигация того как cделать вклад"
+msgstr "Навигация по блоку ссылок «Внесение вклада в PyPI»"
 
 #: warehouse/templates/base.html:281
 msgid "Bugs and feedback"
@@ -654,7 +654,7 @@ msgstr "Программные ошибки и обратная связь"
 
 #: warehouse/templates/base.html:282
 msgid "Contribute on GitHub"
-msgstr "Принять участие в разработке на GitHub"
+msgstr "Внесение вклада на GitHub’е"
 
 #: warehouse/templates/base.html:283
 msgid "Translate PyPI"
@@ -670,11 +670,11 @@ msgstr "Использование PyPI"
 
 #: warehouse/templates/base.html:291
 msgid "Using PyPI navigation"
-msgstr "Использование навигации по PyPI"
+msgstr "Навигация по блоку ссылок «Использование PyPI»"
 
 #: warehouse/templates/base.html:293
 msgid "Code of conduct"
-msgstr "Правила поведения"
+msgstr "Нормы поведения"
 
 #: warehouse/templates/base.html:294
 msgid "Report security issue"
@@ -699,7 +699,8 @@ msgstr "все системы в рабочем состоянии"
 #: warehouse/templates/base.html:311
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr "Разработано и поддерживается сообществом Python для сообщества Python."
+msgstr ""
+"Разработано и поддерживается сообществом Python’а для сообщества Python’а."
 
 #: warehouse/templates/base.html:313
 msgid "Donate today!"
@@ -711,7 +712,7 @@ msgstr "Карта сайта"
 
 #: warehouse/templates/base.html:322
 msgid "Switch to desktop version"
-msgstr "Перейти на настольную версию"
+msgstr "Переключиться на настольную версию"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -723,7 +724,7 @@ msgstr "Вернуться на главную страницу"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr "The Python Package Index (Каталог пакетов Python)"
+msgstr "Указатель пакетов Python’а"
 
 #: warehouse/templates/index.html:42
 msgid "Test Python package publishing with the Test Python Package Index"
