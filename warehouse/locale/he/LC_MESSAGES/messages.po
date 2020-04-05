@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Alex Gaynor <alex.gaynor@gmail.com>, 2019.
 # Tal Einat <taleinat@gmail.com>, 2020.
+# anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-04-04 15:31+0000\n"
-"Last-Translator: Tal Einat <taleinat@gmail.com>\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -28,7 +29,7 @@ msgstr "האזור עודכן"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
-msgstr ""
+msgstr "לא נמצא משתמש עם שם המשתמש הזה"
 
 #: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
