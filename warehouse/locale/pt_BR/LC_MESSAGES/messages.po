@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-04 15:31+0000\n"
+"PO-Revision-Date: 2020-04-04 21:24+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -5145,12 +5145,7 @@ msgstr ""
 "\"%(pypi_href)s\">pypi.org</a>."
 
 #: warehouse/templates/pages/help.html:650
-#, fuzzy, python-format
-#| msgid ""
-#| "If you would like to request a new trove classifier file a bug on our <a "
-#| "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">issue tracker</a>. Include the name of the requested classifier and a "
-#| "brief justification of why it is important."
+#, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
 "the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -5158,10 +5153,9 @@ msgid ""
 "brief justification of why it is important."
 msgstr ""
 "Caso você queira pedir um novo arquivo de classificador de trove, preencha "
-"um relatório de erro em nosso <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">rastreador de problemas</a>. Inclua o "
-"nome do classificador solicitado e uma breve justificação do porquê ele é "
-"importante."
+"uma pull request no <a href=\"%(href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">projeto <code>pypa/trove-classifiers</code></a>. "
+"Certifique-se de incluir uma breve justificativa do porquê ele é importante."
 
 #: warehouse/templates/pages/help.html:658
 #, python-format
