@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-04 01:33+0000\n"
-"Last-Translator: Olexandr <me.olexandr.kovalchuk@gmail.com>\n"
+"PO-Revision-Date: 2020-04-05 13:40+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -5605,11 +5605,11 @@ msgstr "Політика безпеки"
 
 #: warehouse/templates/pages/sponsor.html:15
 msgid "Sponsor the Packaging Working Group"
-msgstr "Спонсорувати робочу групу з пакування Python"
+msgstr "Спонсорувати робочу групу з пакування"
 
 #: warehouse/templates/pages/sponsor.html:23
 msgid "Sponsor PyPI and related projects"
-msgstr "Спонсорувати PyPI і пов'язані проекти"
+msgstr "Спонсорувати PyPI та пов'язані проекти"
 
 #: warehouse/templates/pages/sponsor.html:24
 msgid "Donate to the Packaging Working Group"
@@ -5648,17 +5648,17 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source "
 "Support Program</a> in 2018"
 msgstr ""
-"З <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">фінансуванням в $170,000</a> від <a href=\"%(funder_href)s\" "
+"Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">гранту обсягом $170000</a> від <a href=\"%(funder_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source "
-"Support Program</a> в 2018"
+"Support Program</a> у 2018"
 
 #: warehouse/templates/pages/sponsor.html:36
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
 msgstr ""
-"Покращення безпеки та доступності PyPI та додавання підтримки декількох "
+"Покращення безпеки і доступності PyPI, та додавання підтримки декількох "
 "локалей"
 
 #: warehouse/templates/pages/sponsor.html:37
@@ -5668,12 +5668,13 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> in "
 "2019"
 msgstr ""
-"З фінансуванням в $80,000 від <a href=\"%(funder_href)s\" title=\"%(title)s\""
-" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> в 2019"
+"Завдяки гранту обсягом $80000 від <a href=\"%(funder_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> у "
+"2019"
 
 #: warehouse/templates/pages/sponsor.html:40
 msgid "Additional security-focused features for PyPI"
-msgstr "Додаткові особливості, орієнтовані на безпеку для PyPI"
+msgstr "Додаткові засоби безпеки на PyPI"
 
 #: warehouse/templates/pages/sponsor.html:41
 #, python-format
@@ -5683,14 +5684,17 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> in "
 "2019 and 2020"
 msgstr ""
-"З <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">фінансуванням в $100,000 </a> від <a href=\"%(funder_href)s\" "
+"Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">гранту обсягом $100000 </a> від <a href=\"%(funder_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> "
-"в 2019 та 2020"
+"у 2019 та 2020"
 
 #: warehouse/templates/pages/sponsor.html:44
+#, fuzzy
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
+"Фундаментальне переосмислення досвіду користування pip та розв'язувача "
+"залежностей"
 
 #: warehouse/templates/pages/sponsor.html:45
 #, python-format
@@ -5702,23 +5706,24 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> "
 "in 2020"
 msgstr ""
-"З <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">фінансуванням в $407,000</a> від<a href=\"%(funder0_href)s\" "
+"Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">гранту обсягом $407000</a> від<a href=\"%(funder0_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Chan Zuckerberg "
 "Initiative</a> та <a href=\"%(funder1_href)s\" title=\"%(title)s\" target=\""
-"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> в 2020"
+"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> у 2020"
 
 #: warehouse/templates/pages/sponsor.html:49
 msgid ""
 "With your support, the working group can continue to fund packaging "
 "improvements, benefiting millions of Python users around the world."
 msgstr ""
-"З вашою підтримкою, робоча група може продовжувати фінансувати покращення "
-"пакування, що принесе вигоду мільйонам користувачів Python зі всього світу."
+"Завдяки вашій підтримці, робоча група може продовжувати фінансувати "
+"покращення пакування, що принесе вигоду мільйонам користувачів Python зі "
+"всього світу."
 
 #: warehouse/templates/pages/sponsor.html:57
 msgid "Community donations"
-msgstr "Пожертвування спільноті"
+msgstr "Пожертвування спільноти"
 
 #: warehouse/templates/pages/sponsor.html:60
 msgid "We greatly appreciate both one-time and recurring donations."
@@ -5752,7 +5757,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:77
 msgid "Get your logo on PyPI.org"
-msgstr "Отримайте ваш логотип на PyPI.org"
+msgstr "Ваш логотип на PyPI.org"
 
 #: warehouse/templates/pages/sponsor.html:78
 msgid ""
@@ -5768,15 +5773,15 @@ msgstr "* Інформація станом на березень 2020"
 
 #: warehouse/templates/pages/sponsor.html:82
 msgid "Strengthen the Python ecosystem"
-msgstr "Зміцнюйте екосистему Python"
+msgstr "Зміцнення екосистеми Python"
 
 #: warehouse/templates/pages/sponsor.html:83
 msgid ""
 "Funds raised by the packaging working group go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
-"Кошти, отримані від групи по роботі з пакунками, йдуть безпосередньо на "
-"покращення інструментів, які використовує ваша компанія кожного дня."
+"Кошти, отримані для робочої групи з пакування, йдуть безпосередньо на "
+"покращення інструментів, які ваша компанія використовує щодня."
 
 #: warehouse/templates/pages/sponsor.html:86
 msgid "Boost your reputation"
@@ -5787,12 +5792,12 @@ msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."
 msgstr ""
-"Покращіть репутацію вашої компанії, шляхом інвестування в Python та open "
+"Покращіть репутацію своєї компанії, шляхом інвестування в Python та open "
 "source спільноту."
 
 #: warehouse/templates/pages/sponsor.html:96
 msgid "Sponsorship packages"
-msgstr "Спонсорська підтримка пакунків"
+msgstr "Пакунки спонсорської підтримки"
 
 #: warehouse/templates/pages/sponsor.html:97
 msgid "All figures are in USD"
@@ -5804,7 +5809,7 @@ msgstr "Пожиттєвий"
 
 #: warehouse/templates/pages/sponsor.html:107
 msgid "One time donation of $1,000,000"
-msgstr "Одноразове пожертвування $1,000,000"
+msgstr "Одноразове пожертвування $1000000"
 
 #: warehouse/templates/pages/sponsor.html:111
 msgid ""
@@ -5822,7 +5827,7 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
 "blog</a>"
 msgstr ""
-"<strong>Особистий</strong> допис у <a href=\"%(href)s\" title=\"%(title)s\" "
+"<strong>Власний</strong> допис у <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\"> блозі Python Software Foundation</a>"
 
 #: warehouse/templates/pages/sponsor.html:116
@@ -5841,7 +5846,7 @@ msgstr "Діамантовий"
 
 #: warehouse/templates/pages/sponsor.html:126
 msgid "$50,000 per year, or equivalent in donated services"
-msgstr "$50,000 на рік, або еквівалент в наданих послугах"
+msgstr "$50000 на рік, або еквівалент в наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:130
 msgid ""
