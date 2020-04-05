@@ -4909,7 +4909,7 @@ msgstr ""
 #, python-format
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>"
 msgstr ""
 
@@ -4993,7 +4993,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during the "
 "same quarter"
 msgstr ""
@@ -5088,7 +5088,7 @@ msgstr ""
 #, python-format
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>, explaining what the funds will be used for"
 msgstr ""
 

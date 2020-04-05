@@ -22,8 +22,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
-"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
@@ -5826,10 +5826,14 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:112
 #: warehouse/templates/pages/sponsor.html:133
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
+#| "Foundation blog</a>"
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>"
 msgstr ""
 "<strong>Власний</strong> допис у <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -5921,10 +5925,15 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:179
 #: warehouse/templates/pages/sponsor.html:201
 #: warehouse/templates/pages/sponsor.html:222
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+#| "<strong>with other sponsors</strong> whose sponsorship commenced during "
+#| "the same quarter"
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during the "
 "same quarter"
 msgstr ""
@@ -6034,10 +6043,14 @@ msgstr ""
 "спонсоруванню,</a> для ідей."
 
 #: warehouse/templates/pages/sponsor.html:244
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
+#| "Foundation blog</a>, explaining what the funds will be used for"
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>, explaining what the funds will be used for"
 msgstr ""
 "<strong>Особистий</strong> допис у <a href=\"%(href)s\" title=\"%(title)s\" "

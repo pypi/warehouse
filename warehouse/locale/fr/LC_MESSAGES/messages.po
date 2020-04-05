@@ -5913,10 +5913,14 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:112
 #: warehouse/templates/pages/sponsor.html:133
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
+#| "Foundation blog</a>"
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>"
 msgstr ""
 "Article de blog <strong> individuel </strong> sur le <a href=\"%(href)s\" "
@@ -6012,10 +6016,15 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:179
 #: warehouse/templates/pages/sponsor.html:201
 #: warehouse/templates/pages/sponsor.html:222
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+#| "<strong>with other sponsors</strong> whose sponsorship commenced during "
+#| "the same quarter"
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during the "
 "same quarter"
 msgstr ""
@@ -6133,10 +6142,14 @@ msgstr ""
 "améliorations d'empaquetage financables </a> pour les idées."
 
 #: warehouse/templates/pages/sponsor.html:244
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
+#| "Foundation blog</a>, explaining what the funds will be used for"
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>, explaining what the funds will be used for"
 msgstr ""
 "Article de blog <strong> individuel </strong> sur le <a href=\"%(href)s\" "

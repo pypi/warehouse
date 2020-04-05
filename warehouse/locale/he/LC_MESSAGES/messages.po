@@ -944,9 +944,9 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
-"‏PyPI‏ מאפשר לייצר קודים לשחזור אותם יש לשמור בביטחה באופן לא מקוון, למקרה "
-"בו מכשירך או האפליקציה יאבדו. הזן את אחד הקודים האלו בטופס כדי לאמת את "
-"זהותך. לאחר שימוש, קוד זיהוי יפסיק להיות תקף."
+"‏PyPI‏ מאפשר לייצר קודים לשחזור אותם יש לשמור בביטחה באופן לא מקוון, למקרה בו "
+"מכשירך או האפליקציה יאבדו. הזן את אחד הקודים האלו בטופס כדי לאמת את זהותך. "
+"לאחר שימוש, קוד זיהוי יפסיק להיות תקף."
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, python-format
@@ -1099,8 +1099,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">Upgrade your browser</a> to log in with a security device (e.g. USB key)"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)"
-"s\">יש לעדכן את הדפדפן</a> כדי להזדהות עם מכשיר אבטחה (כגון מפתח USB)"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
+"\">יש לעדכן את הדפדפן</a> כדי להזדהות עם מכשיר אבטחה (כגון מפתח USB)"
 
 #: warehouse/templates/accounts/two-factor.html:60
 #, python-format
@@ -1142,8 +1142,8 @@ msgid ""
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
 "<p><strong>לא ייצרת קודים לשחזור החשבון.</strong></p> <p>אם תאבד לך הגישה "
-"לאמצעי האימות הדו-גורמיים, ייתכן ותאבד לך הגישה לחשבונך. <a href=\"%(href)s\""
-">קבלת עזרה בנוגע לקודים לשחזור חשבון.</a></p>"
+"לאמצעי האימות הדו-גורמיים, ייתכן ותאבד לך הגישה לחשבונך. <a href=\"%(href)s"
+"\">קבלת עזרה בנוגע לקודים לשחזור חשבון.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1160,8 +1160,8 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
-"אם לא ביצעת שינוי זה, באפשרותך לכתוב אי-מייל לכתובת <a href=\"%(href)s\""
-">%(email_address)s</a> כדי לתקשר עם מנהלי PyPI."
+"אם לא ביצעת שינוי זה, באפשרותך לכתוב אי-מייל לכתובת <a href=\"%(href)s\">"
+"%(email_address)s</a> כדי לתקשר עם מנהלי PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
@@ -1169,8 +1169,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project)s by %(submitter)s."
 msgstr ""
-"נוספת כ-<strong>%(role)s</strong> על ידי %(submitter)s לפרויקט %(project)s "
-"ב-%(site)s."
+"נוספת כ-<strong>%(role)s</strong> על ידי %(submitter)s לפרויקט %(project)s ב-"
+"%(site)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
@@ -1185,8 +1185,8 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
-"משהו, אולי את/ה, שינה את הסיסמה עבור חשבון ה-PyPI‏ שלך "
-"<strong>%(username)s</strong>."
+"משהו, אולי את/ה, שינה את הסיסמה עבור חשבון ה-PyPI‏ שלך <strong>%(username)s</"
+"strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1276,9 +1276,9 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"כדי להשיג מחדש גישה לחשבונך, <a href=\"%(reset_pw_url)s\">אספ/י את סיסמתך</a>"
-" ב-PyPI. אנחנו גם ממליצים להיכנס אל <a href=\"%(have_i_been_pwned_url)s\""
-">HaveIBeenPwned</a>, לבדוק את סיסמאותיך האחרות ולהכיר שיטות טובות לבחירת "
+"כדי להשיג מחדש גישה לחשבונך, <a href=\"%(reset_pw_url)s\">אספ/י את סיסמתך</"
+"a> ב-PyPI. אנחנו גם ממליצים להיכנס אל <a href=\"%(have_i_been_pwned_url)s"
+"\">HaveIBeenPwned</a>, לבדוק את סיסמאותיך האחרות ולהכיר שיטות טובות לבחירת "
 "סיסמאות."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
@@ -1294,8 +1294,8 @@ msgid ""
 "characters of the hash to decide if the password is compromised. The "
 "plaintext password is never stored by PyPI or sent to HaveIBeenPwned."
 msgstr ""
-"אנו משתמשים בשירות אבטחה בחינם מאת <a href=\"%(have_i_been_pwned_url)s\""
-">HaveIBeenPwned</a>. בעת הרשמה, אימות ועדכון סיסמתך, אנחנו מייצרים גיבוב "
+"אנו משתמשים בשירות אבטחה בחינם מאת <a href=\"%(have_i_been_pwned_url)s"
+"\">HaveIBeenPwned</a>. בעת הרשמה, אימות ועדכון סיסמתך, אנחנו מייצרים גיבוב "
 "(hash) מסוג SHA1 של סיסמתך ומשתמשים ב-5 התווים הראשונים של הגיבוב היא להבין "
 "האם סיסמתך נפרצה. הסיסמה הגלויה לעולם אינה נשמרת על ידי PyPI ואינה נשלחת אל "
 "HaveIBeenPwned."
@@ -1375,8 +1375,8 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
-"משהו, אולי את/ה, הוסיף את כתובת האי-מייל הזו (<code>%(email_address)s</code>)"
-" לחשבון ה-PyPI‏ שלו/ה."
+"משהו, אולי את/ה, הוסיף את כתובת האי-מייל הזו (<code>%(email_address)s</"
+"code>) לחשבון ה-PyPI‏ שלו/ה."
 
 #: warehouse/templates/email/verify-email/body.html:20
 #, python-format
@@ -1449,8 +1449,8 @@ msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Hashes</a> for %(filename)s"
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"גיבובים (hash-ים)</a> עבור %(filename)s"
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">גיבובים (hash-ים)</a> עבור %(filename)s"
 
 #: warehouse/templates/includes/hash-modal.html:28
 #, python-format
@@ -1554,10 +1554,10 @@ msgid ""
 "by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
 "public dataset on Google BigQuery</a>"
 msgstr ""
-"צפייה בסטטיסטיקות עבור הפרויקטים של %(username)s באמצעות <a href=\""
-"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Libraries.io</a>, או באמצעות <a href=\"%(gbq_href)s\" target=\"_blank\" rel="
-"\"noopener\">אוסף הנתונים האחרון שלנו ב-Google&nbsp;BigQuery</a>"
+"צפייה בסטטיסטיקות עבור הפרויקטים של %(username)s באמצעות <a href="
+"\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Libraries.io</a>, או באמצעות <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">אוסף הנתונים האחרון שלנו ב-Google&nbsp;BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1567,8 +1567,8 @@ msgid ""
 "\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "טרם העלית פרויקטים ל-PyPI, בינתיים. כדי ללמוד כיצד להתחיל, ניתן לעיין ב<a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"מדריך למשתמש באריזת חבילות פייתון</a>"
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">מדריך למשתמש באריזת חבילות פייתון</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -5035,12 +5035,19 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:112
 #: warehouse/templates/pages/sponsor.html:133
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "For more information on uploading projects to PyPI, visit the <a href="
+#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Python Packaging User Guide</a>."
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>"
 msgstr ""
+"למידע נוסף אודות העלאת פרויקטים ל-PyPI, יש לעיין ב<a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">מדריך למשתמש באריזת חבילות "
+"פייתון</a>."
 
 #: warehouse/templates/pages/sponsor.html:116
 #: warehouse/templates/pages/sponsor.html:139
@@ -5122,7 +5129,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during the "
 "same quarter"
 msgstr ""
@@ -5214,12 +5221,19 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:244
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "For more information on uploading projects to PyPI, visit the <a href="
+#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Python Packaging User Guide</a>."
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>, explaining what the funds will be used for"
 msgstr ""
+"למידע נוסף אודות העלאת פרויקטים ל-PyPI, יש לעיין ב<a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">מדריך למשתמש באריזת חבילות "
+"פייתון</a>."
 
 #: warehouse/templates/pages/sponsor.html:245
 #, python-format

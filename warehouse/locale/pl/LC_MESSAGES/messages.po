@@ -4961,7 +4961,7 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>"
 msgstr ""
 "Aby uzyskać więcej informacji na temat przesyłania projektów do PyPI, "
@@ -5051,13 +5051,16 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:179
 #: warehouse/templates/pages/sponsor.html:201
 #: warehouse/templates/pages/sponsor.html:222
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during the "
 "same quarter"
 msgstr ""
+"Aby uzyskać więcej informacji na temat przesyłania projektów do PyPI, "
+"odwiedź <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Podręcznik użytkownika Python Packaging</a> ."
 
 #: warehouse/templates/pages/sponsor.html:171
 msgid "Gold"
@@ -5159,7 +5162,7 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
 "blog</a>, explaining what the funds will be used for"
 msgstr ""
 "Aby uzyskać więcej informacji na temat przesyłania projektów do PyPI, "
