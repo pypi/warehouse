@@ -194,6 +194,7 @@ init-po: .state/env/pyvenv.cfg
 
 update-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel update \
+		--omit-header \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--locale="$(L)"
