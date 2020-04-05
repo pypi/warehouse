@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-04 20:01+0000\n"
-"Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
+"PO-Revision-Date: 2020-04-04 20:02+0000\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -533,7 +533,7 @@ msgstr "RSS: 40 последних обновлений"
 
 #: warehouse/templates/base.html:93
 msgid "RSS: 40 newest packages"
-msgstr "RSS: 40 новых пакетов"
+msgstr "RSS:40 новейших пакетов"
 
 #: warehouse/templates/base.html:144
 msgid "Skip to main content"
