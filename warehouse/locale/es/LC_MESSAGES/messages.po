@@ -6,13 +6,14 @@
 # Alan Velasco <AlanVelasco.A@gmail.com>, 2019.
 # Katia Lira <katialira.villena@gmail.com>, 2019.
 # Juan Funez <juan.funez@gmail.com>, 2019.
+# anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-04-04 01:33+0000\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -25,7 +26,7 @@ msgstr ""
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr "Se actualizó la configuración de idioma."
+msgstr "Se actualizó la configuración de idioma"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
