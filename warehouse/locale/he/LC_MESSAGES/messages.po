@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Alex Gaynor <alex.gaynor@gmail.com>, 2019.
+# Tal Einat <taleinat@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-09-22 12:30+0000\n"
-"Last-Translator: Alex Gaynor <alex.gaynor@gmail.com>\n"
+"PO-Revision-Date: 2020-04-04 15:31+0000\n"
+"Last-Translator: Tal Einat <taleinat@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -18,12 +19,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 3.9-dev\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr ""
+msgstr "האזור עודכן"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
@@ -31,11 +32,11 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
-msgstr ""
+msgstr "קוד TOTP חייב להכיל ${totp_length} ספרות."
 
 #: warehouse/accounts/forms.py:79
 msgid "Choose a username with 50 characters or less."
-msgstr ""
+msgstr "בחר שם משתמש בעל 50 תווים או פחות."
 
 #: warehouse/accounts/forms.py:85
 msgid ""
@@ -43,12 +44,15 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
+"שם המשתמש אינו תקין. שמות משתמשים חייבים להכיל אותיות, ספרות, נקודות, מקפים "
+"וקווים תחתונים. כמו כן, שם משתמש חייב להתחיל ולהסתיים באות או בספרה. בחר שם "
+"משתמש אחר."
 
 #: warehouse/accounts/forms.py:99
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr ""
+msgstr "שם המשתמש כבר נמצא בשימוש חשבון אחר. יש לבחור שם משתמש אחר."
 
 #: warehouse/accounts/forms.py:122
 msgid "The password is invalid. Try again."
@@ -56,39 +60,43 @@ msgstr "הסיסמה אינה חוקית. תנסה עוד פעם."
 
 #: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:65
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr ""
+msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
 
 #: warehouse/accounts/forms.py:148
 msgid "Your passwords don't match. Try again."
-msgstr ""
+msgstr "הסיסמאות אינן תואמות. יש לנסות שוב."
 
 #: warehouse/accounts/forms.py:179 warehouse/accounts/forms.py:190
 msgid "The email address isn't valid. Try again."
-msgstr ""
+msgstr "כתובת האי-מייל אינה תקינה. יש לנסות שוב."
 
 #: warehouse/accounts/forms.py:198
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
+msgstr "לא ניתן להשתמש בכתובת אי-מייל מהדומיין הזה. יש להשתמש באי-מייל אחר."
 
 #: warehouse/accounts/forms.py:209
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
+"כתובת האי-מייל הזו כבר נמצאת בשימוש ע״י החשבון הזה. יש להשתמש בכתובת אי-מייל "
+"אחרת."
 
 #: warehouse/accounts/forms.py:216
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
+"כתובת האי-מייל הזו כבר נמצאת בשימוש ע״י חשבון אחר. יש להשתמש בכתובת אי-מייל "
+"אחרת."
 
 #: warehouse/accounts/forms.py:238
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr ""
+msgstr "השם ארוך מדי. יש לבחור שם בעל 100 תווים או פחות."
 
 #: warehouse/accounts/forms.py:302
 msgid "Invalid TOTP code."
-msgstr ""
+msgstr "קוד TOTP לא תקין."
 
 #: warehouse/accounts/forms.py:319
 msgid "Invalid WebAuthn assertion: Bad payload"
@@ -96,21 +104,21 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:344
 msgid "Invalid Recovery Code."
-msgstr ""
+msgstr "קוד שחזור לא תקין."
 
 #: warehouse/accounts/forms.py:362
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "לא נמצא משתמש בעל שם המשתמש או האי-מייל הזה"
 
 #: warehouse/accounts/views.py:205 warehouse/accounts/views.py:261
 #: warehouse/accounts/views.py:262 warehouse/accounts/views.py:288
 #: warehouse/accounts/views.py:289 warehouse/accounts/views.py:343
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "זיהוי דו-גורמי לא תקין או לא בתוקף."
 
 #: warehouse/accounts/views.py:256
 msgid "Already authenticated"
-msgstr ""
+msgstr "כבר מאומת"
 
 #: warehouse/accounts/views.py:320
 msgid "Successful WebAuthn assertion"
@@ -118,100 +126,104 @@ msgstr ""
 
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "קוד השחזור התקבל. לא יהיה ניתן להשתמש שוב בקוד שסופק."
 
 #: warehouse/accounts/views.py:455
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
+"רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
+"intervention לפרטים."
 
 #: warehouse/accounts/views.py:552
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "אסימון פג תוקף: יש לבקש קישור איפוס סיסמא חדש"
 
 #: warehouse/accounts/views.py:554
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "אסימון לא תקין: יש לבקש קישור איפוס סיסמא חדש"
 
 #: warehouse/accounts/views.py:556 warehouse/accounts/views.py:634
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "אסימון לא תקין: לא סופק אסימון"
 
 #: warehouse/accounts/views.py:560
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "אסימון לא תקין: אינו אסימון איפוס סיסמא"
 
 #: warehouse/accounts/views.py:565
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "אסימון לא תקין: משתמש לא נמצא"
 
 #: warehouse/accounts/views.py:572
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr ""
+msgstr "אסימון לא תקין: משתמש התחבר מאז בקשת אסימון זה"
 
 #: warehouse/accounts/views.py:579
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
+msgstr "אסימון לא תקין: הסיסמא כבר שונתה מאז בקשת אסימון זה"
 
 #: warehouse/accounts/views.py:605
 msgid "You have reset your password"
-msgstr ""
+msgstr "איפסת את סיסמתך"
 
 #: warehouse/accounts/views.py:630
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "אסימון פג תוקף: יש לבקש קישור אימות אי-מייל חדש"
 
 #: warehouse/accounts/views.py:632
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "אסימון לא תקין: יש לבקש אי-מייל אימות סיסמא חדש"
 
 #: warehouse/accounts/views.py:638
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "אסימון לא תקין: אינו אסימון אימות אי-מייל"
 
 #: warehouse/accounts/views.py:647
 msgid "Email not found"
-msgstr ""
+msgstr "אי-מייל לא נמצא"
 
 #: warehouse/accounts/views.py:650
 msgid "Email already verified"
-msgstr ""
+msgstr "אי-מייל כבר מאומת"
 
 #: warehouse/accounts/views.py:662
 msgid "You can now set this email as your primary address"
-msgstr ""
+msgstr "כעת ניתן לקבוע אי-מייל זה להיות הכתובת העיקרית"
 
 #: warehouse/accounts/views.py:664
 msgid "This is your primary address"
-msgstr ""
+msgstr "זו הכתובת העיקרית שלך"
 
 #: warehouse/accounts/views.py:669
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "כתובת האי-מייל ${email_address} אומתה. ${confirm_message}."
 
 #: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
+"כתובת האי-מייל ${email_address} נוספה - יש לבדוק את תיבת האי-מייל לקישור "
+"אימות הכתובת"
 
 #: warehouse/manage/views.py:667 warehouse/manage/views.py:703
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
-msgstr ""
+msgstr "יש להפעיל מנגון אימות דו-גורמי לפני שניתן יהיה לייצר קודים לשחזור"
 
 #: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "קודים לשחזור כבר נוצרו"
 
 #: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
+msgstr "יצירת קודי שחזור חדשים יבטל את תוקפם של הקוד הקיימים."
 
 #: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "פרטי הזדהות לא תקפים. יש לנסות שוב"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -219,7 +231,7 @@ msgstr ""
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr ""
+msgstr "אין לך השראה לצפייה בעמוד זה"
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
@@ -227,15 +239,15 @@ msgstr ""
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr ""
+msgstr "חיפשנו בכל מקום אך לא הצלחנו למצוא דף זה"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr ""
+msgstr "ועכשיו למשהו <br><span>שונה לגמרי"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr ""
+msgstr "מונטי פייתון - מערכות חנות הגבינות"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -360,11 +372,11 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:249
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr ""
+msgstr "קישור חיצוני"
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr ""
+msgstr "צפייה בתמליל וידאו"
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
@@ -372,7 +384,7 @@ msgstr ""
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr ""
+msgstr "הדף אותו חיפשת הוסר"
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
@@ -380,7 +392,7 @@ msgstr ""
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr ""
+msgstr "משהו השתבש"
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -388,14 +400,16 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
+"<p>אנו חווים בעיות טכניות המשפיעות על יכולתנו להגיש לך את האתר הזה.</p> <p>"
+"אנו מודעים לבעייה ועובדים לפתרונה בהקדם האפשרי.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr ""
+msgstr "לבדיקת עמוד הסטטוס שלנו"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr ""
+msgstr "לצפייה בסטטוס של פייתון בטוויטר"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
@@ -403,7 +417,7 @@ msgstr ""
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr ""
+msgstr "מסתמך על PyPI לביצוע עבודתך?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -412,25 +426,31 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
+"שיקלו <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" rel=\""
+"noopener\">לקחת חלק</a> או <a href=\"https://psfmember.org/civicrm/"
+"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\">לתרום<"
+"a/> כדי לעזור לנו לבנות פלטפורמה יציבה ובטוחה יותר."
 
 #: warehouse/templates/base.html:23
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"יש לבחור סיסמא חזקה המכילה אותיות (גדולות וקטנות), ספרות ותווים מיוחדים. יש "
+"להימנע ממילים נפוצות ומרצפים חוזרים."
 
 #: warehouse/templates/base.html:26
 msgid "Password strength:"
-msgstr ""
+msgstr "חוזק סיסמא:"
 
 #: warehouse/templates/base.html:29
 msgid "Password field is empty"
-msgstr ""
+msgstr "שדה הסיסמא ריק"
 
 #: warehouse/templates/base.html:37 warehouse/templates/base.html:45
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr ""
+msgstr "ניווט ראשי"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:53
 #: warehouse/templates/base.html:254
@@ -438,51 +458,52 @@ msgstr ""
 #: warehouse/templates/pages/help.html:98
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr ""
+msgstr "עזרה"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:60
 msgid "Sponsor"
-msgstr ""
+msgstr "מתן חסות"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:41
 #: warehouse/templates/base.html:55
 msgid "Log in"
-msgstr ""
+msgstr "הזדהות"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr ""
+msgstr "הרשמה"
 
 #: warehouse/templates/base.html:46
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "צפייה בתפריט"
 
 #: warehouse/templates/base.html:47
 msgid "Menu"
-msgstr ""
+msgstr "תפריט"
 
 #: warehouse/templates/base.html:52
 #: warehouse/templates/includes/current-user-indicator.html:24
 msgid "Main menu"
-msgstr ""
+msgstr "תפריט ראשי"
 
 #: warehouse/templates/base.html:76 warehouse/templates/index.html:79
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
 msgstr ""
+"אינדקס החבילות של פייתון (PyPI) הוא מאגר של תוכנה עבור שפת התכנות פייתון."
 
 #: warehouse/templates/base.html:92
 msgid "RSS: 40 latest updates"
-msgstr ""
+msgstr "‏RSS‏: 40 העדכונים האחרונים"
 
 #: warehouse/templates/base.html:93
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "‏RSS‏: 40 החבילות החדשות ביותר"
 
 #: warehouse/templates/base.html:144
 msgid "Skip to main content"
