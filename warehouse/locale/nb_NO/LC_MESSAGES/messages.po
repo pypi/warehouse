@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:255
+#: warehouse/views.py:254
 msgid "Locale updated"
 msgstr ""
 
@@ -4930,8 +4930,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> in "
 "2019"
 msgstr ""
-"Med 80000 dollar i fondsmidler fra <a href=\"%(funder_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> i "
+"Med 80000 dollar i fondsmidler fra <a href=\"%(funder_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> i "
 "2019"
 
 #: warehouse/templates/pages/sponsor.html:40

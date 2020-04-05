@@ -24,7 +24,7 @@ msgstr ""
 "X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:255
+#: warehouse/views.py:254
 msgid "Locale updated"
 msgstr ""
 
@@ -1382,8 +1382,8 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"أحد ما، ربما أنت، غير كلمة السر لحساب PyPI الخاص بك "
-"<strong>%(username)s</strong>."
+"أحد ما، ربما أنت، غير كلمة السر لحساب PyPI الخاص بك <strong>%(username)s</"
+"strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format

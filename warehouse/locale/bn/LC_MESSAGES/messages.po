@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Weblate 3.10-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:255
+#: warehouse/views.py:254
 msgid "Locale updated"
 msgstr ""
 

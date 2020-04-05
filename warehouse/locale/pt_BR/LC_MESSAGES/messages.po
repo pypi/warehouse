@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:255
+#: warehouse/views.py:254
 msgid "Locale updated"
 msgstr "Localidade atualizada"
 
@@ -5621,8 +5621,8 @@ msgid ""
 "Foundation which raises and distributes funds to improve Python's packaging "
 "ecosystem."
 msgstr ""
-"O <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
-">Packaging Working Group</a> é um grupo de trabalho da Python Software "
+"O <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Packaging Working Group</a> é um grupo de trabalho da Python Software "
 "Foundation que levanta e distribui fundos para melhorar o ecossistema de "
 "empacotamento do Python."
 
@@ -5646,8 +5646,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source "
 "Support Program</a> in 2018"
 msgstr ""
-"Com <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">US$ 170.000 em financiamento</a> do <a href=\"%(funder_href)s\" "
+"Com <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">US$ 170.000 em financiamento</a> do <a href=\"%(funder_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source "
 "Support Program</a> em 2018"
 
@@ -5666,8 +5666,8 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> in "
 "2019"
 msgstr ""
-"Com US$ 80.000 em financiamento da <a href=\"%(funder_href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> em "
+"Com US$ 80.000 em financiamento da <a href=\"%(funder_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> em "
 "2019"
 
 #: warehouse/templates/pages/sponsor.html:40
@@ -5682,14 +5682,15 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> in "
 "2019 and 2020"
 msgstr ""
-"Com <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">US$ 100.000 em financiamento</a> da <a href=\"%(funder_href)s\" "
+"Com <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">US$ 100.000 em financiamento</a> da <a href=\"%(funder_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> "
 "em 2019 e 2020"
 
 #: warehouse/templates/pages/sponsor.html:44
 msgid "Overhauling pip's user experience and dependency resolver"
-msgstr "Revisão da experiência de usuário e da resolução de dependências do pip"
+msgstr ""
+"Revisão da experiência de usuário e da resolução de dependências do pip"
 
 #: warehouse/templates/pages/sponsor.html:45
 #, python-format
@@ -5701,11 +5702,11 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> "
 "in 2020"
 msgstr ""
-"Com <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">US$ 407.000 em financiamento</a> da <a href=\"%(funder0_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Chan Zuckerberg "
-"Initiative</a> e o <a href=\"%(funder1_href)s\" title=\"%(title)s\" target=\""
-"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> em 2020"
+"Com <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">US$ 407.000 em financiamento</a> da <a href=\"%(funder0_href)s"
+"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Chan Zuckerberg "
+"Initiative</a> e o <a href=\"%(funder1_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> em 2020"
 
 #: warehouse/templates/pages/sponsor.html:49
 msgid ""
