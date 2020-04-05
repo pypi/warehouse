@@ -9,22 +9,23 @@
 # Древ Брагкин <rokree@yahoo.com>, 2019.
 # Aleksei Kozharin <1alekseik1@gmail.com>, 2019.
 # Alexandr Artemyev <mogost@gmail.com>, 2019.
+# Mingun <Alexander_Sergey@mail.ru>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-02-10 12:29+0000\n"
-"Last-Translator: Andrey Smelter <andrey.smelter@gmail.com>\n"
+"PO-Revision-Date: 2020-04-04 14:46+0000\n"
+"Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.11-dev\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -113,10 +114,8 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недопустимое значение WebAuthn: Ошибка загрузки"
 
 #: warehouse/accounts/forms.py:344
-#, fuzzy
-#| msgid "Invalid TOTP code."
 msgid "Invalid Recovery Code."
-msgstr "Неверный TOTP-код."
+msgstr "Неверный код восстановления."
 
 #: warehouse/accounts/forms.py:362
 msgid "No user found with that username or email"
@@ -139,6 +138,8 @@ msgstr "Успешное утверждение WebAuthn"
 #: warehouse/accounts/views.py:371
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
+"Код восстановления принят. Предоставленный код не может быть использован "
+"повторно."
 
 #: warehouse/accounts/views.py:455
 msgid ""
@@ -207,7 +208,7 @@ msgstr "Электронная почта не найдена"
 
 #: warehouse/accounts/views.py:650
 msgid "Email already verified"
-msgstr "Электронная почта  уже подтверждена"
+msgstr "Электронная почта уже подтверждена"
 
 #: warehouse/accounts/views.py:662
 msgid "You can now set this email as your primary address"
@@ -485,10 +486,8 @@ msgstr "Помощь"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:60
-#, fuzzy
-#| msgid "Our sponsors"
 msgid "Sponsor"
-msgstr "Наши спонсоры"
+msgstr "Спонсорство"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:41
@@ -974,10 +973,8 @@ msgid "Login using Recovery Code"
 msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:40
-#, fuzzy
-#| msgid "Error code"
 msgid "Enter recovery code"
-msgstr "Код ошибки"
+msgstr "Введите код восстановления"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
@@ -993,11 +990,9 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:59
-#, fuzzy, python-format
-#| msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+#, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr ""
-"Потеряли устройство? Не работает? <a href=\"%(href)s\">Получите помощь</a>."
+msgstr "<p>Не сработало? <a href=\"%(href)s\">Получить помощь</a>.</p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -1177,10 +1172,8 @@ msgstr ""
 "href=\"%(href)s\">Получите помощь</a>.</p>"
 
 #: warehouse/templates/accounts/two-factor.html:117
-#, fuzzy
-#| msgid "Set up your application"
 msgid "Lost your security key or application?"
-msgstr "Настройка приложения"
+msgstr "Потеряли свой ключ безопасности ли ключ приложения?"
 
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using a Recovery Code"
@@ -1417,28 +1410,22 @@ msgstr ""
 "<code>%(new_email)s</code>"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Кто-то, возможно вы, сменил пароль к учетной записи <strong>%(username)s</"
-"strong> на PyPI."
+"Кто-то, возможно вы, добавил метод %(method)s двухфакторной аутентификации к "
+"вашей учётной записи <strong>%(username)s</strong> на PyPI."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Кто-то, возможно вы, сменил пароль к учетной записи <strong>%(username)s</"
-"strong> на PyPI."
+"Кто-то, возможно вы, удалил метод %(method)s двухфакторной аутентификации из "
+"вашей учётной записи <strong>%(username)s</strong> на PyPI."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1450,16 +1437,13 @@ msgstr ""
 "%(email_address)s</code>) к своей учетной записи PyPI."
 
 #: warehouse/templates/email/verify-email/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "If you wish to proceed with this request, <a href=\"%(href)s\">click to "
-#| "reset your password</a>."
+#, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
 msgstr ""
-"Если вы хотите продолжить выполнение этого запроса, <a href=\"%(href)s"
-"\">нажмите, чтобы сбросить пароль</a>."
+"Если вы хотите продолжить выполнение этого запроса, <a href=\"%(href)s\">"
+"нажмите на эту ссылку, чтобы подтвердить свой адрес электронной почты</a>."
 
 #: warehouse/templates/includes/current-user-indicator.html:29
 msgid "Admin"
@@ -1609,30 +1593,20 @@ msgid "Statistics"
 msgstr "Статистика"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
-#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-#| "BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for your projects via <a href=\"%(libs_io_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
 "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our public "
 "dataset on Google BigQuery</a>"
 msgstr ""
-"Смотрите статистику своих проектов на <a href=\"%(libs_io_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, или с "
-"помощью <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-"BigQuery</a>"
+"Смотрите статистику своих проектов на <a href=\"%(libs_io_href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> или в <a "
+"href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем общедоступном "
+"наборе данных через Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-actions.html:30
-#, fuzzy, python-format
-#| msgid ""
-#| "View statistics for %(username)s's projects via <a href=\"%(libs_io_href)s"
-#| "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</"
-#| "a>, or by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Google BigQuery</a>"
+#, python-format
 msgid ""
 "View statistics for %(username)s's projects via <a href=\"%(libs_io_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or "
@@ -1640,9 +1614,9 @@ msgid ""
 "public dataset on Google BigQuery</a>"
 msgstr ""
 "Смотрите статистику проектов %(username)s на <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, или "
-"с помощью <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
-"BigQuery</a>"
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> или "
+"в <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем "
+"общедоступном наборе данных через Google BigQuery</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
@@ -1651,6 +1625,9 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+"Вы ещё не загрузили на PyPI ни одного проекта. Чтобы узнать, с чего начать, "
+"прочтите <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
+"noopener\">Руководство пользователя по созданию Python’ьих пакетов</a>"
 
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
@@ -5218,89 +5195,74 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:29
 msgid "Recent projects funded through the working group include:"
 msgstr ""
+"Среди последних проектов, профинансированных через рабочую группу, можно "
+"отметить следующие:"
 
 #: warehouse/templates/pages/sponsor.html:32
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
+"Успешный перезапуск Указателя пакетов Python’а, основанного на новой кодовой "
+"базе «Warehouse» («Хранилище»)"
 
 #: warehouse/templates/pages/sponsor.html:33
-#, fuzzy, python-format
-#| msgid ""
-#| "<strong>Not working?</strong> Check you're using a device that follows "
-#| "the <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">FIDO specification</a> and a <a href=\"%(mozilla_href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">compatible "
-#| "browser</a>."
+#, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">$170,000 in funding</a> from the <a href=\"%(funder_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source "
 "Support Program</a> in 2018"
 msgstr ""
-"<strong>Не работает?</strong> Убедитесь, что вы используете устройство, "
-"соответствующее <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">спецификации FIDO</a>, и <a href=\"%(mozilla_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">совместимый браузер</"
-"a>."
+"С помощью <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">финансирования на $170 000</a>, полученного из <a href=\""
+"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Программы Mozilla по поддержке ПО с открытым исходным кодом</a> в 2018 году"
 
 #: warehouse/templates/pages/sponsor.html:36
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
 msgstr ""
+"Улучшения в безопасности и доступности PyPI, а также добавление поддержки "
+"нескольких языков"
 
 #: warehouse/templates/pages/sponsor.html:37
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#, python-format
 msgid ""
 "With $80,000 in funding from the <a href=\"%(funder_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> in "
 "2019"
 msgstr ""
-"Узнать, как загружать файлы в <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Руководстве пользователя по созданию "
-"пакетов Python</a>"
+"С помощью финансирования на $80 000, полученного от фонда <a href=\""
+"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Open Technology Fund</a> в 2019 году"
 
 #: warehouse/templates/pages/sponsor.html:40
 msgid "Additional security-focused features for PyPI"
-msgstr ""
+msgstr "Дополнительные функции PyPI, направленные на повышение его безопасности"
 
 #: warehouse/templates/pages/sponsor.html:41
-#, fuzzy, python-format
-#| msgid ""
-#| "<strong>Not working?</strong> Check you're using a device that follows "
-#| "the <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">FIDO specification</a> and a <a href=\"%(mozilla_href)s\" "
-#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">compatible "
-#| "browser</a>."
+#, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">$100,000 in funding</a> from <a href=\"%(funder_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> in "
 "2019 and 2020"
 msgstr ""
-"<strong>Не работает?</strong> Убедитесь, что вы используете устройство, "
-"соответствующее <a href=\"%(fido_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">спецификации FIDO</a>, и <a href=\"%(mozilla_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">совместимый браузер</"
-"a>."
+"С помощью <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">финансирования на $100 000</a>, полученного от <a href=\""
+"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Facebook Research</a> в 2019 и 2020 годах"
 
 #: warehouse/templates/pages/sponsor.html:44
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
+"Пересмотр процесса взаимодействия с пользователем и разрешения зависимостей "
+"в pip"
 
 #: warehouse/templates/pages/sponsor.html:45
-#, fuzzy, python-format
-#| msgid ""
-#| "Popular <em>USB keys</em> include <a href=\"%(yubico_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href="
-#| "\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Google Titan</a> and <a href=\"%(thetis_href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Thetis</a>."
+#, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">$407,000 in funding</a> from the <a href=\"%(funder0_href)s\" "
@@ -5309,11 +5271,12 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> "
 "in 2020"
 msgstr ""
-"Популярные <em>USB-ключи</em> включают в себя <a href=\"%(yubico_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href="
-"\"%(titan_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Google Titan</a> и <a href=\"%(thetis_href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">Thetis</a>."
+"С помощью <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">финансирования на $407 000</a>, полученного от <a href=\""
+"%(funder0_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"кампании Chan Zuckerberg Initiative</a> и <a href=\"%(funder1_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Программы Mozilla по "
+"поддержке ПО с открытым исходным кодом</a> в 2020 году"
 
 #: warehouse/templates/pages/sponsor.html:49
 msgid ""
