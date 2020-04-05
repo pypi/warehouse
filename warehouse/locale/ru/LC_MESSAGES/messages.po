@@ -10,13 +10,14 @@
 # Aleksei Kozharin <1alekseik1@gmail.com>, 2019.
 # Alexandr Artemyev <mogost@gmail.com>, 2019.
 # Mingun <Alexander_Sergey@mail.ru>, 2020.
+# anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
 "PO-Revision-Date: 2020-04-04 14:46+0000\n"
-"Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -30,7 +31,7 @@ msgstr ""
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr ""
+msgstr "Язык обновлен"
 
 #: warehouse/accounts/forms.py:41
 msgid "No user found with that username"
@@ -109,7 +110,6 @@ msgid "Invalid TOTP code."
 msgstr "Неверный TOTP-код."
 
 #: warehouse/accounts/forms.py:319
-#, fuzzy
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недопустимое значение WebAuthn: Ошибка загрузки"
 
