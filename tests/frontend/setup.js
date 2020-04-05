@@ -40,7 +40,7 @@ import "@testing-library/jest-dom/extend-expect";
 import "@babel/polyfill";
 
 // Monkeypatch the global fetch API
-fetch = require("jest-fetch-mock");  // eslint-disable-line no-global-assign
+fetch = require("jest-fetch-mock");  // eslint-disable-line no-global-assign no-redeclare no-unused-vars
 
 // Make TextEncoder and cryto available in the global scope
 // in the same way as in a browser environment
