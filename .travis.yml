@@ -3,7 +3,7 @@ python: 3.7.3
 
 env:
   global:
-    - TRAVIS_NODE_VERSION=8.9.4
+    - TRAVIS_NODE_VERSION=10.19.0
 
 dist: xenial
 
