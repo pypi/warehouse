@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-04 19:23+0000\n"
-"Last-Translator: anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2020-04-04 20:01+0000\n"
+"Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -184,23 +184,24 @@ msgstr ""
 
 #: warehouse/accounts/views.py:605
 msgid "You have reset your password"
-msgstr "Вы сбросили свой пароль."
+msgstr "Вы сбросили свой пароль"
 
 #: warehouse/accounts/views.py:630
 msgid "Expired token: request a new email verification link"
 msgstr ""
-"Знак с истекшим сроком действия: запросите  новую ссылку для верификации "
+"Токен с истёкшим сроком действия: запросите новую ссылку для верификации "
 "электронной почты"
 
 #: warehouse/accounts/views.py:632
 msgid "Invalid token: request a new email verification link"
 msgstr ""
-"Недействительный знак: запросите новую ссылку для верификации электронной "
+"Недействительный токен: запросите новую ссылку для верификации электронной "
 "почты"
 
 #: warehouse/accounts/views.py:638
 msgid "Invalid token: not an email verification token"
-msgstr "Недействительный знак: не знак верификации электронной почты"
+msgstr ""
+"Недействительный токен: не является токеном для верификации электронной почты"
 
 #: warehouse/accounts/views.py:647
 msgid "Email not found"
@@ -227,7 +228,7 @@ msgstr "Электронная почта ${email_address} подтвержде�
 #: warehouse/manage/views.py:186
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
-"Электронная почта ${email_address} добавлена - проверьте свою почту на "
+"Электронная почта ${email_address} добавлена – проверьте свою почту на "
 "наличие ссылки подтверждения"
 
 #: warehouse/manage/views.py:667 warehouse/manage/views.py:703
@@ -249,11 +250,11 @@ msgstr ""
 
 #: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
-msgstr "Недействительные учётные данные. Попробуйте снова"
+msgstr "Недействительные учётные данные. Попробуйте ещё раз"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr "Доступ отклонен/ Запрещено (403)"
+msgstr "В доступе отказано / Запрещено (403)"
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
@@ -269,11 +270,11 @@ msgstr "Мы везде посмотрели, но не могли найти э
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
-msgstr "И теперь для чего-то <br><span>совсем другое"
+msgstr "А теперь нечто <br><span>совсем другое"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "Monty Python - The Cheese Shop Sketch (Эскиз сырного магазина)"
+msgstr "Монти Пайтон – Магазин сыра (Monty Python – The Cheese Shop)"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -426,9 +427,9 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p>У нас возникают технические проблемы, влияющие на нашу способность "
-"обслуживать ваш сайт.</p> <p> Мы знаем о проблеме и работаем над ее "
-"скорейшим решением.</p>"
+"<p>У нас возникли технические проблемы, которые повлияли на нашу способность "
+"обслуживать вас на этом сайте.</p> <p>Мы знаем об этой проблеме и работаем "
+"над её скорейшим устранением.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
@@ -436,7 +437,7 @@ msgstr "Проверьте нашу страницу статуса"
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr "Посмотреть статус Python в Twitter"
+msgstr "Посмотреть статус Python’а в Twitter’е"
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
@@ -444,7 +445,7 @@ msgstr "Код ошибки 500"
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr "Положитесь на PyPI, чтобы выполнить свою работу?"
+msgstr "Положились на PyPI для выполнения своей работы?"
 
 #: warehouse/templates/500.html:37
 msgid ""
@@ -453,11 +454,11 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
-"Рассмотрите <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
-"rel=\"noopener\"> содействие</a> или <a href=\"https://psfmember.org/civicrm/"
-"contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
-"пожертвование</a> чтобы помочь нам строить более стабильную и безопасную "
-"платформу."
+"Рассмотрите возможность <a href=\"https://github.com/pypa/warehouse\" target="
+"\"_blank\" rel=\"noopener\">внесения своего вклада</a> или <a href=\""
+"https://psfmember.org/civicrm/contribute/transact?reset=1&id=13\" target=\""
+"_blank\" rel=\"noopener\">внесения пожертвования</a>, чтобы помочь нам "
+"построить более стабильную и защищённую платформу."
 
 #: warehouse/templates/base.html:23
 msgid ""
@@ -465,7 +466,7 @@ msgid ""
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
 "Выберите пароль, который содержит буквы (заглавные и строчные), цифры и "
-"специальные символы. Избегайте простых слов или повторения."
+"специальные символы. Избегайте простых слов или повторов символов."
 
 #: warehouse/templates/base.html:26
 msgid "Password strength:"
@@ -523,8 +524,8 @@ msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
 msgstr ""
-"Python Package Index (PyPI) - это хранилище программного обеспечения для "
-"языка программирования Python."
+"Указатель пакетов Python’а (Python Package Index – PyPI) – это хранилище "
+"программного обеспечения для языка программирования Python."
 
 #: warehouse/templates/base.html:92
 msgid "RSS: 40 latest updates"
