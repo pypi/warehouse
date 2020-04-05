@@ -2,7 +2,7 @@
 # our static assets with. It is important that the steps in this remain the
 # same as the steps in Dockerfile.static, EXCEPT this may include additional
 # steps appended onto the end.
-FROM node:8.15.1 as static
+FROM node:10.19.0 as static
 
 WORKDIR /opt/warehouse/src/
 
