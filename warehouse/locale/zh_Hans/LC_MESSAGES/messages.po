@@ -323,23 +323,23 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/pages/help.html:626
 #: warehouse/templates/pages/help.html:643
 #: warehouse/templates/pages/help.html:650
-#: warehouse/templates/pages/help.html:659
-#: warehouse/templates/pages/help.html:675
-#: warehouse/templates/pages/help.html:680
-#: warehouse/templates/pages/help.html:685
-#: warehouse/templates/pages/help.html:695
-#: warehouse/templates/pages/help.html:704
-#: warehouse/templates/pages/help.html:718
-#: warehouse/templates/pages/help.html:726
-#: warehouse/templates/pages/help.html:734
-#: warehouse/templates/pages/help.html:742
-#: warehouse/templates/pages/help.html:752
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:658
+#: warehouse/templates/pages/help.html:674
+#: warehouse/templates/pages/help.html:679
+#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:694
+#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:717
+#: warehouse/templates/pages/help.html:725
+#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:751
+#: warehouse/templates/pages/help.html:766
+#: warehouse/templates/pages/help.html:781
 #: warehouse/templates/pages/help.html:782
 #: warehouse/templates/pages/help.html:783
 #: warehouse/templates/pages/help.html:784
-#: warehouse/templates/pages/help.html:785
-#: warehouse/templates/pages/help.html:790
+#: warehouse/templates/pages/help.html:789
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsor.html:27
 #: warehouse/templates/pages/sponsor.html:33
@@ -3744,7 +3744,7 @@ msgid "Troubleshooting"
 msgstr "故障排除"
 
 #: warehouse/templates/pages/help.html:169
-#: warehouse/templates/pages/help.html:671
+#: warehouse/templates/pages/help.html:670
 msgid "About"
 msgstr "关于"
 
@@ -4878,18 +4878,23 @@ msgstr ""
 "\"noopener\">首先使用Test PyPI执行并检查上传</a>。"
 
 #: warehouse/templates/pages/help.html:650
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "If you would like to request a new trove classifier file a bug on our <a "
+#| "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">issue tracker</a>. Include the name of the requested classifier and a "
+#| "brief justification of why it is important."
 msgid ""
-"If you would like to request a new trove classifier file a bug on our <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">issue tracker</a>. Include the name of the requested classifier and a "
+"If you would like to request a new trove classifier file a pull request on "
+"the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a "
 "brief justification of why it is important."
 msgstr ""
 "如果您想请求一个新的trove分类器文件，在我们的<a href=\"%(href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">问题跟踪程序</a>上有一个"
 "bug。包括请求的分类器的名称和为什么它是重要的简要理由。"
 
-#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:658
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -4904,14 +4909,14 @@ msgstr ""
 "建设性</strong>的反馈和错误报告。请注意，此跟踪器仅用于运行PyPI的软件的问题。"
 "在编写一个新的问题之前，首先要检查一个类似的问题是否已经存在。"
 
-#: warehouse/templates/pages/help.html:666
+#: warehouse/templates/pages/help.html:665
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
 msgstr ""
 "如果您遇到的问题是从PyPI安装的特定包，那么您应该直接联系该项目的维护人员。"
 
-#: warehouse/templates/pages/help.html:675
+#: warehouse/templates/pages/help.html:674
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -4924,7 +4929,7 @@ msgstr ""
 "\"_blank\" rel=\"noopener\">Warehouse</a>是在Python打包机构（PyPA）的保护下开"
 "发的一个开源项目，由Python打包工作组（PackagingWG）提供支持。"
 
-#: warehouse/templates/pages/help.html:680
+#: warehouse/templates/pages/help.html:679
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -4935,7 +4940,7 @@ msgstr ""
 "\">PyPA</a>是一个独立的开发团队，其目标是改进和维护与Python打包相关的许多核心"
 "项目。"
 
-#: warehouse/templates/pages/help.html:685
+#: warehouse/templates/pages/help.html:684
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -4953,7 +4958,7 @@ msgstr ""
 "\">获得了开放技术基金的一个奖项</a>，该基金的资金使开发人员能够提高仓库的安全"
 "性和可访问性。"
 
-#: warehouse/templates/pages/help.html:695
+#: warehouse/templates/pages/help.html:694
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -4964,7 +4969,7 @@ msgstr ""
 "rel=\"noopener\">Warehouse</a>和我们<a href=\"%(sponsors_href)s\">慷慨的赞助"
 "商</a>提供的各种工具和服务提供动力。"
 
-#: warehouse/templates/pages/help.html:702
+#: warehouse/templates/pages/help.html:701
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -4974,7 +4979,7 @@ msgstr ""
 "站点（pypi.python.org）。它现在是健壮的，经过测试的，并且已经为预期的浏览器和"
 "API流量做好了准备。"
 
-#: warehouse/templates/pages/help.html:704
+#: warehouse/templates/pages/help.html:703
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -4999,7 +5004,7 @@ msgstr ""
 "要求，请考虑使用<a href=\"%(mirror_href)s\">镜像索引</a>或<a href="
 "\"%(private_index_href)s\">专用索引</a>。"
 
-#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:717
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -5010,22 +5015,22 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Warehouse项目</a>），我们还有大量的工作要"
 "做。"
 
-#: warehouse/templates/pages/help.html:723
+#: warehouse/templates/pages/help.html:722
 msgid "Financial:"
 msgstr "财务："
 
-#: warehouse/templates/pages/help.html:723
+#: warehouse/templates/pages/help.html:722
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
 "development and maintenance</a>."
 msgstr "我们将非常感谢<a href=\"%(href)s\">您为开发和维护提供资金</a>。"
 
-#: warehouse/templates/pages/help.html:724
+#: warehouse/templates/pages/help.html:723
 msgid "Development:"
 msgstr "发展："
 
-#: warehouse/templates/pages/help.html:724
+#: warehouse/templates/pages/help.html:723
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -5036,7 +5041,7 @@ msgstr ""
 "strong>需要成为一个有经验的开源开发人员就可以做出贡献——事实上，我们很乐意帮助"
 "您提出第一个开源请求！"
 
-#: warehouse/templates/pages/help.html:726
+#: warehouse/templates/pages/help.html:725
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -5056,7 +5061,7 @@ msgstr ""
 "\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">“好的第一期”</a>标签——我们建议您从这里开始。"
 
-#: warehouse/templates/pages/help.html:734
+#: warehouse/templates/pages/help.html:733
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -5069,11 +5074,11 @@ msgstr ""
 "\"noopener\">里程碑</a>；在当前里程碑中处理问题是帮助推进项目的一个好方法。如"
 "果您对某个特定问题感兴趣，请留下评论，我们可以指导您完成贡献过程。"
 
-#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:740
 msgid "Stay updated:"
 msgstr "保持更新："
 
-#: warehouse/templates/pages/help.html:742
+#: warehouse/templates/pages/help.html:741
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
@@ -5087,7 +5092,7 @@ msgstr ""
 "\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">PyPA Dev消息组</a>上跟踪项目的正在进行的开发。"
 
-#: warehouse/templates/pages/help.html:752
+#: warehouse/templates/pages/help.html:751
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -5107,7 +5112,7 @@ msgstr ""
 "\">Atom</a>和<a href=\"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">RSS</a>提要。"
 
-#: warehouse/templates/pages/help.html:762
+#: warehouse/templates/pages/help.html:761
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -5116,13 +5121,13 @@ msgstr ""
 "当Warehouse的维护人员部署新功能时，首先我们用一个小的“beta功能”符号来标记它"
 "们，告诉您：这可能工作得很好，但它是新的，比其他站点功能测试得更少。"
 
-#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:762
 #, fuzzy
 #| msgid "Currently, the following features are in beta:"
 msgid "Currently, no features are in beta."
 msgstr "目前，以下功能处于测试阶段："
 
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:766
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -5135,39 +5140,39 @@ msgstr ""
 "将减少与<a href=\"%(href)s\" title=\"%(title)s\">PyPy</a>项目的混淆，PyPy项目"
 "是Python语言的一种流行的替代实现。"
 
-#: warehouse/templates/pages/help.html:779
+#: warehouse/templates/pages/help.html:778
 msgid "Resources"
 msgstr "资源"
 
-#: warehouse/templates/pages/help.html:780
+#: warehouse/templates/pages/help.html:779
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "在找别的吗？或许这些链接将有助于："
 
-#: warehouse/templates/pages/help.html:782
+#: warehouse/templates/pages/help.html:781
 msgid "Python Packaging User Guide"
 msgstr "Python打包指南"
 
-#: warehouse/templates/pages/help.html:783
+#: warehouse/templates/pages/help.html:782
 msgid "Python documentation"
 msgstr "Python文档"
 
-#: warehouse/templates/pages/help.html:784
+#: warehouse/templates/pages/help.html:783
 msgid "(main Python website)"
 msgstr "（主Python网站）"
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:784
 msgid "Python community page"
 msgstr "Python社区页面"
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:784
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "（列出IRC频道、邮件列表等）"
 
-#: warehouse/templates/pages/help.html:788
+#: warehouse/templates/pages/help.html:787
 msgid "Contact"
 msgstr "联系"
 
-#: warehouse/templates/pages/help.html:790
+#: warehouse/templates/pages/help.html:789
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="

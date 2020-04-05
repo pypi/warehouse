@@ -331,23 +331,23 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/pages/help.html:626
 #: warehouse/templates/pages/help.html:643
 #: warehouse/templates/pages/help.html:650
-#: warehouse/templates/pages/help.html:659
-#: warehouse/templates/pages/help.html:675
-#: warehouse/templates/pages/help.html:680
-#: warehouse/templates/pages/help.html:685
-#: warehouse/templates/pages/help.html:695
-#: warehouse/templates/pages/help.html:704
-#: warehouse/templates/pages/help.html:718
-#: warehouse/templates/pages/help.html:726
-#: warehouse/templates/pages/help.html:734
-#: warehouse/templates/pages/help.html:742
-#: warehouse/templates/pages/help.html:752
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:658
+#: warehouse/templates/pages/help.html:674
+#: warehouse/templates/pages/help.html:679
+#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:694
+#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:717
+#: warehouse/templates/pages/help.html:725
+#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:751
+#: warehouse/templates/pages/help.html:766
+#: warehouse/templates/pages/help.html:781
 #: warehouse/templates/pages/help.html:782
 #: warehouse/templates/pages/help.html:783
 #: warehouse/templates/pages/help.html:784
-#: warehouse/templates/pages/help.html:785
-#: warehouse/templates/pages/help.html:790
+#: warehouse/templates/pages/help.html:789
 #: warehouse/templates/pages/security.html:36
 #: warehouse/templates/pages/sponsor.html:27
 #: warehouse/templates/pages/sponsor.html:33
@@ -3965,7 +3965,7 @@ msgid "Troubleshooting"
 msgstr "Sorun giderme"
 
 #: warehouse/templates/pages/help.html:169
-#: warehouse/templates/pages/help.html:671
+#: warehouse/templates/pages/help.html:670
 msgid "About"
 msgstr "Hakkında"
 
@@ -5180,13 +5180,13 @@ msgstr ""
 #: warehouse/templates/pages/help.html:650
 #, python-format
 msgid ""
-"If you would like to request a new trove classifier file a bug on our <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">issue tracker</a>. Include the name of the requested classifier and a "
+"If you would like to request a new trove classifier file a pull request on "
+"the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a "
 "brief justification of why it is important."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:658
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -5197,7 +5197,7 @@ msgid ""
 "similar issue does not already exist."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:666
+#: warehouse/templates/pages/help.html:665
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -5205,7 +5205,7 @@ msgstr ""
 "PyPI' den yüklenen belirli bir paketle ilgili bir sorun yaşıyorsanız, "
 "öncelikli olarak paketin geliştiricilerine ulaşmanız gerekmektedir."
 
-#: warehouse/templates/pages/help.html:675
+#: warehouse/templates/pages/help.html:674
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -5215,7 +5215,7 @@ msgid ""
 "(PackagingWG)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:680
+#: warehouse/templates/pages/help.html:679
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -5223,7 +5223,7 @@ msgid ""
 "and maintain many of the core projects related to Python packaging."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:685
+#: warehouse/templates/pages/help.html:684
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -5235,7 +5235,7 @@ msgid ""
 "enabling developers to improve Warehouse's security and accessibility."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:695
+#: warehouse/templates/pages/help.html:694
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -5243,14 +5243,14 @@ msgid ""
 "services provided by our <a href=\"%(sponsors_href)s\">generous sponsors</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:702
+#: warehouse/templates/pages/help.html:701
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
 "robust, tested, and ready for expected browser and API traffic."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:704
+#: warehouse/templates/pages/help.html:703
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -5266,7 +5266,7 @@ msgid ""
 "\"%(private_index_href)s\">private index</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:717
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -5274,11 +5274,11 @@ msgid ""
 "rel=\"noopener\">the Warehouse project</a>)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:723
+#: warehouse/templates/pages/help.html:722
 msgid "Financial:"
 msgstr "Finansal:"
 
-#: warehouse/templates/pages/help.html:723
+#: warehouse/templates/pages/help.html:722
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -5287,11 +5287,11 @@ msgstr ""
 "<a href=\"%(href)s\">Geliştirme ve bakım amacıyla bağışlarınıza</a> son "
 "derece minnettarız."
 
-#: warehouse/templates/pages/help.html:724
+#: warehouse/templates/pages/help.html:723
 msgid "Development:"
 msgstr "Geliştirme:"
 
-#: warehouse/templates/pages/help.html:724
+#: warehouse/templates/pages/help.html:723
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -5303,7 +5303,7 @@ msgstr ""
 "olmak zorunda <strong>değilsiniz</strong>. Hatta ilk açık-kaynak pull "
 "request'inizi yapmanıza yardımcı olmaktan mutluluk duyarız!"
 
-#: warehouse/templates/pages/help.html:726
+#: warehouse/templates/pages/help.html:725
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -5316,7 +5316,7 @@ msgid ""
 "start here."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:734
+#: warehouse/templates/pages/help.html:733
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -5326,11 +5326,11 @@ msgid ""
 "guide you through the contribution process."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:740
 msgid "Stay updated:"
 msgstr "Güncel kalın:"
 
-#: warehouse/templates/pages/help.html:742
+#: warehouse/templates/pages/help.html:741
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
@@ -5340,7 +5340,7 @@ msgid ""
 "\"noopener\">PyPA Dev message group</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:752
+#: warehouse/templates/pages/help.html:751
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -5353,7 +5353,7 @@ msgid ""
 "a> feeds for the \"pypi\" label."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:762
+#: warehouse/templates/pages/help.html:761
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -5364,13 +5364,13 @@ msgstr ""
 "Bu şu anlama geliyor: bu özellik muhtemelen düzgün çalışacak, yinede daha "
 "yeni bir özellik ve diğer özelliklere göre daha az test edildi."
 
-#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:762
 #, fuzzy
 #| msgid "Currently, the following features are in beta:"
 msgid "Currently, no features are in beta."
 msgstr "Beta durumunda bulunan güncel özellikler şunlar:"
 
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:766
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -5380,41 +5380,41 @@ msgid ""
 "language."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:779
+#: warehouse/templates/pages/help.html:778
 msgid "Resources"
 msgstr "Kaynaklar"
 
-#: warehouse/templates/pages/help.html:780
+#: warehouse/templates/pages/help.html:779
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr ""
 "Başka bir şey mi arıyorsunuz? Belki aşağıdaki linkler işinize yarayabilir:"
 
-#: warehouse/templates/pages/help.html:782
+#: warehouse/templates/pages/help.html:781
 #, fuzzy
 msgid "Python Packaging User Guide"
 msgstr "Python Paketleme Kullanıcı Kılavuzu"
 
-#: warehouse/templates/pages/help.html:783
+#: warehouse/templates/pages/help.html:782
 msgid "Python documentation"
 msgstr "Python dokümantasyonu"
 
-#: warehouse/templates/pages/help.html:784
+#: warehouse/templates/pages/help.html:783
 msgid "(main Python website)"
 msgstr "(resmi Python web sitesi)"
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:784
 msgid "Python community page"
 msgstr "Python topluluk sayfası"
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:784
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(IRC kanallarının listeleri, e-posta listeleri, vb.)"
 
-#: warehouse/templates/pages/help.html:788
+#: warehouse/templates/pages/help.html:787
 msgid "Contact"
 msgstr "İletişim"
 
-#: warehouse/templates/pages/help.html:790
+#: warehouse/templates/pages/help.html:789
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
