@@ -16,13 +16,14 @@
 # Min ho Kim <minho42@gmail.com>, 2019.
 # Seokhwan Moon <miral09@msn.com>, 2020.
 # anonymous <noreply@weblate.org>, 2020.
+# Allan Nordhøy <epost@anotheragency.no>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-01 15:20+0000\n"
-"Last-Translator: anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2020-04-03 18:42+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
 "Language: ko\n"
@@ -5358,7 +5359,7 @@ msgstr ""
 #, fuzzy, python-format
 #| msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
-msgstr "또는,  <a href=\"%(href)s\">프로젝트를  둘러보세요</a>"
+msgstr "또는,  <a href=\"%(href)s\">프로젝트를 둘러보세요</a>"
 
 #: warehouse/templates/pages/sponsor.html:202
 #, fuzzy, python-format

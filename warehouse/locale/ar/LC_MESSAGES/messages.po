@@ -5,13 +5,14 @@
 # Mariam Maarouf <mariam.mrf@hotmail.com>, 2019.
 # Sayed A Omar <devsayed1@gmail.com>, 2019.
 # Abdur-Rahmaan Janhangeer <cryptolabour@gmail.com>, 2019.
+# Allan Nordhøy <epost@anotheragency.no>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2019-12-24 19:07+0000\n"
-"Last-Translator: Abdur-Rahmaan Janhangeer <cryptolabour@gmail.com>\n"
+"PO-Revision-Date: 2020-04-03 18:42+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 3.10\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:255
@@ -1381,8 +1382,8 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"أحد ما، ربما أنت، غير كلمة السر لحساب PyPI  الخاص بك <strong>%(username)s</"
-"strong>."
+"أحد ما، ربما أنت، غير كلمة السر لحساب PyPI الخاص بك "
+"<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format
