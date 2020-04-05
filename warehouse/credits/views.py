@@ -15,7 +15,7 @@ from pyramid.view import view_config
 from .contributors import Contributor
 
 
-@view_config(route_name="credits", renderer="pages/credits.html")
+@view_config(route_name="credits", renderer="pages/credits.html", has_translations=True)
 def credits_page(request):
 
     # get all items from Contributors table

@@ -46,7 +46,11 @@ def includeme(config):
         "pages/security.html",
         view_kw={"has_translations": True},
     )
-    config.add_template_view("credits", "/credits/", "templates/pages/credits.html")
+    config.add_template_view(
+        "credits",
+        "/credits/",
+        "templates/pages/credits.html",
+    )
     config.add_template_view(
         "sponsors",
         "/sponsors/",

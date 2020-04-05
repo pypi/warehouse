@@ -12,7 +12,7 @@
  # limitations under the License.
 -#}
 {% extends "base.html" %}
-{% block title %}Development Credits{% endblock %}
+{% block title %}{% trans %}Development Credits{% endtrans %}{% endblock %}
 
 {% set core_contributors = ['ewdurbin', 'di', 'dstufft', 'nlhkabu',
                         'yeraydiazdiaz'] %}
@@ -20,15 +20,15 @@
 {% block content %}
   <section class="horizontal-section">
   <div class="narrow-container">
-    <h2>Development Credits</h2>
-      <p>The following people have helped to build the <a href="https://pypi.org/">PyPI Warehouse application</a> for the Python community:</p>
+    <h2>{% trans %}Development Credits{% endtrans %}</h2>
+      <p>{% trans %}The following people have helped to build the{% endtrans %} <a href="https://pypi.org/">{% trans %}PyPI Warehouse application{% endtrans %}</a> {% trans %}for the Python community{% endtrans %}:</p>
       <ul>
       <div class="row">
         {% for row in contributors %}
         <div class="col-half">
         {% for item in row %}
           {% if item.contributor_login in core_contributors %}
-          <li><a href="{{ item.contributor_url }}">{{  item.contributor_name }}</a> <b>(Core contributor)</b></li>
+          <li><a href="{{ item.contributor_url }}">{{  item.contributor_name }}</a> <b>({% trans %}Core contributor{% endtrans %})</b></li>
           {% else %}
           <li><a href="{{ item.contributor_url }}">{{  item.contributor_name }}</a></li>
           {% endif %}

@@ -222,9 +222,8 @@ msgstr ""
 #: warehouse/templates/base.html:259 warehouse/templates/base.html:269
 #: warehouse/templates/base.html:270 warehouse/templates/base.html:271
 #: warehouse/templates/base.html:282 warehouse/templates/base.html:283
-#: warehouse/templates/base.html:284 warehouse/templates/base.html:293
-#: warehouse/templates/base.html:295 warehouse/templates/base.html:306
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:293 warehouse/templates/base.html:295
+#: warehouse/templates/base.html:306 warehouse/templates/base.html:315
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -547,10 +546,6 @@ msgstr ""
 
 #: warehouse/templates/base.html:283
 msgid "Translate PyPI"
-msgstr ""
-
-#: warehouse/templates/base.html:284
-msgid "Development credits"
 msgstr ""
 
 #: warehouse/templates/base.html:290 warehouse/templates/pages/sitemap.html:23
@@ -3235,6 +3230,27 @@ msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:31
 msgid "List of classifiers"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:15
+#: warehouse/templates/pages/credits.html:23
+msgid "Development Credits"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:24
+msgid "The following people have helped to build the"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:24
+msgid "PyPI Warehouse application"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:24
+msgid "for the Python community"
+msgstr ""
+
+#: warehouse/templates/pages/credits.html:31
+msgid "Core contributor"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:19

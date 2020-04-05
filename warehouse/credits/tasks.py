@@ -11,15 +11,18 @@
 # limitations under the License.
 
 import json
+import logging
 import requests
 
 from warehouse import tasks
 from .contributors import Contributor
 
+logger = logging.getLogger(__name__)
 
-def call_github_api(url):
+
+def call_github_api(url, headers):
     try:
-        r = requests.get(url)
+        r = requests.get(url, headers=headers)
     except requests.exceptions.RequestException as e:
         raise Exception(e)
 
@@ -36,15 +39,21 @@ def get_contributors(request):
 
     access_token = request.registry.settings["warehouse.github_access_token"]
 
+    headers = {'Accept': 'application/vnd.github+json'}
+    headers['Authorization'] = 'token ' + access_token
+
     initial_url = (
         api_url
         + "/repos/pypa/warehouse/contributors"
         + "?page=1&per_page=100"
-        + "&access_token="
-        + access_token
     )
 
-    r = call_github_api(initial_url)
+    r = call_github_api(initial_url, headers)
+
+    # This might occur if GitHub API rate limit is reached, for example
+    if r is None:
+        logging.warning("Error contacting GitHub API, cannot get warehouse contributors list")
+        return None
 
     next_request = ""
 
@@ -60,10 +69,8 @@ def get_contributors(request):
                     api_url
                     + "/users/"
                     + item["login"]
-                    + "?access_token="
-                    + access_token
                 )
-                r2 = call_github_api(users_query)
+                r2 = call_github_api(users_query, headers)
                 if r2.status_code is 200:
                     json_data2 = json.loads(r2.text)
                     if json_data2["name"] is None or len(json_data2["name"]) < 2:
@@ -87,7 +94,7 @@ def get_contributors(request):
 
         if r.links.get("next"):
             next_request = r.links["next"]["url"]
-            r = call_github_api(next_request)
+            r = call_github_api(next_request, headers)
         else:
             next_request = None
 
