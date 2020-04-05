@@ -350,6 +350,39 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/pages/help.html:785
 #: warehouse/templates/pages/help.html:790
 #: warehouse/templates/pages/security.html:36
+#: warehouse/templates/pages/sponsor.html:27
+#: warehouse/templates/pages/sponsor.html:33
+#: warehouse/templates/pages/sponsor.html:37
+#: warehouse/templates/pages/sponsor.html:41
+#: warehouse/templates/pages/sponsor.html:45
+#: warehouse/templates/pages/sponsor.html:61
+#: warehouse/templates/pages/sponsor.html:112
+#: warehouse/templates/pages/sponsor.html:115
+#: warehouse/templates/pages/sponsor.html:133
+#: warehouse/templates/pages/sponsor.html:134
+#: warehouse/templates/pages/sponsor.html:135
+#: warehouse/templates/pages/sponsor.html:138
+#: warehouse/templates/pages/sponsor.html:156
+#: warehouse/templates/pages/sponsor.html:157
+#: warehouse/templates/pages/sponsor.html:158
+#: warehouse/templates/pages/sponsor.html:161
+#: warehouse/templates/pages/sponsor.html:179
+#: warehouse/templates/pages/sponsor.html:180
+#: warehouse/templates/pages/sponsor.html:181
+#: warehouse/templates/pages/sponsor.html:184
+#: warehouse/templates/pages/sponsor.html:201
+#: warehouse/templates/pages/sponsor.html:202
+#: warehouse/templates/pages/sponsor.html:203
+#: warehouse/templates/pages/sponsor.html:206
+#: warehouse/templates/pages/sponsor.html:222
+#: warehouse/templates/pages/sponsor.html:223
+#: warehouse/templates/pages/sponsor.html:224
+#: warehouse/templates/pages/sponsor.html:227
+#: warehouse/templates/pages/sponsor.html:239
+#: warehouse/templates/pages/sponsor.html:244
+#: warehouse/templates/pages/sponsor.html:245
+#: warehouse/templates/pages/sponsor.html:246
+#: warehouse/templates/pages/sponsor.html:249
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "Link externo"
@@ -443,8 +476,10 @@ msgstr "Ajuda"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:60
-msgid "Donate"
-msgstr "Doar"
+#, fuzzy
+#| msgid "Sponsors"
+msgid "Sponsor"
+msgstr "Patrocinadores"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:41
@@ -5568,6 +5603,525 @@ msgstr "Patrocinadores"
 msgid "Security policy"
 msgstr "Política de segurança"
 
+#: warehouse/templates/pages/sponsor.html:15
+msgid "Sponsor the Packaging Working Group"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:23
+#, fuzzy
+#| msgid "Search and filter projects"
+msgid "Sponsor PyPI and related projects"
+msgstr "Pesquisar e filtrar projetos"
+
+#: warehouse/templates/pages/sponsor.html:24
+msgid "Donate to the Packaging Working Group"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:27
+#, fuzzy, python-format
+#| msgid ""
+#| "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#| "\"noopener\">PyPA</a> is an independent group of developers whose goal is "
+#| "to improve and maintain many of the core projects related to Python "
+#| "packaging."
+msgid ""
+"The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Packaging Working Group</a> is a work group of the Python Software "
+"Foundation which raises and distributes funds to improve Python's packaging "
+"ecosystem."
+msgstr ""
+"O <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">PyPA</a> é um grupo independente de desenvolvedores cujo objetivo é "
+"melhorar e manter muitos dos principais projetos relacionados a "
+"empacotamento do Python."
+
+#: warehouse/templates/pages/sponsor.html:29
+msgid "Recent projects funded through the working group include:"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:32
+msgid ""
+"The successful relaunch of the Python Package Index, powered by the new "
+"'Warehouse' codebase"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:33
+#, fuzzy, python-format
+#| msgid ""
+#| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+msgid ""
+"With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">$170,000 in funding</a> from the <a href=\"%(funder_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source "
+"Support Program</a> in 2018"
+msgstr ""
+"Duo Mobile para <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Android</a> ou <a href=\"%(ios_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+
+#: warehouse/templates/pages/sponsor.html:36
+msgid ""
+"Improving PyPI's security and accessibility, and adding support for multiple "
+"locales"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:37
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"With $80,000 in funding from the <a href=\"%(funder_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> in "
+"2019"
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:40
+msgid "Additional security-focused features for PyPI"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:41
+#, fuzzy, python-format
+#| msgid ""
+#| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+msgid ""
+"With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">$100,000 in funding</a> from <a href=\"%(funder_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> in "
+"2019 and 2020"
+msgstr ""
+"Duo Mobile para <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">Android</a> ou <a href=\"%(ios_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+
+#: warehouse/templates/pages/sponsor.html:44
+msgid "Overhauling pip's user experience and dependency resolver"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:45
+#, fuzzy, python-format
+#| msgid ""
+#| "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s"
+#| "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</"
+#| "a> and <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">Thetis</a>."
+msgid ""
+"With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">$407,000 in funding</a> from the <a href=\"%(funder0_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Chan Zuckerberg "
+"Initiative</a> and the <a href=\"%(funder1_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> "
+"in 2020"
+msgstr ""
+"Chaves populares incluem <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</a> e <a "
+"href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Thetis</a>."
+
+#: warehouse/templates/pages/sponsor.html:49
+msgid ""
+"With your support, the working group can continue to fund packaging "
+"improvements, benefiting millions of Python users around the world."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:57
+#, fuzzy
+#| msgid "Common questions"
+msgid "Community donations"
+msgstr "Perguntas comuns"
+
+#: warehouse/templates/pages/sponsor.html:60
+msgid "We greatly appreciate both one-time and recurring donations."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:61
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">your donation may be tax-deductible</a>."
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:62
+msgid "Every donation counts!"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:65
+#, fuzzy
+#| msgid "Donate"
+msgid "Donate here"
+msgstr "Doar"
+
+#: warehouse/templates/pages/sponsor.html:66
+#, fuzzy, python-format
+#| msgid "Go to <a href=\"%(href)s\">reset your password</a>."
+msgid ""
+"Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
+msgstr "Vá para <a href=\"%(href)s\">redefinir sua senha</a>."
+
+#: warehouse/templates/pages/sponsor.html:77
+msgid "Get your logo on PyPI.org"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:78
+msgid ""
+"Looking for brand visibility? In the last year*, 21.1 million people from "
+"237 countries visited PyPI.org."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:79
+msgid "* Data as of March 2020"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:82
+msgid "Strengthen the Python ecosystem"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:83
+msgid ""
+"Funds raised by the packaging working group go directly towards improving "
+"the tools your company uses every day."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:86
+msgid "Boost your reputation"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:87
+msgid ""
+"Enhance your company's reputation by investing in Python and the open source "
+"community."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:96
+#, fuzzy
+#| msgid "Uploading packages"
+msgid "Sponsorship packages"
+msgstr "Enviando pacotes"
+
+#: warehouse/templates/pages/sponsor.html:97
+msgid "All figures are in USD"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:106
+msgid "Lifetime"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:107
+msgid "One time donation of $1,000,000"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:111
+msgid ""
+"Logo in a prominent position on the PyPI project detail page, <strong>in "
+"perpetuity</strong>"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:112
+#: warehouse/templates/pages/sponsor.html:133
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"blog</a>"
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:116
+#: warehouse/templates/pages/sponsor.html:139
+#: warehouse/templates/pages/sponsor.html:162
+#: warehouse/templates/pages/sponsor.html:185
+#: warehouse/templates/pages/sponsor.html:207
+#: warehouse/templates/pages/sponsor.html:228
+#: warehouse/templates/pages/sponsor.html:250
+msgid "Become a sponsor"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:125
+msgid "Diamond"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:126
+msgid "$50,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:130
+msgid ""
+"Logo in a <strong>prominent position</strong> on the PyPI project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:131
+#: warehouse/templates/pages/sponsor.html:154
+#: warehouse/templates/pages/sponsor.html:177
+msgid "Logo on the PyPI footer"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:132
+#: warehouse/templates/pages/sponsor.html:155
+#: warehouse/templates/pages/sponsor.html:178
+#: warehouse/templates/pages/sponsor.html:243
+#, fuzzy, python-format
+#| msgid ""
+#| "For instructions on how to use this token, <a href=\"%(href)s\">visit the "
+#| "PyPI help page</a>."
+msgid ""
+"Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI sponsors "
+"page</a>"
+msgstr ""
+"Para instruções sobre como usar este token, <a href=\"%(href)s\">visite a "
+"página de ajuda do PyPI</a>."
+
+#: warehouse/templates/pages/sponsor.html:134
+#: warehouse/templates/pages/sponsor.html:157
+#: warehouse/templates/pages/sponsor.html:180
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+"Foundation</a>"
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:135
+#: warehouse/templates/pages/sponsor.html:158
+#: warehouse/templates/pages/sponsor.html:181
+#, fuzzy, python-format
+#| msgid ""
+#| "PyPI supports any device that adheres to the <a href=\"%(href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
+msgid ""
+"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
+"a>"
+msgstr ""
+"PyPI possui suporte a qualquer dispositivo que adere ao <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">padrão FIDO</a>."
+
+#: warehouse/templates/pages/sponsor.html:148
+msgid "Platinum"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:149
+msgid "$30,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:153
+msgid ""
+"Logo on <strong>high rotation</strong> in a prominent position on the PyPI "
+"project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:156
+#: warehouse/templates/pages/sponsor.html:179
+#: warehouse/templates/pages/sponsor.html:201
+#: warehouse/templates/pages/sponsor.html:222
+#, fuzzy, python-format
+#| msgid ""
+#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#| "available formats."
+msgid ""
+"Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
+"<strong>with other sponsors</strong> whose sponsorship commenced during the "
+"same quarter"
+msgstr ""
+"Consulte o <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Guia de Usuário para Empacotamento de Python</a> para detalhes "
+"sobre os formatos disponíveis."
+
+#: warehouse/templates/pages/sponsor.html:171
+msgid "Gold"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:172
+msgid "$20,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:176
+msgid ""
+"Logo on <strong>medium rotation</strong> in a prominent position on the PyPI "
+"project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:194
+msgid "Silver"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:195
+msgid "$10,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:199
+msgid ""
+"Logo on <strong>low rotation</strong> in a prominent position on the PyPI "
+"project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:200
+#: warehouse/templates/pages/sponsor.html:221
+#, fuzzy, python-format
+#| msgid "Go to <a href=\"%(href)s\">reset your password</a>."
+msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
+msgstr "Vá para <a href=\"%(href)s\">redefinir sua senha</a>."
+
+#: warehouse/templates/pages/sponsor.html:202
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+"Foundation</a>"
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:203
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
+"a>"
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:216
+msgid "Bronze"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:217
+msgid "$5,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:223
+#, fuzzy, python-format
+#| msgid ""
+#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#| "available formats."
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
+"a> (on initial sponsorship, and on each subsequent renewal)"
+msgstr ""
+"Consulte o <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Guia de Usuário para Empacotamento de Python</a> para detalhes "
+"sobre os formatos disponíveis."
+
+#: warehouse/templates/pages/sponsor.html:224
+#, fuzzy, python-format
+#| msgid ""
+#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#| "available formats."
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a> "
+"(on initial sponsorship, and on each subsequent renewal)"
+msgstr ""
+"Consulte o <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Guia de Usuário para Empacotamento de Python</a> para detalhes "
+"sobre os formatos disponíveis."
+
+#: warehouse/templates/pages/sponsor.html:238
+msgid "One time grants / custom donations"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:239
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to create a new release on the <a href=\"%(href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+#| "Guide</a>"
+msgid ""
+"Sponsorship of a specific feature, feature set, or community sprint, valued "
+"at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"\" rel=\"noopener\">fundable packaging improvements</a> for ideas."
+msgstr ""
+"Saiba mais como criar um novo lançamento no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:244
+#, fuzzy, python-format
+#| msgid ""
+#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#| "available formats."
+msgid ""
+"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware Foundation "
+"blog</a>, explaining what the funds will be used for"
+msgstr ""
+"Consulte o <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Guia de Usuário para Empacotamento de Python</a> para detalhes "
+"sobre os formatos disponíveis."
+
+#: warehouse/templates/pages/sponsor.html:245
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
+"a>"
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:246
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a>"
+msgstr ""
+"Saiba mais sobre como enviar arquivos no <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Guia de Usuário para "
+"Empacotamento de Python</a>"
+
+#: warehouse/templates/pages/sponsor.html:248
+msgid ""
+"Note: A record of working group grants will be listed on the PyPI "
+"sponsorship page in perpetuity."
+msgstr ""
+
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
 msgstr "Estatísticas do PyPI"
@@ -5902,13 +6456,6 @@ msgstr[1] ""
 
 #~ msgid "Created on"
 #~ msgstr "Criada em"
-
-#~ msgid ""
-#~ "For instructions on how to use this token, <a href=\"%(href)s\">visit the "
-#~ "PyPI help page</a>."
-#~ msgstr ""
-#~ "Para instruções sobre como usar este token, <a href=\"%(href)s\">visite a "
-#~ "página de ajuda do PyPI</a>."
 
 #~ msgid ""
 #~ "An API token scoped to your entire account will have upload permissions "
