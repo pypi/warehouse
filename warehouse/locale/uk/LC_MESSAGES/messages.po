@@ -1,24 +1,20 @@
-# Ukrainian translations for PROJECT.
-# Copyright (C) 2020 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
-#
-#, fuzzy
+# Alex Solonenko <alex.solonencko@gmail.com>, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-04-06 14:57-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-05 17:06+0200\n"
+"PO-Revision-Date: 2020-04-05 15:06+0000\n"
+"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
+"Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
+"uk/>\n"
 "Language: uk\n"
-"Language-Team: uk <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.0-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -272,7 +268,7 @@ msgstr "Монті Пайтон — Нарис про магазин сиру"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
+#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -502,7 +498,7 @@ msgstr "Меню"
 msgid "Main menu"
 msgstr "Головне меню"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
@@ -725,39 +721,27 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Чи <a href=\"%(href)s\">переглядайте проекти</a>"
 
+#: warehouse/templates/index.html:66
+#, python-format
+msgid "%(num_projects)s projects"
+msgstr "%(num_projects)s проект(-и,-ів)"
+
 #: warehouse/templates/index.html:67
 #, python-format
-msgid "%(num_projects_formatted)s project"
-msgid_plural "%(num_projects_formatted)s projects"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgid "%(num_releases)s releases"
+msgstr "%(num_releases)s випуск(-и,-ів)"
 
-#: warehouse/templates/index.html:74
+#: warehouse/templates/index.html:68
 #, python-format
-msgid "%(num_releases_formatted)s release"
-msgid_plural "%(num_releases_formatted)s releases"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgid "%(num_files)s files"
+msgstr "%(num_files)s файл(-и,-ів)"
+
+#: warehouse/templates/index.html:69
+#, python-format
+msgid "%(num_users)s users"
+msgstr "%(num_users)s користувач(-і,-ів)"
 
 #: warehouse/templates/index.html:81
-#, python-format
-msgid "%(num_files_formatted)s file"
-msgid_plural "%(num_files_formatted)s files"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-#: warehouse/templates/index.html:88
-#, python-format
-msgid "%(num_users_formatted)s user"
-msgid_plural "%(num_users_formatted)s users"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-
-#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
@@ -765,33 +749,33 @@ msgstr ""
 "PyPI допомагає вам знаходити і встановлювати програмне забезпечення, "
 "розроблене і поширене спільнотою Python."
 
-#: warehouse/templates/index.html:106
+#: warehouse/templates/index.html:82
 msgid "Learn about installing packages</a>."
 msgstr "Дізнайтеся про встановлення пакунків</a>."
 
-#: warehouse/templates/index.html:109
+#: warehouse/templates/index.html:85
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 "Автори пакунків використовують PyPI для розповсюдження свого програмного "
 "забезпечення."
 
-#: warehouse/templates/index.html:110
+#: warehouse/templates/index.html:86
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Дізнайтеся як запакувати свій код на Python для PyPI</a>."
 
-#: warehouse/templates/index.html:120
+#: warehouse/templates/index.html:96
 msgid "Trending projects"
 msgstr "Популярні проекти"
 
-#: warehouse/templates/index.html:121
+#: warehouse/templates/index.html:97
 msgid "Trending projects as downloaded by the community"
 msgstr "Популярні проекти за завантаженнями спільнотою"
 
-#: warehouse/templates/index.html:131
+#: warehouse/templates/index.html:107
 msgid "New releases"
 msgstr "Нові випуски"
 
-#: warehouse/templates/index.html:132
+#: warehouse/templates/index.html:108
 msgid "Hot off the press: the newest project releases"
 msgstr "Свіженьке: найновіші випуски проектів"
 
@@ -6126,10 +6110,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
 "account</a> (on initial sponsorship, and on each subsequent renewal)"
 msgstr ""
-"<strong>Єдиний</strong> твіт з подякою від <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту "
-"PyPI</a> (під час початкового спонсорства і після кожного наступного "
-"поновлення)"
+"<strong>Одноразовий</strong> твіт з подякою від <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту PyPI</a> (під "
+"час початкового спонсорства і після кожного наступного поновлення)"
 
 #: warehouse/templates/pages/sponsor.html:238
 msgid "One time grants / custom donations"
@@ -6541,16 +6524,3 @@ msgstr[2] ""
 
 #~ msgid "User's username"
 #~ msgstr "Ім'я користувача"
-
-#~ msgid "%(num_projects)s projects"
-#~ msgstr "%(num_projects)s проект(-и,-ів)"
-
-#~ msgid "%(num_releases)s releases"
-#~ msgstr "%(num_releases)s випуск(-и,-ів)"
-
-#~ msgid "%(num_files)s files"
-#~ msgstr "%(num_files)s файл(-и,-ів)"
-
-#~ msgid "%(num_users)s users"
-#~ msgstr "%(num_users)s користувач(-і,-ів)"
-
