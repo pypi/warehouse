@@ -696,7 +696,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/index.html:82
-msgid "Learn about installing packages</a>."
+msgid "Learn about installing packages"
 msgstr ""
 
 #: warehouse/templates/index.html:85
@@ -704,7 +704,7 @@ msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 
 #: warehouse/templates/index.html:86
-msgid "Learn how to package your Python code for PyPI</a>."
+msgid "Learn how to package your Python code for PyPI"
 msgstr ""
 
 #: warehouse/templates/index.html:96
