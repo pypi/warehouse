@@ -9,7 +9,7 @@ export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
 # Run our webpack pipeline
-npx webpack --mode production
+npx webpack --mode production --config webpack.warehouse.js
 
 # Test that our JS source is included in the bundle
 bin/test-sourcemaps
