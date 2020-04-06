@@ -6,8 +6,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-04-05 17:06+0200\n"
-"PO-Revision-Date: 2020-04-05 16:44+0000\n"
-"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
+"PO-Revision-Date: 2020-04-06 10:54+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -471,9 +471,8 @@ msgstr "Допомога"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:60
-#, fuzzy
 msgid "Sponsor"
-msgstr "Спонсор"
+msgstr "Спонсорувати"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:41
@@ -5951,7 +5950,7 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:154
 #: warehouse/templates/pages/sponsor.html:177
 msgid "Logo on the PyPI footer"
-msgstr "Логотип у футері PyPI"
+msgstr "Логотип унизу веб-сторінок PyPI"
 
 #: warehouse/templates/pages/sponsor.html:132
 #: warehouse/templates/pages/sponsor.html:155
@@ -6004,8 +6003,8 @@ msgid ""
 "Logo on <strong>high rotation</strong> in a prominent position on the "
 "PyPI project detail page"
 msgstr ""
-"Логотип із <strong>високою частотою появи</strong> на видному місці сторінки "
-"деталей про проект PyPI"
+"Логотип із <strong>високою частотою появи</strong> на визначному місці "
+"сторінки деталей про проект PyPI"
 
 # | msgid ""
 # | "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\"
@@ -6017,17 +6016,17 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:179
 #: warehouse/templates/pages/sponsor.html:201
 #: warehouse/templates/pages/sponsor.html:222
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during "
 "the same quarter"
 msgstr ""
-"Включення у допис у  <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">блозі Python Sofware Foundation</a>, "
-"<strong>з іншими спонсорами</strong>, чиє спонсорство розпочато протягом "
-"того ж кварталу"
+"Включення у допис у <a href=\"%(href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">блозі Python Sofware Foundation</a>, <strong>з "
+"іншими спонсорами</strong>, чиє спонсорство розпочато протягом того ж "
+"кварталу"
 
 #: warehouse/templates/pages/sponsor.html:171
 msgid "Gold"
@@ -6042,6 +6041,8 @@ msgid ""
 "Logo on <strong>medium rotation</strong> in a prominent position on the "
 "PyPI project detail page"
 msgstr ""
+"Логотип з <strong>помірною частотою появи</strong> у визначному місці на "
+"сторінці детального опису проекту PyPI"
 
 #: warehouse/templates/pages/sponsor.html:194
 msgid "Silver"
@@ -6056,8 +6057,8 @@ msgid ""
 "Logo on <strong>low rotation</strong> in a prominent position on the PyPI"
 " project detail page"
 msgstr ""
-"Логотип з <strong>низькою частотою появи</strong> на видному місці сторінки "
-"деталей про проект PyPI"
+"Логотип з <strong>низькою частотою появи</strong> на визначному місці "
+"сторінки деталей про проект PyPI"
 
 #: warehouse/templates/pages/sponsor.html:200
 #: warehouse/templates/pages/sponsor.html:221
@@ -6083,8 +6084,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
 "account</a>"
 msgstr ""
-"<strong>Двічі на рік</strong>, твіт з подякою від <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту PyPI</a>"
+"Твіт з подякою від <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">Твітер акаунту PyPI</a>, <strong>двічі на рік</strong>"
 
 #: warehouse/templates/pages/sponsor.html:216
 msgid "Bronze"
