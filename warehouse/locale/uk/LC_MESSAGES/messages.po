@@ -1,13 +1,21 @@
-# Alex Solonenko <alex.solonencko@gmail.com>, 2020.
-# Anna Kurylo <anna.kurilo21@gmail.com>, 2020.
-# Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2020.
+# Ukrainian translations for Warehouse.
+# Copyright (C) 2019 PyPA
+# This file is distributed under the same license as the Warehouse project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+# Sviatoslav Sydorenko <wk.cvs.github@sydorenko.org.ua>, 2019.
+# okawo <okawo.198@gmail.com>, 2019.
+# Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2019, 2020.
+# Alex Solonenko <alex.solonencko@gmail.com>, 2019, 2020.
+# Roksolana <roksolana.d22@gmail.com>, 2019.
+# Olexandr <me.olexandr.kovalchuk@gmail.com>, 2020.
+# anonymous <noreply@weblate.org>, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-06 17:27-0500\n"
-"PO-Revision-Date: 2020-04-06 19:56+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"Project-Id-Version: Warehouse VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
+"POT-Creation-Date: 2020-04-05 09:33-0500\n"
+"PO-Revision-Date: 2020-04-05 13:40+0000\n"
+"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
 "Language: uk\n"
 "Language-Team: Ukrainian "
 "<https://hosted.weblate.org/projects/pypa/warehouse/uk/>\n"
