@@ -159,7 +159,7 @@ class ManageAccountViews:
             self.user_service.update_user(self.request.user.id, **data)
             for email in self.request.user.emails:
                 email.public = email.email == public_email
-            self.request.session.flash("Account details updated", queue="success")
+            self.request.session.flash(_("Account details updated"), queue="success")
 
         return {**self.default_response, "save_account_form": form}
 
@@ -206,12 +206,12 @@ class ManageAccountViews:
                 .one()
             )
         except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
+            self.request.session.flash(_("Email address not found"), queue="error")
             return self.default_response
 
         if email.primary:
             self.request.session.flash(
-                "Cannot remove primary email address", queue="error"
+                _("Cannot remove primary email address"), queue="error"
             )
         else:
             self.request.user.emails.remove(email)
@@ -222,7 +222,11 @@ class ManageAccountViews:
                 additional={"email": email.email},
             )
             self.request.session.flash(
-                f"Email address {email.email} removed", queue="success"
+                _(
+                    "Email address ${email} removed",
+                    mapping={"email": email.email},
+                ),
+                queue="success"
             )
         return self.default_response
 
@@ -240,7 +244,7 @@ class ManageAccountViews:
                 .one()
             )
         except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
+            self.request.session.flash(_("Email address not found"), queue="error")
             return self.default_response
 
         self.request.db.query(Email).filter(
@@ -261,7 +265,11 @@ class ManageAccountViews:
         )
 
         self.request.session.flash(
-            f"Email address {new_primary_email.email} set as primary", queue="success"
+            _(
+                "Email address ${email} set as primary",
+                mapping={"email": new_primary_email.email},
+            ),
+            queue="success"
         )
 
         if previous_primary_email is not None:
@@ -282,11 +290,11 @@ class ManageAccountViews:
                 .one()
             )
         except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
+            self.request.session.flash(_("Email address not found"), queue="error")
             return self.default_response
 
         if email.verified:
-            self.request.session.flash("Email is already verified", queue="error")
+            self.request.session.flash(_("Email is already verified"), queue="error")
         else:
             send_email_verification_email(self.request, (self.request.user, email))
             email.user.record_event(
@@ -296,7 +304,11 @@ class ManageAccountViews:
             )
 
             self.request.session.flash(
-                f"Verification email for {email.email} resent", queue="success"
+                _(
+                    "Verification email for ${email} resent",
+                    mapping={"email": email.email},
+                ),
+                queue="success"
             )
 
         return self.default_response
@@ -323,7 +335,7 @@ class ManageAccountViews:
                 ip_address=self.request.remote_addr,
             )
             send_password_change_email(self.request, self.request.user)
-            self.request.session.flash("Password updated", queue="success")
+            self.request.session.flash(_("Password updated"), queue="success")
 
         return {**self.default_response, "change_password_form": form}
 
@@ -331,7 +343,7 @@ class ManageAccountViews:
     def delete_account(self):
         confirm_password = self.request.params.get("confirm_password")
         if not confirm_password:
-            self.request.session.flash("Confirm the request", queue="error")
+            self.request.session.flash(_("Confirm the request"), queue="error")
             return self.default_response
 
         form = ConfirmPasswordForm(
@@ -342,14 +354,14 @@ class ManageAccountViews:
 
         if not form.validate():
             self.request.session.flash(
-                f"Could not delete account - Invalid credentials. Please try again.",
+                _("Could not delete account - Invalid credentials. Please try again."),
                 queue="error",
             )
             return self.default_response
 
         if self.active_projects:
             self.request.session.flash(
-                "Cannot delete account with active project ownerships", queue="error"
+                _("Cannot delete account with active project ownerships"), queue="error"
             )
             return self.default_response
 
@@ -409,7 +421,7 @@ class ProvisionTOTPViews:
     def generate_totp_qr(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
-                "Verify your email to modify two factor authentication", queue="error"
+                _("Verify your email to modify two factor authentication"), queue="error"
             )
             return Response(status=403)
 
@@ -427,15 +439,17 @@ class ProvisionTOTPViews:
     def totp_provision(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
-                "Verify your email to modify two factor authentication", queue="error"
+                _("Verify your email to modify two factor authentication"), queue="error"
             )
             return Response(status=403)
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
             self.request.session.flash(
-                "Account cannot be linked to more than one authentication "
-                "application at a time",
+                _(
+                    "Account cannot be linked to more than one authentication "
+                    "application at a time"
+                ),
                 queue="error",
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -446,15 +460,17 @@ class ProvisionTOTPViews:
     def validate_totp_provision(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
-                "Verify your email to modify two factor authentication", queue="error"
+                _("Verify your email to modify two factor authentication"), queue="error"
             )
             return Response(status=403)
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
             self.request.session.flash(
-                "Account cannot be linked to more than one authentication "
-                "application at a time",
+                _(
+                    "Account cannot be linked to more than one authentication "
+                    "application at a time"
+                ),
                 queue="error",
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -475,7 +491,7 @@ class ProvisionTOTPViews:
                 additional={"method": "totp"},
             )
             self.request.session.flash(
-                "Authentication application successfully set up", queue="success"
+                _("Authentication application successfully set up"), queue="success"
             )
             send_two_factor_added_email(self.request, self.request.user, method="totp")
 
@@ -487,14 +503,14 @@ class ProvisionTOTPViews:
     def delete_totp(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
-                "Verify your email to modify two factor authentication", queue="error"
+                _("Verify your email to modify two factor authentication"), queue="error"
             )
             return Response(status=403)
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if not totp_secret:
             self.request.session.flash(
-                "There is no authentication application to delete", queue="error"
+                _("There is no authentication application to delete"), queue="error"
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -513,15 +529,17 @@ class ProvisionTOTPViews:
                 additional={"method": "totp"},
             )
             self.request.session.flash(
-                "Authentication application removed from PyPI. "
-                "Remember to remove PyPI from your application.",
+                _(
+                    "Authentication application removed from PyPI. "
+                    "Remember to remove PyPI from your application."
+                ),
                 queue="success",
             )
             send_two_factor_removed_email(
                 self.request, self.request.user, method="totp"
             )
         else:
-            self.request.session.flash("Invalid credentials. Try again", queue="error")
+            self.request.session.flash(_("Invalid credentials. Try again"), queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -593,13 +611,13 @@ class ProvisionWebAuthnViews:
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
-                "Security device successfully set up", queue="success"
+                _("Security device successfully set up"), queue="success"
             )
             send_two_factor_added_email(
                 self.request, self.request.user, method="webauthn"
             )
 
-            return {"success": "Security device successfully set up"}
+            return {"success": _("Security device successfully set up")}
 
         errors = [
             str(error) for error_list in form.errors.values() for error in error_list
@@ -614,7 +632,7 @@ class ProvisionWebAuthnViews:
     def delete_webauthn(self):
         if len(self.request.user.webauthn) == 0:
             self.request.session.flash(
-                "There is no security device to delete", queue="error"
+                _("There is no security device to delete"), queue="error"
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -633,12 +651,12 @@ class ProvisionWebAuthnViews:
                 ip_address=self.request.remote_addr,
                 additional={"method": "webauthn", "label": form.label.data},
             )
-            self.request.session.flash("Security device removed", queue="success")
+            self.request.session.flash(_("Security device removed"), queue="success")
             send_two_factor_removed_email(
                 self.request, self.request.user, method="webauthn"
             )
         else:
-            self.request.session.flash("Invalid credentials", queue="error")
+            self.request.session.flash(_("Invalid credentials"), queue="error")
 
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -773,7 +791,7 @@ class ProvisionMacaroonViews:
     def create_macaroon(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
-                "Verify your email to create an API token.", queue="error"
+                _("Verify your email to create an API token."), queue="error"
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -862,10 +880,14 @@ class ProvisionMacaroonViews:
                         },
                     )
             self.request.session.flash(
-                f"Deleted API token '{macaroon.description}'.", queue="success"
+                _(
+                    "Deleted API token '${token}'.",
+                    mapping={"token": macaroon.description},
+                ),
+                queue="success"
             )
         else:
-            self.request.session.flash("Invalid credentials. Try again", queue="error")
+            self.request.session.flash(_("Invalid credentials. Try again"), queue="error")
 
         redirect_to = self.request.referer
         if not is_safe_url(redirect_to, host=self.request.host):
@@ -933,7 +955,7 @@ def get_user_role_in_project(project, user, request):
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
         request.session.flash(
-            (
+            _(
                 "Project deletion temporarily disabled. "
                 "See https://pypi.org/help#admin-intervention for details."
             ),
@@ -1052,7 +1074,7 @@ class ManageProjectRelease:
     def delete_project_release(self):
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
-                (
+                _(
                     "Project deletion temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1068,7 +1090,7 @@ class ManageProjectRelease:
 
         version = self.request.POST.get("confirm_version")
         if not version:
-            self.request.session.flash("Confirm the request", queue="error")
+            self.request.session.flash(_("Confirm the request"), queue="error")
             return HTTPSeeOther(
                 self.request.route_path(
                     "manage.project.release",
@@ -1079,8 +1101,14 @@ class ManageProjectRelease:
 
         if version != self.release.version:
             self.request.session.flash(
-                "Could not delete release - "
-                + f"{version!r} is not the same as {self.release.version!r}",
+                _(
+                    "Could not delete release - "
+                    "${confirm_version} is not the same as ${version}",
+                    mapping={
+                        "confirm_version": repr(version),
+                        "version": repr(self.release.version)
+                    },
+                ),
                 queue="error",
             )
             return HTTPSeeOther(
@@ -1117,7 +1145,11 @@ class ManageProjectRelease:
         self.request.db.delete(self.release)
 
         self.request.session.flash(
-            f"Deleted release {self.release.version!r}", queue="success"
+            _(
+                "Deleted release ${version}",
+                mapping={"version": repr(self.release.version)},
+            ),
+            queue="success"
         )
 
         for contributor in self.release.project.users:
@@ -1155,7 +1187,7 @@ class ManageProjectRelease:
             )
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
-            message = (
+            message = _(
                 "Project deletion temporarily disabled. "
                 "See https://pypi.org/help#admin-intervention for details."
             )
@@ -1164,7 +1196,7 @@ class ManageProjectRelease:
         project_name = self.request.POST.get("confirm_project_name")
 
         if not project_name:
-            return _error("Confirm the request")
+            return _error(_("Confirm the request"))
 
         try:
             release_file = (
@@ -1176,12 +1208,18 @@ class ManageProjectRelease:
                 .one()
             )
         except NoResultFound:
-            return _error("Could not find file")
+            return _error(_("Could not find file"))
 
         if project_name != self.release.project.name:
             return _error(
-                "Could not delete file - " + f"{project_name!r} is not the same as "
-                f"{self.release.project.name!r}"
+                _(
+                    "Could not delete file - ${confirm_project_name}"
+                    " is not the same as ${project_name}",
+                    mapping={
+                        "confirm_project_name": repr(project_name),
+                        "project_name": repr(self.release.project.name)
+                    },
+                )
             )
 
         self.request.db.add(
@@ -1226,7 +1264,11 @@ class ManageProjectRelease:
         self.request.db.delete(release_file)
 
         self.request.session.flash(
-            f"Deleted file {release_file.filename!r}", queue="success"
+            _(
+                "Deleted file ${file}",
+                mapping={"file": repr(release_file.filename)},
+            ),
+            queue="success"
         )
 
         return HTTPSeeOther(
@@ -1264,16 +1306,19 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         )
         if existing_role:
             request.session.flash(
-                (
-                    f"User '{username}' already has {existing_role.role_name} "
-                    "role for project"
+                _(
+                    "User '${username}' already has ${role_name} role for project",
+                    mapping={"username": username, "role_name": existing_role.role_name},
                 ),
                 queue="error",
             )
         elif user.primary_email is None or not user.primary_email.verified:
             request.session.flash(
-                f"User '{username}' does not have a verified primary email "
-                f"address and cannot be added as a {role_name} for project",
+                _(
+                    "User '${username}' does not have a verified primary email "
+                    "address and cannot be added as a ${role_name} for project",
+                    mapping={"username": username, "role_name": role_name},
+                ),
                 queue="error",
             )
         else:
@@ -1283,7 +1328,10 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             request.db.add(
                 JournalEntry(
                     name=project.name,
-                    action=f"add {role_name} {username}",
+                    action=_(
+                        "add ${role_name} ${username}",
+                        mapping={"role_name": role_name, "username": username},
+                    ),
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
@@ -1329,7 +1377,11 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
 
             request.session.flash(
-                f"Added collaborator '{form.username.data}'", queue="success"
+                _(
+                    "Added collaborator '${collaborator}'",
+                    mapping={"collaborator": form.username.data},
+                ),
+                queue="success"
             )
         form = _form_class(user_service=user_service)
 
@@ -1359,7 +1411,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 .one()
             )
             if role.role_name == "Owner" and role.user == request.user:
-                request.session.flash("Cannot remove yourself as Owner", queue="error")
+                request.session.flash(_("Cannot remove yourself as Owner"), queue="error")
             else:
                 request.db.add(
                     JournalEntry(
@@ -1381,9 +1433,9 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         "target_user": role.user.username,
                     },
                 )
-                request.session.flash("Changed role", queue="success")
+                request.session.flash(_("Changed role"), queue="success")
         except NoResultFound:
-            request.session.flash("Could not find role", queue="error")
+            request.session.flash(_("Could not find role"), queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
@@ -1408,7 +1460,7 @@ def delete_project_role(project, request):
         )
         removing_self = role.role_name == "Owner" and role.user == request.user
         if removing_self:
-            request.session.flash("Cannot remove yourself as Owner", queue="error")
+            request.session.flash(_("Cannot remove yourself as Owner"), queue="error")
         else:
             request.db.delete(role)
             request.db.add(
@@ -1428,9 +1480,9 @@ def delete_project_role(project, request):
                     "target_user": role.user.username,
                 },
             )
-            request.session.flash("Removed role", queue="success")
+            request.session.flash(_("Removed role"), queue="success")
     except NoResultFound:
-        request.session.flash("Could not find role", queue="error")
+        request.session.flash(_("Could not find role"), queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
@@ -1449,7 +1501,7 @@ def manage_project_history(project, request):
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.")
+        raise HTTPBadRequest(_("'page' must be an integer."))
 
     events_query = (
         request.db.query(ProjectEvent)
@@ -1483,7 +1535,7 @@ def manage_project_journal(project, request):
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.")
+        raise HTTPBadRequest(_("'page' must be an integer."))
 
     journals_query = (
         request.db.query(JournalEntry)
