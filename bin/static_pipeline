@@ -8,8 +8,8 @@ set -x
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
-# Run our gulp pipeline
-gulp dist
+# Run our webpack pipeline
+npx webpack --mode production
 
 # Test that our JS source is included in the bundle
 bin/test-sourcemaps
