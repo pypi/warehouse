@@ -24,6 +24,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 // Configure where our files come from, where they get saved too, and what path
 // they are served from.
@@ -72,22 +73,6 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
           loaders: [
             MiniCssExtractPlugin.loader,
             "css-loader",
-            // TODO: consider not using postcss only for minification
-            // in favor of potentially lighter OptimizeCSSAssetsPlugin
-            {
-              loader: "postcss-loader",
-              options: {
-                plugins: () => [
-                  require("cssnano")({
-                    preset: ["default", {
-                      discardComments: {
-                        removeAll: true,
-                      },
-                    }],
-                  }),
-                ],
-              },
-            },
             "sass-loader",
           ],
         },
@@ -179,7 +164,12 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
     optimization: {
       minimize: true,
       minimizer: [
-        new TerserPlugin(),
+        new TerserPlugin({}),
+        new OptimizeCSSAssetsPlugin({
+          cssProcessorPluginOptions: {
+            preset: ["default", { discardComments: { removeAll: true } }],
+          },
+        }),
       ],
     },
     watchOptions: {
