@@ -1,6 +1,7 @@
 # Spanish translations for PROJECT.
 # Copyright (C) 2020 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
+# This file is distributed under the same license as the PROJECT
+# project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
 #, fuzzy
@@ -8,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-04-06 14:57-0500\n"
+"POT-Creation-Date: 2020-04-06 17:27-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -5255,10 +5256,13 @@ msgstr ""
 "cargarlo en <a href=\"%(pypi_href)s\">pypi.org</a>."
 
 # | msgid ""
-# | "If you would like to request a new trove classifier file a bug on our <a
+# | "If you would like to request a new trove classifier file a bug on
+# our <a
 # "
-# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-# | "\">issue tracker</a>. Include the name of the requested classifier and a
+# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel=\"noopener"
+# | "\">issue tracker</a>. Include the name of the requested classifier
+# and a
 # | "brief justification of why it is important."
 #: warehouse/templates/pages/help.html:650
 #, fuzzy, python-format
@@ -5950,7 +5954,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:112
@@ -6006,7 +6011,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:134
@@ -6023,8 +6029,10 @@ msgstr ""
 "Python</a>"
 
 # | msgid ""
-# | "PyPI supports any device that adheres to the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
+# | "PyPI supports any device that adheres to the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO
+# standard</a>."
 #: warehouse/templates/pages/sponsor.html:135
 #: warehouse/templates/pages/sponsor.html:158
 #: warehouse/templates/pages/sponsor.html:181
@@ -6052,8 +6060,10 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:156
 #: warehouse/templates/pages/sponsor.html:179
@@ -6106,7 +6116,8 @@ msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
 msgstr "Diríjase a <a href=\"%(href)s\">Restablecimiento de contraseña</a>."
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:202
@@ -6121,7 +6132,8 @@ msgstr ""
 "Python</a>"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:203
@@ -6144,8 +6156,10 @@ msgid "$5,000 per year, or equivalent in donated services"
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:223
 #, fuzzy, python-format
@@ -6159,8 +6173,10 @@ msgstr ""
 "conocer detalles sobre los formatos disponibles."
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:224
 #, fuzzy, python-format
@@ -6178,8 +6194,10 @@ msgid "One time grants / custom donations"
 msgstr ""
 
 # | msgid ""
-# | "Learn how to create a new release on the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+# | "Learn how to create a new release on the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging
+# User "
 # | "Guide</a>"
 #: warehouse/templates/pages/sponsor.html:239
 #, fuzzy, python-format
@@ -6194,8 +6212,10 @@ msgstr ""
 "empaquetamiento de Python</a>"
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:244
 #, fuzzy, python-format

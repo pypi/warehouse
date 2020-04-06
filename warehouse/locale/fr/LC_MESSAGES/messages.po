@@ -1,6 +1,7 @@
 # French translations for PROJECT.
 # Copyright (C) 2020 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
+# This file is distributed under the same license as the PROJECT
+# project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
 #, fuzzy
@@ -8,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-04-06 14:57-0500\n"
+"POT-Creation-Date: 2020-04-06 17:27-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -5998,7 +5999,8 @@ msgstr ""
 "perpétuité </strong>"
 
 # | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
 # | "Foundation blog</a>"
 #: warehouse/templates/pages/sponsor.html:112
@@ -6100,10 +6102,13 @@ msgstr ""
 "sur la page de détail du projet PyPI"
 
 # | msgid ""
-# | "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Inclusion in a blog post on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
-# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
-# | "<strong>with other sponsors</strong> whose sponsorship commenced during "
+# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation
+# blog</a>, "
+# | "<strong>with other sponsors</strong> whose sponsorship commenced
+# during "
 # | "the same quarter"
 #: warehouse/templates/pages/sponsor.html:156
 #: warehouse/templates/pages/sponsor.html:179
@@ -6231,7 +6236,8 @@ msgstr ""
 "idées."
 
 # | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
 # | "Foundation blog</a>, explaining what the funds will be used for"
 #: warehouse/templates/pages/sponsor.html:244

@@ -1,20 +1,18 @@
-# Ukrainian translations for PROJECT.
-# Copyright (C) 2020 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
-#
-#, fuzzy
+# Alex Solonenko <alex.solonencko@gmail.com>, 2020.
+# Anna Kurylo <anna.kurilo21@gmail.com>, 2020.
+# Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-04-06 14:57-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-06 17:27-0500\n"
+"PO-Revision-Date: 2020-04-06 19:56+0000\n"
+"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language: uk\n"
-"Language-Team: uk <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Language-Team: Ukrainian "
+"<https://hosted.weblate.org/projects/pypa/warehouse/uk/>\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -218,20 +216,20 @@ msgid ""
 "You must provision a two factor method before recovery codes can be "
 "generated"
 msgstr ""
-"Ви повинні увімкнути двофакторну авторизацію, щоб коди відновлення можна "
+"Ви мусите увімкнути двофакторну авторизацію, щоб коди відновлення можна "
 "було згенерувати"
 
 #: warehouse/manage/views.py:678
 msgid "Recovery codes already generated"
-msgstr "Коди відновлення вже згенеровано"
+msgstr "Коди відновлення вже згенеровані"
 
 #: warehouse/manage/views.py:679
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr "Генерування нових кодів відновлення зробить недійсними ваші існуючі коди."
+msgstr "Генерування нових кодів відновлення зробить ваші існуючі коди недійсними."
 
 #: warehouse/manage/views.py:729
 msgid "Invalid credentials. Try again"
-msgstr "Неправильні персональні дані. Спробуйте знову"
+msgstr "Недійсні облікові дані. Спробуйте знову"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -473,9 +471,8 @@ msgstr "Допомога"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:60
-#, fuzzy
 msgid "Sponsor"
-msgstr "Спонсор"
+msgstr "Спонсорувати"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:41
@@ -967,11 +964,11 @@ msgstr "%(user)s ще не завантажував(-ла) жодних прое
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:491
 msgid "Recovery Codes"
-msgstr "Коди Відновлення"
+msgstr "Коди відновлення"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr "Увійти за допомогою Кодів Відновлення"
+msgstr "Увійти за допомогою коду відновлення"
 
 #: warehouse/templates/accounts/recovery-code.html:40
 msgid "Enter recovery code"
@@ -989,15 +986,15 @@ msgid ""
 "codes in the form to verify your identity. Once used, the recovery code "
 "will no longer be valid."
 msgstr ""
-"PyPI дозволяє генерувати коди відновлення, які будуть зберігатись надійно"
-" оффлайн, у випадку, якщо ваш пристрій чи застосунок втрачено. Введіть "
-"один із цих кодів для того, щоб ідентифікувати вашу особистість. Після "
-"використання код відновлення перестає бути дійсним."
+"PyPI дозволяє генерувати коди відновлення для надійного зберігання "
+"оффлайн, на випадок, якщо ваш пристрій чи застосунок втрачено. Введіть "
+"один із цих кодів до форми, аби підтвердити свою особистість. Після "
+"використання, код відновлення стає недійсним."
 
 #: warehouse/templates/accounts/recovery-code.html:59
 #, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr "<p>Не працює? <a href=\"%(href)s\">Отримати допомогу</a>.</p>"
+msgstr "<p>Не працює? <a href=\"%(href)s\">Отримайте допомогу</a>.</p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -1185,11 +1182,11 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr "Втратили ваш ключ захисту чи застосунок?"
+msgstr "Втратили свій ключ захисту чи застосунок?"
 
 #: warehouse/templates/accounts/two-factor.html:119
 msgid "Login using a Recovery Code"
-msgstr "Увійти за допомогою Коду Відновлення"
+msgstr "Увійти за допомогою коду відновлення"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1198,10 +1195,10 @@ msgid ""
 "<p>If you lose access to your two factor methods, you may lose access to "
 "your account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
-"<p><strong>Ви не згенерували коди відновлення для вашого облікового "
-"запису.</strong></p> <p>Якщо ви втратите доступ до ваших методів "
-"двофакторної авторизації, то ви можете втратити доступ до вашого "
-"облікового запису. <a href=\"%(href)s\">Отримайте допомогу з кодами "
+"<p><strong>Ви не згенерували коди відновлення для свого облікового "
+"запису.</strong></p> <p>Якщо ви втратите доступ до своїх способів "
+"двофакторної авторизації, то можете втратити і доступ до свого облікового"
+" запису. <a href=\"%(href)s\">Отримайте допомогу з кодами "
 "відновлення.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
@@ -1437,8 +1434,8 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Хтось, можливо ви, додав %(method)s двофакторну аутентифікацію до вашого "
-"PyPI облікового запису<strong>%(username)s</strong>."
+"Кимось, можливо вами, було додано %(method)s двофакторну аутентифікацію "
+"до вашого PyPI облікового запису<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, python-format
@@ -1446,8 +1443,9 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Хтось, можливо ви, видалив %(method)s метод двофакторної аутентифікації з"
-" вашого PyPI облікового запису<strong>%(username)s</strong>."
+"Кимось, можливо вами, видалено метод %(method)s двофакторної "
+"аутентифікації з вашого PyPI облікового "
+"запису<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1455,7 +1453,7 @@ msgid ""
 "Someone, perhaps you, has added this email address "
 "(<code>%(email_address)s</code>) to their PyPI account."
 msgstr ""
-"Хтось, можливо ви, додав цю електронну адресу "
+"Кимось, можливо вами, додано цю електронну адресу "
 "(<code>%(email_address)s</code>) до свого облікового запису на PyPI."
 
 #: warehouse/templates/email/verify-email/body.html:20
@@ -1724,8 +1722,8 @@ msgid ""
 "rel=\"noopener\">our public dataset on Google BigQuery</a>"
 msgstr ""
 "Переглядайте статистику для цього проекта на <a href=\"%(libs_io_href)s\""
-" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> "
-"або використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" "
+" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>,"
+" або використовуючи <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">наш публічний набір даних на Google BigQuery</a>"
 
 #: warehouse/templates/includes/packaging/project-data.html:74
@@ -1863,7 +1861,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:142
 msgid "Generate Recovery Codes"
-msgstr "Згенерувати Коди ВІдновлення"
+msgstr "Згенерувати коди відновлення"
 
 #: warehouse/templates/manage/account.html:147
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -4462,11 +4460,11 @@ msgstr ""
 "налаштувань облікового запису та оберіть «Додати <abbr "
 "title=\"двофакторна автентифікація\">2FA</abbr> із пристроєм безпеки "
 "(напр. USB-ключем)»</li>\n"
-"          <li>Назвіть свій ключ. Це необхідно, оскільки можна додавати "
-"більше одного пристрою безпеки до вашого облікового запису.</li>\n"
+"          <li>Назвіть свій ключ. Це необхідно, оскільки до свого "
+"облікового запису можна додавати більше одного пристрою безпеки.</li>\n"
 "          <li>Клікніть на кнопку «Налаштувати пристрій безпеки»</li>\n"
-"          <li>Вставте свій USB-ключ і торкніться його, слідуючи "
-"інструкціям вашого браузера</li>\n"
+"          <li>Вставте свій USB-ключ і торкніться його, дотримуючись "
+"вказівок вашого браузера</li>\n"
 "          "
 
 #: warehouse/templates/pages/help.html:372
@@ -5241,10 +5239,13 @@ msgstr ""
 "тим як завантажувати його на <a href=\"%(pypi_href)s\">pypi.org</a>."
 
 # | msgid ""
-# | "If you would like to request a new trove classifier file a bug on our <a
+# | "If you would like to request a new trove classifier file a bug on
+# our <a
 # "
-# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-# | "\">issue tracker</a>. Include the name of the requested classifier and a
+# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel=\"noopener"
+# | "\">issue tracker</a>. Include the name of the requested classifier
+# and a
 # | "brief justification of why it is important."
 #: warehouse/templates/pages/help.html:650
 #, fuzzy, python-format
@@ -5726,8 +5727,8 @@ msgid ""
 "Python's packaging ecosystem."
 msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Група по роботі з пакунками</a> це робоча група з Python"
-" Software Foundation, яка  збирає та розподіляє кошти для покращення "
+"rel=\"noopener\">Робоча група з пакування</a> це робоча група Python "
+"Software Foundation, яка збирає та розподіляє кошти для покращення "
 "екосистеми пакунків у Python."
 
 #: warehouse/templates/pages/sponsor.html:29
@@ -5751,7 +5752,7 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2018"
 msgstr ""
 "Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">гранту обсягом $170000</a> від <a "
+"target=\"_blank\" rel=\"noopener\">гранту обсягом $170 000</a> від <a "
 "href=\"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Mozilla Open Source Support Program</a> у 2018"
 
@@ -5770,7 +5771,7 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology "
 "Fund</a> in 2019"
 msgstr ""
-"Завдяки гранту обсягом $80000 від <a href=\"%(funder_href)s\" "
+"Завдяки гранту обсягом $80 000 від <a href=\"%(funder_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology "
 "Fund</a> у 2019"
 
@@ -5787,7 +5788,7 @@ msgid ""
 "Research</a> in 2019 and 2020"
 msgstr ""
 "Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">гранту обсягом $100000 </a> від <a "
+"target=\"_blank\" rel=\"noopener\">гранту обсягом $100 000 </a> від <a "
 "href=\"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Facebook Research</a> у 2019 та 2020"
 
@@ -5809,7 +5810,7 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2020"
 msgstr ""
 "Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">гранту обсягом $407000</a> від<a "
+"target=\"_blank\" rel=\"noopener\">гранту обсягом $407 000</a> від <a "
 "href=\"%(funder0_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Chan Zuckerberg Initiative</a> та <a "
 "href=\"%(funder1_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -5826,7 +5827,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:57
 msgid "Community donations"
-msgstr "Пожертвування спільноти"
+msgstr "Пожертви спільноти"
 
 #: warehouse/templates/pages/sponsor.html:60
 msgid "We greatly appreciate both one-time and recurring donations."
@@ -5840,12 +5841,12 @@ msgid ""
 "deductible</a>."
 msgstr ""
 "Для платників податків в США, <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">ваше пожертвування може зменшити "
-"податкове навантаження</a>."
+"target=\"_blank\" rel=\"noopener\">ваша пожертва може зменшити податкове "
+"навантаження</a>."
 
 #: warehouse/templates/pages/sponsor.html:62
 msgid "Every donation counts!"
-msgstr "Кожне пожертвування має значення!"
+msgstr "Кожна пожертва має значення!"
 
 #: warehouse/templates/pages/sponsor.html:65
 msgid "Donate here"
@@ -5855,7 +5856,7 @@ msgstr "Пожертвуйте тут"
 #, python-format
 msgid "Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
 msgstr ""
-"Жертвуєте понад $5000? Натомість, <a href=\"%(href)s\">ставайте "
+"Жертвуєте понад $5 000? Натомість, <a href=\"%(href)s\">ставайте "
 "спонсором</a>."
 
 #: warehouse/templates/pages/sponsor.html:77
@@ -5867,7 +5868,7 @@ msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from"
 " 237 countries visited PyPI.org."
 msgstr ""
-"Потрібна видимість бренду? За останній рік* 21.1 мільйон людей з 237 "
+"Потрібна видимість бренду? За останній рік* 21.1 мільйонів людей з 237 "
 "країн відвідали PyPI.org."
 
 #: warehouse/templates/pages/sponsor.html:79
@@ -5912,7 +5913,7 @@ msgstr "Пожиттєвий"
 
 #: warehouse/templates/pages/sponsor.html:107
 msgid "One time donation of $1,000,000"
-msgstr "Одноразове пожертвування $1000000"
+msgstr "Одноразова пожертва $1 000 000"
 
 #: warehouse/templates/pages/sponsor.html:111
 msgid ""
@@ -5923,7 +5924,8 @@ msgstr ""
 "<strong>назавжди</strong>"
 
 # | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
 # | "Foundation blog</a>"
 #: warehouse/templates/pages/sponsor.html:112
@@ -5953,7 +5955,7 @@ msgstr "Діамантовий"
 
 #: warehouse/templates/pages/sponsor.html:126
 msgid "$50,000 per year, or equivalent in donated services"
-msgstr "$50000 на рік, або еквівалент в наданих послугах"
+msgstr "$50 000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:130
 msgid ""
@@ -5967,7 +5969,7 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:154
 #: warehouse/templates/pages/sponsor.html:177
 msgid "Logo on the PyPI footer"
-msgstr ""
+msgstr "Логотип унизу веб-сторінок PyPI"
 
 #: warehouse/templates/pages/sponsor.html:132
 #: warehouse/templates/pages/sponsor.html:155
@@ -5978,8 +5980,8 @@ msgid ""
 "Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI "
 "sponsors page</a>"
 msgstr ""
-"Логотип <strong>і детальний опис</strong> на <a "
-"href=\"%(href)s\">сторінці спонсорів PyPI</a>"
+"Логотип <strong>і допис</strong> на <a href=\"%(href)s\">сторінці "
+"спонсорів PyPI</a>"
 
 #: warehouse/templates/pages/sponsor.html:134
 #: warehouse/templates/pages/sponsor.html:157
@@ -6013,33 +6015,38 @@ msgstr "Платиновий"
 
 #: warehouse/templates/pages/sponsor.html:149
 msgid "$30,000 per year, or equivalent in donated services"
-msgstr "$30,000 на рік, або еквівалент у наданих послугах"
+msgstr "$30 000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:153
 msgid ""
 "Logo on <strong>high rotation</strong> in a prominent position on the "
 "PyPI project detail page"
 msgstr ""
+"Логотип із <strong>високою частотою появи</strong> на визначному місці "
+"сторінки деталей про проект PyPI"
 
 # | msgid ""
-# | "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Inclusion in a blog post on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
-# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
-# | "<strong>with other sponsors</strong> whose sponsorship commenced during "
+# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation
+# blog</a>, "
+# | "<strong>with other sponsors</strong> whose sponsorship commenced
+# during "
 # | "the same quarter"
 #: warehouse/templates/pages/sponsor.html:156
 #: warehouse/templates/pages/sponsor.html:179
 #: warehouse/templates/pages/sponsor.html:201
 #: warehouse/templates/pages/sponsor.html:222
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during "
 "the same quarter"
 msgstr ""
-"Включення у допис у  <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">блозі Python Sofware Foundation</a>, "
+"Включення у допис у <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">блозі Python Software Foundation</a>, "
 "<strong>з іншими спонсорами</strong>, чиє спонсорство розпочато протягом "
 "того ж кварталу"
 
@@ -6049,13 +6056,15 @@ msgstr "Золотий"
 
 #: warehouse/templates/pages/sponsor.html:172
 msgid "$20,000 per year, or equivalent in donated services"
-msgstr "$20,000 на рік, або еквівалент у наданих послугах"
+msgstr "$20 000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:176
 msgid ""
 "Logo on <strong>medium rotation</strong> in a prominent position on the "
 "PyPI project detail page"
 msgstr ""
+"Логотип з <strong>помірною частотою появи</strong> у визначному місці на "
+"сторінці детального опису проекту PyPI"
 
 #: warehouse/templates/pages/sponsor.html:194
 msgid "Silver"
@@ -6063,13 +6072,15 @@ msgstr "Срібний"
 
 #: warehouse/templates/pages/sponsor.html:195
 msgid "$10,000 per year, or equivalent in donated services"
-msgstr "$10,000 на рік, або еквівалент у наданих послугах"
+msgstr "$10 000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:199
 msgid ""
 "Logo on <strong>low rotation</strong> in a prominent position on the PyPI"
 " project detail page"
 msgstr ""
+"Логотип з <strong>низькою частотою появи</strong> на визначному місці "
+"сторінки деталей про проект PyPI"
 
 #: warehouse/templates/pages/sponsor.html:200
 #: warehouse/templates/pages/sponsor.html:221
@@ -6084,7 +6095,7 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a>"
 msgstr ""
-"<strong>Дворічні</strong> твіти з подякою від <a href=\"%(href)s\" "
+"<strong>Двічі на рік</strong>, твіт з подякою від <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a>"
 
@@ -6095,9 +6106,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
 "account</a>"
 msgstr ""
-"<strong>Дворічні</strong> твіти з подякою від <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту "
-"PyPI</a>"
+"Твіт з подякою від <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Твітер акаунту PyPI</a>, <strong>двічі"
+" на рік</strong>"
 
 #: warehouse/templates/pages/sponsor.html:216
 msgid "Bronze"
@@ -6105,7 +6116,7 @@ msgstr "Бронзовий"
 
 #: warehouse/templates/pages/sponsor.html:217
 msgid "$5,000 per year, or equivalent in donated services"
-msgstr "$5,000 на рік, або еквівалент у наданих послугах"
+msgstr "$5 000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:223
 #, python-format
@@ -6114,7 +6125,7 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a> (on initial sponsorship, and on each subsequent renewal)"
 msgstr ""
-"<strong>Одноразовий</strong>твіт з подякою від <a href=\"%(href)s\" "
+"<strong>Одноразовий</strong> твіт з подякою від <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a> (під час першого спонсорства і після кожного його "
 "поновлення)"
@@ -6126,14 +6137,13 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
 "account</a> (on initial sponsorship, and on each subsequent renewal)"
 msgstr ""
-"<strong>Єдиний</strong> твіт з подякою від <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту "
-"PyPI</a> (під час початкового спонсорства і після кожного наступного "
-"поновлення)"
+"<strong>Одноразовий</strong> твіт з подякою від <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер-акаунту "
+"PyPI</a> (на початку спонсорства і після кожного наступного поновлення)"
 
 #: warehouse/templates/pages/sponsor.html:238
 msgid "One time grants / custom donations"
-msgstr "Одноразові гранти / спеціальні пожертвування"
+msgstr "Одноразові гранти / нетипові пожертви"
 
 #: warehouse/templates/pages/sponsor.html:239
 #, python-format
@@ -6143,17 +6153,18 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">fundable packaging improvements</a> "
 "for ideas."
 msgstr ""
-"Спорнсорство специфічного функціоналу, набору функцій або спринта "
-"спільноти, оцінене понад $50,000. Подивіться <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">удосконалення "
-"пакунків, що підлягають спонсоруванню,</a> для ідей."
+"Спонсорство певної функції, набору функцій або спринта спільноти, оцінене"
+" понад $50 000. Дивіться ідеї з <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">удосконалення пакунків, які потребують"
+" фінансування</a>."
 
 # | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
 # | "Foundation blog</a>, explaining what the funds will be used for"
 #: warehouse/templates/pages/sponsor.html:244
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
@@ -6161,7 +6172,7 @@ msgid ""
 msgstr ""
 "<strong>Особистий</strong> допис у <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">блозі Python "
-"Sofware Foundation</a>, який пояснить, як будуть витрачені кошти"
+"Software Foundation</a>, який пояснить, як будуть витрачені кошти"
 
 #: warehouse/templates/pages/sponsor.html:245
 #, python-format
@@ -6181,7 +6192,7 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
 "account</a>"
 msgstr ""
-"<strong>Одноразовий</strong>твіт з подякою від <a href=\"%(href)s\" "
+"<strong>Одноразовий</strong> твіт з подякою від <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту "
 "PyPI</a>"
 
@@ -6190,6 +6201,8 @@ msgid ""
 "Note: A record of working group grants will be listed on the PyPI "
 "sponsorship page in perpetuity."
 msgstr ""
+"Примітка: запис про грант робочій групі буде безстроково відображено на "
+"сторінці спонсорства PyPI."
 
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
@@ -6542,15 +6555,19 @@ msgstr[2] ""
 #~ msgid "User's username"
 #~ msgstr "Ім'я користувача"
 
+# | msgid "%(num_projects)s projects"
 #~ msgid "%(num_projects)s projects"
 #~ msgstr "%(num_projects)s проект(-и,-ів)"
 
+# | msgid "%(num_releases)s releases"
 #~ msgid "%(num_releases)s releases"
 #~ msgstr "%(num_releases)s випуск(-и,-ів)"
 
+# | msgid "%(num_files)s files"
 #~ msgid "%(num_files)s files"
 #~ msgstr "%(num_files)s файл(-и,-ів)"
 
+# | msgid "%(num_users)s users"
 #~ msgid "%(num_users)s users"
 #~ msgstr "%(num_users)s користувач(-і,-ів)"
 
