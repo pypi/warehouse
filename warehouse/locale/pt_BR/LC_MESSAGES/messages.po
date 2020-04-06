@@ -1,3 +1,24 @@
+# Portuguese (Brazil) translations for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-04-06 14:57-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pt_BR\n"
+"Language-Team: pt_BR <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
 #: warehouse/views.py:254
 msgid "Locale updated"
 msgstr "Localidade atualizada"
@@ -255,7 +276,7 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -484,7 +505,7 @@ msgstr "Menu"
 msgid "Main menu"
 msgstr "Menu principal"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
@@ -705,27 +726,35 @@ msgstr "Encontre, instale e publique pacotes Python com o Python Package Index"
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Ou <a href=\"%(href)s\">navegue por projetos</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s projetos"
-
 #: warehouse/templates/index.html:67
 #, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s lançamentos"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] ""
+msgstr[1] ""
 
-#: warehouse/templates/index.html:68
+#: warehouse/templates/index.html:74
 #, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s arquivos"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s usuários"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:81
+#, python-format
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/index.html:88
+#, python-format
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
@@ -733,31 +762,31 @@ msgstr ""
 "O PyPI ajuda você a encontrar e instalar softwares desenvolvidos e "
 "compartilhados pela comunidade do Python."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "Saiba mais sobre a instalação de pacotes</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "Os autores de pacotes usam o PyPI para distribuir seu software."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Saiba como empacotar seu código Python para PyPI</a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "Projetos populares"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "Projetos populares como baixados pela comunidade"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "Novos lançamentos"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "Novidade: os lançamentos mais recentes do projetos"
 
@@ -6555,4 +6584,16 @@ msgstr[1] ""
 #~ "class=\"%(classes)s\" aria-label=\"%(aria_label)s\" "
 #~ "data-original-label=\"%(data_original_label)s\"> "
 #~ "classificador </a>"
+
+#~ msgid "%(num_projects)s projects"
+#~ msgstr "%(num_projects)s projetos"
+
+#~ msgid "%(num_releases)s releases"
+#~ msgstr "%(num_releases)s lançamentos"
+
+#~ msgid "%(num_files)s files"
+#~ msgstr "%(num_files)s arquivos"
+
+#~ msgid "%(num_users)s users"
+#~ msgstr "%(num_users)s usuários"
 
