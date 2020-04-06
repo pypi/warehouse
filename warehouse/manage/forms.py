@@ -25,21 +25,22 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.i18n import localize as _
 
 
 class RoleNameMixin:
 
     role_name = wtforms.SelectField(
-        "Select role",
-        choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
-        validators=[wtforms.validators.DataRequired(message="Select role")],
+        _("Select role"),
+        choices=[("", _("Select role")), ("Maintainer", _("Maintainer")), ("Owner", _("Owner"))],
+        validators=[wtforms.validators.DataRequired(message=_("Select role"))],
     )
 
 
 class UsernameMixin:
 
     username = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify username")]
+        validators=[wtforms.validators.DataRequired(message=_("Specify username"))]
     )
 
     def validate_username(self, field):
@@ -47,7 +48,7 @@ class UsernameMixin:
 
         if userid is None:
             raise wtforms.validators.ValidationError(
-                "No user found with that username. Try again."
+                _("No user found with that username. Try again.")
             )
 
 
@@ -66,7 +67,7 @@ class SaveAccountForm(forms.Form):
     __params__ = ["name", "public_email"]
 
     name = wtforms.StringField()
-    public_email = wtforms.SelectField(choices=[("", "Not displayed")])
+    public_email = wtforms.SelectField(choices=[("", _("Not displayed"))])
 
     def __init__(self, *args, user_service, user_id, **kwargs):
         super().__init__(*args, **kwargs)
@@ -83,7 +84,10 @@ class SaveAccountForm(forms.Form):
             verified_emails = [e.email for e in user.emails if e.verified]
             if field.data not in verified_emails:
                 raise wtforms.validators.ValidationError(
-                    "%s is not a verified email for %s" % (field.data, user.username)
+                    _(
+                        "{email} is not a verified email for {user_name}" % (field.data, user.username),
+                        mapping={"email": field.data, "user_name": user.username},
+                     )
                 )
 
 
@@ -131,7 +135,7 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
     def validate_totp_value(self, field):
         totp_value = field.data.encode("utf8")
         if not otp.verify_totp(self.totp_secret, totp_value):
-            raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
+            raise wtforms.validators.ValidationError(_("Invalid TOTP code. Try again?"))
 
 
 class DeleteWebAuthnForm(forms.Form):
@@ -139,9 +143,9 @@ class DeleteWebAuthnForm(forms.Form):
 
     label = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a device name"),
+            wtforms.validators.DataRequired(message=_("Specify a device name")),
             wtforms.validators.Length(
-                max=64, message=("Label must be 64 characters or less")
+                max=64, message=_("Label must be 64 characters or less")
             ),
         ]
     )
@@ -156,7 +160,7 @@ class DeleteWebAuthnForm(forms.Form):
 
         webauthn = self.user_service.get_webauthn_by_label(self.user_id, label)
         if webauthn is None:
-            raise wtforms.validators.ValidationError("No WebAuthn key with given label")
+            raise wtforms.validators.ValidationError(_("No WebAuthn key with given label"))
         self.webauthn = webauthn
 
 
@@ -165,9 +169,9 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
     label = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a label"),
+            wtforms.validators.DataRequired(message=_("Specify a label")),
             wtforms.validators.Length(
-                max=64, message=("Label must be 64 characters or less")
+                max=64, message=_("Label must be 64 characters or less")
             ),
         ]
     )
@@ -187,7 +191,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
             credential_dict = json.loads(field.data.encode("utf8"))
         except json.JSONDecodeError:
             raise wtforms.validators.ValidationError(
-                "Invalid WebAuthn credential: Bad payload"
+                _("Invalid WebAuthn credential: Bad payload")
             )
 
         try:
@@ -206,7 +210,12 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
         label = field.data
 
         if self.user_service.get_webauthn_by_label(self.user_id, label) is not None:
-            raise wtforms.validators.ValidationError(f"Label '{label}' already in use")
+            raise wtforms.validators.ValidationError(
+                _(
+                    "Label '{label}' already in use",
+                    mapping={"label": label},
+                 )
+            )
 
 
 class CreateMacaroonForm(forms.Form):
@@ -220,15 +229,15 @@ class CreateMacaroonForm(forms.Form):
 
     description = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a token name"),
+            wtforms.validators.DataRequired(message=_("Specify a token name")),
             wtforms.validators.Length(
-                max=100, message="Description must be 100 characters or less"
+                max=100, message=_("Description must be 100 characters or less")
             ),
         ]
     )
 
     token_scope = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
+        validators=[wtforms.validators.DataRequired(message=_("Specify the token scope"))]
     )
 
     def validate_description(self, field):
@@ -238,7 +247,7 @@ class CreateMacaroonForm(forms.Form):
             self.macaroon_service.get_macaroon_by_description(self.user_id, description)
             is not None
         ):
-            raise wtforms.validators.ValidationError("API token name already in use")
+            raise wtforms.validators.ValidationError(_("API token name already in use"))
 
     def validate_token_scope(self, field):
         scope = field.data
@@ -246,10 +255,15 @@ class CreateMacaroonForm(forms.Form):
         try:
             _, scope_kind = scope.split(":", 1)
         except ValueError:
-            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+            raise wtforms.ValidationError(
+                _(
+                    "Unknown token scope: {scope}",
+                    mapping={"scope": scope},
+                )
+            )
 
         if scope_kind == "unspecified":
-            raise wtforms.ValidationError(f"Specify the token scope")
+            raise wtforms.ValidationError(_("Specify the token scope"))
 
         if scope_kind == "user":
             self.validated_scope = scope_kind
@@ -258,13 +272,26 @@ class CreateMacaroonForm(forms.Form):
         try:
             scope_kind, scope_value = scope_kind.split(":", 1)
         except ValueError:
-            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+            raise wtforms.ValidationError(
+                _(
+                    "Unknown token scope: {scope}",
+                    mapping={"scope": scope},
+                )
+            )
 
         if scope_kind != "project":
-            raise wtforms.ValidationError(f"Unknown token scope: {scope}")
+            raise wtforms.ValidationError(
+                _(
+                    "Unknown token scope: {scope}",
+                    mapping={"scope": scope},
+                )
+            )
         if scope_value not in self.project_names:
             raise wtforms.ValidationError(
-                f"Unknown or invalid project name: {scope_value}"
+                _(
+                    "Unknown or invalid project name: {project_name}",
+                    mapping={"project_name": scope_value},
+                )
             )
 
         self.validated_scope = {"projects": [scope_value]}
@@ -274,7 +301,7 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
     __params__ = ["confirm_password", "macaroon_id"]
 
     macaroon_id = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Identifier required")]
+        validators=[wtforms.validators.DataRequired(message=_("Identifier required"))]
     )
 
     def __init__(self, *args, macaroon_service, user_service, **kwargs):
@@ -285,4 +312,4 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
     def validate_macaroon_id(self, field):
         macaroon_id = field.data
         if self.macaroon_service.find_macaroon(macaroon_id) is None:
-            raise wtforms.validators.ValidationError("No such macaroon")
+            raise wtforms.validators.ValidationError(_("No such macaroon"))
