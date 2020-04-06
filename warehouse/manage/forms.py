@@ -85,7 +85,7 @@ class SaveAccountForm(forms.Form):
             if field.data not in verified_emails:
                 raise wtforms.validators.ValidationError(
                     _(
-                        "{email} is not a verified email for {user_name}",
+                        "${email} is not a verified email for ${user_name}",
                         mapping={"email": field.data, "user_name": user.username},
                      )
                 )
@@ -212,7 +212,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
         if self.user_service.get_webauthn_by_label(self.user_id, label) is not None:
             raise wtforms.validators.ValidationError(
                 _(
-                    "Label '{label}' already in use",
+                    "Label '${label}' already in use",
                     mapping={"label": label},
                  )
             )
@@ -257,7 +257,7 @@ class CreateMacaroonForm(forms.Form):
         except ValueError:
             raise wtforms.ValidationError(
                 _(
-                    "Unknown token scope: {scope}",
+                    "Unknown token scope: ${scope}",
                     mapping={"scope": scope},
                 )
             )
@@ -274,7 +274,7 @@ class CreateMacaroonForm(forms.Form):
         except ValueError:
             raise wtforms.ValidationError(
                 _(
-                    "Unknown token scope: {scope}",
+                    "Unknown token scope: ${scope}",
                     mapping={"scope": scope},
                 )
             )
@@ -282,14 +282,14 @@ class CreateMacaroonForm(forms.Form):
         if scope_kind != "project":
             raise wtforms.ValidationError(
                 _(
-                    "Unknown token scope: {scope}",
+                    "Unknown token scope: ${scope}",
                     mapping={"scope": scope},
                 )
             )
         if scope_value not in self.project_names:
             raise wtforms.ValidationError(
                 _(
-                    "Unknown or invalid project name: {project_name}",
+                    "Unknown or invalid project name: ${project_name}",
                     mapping={"project_name": scope_value},
                 )
             )
