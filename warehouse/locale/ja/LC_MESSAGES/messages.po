@@ -1,6 +1,7 @@
 # Japanese translations for PROJECT.
 # Copyright (C) 2020 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
+# This file is distributed under the same license as the PROJECT
+# project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
 #, fuzzy
@@ -8,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-04-06 14:57-0500\n"
+"POT-Creation-Date: 2020-04-06 17:27-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
@@ -941,7 +942,8 @@ msgid ""
 "will no longer be valid."
 msgstr ""
 
-# | msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+# | msgid "Lost your device? Not working? <a href=\"%(href)s\">Get
+# help</a>."
 #: warehouse/templates/accounts/recovery-code.html:59
 #, fuzzy, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
@@ -1334,7 +1336,8 @@ msgstr ""
 "<code>%(old_email)s</code> から <code>%(new_email)s</code> へ変更されました"
 
 # | msgid ""
-# | "Someone, perhaps you, has changed the password for your PyPI account "
+# | "Someone, perhaps you, has changed the password for your PyPI
+# account "
 # | "<strong>%(username)s</strong>."
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, fuzzy, python-format
@@ -1344,7 +1347,8 @@ msgid ""
 msgstr "あなたか誰かが、あなたの PyPI アカウント <strong>%(username)s</strong> のパスワードを変更しました。"
 
 # | msgid ""
-# | "Someone, perhaps you, has changed the password for your PyPI account "
+# | "Someone, perhaps you, has changed the password for your PyPI
+# account "
 # | "<strong>%(username)s</strong>."
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format
@@ -1361,7 +1365,8 @@ msgid ""
 msgstr "あなたか誰かが、このメールアドレス ( <code>%(email_address)s</code> )を PyPI アカウントに追加しました。"
 
 # | msgid ""
-# | "If you wish to proceed with this request, <a href=\"%(href)s\">click this
+# | "If you wish to proceed with this request, <a
+# href=\"%(href)s\">click this
 # "
 # | "link to verify your email address</a>"
 #: warehouse/templates/email/verify-email/body.html:20
@@ -1892,7 +1897,8 @@ msgid "️Public email"
 msgstr "公開プロフィール"
 
 # | msgid ""
-# | "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
+# | "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot
+# be "
 # | "changed."
 #: warehouse/templates/manage/account.html:319
 #, fuzzy, python-format
@@ -3548,7 +3554,8 @@ msgid "What devices (other than a USB key) can I use as a security device?"
 msgstr "セキュリティ端末として、USBキー以外に何を使えますか？"
 
 # | msgid ""
-# | "How does two factor authentication with a security device (e.g. USB key)
+# | "How does two factor authentication with a security device (e.g. USB
+# key)
 # "
 # | "work? How do I set it up on PyPI?"
 #: warehouse/templates/pages/help.html:63
@@ -4222,7 +4229,8 @@ msgid "To provision recovery codes:"
 msgstr ""
 
 # | msgid ""
-# | "Log in to your PyPI account, go to your account settings, and choose "
+# | "Log in to your PyPI account, go to your account settings, and
+# choose "
 # | "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 # | "authentication application\""
 #: warehouse/templates/pages/help.html:418
@@ -4272,15 +4280,20 @@ msgstr ""
 
 # | msgid ""
 # | "\n"
-# | "          <p>API tokens provide an alternative way (instead of username "
-# | "and password) to authenticate when <strong>uploading packages</strong> to
+# | "          <p>API tokens provide an alternative way (instead of
+# username "
+# | "and password) to authenticate when <strong>uploading
+# packages</strong> to
 # "
 # | "PyPI.</p>\n"
-# | "          <p>You can create a token for an entire PyPI account, in which
-# | "case, the token will work for all projects associated with that account.
+# | "          <p>You can create a token for an entire PyPI account, in
+# which
+# | "case, the token will work for all projects associated with that
+# account.
 # | "Alternatively, you can limit a token's scope to a specific
 # project.</p>\n"
-# | "          <p><strong>We strongly recommend you authenticate with an API "
+# | "          <p><strong>We strongly recommend you authenticate with an
+# API "
 # | "token where possible.</strong></p>\n"
 # | "        "
 #: warehouse/templates/pages/help.html:434
@@ -4629,8 +4642,10 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "If you no longer have access to the email address associated with your "
-# | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+# | "If you no longer have access to the email address associated with
+# your "
+# | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel="
 # | "\"noopener\">file an issue on our tracker</a>."
 #: warehouse/templates/pages/help.html:559
 #, fuzzy, python-format
@@ -4837,10 +4852,13 @@ msgstr ""
 "rel=\"noopener\">まずTest PyPIを使ってアップロードのチェックを行ってください</a>。"
 
 # | msgid ""
-# | "If you would like to request a new trove classifier file a bug on our <a
+# | "If you would like to request a new trove classifier file a bug on
+# our <a
 # "
-# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-# | "\">issue tracker</a>. Include the name of the requested classifier and a
+# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel=\"noopener"
+# | "\">issue tracker</a>. Include the name of the requested classifier
+# and a
 # | "brief justification of why it is important."
 #: warehouse/templates/pages/help.html:650
 #, fuzzy, python-format
@@ -5275,10 +5293,12 @@ msgid "Donate to the Packaging Working Group"
 msgstr ""
 
 # | msgid ""
-# | "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-# | "\"noopener\">PyPA</a> is an independent group of developers whose goal is
+# | "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel="
+# | "\"noopener\">PyPA</a> is an independent group of developers whose
+# goal is
 # "
-# | "to improve and maintain many of the core projects related to Python "
+# | "to improve and maintain many of the core projects related to Python
 # | "packaging."
 #: warehouse/templates/pages/sponsor.html:27
 #, fuzzy, python-format
@@ -5302,7 +5322,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\"
+# target="
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
@@ -5326,7 +5347,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:37
@@ -5345,7 +5367,8 @@ msgid "Additional security-focused features for PyPI"
 msgstr ""
 
 # | msgid ""
-# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\"
+# target="
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
@@ -5367,10 +5390,14 @@ msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
 # | msgid ""
-# | "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
-# | "target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s"
-# | "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</"
-# | "a> and <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\"
+# | "Popular keys include <a href=\"%(yubikey_href)s\"
+# title=\"%(title)s\" "
+# | "target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a
+# href=\"%(titan_href)s"
+# | "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google
+# Titan</"
+# | "a> and <a href=\"%(thetis_href)s\" title=\"%(title)s\"
+# target=\"_blank\"
 # "
 # | "rel=\"noopener\">Thetis</a>."
 #: warehouse/templates/pages/sponsor.html:45
@@ -5406,7 +5433,8 @@ msgid "We greatly appreciate both one-time and recurring donations."
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:61
@@ -5495,7 +5523,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:112
@@ -5541,7 +5570,8 @@ msgid "Logo on the PyPI footer"
 msgstr ""
 
 # | msgid ""
-# | "For instructions on how to use this token, <a href=\"%(href)s\">visit the
+# | "For instructions on how to use this token, <a
+# href=\"%(href)s\">visit the
 # "
 # | "PyPI help page</a>."
 #: warehouse/templates/pages/sponsor.html:132
@@ -5555,7 +5585,8 @@ msgid ""
 msgstr "このトークンの使用方法の説明は、<a href=\"%(href)s\">PyPIのヘルプページを参照してください</a>。"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:134
@@ -5572,8 +5603,10 @@ msgstr ""
 "を参照してください"
 
 # | msgid ""
-# | "PyPI supports any device that adheres to the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
+# | "PyPI supports any device that adheres to the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO
+# standard</a>."
 #: warehouse/templates/pages/sponsor.html:135
 #: warehouse/templates/pages/sponsor.html:158
 #: warehouse/templates/pages/sponsor.html:181
@@ -5601,8 +5634,10 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:156
 #: warehouse/templates/pages/sponsor.html:179
@@ -5655,7 +5690,8 @@ msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
 msgstr "<a href=\"%(href)s\">パスワードのリセット</a>に進む。"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:202
@@ -5670,7 +5706,8 @@ msgstr ""
 "を参照してください"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:203
@@ -5693,8 +5730,10 @@ msgid "$5,000 per year, or equivalent in donated services"
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:223
 #, fuzzy, python-format
@@ -5708,8 +5747,10 @@ msgstr ""
 "Guide</a>を参照してください。"
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:224
 #, fuzzy, python-format
@@ -5727,8 +5768,10 @@ msgid "One time grants / custom donations"
 msgstr ""
 
 # | msgid ""
-# | "Learn how to create a new release on the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+# | "Learn how to create a new release on the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging
+# User "
 # | "Guide</a>"
 #: warehouse/templates/pages/sponsor.html:239
 #, fuzzy, python-format
@@ -5743,8 +5786,10 @@ msgstr ""
 "Guide</a>を参照してください"
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:244
 #, fuzzy, python-format
@@ -5758,7 +5803,8 @@ msgstr ""
 "Guide</a>を参照してください。"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:245
@@ -5773,7 +5819,8 @@ msgstr ""
 "を参照してください"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:246
@@ -5809,7 +5856,8 @@ msgid "Top projects by total package size"
 msgstr ""
 
 # | msgid ""
-# | "Here is a list of the top 100 packages based on sum of their packages "
+# | "Here is a list of the top 100 packages based on sum of their
+# packages "
 # | "sizes (in bytes)."
 #: warehouse/templates/pages/stats.html:32
 #, fuzzy
