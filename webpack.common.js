@@ -14,13 +14,11 @@
 
 
 const path = require("path");
-const glob = require("glob");
 const webpack = require("webpack");
 
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
-const CopyPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
@@ -29,32 +27,11 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 // Configure where our files come from, where they get saved too, and what path
 // they are served from.
 const staticPrefix = "warehouse/static/";
-const distPath = path.resolve(staticPrefix, "dist");
-const fontAwesomePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json"));
 
-/* global module, __dirname */
+/* global module */
 
 module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
   const config = {
-    // Define the context allowing use to use relative paths
-    context: path.resolve(__dirname, staticPrefix),
-    // Entry points to our frontend code, Webpack will create a dependency
-    // graph based on the imports. Note that additional files are emitted
-    // in the plugins section. The names of the entry points _must_ match
-    // their subdirectory in dist in order for the manifest to match the
-    // static URLs in the templates.
-    entry: {
-      "js/warehouse": "./js/warehouse/index.js",
-      "css/warehouse": "./sass/warehouse.scss",
-      "css/noscript": "./sass/noscript.scss",
-      "images": glob
-        .sync(path.join(staticPrefix, "images/**/*"))
-        .map(imagePath => path.join(__dirname, imagePath)),
-      "css/fontawesome": path.resolve(fontAwesomePath, "css/fontawesome.css"),
-      "css/regular": path.resolve(fontAwesomePath, "css/regular.css"),
-      "css/solid": path.resolve(fontAwesomePath, "css/solid.css"),
-      "css/brands": path.resolve(fontAwesomePath, "css/brands.css"),
-    },
     module: {
       rules: [
         {
@@ -119,32 +96,14 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       new MiniCssExtractPlugin({
         filename: "[name].[contenthash:8].css",
       }),
-      // Copy without processing vendored JS and fontawesome webfonts
-      // TODO: Add content hashes. The copy plugin allows to add the hash
-      // to each file "[name].[contenthash:8].[ext]" however it emits
-      // each file with the hash included so the ManifestPlugin generates
-      // `zxcvbn.HASH.js: zxcvbn.HASH.js`, instead of
-      // `zxcvbn.js: zxcvbn.HASH.js` which results in a 404
-      new CopyPlugin([
-        {
-          from: "./js/vendor/",
-          to: "./js/vendor/",
-        },
-      ]),
-      new CopyPlugin([
-        {
-          from: path.join(fontAwesomePath, "webfonts"),
-          to: "./webfonts/",
-        },
-      ]),
-      // Create a manifest file
+      // Create a manifest file, this plugin should appear last
       new ManifestPlugin({
         filter(file) { return !file.name.match(/\.(br|gz)$/); }, // exclude compressed files
       }),
     ],
     devtool: "source-map",  // TODO: consider a faster source map option
     output: {
-      path: distPath,
+      // path: distPath,
       publicPath: "",
       filename: "[name].[contenthash:8].js",
     },
