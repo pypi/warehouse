@@ -7,7 +7,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-04-05 17:06+0200\n"
 "PO-Revision-Date: 2020-04-06 19:28+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -5849,7 +5849,7 @@ msgstr "Діамантовий"
 
 #: warehouse/templates/pages/sponsor.html:126
 msgid "$50,000 per year, or equivalent in donated services"
-msgstr "$50000 на рік, або еквівалент в наданих послугах"
+msgstr "$50,000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:130
 msgid ""
