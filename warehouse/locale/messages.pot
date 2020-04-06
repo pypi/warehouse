@@ -663,53 +663,29 @@ msgstr ""
 
 #: warehouse/templates/index.html:67
 #, python-format
-msgid ""
-"\n"
-"      %(num_projects_formatted)s project\n"
-"    "
-msgid_plural ""
-"\n"
-"      %(num_projects_formatted)s projects\n"
-"    "
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
 msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/index.html:74
 #, python-format
-msgid ""
-"\n"
-"      %(num_releases_formatted)s release\n"
-"    "
-msgid_plural ""
-"\n"
-"      %(num_releases_formatted)s releases\n"
-"    "
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
 msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/index.html:81
 #, python-format
-msgid ""
-"\n"
-"      %(num_files_formatted)s file\n"
-"    "
-msgid_plural ""
-"\n"
-"      %(num_files_formatted)s files\n"
-"    "
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
 msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/index.html:88
 #, python-format
-msgid ""
-"\n"
-"      %(num_users_formatted)s user\n"
-"    "
-msgid_plural ""
-"\n"
-"      %(num_users_formatted)s users\n"
-"    "
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
 msgstr[0] ""
 msgstr[1] ""
 
