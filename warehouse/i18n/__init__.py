@@ -23,8 +23,8 @@ from warehouse.cache.http import add_vary
 # https://github.com/django/django/blob/master/django/conf/locale/__init__.py
 KNOWN_LOCALES = {
     "en": "English",  # English
-    "es": "español",  # Spanish
-    "fr": "français",  # French
+    "es": "Español",  # Spanish
+    "fr": "Français",  # French
     "ja": "日本語",  # Japanese
     "pt_BR": "Português Brasileiro",  # Brazilian Portugeuse
     "uk": "Українська",  # Ukrainian
