@@ -1,11 +1,12 @@
 # Alex Solonenko <alex.solonencko@gmail.com>, 2020.
+# Anna Kurylo <anna.kurilo21@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-04-05 17:06+0200\n"
-"PO-Revision-Date: 2020-04-05 15:06+0000\n"
-"Last-Translator: Alex Solonenko <alex.solonencko@gmail.com>\n"
+"PO-Revision-Date: 2020-04-05 15:25+0000\n"
+"Last-Translator: Anna Kurylo <anna.kurilo21@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
 "Language: uk\n"
@@ -5709,10 +5710,10 @@ msgid ""
 "Python Software Foundation which raises and distributes funds to improve "
 "Python's packaging ecosystem."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Група по роботі з пакунками</a> це робоча група з Python"
-" Software Foundation, яка  збирає та розподіляє кошти для покращення "
-"екосистеми пакунків у Python."
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
+"Група по роботі з пакунками</a> це робоча група з Python Software "
+"Foundation, яка збирає та розподіляє кошти для покращення екосистеми "
+"пакунків у Python."
 
 #: warehouse/templates/pages/sponsor.html:29
 msgid "Recent projects funded through the working group include:"
@@ -5792,12 +5793,11 @@ msgid ""
 "href=\"%(funder1_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2020"
 msgstr ""
-"Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">гранту обсягом $407000</a> від<a "
-"href=\"%(funder0_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Chan Zuckerberg Initiative</a> та <a "
-"href=\"%(funder1_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Mozilla Open Source Support Program</a> у 2020"
+"Завдяки <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">гранту обсягом $407000</a> від <a href=\"%(funder0_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Chan Zuckerberg "
+"Initiative</a> та <a href=\"%(funder1_href)s\" title=\"%(title)s\" target=\""
+"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> у 2020"
 
 #: warehouse/templates/pages/sponsor.html:49
 msgid ""
@@ -5962,8 +5962,8 @@ msgid ""
 "Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI "
 "sponsors page</a>"
 msgstr ""
-"Логотип <strong>і детальний опис</strong> на <a "
-"href=\"%(href)s\">сторінці спонсорів PyPI</a>"
+"Логотип <strong>і опис</strong> на <a href=\"%(href)s\">сторінці спонсорів "
+"PyPI</a>"
 
 #: warehouse/templates/pages/sponsor.html:134
 #: warehouse/templates/pages/sponsor.html:157
@@ -5997,13 +5997,15 @@ msgstr "Платиновий"
 
 #: warehouse/templates/pages/sponsor.html:149
 msgid "$30,000 per year, or equivalent in donated services"
-msgstr "$30,000 на рік, або еквівалент у наданих послугах"
+msgstr "$30000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:153
 msgid ""
 "Logo on <strong>high rotation</strong> in a prominent position on the "
 "PyPI project detail page"
 msgstr ""
+"Логотип із <strong>високою частотою появи</strong> на видному місці сторінки "
+"деталей про проект PyPI"
 
 # | msgid ""
 # | "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\"
@@ -6047,13 +6049,15 @@ msgstr "Срібний"
 
 #: warehouse/templates/pages/sponsor.html:195
 msgid "$10,000 per year, or equivalent in donated services"
-msgstr "$10,000 на рік, або еквівалент у наданих послугах"
+msgstr "$10000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:199
 msgid ""
 "Logo on <strong>low rotation</strong> in a prominent position on the PyPI"
 " project detail page"
 msgstr ""
+"Логотип з <strong>низькою частотою появи</strong> на видному місці сторінки "
+"деталей про проект PyPI"
 
 #: warehouse/templates/pages/sponsor.html:200
 #: warehouse/templates/pages/sponsor.html:221
@@ -6068,8 +6072,8 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a>"
 msgstr ""
-"<strong>Дворічні</strong> твіти з подякою від <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+"<strong>Двічі на рік</strong>, твіт з подякою від <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a>"
 
 #: warehouse/templates/pages/sponsor.html:203
@@ -6079,17 +6083,17 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
 "account</a>"
 msgstr ""
-"<strong>Дворічні</strong> твіти з подякою від <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту "
-"PyPI</a>"
+"<strong>Двічі на рік</strong>, твіт з подякою від <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту PyPI</a>"
 
 #: warehouse/templates/pages/sponsor.html:216
 msgid "Bronze"
 msgstr "Бронзовий"
 
 #: warehouse/templates/pages/sponsor.html:217
+#, fuzzy
 msgid "$5,000 per year, or equivalent in donated services"
-msgstr "$5,000 на рік, або еквівалент у наданих послугах"
+msgstr "$5000 на рік, або еквівалент у наданих послугах"
 
 #: warehouse/templates/pages/sponsor.html:223
 #, python-format
@@ -6098,10 +6102,9 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a> (on initial sponsorship, and on each subsequent renewal)"
 msgstr ""
-"<strong>Одноразовий</strong>твіт з подякою від <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a> (під час першого спонсорства і після кожного його "
-"поновлення)"
+"<strong>Одноразовий</strong> твіт з подякою від <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>"
+" (під час першого спонсорства і після кожного його поновлення)"
 
 #: warehouse/templates/pages/sponsor.html:224
 #, python-format
@@ -6111,8 +6114,8 @@ msgid ""
 "account</a> (on initial sponsorship, and on each subsequent renewal)"
 msgstr ""
 "<strong>Одноразовий</strong> твіт з подякою від <a href=\"%(href)s\" title=\""
-"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер акаунту PyPI</a> (під "
-"час початкового спонсорства і після кожного наступного поновлення)"
+"%(title)s\" target=\"_blank\" rel=\"noopener\">Твітер-акаунту PyPI</a> (на "
+"початку спонсорства і після кожного наступного поновлення)"
 
 #: warehouse/templates/pages/sponsor.html:238
 msgid "One time grants / custom donations"
@@ -6126,10 +6129,10 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">fundable packaging improvements</a> "
 "for ideas."
 msgstr ""
-"Спорнсорство специфічного функціоналу, набору функцій або спринта "
-"спільноти, оцінене понад $50,000. Подивіться <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">удосконалення "
-"пакунків, що підлягають спонсоруванню,</a> для ідей."
+"Спонсорство специфічного функціоналу, набору функцій або спринта спільноти, "
+"оцінене понад $50000. Подивіться <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">удосконалення пакунків, що підлягають "
+"спонсоруванню,</a> для ідей."
 
 # | msgid ""
 # | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
@@ -6173,6 +6176,8 @@ msgid ""
 "Note: A record of working group grants will be listed on the PyPI "
 "sponsorship page in perpetuity."
 msgstr ""
+"Примітка: запис про грант робочій групі буде безстроково відображено на "
+"сторінці спонсортва PyPI."
 
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
