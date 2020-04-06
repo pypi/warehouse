@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-04-05 18:58+0200\n"
-"PO-Revision-Date: 2020-04-06 18:20+0000\n"
+"PO-Revision-Date: 2020-04-06 19:56+0000\n"
 "Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
@@ -729,40 +729,24 @@ msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Или <a href=\"%(href)s\">просмотр проектов</a>"
 
 #: warehouse/templates/index.html:66
-#, fuzzy, python-format
-#| msgid "%(num_projects)s projects"
-msgid "%(num_projects)s project"
-msgid_plural "%(num_projects)s projects"
-msgstr[0] "проектов: %(num_projects)s"
-msgstr[1] "проектов: %(num_projects)s"
-msgstr[2] "проектов: %(num_projects)s"
+#, python-format
+msgid "%(num_projects)s projects"
+msgstr "проектов: %(num_projects)s"
 
 #: warehouse/templates/index.html:67
-#, fuzzy, python-format
-#| msgid "%(num_releases)s releases"
-msgid "%(num_releases)s release"
-msgid_plural "%(num_releases)s releases"
-msgstr[0] "выпусков: %(num_releases)s"
-msgstr[1] "выпусков: %(num_releases)s"
-msgstr[2] "выпусков: %(num_releases)s"
+#, python-format
+msgid "%(num_releases)s releases"
+msgstr "выпусков: %(num_releases)s"
 
 #: warehouse/templates/index.html:68
-#, fuzzy, python-format
-#| msgid "%(num_files)s files"
-msgid "%(num_files)s file"
-msgid_plural "%(num_files)s files"
-msgstr[0] "файлов: %(num_files)s"
-msgstr[1] "файлов: %(num_files)s"
-msgstr[2] "файлов: %(num_files)s"
+#, python-format
+msgid "%(num_files)s files"
+msgstr "файлов: %(num_files)s"
 
 #: warehouse/templates/index.html:69
-#, fuzzy, python-format
-#| msgid "%(num_users)s users"
-msgid "%(num_users)s user"
-msgid_plural "%(num_users)s users"
-msgstr[0] "пользователей: %(num_users)s"
-msgstr[1] "пользователей: %(num_users)s"
-msgstr[2] "пользователей: %(num_users)s"
+#, python-format
+msgid "%(num_users)s users"
+msgstr "пользователей: %(num_users)s"
 
 #: warehouse/templates/index.html:81
 msgid ""
@@ -977,7 +961,7 @@ msgstr "Коды восстановления"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 msgid "Login using Recovery Code"
-msgstr "Войти с помощью кода восстановления"
+msgstr "Вход с помощью кода восстановления"
 
 #: warehouse/templates/accounts/recovery-code.html:40
 msgid "Enter recovery code"
