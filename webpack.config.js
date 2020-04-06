@@ -133,17 +133,6 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
           to: path.join(distPath, "webfonts", "[name].[contenthash:8].[ext]"),
         },
       ]),
-      // Create gzip and brotli compressed versions of our assets
-      // Note the default compression ratio is 0.8 which may result
-      // in some assets not generating compressed versions, like some PNG files
-      new CompressionPlugin({
-        test: /\.(js|css|png|jpg|svg|map)$/,
-      }),
-      new CompressionPlugin({
-        filename: "[path].br",
-        algorithm: "brotliCompress",
-        test: /\.(js|css|png|jpg|svg|map)$/,
-      }),
       // Create a manifest file
       new ManifestPlugin({
         filter(file) { return !file.name.match(/\.(br|gz)$/); }, // exclude compressed files
@@ -176,6 +165,22 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       ignored: ["dist/**", "html/**"],
     },
   };
+
+  if (args.mode === "production") {
+    config.plugins.push(
+      // Create gzip and brotli compressed versions of our assets
+      // Note the default compression ratio is 0.8 which may result
+      // in some assets not generating compressed versions, like some PNG files
+      new CompressionPlugin({
+        test: /\.(js|css|png|jpg|svg|map)$/,
+      }),
+      new CompressionPlugin({
+        filename: "[path].br",
+        algorithm: "brotliCompress",
+        test: /\.(js|css|png|jpg|svg|map)$/,
+      }),
+    );
+  }
 
   return config;
 };
