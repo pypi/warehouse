@@ -663,23 +663,31 @@ msgstr ""
 
 #: warehouse/templates/index.html:66
 #, python-format
-msgid "%(num_projects)s projects"
-msgstr ""
+msgid "%(num_projects)s project"
+msgid_plural "%(num_projects)s projects"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:67
 #, python-format
-msgid "%(num_releases)s releases"
-msgstr ""
+msgid "%(num_releases)s release"
+msgid_plural "%(num_releases)s releases"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:68
 #, python-format
-msgid "%(num_files)s files"
-msgstr ""
+msgid "%(num_files)s file"
+msgid_plural "%(num_files)s files"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:69
 #, python-format
-msgid "%(num_users)s users"
-msgstr ""
+msgid "%(num_users)s user"
+msgid_plural "%(num_users)s users"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:81
 msgid ""
