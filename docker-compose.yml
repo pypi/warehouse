@@ -109,7 +109,6 @@ services:
     command: bash -c "npx webpack --mode production --watch --info-verbosity verbose"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
