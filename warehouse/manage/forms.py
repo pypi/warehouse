@@ -85,7 +85,7 @@ class SaveAccountForm(forms.Form):
             if field.data not in verified_emails:
                 raise wtforms.validators.ValidationError(
                     _(
-                        "{email} is not a verified email for {user_name}" % (field.data, user.username),
+                        "{email} is not a verified email for {user_name}",
                         mapping={"email": field.data, "user_name": user.username},
                      )
                 )
