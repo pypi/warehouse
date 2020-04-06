@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-05 13:58+0000\n"
+"PO-Revision-Date: 2020-04-05 19:04+0000\n"
 "Last-Translator: Tal Einat <taleinat@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
@@ -2030,27 +2030,27 @@ msgstr "הסרת מכשיר"
 
 #: warehouse/templates/manage/account.html:484
 msgid "Device name"
-msgstr ""
+msgstr "שם מכשיר"
 
 #: warehouse/templates/manage/account.html:491
 #, python-format
 msgid "generated %(generated_datetime)s"
-msgstr ""
+msgstr "יוצרו ב-%(generated_datetime)s"
 
 #: warehouse/templates/manage/account.html:494
 msgid "Regenerate"
-msgstr ""
+msgstr "ייצור מחדש"
 
 #: warehouse/templates/manage/account.html:495
 #: warehouse/templates/manage/account.html:496
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate Recovery Codes"
-msgstr ""
+msgstr "ייצור מחדש של קודים לשחזור"
 
 #: warehouse/templates/manage/account.html:507
 msgid "You have not enabled two factor authentication on your account."
-msgstr ""
+msgstr "טרם אפשרת אימות דו-גורמי בחשבונך."
 
 #: warehouse/templates/manage/account.html:512
 #, python-format
@@ -2058,31 +2058,33 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
 "authentication to your account."
 msgstr ""
+"<a href=\"%(href)s\">אמת/י את כתובת האי-מייל הראשית שלך</a> כדי להוסיף אימות "
+"דו-גורמי לחשבונך."
 
 #: warehouse/templates/manage/account.html:519
 #: warehouse/templates/manage/settings.html:23
 msgid "API tokens"
-msgstr ""
+msgstr "אסימוני API"
 
 #: warehouse/templates/manage/account.html:520
 #: warehouse/templates/manage/settings.html:24
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
-msgstr ""
+msgstr "אסימוני API מספקים דרך חלופית לאימות כאשר מעלים חבילות אל PyPI."
 
 #: warehouse/templates/manage/account.html:520
 msgid "Learn more about API tokens"
-msgstr ""
+msgstr "למד/י עוד אודות אסימוני API"
 
 #: warehouse/templates/manage/account.html:524
 msgid "Active API tokens for this account"
-msgstr ""
+msgstr "אסימוני API פעילים עבור חשבון זה"
 
 #: warehouse/templates/manage/account.html:542
 #: warehouse/templates/manage/token.html:17
 msgid "Add API token"
-msgstr ""
+msgstr "הוספת אסימון API"
 
 #: warehouse/templates/manage/account.html:544
 #, python-format
@@ -2090,87 +2092,89 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
 "to your account."
 msgstr ""
+"<a href=\"%(href)s\">אמת/י את כתובת האי-מייל הראשית שלך</a> כדי להוסיף "
+"אסימוני API לחשבונך."
 
 #: warehouse/templates/manage/account.html:559
 msgid "Account created"
-msgstr ""
+msgstr "חשבון נוצר"
 
 #: warehouse/templates/manage/account.html:562
 msgid "Logged in"
-msgstr ""
+msgstr "מחובר"
 
 #: warehouse/templates/manage/account.html:564
 msgid "Two factor method:"
-msgstr ""
+msgstr "אמצעי אימות דו-גורמי:"
 
 #: warehouse/templates/manage/account.html:566
 #: warehouse/templates/manage/release.html:58
 #: warehouse/templates/packaging/detail.html:302
 msgid "None"
-msgstr ""
+msgstr "אין"
 
 #: warehouse/templates/manage/account.html:572
 msgid "Recovery Code"
-msgstr ""
+msgstr "קוד שחזור"
 
 #: warehouse/templates/manage/account.html:577
 msgid "Email added to account"
-msgstr ""
+msgstr "אי-מייל נוסף לחשבון"
 
 #: warehouse/templates/manage/account.html:580
 msgid "Email removed from account"
-msgstr ""
+msgstr "אי-מייל הוסר מהחשבון"
 
 #: warehouse/templates/manage/account.html:583
 msgid "Email verified"
-msgstr ""
+msgstr "אי-מייל אומת"
 
 #: warehouse/templates/manage/account.html:586
 msgid "Email reverified"
-msgstr ""
+msgstr "אי-מייל אומת מחדש"
 
 #: warehouse/templates/manage/account.html:590
 msgid "Primary email changed"
-msgstr ""
+msgstr "אי-מייל ראשי השתנה"
 
 #: warehouse/templates/manage/account.html:592
 msgid "Old primary email:"
-msgstr ""
+msgstr "אי-מייל ראשי ישן:"
 
 #: warehouse/templates/manage/account.html:593
 msgid "New primary email:"
-msgstr ""
+msgstr "אי-מייל ראשי חדש:"
 
 #: warehouse/templates/manage/account.html:596
 msgid "Primary email set"
-msgstr ""
+msgstr "אי-מייל ראשי נקבע"
 
 #: warehouse/templates/manage/account.html:603
 msgid "Password reset requested"
-msgstr ""
+msgstr "איפוס סיסמה התבקש"
 
 #: warehouse/templates/manage/account.html:605
 msgid "Password successfully reset"
-msgstr ""
+msgstr "סיסמה אופסה בהצלחה"
 
 #: warehouse/templates/manage/account.html:607
 msgid "Password successfully changed"
-msgstr ""
+msgstr "סיסמה שונתה בהצלחה"
 
 #: warehouse/templates/manage/account.html:610
 msgid "Two factor authentication added"
-msgstr ""
+msgstr "אימות דו-גורמי נוסף"
 
 #: warehouse/templates/manage/account.html:613
 #: warehouse/templates/manage/account.html:623
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
-msgstr ""
+msgstr "שיטה: מכשיר אבטחה (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:614
 #: warehouse/templates/manage/account.html:624
 msgid "Device name:"
-msgstr ""
+msgstr "שם מכשיר:"
 
 #: warehouse/templates/manage/account.html:616
 #: warehouse/templates/manage/account.html:626
@@ -2178,91 +2182,93 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
+"שיטה: אפליקצית אימות (<abbr title=\"time-based one-time password\""
+">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:620
 msgid "Two factor authentication removed"
-msgstr ""
+msgstr "אימות דו-גורמי הוסר"
 
 #: warehouse/templates/manage/account.html:631
 msgid "Recovery Codes generated"
-msgstr ""
+msgstr "קודים לשחזור יוצרו"
 
 #: warehouse/templates/manage/account.html:635
 msgid "Recovery Codes regenerated"
-msgstr ""
+msgstr "קודים לשחזור יוצרו מחדש"
 
 #: warehouse/templates/manage/account.html:639
 msgid "Recovery Code used for login"
-msgstr ""
+msgstr "נעשה שימוש בקוד שחזור להתחברות"
 
 #: warehouse/templates/manage/account.html:645
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
-msgstr ""
+msgstr "אסימון API נוסף"
 
 #: warehouse/templates/manage/account.html:647
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
-msgstr ""
+msgstr "שם האסימון:"
 
 #: warehouse/templates/manage/account.html:649
 msgid "Token scope: entire account"
-msgstr ""
+msgstr "תחום האסימון: כל החשבון"
 
 #: warehouse/templates/manage/account.html:651
 #, python-format
 msgid "Token scope: Project %(project_name)s"
-msgstr ""
+msgstr "תחםו האסימון: הפרויקט %(project_name)s"
 
 #: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
-msgstr ""
+msgstr "אסימון API הוסר"
 
 #: warehouse/templates/manage/account.html:657
 msgid "Unique identifier:"
-msgstr ""
+msgstr "מזהה ייחודי:"
 
 #: warehouse/templates/manage/account.html:662
 msgid "Events appear here as security-related actions occur on your account."
-msgstr ""
+msgstr "אירועים מופיעים כאן בעת שפעולות הקשורות לאבטחה מתרחשות בחשבונך."
 
 #: warehouse/templates/manage/account.html:664
 msgid "Recent account activity"
-msgstr ""
+msgstr "פעילות חשבון שאירעה לאחרונה"
 
 #: warehouse/templates/manage/account.html:666
 #: warehouse/templates/manage/history.html:87
 msgid "Event"
-msgstr ""
+msgstr "אירוע"
 
 #: warehouse/templates/manage/account.html:667
 #: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/history.html:88
 #: warehouse/templates/manage/history.html:97
 msgid "Date / time"
-msgstr ""
+msgstr "תאריך / זמן"
 
 #: warehouse/templates/manage/account.html:668
 #: warehouse/templates/manage/account.html:679
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:101
 msgid "IP address"
-msgstr ""
+msgstr "כתובת IP"
 
 #: warehouse/templates/manage/account.html:687
 msgid ""
 "Events will appear here as security-related actions occur on your account."
-msgstr ""
+msgstr "אירועים יופיעו כאן בעת שפעולות הקשורות לאבטחה יתרחשו בחשבונך."
 
 #: warehouse/templates/manage/account.html:694
 msgid "Delete account"
-msgstr ""
+msgstr "מחיקת החשבון"
 
 #: warehouse/templates/manage/account.html:697
 msgid "Cannot delete account"
-msgstr ""
+msgstr "לא ניתן למחוק את החשבון"
 
 #: warehouse/templates/manage/account.html:699
 #, python-format
@@ -2277,9 +2283,24 @@ msgid_plural ""
 "%(count)s projects.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          כרגע חשבונך הוא <strong>הבעלים היחיד</strong> של הפרויקט.\n"
+"        "
 msgstr[1] ""
+"\n"
+"          כרגע חשבונך הוא <strong>הבעלים היחיד</strong> של %(count)s "
+"פרויקטים.\n"
+"        "
 msgstr[2] ""
+"\n"
+"          כרגע חשבונך הוא <strong>הבעלים היחיד</strong> של %(count)s "
+"פרויקטים.\n"
+"        "
 msgstr[3] ""
+"\n"
+"          כרגע חשבונך הוא <strong>הבעלים היחיד</strong> של %(count)s "
+"פרויקטים.\n"
+"        "
 
 #: warehouse/templates/manage/account.html:704
 msgid ""
@@ -2293,9 +2314,25 @@ msgid_plural ""
 "can delete your account.\n"
 "        "
 msgstr[0] ""
+"\n"
+"          עליך להעביר בעלות או למחוק פרויקט זה לפני שניתן יהיה למחוק את "
+"חשבונך.\n"
+"        "
 msgstr[1] ""
+"\n"
+"          עליך להעביר בעלות או למחוק פרויקטים אלו לפני שניתן יהיה למחוק את "
+"חשבונך.\n"
+"        "
 msgstr[2] ""
+"\n"
+"          עליך להעביר בעלות או למחוק פרויקטים אלו לפני שניתן יהיה למחוק את "
+"חשבונך.\n"
+"        "
 msgstr[3] ""
+"\n"
+"          עליך להעביר בעלות או למחוק פרויקטים אלו לפני שניתן יהיה למחוק את "
+"חשבונך.\n"
+"        "
 
 #: warehouse/templates/manage/account.html:714
 #, python-format
@@ -2303,28 +2340,30 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
+"<a href=\"%(transfer_href)s\">העברת בעלות</a> או <a href=\"%(delete_href)s\">"
+"מחיקת הפרויקט</a>"
 
 #: warehouse/templates/manage/account.html:723
 #: warehouse/templates/manage/token.html:162
 msgid "Proceed with caution!"
-msgstr ""
+msgstr "יש להמשיך בזהירות!"
 
 #: warehouse/templates/manage/account.html:726
 msgid "You will not be able to recover your account after you delete it"
-msgstr ""
+msgstr "לא תוכל/י לשחזר את חשבונך לאחר מחיקתו"
 
 #: warehouse/templates/manage/account.html:728
 msgid "Delete your PyPI account"
-msgstr ""
+msgstr "מחיקת חשבון ה-PyPI שלך"
 
 #: warehouse/templates/manage/documentation.html:18
 #, python-format
 msgid "Manage '%(project_name)s' documentation"
-msgstr ""
+msgstr "נהל את התיעוד של %(project_name)s"
 
 #: warehouse/templates/manage/documentation.html:25
 msgid "Destroy documentation"
-msgstr ""
+msgstr "הריסת התיעוד"
 
 #: warehouse/templates/manage/documentation.html:28
 #, python-format
@@ -2333,123 +2372,128 @@ msgid ""
 "\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading new "
 "documentation is no longer supported."
 msgstr ""
+"אם ברצונך <strong>להרוס</strong> כל תיעוד קיים המתארח ב-<a href=\"%(url)s\""
+">%(url)s</a>, <strong>אין</strong> אפשרות לבטל בדיעבד פעולה זו, כיוון שהעלאת "
+"תיעוד חדש אינה נתמכת יותר."
 
 #: warehouse/templates/manage/documentation.html:35
 msgid "Destroy Documentation for project"
-msgstr ""
+msgstr "הריסת התיעוד עבור הפרויקט"
 
 #: warehouse/templates/manage/documentation.html:35
 #: warehouse/templates/manage/release.html:104
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
-msgstr ""
+msgstr "שם הפרויקט"
 
 #: warehouse/templates/manage/documentation.html:39
 msgid "Project documentation"
-msgstr ""
+msgstr "תיעוד הפרויקט"
 
 #: warehouse/templates/manage/documentation.html:41
 msgid "Uploading new documentation is no longer supported"
-msgstr ""
+msgstr "העלאת תיעוד חדש אינה נתמכת יותר"
 
 #: warehouse/templates/manage/history.html:20
 #, python-format
 msgid "'%(project_name)s' project history"
-msgstr ""
+msgstr "היסטורית הפרויקט של %(project_name)s"
 
 #: warehouse/templates/manage/history.html:25
 msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this project, the action is recorded and displayed here."
 msgstr ""
+"בכל פעם שאת/ה (או שותפיך) תבצע/ו פעולת אבטחה הקשורה לפרויקט זה, הפעולה תירשם "
+"ותוצג כאן."
 
 #: warehouse/templates/manage/history.html:29
 msgid "Project created"
-msgstr ""
+msgstr "הפרויקט נוצר"
 
 #: warehouse/templates/manage/history.html:31
 msgid "Created by:"
-msgstr ""
+msgstr "נוצר על ידי:"
 
 #: warehouse/templates/manage/history.html:34
 #, python-format
 msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
-msgstr ""
+msgstr "<a href=\"%(href)s\">גרסה %(version)s</a> נוצרה"
 
 #: warehouse/templates/manage/history.html:36
 #: warehouse/templates/manage/history.html:52
 msgid "Added by:"
-msgstr ""
+msgstr "נוספ/ה על ידי:"
 
 #: warehouse/templates/manage/history.html:39
 #, python-format
 msgid "Release version %(version)s removed"
-msgstr ""
+msgstr "גרסה %(version)s הוסרה"
 
 #: warehouse/templates/manage/history.html:41
 #: warehouse/templates/manage/history.html:47
 #: warehouse/templates/manage/history.html:57
 msgid "Removed by:"
-msgstr ""
+msgstr "הוסר/ה על ידי:"
 
 #: warehouse/templates/manage/history.html:44
 #, python-format
 msgid "File removed from release version %(version)s"
-msgstr ""
+msgstr "הקובץ הוסר מגרסה %(version)s"
 
 #: warehouse/templates/manage/history.html:45
 #: warehouse/templates/manage/release.html:99
 msgid "Filename:"
-msgstr ""
+msgstr "שם קובץ:"
 
 #: warehouse/templates/manage/history.html:50
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
-msgstr ""
+msgstr "<a href=\"%(href)s\">%(username)s</a> נוסף כ%(role_name)s בפרויקט"
 
 #: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
-msgstr ""
+msgstr "<a href=\"%(href)s\">%(username)s</a> הוסר כ%(role_name)s בפרויקט"
 
 #: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
-msgstr ""
+msgstr "<a href=\"%(href)s\">%(username)s</a> שונה להיות %(role_name)s בפרויקט"
 
 #: warehouse/templates/manage/history.html:62
 msgid "Changed by:"
-msgstr ""
+msgstr "שונ/תה על ידי:"
 
 #: warehouse/templates/manage/history.html:67
 #: warehouse/templates/manage/history.html:74
 msgid "Permissions: Can upload to this project"
-msgstr ""
+msgstr "הרשאות: יכול/ה להעלות לפרויקט זה"
 
 #: warehouse/templates/manage/history.html:68
 #: warehouse/templates/manage/history.html:75
 msgid "Controlled by:"
-msgstr ""
+msgstr "נשלט/ת על ידי:"
 
 #: warehouse/templates/manage/history.html:84
 #, python-format
 msgid "Security history for %(project_name)s"
-msgstr ""
+msgstr "היסטורית אבטחה עבור %(project_name)s"
 
 #: warehouse/templates/manage/journal.html:20
 #, python-format
 msgid "'%(project_name)s' project journal"
-msgstr ""
+msgstr "יומן הפרויקט של ׳%(project_name)s׳"
 
 #: warehouse/templates/manage/journal.html:23
 msgid "Project journal"
-msgstr ""
+msgstr "יומן פרויקט"
 
 #: warehouse/templates/manage/journal.html:25
 msgid ""
 "Each time you or your collaborators update this project, the action is "
 "recorded and displayed here."
-msgstr ""
+msgstr "בכל פעם שאת/ה או שותפיך תעדכנו פרויקט זה, הפעולה תירשם ותוצג כאן."
 
 #: warehouse/templates/manage/journal.html:28
 #, python-format
@@ -2457,126 +2501,128 @@ msgid ""
 "This feature will be deprecated in the future, replaced by the <a href="
 "\"%(href)s\">security history page</a>."
 msgstr ""
+"יכולת זו תוסר בעתיד, היא תוחלף עי לדי <a href=\"%(href)s\">דף היסטורית "
+"האבטחה</a>."
 
 #: warehouse/templates/manage/journal.html:32
 #, python-format
 msgid "History for %(project_name)s"
-msgstr ""
+msgstr "היסטוריה עבור %(project_name)s"
 
 #: warehouse/templates/manage/journal.html:35
 #: warehouse/templates/manage/journal.html:44
 msgid "Action"
-msgstr ""
+msgstr "פעולה"
 
 #: warehouse/templates/manage/journal.html:36
 #: warehouse/templates/manage/journal.html:48
 msgid "Date"
-msgstr ""
+msgstr "תאריך"
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
 #: warehouse/templates/manage/roles.html:113
 msgid "User"
-msgstr ""
+msgstr "משתמש"
 
 #: warehouse/templates/manage/journal.html:45
 #, python-format
 msgid "Release %(version)s:"
-msgstr ""
+msgstr "גרסה %(version)s:"
 
 #: warehouse/templates/manage/journal.html:54
 #, python-format
 msgid "from %(ip_address)s"
-msgstr ""
+msgstr "מאת %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
 #: warehouse/templates/manage/releases.html:69
 msgid "Manage"
-msgstr ""
+msgstr "ניהול"
 
 #: warehouse/templates/manage/manage_base.html:26
 msgid "Your account"
-msgstr ""
+msgstr "החשבון שלך"
 
 #: warehouse/templates/manage/manage_base.html:27
 #: warehouse/templates/manage/manage_base.html:47
 msgid "Account navigation"
-msgstr ""
+msgstr "ניווט חשבון"
 
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
 msgid "This action cannot be undone!"
-msgstr ""
+msgstr "פעולה זו לא ניתנת לביטול!"
 
 #: warehouse/templates/manage/manage_base.html:114
 msgid "Confirm your username to continue."
-msgstr ""
+msgstr "יש לאשר את שם המשתמש כד להמשיך."
 
 #: warehouse/templates/manage/manage_base.html:116
 #, python-format
 msgid "Confirm the %(item)s to continue."
-msgstr ""
+msgstr "יש לאשר את %(item)s כדי להמשיך."
 
 #: warehouse/templates/manage/manage_base.html:124
 #: warehouse/templates/manage/manage_base.html:176
 msgid "Cancel"
-msgstr ""
+msgstr "ביטול"
 
 #: warehouse/templates/manage/manage_base.html:147
 msgid "close"
-msgstr ""
+msgstr "סגירה"
 
 #: warehouse/templates/manage/manage_base.html:163
 msgid "Enter your password to continue."
-msgstr ""
+msgstr "יש להזין את סיסמתך כדי להמשיך."
 
 #: warehouse/templates/manage/manage_project_base.html:21
 #, python-format
 msgid "Manage '%(project_name)s'"
-msgstr ""
+msgstr "ניהול ׳%(project_name)s׳"
 
 #: warehouse/templates/manage/manage_project_base.html:32
 #: warehouse/templates/manage/projects.html:21
 #, python-format
 msgid "Your projects (%(project_count)s)"
-msgstr ""
+msgstr "הפרויקטים שלך (%(project_count)s)"
 
 #: warehouse/templates/manage/manage_project_base.html:41
 msgid "Back to projects"
-msgstr ""
+msgstr "חזרה לפרויקטים"
 
 #: warehouse/templates/manage/projects.html:31
 msgid "Sole owner"
-msgstr ""
+msgstr "בעלים יחיד"
 
 #: warehouse/templates/manage/projects.html:43
 #, python-format
 msgid "Created on %(creation_date)s"
-msgstr ""
+msgstr "נוצר ב-%(creation_date)s"
 
 #: warehouse/templates/manage/projects.html:52
 msgid "Manage this project"
-msgstr ""
+msgstr "ניהול פרויקט זה"
 
 #: warehouse/templates/manage/projects.html:55
 msgid "You are not an owner of this project"
-msgstr ""
+msgstr "אינך בעלים של פרויקט זה"
 
 #: warehouse/templates/manage/projects.html:62
 msgid "View this project's public page"
-msgstr ""
+msgstr "צפייה בדף הפומבי של פרויקט זה"
 
 #: warehouse/templates/manage/projects.html:65
 msgid "This project has no releases"
-msgstr ""
+msgstr "לפרויקט זה אין גרסאות"
 
 #: warehouse/templates/manage/projects.html:67
 #: warehouse/templates/manage/releases.html:75
 #: warehouse/templates/packaging/detail.html:312
 msgid "View"
-msgstr ""
+msgstr "צפייה"
 
 #: warehouse/templates/manage/projects.html:74
 #, python-format
@@ -2585,35 +2631,38 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener"
 "\">Python Packaging User Guide</a>"
 msgstr ""
+"טרם העלית פרויקט אל PyPI, בינתיים. כדי ללמוד כיצד להתחיל, ניתן להיעזר ב<a "
+"href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">מדריך לאריזת חבילות "
+"פייתון</a>"
 
 #: warehouse/templates/manage/release.html:18
 #, python-format
 msgid "Manage '%(project_name)s' – release version %(version)s"
-msgstr ""
+msgstr "ניהול ׳%(project_name)s׳ – גרסה %(version)s"
 
 #: warehouse/templates/manage/release.html:22
 #: warehouse/templates/manage/release.html:27
 #, python-format
 msgid "Release version %(version)s"
-msgstr ""
+msgstr "גרסה %(version)s"
 
 #: warehouse/templates/manage/release.html:24
 msgid "Breadcrumb"
-msgstr ""
+msgstr "פירור לחם"
 
 #: warehouse/templates/manage/release.html:26
 #, python-format
 msgid "All %(project_name)s releases"
-msgstr ""
+msgstr "כל גרסאות %(project_name)s"
 
 #: warehouse/templates/manage/release.html:27
 msgid "view release"
-msgstr ""
+msgstr "צפייה בגרסה"
 
 #: warehouse/templates/manage/release.html:34
 #, python-format
 msgid "Files for release %(version)s of %(project_name)s"
-msgstr ""
+msgstr "קבצים עבור גרסה %(version)s של %(project_name)s"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
