@@ -54,7 +54,7 @@ stdlib-list
 structlog
 transaction
 trove-classifiers
-tuf
+-e git+https://github.com/theupdateframework/tuf.git@c842c739adf80ee3993973cd276042e0ccd43b75#egg=tuf
 typeguard
 webauthn
 whitenoise

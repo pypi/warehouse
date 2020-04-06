@@ -1,3 +1,6 @@
+-e git+https://github.com/theupdateframework/tuf.git@c842c739adf80ee3993973cd276042e0ccd43b75#egg=tuf \
+    --hash=sha256:7f59abf2d82bf3e4185e94bb81a0f968b1f5d14ece2811be65763e483ad58f83 \
+    --hash=sha256:c19d2f979b3d7b80b3e28902e636ce49218f287d83810dc6fe59a9e2c4eb616f
 alembic==1.4.2 \
     --hash=sha256:035ab00497217628bf5d0be82d664d8713ab13d37b630084da8e1f98facf4dbf
 amqp==2.5.2 \
@@ -579,9 +582,6 @@ translationstring==1.3 \
 trove-classifiers==2020.4.1 \
     --hash=sha256:9e1dcd47920817eaeb4cc67004b3fee430f3fc692e926f6ab1e337035b7a590d \
     --hash=sha256:d8adb5d687ee15fe83c4c23404a8fbc0ff267ca997c6870419cc625fdea449e0
-tuf==0.12.2 \
-    --hash=sha256:7f59abf2d82bf3e4185e94bb81a0f968b1f5d14ece2811be65763e483ad58f83 \
-    --hash=sha256:c19d2f979b3d7b80b3e28902e636ce49218f287d83810dc6fe59a9e2c4eb616f
 typeguard==2.7.1 \
     --hash=sha256:1d3710251d3d3d6c64e0c49f45edec2e88ddc386a51e89c3ec0703efeb8b3b81 \
     --hash=sha256:2d545c71e9439c21bcd7c28f5f55b3606e6106f7031ab58375656a1aed483ef2
