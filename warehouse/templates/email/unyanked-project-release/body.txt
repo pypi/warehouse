@@ -15,9 +15,9 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-  The {{ project }} release {{ release }} released on {{ release_date }} has been yanked.
+  The {{ project }} release {{ release }} released on {{ release_date }} has been un-yanked.
 
-  Yanked by: {{ submitter }} with a role: {{ submitter_role }}.
+  Un-yanked by: {{ submitter }} with a role: {{ submitter_role }}.
 
   If you have questions or concerns, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
