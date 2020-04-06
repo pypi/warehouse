@@ -103,7 +103,6 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
     ],
     devtool: "source-map",  // TODO: consider a faster source map option
     output: {
-      // path: distPath,
       publicPath: "",
       filename: "[name].[contenthash:8].js",
     },
