@@ -119,18 +119,22 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       new MiniCssExtractPlugin({
         filename: "[name].[contenthash:8].css",
       }),
-      // Copy without processing vendored JS
+      // Copy without processing vendored JS and fontawesome webfonts
+      // TODO: Add content hashes. The copy plugin allows to add the hash
+      // to each file "[name].[contenthash:8].[ext]" however it emits
+      // each file with the hash included so the ManifestPlugin generates
+      // `zxcvbn.HASH.js: zxcvbn.HASH.js`, instead of
+      // `zxcvbn.js: zxcvbn.HASH.js` which results in a 404
       new CopyPlugin([
         {
-          from: "./js/vendor",
-          to: path.join(distPath, "js", "vendor", "[name].[contenthash:8].[ext]"),
+          from: "./js/vendor/",
+          to: "./js/vendor/",
         },
       ]),
-      // Copy without processing fontawesome webfonts
       new CopyPlugin([
         {
           from: path.join(fontAwesomePath, "webfonts"),
-          to: path.join(distPath, "webfonts", "[name].[contenthash:8].[ext]"),
+          to: "./webfonts/",
         },
       ]),
       // Create a manifest file
