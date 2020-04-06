@@ -64,10 +64,10 @@
 
 <div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
-    <p class="statistics-bar__statistic">{% trans num_projects=num_projects|format_number %}{{ num_projects }} projects{% endtrans %}</p>
-    <p class="statistics-bar__statistic">{% trans num_releases=num_releases|format_number %}{{ num_releases }} releases{% endtrans %}</p>
-    <p class="statistics-bar__statistic">{% trans num_files=num_files|format_number %}{{ num_files }} files{% endtrans %}</p>
-    <p class="statistics-bar__statistic">{% trans num_users=num_users|format_number %}{{ num_users }} users{% endtrans %}</p>
+    <p class="statistics-bar__statistic">{% trans num_projects=num_projects|format_number %}{{ num_projects }} project{% pluralize %}{{ num_projects }} projects{% endtrans %}</p>
+    <p class="statistics-bar__statistic">{% trans num_releases=num_releases|format_number %}{{ num_releases }} release{% pluralize %}{{ num_releases }} releases{% endtrans %}</p>
+    <p class="statistics-bar__statistic">{% trans num_files=num_files|format_number %}{{ num_files }} file{% pluralize %}{{ num_files }} files{% endtrans %}</p>
+    <p class="statistics-bar__statistic">{% trans num_users=num_users|format_number %}{{ num_users }} user{% pluralize %}{{ num_users }} users{% endtrans %}</p>
   </div>
 </div>
 
