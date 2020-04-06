@@ -33,9 +33,12 @@ RUN set -x \
 # small amount of copying when only webpack.config.js is modified.
 COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
 COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
-COPY webpack.config.js /opt/warehouse/src/
+COPY webpack.common.js /opt/warehouse/src/
+COPY webpack.warehouse.js /opt/warehouse/src/
+COPY webpack.admin.js /opt/warehouse/src/
 
-RUN npx webpack --mode production
+RUN npx webpack --mode production --config webpack.warehouse.js
+RUN npx webpack --mode production --config webpack.admin.js
 
 
 

@@ -116,6 +116,20 @@ services:
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
 
+  static_admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.static
+    command: bash -c "npx webpack --mode production --config webpack.admin.js --watch --info-verbosity verbose"
+    volumes:
+      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - ./webpack.common.js:/opt/warehouse/src/webpack.common.js:z
+      - ./webpack.admin.js:/opt/warehouse/src/webpack.admin.js:z
+      - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
+      - ./bin:/opt/warehouse/src/bin:z
+
   smtp:
     build:
       context: .

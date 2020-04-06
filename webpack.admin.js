@@ -15,13 +15,10 @@
 const path = require("path");
 const glob = require("glob");
 
-const CopyPlugin = require("copy-webpack-plugin");
-
 // Configure where our files come from, where they get saved too, and what path
 // they are served from.
 const staticPrefix = "warehouse/admin/static/";
 const distPath = path.resolve(staticPrefix, "dist");
-const fontAwesomePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json"));
 const commonConfig = require("./webpack.common");
 
 /* global module, __dirname */
@@ -40,36 +37,30 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       "js/admin": glob
         .sync(path.join(staticPrefix, "js/*.js"))
         .map(imagePath => path.join(__dirname, imagePath)),
-      // "css/warehouse": "./sass/warehouse.scss",
-      // "css/noscript": "./sass/noscript.scss",
-      // "images": glob
-      //   .sync(path.join(staticPrefix, "images/**/*"))
-      //   .map(imagePath => path.join(__dirname, imagePath)),
-      // "css/fontawesome": path.resolve(fontAwesomePath, "css/fontawesome.css"),
-      // "css/regular": path.resolve(fontAwesomePath, "css/regular.css"),
-      // "css/solid": path.resolve(fontAwesomePath, "css/solid.css"),
-      // "css/brands": path.resolve(fontAwesomePath, "css/brands.css"),
+      "css/all": [
+        "./css/bootstrap.min.css",
+        "./css/fontawesome.min.css",
+        "./css/AdminLTE.min.css",
+        "./css/skins/skin-purple.min.css",
+      ],
     },
   }, baseConfig);
-  // Make sure the manifest plugin is at the end
-  // const manifestPlugin = config.plugins.pop();
-  // config.plugins.push(
-  //   // Copy without processing vendored JS
-  //   new CopyPlugin([
-  //     {
-  //       from: "./js/vendor/",
-  //       to: "./js/vendor/",
-  //     },
-  //   ]),
-  //   // Copy without processing fontawesome webfonts
-  //   new CopyPlugin([
-  //     {
-  //       from: path.join(fontAwesomePath, "webfonts"),
-  //       to: "./webfonts/",
-  //     },
-  //   ]),
-  //   manifestPlugin,
-  // );
+  // The fonts need to be copied to /admin/static/fonts/
+  config.module.rules.pop();
+  config.module.rules.push(
+    {
+      test: /\.(woff2?|ttf|eot|svg)$/i,
+      use: [
+        {
+          loader: "file-loader",
+          options: {
+            name: "fonts/[name].[contenthash:8].[ext]",
+            publicPath: "/admin/static/",
+          },
+        },
+      ],
+    },
+  );
   config.output.path = distPath;
 
   return config;
