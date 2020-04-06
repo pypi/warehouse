@@ -10,13 +10,14 @@ with open(source_map_filename) as f:
     source_map = json.loads(f.read())
 
 source_map_paths = {
-    urllib.parse.urlparse(source).path[1:]
+    urllib.parse.urlparse(source).path[3:]
     for source in source_map["sources"]
-    if urllib.parse.urlparse(source).path.startswith("/warehouse/")
+    if urllib.parse.urlparse(source).path.startswith("/./js/warehouse/")
 }
 
 source_file_paths = set(
-    glob.glob("warehouse/static/js/warehouse/**/*.js", recursive=True)
+    path.replace("warehouse/static/", "")
+    for path in glob.glob("warehouse/static/js/warehouse/**/*.js", recursive=True)
 )
 
 diff = source_file_paths - source_map_paths
