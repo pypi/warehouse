@@ -8,14 +8,16 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-04-04 21:24+0000\n"
+"PO-Revision-Date: 2020-04-07 09:47+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
+"warehouse/pt_BR/>\n"
 "Language: pt_BR\n"
-"Language-Team: pt_BR <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.0-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -729,29 +731,29 @@ msgstr "Ou <a href=\"%(href)s\">navegue por projetos</a>"
 #, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num_projects_formatted)s projeto"
+msgstr[1] "%(num_projects_formatted)s projetos"
 
 #: warehouse/templates/index.html:74
 #, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num_releases_formatted)s lançamento"
+msgstr[1] "%(num_releases_formatted)s lançamentos"
 
 #: warehouse/templates/index.html:81
 #, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num_files_formatted)s arquivo"
+msgstr[1] "%(num_files_formatted)s arquivos"
 
 #: warehouse/templates/index.html:88
 #, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(num_users_formatted)s usuário"
+msgstr[1] "%(num_users_formatted)s usuários"
 
 #: warehouse/templates/index.html:105
 msgid ""
@@ -5912,15 +5914,15 @@ msgstr ""
 # | "Foundation blog</a>"
 #: warehouse/templates/pages/sponsor.html:112
 #: warehouse/templates/pages/sponsor.html:133
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation blog</a>"
 msgstr ""
-"Publicação de blog <strong>individual</strong> no <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">blog da Python "
-"Sofware Foundation</a>"
+"Publicação <strong>individual</strong> no <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">blog da Python Sofware "
+"Foundation</a>"
 
 #: warehouse/templates/pages/sponsor.html:116
 #: warehouse/templates/pages/sponsor.html:139
@@ -6018,17 +6020,17 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:179
 #: warehouse/templates/pages/sponsor.html:201
 #: warehouse/templates/pages/sponsor.html:222
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
 "<strong>with other sponsors</strong> whose sponsorship commenced during "
 "the same quarter"
 msgstr ""
-"Inclusão em um post no <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">blog da Python Sofware Foundation</a>,"
-" <strong>com outros patrocinadores</strong> cujo patrocínio começou "
-"durante o mesmo trimestre"
+"Inclusão em uma publicação no <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">blog da Python Sofware Foundation</a>, "
+"<strong>com outros patrocinadores</strong> cujo patrocínio começou durante o "
+"mesmo trimestre"
 
 #: warehouse/templates/pages/sponsor.html:171
 msgid "Gold"
@@ -6142,15 +6144,15 @@ msgstr ""
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
 # | "Foundation blog</a>, explaining what the funds will be used for"
 #: warehouse/templates/pages/sponsor.html:244
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation blog</a>, explaining what the funds will be used for"
 msgstr ""
-"Post <strong>individual</strong> no <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">blog da Python "
-"Sofware Foundation</a>, explicando para que os fundos serão usados"
+"Publicação <strong>individual</strong> no <a href=\"%(href)s\" title=\""
+"%(title)s\" target=\"_blank\" rel=\"noopener\">blog da Python Sofware "
+"Foundation</a>, explicando para que os fundos serão usados"
 
 #: warehouse/templates/pages/sponsor.html:245
 #, python-format
@@ -6595,4 +6597,3 @@ msgstr[1] ""
 
 #~ msgid "%(num_users)s users"
 #~ msgstr "%(num_users)s usuários"
-

@@ -268,7 +268,7 @@ msgstr "मोंटी पाइथन - चीज़ शॉप स्केच
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -496,7 +496,7 @@ msgstr "मेन्यू"
 msgid "Main menu"
 msgstr "मुख्य मेन्यू"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -712,27 +712,39 @@ msgstr "पाईथन पैकेज इंडेक्स के साथ �
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "या <a href=\"%(href)s\"> परियोजनाएं ब्राउज़ करें</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s परियोजनाएं"
-
 #: warehouse/templates/index.html:67
-#, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s विज्ञप्तियां"
+#, fuzzy, python-format
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s परियोजनाएं"
+msgstr[1] "%(num_projects)s परियोजनाएं"
 
-#: warehouse/templates/index.html:68
-#, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s फाइलें"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s उपयोगकर्ता"
+#: warehouse/templates/index.html:74
+#, fuzzy, python-format
+#| msgid "%(num_releases)s releases"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] "%(num_releases)s विज्ञप्तियां"
+msgstr[1] "%(num_releases)s विज्ञप्तियां"
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s फाइलें"
+msgstr[1] "%(num_files)s फाइलें"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s उपयोगकर्ता"
+msgstr[1] "%(num_users)s उपयोगकर्ता"
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
@@ -740,31 +752,31 @@ msgstr ""
 "PyPI आपको पायथन समुदाय द्वारा विकसित और साझा किए गए सॉफ़्टवेयर को खोजने और स्थापित "
 "करने में सहायता करता है।"
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "पैकेज स्थापित करने के बारे में जानें </a>।"
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "पैकेज बनाने वाले अपने सॉफ़्टवेयर वितरण के लिए PyPI का उपयोग करते हैं।"
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "सीखें कि PyPI द्वारा वितरण के लिए अपने पायथन कोड कि पैकेजिंग कैसे पैकेज करें </a>।"
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "प्रवृत्तिकारी परियोजनाएं"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "समुदाय द्वारा डाउनलोड की जाने वाली प्रवृत्तिकारी परियोजनाएँ"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "नई विज्ञप्ति"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "ताज़ी अभी प्रेस से: नवीनतम परियोजना विज्ञप्तियां"
 

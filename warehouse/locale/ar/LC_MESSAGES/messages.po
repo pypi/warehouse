@@ -270,7 +270,7 @@ msgstr "مونتي بايثون - مشهد متجر الجبنة"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -503,7 +503,7 @@ msgstr "قائمة"
 msgid "Main menu"
 msgstr "القائمة الرئيسية"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -716,27 +716,55 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "أو <a href=\"%(href)s\">تصفح المشاريع</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s مشروعـ(ات)"
-
 #: warehouse/templates/index.html:67
-#, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s إصدار(ات)"
+#, fuzzy, python-format
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s مشروعـ(ات)"
+msgstr[1] "%(num_projects)s مشروعـ(ات)"
+msgstr[2] "%(num_projects)s مشروعـ(ات)"
+msgstr[3] "%(num_projects)s مشروعـ(ات)"
+msgstr[4] "%(num_projects)s مشروعـ(ات)"
+msgstr[5] "%(num_projects)s مشروعـ(ات)"
 
-#: warehouse/templates/index.html:68
-#, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s ملف(ات)"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s مستخدمـ(ين)"
+#: warehouse/templates/index.html:74
+#, fuzzy, python-format
+#| msgid "%(num_releases)s releases"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] "%(num_releases)s إصدار(ات)"
+msgstr[1] "%(num_releases)s إصدار(ات)"
+msgstr[2] "%(num_releases)s إصدار(ات)"
+msgstr[3] "%(num_releases)s إصدار(ات)"
+msgstr[4] "%(num_releases)s إصدار(ات)"
+msgstr[5] "%(num_releases)s إصدار(ات)"
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s ملف(ات)"
+msgstr[1] "%(num_files)s ملف(ات)"
+msgstr[2] "%(num_files)s ملف(ات)"
+msgstr[3] "%(num_files)s ملف(ات)"
+msgstr[4] "%(num_files)s ملف(ات)"
+msgstr[5] "%(num_files)s ملف(ات)"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s مستخدمـ(ين)"
+msgstr[1] "%(num_users)s مستخدمـ(ين)"
+msgstr[2] "%(num_users)s مستخدمـ(ين)"
+msgstr[3] "%(num_users)s مستخدمـ(ين)"
+msgstr[4] "%(num_users)s مستخدمـ(ين)"
+msgstr[5] "%(num_users)s مستخدمـ(ين)"
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
@@ -744,32 +772,32 @@ msgstr ""
 "PyPI يساعدك على العثور على البرمجيات التي يبرمجها ويشاركها مجتمع بايثون "
 "وتثبيتها."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "تعرف على تثبيت الحزمات</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "مؤلفو الحزمات يستخدمون PyPI لتوزيع برمجياتهم."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 #, fuzzy
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "تعرف على كيفية تعبئة كود بايثون الخاص بك لPyPI."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "المشاريع المتداولة"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "المشاريع المتداولة كما يحملها المجتمع"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "الإصدارات الجديدة"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "آخر الأخبار: أحدث إصدارات المشاريع"
 
