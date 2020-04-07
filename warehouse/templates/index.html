@@ -17,7 +17,7 @@
 
 {% macro project_snippet(release) -%}
 <li>
-  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
+  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}" rel="nofollow">
     <h3 class="package-snippet__title">
       <span class="package-snippet__name">{{ release.project.name }}</span>
       <span class="package-snippet__version">{{ release.version }}</span>
