@@ -17,8 +17,6 @@ Revises: d15f020ee3df
 Create Date: 2020-04-07 16:59:56.333491
 """
 
-import sqlalchemy as sa
-
 from alembic import op
 
 revision = "c4cb2d15dada"
