@@ -106,7 +106,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.static
-    command: bash -c "npx webpack --mode production --config webpack.warehouse.js --watch --info-verbosity verbose"
+    command: bash -c "npx webpack --mode ${WEBPACK_MODE:-production} --config webpack.warehouse.js --watch --info-verbosity verbose"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./webpack.common.js:/opt/warehouse/src/webpack.common.js:z
@@ -120,7 +120,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.static
-    command: bash -c "npx webpack --mode production --config webpack.admin.js --watch --info-verbosity verbose"
+    command: bash -c "npx webpack --mode ${WEBPACK_MODE:-production} --config webpack.admin.js --watch --info-verbosity verbose"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./webpack.common.js:/opt/warehouse/src/webpack.common.js:z

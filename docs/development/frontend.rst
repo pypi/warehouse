@@ -2,8 +2,8 @@ Frontend
 ========
 
 The Warehouse frontend is (as you might suspect) written in JavaScript with the
-CSS handled by SCSS. It uses ``gulp`` to process these files and prepare them for
-serving.
+CSS handled by SCSS. It uses `Webpack <https://webpack.js.org>` to process these
+files and prepare them for serving.
 
 All of the static files are located in ``warehouse/static/`` and external
 libraries are found in ``package.json``.
@@ -20,6 +20,20 @@ the dependencies using ``npm install`` and then running ``gulp dist``.
 If you're in a POSIX environment you may find
 `NVM <https://github.com/nvm-sh/nvm>`_ useful to have multiple NodeJS
 versions installed in your system.
+
+Two Webpack configurations are defined, one for the main site and another for
+the admin section. The ``make serve`` command will start two containers watching
+the source files for each configuration, any changes on them will trigger a
+rebuild.
+
+By default, these containers will build the assets in production mode,
+minimizing and creating compressed versions of the final assets. However, while
+developing, you want to have the shortest time possible to be able to see the
+effect of your changes. You can change Webpack's build mode defining an
+environment variable `WEBPACK_MODE` set to `development`, i.e.
+``WEBPACK_MODE=development make serve``, reducing the build time dramatically.
+Please make sure you test your changes in production mode before commiting
+your changes.
 
 
 Tests
