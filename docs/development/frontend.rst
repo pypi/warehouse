@@ -32,8 +32,7 @@ developing, you want to have the shortest time possible to be able to see the
 effect of your changes. You can change Webpack's build mode defining an
 environment variable `WEBPACK_MODE` set to `development`, i.e.
 ``WEBPACK_MODE=development make serve``, reducing the build time dramatically.
-Please make sure you test your changes in production mode before commiting
-your changes.
+Please make sure you test your changes in production mode before commiting.
 
 
 Tests
