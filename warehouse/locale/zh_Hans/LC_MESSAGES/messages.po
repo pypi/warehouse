@@ -1,3 +1,33 @@
+# Chinese (Simplified) translations for Warehouse.
+# Copyright (C) 2019 PyPA
+# This file is distributed under the same license as the Warehouse project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+# 王赛 <wangsai@bootcss.com>, 2019.
+# Allan Nordhøy <epost@anotheragency.no>, 2019.
+# liushuyu011 <liushuyu011@gmail.com>, 2019.
+# Jesse201147 <tjx201147@163.com>, 2019.
+# 谭九鼎 <109224573@qq.com>, 2019.
+# zhaoying <zhaoying1258@qq.com>, 2019.
+# eronglee <larbbt@163.com>, 2019.
+# Eana Hufwe <ilove@1a23.com>, 2020.
+# 李博豪 <xiaolizi20070827@163.com>, 2020.
+# Dustin Ingram <dustin.ingram@gmail.com>, 2020.
+msgid ""
+msgstr ""
+"Project-Id-Version: Warehouse VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
+"POT-Creation-Date: 2020-04-06 17:52-0500\n"
+"PO-Revision-Date: 2020-04-03 03:48+0000\n"
+"Last-Translator: Dustin Ingram <dustin.ingram@gmail.com>\n"
+"Language: zh_Hans\n"
+"Language-Team: Chinese (Simplified) "
+"<https://hosted.weblate.org/projects/pypa/warehouse/zh_Hans/>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
 # | msgid "Stay updated:"
 #: warehouse/views.py:254
 #, fuzzy
@@ -234,7 +264,7 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -459,7 +489,7 @@ msgstr "菜单"
 msgid "Main menu"
 msgstr "主菜单"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
@@ -671,57 +701,61 @@ msgstr "使用 Python 软件包索引查找、安装和发布 Python 软件包"
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "或 <a href=\"%(href)s\">个浏览项目</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s 个项目"
-
 #: warehouse/templates/index.html:67
 #, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s  个版本"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] ""
 
-#: warehouse/templates/index.html:68
+#: warehouse/templates/index.html:74
 #, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s  个文件"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s 个用户"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] ""
 
 #: warehouse/templates/index.html:81
+#, python-format
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] ""
+
+#: warehouse/templates/index.html:88
+#, python-format
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] ""
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr "PyPI 可帮助您查找和安装由 Python 社区开发和共享的软件。"
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "了解如何安装软件包</a>。"
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "软件包作者使用 PyPI 来分发他们的软件。"
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "了解如何为 PyPI </a>打包 Python 代码。"
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "热门项目"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "社区下载的热门项目"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "新版本"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "热门新闻：最新项目发布"
 
@@ -911,7 +945,8 @@ msgid ""
 "will no longer be valid."
 msgstr "PyPI允许在设备或应用程序丢失时生成安全脱机存储的恢复代码。在表单中输入这些代码之一以验证您的身份。一旦使用，恢复代码将不再有效。"
 
-# | msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+# | msgid "Lost your device? Not working? <a href=\"%(href)s\">Get
+# help</a>."
 #: warehouse/templates/accounts/recovery-code.html:59
 #, fuzzy, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
@@ -1305,7 +1340,8 @@ msgstr ""
 "<code>%(old_email)s</code> 更改为 <code>%(new_email)s</code>"
 
 # | msgid ""
-# | "Someone, perhaps you, has changed the password for your PyPI account "
+# | "Someone, perhaps you, has changed the password for your PyPI
+# account "
 # | "<strong>%(username)s</strong>."
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, fuzzy, python-format
@@ -1315,7 +1351,8 @@ msgid ""
 msgstr "有人（可能是您）更改了您的 PyPI 帐户的密码<strong>%(username)s</strong>。"
 
 # | msgid ""
-# | "Someone, perhaps you, has changed the password for your PyPI account "
+# | "Someone, perhaps you, has changed the password for your PyPI
+# account "
 # | "<strong>%(username)s</strong>."
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format
@@ -1332,7 +1369,8 @@ msgid ""
 msgstr "有人（可能是您）已将此电子邮件地址(<code>%(email_address)s</code>) 添加到了其 PyPI 账户。"
 
 # | msgid ""
-# | "If you wish to proceed with this request, <a href=\"%(href)s\">click this
+# | "If you wish to proceed with this request, <a
+# href=\"%(href)s\">click this
 # "
 # | "link to verify your email address</a>"
 #: warehouse/templates/email/verify-email/body.html:20
@@ -1859,7 +1897,8 @@ msgid "️Public email"
 msgstr "公开个人资料"
 
 # | msgid ""
-# | "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
+# | "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot
+# be "
 # | "changed."
 #: warehouse/templates/manage/account.html:319
 #, fuzzy, python-format
@@ -3504,7 +3543,8 @@ msgid "What devices (other than a USB key) can I use as a security device?"
 msgstr "我可以将哪些设备（USB 密钥以外的设备）用作安全设备？"
 
 # | msgid ""
-# | "How does two factor authentication with a security device (e.g. USB key)
+# | "How does two factor authentication with a security device (e.g. USB
+# key)
 # "
 # | "work? How do I set it up on PyPI?"
 #: warehouse/templates/pages/help.html:63
@@ -4174,7 +4214,8 @@ msgid "To provision recovery codes:"
 msgstr "提供恢复代码："
 
 # | msgid ""
-# | "Log in to your PyPI account, go to your account settings, and choose "
+# | "Log in to your PyPI account, go to your account settings, and
+# choose "
 # | "\"Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 # | "authentication application\""
 #: warehouse/templates/pages/help.html:418
@@ -4226,15 +4267,20 @@ msgstr "如果只剩下很少的恢复代码，您可能还希望使用帐户设
 
 # | msgid ""
 # | "\n"
-# | "          <p>API tokens provide an alternative way (instead of username "
-# | "and password) to authenticate when <strong>uploading packages</strong> to
+# | "          <p>API tokens provide an alternative way (instead of
+# username "
+# | "and password) to authenticate when <strong>uploading
+# packages</strong> to
 # "
 # | "PyPI.</p>\n"
-# | "          <p>You can create a token for an entire PyPI account, in which
-# | "case, the token will work for all projects associated with that account.
+# | "          <p>You can create a token for an entire PyPI account, in
+# which
+# | "case, the token will work for all projects associated with that
+# account.
 # | "Alternatively, you can limit a token's scope to a specific
 # project.</p>\n"
-# | "          <p><strong>We strongly recommend you authenticate with an API "
+# | "          <p><strong>We strongly recommend you authenticate with an
+# API "
 # | "token where possible.</strong></p>\n"
 # | "        "
 #: warehouse/templates/pages/help.html:434
@@ -4576,8 +4622,10 @@ msgstr ""
 "href=\"#recoverycodes\">恢复代码</a>"
 
 # | msgid ""
-# | "If you no longer have access to the email address associated with your "
-# | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+# | "If you no longer have access to the email address associated with
+# your "
+# | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel="
 # | "\"noopener\">file an issue on our tracker</a>."
 #: warehouse/templates/pages/help.html:559
 #, fuzzy, python-format
@@ -4780,10 +4828,13 @@ msgstr ""
 "rel=\"noopener\">首先使用Test PyPI执行并检查上传</a>。"
 
 # | msgid ""
-# | "If you would like to request a new trove classifier file a bug on our <a
+# | "If you would like to request a new trove classifier file a bug on
+# our <a
 # "
-# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-# | "\">issue tracker</a>. Include the name of the requested classifier and a
+# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel=\"noopener"
+# | "\">issue tracker</a>. Include the name of the requested classifier
+# and a
 # | "brief justification of why it is important."
 #: warehouse/templates/pages/help.html:650
 #, fuzzy, python-format
@@ -5203,10 +5254,12 @@ msgid "Donate to the Packaging Working Group"
 msgstr ""
 
 # | msgid ""
-# | "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-# | "\"noopener\">PyPA</a> is an independent group of developers whose goal is
+# | "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel="
+# | "\"noopener\">PyPA</a> is an independent group of developers whose
+# goal is
 # "
-# | "to improve and maintain many of the core projects related to Python "
+# | "to improve and maintain many of the core projects related to Python
 # | "packaging."
 #: warehouse/templates/pages/sponsor.html:27
 #, fuzzy, python-format
@@ -5230,7 +5283,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\"
+# target="
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
@@ -5253,7 +5307,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:37
@@ -5271,7 +5326,8 @@ msgid "Additional security-focused features for PyPI"
 msgstr ""
 
 # | msgid ""
-# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+# | "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\"
+# target="
 # | "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\"
 # title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
@@ -5292,10 +5348,14 @@ msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
 # | msgid ""
-# | "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
-# | "target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a href=\"%(titan_href)s"
-# | "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google Titan</"
-# | "a> and <a href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\"
+# | "Popular keys include <a href=\"%(yubikey_href)s\"
+# title=\"%(title)s\" "
+# | "target=\"_blank\" rel=\"noopener\">Yubikey</a>, <a
+# href=\"%(titan_href)s"
+# | "\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Google
+# Titan</"
+# | "a> and <a href=\"%(thetis_href)s\" title=\"%(title)s\"
+# target=\"_blank\"
 # "
 # | "rel=\"noopener\">Thetis</a>."
 #: warehouse/templates/pages/sponsor.html:45
@@ -5331,7 +5391,8 @@ msgid "We greatly appreciate both one-time and recurring donations."
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:61
@@ -5419,7 +5480,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:112
@@ -5474,7 +5536,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:134
@@ -5490,8 +5553,10 @@ msgstr ""
 "rel=\"noopener\">Python用户打包指南</a>去学习如何上传程序"
 
 # | msgid ""
-# | "PyPI supports any device that adheres to the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
+# | "PyPI supports any device that adheres to the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO
+# standard</a>."
 #: warehouse/templates/pages/sponsor.html:135
 #: warehouse/templates/pages/sponsor.html:158
 #: warehouse/templates/pages/sponsor.html:181
@@ -5519,8 +5584,10 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:156
 #: warehouse/templates/pages/sponsor.html:179
@@ -5572,7 +5639,8 @@ msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
 msgstr "去<a href=\"%(href)s\">重置你的密码</a>。"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:202
@@ -5586,7 +5654,8 @@ msgstr ""
 "rel=\"noopener\">Python用户打包指南</a>去学习如何上传程序"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:203
@@ -5608,8 +5677,10 @@ msgid "$5,000 per year, or equivalent in donated services"
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:223
 #, fuzzy, python-format
@@ -5622,8 +5693,10 @@ msgstr ""
 " rel=\"noopener\">Python打包指南</a>。"
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:224
 #, fuzzy, python-format
@@ -5640,8 +5713,10 @@ msgid "One time grants / custom donations"
 msgstr ""
 
 # | msgid ""
-# | "Learn how to create a new release on the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+# | "Learn how to create a new release on the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging
+# User "
 # | "Guide</a>"
 #: warehouse/templates/pages/sponsor.html:239
 #, fuzzy, python-format
@@ -5655,8 +5730,10 @@ msgstr ""
 "rel=\"noopener\">Python打包用户指南</a>上获取如何创建新的发布版本"
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:244
 #, fuzzy, python-format
@@ -5669,7 +5746,8 @@ msgstr ""
 " rel=\"noopener\">Python打包指南</a>。"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:245
@@ -5683,7 +5761,8 @@ msgstr ""
 "rel=\"noopener\">Python用户打包指南</a>去学习如何上传程序"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:246
@@ -5718,7 +5797,8 @@ msgid "Top projects by total package size"
 msgstr ""
 
 # | msgid ""
-# | "Here is a list of the top 100 packages based on sum of their packages "
+# | "Here is a list of the top 100 packages based on sum of their
+# packages "
 # | "sizes (in bytes)."
 #: warehouse/templates/pages/stats.html:32
 #, fuzzy
@@ -5976,4 +6056,16 @@ msgstr[0] ""
 
 #~ msgid "User's username"
 #~ msgstr "用户的用户名"
+
+#~ msgid "%(num_projects)s projects"
+#~ msgstr "%(num_projects)s 个项目"
+
+#~ msgid "%(num_releases)s releases"
+#~ msgstr "%(num_releases)s  个版本"
+
+#~ msgid "%(num_files)s files"
+#~ msgstr "%(num_files)s  个文件"
+
+#~ msgid "%(num_users)s users"
+#~ msgstr "%(num_users)s 个用户"
 

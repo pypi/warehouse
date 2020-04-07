@@ -1,3 +1,28 @@
+# Spanish translations for Warehouse.
+# Copyright (C) 2019 PyPA
+# This file is distributed under the same license as the Warehouse project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2019, 2020.
+# Alan Velasco <AlanVelasco.A@gmail.com>, 2019.
+# Katia Lira <katialira.villena@gmail.com>, 2019.
+# Juan Funez <juan.funez@gmail.com>, 2019.
+# anonymous <noreply@weblate.org>, 2020.
+msgid ""
+msgstr ""
+"Project-Id-Version: Warehouse VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
+"POT-Creation-Date: 2020-04-06 17:52-0500\n"
+"PO-Revision-Date: 2020-04-04 04:54+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
+"Language: es\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/pypa/warehouse/es/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
 #: warehouse/views.py:254
 msgid "Locale updated"
 msgstr "Se actualizó la configuración de idioma"
@@ -262,7 +287,7 @@ msgstr "Monty Python, escena «La quesería»"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -492,7 +517,7 @@ msgstr "Menú"
 msgid "Main menu"
 msgstr "Menú principal"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
@@ -719,27 +744,35 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "O bien, <a href=\"%(href)s\">explore los proyectos</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s proyectos"
-
 #: warehouse/templates/index.html:67
 #, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s versiones"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] ""
+msgstr[1] ""
 
-#: warehouse/templates/index.html:68
+#: warehouse/templates/index.html:74
 #, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s archivos"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s usuarios"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:81
+#, python-format
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/index.html:88
+#, python-format
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
@@ -747,31 +780,31 @@ msgstr ""
 "PyPI le ayuda a encontrar e instalar programas desarrollados y "
 "compartidos por la comunidad de Python."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "Aprenda a instalar paquetes</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "Los autores de paquetes utilizan PyPI para distribuir sus programas."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Aprenda a empaquetar su código en Python para PyPI</a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "Proyectos en tendencia"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "Proyectos en tendencia según las descargas comunitarias"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "Versiones nuevas"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "Novedades: las versiones más recientes de proyectos"
 
@@ -5226,10 +5259,13 @@ msgstr ""
 "cargarlo en <a href=\"%(pypi_href)s\">pypi.org</a>."
 
 # | msgid ""
-# | "If you would like to request a new trove classifier file a bug on our <a
+# | "If you would like to request a new trove classifier file a bug on
+# our <a
 # "
-# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-# | "\">issue tracker</a>. Include the name of the requested classifier and a
+# | "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
+# rel=\"noopener"
+# | "\">issue tracker</a>. Include the name of the requested classifier
+# and a
 # | "brief justification of why it is important."
 #: warehouse/templates/pages/help.html:650
 #, fuzzy, python-format
@@ -5921,7 +5957,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:112
@@ -5977,7 +6014,8 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:134
@@ -5994,8 +6032,10 @@ msgstr ""
 "Python</a>"
 
 # | msgid ""
-# | "PyPI supports any device that adheres to the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
+# | "PyPI supports any device that adheres to the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO
+# standard</a>."
 #: warehouse/templates/pages/sponsor.html:135
 #: warehouse/templates/pages/sponsor.html:158
 #: warehouse/templates/pages/sponsor.html:181
@@ -6023,8 +6063,10 @@ msgid ""
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:156
 #: warehouse/templates/pages/sponsor.html:179
@@ -6077,7 +6119,8 @@ msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
 msgstr "Diríjase a <a href=\"%(href)s\">Restablecimiento de contraseña</a>."
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:202
@@ -6092,7 +6135,8 @@ msgstr ""
 "Python</a>"
 
 # | msgid ""
-# | "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Learn how to upload files on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
 # | "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 #: warehouse/templates/pages/sponsor.html:203
@@ -6115,8 +6159,10 @@ msgid "$5,000 per year, or equivalent in donated services"
 msgstr ""
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:223
 #, fuzzy, python-format
@@ -6130,8 +6176,10 @@ msgstr ""
 "conocer detalles sobre los formatos disponibles."
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:224
 #, fuzzy, python-format
@@ -6149,8 +6197,10 @@ msgid "One time grants / custom donations"
 msgstr ""
 
 # | msgid ""
-# | "Learn how to create a new release on the <a href=\"%(href)s\" title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+# | "Learn how to create a new release on the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging
+# User "
 # | "Guide</a>"
 #: warehouse/templates/pages/sponsor.html:239
 #, fuzzy, python-format
@@ -6165,8 +6215,10 @@ msgstr ""
 "empaquetamiento de Python</a>"
 
 # | msgid ""
-# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+# | "Refer to the <a href=\"%(href)s\" title=\"%(title)s\"
+# target=\"_blank\" "
+# | "rel=\"noopener\">Python Packaging User Guide</a> for details on the
+# "
 # | "available formats."
 #: warehouse/templates/pages/sponsor.html:244
 #, fuzzy, python-format
@@ -6578,4 +6630,16 @@ msgstr[1] ""
 #~ "class=\"%(classes)s\" aria-label=\"%(aria_label)s\" "
 #~ "data-original-label=\"%(data_original_label)s\"> "
 #~ "clasificador </a>"
+
+#~ msgid "%(num_projects)s projects"
+#~ msgstr "%(num_projects)s proyectos"
+
+#~ msgid "%(num_releases)s releases"
+#~ msgstr "%(num_releases)s versiones"
+
+#~ msgid "%(num_files)s files"
+#~ msgstr "%(num_files)s archivos"
+
+#~ msgid "%(num_users)s users"
+#~ msgstr "%(num_users)s usuarios"
 

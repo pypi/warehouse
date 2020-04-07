@@ -1,3 +1,33 @@
+# French translations for Warehouse.
+# Copyright (C) 2019 PyPA
+# This file is distributed under the same license as the Warehouse project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+# Laurent LAPORTE <laurent.laporte.pro@gmail.com>, 2019.
+# Julia Duimovich <duimovich.julia@gmail.com>, 2019.
+# Maelle <maellevance@gmail.com>, 2019.
+# Xavier Fernandez <xav.fernandez@gmail.com>, 2019.
+# Allan Nordhøy <epost@anotheragency.no>, 2019.
+# gabriel-tessier <tessier@luxeys.com>, 2019.
+# Matthieu Melot <matthieu.melot@gmail.com>, 2019.
+# Nathan <bonnemainsnathan@gmail.com>, 2019, 2020.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020.
+# Bruno Alla <alla.brunoo@gmail.com>, 2020.
+msgid ""
+msgstr ""
+"Project-Id-Version: Warehouse VERSION\n"
+"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
+"POT-Creation-Date: 2020-04-06 17:52-0500\n"
+"PO-Revision-Date: 2020-04-05 13:40+0000\n"
+"Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
+"Language: fr\n"
+"Language-Team: French "
+"<https://hosted.weblate.org/projects/pypa/warehouse/fr/>\n"
+"Plural-Forms: nplurals=2; plural=n > 1\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
 #: warehouse/views.py:254
 msgid "Locale updated"
 msgstr "Langue mise à jour"
@@ -264,7 +294,7 @@ msgstr "Monty Python, le sketch de la fromagerie"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -494,7 +524,7 @@ msgstr "Menu"
 msgid "Main menu"
 msgstr "Menu principal"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
@@ -721,27 +751,35 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Ou bien <a href=\"%(href)s\">explorez les projets</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s projets"
-
 #: warehouse/templates/index.html:67
 #, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s versions publiées"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] ""
+msgstr[1] ""
 
-#: warehouse/templates/index.html:68
+#: warehouse/templates/index.html:74
 #, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s fichiers"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s utilisateurs"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:81
+#, python-format
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/index.html:88
+#, python-format
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
@@ -749,33 +787,33 @@ msgstr ""
 "PyPI vous aide à trouver et installer des logiciels développés et "
 "partagés par la communauté Python."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "Apprenez à installer des paquets</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "Les créateurs de paquets utilisent PyPI pour distribuer leurs logiciels."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Apprenez à empaqueter votre code Python pour PyPI</a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "Projets tendance"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr ""
 "Projets tendances suivant le nombre de téléchargements de la part de la "
 "communauté"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "Nouvelles versions"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "Dernières nouvelles : les projets les plus récents"
 
@@ -5969,7 +6007,8 @@ msgstr ""
 "perpétuité </strong>"
 
 # | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
 # | "Foundation blog</a>"
 #: warehouse/templates/pages/sponsor.html:112
@@ -6071,10 +6110,13 @@ msgstr ""
 "sur la page de détail du projet PyPI"
 
 # | msgid ""
-# | "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\"
+# | "Inclusion in a blog post on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
 # "
-# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation blog</a>, "
-# | "<strong>with other sponsors</strong> whose sponsorship commenced during "
+# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation
+# blog</a>, "
+# | "<strong>with other sponsors</strong> whose sponsorship commenced
+# during "
 # | "the same quarter"
 #: warehouse/templates/pages/sponsor.html:156
 #: warehouse/templates/pages/sponsor.html:179
@@ -6202,7 +6244,8 @@ msgstr ""
 "idées."
 
 # | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
 # | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
 # | "Foundation blog</a>, explaining what the funds will be used for"
 #: warehouse/templates/pages/sponsor.html:244
@@ -6622,4 +6665,16 @@ msgstr[1] ""
 #~ "class=\"%(classes)s\" aria-label=\"%(aria_label)s\" "
 #~ "data-original-"
 #~ "label=\"%(data_original_label)s\">classificateur</a>"
+
+#~ msgid "%(num_projects)s projects"
+#~ msgstr "%(num_projects)s projets"
+
+#~ msgid "%(num_releases)s releases"
+#~ msgstr "%(num_releases)s versions publiées"
+
+#~ msgid "%(num_files)s files"
+#~ msgstr "%(num_files)s fichiers"
+
+#~ msgid "%(num_users)s users"
+#~ msgstr "%(num_users)s utilisateurs"
 
