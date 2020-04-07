@@ -12,6 +12,14 @@
  * limitations under the License.
  */
 
+/**
+ * Base for Webpack configurations.
+ *
+ * Subconfigurations should import and call this function and amend is as
+ * necessary. The expected loaders for JS, CSS, fonts, and images are defined
+ * here.
+ */
+
 
 const path = require("path");
 const webpack = require("webpack");
@@ -24,13 +32,12 @@ const ManifestPlugin = require("webpack-manifest-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
-// Configure where our files come from, where they get saved too, and what path
-// they are served from.
 const staticPrefix = "warehouse/static/";
 
 /* global module */
 
 module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
+  // Entry point should be defined in the subconfigurations.
   const config = {
     module: {
       rules: [

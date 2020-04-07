@@ -15,10 +15,11 @@
 const path = require("path");
 const glob = require("glob");
 
-// Configure where our files come from, where they get saved too, and what path
-// they are served from.
+// Prefix to our source files
 const staticPrefix = "warehouse/admin/static/";
+// Absolute path to where the output assets will be saved
 const distPath = path.resolve(staticPrefix, "dist");
+
 const commonConfig = require("./webpack.common");
 
 /* global module, __dirname */
@@ -34,6 +35,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
     // their subdirectory in dist in order for the manifest to match the
     // static URLs in the templates.
     entry: {
+      // Admin bundles JS and CSS into two files, admin.js and all.css
       "js/admin": glob
         .sync(path.join(staticPrefix, "js/*.js"))
         .map(imagePath => path.join(__dirname, imagePath)),
@@ -45,7 +47,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       ],
     },
   }, baseConfig);
-  // The fonts need to be copied to /admin/static/fonts/
+  // Fonts are picked up from CSS files and copied to /admin/static/fonts/
   config.module.rules.pop();
   config.module.rules.push(
     {

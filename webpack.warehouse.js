@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-
 const path = require("path");
 const glob = require("glob");
 
-// Configure where our files come from, where they get saved too, and what path
-// they are served from.
+// Prefix to our source files
 const staticPrefix = "warehouse/static/";
+// Absolute path to where the output assets will be saved
 const distPath = path.resolve(staticPrefix, "dist");
+
 const fontAwesomePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json"));
 const commonConfig = require("./webpack.common");
 
@@ -46,6 +46,9 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       "css/regular": path.resolve(fontAwesomePath, "css/regular.css"),
       "css/solid": path.resolve(fontAwesomePath, "css/solid.css"),
       "css/brands": path.resolve(fontAwesomePath, "css/brands.css"),
+      // zxcvbn needs to be included here to be emitted independently
+      // with the URL used in some of the templates. It will not be transpiled
+      // by Babel as the vendor directory is ignored by the loader
       "js/vendor/zxcvbn": "./js/vendor/zxcvbn.js",
     },
   }, baseConfig);
