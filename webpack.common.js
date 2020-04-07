@@ -36,7 +36,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       rules: [
         {
           test: /\.js$/,
-          exclude: /node_modules/,
+          exclude: /(node_modules|js\/vendor)/,
           use: {
             loader: "babel-loader",
             options: {

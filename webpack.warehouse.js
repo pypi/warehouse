@@ -48,18 +48,10 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       "css/regular": path.resolve(fontAwesomePath, "css/regular.css"),
       "css/solid": path.resolve(fontAwesomePath, "css/solid.css"),
       "css/brands": path.resolve(fontAwesomePath, "css/brands.css"),
+      "js/vendor/zxcvbn": "./js/vendor/zxcvbn.js",
     },
   }, baseConfig);
-  // Make sure the manifest plugin is at the end
-  const manifestPlugin = config.plugins.pop();
   config.plugins.push(
-    // Copy without processing vendored JS
-    new CopyPlugin([
-      {
-        from: "./js/vendor/",
-        to: "./js/vendor/",
-      },
-    ]),
     // Copy without processing fontawesome webfonts
     new CopyPlugin([
       {
@@ -67,7 +59,6 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
         to: "./webfonts/",
       },
     ]),
-    manifestPlugin,
   );
   config.output.path = distPath;
 
