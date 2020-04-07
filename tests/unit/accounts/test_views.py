@@ -32,6 +32,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
@@ -1777,8 +1778,13 @@ class TestVerifyEmail:
         token_service.loads = pretend.call_recorder(
             lambda token: {"action": "email-verify", "email.id": str(email.id)}
         )
+        email_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
+        services = {
+            "email": token_service,
+            "email.add": email_limiter,
+        }
         db_request.find_service = pretend.call_recorder(
-            lambda *a, **kwargs: token_service
+            lambda a, name, **kwargs: services[name]
         )
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
@@ -1791,6 +1797,7 @@ class TestVerifyEmail:
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [pretend.call("manage.account")]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
+        assert email_limiter.clear.calls == [pretend.call(db_request.remote_addr)]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Email address {email.email} verified. " + confirm_message,
@@ -1798,7 +1805,8 @@ class TestVerifyEmail:
             )
         ]
         assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
+            pretend.call(ITokenService, name="email"),
+            pretend.call(IRateLimiter, name="email.add"),
         ]
 
     @pytest.mark.parametrize(

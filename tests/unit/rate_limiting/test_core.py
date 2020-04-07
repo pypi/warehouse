@@ -78,6 +78,20 @@ class TestRateLimiter:
         assert limiter2.test("bar")
         assert not limiter1.test("bar")
 
+    def test_clear(self, metrics):
+        limiter = RateLimiter(storage.MemoryStorage(), "1 per minute", metrics=metrics)
+
+        assert limiter.test("foo")
+
+        while limiter.hit("foo"):
+            pass
+
+        assert not limiter.test("foo")
+
+        limiter.clear("foo")
+
+        assert limiter.test("foo")
+
     def test_results_in(self, metrics):
         limiter = RateLimiter(storage.MemoryStorage(), "1 per minute", metrics=metrics)
 
@@ -119,6 +133,7 @@ class TestDummyRateLimiter:
 
         assert limiter.test()
         assert limiter.hit()
+        assert limiter.clear() is None
         assert limiter.resets_in() is None
 
 

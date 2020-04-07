@@ -54,6 +54,7 @@ from warehouse.email import (
 )
 from warehouse.i18n import localize as _
 from warehouse.packaging.models import Project, Release
+from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
@@ -623,6 +624,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
+    email_limiter = request.find_service(IRateLimiter, name="email.add")
 
     def _error(message):
         request.session.flash(message, queue="error")
@@ -662,6 +664,9 @@ def verify_email(request):
         ip_address=request.remote_addr,
         additional={"email": email.email, "primary": email.primary},
     )
+
+    # Reset the email-adding rate limiter for this IP address
+    email_limiter.clear(request.remote_addr)
 
     if not email.primary:
         confirm_message = _("You can now set this email as your primary address")
