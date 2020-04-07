@@ -92,7 +92,7 @@ class TestRateLimiter:
 
         assert limiter.test("foo")
 
-    def test_results_in(self, metrics):
+    def test_resets_in(self, metrics):
         limiter = RateLimiter(storage.MemoryStorage(), "1 per minute", metrics=metrics)
 
         assert limiter.resets_in("foo") is None
@@ -103,7 +103,7 @@ class TestRateLimiter:
         assert limiter.resets_in("foo") > datetime.timedelta(seconds=0)
         assert limiter.resets_in("foo") < datetime.timedelta(seconds=60)
 
-    def test_results_in_expired(self, metrics):
+    def test_resets_in_expired(self, metrics):
         limiter = RateLimiter(
             storage.MemoryStorage(),
             "1 per minute; 1 per hour; 1 per day",
