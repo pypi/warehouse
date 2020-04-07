@@ -68,7 +68,7 @@ To add a new dependency:
 1. Add the project name to the appropriate ``.in`` file
 2. Recompile the dependencies for each modified ``.in`` file::
 
-   $ pip-compile --no-annotate --no-header --allow-unsafe --generate-hashes {file}.in
+   $ pip-compile --allow-unsafe --generate-hashes {file}.in
 
 3. Commit the changes
 
@@ -81,7 +81,7 @@ process for adding new dependencies:
 1. Remove the project name from the appropriate ``.in`` file
 2. Recompile the dependencies for each modified ``.in`` file::
 
-   $ pip-compile --no-annotate --no-header --allow-unsafe --generate-hashes {file}.in
+   $ pip-compile --allow-unsafe --generate-hashes {file}.in
 
 3. Commit the changes
 
