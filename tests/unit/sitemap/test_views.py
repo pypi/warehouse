@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime, timedelta
+
 import pretend
 import pytest
 
@@ -26,8 +28,16 @@ def test_sitemap_index(db_request):
         )
     )
 
-    project = ProjectFactory.create(name="foobar")
-    users = [UserFactory.create(username="a"), UserFactory.create(username="b")]
+    project = ProjectFactory.create(
+        name="foobar", created=(datetime.utcnow() - timedelta(days=15))
+    )
+    users = [
+        UserFactory.create(
+            username="a", date_joined=(datetime.utcnow() - timedelta(days=15))
+        ),
+        UserFactory.create(username="b"),
+        UserFactory.create(username="c", date_joined=(datetime.utcnow())),
+    ]
 
     # Have to pass this here, because passing date_joined=None to the create
     # function above makes the factory think it needs to generate a random
@@ -58,7 +68,9 @@ def test_sitemap_bucket(db_request):
 
     db_request.matchdict["bucket"] = "0"
 
-    ProjectFactory.create(name="foobar")
+    ProjectFactory.create(
+        name="foobar", created=(datetime.utcnow() - timedelta(days=15))
+    )
     UserFactory.create(username="a")
     UserFactory.create(username="b")
 
@@ -79,7 +91,7 @@ def test_sitemap_bucket_too_many(monkeypatch, db_request):
     monkeypatch.setattr(sitemap, "SITEMAP_MAXSIZE", 2)
 
     for _ in range(3):
-        p = ProjectFactory.create()
+        p = ProjectFactory.create(created=(datetime.utcnow() - timedelta(days=15)))
         p.sitemap_bucket = "5"
 
     db_request.db.flush()
