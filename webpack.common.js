@@ -16,8 +16,8 @@
  * Base for Webpack configurations.
  *
  * Subconfigurations should import and call this function and amend is as
- * necessary. The expected loaders for JS, CSS, fonts, and images are defined
- * here.
+ * necessary, typically defining entry points and output paths.
+ * The loaders for JS, CSS, fonts, and images are shared and defined here.
  */
 
 
@@ -37,7 +37,6 @@ const staticPrefix = "warehouse/static/";
 /* global module */
 
 module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
-  // Entry point should be defined in the subconfigurations.
   const config = {
     module: {
       rules: [
