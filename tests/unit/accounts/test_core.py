@@ -346,7 +346,7 @@ def test_includeme(monkeypatch):
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
         ),
-        pretend.call(RateLimit("5 per day"), IRateLimiter, name="email.add"),
+        pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True)

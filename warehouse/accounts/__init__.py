@@ -178,5 +178,5 @@ def includeme(config):
         RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
     )
     config.register_service_factory(
-        RateLimit("5 per day"), IRateLimiter, name="email.add"
+        RateLimit("2 per day"), IRateLimiter, name="email.add"
     )
