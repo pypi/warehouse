@@ -40,6 +40,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
   const config = {
     module: {
       rules: [
+        // Transpile our JS assets excluding vendored scripts
         {
           test: /\.js$/,
           exclude: /(node_modules|js\/vendor)/,
@@ -48,6 +49,19 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
             options: {
               presets: ["@babel/preset-env"],
               plugins: ["@babel/plugin-proposal-class-properties"],
+            },
+          },
+        },
+        // Vendored scripts need be loaded as files separately
+        // to avoid any processing that could modify their behaviour
+        {
+          test: /\.js$/,
+          include: /(js\/vendor)/,
+          exclude: /(node_modules)/,
+          use: {
+            loader: "file-loader",
+            options: {
+              name: "js/vendor/[name].[contenthash:8].[ext]",
             },
           },
         },

@@ -46,10 +46,9 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       "css/regular": path.resolve(fontAwesomePath, "css/regular.css"),
       "css/solid": path.resolve(fontAwesomePath, "css/solid.css"),
       "css/brands": path.resolve(fontAwesomePath, "css/brands.css"),
-      // zxcvbn needs to be included here to be emitted independently
-      // with the URL used in some of the templates. It will not be transpiled
-      // by Babel as the vendor directory is ignored by the loader
-      "js/vendor/zxcvbn": "./js/vendor/zxcvbn.js",
+      "vendor": glob
+        .sync(path.join(staticPrefix, "js/vendor/*"))
+        .map(jsPath => path.join(__dirname, jsPath)),
     },
   }, baseConfig);
 
