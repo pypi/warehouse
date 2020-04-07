@@ -79,7 +79,7 @@ def sitemap_index(request):
         .filter(
             or_(
                 User.date_joined < datetime.utcnow() - AGE_BEFORE_INDEX,
-                User.date_joined == None,  # noqa: E711 SQLAlchemy requires ==
+                User.date_joined.is_(None),
             )
         )
         .group_by(User.sitemap_bucket)
