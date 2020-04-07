@@ -281,7 +281,7 @@ msgstr ""
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -514,7 +514,7 @@ msgstr "Menu"
 msgid "Main menu"
 msgstr "Menu principale"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 #, fuzzy
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
@@ -750,27 +750,38 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "O <a href=\"%(href)s\">sfoglia i progetti</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s progetti"
-
 #: warehouse/templates/index.html:67
-#, python-format
-msgid "%(num_releases)s releases"
-msgstr ""
+#, fuzzy, python-format
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s progetti"
+msgstr[1] "%(num_projects)s progetti"
 
-#: warehouse/templates/index.html:68
+#: warehouse/templates/index.html:74
 #, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s file"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s utenti"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s file"
+msgstr[1] "%(num_files)s file"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s utenti"
+msgstr[1] "%(num_users)s utenti"
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
@@ -778,34 +789,34 @@ msgstr ""
 "PyPI ti aiuta a trovare e installare software sviluppato e condiviso dalla "
 "community Python."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "Scopri come installare i pacchetti</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 #, fuzzy
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 "Gli autori dei pacchetti utilizzano PyPI per distribuire i loro software."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 #, fuzzy
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Scopri come creare un pacchetto per PyPI</a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "Progetti in tendenza"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "Progetti in tendenza scaricati dalla community"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "Nuove versioni"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr ""
 
