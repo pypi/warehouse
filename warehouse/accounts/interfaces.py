@@ -24,10 +24,6 @@ class TooManyFailedLogins(RateLimiterException):
     pass
 
 
-class TooManyAccountsCreated(RateLimiterException):
-    pass
-
-
 class TooManyEmailsAdded(RateLimiterException):
     pass
 
@@ -82,7 +78,7 @@ class IUserService(Interface):
         checking the password.
         """
 
-    def create_user(username, name, password, ip_address):
+    def create_user(username, name, password):
         """
         Accepts a user object, and attempts to create a user with those
         attributes.

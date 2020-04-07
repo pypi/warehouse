@@ -37,7 +37,6 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
-    TooManyAccountsCreated,
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
@@ -181,22 +180,10 @@ class DatabaseUserService:
 
         return False
 
-    def create_user(self, username, name, password, ip_address):
-        # Check to make sure that we haven't hitten the rate limit for this IP
-        if not self.ratelimiters["user.create"].test(ip_address):
-            self._metrics.increment(
-                "warehouse.user.create.ratelimited", tags=["ratelimiter:user.create"],
-            )
-            raise TooManyAccountsCreated(
-                resets_in=self.ratelimiters["user.create"].resets_in(ip_address)
-            )
-
+    def create_user(self, username, name, password):
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
         self.db.flush()  # flush the db now so user.id is available
-
-        self.ratelimiters["user.create"].hit(ip_address)
-        self._metrics.increment("warehouse.user.create.ok")
 
         return user
 
@@ -625,9 +612,6 @@ def database_login_factory(context, request):
             ),
             "user.login": request.find_service(
                 IRateLimiter, name="user.login", context=None
-            ),
-            "user.create": request.find_service(
-                IRateLimiter, name="user.create", context=None
             ),
             "email.add": request.find_service(
                 IRateLimiter, name="email.add", context=None

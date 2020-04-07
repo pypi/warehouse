@@ -32,7 +32,6 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
-    TooManyAccountsCreated,
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
@@ -206,19 +205,10 @@ class TestDatabaseUserService:
         ]
         assert user.password == "new password"
 
-    def test_create_user(self, user_service, metrics):
-        limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda ip: None),
-            test=pretend.call_recorder(lambda ip: True),
-        )
-        user_service.ratelimiters["user.create"] = limiter
-
+    def test_create_user(self, user_service):
         user = UserFactory.build()
         new_user = user_service.create_user(
-            username=user.username,
-            name=user.name,
-            password=user.password,
-            ip_address="0.0.0.0",
+            username=user.username, name=user.name, password=user.password
         )
         user_service.db.flush()
         user_from_db = user_service.get_user(new_user.id)
@@ -227,37 +217,6 @@ class TestDatabaseUserService:
         assert user_from_db.name == user.name
         assert not user_from_db.is_active
         assert not user_from_db.is_superuser
-        assert metrics.increment.calls == [pretend.call("warehouse.user.create.ok")]
-        assert limiter.test.calls == [pretend.call("0.0.0.0")]
-        assert limiter.hit.calls == [pretend.call("0.0.0.0")]
-
-    def test_create_user_rate_limited(self, user_service, metrics):
-        resets = pretend.stub()
-        limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda ip: None),
-            test=pretend.call_recorder(lambda ip: False),
-            resets_in=pretend.call_recorder(lambda ip: resets),
-        )
-        user_service.ratelimiters["user.create"] = limiter
-
-        user = UserFactory.build()
-
-        with pytest.raises(TooManyAccountsCreated) as excinfo:
-            user_service.create_user(
-                username=user.username,
-                name=user.name,
-                password=user.password,
-                ip_address="0.0.0.0",
-            )
-
-        assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call("0.0.0.0")]
-        assert limiter.resets_in.calls == [pretend.call("0.0.0.0")]
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.user.create.ratelimited", tags=["ratelimiter:user.create"]
-            )
-        ]
 
     def test_add_email_not_primary(self, user_service):
         user = UserFactory.create()
@@ -338,18 +297,14 @@ class TestDatabaseUserService:
         assert user_service.find_userid_by_email("something") is None
 
     def test_create_login_success(self, user_service):
-        user = user_service.create_user(
-            "test_user", "test_name", "test_password", "0.0.0.0"
-        )
+        user = user_service.create_user("test_user", "test_name", "test_password")
 
         assert user.id is not None
         # now make sure that we can log in as that user
         assert user_service.check_password(user.id, "test_password")
 
     def test_create_login_error(self, user_service):
-        user = user_service.create_user(
-            "test_user", "test_name", "test_password", "0.0.0.0"
-        )
+        user = user_service.create_user("test_user", "test_name", "test_password")
 
         assert user.id is not None
         assert not user_service.check_password(user.id, "bad_password")
@@ -875,7 +830,6 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics):
 
     global_login_ratelimiter = pretend.stub()
     user_login_ratelimiter = pretend.stub()
-    user_create_ratelimiter = pretend.stub()
     email_add_ratelimiter = pretend.stub()
 
     def find_service(iface, name=None, context=None):
@@ -884,13 +838,12 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics):
 
         assert iface is IRateLimiter
         assert context is None
-        assert name in {"global.login", "user.login", "user.create", "email.add"}
+        assert name in {"global.login", "user.login", "email.add"}
 
         return (
             {
                 "global.login": global_login_ratelimiter,
                 "user.login": user_login_ratelimiter,
-                "user.create": user_create_ratelimiter,
                 "email.add": email_add_ratelimiter,
             }
         ).get(name)
@@ -906,7 +859,6 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics):
             ratelimiters={
                 "global.login": global_login_ratelimiter,
                 "user.login": user_login_ratelimiter,
-                "user.create": user_create_ratelimiter,
                 "email.add": email_add_ratelimiter,
             },
         )

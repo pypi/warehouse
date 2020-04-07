@@ -342,7 +342,6 @@ def test_includeme(monkeypatch):
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,
         ),
-        pretend.call(RateLimit("5 per day"), IRateLimiter, name="user.create"),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
