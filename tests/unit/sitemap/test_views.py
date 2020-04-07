@@ -47,9 +47,9 @@ def test_sitemap_index(db_request):
 
     assert sitemap.sitemap_index(db_request) == {
         "buckets": [
-            sitemap.Bucket("0", modified=project.created),
-            sitemap.Bucket("1", modified=users[0].date_joined),
-            sitemap.Bucket("5", modified=None),
+            sitemap.Bucket("0a", modified=project.created),
+            sitemap.Bucket("1f", modified=users[0].date_joined),
+            sitemap.Bucket("52", modified=None),
         ]
     }
     assert db_request.response.content_type == "text/xml"
@@ -66,7 +66,7 @@ def test_sitemap_bucket(db_request):
     expected_iter = iter(expected)
     db_request.route_url = pretend.call_recorder(lambda *a, **kw: next(expected_iter))
 
-    db_request.matchdict["bucket"] = "0"
+    db_request.matchdict["bucket"] = "0a"
 
     ProjectFactory.create(
         name="foobar", created=(datetime.utcnow() - timedelta(days=15))
@@ -86,13 +86,13 @@ def test_sitemap_bucket_too_many(monkeypatch, db_request):
     )
 
     db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/")
-    db_request.matchdict["bucket"] = "5"
+    db_request.matchdict["bucket"] = "52"
 
     monkeypatch.setattr(sitemap, "SITEMAP_MAXSIZE", 2)
 
     for _ in range(3):
         p = ProjectFactory.create(created=(datetime.utcnow() - timedelta(days=15)))
-        p.sitemap_bucket = "5"
+        p.sitemap_bucket = "52"
 
     db_request.db.flush()
 
