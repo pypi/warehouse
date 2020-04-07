@@ -272,7 +272,7 @@ msgstr "Monty Python - Szkic sklepu z serami"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -498,7 +498,7 @@ msgstr ""
 msgid "Main menu"
 msgstr ""
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -717,27 +717,42 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Lub <a href=\"%(href)s\">przeglądaj projekty</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s projektów"
-
 #: warehouse/templates/index.html:67
 #, fuzzy, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s wydań"
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s projektów"
+msgstr[1] "%(num_projects)s projektów"
+msgstr[2] "%(num_projects)s projektów"
 
-#: warehouse/templates/index.html:68
-#, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s plików"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s użytkowników"
+#: warehouse/templates/index.html:74
+#, fuzzy, python-format
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] "%(num_releases)s wydań"
+msgstr[1] "%(num_releases)s wydań"
+msgstr[2] "%(num_releases)s wydań"
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s plików"
+msgstr[1] "%(num_files)s plików"
+msgstr[2] "%(num_files)s plików"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s użytkowników"
+msgstr[1] "%(num_users)s użytkowników"
+msgstr[2] "%(num_users)s użytkowników"
+
+#: warehouse/templates/index.html:105
 #, fuzzy
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
@@ -746,31 +761,31 @@ msgstr ""
 "PyPI pomaga znaleźć i zainstalować oprogramowanie opracowane i udostępnione "
 "przez społeczność Python."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "Dowiedz się więcej o instalowaniu pakietów</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "Autorzy pakietów używają PyPI do dystrybucji swojego oprogramowania."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Dowiedz się, jak spakować kod Python dla PyPI </a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "Popularne projekty"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "Popularne projekty pobrane przez użytkowników"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "Nowe wersje"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "Prosto z pieca: najnowsze wersje pakietów"
 

@@ -268,7 +268,7 @@ msgstr "蒙提·派森（Monty Python） - The Cheese Shop Sketch"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -496,7 +496,7 @@ msgstr ""
 msgid "Main menu"
 msgstr ""
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -713,57 +713,65 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "或 <a href=\"%(href)s\"> 瀏覽專案 </a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s 個專案"
-
 #: warehouse/templates/index.html:67
-#, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s 個發行版本"
+#, fuzzy, python-format
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s 個專案"
 
-#: warehouse/templates/index.html:68
-#, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s 個檔案"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s 個使用者"
+#: warehouse/templates/index.html:74
+#, fuzzy, python-format
+#| msgid "%(num_releases)s releases"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] "%(num_releases)s 個發行版本"
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s 個檔案"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s 個使用者"
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
 msgstr "PyPI 可幫助您查找和安裝由 Python 社區開發和共享的軟體。"
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "瞭解有關安裝套件軟體 </a>。"
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "套件軟體作者使用 PyPI 來分發他們的軟體。"
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "瞭解如何為 PyPI 打包 Python 程式碼 </a>。"
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "熱門專案"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "社群下載的熱門專案"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "新發行版本"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "熱門新聞：最新專案發佈"
 

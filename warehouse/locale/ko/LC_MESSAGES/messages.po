@@ -279,7 +279,7 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -508,7 +508,7 @@ msgstr "메뉴"
 msgid "Main menu"
 msgstr "메인 메뉴"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -728,27 +728,35 @@ msgstr "파이썬 패키지 인덱스에서 파이썬 패키지를 찾고, 설�
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "또는,  <a href=\"%(href)s\">프로젝트를  둘러보세요</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s 프로젝트"
-
 #: warehouse/templates/index.html:67
-#, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s 릴리즈"
+#, fuzzy, python-format
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s 프로젝트"
 
-#: warehouse/templates/index.html:68
-#, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s 파일"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s 사용자"
+#: warehouse/templates/index.html:74
+#, fuzzy, python-format
+#| msgid "%(num_releases)s releases"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] "%(num_releases)s 릴리즈"
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s 파일"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s 사용자"
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
@@ -756,31 +764,31 @@ msgstr ""
 "PyPI를 통해 파이썬 커뮤니티가 개발하고 공유하는 소프트웨어를 찾고 설치할 수 "
 "있습니다."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "패키지 설치 알아보기</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "패키지 제작자들은 PyPI를 이용해 소프트웨어를 배포할 수 있습니다."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "파이썬 코드를 PyPI로 패키지하는 방법 알아보기</a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "인기 프로젝트"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "인기 프로젝트는 커뮤니티의 다운로드로 평가됩니다"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "새 릴리즈"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "새 소식: 최신 프로젝트 릴리즈"
 

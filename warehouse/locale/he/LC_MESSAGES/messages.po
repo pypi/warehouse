@@ -265,7 +265,7 @@ msgstr "מונטי פייתון - מערכות חנות הגבינות"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -491,7 +491,7 @@ msgstr "תפריט"
 msgid "Main menu"
 msgstr "תפריט ראשי"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -707,57 +707,77 @@ msgstr "מציאה, התקנה ופרסום של חבילות פייתון בא�
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "או <a href=\"%(href)s\">דפדף בין פרויקטים</a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s‏ פרויקטים"
-
 #: warehouse/templates/index.html:67
-#, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s גרסאות"
+#, fuzzy, python-format
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s‏ פרויקטים"
+msgstr[1] "%(num_projects)s‏ פרויקטים"
+msgstr[2] "%(num_projects)s‏ פרויקטים"
+msgstr[3] "%(num_projects)s‏ פרויקטים"
 
-#: warehouse/templates/index.html:68
-#, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s קבצים"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s משתמשים"
+#: warehouse/templates/index.html:74
+#, fuzzy, python-format
+#| msgid "%(num_releases)s releases"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] "%(num_releases)s גרסאות"
+msgstr[1] "%(num_releases)s גרסאות"
+msgstr[2] "%(num_releases)s גרסאות"
+msgstr[3] "%(num_releases)s גרסאות"
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s קבצים"
+msgstr[1] "%(num_files)s קבצים"
+msgstr[2] "%(num_files)s קבצים"
+msgstr[3] "%(num_files)s קבצים"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s משתמשים"
+msgstr[1] "%(num_users)s משתמשים"
+msgstr[2] "%(num_users)s משתמשים"
+msgstr[3] "%(num_users)s משתמשים"
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
 msgstr "PyPI‏ מאפשר למצוא ולהתקין תוכנה אשר פותחה ושותפה על ידי קהילת הפייתון."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "למידה על התקנת חבילות</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr "כותבי חבילות משתמש ב-PyPI כדי להפיץ את התוכנות שלהם."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "למידה על אריזת קוד פייתון עבור PyPI‏</a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "פרויקטים טרנדיים"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "פרוייקטים טרנדיים על פי הורדות של הקהילה"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "גרסאות חדשות"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "חם מהתנור: גרסאות הפרויקטים החדשות ביותר"
 
@@ -1799,9 +1819,9 @@ msgid ""
 "\">Upgrade your browser</a> to set up two factor authentication with a "
 "security device (e.g. USB key)"
 msgstr ""
-"יש <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\""
-"noopener\">לעדכן את הדפדפן</a> כדי להגדיר אימות דו-גורמי באמצעות מכשיר אבטחה "
-"(כגון מפתח USB)"
+"יש <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">לעדכן את הדפדפן</a> כדי להגדיר אימות דו-גורמי באמצעות מכשיר אבטחה (כגון "
+"מפתח USB)"
 
 #: warehouse/templates/manage/account.html:166
 #: warehouse/templates/manage/account.html:528
@@ -1932,10 +1952,10 @@ msgid ""
 "\"></i> Verified</span> email to recover your account, but only your <span "
 "class=\"badge\">Primary</span> email will receive notifications."
 msgstr ""
-"ניתן לשייך מספר אי-מיילים לחשבונך. ניתן להשתמש בכל אי-מייל <span class=\""
-"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i> "
-"מאומת</span> כדי לשחזר את חשבונך, אבל רק האי-מייל ה<span class=\"badge\""
-">ראשי</span> יקבל הודעות."
+"ניתן לשייך מספר אי-מיילים לחשבונך. ניתן להשתמש בכל אי-מייל <span class="
+"\"badge badge--success\"><i class=\"fa fa-check\" aria-hidden=\"true\"></i> "
+"מאומת</span> כדי לשחזר את חשבונך, אבל רק האי-מייל ה<span class=\"badge"
+"\">ראשי</span> יקבל הודעות."
 
 #: warehouse/templates/manage/account.html:345
 msgid "Emails associated with your account"
@@ -1982,8 +2002,8 @@ msgid ""
 "authentication\">2FA</abbr></a>."
 msgstr ""
 "אימות דו-גורמי מוסיף שכבה נוספת של אבטחה לחשבונך. <a href=\"%(href)s\">למד/י "
-"עוד אודות אימות דו-גורמי (<abbr title=\"two factor authentication\""
-">2FA</abbr>)</a>."
+"עוד אודות אימות דו-גורמי (<abbr title=\"two factor authentication\">2FA</"
+"abbr>)</a>."
 
 #: warehouse/templates/manage/account.html:451
 msgid "Two factor authentication methods enabled"
@@ -2182,8 +2202,8 @@ msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
-"שיטה: אפליקצית אימות (<abbr title=\"time-based one-time password\""
-">TOTP</abbr>)"
+"שיטה: אפליקצית אימות (<abbr title=\"time-based one-time password\">TOTP</"
+"abbr>)"
 
 #: warehouse/templates/manage/account.html:620
 msgid "Two factor authentication removed"
@@ -2340,8 +2360,8 @@ msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
-"<a href=\"%(transfer_href)s\">העברת בעלות</a> או <a href=\"%(delete_href)s\">"
-"מחיקת הפרויקט</a>"
+"<a href=\"%(transfer_href)s\">העברת בעלות</a> או <a href=\"%(delete_href)s"
+"\">מחיקת הפרויקט</a>"
 
 #: warehouse/templates/manage/account.html:723
 #: warehouse/templates/manage/token.html:162
@@ -2372,8 +2392,8 @@ msgid ""
 "\"%(url)s\">%(url)s</a> there is <strong>no</strong> undo, as uploading new "
 "documentation is no longer supported."
 msgstr ""
-"אם ברצונך <strong>להרוס</strong> כל תיעוד קיים המתארח ב-<a href=\"%(url)s\""
-">%(url)s</a>, <strong>אין</strong> אפשרות לבטל בדיעבד פעולה זו, כיוון שהעלאת "
+"אם ברצונך <strong>להרוס</strong> כל תיעוד קיים המתארח ב-<a href=\"%(url)s\">"
+"%(url)s</a>, <strong>אין</strong> אפשרות לבטל בדיעבד פעולה זו, כיוון שהעלאת "
 "תיעוד חדש אינה נתמכת יותר."
 
 #: warehouse/templates/manage/documentation.html:35
