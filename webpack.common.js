@@ -28,7 +28,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
 const TerserPlugin = require("terser-webpack-plugin");
-const ManifestPlugin = require("webpack-manifest-plugin");
+const WebpackAssetsManifest = require("webpack-assets-manifest");
 const CompressionPlugin = require("compression-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
@@ -104,9 +104,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
         filename: "[name].[contenthash:8].css",
       }),
       // Create a manifest file, this plugin should appear last
-      new ManifestPlugin({
-        filter(file) { return !file.name.match(/\.(br|gz)$/); }, // exclude compressed files
-      }),
+      new WebpackAssetsManifest({}),
     ],
     devtool: "source-map",  // TODO: consider a faster source map option
     output: {
