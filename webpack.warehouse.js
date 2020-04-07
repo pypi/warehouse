@@ -51,15 +51,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       "js/vendor/zxcvbn": "./js/vendor/zxcvbn.js",
     },
   }, baseConfig);
-  config.plugins.push(
-    // Copy without processing fontawesome webfonts
-    new CopyPlugin([
-      {
-        from: path.join(fontAwesomePath, "webfonts"),
-        to: "./webfonts/",
-      },
-    ]),
-  );
+
   config.output.path = distPath;
 
   return config;

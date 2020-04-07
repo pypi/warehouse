@@ -60,6 +60,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
               loader: "file-loader",
               options: {
                 name: "images/[name].[contenthash:8].[ext]",
+                publicPath: "/static/",
               },
             },
             "image-webpack-loader",
