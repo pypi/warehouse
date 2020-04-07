@@ -16,8 +16,6 @@
 const path = require("path");
 const glob = require("glob");
 
-const CopyPlugin = require("copy-webpack-plugin");
-
 // Configure where our files come from, where they get saved too, and what path
 // they are served from.
 const staticPrefix = "warehouse/static/";
