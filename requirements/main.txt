@@ -77,9 +77,9 @@ botocore==1.15.38 \
     --hash=sha256:903df3186ab1f222b78539920cfba09891da341dc45623a6159f88b2a8775f60 \
     --hash=sha256:f3dc5e45abc1f1c8e86cf6ae8d787084230ae4b9c92a4e5d73213dff807a3802 \
     # via boto3, s3transfer
-cachetools==4.0.0 \
-    --hash=sha256:9a52dd97a85f257f4e4127f15818e71a0c7899f121b34591fcc1173ea79a0198 \
-    --hash=sha256:b304586d357c43221856be51d73387f93e2a961598a9b6b6670664746f3b6c6c \
+cachetools==4.1.0 \
+    --hash=sha256:1d057645db16ca7fe1f3bd953558897603d6f0b9c51ed9d11eb4d071ec4e2aab \
+    --hash=sha256:de5d88f87781602201cde465d3afe837546663b168e8b39df67411b0bf10cefc \
     # via google-auth, premailer
 cbor2==5.1.0 \
     --hash=sha256:43ce11e8c2fe4971d386d1a60cf83bfa0a4a667b97668ba76acbf5e6398821aa \
