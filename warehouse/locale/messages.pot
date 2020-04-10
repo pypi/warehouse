@@ -4246,7 +4246,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:559
 #, python-format
 msgid ""
-"You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" "
+"You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">file an issue on our tracker</a> to "
 "request assistance with account recovery."
 msgstr ""
