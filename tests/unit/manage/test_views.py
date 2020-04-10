@@ -210,24 +210,24 @@ class TestManageAccount:
         assert request.session.flash.calls == []
         assert update_user.calls == []
 
-    def test_add_email(self, monkeypatch, pyramid_config):
+    def test_add_email(self, monkeypatch, pyramid_request):
         email_address = "test@example.com"
         email = pretend.stub(id=pretend.stub(), email=email_address)
         user_service = pretend.stub(
             add_email=pretend.call_recorder(lambda *a, **kw: email),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
-        request = pretend.stub(
-            POST={"email": email_address},
-            db=pretend.stub(flush=lambda: None),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda a, **kw: user_service,
-            user=pretend.stub(
-                emails=[], username="username", name="Name", id=pretend.stub()
-            ),
-            task=pretend.call_recorder(lambda *args, **kwargs: send_email),
-            remote_addr="0.0.0.0",
+        pyramid_request.POST = {"email": email_address}
+        pyramid_request.db = pretend.stub(flush=lambda: None)
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        pyramid_request.find_service = lambda a, **kw: user_service
+        pyramid_request.user = pretend.stub(
+            emails=[], username="username", name="Name", id=pretend.stub()
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        pyramid_request.remote_addr = "0.0.0.0"
         monkeypatch.setattr(
             views,
             "AddEmailForm",
@@ -242,25 +242,29 @@ class TestManageAccount:
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageAccountViews(pyramid_request)
 
         assert view.add_email() == view.default_response
         assert user_service.add_email.calls == [
-            pretend.call(request.user.id, email_address, request.remote_addr)
+            pretend.call(
+                pyramid_request.user.id, email_address, pyramid_request.remote_addr
+            )
         ]
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call(
                 f"Email {email_address} added - check your email for "
                 + "a verification link",
                 queue="success",
             )
         ]
-        assert send_email.calls == [pretend.call(request, (request.user, email))]
+        assert send_email.calls == [
+            pretend.call(pyramid_request, (pyramid_request.user, email))
+        ]
         assert user_service.record_event.calls == [
             pretend.call(
-                request.user.id,
+                pyramid_request.user.id,
                 tag="account:email:add",
-                ip_address=request.remote_addr,
+                ip_address=pyramid_request.remote_addr,
                 additional={"email": email_address},
             )
         ]
@@ -1538,21 +1542,23 @@ class TestProvisionRecoveryCodes:
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
 
-    def test_recovery_codes_generate_no_two_factor(self):
+    def test_recovery_codes_generate_no_two_factor(self, pyramid_request):
         user_service = pretend.stub(has_two_factor=lambda user_id: False)
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=pretend.stub()),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the/route"
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_generate()
 
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
                     "You must provision a two factor method before recovery "
@@ -1561,24 +1567,26 @@ class TestProvisionRecoveryCodes:
                 queue="error",
             )
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
 
         assert isinstance(result, HTTPSeeOther)
 
-    def test_recovery_codes_generate_already_exist(self):
+    def test_recovery_codes_generate_already_exist(self, pyramid_request):
         user_service = pretend.stub(
             has_two_factor=lambda user_id: True, has_recovery_codes=lambda user_id: True
         )
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=pretend.stub()),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the/route"
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_generate()
 
         assert result == {
@@ -1621,7 +1629,9 @@ class TestProvisionRecoveryCodes:
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
 
-    def test_recovery_codes_regenerate_no_two_factor(self, monkeypatch):
+    def test_recovery_codes_regenerate_no_two_factor(
+        self, monkeypatch, pyramid_request
+    ):
         confirm_password_cls = pretend.call_recorder(
             lambda *a, **kw: pretend.stub(validate=lambda: True)
         )
@@ -1632,21 +1642,21 @@ class TestProvisionRecoveryCodes:
             generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
-        request = pretend.stub(
-            POST={"confirm_password": "correct password"},
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=1, username="username"),
-            remote_addr="0.0.0.0",
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
+        pyramid_request.POST = {"confirm_password": "correct password"}
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=1, username="username")
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
         )
+        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_regenerate()
 
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
                     "You must provision a two factor method before recovery "
@@ -1655,34 +1665,38 @@ class TestProvisionRecoveryCodes:
                 queue="error",
             )
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
 
         assert isinstance(result, HTTPSeeOther)
 
-    def test_recovery_codes_regenerate_wrong_confirm(self, monkeypatch):
+    def test_recovery_codes_regenerate_wrong_confirm(
+        self, monkeypatch, pyramid_request
+    ):
         confirm_password_cls = pretend.call_recorder(
             lambda *a, **kw: pretend.stub(validate=lambda: False)
         )
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         user_service = pretend.stub(has_two_factor=lambda user_id: True)
-        request = pretend.stub(
-            POST={"confirm_password": "wrong password"},
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=pretend.stub(), username="username"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        pyramid_request.POST = {"confirm_password": "wrong password"}
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=pretend.stub(), username="username")
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the/route"
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_regenerate()
 
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid credentials. Try again", queue="error")
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
 
 
