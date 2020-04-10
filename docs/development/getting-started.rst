@@ -164,7 +164,7 @@ application.
 
    If you are using Linux, you may need to configure the maximum map count to get
    the `elasticsearch` up and running. According to the
-   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
+   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/vm-max-map-count.html>`_
    this can be set temporarily:
 
    .. code-block:: console
@@ -177,7 +177,7 @@ application.
    Also check that you have more than 5% disk space free, otherwise
    elasticsearch will become read only. See ``flood_stage`` in the
    `elasticsearch disk allocation docs
-   <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/disk-allocator.html>`_.
+   <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/disk-allocator.html>`_.
 
 
 Once ``make build`` has finished,  run the command:
