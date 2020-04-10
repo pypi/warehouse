@@ -246,7 +246,7 @@ class TestManageAccount:
 
         assert view.add_email() == view.default_response
         assert user_service.add_email.calls == [
-            pretend.call(request.user.id, email_address)
+            pretend.call(request.user.id, email_address, request.remote_addr)
         ]
         assert request.session.flash.calls == [
             pretend.call(

@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailsAdded,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
@@ -54,6 +55,7 @@ from warehouse.email import (
 )
 from warehouse.i18n import localize as _
 from warehouse.packaging.models import Project, Release
+from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
@@ -72,6 +74,17 @@ def failed_logins(exc, request):
     resp.status = "{} {}".format(resp.status_code, "Too Many Failed Login Attempts")
 
     return resp
+
+
+@view_config(context=TooManyEmailsAdded, has_translations=True)
+def unverified_emails(exc, request):
+    return HTTPTooManyRequests(
+        _(
+            "Too many emails have been added to this account without verifying "
+            "them. Check your inbox and follow the verification links."
+        ),
+        retry_after=exc.resets_in.total_seconds(),
+    )
 
 
 @view_config(
@@ -469,9 +482,11 @@ def register(request, _form_class=RegistrationForm):
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
-            form.username.data, form.full_name.data, form.new_password.data
+            form.username.data, form.full_name.data, form.new_password.data,
         )
-        email = user_service.add_email(user.id, form.email.data, primary=True)
+        email = user_service.add_email(
+            user.id, form.email.data, request.remote_addr, primary=True
+        )
         user_service.record_event(
             user.id,
             tag="account:create",
@@ -618,6 +633,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
+    email_limiter = request.find_service(IRateLimiter, name="email.add")
 
     def _error(message):
         request.session.flash(message, queue="error")
@@ -657,6 +673,9 @@ def verify_email(request):
         ip_address=request.remote_addr,
         additional={"email": email.email, "primary": email.primary},
     )
+
+    # Reset the email-adding rate limiter for this IP address
+    email_limiter.clear(request.remote_addr)
 
     if not email.primary:
         confirm_message = _("You can now set this email as your primary address")
