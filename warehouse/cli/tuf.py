@@ -137,8 +137,21 @@ def build_targets(config):
     # Collect the "paths" for every PyPI package. These are packages already in
     # existence, so we'll add some additional data to their targets to
     # indicate that we're back-signing them.
-    # from warehouse.db import Session
-    # db = Session(bind=config.registry["sqlalchemy.engine"])
+    from warehouse.db import Session
+    from warehouse.packaging.models import File
+
+    db = Session(bind=config.registry["sqlalchemy.engine"])
+    for file in db.query(File).all():
+        fileinfo = _make_backsigned_fileinfo_from_file(file)
+        repository.targets(BINS_ROLE).add_target_to_bin(
+            file.path, number_of_bins=config.registry.settings["tuf.bin-n.count"], fileinfo=fileinfo
+        )
+
+    repository.mark_dirty(dirty_roles)
+    repository.writeall(
+        consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
+        use_existing_fileinfo=True
+    )
 
 
 @tuf.command()
