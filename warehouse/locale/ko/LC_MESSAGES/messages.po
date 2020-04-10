@@ -71,7 +71,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "올바른 패스워드가 아닙니다. 올바른 패스워드를 입력하세요."
 
-#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:65
+#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:66
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 다시 시도해주세요."
 
@@ -125,25 +125,31 @@ msgstr "잘못된 TOTP 코드입니다."
 msgid "No user found with that username or email"
 msgstr "해당 사용자 이름이나 이메일로 사용자를 찾을 수 없습니다"
 
-#: warehouse/accounts/views.py:205 warehouse/accounts/views.py:261
-#: warehouse/accounts/views.py:262 warehouse/accounts/views.py:288
-#: warehouse/accounts/views.py:289 warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:83
+msgid ""
+"Too many emails have been added to this account without verifying them. "
+"Check your inbox and follow the verification links."
+msgstr ""
+
+#: warehouse/accounts/views.py:220 warehouse/accounts/views.py:278
+#: warehouse/accounts/views.py:280 warehouse/accounts/views.py:307
+#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:364
 msgid "Invalid or expired two factor login."
 msgstr "2단계 인증 로그인이 잘못되거나 만료되었습니다."
 
-#: warehouse/accounts/views.py:256
+#: warehouse/accounts/views.py:272
 msgid "Already authenticated"
 msgstr "이미 인증됨"
 
-#: warehouse/accounts/views.py:320
+#: warehouse/accounts/views.py:340
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 승인 성공"
 
-#: warehouse/accounts/views.py:371
+#: warehouse/accounts/views.py:393
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "복구 코드가 승인되었습니다. 주어진 코드는 재사용이 불가능합니다."
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:479
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -151,92 +157,92 @@ msgstr ""
 "새 사용자 등록이 잠시 불가능한 상태입니다. https://pypi.org/help#admin-"
 "intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/accounts/views.py:552
+#: warehouse/accounts/views.py:578
 msgid "Expired token: request a new password reset link"
 msgstr "만료된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:554
+#: warehouse/accounts/views.py:580
 msgid "Invalid token: request a new password reset link"
 msgstr "잘못된 토큰: 새로운 암호 설정 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:556 warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:582 warehouse/accounts/views.py:665
 msgid "Invalid token: no token supplied"
 msgstr "잘못된 토큰: 토큰이 제공되지 않음"
 
-#: warehouse/accounts/views.py:560
+#: warehouse/accounts/views.py:586
 msgid "Invalid token: not a password reset token"
 msgstr "잘못된 토큰: 암호 재설정 토큰이 아님"
 
-#: warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: user not found"
 msgstr "잘못된 토큰: 사용자 없음"
 
-#: warehouse/accounts/views.py:572
+#: warehouse/accounts/views.py:598
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 사용자가 로그인함"
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:607
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "잘못된 토큰: 이 토큰이 요청된 이후로 패스워드가 변경됨"
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:634
 msgid "You have reset your password"
 msgstr "패스워드를 재설정해야 합니다"
 
-#: warehouse/accounts/views.py:630
+#: warehouse/accounts/views.py:661
 msgid "Expired token: request a new email verification link"
 msgstr "만료된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:632
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: request a new email verification link"
 msgstr "잘못된 토큰: 새로운 이메일 확인 링크를 요청하세요"
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:669
 msgid "Invalid token: not an email verification token"
 msgstr "잘못된 토큰: 이메일 확인 토큰이 아님"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:678
 msgid "Email not found"
 msgstr "이메일을 찾을 수 없음"
 
-#: warehouse/accounts/views.py:650
+#: warehouse/accounts/views.py:681
 msgid "Email already verified"
 msgstr "이미 확인된 이메일"
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:696
 msgid "You can now set this email as your primary address"
 msgstr "이 이메일을 기본 이메일 주소로 지정할 수 있습니다"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:700
 msgid "This is your primary address"
 msgstr "기본 이메일 주소입니다"
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:705
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "이메일 주소 ${email_address}가 확인되었습니다. ${confirm_message}."
 
-#: warehouse/manage/views.py:186
+#: warehouse/manage/views.py:187
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "이메일 주소 ${email_address}가 추가되었습니다 - 이메일에서 확인 링크를 살펴보"
 "세요"
 
-#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
+#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr "복구 코드를 생성하려면 2단계 인증이 설정되어야 합니다"
 
-#: warehouse/manage/views.py:678
+#: warehouse/manage/views.py:679
 msgid "Recovery codes already generated"
 msgstr "복구 코드가 이미 생성되었습니다"
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:680
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다."
 
-#: warehouse/manage/views.py:729
+#: warehouse/manage/views.py:731
 msgid "Invalid credentials. Try again"
 msgstr ""
 
@@ -4515,7 +4521,7 @@ msgstr ""
 #| "\">Upgrade your browser</a> to set up two factor authentication with a "
 #| "security device (e.g. USB key)"
 msgid ""
-"You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""

@@ -60,7 +60,7 @@ msgstr "اسم المستخدم هذا يستخدمه حساب آخر. برجا�
 msgid "The password is invalid. Try again."
 msgstr "كلمة السر هذه غير صحيحة. برجاء المحاولة مرة أخرى."
 
-#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:65
+#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:66
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
@@ -116,25 +116,31 @@ msgstr "كود TOTP غير صحيح."
 msgid "No user found with that username or email"
 msgstr "لا يوجد مستخدم بهذا الاسم أو البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:205 warehouse/accounts/views.py:261
-#: warehouse/accounts/views.py:262 warehouse/accounts/views.py:288
-#: warehouse/accounts/views.py:289 warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:83
+msgid ""
+"Too many emails have been added to this account without verifying them. "
+"Check your inbox and follow the verification links."
+msgstr ""
+
+#: warehouse/accounts/views.py:220 warehouse/accounts/views.py:278
+#: warehouse/accounts/views.py:280 warehouse/accounts/views.py:307
+#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:364
 msgid "Invalid or expired two factor login."
 msgstr "تسجيل دخول ثنائي العامل غير صالح أو منتهي الصلاحية."
 
-#: warehouse/accounts/views.py:256
+#: warehouse/accounts/views.py:272
 msgid "Already authenticated"
 msgstr "موثق بالفعل"
 
-#: warehouse/accounts/views.py:320
+#: warehouse/accounts/views.py:340
 msgid "Successful WebAuthn assertion"
 msgstr "توكيد WebAuthn ناجح"
 
-#: warehouse/accounts/views.py:371
+#: warehouse/accounts/views.py:393
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:479
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -142,92 +148,92 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:552
+#: warehouse/accounts/views.py:578
 msgid "Expired token: request a new password reset link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:554
+#: warehouse/accounts/views.py:580
 msgid "Invalid token: request a new password reset link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:556 warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:582 warehouse/accounts/views.py:665
 msgid "Invalid token: no token supplied"
 msgstr "رمز غير صحيح: لا يوجد رمز"
 
-#: warehouse/accounts/views.py:560
+#: warehouse/accounts/views.py:586
 msgid "Invalid token: not a password reset token"
 msgstr "رمز غير صحيح: ليس رمزاً لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: user not found"
 msgstr "رمز غير صحيح: لم يتم العثور على المستخدم"
 
-#: warehouse/accounts/views.py:572
+#: warehouse/accounts/views.py:598
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "رمز غير صحيح: المستخدم سجل الدخول منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:607
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "رمز غير صحيح: كلمة السر تغيرت بالفعل منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:634
 msgid "You have reset your password"
 msgstr "لقد قمت بتغيير كلمة السر الخاصة بك"
 
-#: warehouse/accounts/views.py:630
+#: warehouse/accounts/views.py:661
 msgid "Expired token: request a new email verification link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:632
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: request a new email verification link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:669
 msgid "Invalid token: not an email verification token"
 msgstr "رمز غير صحيح: ليس رمزاً لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:678
 msgid "Email not found"
 msgstr "لم يتم العثور على البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:650
+#: warehouse/accounts/views.py:681
 msgid "Email already verified"
 msgstr "تم تأكيد البريد الاليكتروني بالفعل"
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:696
 msgid "You can now set this email as your primary address"
 msgstr "تستطيع الآن استخدام هذا البريد الاليكتروني كبريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:700
 msgid "This is your primary address"
 msgstr "هذا بريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:705
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "تم تأكيد البريد الاليكتروني ${email_address}. ${confirm_message}."
 
-#: warehouse/manage/views.py:186
+#: warehouse/manage/views.py:187
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "تم إضافة البريد الاليكتروني ${email_address} - برجاء التحقق من بريدك "
 "الايكتروني للحصول على رابط التأكيد"
 
-#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
+#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:678
+#: warehouse/manage/views.py:679
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:680
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:729
+#: warehouse/manage/views.py:731
 msgid "Invalid credentials. Try again"
 msgstr ""
 
@@ -4405,12 +4411,19 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:559
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "For more information on uploading projects to PyPI, visit the <a href="
+#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Python Packaging User Guide</a>."
 msgid ""
-"You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
+"لمعلومات أكثر عن رفع المشاريع لPyPI، برجاء زيارة <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">دليل المستخدم لتعبئة "
+"بايثون</a>."
 
 #: warehouse/templates/pages/help.html:566
 msgid "If you are using a username and password for uploads:"
