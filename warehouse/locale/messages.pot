@@ -31,7 +31,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:65
+#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:67
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 
@@ -79,115 +79,121 @@ msgstr ""
 msgid "No user found with that username or email"
 msgstr ""
 
-#: warehouse/accounts/views.py:205 warehouse/accounts/views.py:261
-#: warehouse/accounts/views.py:262 warehouse/accounts/views.py:288
-#: warehouse/accounts/views.py:289 warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:82
+msgid ""
+"Too many emails have been added to this account without verifying them. "
+"Check your inbox and follow the verification links."
+msgstr ""
+
+#: warehouse/accounts/views.py:218 warehouse/accounts/views.py:274
+#: warehouse/accounts/views.py:275 warehouse/accounts/views.py:301
+#: warehouse/accounts/views.py:302 warehouse/accounts/views.py:356
 msgid "Invalid or expired two factor login."
 msgstr ""
 
-#: warehouse/accounts/views.py:256
+#: warehouse/accounts/views.py:269
 msgid "Already authenticated"
 msgstr ""
 
-#: warehouse/accounts/views.py:320
+#: warehouse/accounts/views.py:333
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:371
+#: warehouse/accounts/views.py:384
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:468
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:552
+#: warehouse/accounts/views.py:570
 msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:554
+#: warehouse/accounts/views.py:572
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:556 warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:574 warehouse/accounts/views.py:653
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:560
+#: warehouse/accounts/views.py:578
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:583
 msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:572
+#: warehouse/accounts/views.py:590
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:597
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:623
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:630
+#: warehouse/accounts/views.py:649
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:632
+#: warehouse/accounts/views.py:651
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:657
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:666
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:650
+#: warehouse/accounts/views.py:669
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:684
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:686
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:691
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/manage/views.py:186
+#: warehouse/manage/views.py:188
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
+#: warehouse/manage/views.py:669 warehouse/manage/views.py:705
 msgid ""
 "You must provision a two factor method before recovery codes can be "
 "generated"
 msgstr ""
 
-#: warehouse/manage/views.py:678
+#: warehouse/manage/views.py:680
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:681
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:729
+#: warehouse/manage/views.py:731
 msgid "Invalid credentials. Try again"
 msgstr ""
 
