@@ -25,7 +25,7 @@ msgstr ""
 "X-Generator: Weblate 3.11-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:255
+#: warehouse/views.py:254
 msgid "Locale updated"
 msgstr ""
 
@@ -64,7 +64,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "Kata sandi salah. Coba lagi."
 
-#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:65
+#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:66
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Terlalu banyak upaya masuk yang gagal. Coba lagi nanti."
 
@@ -116,25 +116,31 @@ msgstr "Kode TOTP tidak valid."
 msgid "No user found with that username or email"
 msgstr "Tidak ada pengguna yang ditemukan dengan nama pengguna atau email itu"
 
-#: warehouse/accounts/views.py:205 warehouse/accounts/views.py:261
-#: warehouse/accounts/views.py:262 warehouse/accounts/views.py:288
-#: warehouse/accounts/views.py:289 warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:83
+msgid ""
+"Too many emails have been added to this account without verifying them. "
+"Check your inbox and follow the verification links."
+msgstr ""
+
+#: warehouse/accounts/views.py:220 warehouse/accounts/views.py:278
+#: warehouse/accounts/views.py:280 warehouse/accounts/views.py:307
+#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:364
 msgid "Invalid or expired two factor login."
 msgstr "Masuk dengan 2 faktor tidak valid atau kadaluwarsa."
 
-#: warehouse/accounts/views.py:256
+#: warehouse/accounts/views.py:272
 msgid "Already authenticated"
 msgstr "Sudah diotentikasi"
 
-#: warehouse/accounts/views.py:320
+#: warehouse/accounts/views.py:340
 msgid "Successful WebAuthn assertion"
 msgstr "Pernyataan WebAuthn yang berhasil"
 
-#: warehouse/accounts/views.py:371
+#: warehouse/accounts/views.py:393
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:479
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -142,92 +148,92 @@ msgstr ""
 "Registrasi pengguna baru sementara dinonaktifkan. Lihat https://pypi.org/"
 "help#admin-intervention untuk detailnya."
 
-#: warehouse/accounts/views.py:552
+#: warehouse/accounts/views.py:578
 msgid "Expired token: request a new password reset link"
 msgstr "Token Kadaluarsa: minta tautan setel ulang kata sandi baru"
 
-#: warehouse/accounts/views.py:554
+#: warehouse/accounts/views.py:580
 msgid "Invalid token: request a new password reset link"
 msgstr "Token tidak valid: minta tautan setel ulang kata sandi baru"
 
-#: warehouse/accounts/views.py:556 warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:582 warehouse/accounts/views.py:665
 msgid "Invalid token: no token supplied"
 msgstr "Token tidak valid: tidak disediakan token"
 
-#: warehouse/accounts/views.py:560
+#: warehouse/accounts/views.py:586
 msgid "Invalid token: not a password reset token"
 msgstr "Token tidak valid: bukan token atur ulang kata sandi"
 
-#: warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: user not found"
 msgstr "Token tidak valid: pengguna tidak ditemukan"
 
-#: warehouse/accounts/views.py:572
+#: warehouse/accounts/views.py:598
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Token tidak valid: pengguna telah masuk karena token ini diminta"
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:607
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Token tidak valid: kata sandi telah diubah sejak token ini diminta"
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:634
 msgid "You have reset your password"
 msgstr "Anda telah mengatur ulang kata sandi Anda"
 
-#: warehouse/accounts/views.py:630
+#: warehouse/accounts/views.py:661
 msgid "Expired token: request a new email verification link"
 msgstr "Token Kadaluarsa: minta email tautan verifikasi baru"
 
-#: warehouse/accounts/views.py:632
+#: warehouse/accounts/views.py:663
 msgid "Invalid token: request a new email verification link"
 msgstr "Token tidak valid: minta email tautan verifikasi baru"
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:669
 msgid "Invalid token: not an email verification token"
 msgstr "Token tidak valid: bukan token verifikasi email"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:678
 msgid "Email not found"
 msgstr "Email tidak ditemukan"
 
-#: warehouse/accounts/views.py:650
+#: warehouse/accounts/views.py:681
 msgid "Email already verified"
 msgstr "Email sudah diverifikasi"
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:696
 msgid "You can now set this email as your primary address"
 msgstr "Anda sekarang dapat mengatur email ini sebagai alamat utama Anda"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:700
 msgid "This is your primary address"
 msgstr "Ini adalah alamat utama Anda"
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:705
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Alamat email ${email_address} terverifikasi. ${confirm_message}."
 
-#: warehouse/manage/views.py:186
+#: warehouse/manage/views.py:187
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Email ${email_address} ditambahkan - periksa email Anda untuk tautan "
 "verifikasi"
 
-#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
+#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:678
+#: warehouse/manage/views.py:679
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:680
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:729
+#: warehouse/manage/views.py:731
 msgid "Invalid credentials. Try again"
 msgstr ""
 
@@ -270,7 +276,7 @@ msgstr "Monty Python - Sketsa Toko Keju"
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
 #: warehouse/templates/includes/packaging/project-data.html:66
-#: warehouse/templates/index.html:82 warehouse/templates/index.html:86
+#: warehouse/templates/index.html:106 warehouse/templates/index.html:110
 #: warehouse/templates/manage/account.html:152
 #: warehouse/templates/manage/account.html:250
 #: warehouse/templates/manage/account.html:256
@@ -325,24 +331,57 @@ msgstr "Monty Python - Sketsa Toko Keju"
 #: warehouse/templates/pages/help.html:626
 #: warehouse/templates/pages/help.html:643
 #: warehouse/templates/pages/help.html:650
-#: warehouse/templates/pages/help.html:659
-#: warehouse/templates/pages/help.html:675
-#: warehouse/templates/pages/help.html:680
-#: warehouse/templates/pages/help.html:685
-#: warehouse/templates/pages/help.html:695
-#: warehouse/templates/pages/help.html:704
-#: warehouse/templates/pages/help.html:718
-#: warehouse/templates/pages/help.html:726
-#: warehouse/templates/pages/help.html:734
-#: warehouse/templates/pages/help.html:742
-#: warehouse/templates/pages/help.html:752
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:658
+#: warehouse/templates/pages/help.html:674
+#: warehouse/templates/pages/help.html:679
+#: warehouse/templates/pages/help.html:684
+#: warehouse/templates/pages/help.html:694
+#: warehouse/templates/pages/help.html:703
+#: warehouse/templates/pages/help.html:717
+#: warehouse/templates/pages/help.html:725
+#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:751
+#: warehouse/templates/pages/help.html:766
+#: warehouse/templates/pages/help.html:781
 #: warehouse/templates/pages/help.html:782
 #: warehouse/templates/pages/help.html:783
 #: warehouse/templates/pages/help.html:784
-#: warehouse/templates/pages/help.html:785
-#: warehouse/templates/pages/help.html:790
+#: warehouse/templates/pages/help.html:789
 #: warehouse/templates/pages/security.html:36
+#: warehouse/templates/pages/sponsor.html:27
+#: warehouse/templates/pages/sponsor.html:33
+#: warehouse/templates/pages/sponsor.html:37
+#: warehouse/templates/pages/sponsor.html:41
+#: warehouse/templates/pages/sponsor.html:45
+#: warehouse/templates/pages/sponsor.html:61
+#: warehouse/templates/pages/sponsor.html:112
+#: warehouse/templates/pages/sponsor.html:115
+#: warehouse/templates/pages/sponsor.html:133
+#: warehouse/templates/pages/sponsor.html:134
+#: warehouse/templates/pages/sponsor.html:135
+#: warehouse/templates/pages/sponsor.html:138
+#: warehouse/templates/pages/sponsor.html:156
+#: warehouse/templates/pages/sponsor.html:157
+#: warehouse/templates/pages/sponsor.html:158
+#: warehouse/templates/pages/sponsor.html:161
+#: warehouse/templates/pages/sponsor.html:179
+#: warehouse/templates/pages/sponsor.html:180
+#: warehouse/templates/pages/sponsor.html:181
+#: warehouse/templates/pages/sponsor.html:184
+#: warehouse/templates/pages/sponsor.html:201
+#: warehouse/templates/pages/sponsor.html:202
+#: warehouse/templates/pages/sponsor.html:203
+#: warehouse/templates/pages/sponsor.html:206
+#: warehouse/templates/pages/sponsor.html:222
+#: warehouse/templates/pages/sponsor.html:223
+#: warehouse/templates/pages/sponsor.html:224
+#: warehouse/templates/pages/sponsor.html:227
+#: warehouse/templates/pages/sponsor.html:239
+#: warehouse/templates/pages/sponsor.html:244
+#: warehouse/templates/pages/sponsor.html:245
+#: warehouse/templates/pages/sponsor.html:246
+#: warehouse/templates/pages/sponsor.html:249
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "Tautan eksternal"
@@ -437,8 +476,10 @@ msgstr "Tolong"
 
 #: warehouse/templates/base.html:40 warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:60
-msgid "Donate"
-msgstr "Donasi"
+#, fuzzy
+#| msgid "Our sponsors"
+msgid "Sponsor"
+msgstr "Sponsor kami"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:41
@@ -465,7 +506,7 @@ msgstr "Menu"
 msgid "Main menu"
 msgstr "Menu Utama"
 
-#: warehouse/templates/base.html:76 warehouse/templates/index.html:79
+#: warehouse/templates/base.html:76 warehouse/templates/index.html:103
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -687,27 +728,35 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Atau <a href=\"%(href)s\"> jelajahi proyek </a>"
 
-#: warehouse/templates/index.html:66
-#, python-format
-msgid "%(num_projects)s projects"
-msgstr "%(num_projects)s proyek"
-
 #: warehouse/templates/index.html:67
-#, python-format
-msgid "%(num_releases)s releases"
-msgstr "%(num_releases)s rilis"
+#, fuzzy, python-format
+#| msgid "%(num_projects)s projects"
+msgid "%(num_projects_formatted)s project"
+msgid_plural "%(num_projects_formatted)s projects"
+msgstr[0] "%(num_projects)s proyek"
 
-#: warehouse/templates/index.html:68
-#, python-format
-msgid "%(num_files)s files"
-msgstr "%(num_files)s berkas"
-
-#: warehouse/templates/index.html:69
-#, python-format
-msgid "%(num_users)s users"
-msgstr "%(num_users)s pengguna"
+#: warehouse/templates/index.html:74
+#, fuzzy, python-format
+#| msgid "%(num_releases)s releases"
+msgid "%(num_releases_formatted)s release"
+msgid_plural "%(num_releases_formatted)s releases"
+msgstr[0] "%(num_releases)s rilis"
 
 #: warehouse/templates/index.html:81
+#, fuzzy, python-format
+#| msgid "%(num_files)s files"
+msgid "%(num_files_formatted)s file"
+msgid_plural "%(num_files_formatted)s files"
+msgstr[0] "%(num_files)s berkas"
+
+#: warehouse/templates/index.html:88
+#, fuzzy, python-format
+#| msgid "%(num_users)s users"
+msgid "%(num_users_formatted)s user"
+msgid_plural "%(num_users_formatted)s users"
+msgstr[0] "%(num_users)s pengguna"
+
+#: warehouse/templates/index.html:105
 msgid ""
 "PyPI helps you find and install software developed and shared by the Python "
 "community."
@@ -715,32 +764,32 @@ msgstr ""
 "PyPI membantu Anda menemukan dan menginstal perangkat lunak yang "
 "dikembangkan dan dibagikan oleh komunitas Python."
 
-#: warehouse/templates/index.html:82
+#: warehouse/templates/index.html:106
 msgid "Learn about installing packages</a>."
 msgstr "Pelajari tentang cara menginstal paket</a>."
 
-#: warehouse/templates/index.html:85
+#: warehouse/templates/index.html:109
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 "Penulis paket menggunakan PyPI untuk mendistribusikan perangkat lunak mereka."
 
-#: warehouse/templates/index.html:86
+#: warehouse/templates/index.html:110
 msgid "Learn how to package your Python code for PyPI</a>."
 msgstr "Pelajari cara mengemas kode Python Anda untuk PyPI</a>."
 
-#: warehouse/templates/index.html:96
+#: warehouse/templates/index.html:120
 msgid "Trending projects"
 msgstr "Proyek yang sedang tren"
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:121
 msgid "Trending projects as downloaded by the community"
 msgstr "Tren proyek yang diunduh oleh komunitas"
 
-#: warehouse/templates/index.html:107
+#: warehouse/templates/index.html:131
 msgid "New releases"
 msgstr "Rilis baru"
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:132
 msgid "Hot off the press: the newest project releases"
 msgstr "Terbaru dari pers: rilis proyek terbaru"
 
@@ -3723,7 +3772,7 @@ msgid "Troubleshooting"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:169
-#: warehouse/templates/pages/help.html:671
+#: warehouse/templates/pages/help.html:670
 msgid "About"
 msgstr ""
 
@@ -4439,7 +4488,7 @@ msgstr ""
 #| "\">Upgrade your browser</a> to set up two factor authentication with a "
 #| "security device (e.g. USB key)"
 msgid ""
-"You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
@@ -4607,13 +4656,13 @@ msgstr ""
 #: warehouse/templates/pages/help.html:650
 #, python-format
 msgid ""
-"If you would like to request a new trove classifier file a bug on our <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">issue tracker</a>. Include the name of the requested classifier and a "
+"If you would like to request a new trove classifier file a pull request on "
+"the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a "
 "brief justification of why it is important."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:659
+#: warehouse/templates/pages/help.html:658
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -4624,13 +4673,13 @@ msgid ""
 "similar issue does not already exist."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:666
+#: warehouse/templates/pages/help.html:665
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:675
+#: warehouse/templates/pages/help.html:674
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" title="
@@ -4640,7 +4689,7 @@ msgid ""
 "(PackagingWG)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:680
+#: warehouse/templates/pages/help.html:679
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -4648,7 +4697,7 @@ msgid ""
 "and maintain many of the core projects related to Python packaging."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:685
+#: warehouse/templates/pages/help.html:684
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -4660,7 +4709,7 @@ msgid ""
 "enabling developers to improve Warehouse's security and accessibility."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:695
+#: warehouse/templates/pages/help.html:694
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
@@ -4668,14 +4717,14 @@ msgid ""
 "services provided by our <a href=\"%(sponsors_href)s\">generous sponsors</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:702
+#: warehouse/templates/pages/help.html:701
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
 "robust, tested, and ready for expected browser and API traffic."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:704
+#: warehouse/templates/pages/help.html:703
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -4691,7 +4740,7 @@ msgid ""
 "\"%(private_index_href)s\">private index</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:718
+#: warehouse/templates/pages/help.html:717
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -4699,22 +4748,22 @@ msgid ""
 "rel=\"noopener\">the Warehouse project</a>)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:723
+#: warehouse/templates/pages/help.html:722
 msgid "Financial:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:723
+#: warehouse/templates/pages/help.html:722
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
 "development and maintenance</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:724
+#: warehouse/templates/pages/help.html:723
 msgid "Development:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:724
+#: warehouse/templates/pages/help.html:723
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -4722,7 +4771,7 @@ msgid ""
 "make your first open source pull request!"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:726
+#: warehouse/templates/pages/help.html:725
 #, python-format
 msgid ""
 "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -4735,7 +4784,7 @@ msgid ""
 "start here."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:734
+#: warehouse/templates/pages/help.html:733
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" target="
@@ -4745,11 +4794,11 @@ msgid ""
 "guide you through the contribution process."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:741
+#: warehouse/templates/pages/help.html:740
 msgid "Stay updated:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:742
+#: warehouse/templates/pages/help.html:741
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
@@ -4759,7 +4808,7 @@ msgid ""
 "\"noopener\">PyPA Dev message group</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:752
+#: warehouse/templates/pages/help.html:751
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a href="
@@ -4772,18 +4821,18 @@ msgid ""
 "a> feeds for the \"pypi\" label."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:762
+#: warehouse/templates/pages/help.html:761
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
 "work fine, but it's new and less tested than other site functionality."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:763
+#: warehouse/templates/pages/help.html:762
 msgid "Currently, no features are in beta."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:766
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -4793,39 +4842,39 @@ msgid ""
 "language."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:779
+#: warehouse/templates/pages/help.html:778
 msgid "Resources"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:780
+#: warehouse/templates/pages/help.html:779
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:782
+#: warehouse/templates/pages/help.html:781
 msgid "Python Packaging User Guide"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:783
+#: warehouse/templates/pages/help.html:782
 msgid "Python documentation"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:784
+#: warehouse/templates/pages/help.html:783
 msgid "(main Python website)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:784
 msgid "Python community page"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:785
+#: warehouse/templates/pages/help.html:784
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:788
+#: warehouse/templates/pages/help.html:787
 msgid "Contact"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:790
+#: warehouse/templates/pages/help.html:789
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -4936,6 +4985,490 @@ msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:15
+msgid "Sponsor the Packaging Working Group"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:23
+msgid "Sponsor PyPI and related projects"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:24
+msgid "Donate to the Packaging Working Group"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:27
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Upgrade your browser</a> to set up two factor authentication with a "
+#| "security device (e.g. USB key)"
+msgid ""
+"The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Packaging Working Group</a> is a work group of the Python Software "
+"Foundation which raises and distributes funds to improve Python's packaging "
+"ecosystem."
+msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Tingkatkan peramban Anda</a> untuk menyiapkan otentikasi dua faktor "
+"dengan perangkat keamanan (misal. kunci USB)"
+
+#: warehouse/templates/pages/sponsor.html:29
+msgid "Recent projects funded through the working group include:"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:32
+msgid ""
+"The successful relaunch of the Python Package Index, powered by the new "
+"'Warehouse' codebase"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:33
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
+#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
+#| "public dataset on Google BigQuery</a>"
+msgid ""
+"With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">$170,000 in funding</a> from the <a href=\"%(funder_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Mozilla Open Source "
+"Support Program</a> in 2018"
+msgstr ""
+"Lihat statistik untuk proyek ini melalui <a href=\"%(libs_io_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, atau "
+"dengan menggunakan <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">himpunan data publik kami di Google BigQuery</a>"
+
+#: warehouse/templates/pages/sponsor.html:36
+msgid ""
+"Improving PyPI's security and accessibility, and adding support for multiple "
+"locales"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:37
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"With $80,000 in funding from the <a href=\"%(funder_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Open Technology Fund</a> in "
+"2019"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:40
+msgid "Additional security-focused features for PyPI"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:41
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
+#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
+#| "public dataset on Google BigQuery</a>"
+msgid ""
+"With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">$100,000 in funding</a> from <a href=\"%(funder_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Facebook Research</a> in "
+"2019 and 2020"
+msgstr ""
+"Lihat statistik untuk proyek ini melalui <a href=\"%(libs_io_href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, atau "
+"dengan menggunakan <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener"
+"\">himpunan data publik kami di Google BigQuery</a>"
+
+#: warehouse/templates/pages/sponsor.html:44
+msgid "Overhauling pip's user experience and dependency resolver"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:45
+#, python-format
+msgid ""
+"With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">$407,000 in funding</a> from the <a href=\"%(funder0_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Chan Zuckerberg "
+"Initiative</a> and the <a href=\"%(funder1_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Mozilla Open Source Support Program</a> "
+"in 2020"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:49
+msgid ""
+"With your support, the working group can continue to fund packaging "
+"improvements, benefiting millions of Python users around the world."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:57
+msgid "Community donations"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:60
+msgid "We greatly appreciate both one-time and recurring donations."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:61
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">your donation may be tax-deductible</a>."
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:62
+msgid "Every donation counts!"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:65
+#, fuzzy
+#| msgid "Donate"
+msgid "Donate here"
+msgstr "Donasi"
+
+#: warehouse/templates/pages/sponsor.html:66
+#, python-format
+msgid ""
+"Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:77
+msgid "Get your logo on PyPI.org"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:78
+msgid ""
+"Looking for brand visibility? In the last year*, 21.1 million people from "
+"237 countries visited PyPI.org."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:79
+msgid "* Data as of March 2020"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:82
+msgid "Strengthen the Python ecosystem"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:83
+msgid ""
+"Funds raised by the packaging working group go directly towards improving "
+"the tools your company uses every day."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:86
+msgid "Boost your reputation"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:87
+msgid ""
+"Enhance your company's reputation by investing in Python and the open source "
+"community."
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:96
+#, fuzzy
+#| msgid "Uploading packages"
+msgid "Sponsorship packages"
+msgstr "Mengunggah packages"
+
+#: warehouse/templates/pages/sponsor.html:97
+msgid "All figures are in USD"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:106
+msgid "Lifetime"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:107
+msgid "One time donation of $1,000,000"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:111
+msgid ""
+"Logo in a prominent position on the PyPI project detail page, <strong>in "
+"perpetuity</strong>"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:112
+#: warehouse/templates/pages/sponsor.html:133
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
+"blog</a>"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:116
+#: warehouse/templates/pages/sponsor.html:139
+#: warehouse/templates/pages/sponsor.html:162
+#: warehouse/templates/pages/sponsor.html:185
+#: warehouse/templates/pages/sponsor.html:207
+#: warehouse/templates/pages/sponsor.html:228
+#: warehouse/templates/pages/sponsor.html:250
+msgid "Become a sponsor"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:125
+msgid "Diamond"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:126
+msgid "$50,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:130
+msgid ""
+"Logo in a <strong>prominent position</strong> on the PyPI project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:131
+#: warehouse/templates/pages/sponsor.html:154
+#: warehouse/templates/pages/sponsor.html:177
+msgid "Logo on the PyPI footer"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:132
+#: warehouse/templates/pages/sponsor.html:155
+#: warehouse/templates/pages/sponsor.html:178
+#: warehouse/templates/pages/sponsor.html:243
+#, python-format
+msgid ""
+"Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI sponsors "
+"page</a>"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:134
+#: warehouse/templates/pages/sponsor.html:157
+#: warehouse/templates/pages/sponsor.html:180
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+"Foundation</a>"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:135
+#: warehouse/templates/pages/sponsor.html:158
+#: warehouse/templates/pages/sponsor.html:181
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
+"a>"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:148
+msgid "Platinum"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:149
+msgid "$30,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:153
+msgid ""
+"Logo on <strong>high rotation</strong> in a prominent position on the PyPI "
+"project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:156
+#: warehouse/templates/pages/sponsor.html:179
+#: warehouse/templates/pages/sponsor.html:201
+#: warehouse/templates/pages/sponsor.html:222
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
+"<strong>with other sponsors</strong> whose sponsorship commenced during the "
+"same quarter"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:171
+msgid "Gold"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:172
+msgid "$20,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:176
+msgid ""
+"Logo on <strong>medium rotation</strong> in a prominent position on the PyPI "
+"project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:194
+msgid "Silver"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:195
+msgid "$10,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:199
+msgid ""
+"Logo on <strong>low rotation</strong> in a prominent position on the PyPI "
+"project detail page"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:200
+#: warehouse/templates/pages/sponsor.html:221
+#, fuzzy, python-format
+#| msgid "Or <a href=\"%(href)s\">browse projects</a>"
+msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
+msgstr "Atau <a href=\"%(href)s\"> jelajahi proyek </a>"
+
+#: warehouse/templates/pages/sponsor.html:202
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+"Foundation</a>"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:203
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
+"a>"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:216
+msgid "Bronze"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:217
+msgid "$5,000 per year, or equivalent in donated services"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:223
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
+"a> (on initial sponsorship, and on each subsequent renewal)"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:224
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a> "
+"(on initial sponsorship, and on each subsequent renewal)"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:238
+msgid "One time grants / custom donations"
+msgstr ""
+
+#: warehouse/templates/pages/sponsor.html:239
+#, fuzzy, python-format
+#| msgid ""
+#| "For more information on uploading projects to PyPI, visit the <a href="
+#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Python Packaging User Guide</a>."
+msgid ""
+"Sponsorship of a specific feature, feature set, or community sprint, valued "
+"at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"\" rel=\"noopener\">fundable packaging improvements</a> for ideas."
+msgstr ""
+"Untuk informasi lebih lanjut tentang mengunggah proyek ke PyPI, kunjungi <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Panduan Pengguna Packaging Python</a>."
+
+#: warehouse/templates/pages/sponsor.html:244
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
+"blog</a>, explaining what the funds will be used for"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:245
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
+"a>"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:246
+#, fuzzy, python-format
+#| msgid ""
+#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+msgid ""
+"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a>"
+msgstr ""
+"Pelajari cara mengunggah berkas di <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\"> Panduan Pengguna Pengemasan Python </a>"
+
+#: warehouse/templates/pages/sponsor.html:248
+msgid ""
+"Note: A record of working group grants will be listed on the PyPI "
+"sponsorship page in perpetuity."
 msgstr ""
 
 #: warehouse/templates/pages/stats.html:21

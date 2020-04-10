@@ -42,7 +42,6 @@ from warehouse.email import (
     send_two_factor_added_email,
     send_two_factor_removed_email,
 )
-from warehouse.i18n import localize as _
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -172,7 +171,9 @@ class ManageAccountViews:
         )
 
         if form.validate():
-            email = self.user_service.add_email(self.request.user.id, form.email.data)
+            email = self.user_service.add_email(
+                self.request.user.id, form.email.data, self.request.remote_addr
+            )
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:email:add",
@@ -183,7 +184,7 @@ class ManageAccountViews:
             send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
-                _(
+                self.request._(
                     "Email ${email_address} added - check your email for "
                     "a verification link",
                     mapping={"email_address": email.email},
@@ -664,7 +665,7 @@ class ProvisionRecoveryCodesViews:
     def recovery_codes_generate(self):
         if not self.user_service.has_two_factor(self.request.user.id):
             self.request.session.flash(
-                _(
+                self.request._(
                     "You must provision a two factor method before recovery "
                     "codes can be generated"
                 ),
@@ -675,8 +676,8 @@ class ProvisionRecoveryCodesViews:
         if self.user_service.has_recovery_codes(self.request.user.id):
             return {
                 "recovery_codes": None,
-                "_error": _("Recovery codes already generated"),
-                "_message": _(
+                "_error": self.request._("Recovery codes already generated"),
+                "_message": self.request._(
                     "Generating new recovery codes will invalidate your existing codes."
                 ),
             }
@@ -700,7 +701,7 @@ class ProvisionRecoveryCodesViews:
     def recovery_codes_regenerate(self):
         if not self.user_service.has_two_factor(self.request.user.id):
             self.request.session.flash(
-                _(
+                self.request._(
                     "You must provision a two factor method before recovery "
                     "codes can be generated"
                 ),
@@ -726,7 +727,9 @@ class ProvisionRecoveryCodesViews:
                 )
             }
 
-        self.request.session.flash(_("Invalid credentials. Try again"), queue="error")
+        self.request.session.flash(
+            self.request._("Invalid credentials. Try again"), queue="error"
+        )
         return HTTPSeeOther(self.request.route_path("manage.account"))
 
 

@@ -138,7 +138,7 @@ def test_includeme():
     config = pretend.stub(
         add_translation_dirs=pretend.call_recorder(lambda s: None),
         set_locale_negotiator=pretend.call_recorder(lambda f: None),
-        add_request_method=pretend.call_recorder(lambda f, name, reify: None),
+        add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
         get_settings=lambda: config_settings,
         add_view_deriver=pretend.call_recorder(lambda f, over, under: None),
     )
@@ -148,7 +148,8 @@ def test_includeme():
     assert config.add_translation_dirs.calls == [pretend.call("warehouse:locale/")]
     assert config.set_locale_negotiator.calls == [pretend.call(i18n._negotiate_locale)]
     assert config.add_request_method.calls == [
-        pretend.call(i18n._locale, name="locale", reify=True)
+        pretend.call(i18n._locale, name="locale", reify=True),
+        pretend.call(i18n._localize, name="_"),
     ]
     assert config.add_view_deriver.calls == [
         pretend.call(

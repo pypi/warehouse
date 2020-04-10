@@ -31,6 +31,7 @@ KNOWN_LOCALES = {
     "el": "Ελληνικά",  # Greek
     "de": "Deutsch",  # German
     "zh_Hans": "简体中文",  # Simplified Chinese
+    "ru": "Русский",  # Russian
 }
 
 LOCALE_ATTR = "_LOCALE_"
@@ -85,12 +86,24 @@ def _negotiate_locale(request):
     )
 
 
-def localize(message, **kwargs):
-    def _localize(message, **kwargs):
-        request = get_current_request()
-        return request.localizer.translate(_translation_factory(message, **kwargs))
+def _localize(request, message, **kwargs):
+    """
+    To be used on the request directly, e.g. `request._(message)`
+    """
+    return request.localizer.translate(_translation_factory(message, **kwargs))
 
-    return LazyString(_localize, message, **kwargs)
+
+def localize(message, **kwargs):
+    """
+    To be used when we don't have the request context, e.g.
+    `from warehouse.i18n import localize as _`
+    """
+
+    def _lazy_localize(message, **kwargs):
+        request = get_current_request()
+        return _localize(request, message, **kwargs)
+
+    return LazyString(_lazy_localize, message, **kwargs)
 
 
 class InvalidLocalizer:
@@ -159,6 +172,7 @@ translated_view.options = {"has_translations"}
 def includeme(config):
     # Add the request attributes
     config.add_request_method(_locale, name="locale", reify=True)
+    config.add_request_method(_localize, name="_")
 
     # Register our translation directory.
     config.add_translation_dirs("warehouse:locale/")
