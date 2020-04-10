@@ -60,7 +60,7 @@ msgstr "該用戶名已被另一個帳戶使用。 選擇其他用戶名。"
 msgid "The password is invalid. Try again."
 msgstr "密碼無效。 再試一次。"
 
-#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:65
+#: warehouse/accounts/forms.py:126 warehouse/accounts/views.py:66
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "登錄嘗試失敗的次數過多。稍後再試。"
 
@@ -109,123 +109,129 @@ msgstr "無效的重設碼。"
 msgid "No user found with that username or email"
 msgstr "找不到使用該用戶名或電子郵件的用戶"
 
-#: warehouse/accounts/views.py:205 warehouse/accounts/views.py:261
-#: warehouse/accounts/views.py:262 warehouse/accounts/views.py:288
-#: warehouse/accounts/views.py:289 warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:83
+msgid ""
+"Too many emails have been added to this account without verifying them. "
+"Check your inbox and follow the verification links."
+msgstr ""
+
+#: warehouse/accounts/views.py:220 warehouse/accounts/views.py:278
+#: warehouse/accounts/views.py:280 warehouse/accounts/views.py:307
+#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:364
 msgid "Invalid or expired two factor login."
 msgstr "兩階段驗證登入失效或過期。"
 
-#: warehouse/accounts/views.py:256
+#: warehouse/accounts/views.py:272
 msgid "Already authenticated"
 msgstr "身份已經驗證過"
 
-#: warehouse/accounts/views.py:320
+#: warehouse/accounts/views.py:340
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 斷言"
 
-#: warehouse/accounts/views.py:371
+#: warehouse/accounts/views.py:393
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "重設碼已接受，將無法再次使用。"
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:479
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/accounts/views.py:552
+#: warehouse/accounts/views.py:578
 msgid "Expired token: request a new password reset link"
 msgstr "token 過期：請求新的密碼重設連結"
 
-#: warehouse/accounts/views.py:554
+#: warehouse/accounts/views.py:580
 #, fuzzy
 msgid "Invalid token: request a new password reset link"
 msgstr "token 無效：請求新的密碼重置連結"
 
-#: warehouse/accounts/views.py:556 warehouse/accounts/views.py:634
+#: warehouse/accounts/views.py:582 warehouse/accounts/views.py:665
 msgid "Invalid token: no token supplied"
 msgstr "token 無效：未提供 token"
 
-#: warehouse/accounts/views.py:560
+#: warehouse/accounts/views.py:586
 #, fuzzy
 msgid "Invalid token: not a password reset token"
 msgstr "token 無效：不是密碼重置 token"
 
-#: warehouse/accounts/views.py:565
+#: warehouse/accounts/views.py:591
 #, fuzzy
 msgid "Invalid token: user not found"
 msgstr "token 無效：找不到用戶"
 
-#: warehouse/accounts/views.py:572
+#: warehouse/accounts/views.py:598
 #, fuzzy
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "token 無效：自請求 token 後，使用者已經登錄"
 
-#: warehouse/accounts/views.py:579
+#: warehouse/accounts/views.py:607
 #, fuzzy
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "token 無效：自請求 token 後，密碼已經更改"
 
-#: warehouse/accounts/views.py:605
+#: warehouse/accounts/views.py:634
 msgid "You have reset your password"
 msgstr "您已重置密碼"
 
-#: warehouse/accounts/views.py:630
+#: warehouse/accounts/views.py:661
 #, fuzzy
 msgid "Expired token: request a new email verification link"
 msgstr "token 過期：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:632
+#: warehouse/accounts/views.py:663
 #, fuzzy
 msgid "Invalid token: request a new email verification link"
 msgstr "token 無效：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:638
+#: warehouse/accounts/views.py:669
 #, fuzzy
 msgid "Invalid token: not an email verification token"
 msgstr "token 無效：不是電子郵件驗證 token"
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:678
 msgid "Email not found"
 msgstr "未找到電子郵件"
 
-#: warehouse/accounts/views.py:650
+#: warehouse/accounts/views.py:681
 msgid "Email already verified"
 msgstr "已驗證的電子郵件"
 
-#: warehouse/accounts/views.py:662
+#: warehouse/accounts/views.py:696
 msgid "You can now set this email as your primary address"
 msgstr "您現在可以將此電子郵件設定為您的主位址"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:700
 msgid "This is your primary address"
 msgstr "這是您的主地址"
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:705
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "已驗證電子郵件地址 ${email_address} 。${confirm_message}。"
 
-#: warehouse/manage/views.py:186
+#: warehouse/manage/views.py:187
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "已添加電子郵件 ${email_address} - 檢查您的電子郵件以查看驗證連結"
 
-#: warehouse/manage/views.py:667 warehouse/manage/views.py:703
+#: warehouse/manage/views.py:668 warehouse/manage/views.py:704
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 
-#: warehouse/manage/views.py:678
+#: warehouse/manage/views.py:679
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views.py:679
+#: warehouse/manage/views.py:680
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views.py:729
+#: warehouse/manage/views.py:731
 msgid "Invalid credentials. Try again"
 msgstr ""
 
@@ -4292,12 +4298,19 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:559
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "For more information on uploading projects to PyPI, visit the <a href="
+#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">Python Packaging User Guide</a>."
 msgid ""
-"You can proceed to, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">file an issue on our tracker</a> to request assistance "
 "with account recovery."
 msgstr ""
+"有關將專案上傳到 PyPI 的詳細資訊，請訪問 <a href=\"%(href)s\" title="
+"\"%(title)s\" target=\"_blank\" rel=\"noopener\"> Python 打包使用者指南 </"
+"a>。"
 
 #: warehouse/templates/pages/help.html:566
 msgid "If you are using a username and password for uploads:"
