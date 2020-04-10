@@ -132,8 +132,6 @@ def build_targets(config):
         consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"]
     )
 
-    # TODO: This can't be done yet, since TUF doesn't have an API for
-    # adding additional/custom data to bin-delegated targets.
     # Collect the "paths" for every PyPI package. These are packages already in
     # existence, so we'll add some additional data to their targets to
     # indicate that we're back-signing them.
