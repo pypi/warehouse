@@ -1,21 +1,17 @@
-# Translations template for Warehouse.
-# Copyright (C) 2019 PyPA
-# This file is distributed under the same license as the Warehouse project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Helen Bire <helenapocali@gmail.com>, 2019.
+# Matěj Volf <mat.volfik@gmail.com>, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: Warehouse VERSION\n"
-"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
-"POT-Creation-Date: 2020-01-15 20:11+0200\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-10 13:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
-"Language: am\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.7.0\n"
+"X-Generator: Translate Toolkit 2.5.0\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -689,6 +685,7 @@ msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/index.html:74
 #, python-format
@@ -696,6 +693,7 @@ msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/index.html:81
 #, python-format
@@ -703,6 +701,7 @@ msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/index.html:88
 #, python-format
@@ -710,6 +709,7 @@ msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/index.html:105
 msgid ""
@@ -882,6 +882,7 @@ msgid_plural ""
 "          "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/accounts/profile.html:64
 msgid "No projects"
@@ -1262,6 +1263,7 @@ msgid "This link will expire in %(n_hours)s hour."
 msgid_plural "This link will expire in %(n_hours)s hours."
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
@@ -2154,6 +2156,7 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/manage/account.html:704
 msgid ""
@@ -2168,6 +2171,7 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/manage/account.html:714
 #, python-format
@@ -2587,6 +2591,7 @@ msgid_plural ""
 "      "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/manage/release.html:135
 msgid "Deleting will irreversibly delete this release."
@@ -2647,6 +2652,7 @@ msgid_plural ""
 "            "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/manage/releases.html:54
 msgid "No files"
@@ -2816,6 +2822,7 @@ msgid_plural ""
 "releases</a>"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/manage/settings.html:68
 msgid "Irreversibly delete the project"
@@ -5197,6 +5204,7 @@ msgid_plural ""
 "              "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/search/results.html:149
 #, python-format
@@ -5214,6 +5222,7 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: warehouse/templates/search/results.html:169
 msgid "Order by"
@@ -5256,3 +5265,4 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""

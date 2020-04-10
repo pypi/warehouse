@@ -29,23 +29,36 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailsAdded,
     TooManyFailedLogins,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
 
 class TestFailedLoginView:
-    def test_too_many_failed_logins(self):
+    def test_too_many_failed_logins(self, pyramid_request):
         exc = TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
-        request = pretend.stub(localizer=pretend.stub(translate=lambda tsf: tsf()))
 
-        resp = views.failed_logins(exc, request)
+        resp = views.failed_logins(exc, pyramid_request)
 
         assert resp.status == "429 Too Many Failed Login Attempts"
         assert resp.detail == (
             "There have been too many unsuccessful login attempts. Try again later."
+        )
+        assert dict(resp.headers).get("Retry-After") == "600"
+
+    def test_too_many_emails_added(self, pyramid_request):
+        exc = TooManyEmailsAdded(resets_in=datetime.timedelta(seconds=600))
+
+        resp = views.unverified_emails(exc, pyramid_request)
+
+        assert resp.status == "429 Too Many Requests"
+        assert resp.detail == (
+            "Too many emails have been added to this account without verifying "
+            "them. Check your inbox and follow the verification links."
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
@@ -643,72 +656,70 @@ class TestTwoFactor:
         ]
         assert result == {"totp_form": form_obj}
 
-    def test_two_factor_token_missing_userid(self):
+    def test_two_factor_token_missing_userid(self, pyramid_request):
         token_service = pretend.stub(
             loads=pretend.call_recorder(lambda *a, **kw: ({}, None))
         )
 
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
-                interface
-            ],
-            query_string=pretend.stub(),
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        result = views.two_factor_and_totp_validate(request)
+        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service
+        }[interface]
+        pyramid_request.query_string = pretend.stub()
+        result = views.two_factor_and_totp_validate(pyramid_request)
 
         assert token_service.loads.calls == [
-            pretend.call(request.query_string, return_timestamp=True)
+            pretend.call(pyramid_request.query_string, return_timestamp=True)
         ]
-        assert request.route_path.calls == [pretend.call("accounts.login")]
-        assert request.session.flash.calls == [
+        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
 
-    def test_two_factor_token_invalid(self):
+    def test_two_factor_token_invalid(self, pyramid_request):
         token_service = pretend.stub(loads=pretend.raiser(TokenException))
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
-                interface
-            ],
-            query_string=pretend.stub(),
-        )
 
-        result = views.two_factor_and_totp_validate(request)
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service
+        }[interface]
+        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
+
+        result = views.two_factor_and_totp_validate(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
 
 
 class TestWebAuthn:
-    def test_webauthn_get_options_already_authenticated(self):
-        request = pretend.stub(authenticated_userid=pretend.stub())
+    def test_webauthn_get_options_already_authenticated(self, pyramid_request):
+        request = pretend.stub(authenticated_userid=pretend.stub(), _=lambda a: a)
         result = views.webauthn_authentication_options(request)
 
         assert result == {"fail": {"errors": ["Already authenticated"]}}
 
-    def test_webauthn_get_options_invalid_token(self, monkeypatch):
+    def test_webauthn_get_options_invalid_token(self, monkeypatch, pyramid_request):
         _get_two_factor_data = pretend.raiser(TokenException)
         monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
 
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        result = views.webauthn_authentication_options(request)
 
-        assert request.session.flash.calls == [
+        result = views.webauthn_authentication_options(pyramid_request)
+
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
         assert result == {"fail": {"errors": ["Invalid or expired two factor login."]}}
@@ -745,17 +756,17 @@ class TestWebAuthn:
 
         assert result == {"fail": {"errors": ["Already authenticated"]}}
 
-    def test_webauthn_validate_invalid_token(self, monkeypatch):
+    def test_webauthn_validate_invalid_token(self, monkeypatch, pyramid_request):
         _get_two_factor_data = pretend.raiser(TokenException)
         monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
 
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        result = views.webauthn_authentication_validate(request)
 
-        assert request.session.flash.calls == [
+        result = views.webauthn_authentication_validate(pyramid_request)
+
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
         assert result == {"fail": {"errors": ["Invalid or expired two factor login."]}}
@@ -795,7 +806,7 @@ class TestWebAuthn:
 
         assert result == {"fail": {"errors": ["Fake validation failure"]}}
 
-    def test_webauthn_validate(self, monkeypatch):
+    def test_webauthn_validate(self, monkeypatch, pyramid_request):
         _get_two_factor_data = pretend.call_recorder(
             lambda r: {"redirect_to": "foobar", "userid": 1}
         )
@@ -812,23 +823,11 @@ class TestWebAuthn:
                 lambda *a: pretend.stub()
             ),
         )
-
-        request = pretend.stub(
-            authenticated_userid=None,
-            POST={},
-            session=pretend.stub(
-                get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
-            ),
-            find_service=lambda *a, **kw: user_service,
-            host_url=pretend.stub(),
-            registry=pretend.stub(settings=pretend.stub(get=lambda *a: pretend.stub())),
-            rp_id=pretend.stub(),
-            domain=pretend.stub(),
-            response=pretend.stub(
-                set_cookie=pretend.call_recorder(lambda *a: pretend.stub())
-            ),
+        pyramid_request.session = pretend.stub(
+            get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
+            clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
         )
+        pyramid_request.find_service = lambda *a, **kw: user_service
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -838,14 +837,16 @@ class TestWebAuthn:
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
         monkeypatch.setattr(views, "WebAuthnAuthenticationForm", form_class)
 
-        result = views.webauthn_authentication_validate(request)
+        result = views.webauthn_authentication_validate(pyramid_request)
 
-        assert _get_two_factor_data.calls == [pretend.call(request)]
+        assert _get_two_factor_data.calls == [pretend.call(pyramid_request)]
         assert _login_user.calls == [
-            pretend.call(request, 1, two_factor_method="webauthn")
+            pretend.call(pyramid_request, 1, two_factor_method="webauthn")
         ]
-        assert request.session.get_webauthn_challenge.calls == [pretend.call()]
-        assert request.session.clear_webauthn_challenge.calls == [pretend.call()]
+        assert pyramid_request.session.get_webauthn_challenge.calls == [pretend.call()]
+        assert pyramid_request.session.clear_webauthn_challenge.calls == [
+            pretend.call()
+        ]
 
         assert result == {
             "success": "Successful WebAuthn assertion",
@@ -866,24 +867,22 @@ class TestRecoveryCode:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
 
-    def test_two_factor_token_invalid(self):
+    def test_two_factor_token_invalid(self, pyramid_request):
         token_service = pretend.stub(loads=pretend.raiser(TokenException))
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
-                interface
-            ],
-            query_string=pretend.stub(),
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service
+        }[interface]
 
-        result = views.recovery_code(request)
+        result = views.recovery_code(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
-        assert request.route_path.calls == [pretend.call("accounts.login")]
+        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
         assert result.headers["Location"] == "redirect_to"
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
 
@@ -1061,23 +1060,21 @@ class TestRecoveryCode:
         ]
         assert result == {"form": form_obj}
 
-    def test_recovery_code_auth_invalid_token(self):
+    def test_recovery_code_auth_invalid_token(self, pyramid_request):
         token_service = pretend.stub(loads=pretend.raiser(TokenException))
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
-            route_path=pretend.call_recorder(lambda p: "redirect_to"),
-            find_service=lambda interface, **kwargs: {ITokenService: token_service}[
-                interface
-            ],
-            query_string=pretend.stub(),
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        pyramid_request.route_path = pretend.call_recorder(lambda p: "redirect_to")
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service
+        }[interface]
 
-        result = views.recovery_code(request)
+        result = views.recovery_code(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "redirect_to"
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
         ]
 
@@ -1227,9 +1224,11 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert create_user.calls == [
-            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
+            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd",)
         ]
-        assert add_email.calls == [pretend.call(user.id, "foo@bar.com", primary=True)]
+        assert add_email.calls == [
+            pretend.call(user.id, "foo@bar.com", db_request.remote_addr, primary=True)
+        ]
         assert send_email.calls == [pretend.call(db_request, (user, email))]
         assert record_event.calls == [
             pretend.call(
@@ -1770,8 +1769,13 @@ class TestVerifyEmail:
         token_service.loads = pretend.call_recorder(
             lambda token: {"action": "email-verify", "email.id": str(email.id)}
         )
+        email_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
+        services = {
+            "email": token_service,
+            "email.add": email_limiter,
+        }
         db_request.find_service = pretend.call_recorder(
-            lambda *a, **kwargs: token_service
+            lambda a, name, **kwargs: services[name]
         )
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
@@ -1784,6 +1788,7 @@ class TestVerifyEmail:
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [pretend.call("manage.account")]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
+        assert email_limiter.clear.calls == [pretend.call(db_request.remote_addr)]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Email address {email.email} verified. " + confirm_message,
@@ -1791,7 +1796,8 @@ class TestVerifyEmail:
             )
         ]
         assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
+            pretend.call(ITokenService, name="email"),
+            pretend.call(IRateLimiter, name="email.add"),
         ]
 
     @pytest.mark.parametrize(
