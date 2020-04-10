@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailsAdded,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
@@ -73,6 +74,17 @@ def failed_logins(exc, request):
     resp.status = "{} {}".format(resp.status_code, "Too Many Failed Login Attempts")
 
     return resp
+
+
+@view_config(context=TooManyEmailsAdded, has_translations=True)
+def unverified_emails(exc, request):
+    return HTTPTooManyRequests(
+        _(
+            "Too many emails have been added to this account without verifying "
+            "them. Check your inbox and follow the verification links."
+        ),
+        retry_after=exc.resets_in.total_seconds(),
+    )
 
 
 @view_config(

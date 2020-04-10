@@ -29,6 +29,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailsAdded,
     TooManyFailedLogins,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -47,6 +48,19 @@ class TestFailedLoginView:
         assert resp.status == "429 Too Many Failed Login Attempts"
         assert resp.detail == (
             "There have been too many unsuccessful login attempts. Try again later."
+        )
+        assert dict(resp.headers).get("Retry-After") == "600"
+
+    def test_too_many_emails_added(self):
+        exc = TooManyEmailsAdded(resets_in=datetime.timedelta(seconds=600))
+        request = pretend.stub(localizer=pretend.stub(translate=lambda tsf: tsf()))
+
+        resp = views.unverified_emails(exc, request)
+
+        assert resp.status == "429 Too Many Requests"
+        assert resp.detail == (
+            "Too many emails have been added to this account without verifying "
+            "them. Check your inbox and follow the verification links."
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
