@@ -109,69 +109,69 @@ msgid ""
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:570
+#: warehouse/accounts/views.py:567
 msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:572
+#: warehouse/accounts/views.py:569
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:574 warehouse/accounts/views.py:653
+#: warehouse/accounts/views.py:571 warehouse/accounts/views.py:650
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:578
+#: warehouse/accounts/views.py:575
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:583
+#: warehouse/accounts/views.py:580
 msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:590
+#: warehouse/accounts/views.py:587
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:597
+#: warehouse/accounts/views.py:594
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:623
+#: warehouse/accounts/views.py:620
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:649
+#: warehouse/accounts/views.py:646
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:651
+#: warehouse/accounts/views.py:648
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:657
+#: warehouse/accounts/views.py:654
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:663
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:666
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:684
+#: warehouse/accounts/views.py:681
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:686
+#: warehouse/accounts/views.py:683
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:691
+#: warehouse/accounts/views.py:688
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
