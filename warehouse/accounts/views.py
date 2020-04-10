@@ -64,7 +64,9 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 @view_config(context=TooManyFailedLogins, has_translations=True)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        _("There have been too many unsuccessful login attempts. Try again later."),
+        request._(
+            "There have been too many unsuccessful login attempts. Try again later."
+        ),
         retry_after=exc.resets_in.total_seconds(),
     )
 
@@ -79,7 +81,7 @@ def failed_logins(exc, request):
 @view_config(context=TooManyEmailsAdded, has_translations=True)
 def unverified_emails(exc, request):
     return HTTPTooManyRequests(
-        _(
+        request._(
             "Too many emails have been added to this account without verifying "
             "them. Check your inbox and follow the verification links."
         ),

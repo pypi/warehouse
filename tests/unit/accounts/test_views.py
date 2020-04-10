@@ -41,7 +41,7 @@ from ...common.db.accounts import EmailFactory, UserFactory
 class TestFailedLoginView:
     def test_too_many_failed_logins(self):
         exc = TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
-        request = pretend.stub(localizer=pretend.stub(translate=lambda tsf: tsf()))
+        request = pretend.stub(_=lambda message: message)
 
         resp = views.failed_logins(exc, request)
 
@@ -53,7 +53,7 @@ class TestFailedLoginView:
 
     def test_too_many_emails_added(self):
         exc = TooManyEmailsAdded(resets_in=datetime.timedelta(seconds=600))
-        request = pretend.stub(localizer=pretend.stub(translate=lambda tsf: tsf()))
+        request = pretend.stub(_=lambda message: message)
 
         resp = views.unverified_emails(exc, request)
 
