@@ -115,7 +115,6 @@ class Project(SitemapMixin, db.Model):
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
-    allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
 
     total_size = Column(BigInteger, server_default=sql.text("0"))

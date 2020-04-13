@@ -142,11 +142,7 @@ def _valid_platform_tag(platform_tag):
 _error_message_order = ["metadata_version", "name", "version"]
 
 
-_dist_file_regexes = {
-    # True/False is for legacy or not.
-    True: re.compile(r".+?\.(exe|tar\.gz|bz2|rpm|deb|zip|tgz|egg|dmg|msi|whl)$", re.I),
-    False: re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I),
-}
+_dist_file_re = re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I)
 
 
 _wheel_file_re = re.compile(
@@ -500,17 +496,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
-                [
-                    "bdist_dmg",
-                    "bdist_dumb",
-                    "bdist_egg",
-                    "bdist_msi",
-                    "bdist_rpm",
-                    "bdist_wheel",
-                    "bdist_wininst",
-                    "sdist",
-                ],
-                message="Use a known file type.",
+                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type.",
             ),
         ]
     )
@@ -1171,7 +1157,7 @@ def file_upload(request):
         )
 
     # Make sure the filename ends with an allowed extension.
-    if _dist_file_regexes[project.allow_legacy_files].search(filename) is None:
+    if _dist_file_re.search(filename) is None:
         raise _exc_with_message(
             HTTPBadRequest,
             "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
@@ -1192,16 +1178,6 @@ def file_upload(request):
         "image/"
     ):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
-
-    # Ensure that the package filetype is allowed.
-    # TODO: Once PEP 527 is completely implemented we should be able to delete
-    #       this and just move it into the form itself.
-    if not project.allow_legacy_files and form.filetype.data not in {
-        "sdist",
-        "bdist_wheel",
-        "bdist_egg",
-    }:
-        raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
 
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file

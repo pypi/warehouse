@@ -1513,7 +1513,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Unknown type of file."
+        assert (
+            resp.status
+            == "400 Invalid value for filetype. Error: Use a known file type."
+        )
 
     def test_upload_fails_with_legacy_ext(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -2518,106 +2521,6 @@ class TestFileUpload:
                 "10.10.10.30",
             )
         ]
-
-    def test_upload_succeeds_with_legacy_ext(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
-    ):
-        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
-
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create(allow_legacy_files=True)
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = "{}-{}.tar.bz2".format(project.name, release.version)
-
-        db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "pyversion": "source",
-                "md5_digest": _TAR_BZ2_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_BZ2_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                assert fp.read() == _TAR_BZ2_PKG_TESTDATA
-
-        storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-    def test_upload_succeeds_with_legacy_type(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
-    ):
-        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
-
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create(allow_legacy_files=True)
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = "{}-{}.tar.gz".format(project.name, release.version)
-
-        db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "bdist_dumb",
-                "pyversion": "3.5",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                assert fp.read() == _TAR_GZ_PKG_TESTDATA
-
-        storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-
-        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
 
     @pytest.mark.parametrize("plat", ["linux_x86_64", "linux_x86_64.win32"])
     def test_upload_fails_with_unsupported_wheel_plat(
