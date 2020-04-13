@@ -49,9 +49,9 @@ coverage==5.1 \
 factory-boy==2.12.0 \
     --hash=sha256:728df59b372c9588b83153facf26d3d28947fc750e8e3c95cefa9bed0e6394ee \
     --hash=sha256:faf48d608a1735f0d0a3c9cbf536d64f9132b547dae7ba452c4d99a79e84a370
-faker==4.0.2 \
-    --hash=sha256:2d3f866ef25e1a5af80e7b0ceeacc3c92dec5d0fdbad3e2cb6adf6e60b22188f \
-    --hash=sha256:b89aa33837498498e15c709eb40c31386408a901a53c7a5e12a425737a767976
+faker==4.0.3 \
+    --hash=sha256:53bf2c8a2de8af271466e7b9cc2f08ecf83c4c947981680eb61080779a0adace \
+    --hash=sha256:7292806948ed848f1bcea1e7b963bae6f398687d1da0ea096e156fea2787f454
 fakeredis==1.4.0 \
     --hash=sha256:bcb2faeabb1bd7ff2fecaff9b2a47ebfaf31700ee260a2ef66c6cf041d7a78df \
     --hash=sha256:d7e8b198ce5cce85374c6bca69bf372cc090d33938f0453c4262df7b281c7c88
