@@ -48,7 +48,7 @@ class TOTPValueMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                rf"^[0-9]{{{TOTP_LENGTH}}}$",
+                rf"^ *([0-9] *){{{TOTP_LENGTH}}}$",
                 message=_(
                     "TOTP code must be ${totp_length} digits.",
                     mapping={"totp_length": TOTP_LENGTH},
@@ -296,7 +296,7 @@ class _TwoFactorAuthenticationForm(forms.Form):
 
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
-        totp_value = field.data.encode("utf8")
+        totp_value = field.data.replace(" ", "").encode("utf8")
 
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
