@@ -650,9 +650,9 @@ six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
     # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
-sqlalchemy-citext==1.6.post1 \
-    --hash=sha256:1b11d51efc9b772142e22fceb260793265e01f300fdd3af83b0be31cdfb7a5ca \
-    --hash=sha256:8da1ea1b7deba4d1884961bd8a03fe1fd2bb2b3242e849e7696401c1fb4d4606 \
+sqlalchemy-citext==1.6.2 \
+    --hash=sha256:b79b4e34f23fcd5cd45afe6d7b51743d9f838c0f34ecf75e0367e5f88f75aca9 \
+    --hash=sha256:e3ae75414c1480f39aea39919e818932122ace9b0b5f35c663f1744f4396f918 \
     # via -r requirements/main.in
 sqlalchemy==1.3.16 \
     --hash=sha256:7224e126c00b8178dfd227bc337ba5e754b197a3867d33b9f30dc0208f773d70 \
