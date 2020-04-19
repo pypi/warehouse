@@ -33,7 +33,7 @@
               &nbsp;&nbsp;
               <span class="break">{{ user.username }}</span>
             </p>
-            {% if user.public_email %}
+            {% if user.public_email is defined and user.public_email is sameas true and user.public_email|length %}
             {% csi request.route_url("includes.profile-public-email", username=user.username), 'p' %}
             {% endcsi %}
             {% endif %}
