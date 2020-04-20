@@ -27,22 +27,22 @@
           <h1 class="author-profile__name">{{ user.name }}</h1>
           {% endif %}
           <div class="author-profile__meta">
-            <p>
+            <div class="author-profile__metadiv">
               <i class="fa fa-user-circle" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Username{% endtrans %}</span>
               &nbsp;&nbsp;
               <span class="break">{{ user.username }}</span>
-            </p>
-            {% if user.public_email is defined and user.public_email is not none and user.public_email|length %}
-            {% csi request.route_url("includes.profile-public-email", username=user.username), 'p' %}
+            </div>
+            {% if user.public_email %}
+            {% csi request.route_url("includes.profile-public-email", username=user.username), 'div class="author-profile__metadiv"' %}
             {% endcsi %}
             {% endif %}
             {% if user.date_joined %}
-            <p>
+            <div class="author-profile__metadiv">
               <i class="fa fa-calendar-alt" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Date joined{% endtrans %}</span>
               &nbsp;&nbsp;{% trans start_date=humanize(user.date_joined) %}Joined on {{ start_date }}{% endtrans %}
-            </p>
+            </div>
             {% endif %}
           </div>
           {% csi request.route_path("includes.profile-actions", username=user.username) %}
