@@ -565,7 +565,7 @@
         <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
         <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
         <ol>
-          <li>{% trans %}Check to see if your username or password are incorrect.{% endtrans %}</li>
+          <li>{% trans %}Ensure that your username and password are correct.{% endtrans %}</li>
           <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
         </ol>
         <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
@@ -573,6 +573,7 @@
           <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
         </ol>
+        <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
 
         <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
         <p>
