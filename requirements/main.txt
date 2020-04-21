@@ -391,7 +391,7 @@ markupsafe==1.1.1 \
     --hash=sha256:c8716a48d94b06bb3b2524c2b77e055fb313aeb4ea620c8dd03a105574ba704f \
     --hash=sha256:cd5df75523866410809ca100dc9681e301e3c27567cf498077e8551b6d20e42f \
     --hash=sha256:e249096428b3ae81b08327a63a485ad0878de3fb939049038579ac0ef61e17e7 \
-    # via jinja2, mako, pyramid-jinja2
+    # via jinja2, mako, pyramid-jinja2, wtforms
 mistune==0.8.4 \
     --hash=sha256:59a3429db53c50b5c6bcc8a07f8848cb00d7dc8bdb431a4ab41920d201d4756e \
     --hash=sha256:88a1051873018da288eee8538d476dffe1262495144b33ecb586c4ab266bb8d4 \
@@ -716,9 +716,9 @@ wired==0.2.1 \
     --hash=sha256:33bac65b8f5ee2050f4af1e460f959171fec1de6630d08b89a1d005893e90571 \
     --hash=sha256:7b3b6148564d5cdd4e31ba7504914997edb4008f474ff6308225de40c23f4813 \
     # via pyramid-services
-wtforms==2.2.1 \
-    --hash=sha256:0cdbac3e7f6878086c334aa25dc5a33869a3954e9d1e015130d65a69309b3b61 \
-    --hash=sha256:e3ee092c827582c50877cdbd49e9ce6d2c5c1f6561f849b3b068c1b8029626f1 \
+wtforms==2.3.0 \
+    --hash=sha256:21828fbf05cb07a6500df4e20c39b2550f08efd9c6f7900471d022ae97d4f0b3 \
+    --hash=sha256:8f30dbcb9cfad9e8f663ad8480aba7c42a41d8beebe9c6fd506ced514f3fd127 \
     # via -r requirements/main.in
 yara-python==3.11.0 \
     --hash=sha256:105d851e050b32951ee577148c7f1b18c0a7c64432fef8159069191d522fba86 \
