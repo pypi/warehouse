@@ -227,7 +227,7 @@ Release
                         "python_version": "2.7",
                         "size": 3795,
                         "upload_time_iso_8601": "2015-06-14T14:38:05.869374Z",
-                        "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl"
+                        "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
                         "yanked": false
                     },
                     {
@@ -244,7 +244,7 @@ Release
                         "python_version": "source",
                         "size": 3148,
                         "upload_time_iso_8601": "2015-06-14T14:37:56.394783Z",
-                        "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz"
+                        "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
                         "yanked": false
                     }
                 ]
