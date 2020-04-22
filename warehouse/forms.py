@@ -108,11 +108,12 @@ class Form(BaseForm):
 
     @property
     def errors(self):
-        if self._errors is None:
-            self._errors = super().errors
-            if self._form_errors:
-                self._errors["__all__"] = self._form_errors
-        return self._errors
+        errors = super().errors
+
+        if self._form_errors:
+            errors["__all__"] = self._form_errors
+
+        return errors
 
 
 class DBForm(Form):
