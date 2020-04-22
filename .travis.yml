@@ -1,11 +1,11 @@
 language: python
-python: 3.7.3
+python: 3.8.2
 
 env:
   global:
     - TRAVIS_NODE_VERSION=10.19.0
 
-dist: xenial
+dist: bionic
 
 addons:
   hosts:
