@@ -581,12 +581,12 @@ Use :command:`make` to build the documentation. For example:
 The HTML documentation index can now be found at
 :file:`docs/_build/html/index.html`.
 
-Building the docs requires Python 3.7. If it is not installed, the
+Building the docs requires Python 3.8. If it is not installed, the
 :command:`make` command will give the following error message:
 
 .. code-block:: console
 
-  make: python3.7: Command not found
+  make: python3.8: Command not found
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
