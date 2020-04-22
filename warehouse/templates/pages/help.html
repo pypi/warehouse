@@ -53,6 +53,7 @@
 {% macro installing() %}{% trans %}How do I install a file (package) from PyPI?{% endtrans %}{% endmacro %}
 {% macro publishing() %}{% trans %}How do I package and publish my code for PyPI?{% endtrans %}{% endmacro %}
 {% macro trove_classifier() %}{% trans %}What's a trove classifier?{% endtrans %}{% endmacro %}
+{% macro yanked() %}{% trans %}What's a "yanked" release?{% endtrans %}{% endmacro %}
 
 {% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
@@ -109,6 +110,7 @@
           <li><a href="#installing">{{ installing() }}</a></li>
           <li><a href="#publishing">{{ publishing() }}</a></li>
           <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
+          <li><a href="#yanked">{{ yanked() }}</a></li>
         </ul>
       </section>
 
@@ -207,6 +209,13 @@
         <p>
           {% trans trimmed href=request.route_path('classifiers') %}
           Classifiers are used to categorize projects on PyPI. See <a href="{{ href }}">the classifiers page</a> for more information, as well as a list of valid classifiers.
+          {% endtrans %}
+        </p>
+
+        <h3 id="yanked">{{ yanked() }}</h3>
+        <p>
+          {% trans trimmed href='https://www.python.org/dev/peps/pep-0592/', title=gettext('External link') %}
+          A yanked release is a release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either <code>==</code> or <code>===</code>. See <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 592</a> for more information.
           {% endtrans %}
         </p>
       </section>

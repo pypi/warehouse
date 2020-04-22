@@ -63,8 +63,6 @@ def simple_index(request):
     ],
 )
 def simple_detail(project, request):
-    # TODO: Handle files which are not hosted on PyPI
-
     # Make sure that we're using the normalized version of the URL.
     if project.normalized_name != request.matchdict.get(
         "name", project.normalized_name
