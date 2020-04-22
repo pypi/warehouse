@@ -69,13 +69,13 @@ bleach==3.1.4 \
     --hash=sha256:cc8da25076a1fe56c3ac63671e2194458e0c4d9c7becfd52ca251650d517903c \
     --hash=sha256:e78e426105ac07026ba098f04de8abe9b6e3e98b5befbf89b51a5ef0a4292b03 \
     # via readme-renderer
-boto3==1.12.43 \
-    --hash=sha256:1a6a3d95d20cacd677e2af5cbff7027abea35b78f1b8126388ef7fa517655cfe \
-    --hash=sha256:bb0962faea24242a3105f6341537f9e19ee45aa07a9b62a6ffa274ada33280df \
+boto3==1.12.44 \
+    --hash=sha256:2186fca030ec6a4b00c5def1d7b86346da10eef41ae17b18f912621016f9196e \
+    --hash=sha256:91af98b5bd555afacb7abe8afd7ed615e94c6d747e3f50588943b99a5a49789c \
     # via -r requirements/main.in, celery
-botocore==1.15.43 \
-    --hash=sha256:3b315934b20d7e4e3398a74fd90ea73622e0c1f609942ae0209506a041ae257f \
-    --hash=sha256:9721e7b413e3b1b2b7670940e89d0088d1b83bd54cae1ccfe7305eb2e9361c17 \
+botocore==1.15.44 \
+    --hash=sha256:c08d2ae350b48fbdbb01d34915859c19ef702a244ddc1a71b5c369183b9e4f65 \
+    --hash=sha256:fcb84381f6fa2d8f96e2647bc059790b1a5a9ce0d00a5296ffe0946bdee15802 \
     # via boto3, s3transfer
 cachetools==4.1.0 \
     --hash=sha256:1d057645db16ca7fe1f3bd953558897603d6f0b9c51ed9d11eb4d071ec4e2aab \
@@ -229,9 +229,9 @@ google-cloud-core==1.3.0 \
     --hash=sha256:6ae5c62931e8345692241ac1939b85a10d6c38dc9e2854bdbacb7e5ac3033229 \
     --hash=sha256:878f9ad080a40cdcec85b92242c4b5819eeb8f120ebc5c9f640935e24fc129d8 \
     # via google-cloud-bigquery, google-cloud-storage
-google-cloud-storage==1.27.0 \
-    --hash=sha256:3af167094142a61b1bda3489da4a724e55f2703b236431b27f71c9936d94f8d8 \
-    --hash=sha256:62d5efa529fb39ae01504698b7053f2a009877d0d4b3c8f297e3e68c8c38a117 \
+google-cloud-storage==1.28.0 \
+    --hash=sha256:07998ac15de406e7b7d72c98713d598e060399858a699eeb2ca45dc7f22a7af9 \
+    --hash=sha256:35ecd0b00d4b4147c666d73fa2a5c0c7d9a7fe0fe430a4f544d428f5dc68b544 \
     # via -r requirements/main.in
 google-resumable-media==0.5.0 \
     --hash=sha256:2a8fd188afe1cbfd5998bf20602f76b0336aa892de88fe842a806b9a3ed78d2a \
