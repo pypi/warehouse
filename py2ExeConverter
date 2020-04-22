@@ -1,0 +1,69 @@
+from tkinter import *
+import os
+import shutil
+import subprocess
+from tkinter import ttk
+import time
+import tkinter.messagebox
+
+def Convert():
+    def sel():
+        try :
+            f = E.get()
+            i = E2.get()
+            c = "pyinstaller.exe --onefile --icon="
+            c += i
+            c += " -w "
+            c += f
+            #subprocess.call('start', shell=True)
+            subprocess.run('pip install pyinstaller', capture_output=False)
+            subprocess.run(c, capture_output=False)
+            l = Label(tk,text='Please wait Setting up for you....',fg='deepskyblue',bg='#000000')
+            l.pack()
+            pgb = ttk.Progressbar(tk,orient='horizontal', length=700,mode='determinate')
+            pgb.pack()
+            pgb['maximum'] = 100
+            for x in range(0,101,1):
+                time.sleep(0.05)
+                pgb['value'] = x
+                pgb.update()
+            l.destroy()
+            pgb.destroy()
+            lL = Label(tk,text='Successfully Completed!!!',fg='deepskyblue',bg='#000000')
+            lL.pack()
+            files = ['dist\main.exe']
+            P = os.path.abspath('dist')
+            P = P[:-5]
+            for f in files:
+                shutil.copy(f, P)
+            folders = ['dist','build','__pycache__']
+            for F in folders:
+                P = os.path.abspath(F)
+                shutil.rmtree(P)
+            fi = ['main.spec']
+            for FI in fi:
+                P = os.path.abspath(FI) 
+                os.remove(P)
+        except:
+            m = tkinter.messagebox.showinfo('ERROR!!!','Something went wrong!!!')
+    tk = Tk()
+    tk.title('PY2EXE - Pavitra Patel')
+    #tk.iconbitmap('py2exeicon.ico')
+    tk['bg'] = '#000000'
+    tk.geometry('500x500')
+    L = Label(tk,text='Enter the file Name:',font=('Helvetica',20),fg='deepskyblue',bg='#000000')
+    L.pack()
+    E = Entry(tk,bg='#222222',font=('Helvetica',15),fg='white')
+    E.pack()
+    E.insert(0,'main.py')
+    L2 = Label(tk,text='Enter the Icon file Name:',font=('Helvetica',20),fg='deepskyblue',bg='#000000')
+    L2.pack()
+    E2 = Entry(tk,bg='#222222',font=('Helvetica',15),fg='white')
+    E2.pack()
+    L3 = Label(tk,font=('Helvetica',20),fg='deepskyblue',bg='#000000')
+    L3.pack()
+    B = Button(tk,text='Convert',command=sel,bg='gold',font=('Helvetica',15))
+    B.pack()
+    L4 = Label(tk,font=('Helvetica',20),fg='deepskyblue',bg='#000000')
+    L4.pack()
+    tk.mainloop()
