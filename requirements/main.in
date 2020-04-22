@@ -57,7 +57,7 @@ trove-classifiers
 typeguard
 webauthn
 whitenoise
-WTForms>=2.0.0
+WTForms[email]>=2.0.0
 yara-python
 zope.sqlalchemy
 zxcvbn
