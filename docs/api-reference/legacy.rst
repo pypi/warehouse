@@ -119,9 +119,7 @@ Upload API
 The API endpoint served at `upload.pypi.org/legacy/
 <https://upload.pypi.org/legacy/>`_ is Warehouse's emulation of the
 legacy PyPI upload API. This is the endpoint that tools such as `twine
-<https://twine.readthedocs.io/>`_ and `distutils
-<https://docs.python.org/3.8/distutils/packageindex.html#the-upload-command>`_
-use to `upload distributions to PyPI
+<https://twine.readthedocs.io/>`_ use to `upload distributions to PyPI
 <https://packaging.python.org/tutorials/distributing-packages/>`_.
 
 The upload api can be used to upload artifacts by sending a multipart/form-data
