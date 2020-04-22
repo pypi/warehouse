@@ -11,16 +11,17 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Links for {{ project.name }}</title>
-  </head>
-  <body>
-    <h1>Links for {{ project.name }}</h1>
-    {% for file in files -%}
-    <a href="{{ request.route_url('packaging.file', path=file.path) }}#sha256={{ file.sha256_digest }}"{% if file.release.requires_python %} data-requires-python="{{ file.release.requires_python }}"{% endif %}{% if file.release.yanked %} data-yanked{% endif %}>{{ file.filename }}</a><br/>
-    {% endfor -%}
-  </body>
-</html>
-<!--SERIAL {{ project.last_serial }}-->
+
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+  The {{ project }} release {{ release }} released on {{ release_date }} has been un-yanked.
+
+  Un-yanked by: {{ submitter }} with a role: {{ submitter_role }}.
+
+  If you have questions or concerns, you can email admin@pypi.org to communicate with the PyPI administrators.
+{% endblock %}
+
+{% block reason %}
+  You are receiving this because you are {{ recipient_role_descr }} of this project.
+{% endblock %}

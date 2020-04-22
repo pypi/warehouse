@@ -183,7 +183,8 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease) for r in reversed(releases)
+                (r.version, r.created, r.is_prerelease, r.yanked)
+                for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
@@ -230,7 +231,8 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease) for r in reversed(releases)
+                (r.version, r.created, r.is_prerelease, r.yanked)
+                for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,

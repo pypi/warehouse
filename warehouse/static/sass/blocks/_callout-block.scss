@@ -45,7 +45,6 @@
   border: 2px solid $primary-color;
   margin: 15px 0;
   position: relative;
-  z-index: index($z-index-scale, "callout-block");
   border-radius: 4px;
 
   &__dismiss {
@@ -64,7 +63,6 @@
     top: -1px;
     left: -2px;
     height: calc(100% + 2px);
-    z-index: index($z-index-scale, "callout-block-border");
     border-radius: 3px 0 0 3px;
   }
 
