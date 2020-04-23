@@ -36,6 +36,7 @@ def project_detail(project, request):
         return HTTPMovedPermanently(request.current_route_path(name=project.name))
 
     try:
+        # Try to find a non-yanked release
         release = (
             request.db.query(Release)
             .filter(Release.project == project, Release.yanked.is_(False))
@@ -43,10 +44,25 @@ def project_detail(project, request):
             .limit(1)
             .one()
         )
+        return release_detail(release, request)
     except NoResultFound:
-        raise HTTPNotFound
+        pass
 
-    return release_detail(release, request)
+    try:
+        # Fall back on the latest yanked release if it exists
+        release = (
+            request.db.query(Release)
+            .filter(Release.project == project)
+            .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
+            .limit(1)
+            .one()
+        )
+        return release_detail(release, request)
+    except NoResultFound:
+        pass
+
+    # We didn't find any releases
+    raise HTTPNotFound
 
 
 @view_config(
