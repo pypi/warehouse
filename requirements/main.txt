@@ -604,9 +604,9 @@ raven==6.10.0 \
     --hash=sha256:3fa6de6efa2493a7c827472e984ce9b020797d0da16f1db67197bcc23c8fae54 \
     --hash=sha256:44a13f87670836e153951af9a3c80405d36b43097db869a36e92809673692ce4 \
     # via -r requirements/main.in
-readme-renderer[md]==25.0 \
-    --hash=sha256:1b6d8dd1673a0b293766b4106af766b6eff3654605f9c4f239e65de6076bc222 \
-    --hash=sha256:e67d64242f0174a63c3b727801a2fff4c1f38ebe5d71d95ff7ece081945a6cd4 \
+readme_renderer[md]==26.0 \
+    --hash=sha256:cbe9db71defedd2428a1589cdc545f9bd98e59297449f69d721ef8f1cfced68d \
+    --hash=sha256:cc4957a803106e820d05d14f71033092537a22daa4f406dfbdd61177e0936376 \
     # via -r requirements/main.in
 redis==3.4.1 \
     --hash=sha256:0dcfb335921b88a850d461dc255ff4708294943322bd55de6cfd68972490ca1f \
