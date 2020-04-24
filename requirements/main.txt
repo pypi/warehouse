@@ -604,9 +604,9 @@ raven==6.10.0 \
     --hash=sha256:3fa6de6efa2493a7c827472e984ce9b020797d0da16f1db67197bcc23c8fae54 \
     --hash=sha256:44a13f87670836e153951af9a3c80405d36b43097db869a36e92809673692ce4 \
     # via -r requirements/main.in
-readme-renderer[md]==25.0 \
-    --hash=sha256:1b6d8dd1673a0b293766b4106af766b6eff3654605f9c4f239e65de6076bc222 \
-    --hash=sha256:e67d64242f0174a63c3b727801a2fff4c1f38ebe5d71d95ff7ece081945a6cd4 \
+readme_renderer[md]==26.0 \
+    --hash=sha256:cbe9db71defedd2428a1589cdc545f9bd98e59297449f69d721ef8f1cfced68d \
+    --hash=sha256:cc4957a803106e820d05d14f71033092537a22daa4f406dfbdd61177e0936376 \
     # via -r requirements/main.in
 redis==3.4.1 \
     --hash=sha256:0dcfb335921b88a850d461dc255ff4708294943322bd55de6cfd68972490ca1f \
@@ -724,9 +724,9 @@ wired==0.2.1 \
     --hash=sha256:33bac65b8f5ee2050f4af1e460f959171fec1de6630d08b89a1d005893e90571 \
     --hash=sha256:7b3b6148564d5cdd4e31ba7504914997edb4008f474ff6308225de40c23f4813 \
     # via pyramid-services
-wtforms[email]==2.3.0 \
-    --hash=sha256:21828fbf05cb07a6500df4e20c39b2550f08efd9c6f7900471d022ae97d4f0b3 \
-    --hash=sha256:8f30dbcb9cfad9e8f663ad8480aba7c42a41d8beebe9c6fd506ced514f3fd127 \
+wtforms[email]==2.3.1 \
+    --hash=sha256:6ff8635f4caeed9f38641d48cfe019d0d3896f41910ab04494143fc027866e1b \
+    --hash=sha256:861a13b3ae521d6700dac3b2771970bd354a63ba7043ecc3a82b5288596a1972 \
     # via -r requirements/main.in
 yara-python==3.11.0 \
     --hash=sha256:105d851e050b32951ee577148c7f1b18c0a7c64432fef8159069191d522fba86 \

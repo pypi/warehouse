@@ -106,6 +106,35 @@ class TestProjectDetail:
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
 
+    def test_prefers_non_yanked_release(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="2.0", yanked=True)
+        release = ReleaseFactory.create(project=project, version="1.0")
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
+    def test_only_yanked_release(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        release = ReleaseFactory.create(project=project, version="1.0", yanked=True)
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
 
 class TestReleaseDetail:
     def test_normalizing_name_redirects(self, db_request):

@@ -38,8 +38,12 @@ def project_detail(project, request):
     try:
         release = (
             request.db.query(Release)
-            .filter(Release.project == project, Release.yanked.is_(False))
-            .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
+            .filter(Release.project == project)
+            .order_by(
+                Release.yanked,
+                Release.is_prerelease.nullslast(),
+                Release._pypi_ordering.desc(),
+            )
             .limit(1)
             .one()
         )

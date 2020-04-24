@@ -3218,7 +3218,7 @@ msgstr ""
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:114
+#: warehouse/templates/packaging/detail.html:113
 msgid "This release has been yanked"
 msgstr ""
 
@@ -3227,12 +3227,12 @@ msgstr ""
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:124
+#: warehouse/templates/packaging/detail.html:123
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:128
+#: warehouse/templates/packaging/detail.html:127
 msgid "Latest version"
 msgstr ""
 
@@ -3676,7 +3676,7 @@ msgstr ""
 msgid ""
 "A yanked release is a release that is always ignored by an installer, "
 "unless it is the only release that matches a version specifier (using "
-"either <code>==</code> or <code>===</code>. See <a href=\"%(href)s\" "
+"either <code>==</code> or <code>===</code>). See <a href=\"%(href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
 "title=\"Python enhancement proposal\">PEP</abbr> 592</a> for more "
 "information."

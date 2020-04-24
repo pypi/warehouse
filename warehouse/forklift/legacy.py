@@ -1139,7 +1139,9 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .options(orm.load_only(Release._pypi_ordering))
+        .options(
+            orm.load_only(Release.project_id, Release.version, Release._pypi_ordering)
+        )
         .all()
     )
     for i, r in enumerate(
