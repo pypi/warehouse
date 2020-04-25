@@ -93,10 +93,10 @@ def test_token_leak_disclosure_request_from_api_record(type, token):
 
 def test_token_leak_analyzer_analyze_disclosure(monkeypatch):
 
-    metrics = collections.defaultdict(int)
+    metrics = collections.Counter()
 
     def metrics_increment(key):
-        metrics[key] += 1
+        metrics.update([key])
 
     user = pretend.stub()
     database_macaroon = pretend.stub(user=user, id=12)
@@ -137,10 +137,10 @@ def test_token_leak_analyzer_analyze_disclosure(monkeypatch):
 
 def test_token_leak_analyzer_analyze_disclosure_wrong_record():
 
-    metrics = collections.defaultdict(int)
+    metrics = collections.Counter()
 
     def metrics_increment(key):
-        metrics[key] += 1
+        metrics.update([key])
 
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
@@ -161,10 +161,10 @@ def test_token_leak_analyzer_analyze_disclosure_wrong_record():
 
 def test_token_leak_analyzer_analyze_disclosure_invalid_macaroon():
 
-    metrics = collections.defaultdict(int)
+    metrics = collections.Counter()
 
     def metrics_increment(key):
-        metrics[key] += 1
+        metrics.update([key])
 
     check = pretend.raiser(utils.InvalidMacaroon("Bla", "bla"))
     svc = {
