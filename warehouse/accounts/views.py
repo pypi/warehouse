@@ -1017,9 +1017,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     require_csrf=False,
     renderer="json",
     route_name="accounts.github-disclose-token",
-    header="GITHUB-PUBLIC-KEY-IDENTIFIER",
-    # TODO: How to check multiple headers in the predicates ?
-    # header="GITHUB-PUBLIC-KEY-SIGNATURE"
+    headers=["GITHUB-PUBLIC-KEY-IDENTIFIER", "GITHUB-PUBLIC-KEY-SIGNATURE"],
     has_translations=True,  # Not the view itself, but the email it sends
 )
 def github_disclose_token(request):
