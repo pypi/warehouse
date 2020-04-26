@@ -26,6 +26,7 @@ from warehouse.accounts.interfaces import (
     IUserService,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.accounts.predicates import HeadersPredicate
 from warehouse.accounts.services import (
     GitHubTokenScanningPayloadVerifyService,
     HaveIBeenPwnedPasswordBreachedService,
@@ -192,3 +193,5 @@ def includeme(config):
     config.register_service_factory(
         RateLimit("2 per day"), IRateLimiter, name="email.add"
     )
+
+    config.add_route_predicate("headers", HeadersPredicate)

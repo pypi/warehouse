@@ -311,12 +311,14 @@ def test_includeme(monkeypatch):
     authn_cls = pretend.call_recorder(lambda *a: authn_obj)
     authz_obj = pretend.stub()
     authz_cls = pretend.call_recorder(lambda *a, **kw: authz_obj)
+    headers_pred_cls = pretend.stub()
     monkeypatch.setattr(accounts, "BasicAuthAuthenticationPolicy", basic_authn_cls)
     monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", session_authn_cls)
     monkeypatch.setattr(accounts, "MacaroonAuthenticationPolicy", macaroon_authn_cls)
     monkeypatch.setattr(accounts, "MultiAuthenticationPolicy", authn_cls)
     monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
     monkeypatch.setattr(accounts, "MacaroonAuthorizationPolicy", authz_cls)
+    monkeypatch.setattr(accounts, "HeadersPredicate", headers_pred_cls)
 
     config = pretend.stub(
         registry=pretend.stub(settings={}),
@@ -327,6 +329,7 @@ def test_includeme(monkeypatch):
         set_authentication_policy=pretend.call_recorder(lambda p: None),
         set_authorization_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
+        add_route_predicate=pretend.call_recorder(lambda name, cls: None),
     )
 
     accounts.includeme(config)
@@ -367,3 +370,6 @@ def test_includeme(monkeypatch):
         pretend.call([session_authn_obj, basic_authn_obj, macaroon_authn_obj])
     ]
     assert authz_cls.calls == [pretend.call(), pretend.call(policy=authz_obj)]
+    assert config.add_route_predicate.calls == [
+        pretend.call("headers", headers_pred_cls)
+    ]
