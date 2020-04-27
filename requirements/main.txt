@@ -71,9 +71,9 @@ bleach==3.1.4 \
     --hash=sha256:cc8da25076a1fe56c3ac63671e2194458e0c4d9c7becfd52ca251650d517903c \
     --hash=sha256:e78e426105ac07026ba098f04de8abe9b6e3e98b5befbf89b51a5ef0a4292b03 \
     # via readme-renderer
-boto3==1.12.44 \
-    --hash=sha256:2186fca030ec6a4b00c5def1d7b86346da10eef41ae17b18f912621016f9196e \
-    --hash=sha256:91af98b5bd555afacb7abe8afd7ed615e94c6d747e3f50588943b99a5a49789c \
+boto3==1.12.46 \
+    --hash=sha256:0f01cd63dbfa0d2b789f427f7c1a18cc4067580c6e2b31078d64b3bb6375a6dd \
+    --hash=sha256:4f7f11e7489c267f9ea0c6193bfbe20ef1a8dd639d780aea0ac61a769de722e1 \
     # via -r requirements/main.in, celery
 botocore==1.15.46 \
     --hash=sha256:ae39899dc450570968e3e128d2c8a011e5f8d4f6fd07a7d1f01df10a11ef332d \
