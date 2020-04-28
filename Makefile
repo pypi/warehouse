@@ -14,18 +14,11 @@ endif
 
 define DEPCHECKER
 import sys
-
-from pip._internal.req import parse_requirements
+from pip_api import parse_requirements
 
 left, right = sys.argv[1:3]
-left_reqs = {
-    d.name.lower()
-	for d in parse_requirements(left, session=object())
-}
-right_reqs = {
-    d.name.lower()
-	for d in parse_requirements(right, session=object())
-}
+left_reqs = parse_requirements(left).keys()
+right_reqs = parse_requirements(right).keys()
 
 extra_in_left = left_reqs - right_reqs
 extra_in_right = right_reqs - left_reqs
@@ -141,9 +134,9 @@ deps: .state/env/pyvenv.cfg
 	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
 	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
 	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/lint.txt requirements/lint.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/deploy.txt requirements/deploy.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/main.txt requirements/main.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/lint.txt requirements/lint.txt
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
