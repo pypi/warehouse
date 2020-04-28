@@ -430,8 +430,9 @@ packaging==20.3 \
     --hash=sha256:3c292b474fda1671ec57d46d739d072bfd495a4f51ad01a055121d81e952b7a3 \
     --hash=sha256:82f77b9bee21c1bafbf35a84905d604d5d1223801d639cf3ed140bd651c08752 \
     # via -r requirements/main.in
-paginate-sqlalchemy==0.3.0 \
-    --hash=sha256:88d46abdab3de93d1993b83e27388a16353f93c6d991e7d6aa5eac1adeca7f93 \
+paginate-sqlalchemy==0.3.1 \
+    --hash=sha256:9ee349b74a5f2f52455cb1280d0ca24222c8137e638363df5877e6e76c369b5b \
+    --hash=sha256:e022f79ed798e62092a8618c528158ed619a1b604dce43c9dbc5441f5325137e \
     # via -r requirements/main.in
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d \
