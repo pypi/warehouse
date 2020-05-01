@@ -245,7 +245,10 @@
         <div id="history" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
           <h2 class="page-title split-layout">
             <span>{% trans %}Release history{% endtrans %}</span>
-            <a class="reset-text margin-top" href="{{ request.route_path('help')}}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a>
+            <span class="reset-text margin-top">
+              <a href="{{ request.route_path('help')}}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a> |
+              <a href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">{% trans %}RSS feed{% endtrans %} <i class="fa fa-rss" aria-hidden="true"></i></a>
+            </span>
           </h2>
 
           <div class="release-timeline">
