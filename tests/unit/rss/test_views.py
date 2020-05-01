@@ -96,7 +96,7 @@ def test_rss_project_releases(db_request):
     assert rss.rss_project_releases(project, db_request) == {
         "project": project,
         "latest_releases": tuple(
-            zip((release3, release2, release1), ("noreply@pypi.org", None, None))
+            zip((release_v2, release_v3, release_v1), ("noreply@pypi.org", None, None))
         ),
     }
     assert db_request.response.content_type == "text/xml"
