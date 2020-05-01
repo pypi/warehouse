@@ -302,6 +302,14 @@ def includeme(config):
     # RSS
     config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
+    config.add_route(
+        "rss.project.releases",
+        "/rss/project/{name}/releases.xml",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/",
+        read_only=True,
+        domain=warehouse,
+    )
 
     # Legacy URLs
     config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)

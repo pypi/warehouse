@@ -73,6 +73,35 @@ def test_rss_packages(db_request):
     assert db_request.response.content_type == "text/xml"
 
 
+def test_rss_project_releases(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project = ProjectFactory.create()
+
+    release_v1 = ReleaseFactory.create(project=project, version="1.0.0")
+    release_v1.created = datetime.date(2018, 1, 1)
+    release_v3 = ReleaseFactory.create(project=project, version="3.0.0")
+    release_v3.created = datetime.date(2019, 1, 1)
+    release_v2 = ReleaseFactory.create(project=project, version="2.0.0")
+    release_v2.created = datetime.date(2020, 1, 1)
+
+    release_v3.author_email = "noreply@pypi.org"
+
+    assert rss.rss_project_releases(project, db_request) == {
+        "project": project,
+        "latest_releases": tuple(
+            zip((release_v2, release_v3, release_v1), (None, "noreply@pypi.org", None))
+        ),
+    }
+    assert db_request.response.content_type == "text/xml"
+
+
 def test_format_author(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
