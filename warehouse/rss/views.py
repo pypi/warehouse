@@ -124,7 +124,7 @@ def rss_project_releases(project, request):
     latest_releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .order_by(Release._pypi_ordering.desc())
+        .order_by(Release.created.desc())
         .limit(40)
         .all()
     )
