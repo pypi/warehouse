@@ -84,13 +84,14 @@ def test_rss_project_releases(db_request):
 
     project = ProjectFactory.create()
 
-    release1 = ReleaseFactory.create(project=project)
-    release1.created = datetime.date(2019, 1, 1)
-    release2 = ReleaseFactory.create(project=project)
-    release2.created = datetime.date(2019, 1, 2)
-    release3 = ReleaseFactory.create(project=project)
-    release3.created = datetime.date(2019, 1, 3)
-    release3.author_email = "noreply@pypi.org"
+    release_v1 = ReleaseFactory.create(project=project, version="1.0.0")
+    release_v1.created = datetime.date(2018, 1, 1)
+    release_v3 = ReleaseFactory.create(project=project, version="3.0.0")
+    release_v3.created = datetime.date(2019, 1, 1)
+    release_v2 = ReleaseFactory.create(project=project, version="2.0.0")
+    release_v2.created = datetime.date(2020, 1, 1)
+
+    release_v3.author_email = "noreply@pypi.org"
 
     assert rss.rss_project_releases(project, db_request) == {
         "project": project,
