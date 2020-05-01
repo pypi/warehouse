@@ -37,6 +37,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
@@ -141,11 +142,7 @@ def _valid_platform_tag(platform_tag):
 _error_message_order = ["metadata_version", "name", "version"]
 
 
-_dist_file_regexes = {
-    # True/False is for legacy or not.
-    True: re.compile(r".+?\.(exe|tar\.gz|bz2|rpm|deb|zip|tgz|egg|dmg|msi|whl)$", re.I),
-    False: re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I),
-}
+_dist_file_re = re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I)
 
 
 _wheel_file_re = re.compile(
@@ -340,6 +337,38 @@ def _validate_description_content_type(form, field):
         )
 
 
+def _validate_no_deprecated_classifiers(form, field):
+    invalid_classifiers = set(field.data or []) & deprecated_classifiers.keys()
+    if invalid_classifiers:
+        first_invalid_classifier_name = sorted(invalid_classifiers)[0]
+        deprecated_by = deprecated_classifiers[first_invalid_classifier_name]
+
+        if deprecated_by:
+            raise wtforms.validators.ValidationError(
+                f"Classifier {first_invalid_classifier_name!r} has been "
+                "deprecated, use the following classifier(s) instead: "
+                f"{deprecated_by}"
+            )
+        else:
+            raise wtforms.validators.ValidationError(
+                f"Classifier {first_invalid_classifier_name!r} has been deprecated."
+            )
+
+
+def _validate_classifiers(form, field):
+    invalid = sorted(set(field.data or []) - classifiers)
+
+    if invalid:
+        if len(invalid) == 1:
+            raise wtforms.validators.ValidationError(
+                f"Classifier {invalid[0]!r} is not a valid classifier."
+            )
+        else:
+            raise wtforms.validators.ValidationError(
+                f"Classifiers {invalid!r} are not valid classifiers."
+            )
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -437,7 +466,10 @@ class MetadataForm(forms.Form):
     keywords = wtforms.StringField(
         description="Keywords", validators=[wtforms.validators.Optional()]
     )
-    classifiers = wtforms.fields.SelectMultipleField(description="Classifier")
+    classifiers = ListField(
+        description="Classifier",
+        validators=[_validate_no_deprecated_classifiers, _validate_classifiers],
+    )
     platform = wtforms.StringField(
         description="Platform", validators=[wtforms.validators.Optional()]
     )
@@ -464,17 +496,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
-                [
-                    "bdist_dmg",
-                    "bdist_dumb",
-                    "bdist_egg",
-                    "bdist_msi",
-                    "bdist_rpm",
-                    "bdist_wheel",
-                    "bdist_wininst",
-                    "sdist",
-                ],
-                message="Use a known file type.",
+                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type.",
             ),
         ]
     )
@@ -702,32 +724,6 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _no_deprecated_classifiers(request):
-    deprecated_classifiers = {
-        classifier.classifier
-        for classifier in (
-            request.db.query(Classifier.classifier)
-            .filter(Classifier.deprecated.is_(True))
-            .all()
-        )
-    }
-
-    def validate_no_deprecated_classifiers(form, field):
-        invalid_classifiers = set(field.data or []) & deprecated_classifiers
-        if invalid_classifiers:
-            first_invalid_classifier = sorted(invalid_classifiers)[0]
-            host = request.registry.settings.get("warehouse.domain")
-            classifiers_url = request.route_url("classifiers", _host=host)
-
-            raise wtforms.validators.ValidationError(
-                f"Classifier {first_invalid_classifier!r} has been "
-                f"deprecated, see {classifiers_url} for a list of valid "
-                "classifiers."
-            )
-
-    return validate_no_deprecated_classifiers
-
-
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -759,7 +755,11 @@ def file_upload(request):
     # request, then we'll go ahead and bomb out.
     if request.authenticated_userid is None:
         raise _exc_with_message(
-            HTTPForbidden, "Invalid or non-existent authentication information."
+            HTTPForbidden,
+            "Invalid or non-existent authentication information. "
+            "See {projecthelp} for details".format(
+                projecthelp=request.help_url(_anchor="invalid-auth")
+            ),
         )
 
     # Ensure that user has a verified, primary email address. This should both
@@ -812,16 +812,9 @@ def file_upload(request):
         if any(isinstance(value, FieldStorage) for value in values):
             raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
 
-    # Look up all of the valid classifiers
-    all_classifiers = request.db.query(Classifier).all()
-
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
 
-    # Add a validator for deprecated classifiers
-    form.classifiers.validators.append(_no_deprecated_classifiers(request))
-
-    form.classifiers.choices = [(c.classifier, c.classifier) for c in all_classifiers]
     if not form.validate():
         for field_name in _error_message_order:
             if field_name in form.errors:
@@ -1050,11 +1043,29 @@ def file_upload(request):
             .one()
         )
     except NoResultFound:
+        # Look up all of the valid classifiers
+        all_classifiers = request.db.query(Classifier).all()
+
+        # Get all the classifiers for this release
+        release_classifiers = [
+            c for c in all_classifiers if c.classifier in form.classifiers.data
+        ]
+
+        # Determine if we need to add any new classifiers to the database
+        missing_classifiers = set(form.classifiers.data or []) - set(
+            c.classifier for c in release_classifiers
+        )
+
+        # Add any new classifiers to the database
+        if missing_classifiers:
+            for missing_classifier_name in missing_classifiers:
+                missing_classifier = Classifier(classifier=missing_classifier_name)
+                request.db.add(missing_classifier)
+                release_classifiers.append(missing_classifier)
+
         release = Release(
             project=project,
-            _classifiers=[
-                c for c in all_classifiers if c.classifier in form.classifiers.data
-            ],
+            _classifiers=release_classifiers,
             dependencies=list(
                 _construct_dependencies(
                     form,
@@ -1128,7 +1139,9 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .options(orm.load_only(Release._pypi_ordering))
+        .options(
+            orm.load_only(Release.project_id, Release.version, Release._pypi_ordering)
+        )
         .all()
     )
     for i, r in enumerate(
@@ -1146,7 +1159,7 @@ def file_upload(request):
         )
 
     # Make sure the filename ends with an allowed extension.
-    if _dist_file_regexes[project.allow_legacy_files].search(filename) is None:
+    if _dist_file_re.search(filename) is None:
         raise _exc_with_message(
             HTTPBadRequest,
             "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
@@ -1167,16 +1180,6 @@ def file_upload(request):
         "image/"
     ):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
-
-    # Ensure that the package filetype is allowed.
-    # TODO: Once PEP 527 is completely implemented we should be able to delete
-    #       this and just move it into the form itself.
-    if not project.allow_legacy_files and form.filetype.data not in {
-        "sdist",
-        "bdist_wheel",
-        "bdist_egg",
-    }:
-        raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
 
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file

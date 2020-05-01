@@ -1,0 +1,195 @@
+/* Patterns that indicate or suggest an attempt to spawn a process
+ * using various routines in the `os` module.
+ *
+ * These indicators are classified as "threat" to reflect the low
+ * probability that their presence is legitimate.
+ */
+rule process_spawn_in_setup {
+    meta:
+        confidence = "high"
+        classification = "threat"
+
+    strings:
+        // NOTE(ww): We don't detect `import os as ...`
+        $from_os_import = /from os import /
+
+        // Bare calls to suspicious os methods.
+        $bare_system = "system"
+        $bare_exec = /exec.*/
+        $bare_spawn = /spawn.*/
+        $bare_posix_spawn = /posix_spawn.*/
+        $bare_popen = /popen.*/
+
+        // Fully qualified calls to suspicious os methods.
+        $fq_system = "os.system("
+        $fq_exec = /os\.exec.*/
+        $fq_spawn = /os\.spawn.*/
+        $fq_posix_spawn = /os\.posix_spawn.*/
+        $fq_popen = /os\.popen.*/
+
+    condition:
+        (1 of ($fq_*)) or ($from_os_import and (1 of ($bare_*)))
+}
+
+/* Patterns that indicate or suggest an attempt to spawn a process
+ * using various routines and objects in the `subprocess` module.
+ *
+ * These indicators are classified as "threat" to reflect the low
+ * probability that their presence is legitimate.
+ */
+rule subprocess_in_setup {
+    meta:
+        confidence = "high"
+        classification = "threat"
+
+    strings:
+        // NOTE(ww): We don't detect `import subprocess as ...`
+        $from_subprocess_import = /from subprocess import /
+
+        // Bare calls to suspicious subprocess methods/objects
+        $bare_run = "run"
+        $bare_Popen = "Popen"
+        $bare_call = "call"
+        $bare_check_call = "check_call"
+        $bare_check_output = "check_output"
+
+        // Fully qualified calls to suspicious subprocess methods/objects
+        $fq_run = "subprocess.run"
+        $fq_Popen = "subprocess.Popen"
+        $fq_call = "subprocess.call"
+        $fq_check_call = "subprocess.check_call"
+        $fq_check_output = "subprocess.check_output"
+
+    condition:
+        (1 of ($fq_*) or ($from_subprocess_import and (1 of ($bare_*))))
+}
+
+/* Patterns that indicate or suggest an attempt to access a network resource.
+ *
+ * These indicators are classified as "indeterminate" to reflect that some
+ * legitimate use cases may exist.
+ */
+rule networking_in_setup {
+    meta:
+        confidence = "high"
+        classification = "indeterminate"
+
+    strings:
+        // These modules contain frequently-used routines for making network requests
+        // Other candidates: poplib, imaplib, nntplib, smtplib, telnetlib
+        $from_socket_import = /from socket(\..+)? import/
+        $from_socketserver_import = /from socketserver(\..+)? import/
+        $from_ssl_import = /from ssl(\..+)? import/
+        $from_ftplib_import = /from ftplib(\..+)? import/
+        $from_http_import = /from http(\..+)? import/
+        $from_urllib_import = /from urllib(\..+)? import/
+        $from_xmlrpc_sub_import = /from xmlrpc(\..+)? import/
+
+        $import_socket = /import socket(\..+)?/
+        $import_socketserver = /import socketserver(\..+)?/
+        $import_ssl = /import ssl(\..+)?/
+        $import_ftplib = /import ftplib(\..+)?/
+        $import_http = /import http(\..+)?/
+        $import_http_sub = /import http(\..+)?/
+        $import_urllib = /import urllib(\..+)?/
+        $import_urllib_sub = /import urllib(\..+)?/
+        $import_xmlrpc = /import xmlrpc(\..+)?/
+        $import_xmlrpc_sub = /import xmlrpc(\..+)?/
+
+    condition:
+        any of them
+}
+
+/* Patterns that indicate or suggest an attempt to deserialize data.
+ *
+ * These indicators are clasified as "indeterminate" to reflect that some
+ * legitimate use cases may exist.
+ */
+rule deserialization_in_setup {
+    meta:
+        confidence = "high"
+        classification = "indeterminate"
+
+    strings:
+        // These modules contain frequently-used routines for obfuscating data
+        // Other candidates: uu, quopri
+        $from_pickle_import = /from pickle(\..+)? import/
+        $from_base64_import = /from base64(\..+)? import/
+        $from_binhex_import = /from binhex(\..+)? import/
+
+        $import_pickle = /import pickle(\..+)?/
+        $import_base64 = /import base64(\..+)?/
+        $import_binhex = /import binhex(\..+)?/
+
+    condition:
+        any of them
+}
+
+/* Patterns that indicate or suggest an attempt to perform metaprogramming.
+ *
+ * These indicators are clasified as "indeterminate" to reflect that some
+ * legitimate use cases may exist.
+ */
+rule metaprogramming_in_setup {
+    meta:
+        confidence = "high"
+        classification = "indeterminate"
+
+    strings:
+        // The inspect module contains routines that can be used to obfuscate accesses
+        $from_inspect_import = /from inspect(\..+)? import/
+        $import_inspect = /import inspect(\..+)?/
+
+        // The compileall module contains routines that can be used to smuggle Python code
+        $from_compileall_import = /from compileall(\..+)? import/
+        $import_compileall = /import compileall(\..+)?/
+
+        // The py_compile module contains routines that can be used to smuggle Python code
+        $from_py_compile_import = /from py_compile(\..+)? import/
+        $import_py_compile = /import py_compile(\..+)?/
+
+        // The builtins module contains exec and eval
+        $from_builtins_import = /from builtins(\..+)? import/
+        $import_builtins = /import builtins(\..+)?/
+        $dunder_builtins = /__builtins__/
+
+        // The importlib module contains can be used to obfuscate imports
+        $from_importlib_import = /from importlib(\..+)? import/
+        $import_importlib = /import importlib(\..+)?/
+        $dunder_import_call = /__import__\(/
+
+        // builtins module is also accesssible in sys.modules
+        $from_sys_import_modules = /from sys import (.*)modules/
+        $sys_modules = /sys.modules/
+
+        // compile can be used to smuggle Python code into exec or eval.
+        $compile_call = /compile\(/
+
+        // dir can be used to obfuscate accesses of attributes
+        $dir_call = /dir\(/
+        $dunder_dir_call = /__dir__\(/
+
+        // eval can be used to evaluate smuggled code
+        $eval_call = /eval\(/
+
+        // exec can be used to evaluate smuggled code
+        $exec_call = /exec\(/
+
+        // getattr can be used to obfuscate accesses of attributes
+        $getattr_call = /getattr\(/
+
+        // vars can be used to obfuscate accesses of attributes
+        $vars_call = /vars\(/
+
+        // __dict__ can be used to obfuscate accesses of attributes
+        $dunder_dict_call = /\.__dict__\(/
+
+        // globals can be used to obfuscate accesses of attributes
+        $globals_call = /globals\(/
+
+        // locals can be used to obfuscate accesses of attributes
+        $locals_call = /locals\(/
+
+    condition:
+        any of them
+}

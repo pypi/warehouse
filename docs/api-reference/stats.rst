@@ -1,8 +1,8 @@
 Stats API
 =========
 
-PyPI offers a JSON stats endpoint via a ``Content-Type: application/json`` GET
-request. Without the ``Content-Type`` header set, you will be returned a HTML page.
+PyPI offers a JSON stats endpoint via a ``Accept: application/json`` GET
+request. Without the ``Accept`` header set, you will be returned a HTML page.
 
 **Example Client**: https://github.com/cooperlees/pypistats
 
@@ -17,14 +17,13 @@ Project
 
     **Example Request**:
 
-    - `curl -H "Content-Type: application/json" -H "Accept: application/json" https://pypi.org/stats/`
+    - `curl -H "Accept: application/json" https://pypi.org/stats/`
 
     .. code:: http
 
         GET /stats HTTP/1.1
         Host: pypi.org
         Accept: application/json
-        Content-Type: application/json
 
     **Example response**:
 
@@ -41,7 +40,7 @@ Project
           "FlexGet": {
             "size": 4387002448
           },
-          ...
+          "...": "..."
         },
         "total_packages_size": 23965450269
       }

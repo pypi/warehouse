@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+import json
+import glob
+import urllib.parse
+
+
+source_map_filename = glob.glob("warehouse/static/dist/js/warehouse.js.*.map")[0]
+with open(source_map_filename) as f:
+    source_map = json.loads(f.read())
+
+source_map_paths = {
+    urllib.parse.urlparse(source).path[1:]
+    for source in source_map["sources"]
+    if urllib.parse.urlparse(source).path.startswith("/warehouse/")
+}
+
+source_file_paths = set(
+    glob.glob("warehouse/static/js/warehouse/**/*.js", recursive=True)
+)
+
+diff = source_file_paths - source_map_paths
+
+if diff:
+    raise Exception(
+        "The following JS files are not included in the bundle: {}".format(diff)
+    )
+print("All JS source files accounted for.")

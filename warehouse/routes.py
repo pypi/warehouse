@@ -47,6 +47,12 @@ def includeme(config):
         view_kw={"has_translations": True},
     )
     config.add_template_view(
+        "sponsor",
+        "/sponsor/",
+        "pages/sponsor.html",
+        view_kw={"has_translations": True},
+    )
+    config.add_template_view(
         "sponsors",
         "/sponsors/",
         # Use the full resource path here to make it able to be overridden by
@@ -93,6 +99,13 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.profile-public-email",
+        "/_includes/profile-public-email/{username}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)
@@ -125,6 +138,9 @@ def includeme(config):
         "accounts.webauthn-authenticate.validate",
         "/account/webauthn-authenticate/validate",
         domain=warehouse,
+    )
+    config.add_route(
+        "accounts.recovery-code", "/account/recovery-code/", domain=warehouse,
     )
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route("accounts.register", "/account/register/", domain=warehouse)
@@ -170,6 +186,16 @@ def includeme(config):
     config.add_route(
         "manage.account.webauthn-provision.delete",
         "/manage/account/webauthn-provision/delete",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.recovery-codes.generate",
+        "/manage/account/recovery-codes/generate",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.recovery-codes.regenerate",
+        "/manage/account/recovery-codes/regenerate",
         domain=warehouse,
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)

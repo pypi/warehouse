@@ -91,12 +91,11 @@ class TestForm:
         form = Form()
         assert form.errors == {}
 
-    def test_errors_is_cached(self):
+    def test_errors_is_not_cached(self):
+        # Changed in wtforms==2.3.0 (https://github.com/wtforms/wtforms/pull/568)
         form = Form()
         assert form.errors == {}
         form._form_errors.append("An Error")
-        assert form.errors == {}
-        form._errors = None
         assert form.errors == {"__all__": ["An Error"]}
 
     def test_form_level_validation_no_validators(self):

@@ -114,7 +114,7 @@ class TestProjectDetail:
         }
 
     def test_non_normalized_name(self, db_request):
-        project = ProjectFactory.create()
+        project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
         db_request.current_route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/the-redirect/"
@@ -228,7 +228,7 @@ class TestProjectReleasesList:
         }
 
     def test_non_normalized_name(self, db_request):
-        project = ProjectFactory.create()
+        project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
         db_request.current_route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/the-redirect/releases/"
@@ -296,13 +296,13 @@ class TestProjectJournalsList:
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "user:{}".format(journals[3].submitted_by)
+        db_request.GET["q"] = "user:username"
         result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": journals[:25],
             "project": project,
-            "query": "user:{}".format(journals[3].submitted_by),
+            "query": "user:username",
         }
 
     def test_basic_query(self, db_request):
@@ -323,7 +323,7 @@ class TestProjectJournalsList:
         }
 
     def test_non_normalized_name(self, db_request):
-        project = ProjectFactory.create()
+        project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
         db_request.current_route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/the-redirect/journals/"

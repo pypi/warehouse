@@ -14,18 +14,11 @@ endif
 
 define DEPCHECKER
 import sys
-
-from pip._internal.req import parse_requirements
+from pip_api import parse_requirements
 
 left, right = sys.argv[1:3]
-left_reqs = {
-    d.name.lower()
-	for d in parse_requirements(left, session=object())
-}
-right_reqs = {
-    d.name.lower()
-	for d in parse_requirements(right, session=object())
-}
+left_reqs = parse_requirements(left).keys()
+right_reqs = parse_requirements(right).keys()
 
 extra_in_left = left_reqs - right_reqs
 extra_in_right = right_reqs - left_reqs
@@ -53,9 +46,9 @@ default:
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.7 virtual environment
+	# Create our Python 3.8 virtual environment
 	rm -rf .state/env
-	python3.7 -m venv .state/env
+	python3.8 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -91,16 +84,20 @@ serve: .state/docker-build
 debug: .state/docker-build
 	docker-compose run --rm --service-ports web
 
-tests:
+tests: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
-static_tests:
+static_tests: .state/docker-build
 	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/static_tests $(T) $(TESTARGS)
 
+static_pipeline: .state/docker-build
+	docker-compose run --rm static env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/env/pyvenv.cfg
 	$(BINDIR)/isort -rc *.py warehouse/ tests/
@@ -134,12 +131,12 @@ licenses:
 export DEPCHECKER
 deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/lint.txt requirements/lint.txt
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/deploy.txt requirements/deploy.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/main.txt requirements/main.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/lint.txt requirements/lint.txt
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
@@ -150,6 +147,7 @@ ifneq ($(PR), false)
 endif
 
 initdb:
+	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
@@ -177,9 +175,7 @@ stop:
 compile-pot: .state/env/pyvenv.cfg
 	PYTHONPATH=$(PWD) $(BINDIR)/pybabel extract \
 		-F babel.cfg \
-		--copyright-holder="PyPA" \
-		--msgid-bugs-address="https://github.com/pypa/warehouse/issues/new" \
-		--project="Warehouse" \
+		--omit-header \
 		--output="warehouse/locale/messages.pot" \
 		warehouse
 
@@ -208,5 +204,11 @@ build-mos: compile-pot
 		fi ; \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
+
+translations: compile-pot
+ifneq ($(TRAVIS), false)
+	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
+else
+endif
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot

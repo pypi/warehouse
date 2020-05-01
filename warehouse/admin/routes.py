@@ -99,15 +99,6 @@ def includeme(config):
     # Journal related Admin pages
     config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
 
-    # Classifier related Admin pages
-    config.add_route("admin.classifiers", "/admin/classifiers/", domain=warehouse)
-    config.add_route(
-        "admin.classifiers.add", "/admin/classifiers/add/", domain=warehouse
-    )
-    config.add_route(
-        "admin.classifiers.deprecate", "/admin/classifiers/deprecate/", domain=warehouse
-    )
-
     # Blacklist related Admin pages
     config.add_route("admin.blacklist.list", "/admin/blacklist/", domain=warehouse)
     config.add_route("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse)
@@ -117,6 +108,7 @@ def includeme(config):
 
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
+    config.add_route("admin.emails.mass", "/admin/emails/mass/", domain=warehouse)
     config.add_route(
         "admin.emails.detail", "/admin/emails/{email_id}/", domain=warehouse
     )
@@ -128,3 +120,26 @@ def includeme(config):
     # Squats
     config.add_route("admin.squats", "/admin/squats/", domain=warehouse)
     config.add_route("admin.squats.review", "/admin/squats/review/", domain=warehouse)
+
+    # Malware checks
+    config.add_route("admin.checks.list", "/admin/checks/", domain=warehouse)
+    config.add_route(
+        "admin.checks.detail", "/admin/checks/{check_name}", domain=warehouse
+    )
+    config.add_route(
+        "admin.checks.change_state",
+        "/admin/checks/{check_name}/change_state",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.checks.run_evaluation",
+        "/admin/checks/{check_name}/run_evaluation",
+        domain=warehouse,
+    )
+    config.add_route("admin.verdicts.list", "/admin/verdicts/", domain=warehouse)
+    config.add_route(
+        "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
+    )
+    config.add_route(
+        "admin.verdicts.review", "/admin/verdicts/{verdict_id}/review", domain=warehouse
+    )

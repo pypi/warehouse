@@ -13,11 +13,19 @@
 from zope.interface import Attribute, Interface
 
 
-class TooManyFailedLogins(Exception):
+class RateLimiterException(Exception):
     def __init__(self, *args, resets_in, **kwargs):
         self.resets_in = resets_in
 
         return super().__init__(*args, **kwargs)
+
+
+class TooManyFailedLogins(RateLimiterException):
+    pass
+
+
+class TooManyEmailsAdded(RateLimiterException):
+    pass
 
 
 class TokenException(Exception):
@@ -78,7 +86,9 @@ class IUserService(Interface):
         A UserAlreadyExists Exception is raised if the user already exists.
         """
 
-    def add_email(user_id, email_address, primary=False, verified=False):
+    def add_email(
+        user_id, email_address, ip_address, primary=False, verified=False, public=False
+    ):
         """
         Adds an email for the provided user_id
         """
@@ -115,6 +125,16 @@ class IUserService(Interface):
     def has_webauthn(user_id):
         """
         Returns True if the user has a security key provisioned.
+        """
+
+    def has_recovery_codes(user_id):
+        """
+        Returns True if the user has at least one valid recovery code.
+        """
+
+    def get_recovery_codes(user_id):
+        """
+        Returns RecoveryCode objects associated with the user.
         """
 
     def get_totp_secret(user_id):
@@ -185,6 +205,20 @@ class IUserService(Interface):
         tag, IP address, and additional metadata.
 
         Returns the event.
+        """
+
+    def generate_recovery_codes(user_id):
+        """
+        Generates RecoveryCode objects for the given user.
+
+        Returns a list of plain-text codes.
+        """
+
+    def check_recovery_code(user_id, code):
+        """
+        Checks if supplied code matches a valid hashed recovery code for the given user.
+
+        Returns True if supplied recovery code is valid, and destroys stored code.
         """
 
 

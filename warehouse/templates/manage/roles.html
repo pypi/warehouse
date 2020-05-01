@@ -40,16 +40,7 @@
       </tr>
     </thead>
     <tbody>
-    {#
-    The following two lines are added to handle multiple roles for a single
-    user. They should be removed when fixing GH-2745.
-
-    TODO: Change them back to:
-
     {% for role in roles|sort(attribute="user.username") %}
-    #}
-    {% for username, roles in roles_by_user|dictsort %}
-      {% set role = roles|max %}
       <tr>
         <th scope="row">
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
@@ -75,9 +66,7 @@
         {% else %}
           <form class="table__change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            {% for role in roles %}
-              <input type="hidden" name="role_id" value="{{ role.id }}">
-            {% endfor %}
+            <input type="hidden" name="role_id" value="{{ role.id }}">
 
             <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
             <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-original="{{ role.role_name }}" autocomplete="off">
@@ -96,18 +85,7 @@
         <td class="table__align-right">
           <form method="POST" action="{{ request.route_path('manage.project.delete_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            {#
-            The following three lines are added to handle multiple roles for a
-            single user. They should be removed when fixing GH-2745.
-
-            TODO: Change them back to:
-
             <input type="hidden" name="role_id" value="{{ role.id }}">
-            #}
-            {% for role in roles %}
-              <input type="hidden" name="role_id" value="{{ role.id }}">
-            {% endfor %}
-
             <button
               type="submit"
               class="button"
@@ -137,7 +115,7 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"user-errors"}) }}
+      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors"}) }}
       <div id="user-errors">
         {{ field_errors(form.username) }}
       </div>
@@ -149,7 +127,7 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.role_name(class_="form-group__input", autocomplete="off", **{"aria-describedby":"role-errors"}) }}
+      {{ form.role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"role-errors"}) }}
       <div id="role-errors">
         {{ field_errors(form.role_name) }}
       </div>
