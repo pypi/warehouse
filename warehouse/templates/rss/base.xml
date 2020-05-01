@@ -3,7 +3,7 @@
 <rss version="0.91">
   <channel>
     <title>{% block title %}{% endblock %}</title>
-    <link>{{ request.route_url('index') }}</link>
+    <link>{% block channel_link %}{{ request.route_url('index') }}{% endblock %}</link>
     <description>{% block description %}{% endblock %}</description>
     <language>en</language>
     {%- block items %}{% endblock %}
