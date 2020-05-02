@@ -1,0 +1,54 @@
+name: Docker Image CI
+
+on: [push, pull_request]
+
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+        
+    - name: Install Curl
+      run: sudo apt install libcurl4-openssl-dev libssl-dev
+  
+    - name: Build
+      run: make build
+      
+    - name: Tests
+      if: always()
+      run: make tests
+      
+    - name: Lint
+      if: always()
+      run: make lint
+            
+    - name: Dependencies      
+      if: always()
+      run: make deps
+      
+    - name: Licenses
+      if: always()
+      run: make licenses
+
+    - name: Documentation
+      if: always()
+      run: make docs
+      
+    - name: Translations
+      if: always()
+      run: make translations
+      
+    - name: Static Tests
+      if: always()
+      run: make static_tests
+      
+    - name: Static Pipeline
+      if: always()
+      run: make static_pipeline
