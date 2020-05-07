@@ -74,7 +74,7 @@
     {% if macaroon.caveats.permissions == "user" %}
 
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
@@ -84,7 +84,7 @@
   password = {{ serialized_macaroon }}</pre>
     {% else %}
     <p>
-      {% trans trimmed href='https://pypi.org/project/virtualenv/', filename='$HOME/.pypirc' %}
+      {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
