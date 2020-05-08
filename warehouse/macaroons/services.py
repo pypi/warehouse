@@ -13,6 +13,7 @@
 import binascii
 import datetime
 import json
+import struct
 import uuid
 
 import pymacaroons
@@ -76,7 +77,11 @@ class DatabaseMacaroonService:
         try:
             return pymacaroons.Macaroon.deserialize(raw_macaroon)
         except (
+            IndexError,
+            TypeError,
+            ValueError,
             binascii.Error,
+            struct.error,
             MacaroonDeserializationException,
         ):
             raise InvalidMacaroon("malformed macaroon")

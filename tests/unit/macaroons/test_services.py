@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import binascii
+import struct
 
 from unittest import mock
 from uuid import uuid4
@@ -162,7 +163,11 @@ class TestDatabaseMacaroonService:
     @pytest.mark.parametrize(
         "exception",
         [
+            IndexError,
+            TypeError,
+            ValueError,
             binascii.Error,
+            struct.error,
             MacaroonDeserializationException,
         ],
     )
