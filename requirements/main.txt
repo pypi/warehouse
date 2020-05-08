@@ -71,13 +71,13 @@ bleach==3.1.5 \
     --hash=sha256:2bce3d8fab545a6528c8fa5d9f9ae8ebc85a56da365c7f85180bfe96a35ef22f \
     --hash=sha256:3c4c520fdb9db59ef139915a5db79f8b51bc2a7257ea0389f30c846883430a4b \
     # via readme-renderer
-boto3==1.13.5 \
-    --hash=sha256:60d9833685713815fb3fd72a513813a2810d75179c35d781388825a09cccf6cb \
-    --hash=sha256:85155ebc55a4437ce48e45e900c10794f8372bba74e2c4c3c738b3b56d08139a \
+boto3==1.13.6 \
+    --hash=sha256:05f75d30aa10094eb96bba22b25b6005126de748188f196a5fffab8a76d821ac \
+    --hash=sha256:f1ac7eb23ff8b1d7e314123668ff1e93b874dd396ac5424adc443d68bd8a6fbf \
     # via -r requirements/main.in, celery
-botocore==1.16.5 \
-    --hash=sha256:75fb94cb4dac9fd4967a536a212fd0cc1def9ef8f41d97fc52e1f14b4c465647 \
-    --hash=sha256:eaaffe84db50281f589c8eee343064294d82eee9966b172778f5c795ffe43149 \
+botocore==1.16.6 \
+    --hash=sha256:1f5e57f41f9f9400feffc62f17b517a601643ffec69f7ee927555604112cc012 \
+    --hash=sha256:b9c8e0aa07770b7b371d586db41eef46e70bfc4ab47f7a1ee1acd4e9c811c6c9 \
     # via boto3, s3transfer
 cachetools==4.1.0 \
     --hash=sha256:1d057645db16ca7fe1f3bd953558897603d6f0b9c51ed9d11eb4d071ec4e2aab \
