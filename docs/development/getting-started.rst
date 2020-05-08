@@ -58,6 +58,11 @@ you stay up-to-date with our repository:
 Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. note::
+   In case you are used to using a venv/virtualenv or virtual environment for Python development:
+   don't use one for warehouse development. Our Makefile scripts and Docker container development flow
+   creates and removes virtualenvs as needed while you are building and testing your work locally.
+
 Why Docker?
 ~~~~~~~~~~~
 
