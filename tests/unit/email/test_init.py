@@ -1322,6 +1322,7 @@ class TestYankedReleaseEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="Yanky Doodle went to town",
         )
 
         result = email.send_yanked_project_release_email(
@@ -1340,6 +1341,7 @@ class TestYankedReleaseEmail:
             "submitter": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
+            "yanked_reason": "Yanky Doodle went to town",
         }
 
         subject_renderer.assert_(project="test_project")
@@ -1426,6 +1428,7 @@ class TestYankedReleaseEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="Yanky Doodle went to town",
         )
 
         result = email.send_yanked_project_release_email(
@@ -1444,6 +1447,7 @@ class TestYankedReleaseEmail:
             "submitter": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
+            "yanked_reason": "Yanky Doodle went to town"
         }
 
         subject_renderer.assert_(project="test_project")
@@ -1532,6 +1536,7 @@ class TestUnyankedReleaseEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="",
         )
 
         result = email.send_unyanked_project_release_email(
@@ -1636,6 +1641,7 @@ class TestUnyankedReleaseEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="",
         )
 
         result = email.send_unyanked_project_release_email(
@@ -1742,6 +1748,7 @@ class TestRemovedReleaseEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="",
         )
 
         result = email.send_removed_project_release_email(
@@ -1846,6 +1853,7 @@ class TestRemovedReleaseEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="",
         )
 
         result = email.send_removed_project_release_email(
@@ -1952,6 +1960,7 @@ class TestRemovedReleaseFileEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="",
         )
 
         result = email.send_removed_project_release_file_email(
@@ -2057,6 +2066,7 @@ class TestRemovedReleaseFileEmail:
             version="0.0.0",
             project=pretend.stub(name="test_project"),
             created=datetime.datetime(2017, 2, 5, 0, 0, 0, 0),
+            yanked_reason="",
         )
 
         result = email.send_removed_project_release_file_email(

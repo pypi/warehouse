@@ -244,6 +244,7 @@ def send_yanked_project_release_email(
         "submitter": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "yanked_reason": release.yanked_reason,
     }
 
 
