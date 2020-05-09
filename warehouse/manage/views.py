@@ -1056,6 +1056,8 @@ class ManageProjectRelease:
     @view_config(request_method="POST", request_param=["confirm_yank_version"])
     def yank_project_release(self):
         version = self.request.POST.get("confirm_yank_version")
+        yanked_reason = self.request.POST.get("yanked_reason", "")
+
         if not version:
             self.request.session.flash("Confirm the request", queue="error")
             return HTTPSeeOther(
@@ -1104,6 +1106,7 @@ class ManageProjectRelease:
         )
 
         self.release.yanked = True
+        self.release.yanked_reason = yanked_reason
 
         self.request.session.flash(
             f"Yanked release {self.release.version!r}", queue="success"
