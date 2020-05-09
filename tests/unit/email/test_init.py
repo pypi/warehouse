@@ -1447,7 +1447,7 @@ class TestYankedReleaseEmail:
             "submitter": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
-            "yanked_reason": "Yanky Doodle went to town"
+            "yanked_reason": "Yanky Doodle went to town",
         }
 
         subject_renderer.assert_(project="test_project")
