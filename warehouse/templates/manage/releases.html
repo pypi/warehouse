@@ -115,7 +115,16 @@
         {% else %}
           {% set slug = 'yank_release-modal-{}'.format(loop.index) %}
           {% set title = gettext("Yank release") %}
-          {{ confirm_modal(title, gettext('Version'), 'yank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False) }}
+          {% set extra_description %}
+            <p>
+              {% trans project_name=project.name, version=release.version %}
+                You may provide a reason for yanking this release, which will be displayed by pip to users who install <code>{{ project_name }}=={{ version }}</code>.
+              {% endtrans %}
+            </p>
+            <label for="yanked_reason">{% trans %}Reason (optional){% endtrans %}</label>
+            <input name="yanked_reason" id="yanked_reason" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+          {% endset %}
+          {{ confirm_modal(title, gettext('Version'), 'yank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False, extra_description=extra_description) }}
 
           {% set slug = 'delete_release-modal-{}'.format(loop.index) %}
           {% set title = gettext("Delete release") %}
