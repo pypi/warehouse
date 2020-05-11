@@ -317,7 +317,9 @@ def pytest_runtest_makereport(item, call):
             browser = item.funcargs["browser"]
             for log_type in set(browser.log_types) - {"har"}:
                 data = "\n\n".join(
-                    filter(None, (l.get("message") for l in browser.get_log(log_type)))
+                    filter(
+                        None, (log.get("message") for log in browser.get_log(log_type))
+                    )
                 )
                 if data:
                     rep.sections.append(("Captured {} log".format(log_type), data))

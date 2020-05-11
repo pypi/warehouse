@@ -43,7 +43,7 @@ class LocalFileStorage:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(request.registry.settings[f"files.path"])
+        return cls(request.registry.settings["files.path"])
 
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
@@ -74,7 +74,7 @@ class LocalDocsStorage:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(request.registry.settings[f"docs.path"])
+        return cls(request.registry.settings["docs.path"])
 
     def remove_by_prefix(self, prefix):
         directory = os.path.join(self.base, prefix)

@@ -77,7 +77,7 @@ def run_evaluation(request):
 
     if check.state not in (MalwareCheckState.Enabled, MalwareCheckState.Evaluation):
         request.session.flash(
-            f"Check must be in 'enabled' or 'evaluation' state to manually execute.",
+            "Check must be in 'enabled' or 'evaluation' state to manually execute.",
             queue="error",
         )
         return HTTPSeeOther(
