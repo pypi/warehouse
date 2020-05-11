@@ -487,7 +487,7 @@ class TestManageAccount:
 
         assert view.change_primary_email() == view.default_response
         assert db_request.session.flash.calls == [
-            pretend.call(f"Email address not found", queue="error")
+            pretend.call("Email address not found", queue="error")
         ]
         assert old_primary.primary
 

@@ -345,7 +345,7 @@ class ManageAccountViews:
 
         if not form.validate():
             self.request.session.flash(
-                f"Could not delete account - Invalid credentials. Please try again.",
+                "Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
             return self.default_response

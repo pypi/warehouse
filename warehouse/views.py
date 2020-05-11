@@ -332,9 +332,9 @@ def search(request):
         the filter's children.
         """
         d = {}
-        for l in split_list:
+        for list_ in split_list:
             current_level = d
-            for part in l:
+            for part in list_:
                 if part not in current_level:
                     current_level[part] = {}
                 current_level = current_level[part]
