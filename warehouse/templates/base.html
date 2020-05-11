@@ -62,7 +62,7 @@
 {%- endmacro %}
 
 <!DOCTYPE html>
-<html lang="{{ request.locale['code'] }}">
+<html lang="{{ request.locale['code'] }}" dir="{{ 'rtl' if request.locale['bidi'] else 'ltr'}}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -78,7 +78,11 @@
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
 
+    {% if request.locale['bidi'] %}
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-rtl.css') }}">
+    {% else %}
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-ltr.css') }}">
+    {% endif %}
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
