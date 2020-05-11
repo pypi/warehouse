@@ -78,7 +78,7 @@
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
 
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-ltr.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
