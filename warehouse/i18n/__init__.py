@@ -46,6 +46,7 @@ KNOWN_LOCALES = {
         "name_local": "简体中文",
     },
     "ru": {"bidi": False, "code": "ru", "name": "Russian", "name_local": "Русский"},
+    "he": {"bidi": True, "code": "he", "name": "Hebrew", "name_local": "עברית"},
 }
 
 LOCALE_ATTR = "_LOCALE_"
