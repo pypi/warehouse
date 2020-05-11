@@ -491,7 +491,7 @@ class TestAddRole:
             views.add_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(f"Provide a username", queue="error")
+            pretend.call("Provide a username", queue="error")
         ]
 
     def test_add_role_no_user(self, db_request):
@@ -507,7 +507,7 @@ class TestAddRole:
             views.add_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(f"Unknown username 'bar'", queue="error")
+            pretend.call("Unknown username 'bar'", queue="error")
         ]
 
     def test_add_role_no_role_name(self, db_request):
@@ -524,7 +524,7 @@ class TestAddRole:
             views.add_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(f"Provide a role", queue="error")
+            pretend.call("Provide a role", queue="error")
         ]
 
     def test_add_role_with_existing_role(self, db_request):
@@ -542,9 +542,7 @@ class TestAddRole:
             views.add_role(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(
-                f"User 'bar' already has a role on this project", queue="error"
-            )
+            pretend.call("User 'bar' already has a role on this project", queue="error")
         ]
 
 
