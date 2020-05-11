@@ -13,9 +13,9 @@ beautifulsoup4==4.9.0 \
     --hash=sha256:a4bbe77fd30670455c5296242967a123ec28c37e9702a8a81bd2f20a4baf0368 \
     --hash=sha256:d4e96ac9b0c3a6d3f0caae2e4124e6055c5dcafde8e2f831ff194c104f0775a0 \
     # via webtest
-bok-choy==1.0.1 \
-    --hash=sha256:123b6593a458a3897976e75f4b477f0182f7485d8021f9092c942c7e1221b6b9 \
-    --hash=sha256:2691f49ba67d2cb998d3dbd5074fc9ae61908c54cf0af2fdfb3e845087cc3e23 \
+bok-choy==1.1.1 \
+    --hash=sha256:67e8a868d645d68cfc0d1d14fe2bf522f1508655242333a1161d748af1d02650 \
+    --hash=sha256:aa807f7cd704699743761921c453df42fbb2f5424709b796e76246c27fdd018a \
     # via -r requirements/tests.in
 certifi==2020.4.5.1 \
     --hash=sha256:1d987a998c75633c40847cc966fcf5904906c920a7f17ef374f5aa4282abd304 \
