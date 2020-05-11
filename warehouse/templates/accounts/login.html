@@ -28,6 +28,8 @@
   <div class="horizontal-section">
     <div class="site-container">
       <h1 class="page-title">{% trans title=title %}Log in to {{ title }}{% endtrans %}</h1>
+     
+     {% macro form(field) %}
 
       <form method="POST" action="{{ request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -99,6 +101,7 @@
           </div>
         </div>
       </form>
+     { % endmacro %}
     </div>
   </div>
 {% endblock %}
