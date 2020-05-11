@@ -22,14 +22,14 @@ from pyramid.threadlocal import get_current_request
 @jinja2.contextfilter
 def format_date(ctx, *args, **kwargs):
     request = ctx.get("request") or get_current_request()
-    kwargs.setdefault("locale", request.locale)
+    kwargs.setdefault("locale", request.locale["code"])
     return babel.dates.format_date(*args, **kwargs)
 
 
 @jinja2.contextfilter
 def format_datetime(ctx, *args, **kwargs):
     request = ctx.get("request") or get_current_request()
-    kwargs.setdefault("locale", request.locale)
+    kwargs.setdefault("locale", request.locale["code"])
     return babel.dates.format_datetime(*args, **kwargs)
 
 
@@ -42,5 +42,5 @@ def format_rfc822_datetime(ctx, dt, *args, **kwargs):
 def format_number(ctx, number, locale=None):
     request = ctx.get("request") or get_current_request()
     if locale is None:
-        locale = request.locale
+        locale = request.locale["code"]
     return babel.numbers.format_number(number, locale=locale)

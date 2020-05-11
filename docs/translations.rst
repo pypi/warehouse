@@ -24,8 +24,9 @@ To add a new known locale:
 2. In a new branch, add a key/value to the ``KNOWN_LOCALES`` mapping in
    |warehouse/i18n/__init__.py|_.
    The key is the locale code, and corresponds to a directory in
-   ``warehouse/locale``, and the value is the human-readable name for the
-   locale, in the given language.
+   ``warehouse/locale``, and the value is ``dict`` of values that correspond to
+   the locale. It's important to ensure that the ``'code'`` value matches the
+   key.
 3. Compile the MO file for the locale by running ``make build-mos``. This may
    recompile some existing MO files as well, but should add a new MO file for
    the new locale.
