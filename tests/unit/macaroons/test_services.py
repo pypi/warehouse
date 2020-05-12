@@ -84,7 +84,7 @@ class TestDatabaseMacaroonService:
         assert macaroon_service.find_userid(raw_macaroon) is None
 
     def test_find_userid_malformed_macaroon(self, macaroon_service):
-        assert macaroon_service.find_userid(f"pypi-thiswillnotdeserialize") is None
+        assert macaroon_service.find_userid("pypi-thiswillnotdeserialize") is None
 
     def test_find_userid_valid_macaroon_trailinglinebreak(self, macaroon_service):
         user = UserFactory.create()
@@ -185,7 +185,7 @@ class TestDatabaseMacaroonService:
 
     def test_verify_malformed_macaroon(self, macaroon_service):
         with pytest.raises(services.InvalidMacaroon):
-            macaroon_service.verify(f"pypi-thiswillnotdeserialize", None, None, None)
+            macaroon_service.verify("pypi-thiswillnotdeserialize", None, None, None)
 
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
