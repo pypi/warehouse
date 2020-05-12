@@ -96,11 +96,15 @@
 @import "blocks/mobile-search-bar";
 @import "blocks/modal";
 @import "blocks/notification-bar";
+/*rtl:begin:ignore*/
 @import "blocks/package-description";
 @import "blocks/package-header";
 @import "blocks/package-snippet";
+/*rtl:end:ignore*/
 @import "blocks/password-strength";
+/*rtl:begin:ignore*/
 @import "blocks/project-description";
+/*rtl:end:ignore*/
 @import "blocks/release";
 @import "blocks/release-timeline";
 @import "blocks/search-form";
