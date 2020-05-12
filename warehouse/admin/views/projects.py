@@ -390,7 +390,7 @@ def delete_role(project, request):
 
     role = request.db.query(Role).get(role_id)
     if not role:
-        request.session.flash(f"This role no longer exists", queue="error")
+        request.session.flash("This role no longer exists", queue="error")
         raise HTTPSeeOther(
             request.route_path(
                 "admin.project.detail", project_name=project.normalized_name
