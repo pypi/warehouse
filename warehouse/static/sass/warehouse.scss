@@ -74,7 +74,9 @@
 @import "blocks/callout-block";
 @import "blocks/centered-heading";
 @import "blocks/checkbox-tree";
+/*rtl:begin:ignore*/
 @import "blocks/code-block";
+/*rtl:end:ignore*/
 @import "blocks/copy-tooltip";
 @import "blocks/dark-overlay";
 @import "blocks/dropdown";
@@ -116,7 +118,9 @@
 @import "blocks/sponsors";
 @import "blocks/sponsorship-benefits";
 @import "blocks/sponsorship-intro";
+/*rtl:begin:ignore*/
 @import "blocks/status-badge";
+/*rtl:end:ignore*/
 @import "blocks/statistics-bar";
 @import "blocks/table";
 @import "blocks/totp-form";
@@ -286,6 +290,21 @@
     display: block;
   }
 }
+
+// RTL SUPPORT
+/*rtl:begin:ignore*/
+// force  email select to display ltr
+#public_email {
+  direction: ltr;
+}
+
+// fix padding on split layouts
+html[dir="rtl"] .package-snippet .split-layout>:first-child,
+html[dir="rtl"] .package-description.split-layout>:first-child {
+  padding-left: 0;
+  padding-right: $spacing-unit;
+}
+/*rtl:end:ignore*/
 
 // ACCESSIBILITY
 /*
