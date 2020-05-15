@@ -437,7 +437,8 @@
         </ul>
       </div>
       <div>
-        <input value="Update password" class="button button--primary" type="submit" data-target="password-match.submit">
+        {% set updateButtonText=gettext("Update password") %}
+        <input value="{{ updateButtonText }}" class="button button--primary" type="submit" data-target="password-match.submit">
       </div>
     </form>
   </section>
