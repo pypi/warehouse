@@ -291,18 +291,31 @@
   }
 }
 
-// RTL SUPPORT
+// RTL SUPPORT. See https://rtlcss.com/
 /*rtl:begin:ignore*/
-// force  email select to display ltr
-#public_email {
-  direction: ltr;
-}
-
 // fix padding on split layouts
 html[dir="rtl"] .package-snippet .split-layout>:first-child,
 html[dir="rtl"] .package-description.split-layout>:first-child {
   padding-left: 0;
   padding-right: $spacing-unit;
+}
+
+// Force humanized time to display ltr
+// Remove when/if this is marked for translation
+time {
+  direction: ltr;
+}
+
+// force email select to display ltr
+// Remove when/if this is marked for translation
+#public_email {
+  direction: ltr;
+}
+
+// force form errors to display ltr
+// Remove when/if these are marked for translation
+.form-errors {
+  text-align: left;
 }
 /*rtl:end:ignore*/
 
