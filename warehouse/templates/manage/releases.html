@@ -15,7 +15,7 @@
 
 {% set active_tab = 'releases' %}
 
-{% macro release_table(releases) %}
+{% macro release_table(releases, show_yanked_reason=False) %}
 <table class="table table--releases">
   <caption class="sr-only">{% trans project_name=project.name %}Releases for {{ project_name }}{% endtrans %}</caption>
   <thead>
@@ -23,6 +23,9 @@
       <th scope="col">{% trans %}Version{% endtrans %}</th>
       <th scope="col">{% trans %}Release date{% endtrans %}</th>
       <th scope="col">{% trans %}Files{% endtrans %}</th>
+      {% if show_yanked_reason %}
+      <th scope="col">{% trans %}Yanked reason{% endtrans %}</th>
+      {% endif %}
       <th scope="col"></th>
     </tr>
   </thead>
@@ -56,6 +59,11 @@
         {% trans %}No files{% endtrans %}
         {% endif %}
       </td>
+      {% if show_yanked_reason %}
+      <td>
+          {{ release.yanked_reason }}
+      </td>
+      {% endif %}
       <td class="table__align-right">
         <nav class="dropdown dropdown--with-icons">
           <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View release options{% endtrans %}">
@@ -152,7 +160,7 @@
   {% set yanked_releases = project.releases|selectattr("yanked")|list %}
   {% if yanked_releases %}
   <h2>{% trans release_count=yanked_releases|length %}Yanked Releases ({{ release_count }}){% endtrans %}</h2>
-  {{ release_table(yanked_releases) }}
+  {{ release_table(yanked_releases, show_yanked_reason=True) }}
   {% endif %}
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">
