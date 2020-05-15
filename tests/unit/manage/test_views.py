@@ -2607,9 +2607,13 @@ class TestManageProjectRelease:
             ),
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
             yanked=False,
+            yanked_reason="",
         )
         request = pretend.stub(
-            POST={"confirm_yank_version": release.version},
+            POST={
+                "confirm_yank_version": release.version,
+                "yanked_reason": "Yanky Doodle went to town",
+            },
             method="POST",
             db=pretend.stub(add=pretend.call_recorder(lambda a: None),),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
@@ -2644,6 +2648,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert release.yanked
+        assert release.yanked_reason == "Yanky Doodle went to town"
 
         assert get_user_role_in_project.calls == [
             pretend.call(release.project, request.user, request,),
@@ -2690,7 +2695,10 @@ class TestManageProjectRelease:
 
     def test_yank_project_release_no_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=False
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=False,
+            yanked_reason="",
         )
         request = pretend.stub(
             POST={"confirm_yank_version": ""},
@@ -2707,6 +2715,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert not release.yanked
+        assert not release.yanked_reason
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -2721,7 +2730,10 @@ class TestManageProjectRelease:
 
     def test_yank_project_release_bad_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=False
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=False,
+            yanked_reason="",
         )
         request = pretend.stub(
             POST={"confirm_yank_version": "invalid"},
@@ -2738,6 +2750,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert not release.yanked
+        assert not release.yanked_reason
 
         assert request.session.flash.calls == [
             pretend.call(
@@ -2803,6 +2816,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert not release.yanked
+        assert not release.yanked_reason
 
         assert get_user_role_in_project.calls == [
             pretend.call(release.project, request.user, request),
@@ -2849,10 +2863,16 @@ class TestManageProjectRelease:
 
     def test_unyank_project_release_no_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=True
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=True,
+            yanked_reason="",
         )
         request = pretend.stub(
-            POST={"confirm_unyank_version": ""},
+            POST={
+                "confirm_unyank_version": "",
+                "yanked_reason": "Yanky Doodle went to town",
+            },
             method="POST",
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
@@ -2866,6 +2886,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert release.yanked
+        assert not release.yanked_reason
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -2880,10 +2901,13 @@ class TestManageProjectRelease:
 
     def test_unyank_project_release_bad_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=True
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=True,
+            yanked_reason="Old reason",
         )
         request = pretend.stub(
-            POST={"confirm_unyank_version": "invalid"},
+            POST={"confirm_unyank_version": "invalid", "yanked_reason": "New reason"},
             method="POST",
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
@@ -2897,6 +2921,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert release.yanked
+        assert release.yanked_reason == "Old reason"
 
         assert request.session.flash.calls == [
             pretend.call(

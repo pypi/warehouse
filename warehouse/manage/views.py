@@ -1183,6 +1183,7 @@ class ManageProjectRelease:
         )
 
         self.release.yanked = False
+        self.release.yanked_reason = ""
 
         self.request.session.flash(
             f"Un-yanked release {self.release.version!r}", queue="success"
