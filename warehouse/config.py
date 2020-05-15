@@ -160,7 +160,9 @@ def configure(settings=None):
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
-    maybe_set(settings, "warehouse.github_access_token", "WAREHOUSE_GITHUB_ACCESS_TOKEN")
+    maybe_set(
+        settings, "warehouse.github_access_token", "WAREHOUSE_GITHUB_ACCESS_TOKEN"
+    )
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")

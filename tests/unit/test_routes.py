@@ -303,6 +303,14 @@ def test_routes(warehouse):
         pretend.call("ses.hook", "/_/ses-hook/", domain=warehouse),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
+        pretend.call(
+            "rss.project.releases",
+            "/rss/project/{name}/releases.xml",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/",
+            read_only=True,
+            domain=warehouse,
+        ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
@@ -363,7 +371,18 @@ def test_routes(warehouse):
             "pages/security.html",
             view_kw={"has_translations": True},
         ),
-        pretend.call("credits", "/credits/", "templates/pages/credits.html"),
+        pretend.call(
+            "credits",
+            "/credits/",
+            "templates/pages/credits.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "sponsor",
+            "/sponsor/",
+            "pages/sponsor.html",
+            view_kw={"has_translations": True},
+        ),
         pretend.call(
             "sponsors",
             "/sponsors/",

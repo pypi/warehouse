@@ -41,6 +41,7 @@ def _project_docs(db, project_name=None):
 
     releases_list = (
         db.query(Release.id)
+        .filter(Release.yanked.is_(False))
         .order_by(
             Release.project_id,
             Release.is_prerelease.nullslast(),

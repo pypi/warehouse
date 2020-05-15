@@ -38,6 +38,7 @@ from pyramid.view import (
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
+from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -53,8 +54,6 @@ from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
-
-# 403, 404, 410, 500,
 
 
 @view_config(context=HTTPException)
@@ -261,15 +260,8 @@ def locale(request):
 @view_config(
     route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
 )
-def classifiers(request):
-    classifiers = (
-        request.db.query(Classifier.classifier)
-        .filter(Classifier.deprecated.is_(False))
-        .order_by(Classifier.classifier)
-        .all()
-    )
-
-    return {"classifiers": classifiers}
+def list_classifiers(request):
+    return {"classifiers": sorted(classifiers)}
 
 
 @view_config(
@@ -313,11 +305,11 @@ def search(request):
     classifiers_q = (
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
-        .filter(Classifier.deprecated.is_(False))
         .filter(
             exists([release_classifiers.c.trove_id]).where(
                 release_classifiers.c.trove_id == Classifier.id
-            )
+            ),
+            Classifier.classifier.notin_(deprecated_classifiers.keys()),
         )
         .order_by(Classifier.classifier)
     )
@@ -340,9 +332,9 @@ def search(request):
         the filter's children.
         """
         d = {}
-        for l in split_list:
+        for list_ in split_list:
             current_level = d
-            for part in l:
+            for part in list_:
                 if part not in current_level:
                     current_level[part] = {}
                 current_level = current_level[part]

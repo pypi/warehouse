@@ -50,6 +50,13 @@ def includeme(config):
         "credits",
         "/credits/",
         "templates/pages/credits.html",
+        view_kw={"has_translations": True},
+    )
+    config.add_template_view(
+        "sponsor",
+        "/sponsor/",
+        "pages/sponsor.html",
+        view_kw={"has_translations": True},
     )
     config.add_template_view(
         "sponsors",
@@ -301,6 +308,14 @@ def includeme(config):
     # RSS
     config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
+    config.add_route(
+        "rss.project.releases",
+        "/rss/project/{name}/releases.xml",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/",
+        read_only=True,
+        domain=warehouse,
+    )
 
     # Legacy URLs
     config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)

@@ -58,6 +58,11 @@ you stay up-to-date with our repository:
 Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. note::
+   In case you are used to using a venv/virtualenv or virtual environment for Python development:
+   don't use one for warehouse development. Our Makefile scripts and Docker container development flow
+   creates and removes virtualenvs as needed while you are building and testing your work locally.
+
 Why Docker?
 ~~~~~~~~~~~
 
@@ -164,7 +169,7 @@ application.
 
    If you are using Linux, you may need to configure the maximum map count to get
    the `elasticsearch` up and running. According to the
-   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
+   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/vm-max-map-count.html>`_
    this can be set temporarily:
 
    .. code-block:: console
@@ -177,7 +182,7 @@ application.
    Also check that you have more than 5% disk space free, otherwise
    elasticsearch will become read only. See ``flood_stage`` in the
    `elasticsearch disk allocation docs
-   <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/disk-allocator.html>`_.
+   <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/disk-allocator.html>`_.
 
 
 Once ``make build`` has finished,  run the command:
@@ -581,12 +586,12 @@ Use :command:`make` to build the documentation. For example:
 The HTML documentation index can now be found at
 :file:`docs/_build/html/index.html`.
 
-Building the docs requires Python 3.7. If it is not installed, the
+Building the docs requires Python 3.8. If it is not installed, the
 :command:`make` command will give the following error message:
 
 .. code-block:: console
 
-  make: python3.7: Command not found
+  make: python3.8: Command not found
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 

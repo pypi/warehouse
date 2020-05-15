@@ -53,6 +53,7 @@
 {% macro installing() %}{% trans %}How do I install a file (package) from PyPI?{% endtrans %}{% endmacro %}
 {% macro publishing() %}{% trans %}How do I package and publish my code for PyPI?{% endtrans %}{% endmacro %}
 {% macro trove_classifier() %}{% trans %}What's a trove classifier?{% endtrans %}{% endmacro %}
+{% macro yanked() %}{% trans %}What's a "yanked" release?{% endtrans %}{% endmacro %}
 
 {% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
@@ -109,6 +110,7 @@
           <li><a href="#installing">{{ installing() }}</a></li>
           <li><a href="#publishing">{{ publishing() }}</a></li>
           <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
+          <li><a href="#yanked">{{ yanked() }}</a></li>
         </ul>
       </section>
 
@@ -207,6 +209,13 @@
         <p>
           {% trans trimmed href=request.route_path('classifiers') %}
           Classifiers are used to categorize projects on PyPI. See <a href="{{ href }}">the classifiers page</a> for more information, as well as a list of valid classifiers.
+          {% endtrans %}
+        </p>
+
+        <h3 id="yanked">{{ yanked() }}</h3>
+        <p>
+          {% trans trimmed href='https://www.python.org/dev/peps/pep-0592/', title=gettext('External link') %}
+          A yanked release is a release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either <code>==</code> or <code>===</code>). See <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 592</a> for more information.
           {% endtrans %}
         </p>
       </section>
@@ -471,7 +480,7 @@
         <p>{% trans href='https://pypi.org/project/bandersnatch/' %}If you need to run your own mirror of PyPI, the <a href="{{ href }}">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!{% endtrans %}</p>
 
         <h3 id="project-release-notifications">{{ project_release_notifications() }}</h3>
-        <p>{% trans href='https://github.com/marketplace?category=dependency-management&query=python', title=gettext('External link') %}PyPI itself does not offer a way to get notified when a project uploads new releases. However, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities listed as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">GitHub apps</a>.{% endtrans %}</p>
+        <p>{% trans href='https://github.com/marketplace?category=dependency-management&query=python', title=gettext('External link'), rss_href='https://warehouse.readthedocs.io/api-reference/feeds/#project-releases-feed' %}You can subscribe to the <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">project releases RSS feed</a>. Additionally, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities listed as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">GitHub apps</a>.{% endtrans %}</p>
 
         <h3 id="statistics">{{ statistics() }}</h3>
         <p>{% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">analyze PyPI download usage statistics via our public dataset on Google BigQuery</a>.{% endtrans %}</p>
@@ -557,7 +566,7 @@
         </ul>
         <p>
           {% trans trimmed href='https://github.com/pypa/pypi-support/issues/new?labels=account-recovery&template=account-recovery.md&title=Account+recovery+request', title=gettext('External link') %}
-            You can proceed to, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
+            You can proceed to <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
           {% endtrans %}
         </p>
         {{ code_of_conduct() }}
@@ -565,7 +574,7 @@
         <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
         <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
         <ol>
-          <li>{% trans %}Check to see if your username or password are incorrect.{% endtrans %}</li>
+          <li>{% trans %}Ensure that your username and password are correct.{% endtrans %}</li>
           <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
         </ol>
         <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
@@ -573,6 +582,7 @@
           <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
         </ol>
+        <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
 
         <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
         <p>
@@ -647,9 +657,8 @@
 
         <h3 id="new-classifier">{{ new_classifier() }}</h3>
         <p>
-          {% trans trimmed href='https://github.com/pypa/warehouse/issues/new?title=Request+trove+classifier&template=new-trove-classifier.md', title=gettext('External link') %}
-            If you would like to request a new trove classifier file a bug on our <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
-            Include the name of the requested classifier and a brief justification of why it is important.
+          {% trans trimmed href='https://github.com/pypa/trove-classifiers/', title=gettext('External link') %}
+          If you would like to request a new trove classifier file a pull request on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>pypa/trove-classifiers</code> project</a>. Be sure to include a brief justification of why it is important.
           {% endtrans %}
         </p>
         {{ code_of_conduct() }}

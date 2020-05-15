@@ -16,7 +16,6 @@ import pytest
 from celery.schedules import crontab
 
 from warehouse import credits
-
 from warehouse.credits.tasks import get_contributors
 
 

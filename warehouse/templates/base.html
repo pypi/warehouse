@@ -39,7 +39,7 @@
   <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
     <ul>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a></li>
-      <li class="horizontal-menu__item"><a href="https://donate.pypi.org" class="horizontal-menu__link">{% trans %}Donate{% endtrans %}</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('sponsor') }}" class="horizontal-menu__link">{% trans %}Sponsor{% endtrans %}</a></li>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.login') }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a></li>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.register') }}" class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a></li>
     </ul>
@@ -53,7 +53,7 @@
     </button>
     <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
       <li><a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a></li>
-      <li><a class="dropdown__link" href="https://donate.pypi.org">{% trans %}Donate{% endtrans %}</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('sponsor') }}">{% trans %}Sponsor{% endtrans %}</a></li>
       <li><a class="dropdown__link" href="{{ request.route_path('accounts.login') }}">{% trans %}Log in{% endtrans %}</a></li>
       <li><a class="dropdown__link" href="{{ request.route_path('accounts.register') }}">{% trans %}Register{% endtrans %}</a></li>
     </ul>
@@ -94,6 +94,7 @@
 
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
+    {% block additional_rss %}{% endblock %}
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}

@@ -12,9 +12,11 @@
 
 import json
 import logging
+
 import requests
 
 from warehouse import tasks
+
 from .contributors import Contributor
 
 logger = logging.getLogger(__name__)
@@ -39,20 +41,20 @@ def get_contributors(request):
 
     access_token = request.registry.settings["warehouse.github_access_token"]
 
-    headers = {'Accept': 'application/vnd.github+json'}
-    headers['Authorization'] = 'token ' + access_token
+    headers = {"Accept": "application/vnd.github+json"}
+    headers["Authorization"] = "token " + access_token
 
     initial_url = (
-        api_url
-        + "/repos/pypa/warehouse/contributors"
-        + "?page=1&per_page=100"
+        api_url + "/repos/pypa/warehouse/contributors" + "?page=1&per_page=100"
     )
 
     r = call_github_api(initial_url, headers)
 
     # This might occur if GitHub API rate limit is reached, for example
     if r is None:
-        logging.warning("Error contacting GitHub API, cannot get warehouse contributors list")
+        logging.warning(
+            "Error contacting GitHub API, cannot get warehouse contributors list"
+        )
         return None
 
     next_request = ""
@@ -65,11 +67,7 @@ def get_contributors(request):
         if r.status_code is 200:
             json_data = json.loads(r.text)
             for item in json_data:
-                users_query = (
-                    api_url
-                    + "/users/"
-                    + item["login"]
-                )
+                users_query = api_url + "/users/" + item["login"]
                 r2 = call_github_api(users_query, headers)
                 if r2.status_code is 200:
                     json_data2 = json.loads(r2.text)

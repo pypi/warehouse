@@ -260,6 +260,7 @@ class TestJSONRelease:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
+                "yanked": False,
                 "version": "3.0",
             },
             "releases": {
@@ -284,6 +285,7 @@ class TestJSONRelease:
                         "upload_time_iso_8601": files[0].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
                     }
                 ],
                 "2.0": [
@@ -306,6 +308,7 @@ class TestJSONRelease:
                         "upload_time_iso_8601": files[1].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
                     }
                 ],
                 "3.0": [
@@ -328,6 +331,7 @@ class TestJSONRelease:
                         "upload_time_iso_8601": files[2].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
                     }
                 ],
             },
@@ -349,6 +353,7 @@ class TestJSONRelease:
                     "upload_time_iso_8601": files[2].upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
+                    "yanked": False,
                 }
             ],
             "last_serial": je.id,
@@ -410,6 +415,7 @@ class TestJSONRelease:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
+                "yanked": False,
                 "version": "0.1",
             },
             "releases": {
@@ -431,6 +437,7 @@ class TestJSONRelease:
                         "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
+                        "yanked": False,
                     }
                 ]
             },
@@ -449,6 +456,7 @@ class TestJSONRelease:
                     "upload_time_iso_8601": file.upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
+                    "yanked": False,
                 }
             ],
             "last_serial": je.id,
