@@ -2689,6 +2689,7 @@ class TestManageProjectRelease:
                 additional={
                     "submitted_by": request.user.username,
                     "canonical_version": release.canonical_version,
+                    "yanked_reason": "Yanky Doodle went to town",
                 },
             )
         ]

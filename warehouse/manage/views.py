@@ -1102,6 +1102,7 @@ class ManageProjectRelease:
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
+                "yanked_reason": yanked_reason,
             },
         )
 
