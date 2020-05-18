@@ -10,10 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import binascii
 import datetime
 import json
-import struct
 import uuid
 
 import pymacaroons
@@ -77,12 +75,8 @@ class DatabaseMacaroonService:
         try:
             return pymacaroons.Macaroon.deserialize(raw_macaroon)
         except (
-            IndexError,
-            TypeError,
-            ValueError,
-            binascii.Error,
-            struct.error,
             MacaroonDeserializationException,
+            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ):
             raise InvalidMacaroon("malformed macaroon")
 
