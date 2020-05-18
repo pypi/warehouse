@@ -1,12 +1,25 @@
 #!/bin/bash
 set -e
-set -x
 
 # Click requires us to ensure we have a well configured environment to run
 # our click commands. So we'll set our environment to ensure our locale is
 # correct.
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
+
+# Test the postgres connection
+for arg in "$@"; do
+  shift
+  case "$arg" in
+    "--postgresql-host") export POSTGRES_HOST=$@
+  esac
+done
+
+# Print all the followng commands
+set -x
+
+# Test the postgres connection
+pg_isready -h $POSTGRES_HOST
 
 # Actually run our tests.
 python -m coverage run -m pytest --strict $@
