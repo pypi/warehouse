@@ -142,7 +142,17 @@
       For more information, see <a href="{{ href }}">PEP 592</a>.
     {% endtrans %}
     </p>
-    {{ confirm_button(gettext("Yank release"), gettext("Version"), "yank_version", release.version, modifier="--primary", warning=False) }}
+
+    {% set extra_description %}
+      <p>
+        {% trans project_name=project.name, version=release.version %}
+          You may provide a reason for yanking this release, which will be displayed by pip to users who install <code>{{ project_name }}=={{ version }}</code>.
+        {% endtrans %}
+      </p>
+      <label for="yanked_reason">{% trans %}Reason (optional){% endtrans %}</label>
+      <input name="yanked_reason" id="yanked_reason" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+    {% endset %}
+    {{ confirm_button(gettext("Yank release"), gettext("Version"), "yank_version", release.version, modifier="--primary", warning=False, extra_description=extra_description) }}
   </div>
 
   <div class="callout-block callout-block--danger">
