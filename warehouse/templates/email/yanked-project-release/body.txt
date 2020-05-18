@@ -19,6 +19,8 @@
 
   Yanked by: {{ submitter }} with a role: {{ submitter_role }}.
 
+  Reason: {{ yanked_reason if yanked_reason else 'None provided' }}
+
   If you have questions or concerns, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
 
