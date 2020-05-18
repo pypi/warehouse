@@ -353,6 +353,8 @@ class Release(db.Model):
 
     yanked = Column(Boolean, nullable=False, server_default=sql.false())
 
+    yanked_reason = Column(Text, nullable=False, server_default="")
+
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
