@@ -112,7 +112,11 @@ def json_release(release, request):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
-        .options(Load(Release).load_only("version", "requires_python", "yanked"))
+        .options(
+            Load(Release).load_only(
+                "version", "requires_python", "yanked", "yanked_reason"
+            )
+        )
         .outerjoin(File)
         .filter(Release.project == project)
         .order_by(Release._pypi_ordering.desc(), File.filename)
@@ -148,6 +152,7 @@ def json_release(release, request):
                 "url": request.route_url("packaging.file", path=f.path),
                 "requires_python": r.requires_python if r.requires_python else None,
                 "yanked": r.yanked,
+                "yanked_reason": r.yanked_reason or None,
             }
             for f in fs
         ]
@@ -185,6 +190,7 @@ def json_release(release, request):
             "home_page": release.home_page,
             "download_url": release.download_url,
             "yanked": release.yanked,
+            "yanked_reason": r.yanked_reason or None,
         },
         "urls": releases[release.version],
         "releases": releases,
