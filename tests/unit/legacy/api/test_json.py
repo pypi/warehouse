@@ -261,6 +261,7 @@ class TestJSONRelease:
                 "requires_python": None,
                 "summary": None,
                 "yanked": False,
+                "yanked_reason": None,
                 "version": "3.0",
             },
             "releases": {
@@ -286,6 +287,7 @@ class TestJSONRelease:
                         "url": "/the/fake/url/",
                         "requires_python": None,
                         "yanked": False,
+                        "yanked_reason": None,
                     }
                 ],
                 "2.0": [
@@ -309,6 +311,7 @@ class TestJSONRelease:
                         "url": "/the/fake/url/",
                         "requires_python": None,
                         "yanked": False,
+                        "yanked_reason": None,
                     }
                 ],
                 "3.0": [
@@ -332,6 +335,7 @@ class TestJSONRelease:
                         "url": "/the/fake/url/",
                         "requires_python": None,
                         "yanked": False,
+                        "yanked_reason": None,
                     }
                 ],
             },
@@ -354,6 +358,7 @@ class TestJSONRelease:
                     "url": "/the/fake/url/",
                     "requires_python": None,
                     "yanked": False,
+                    "yanked_reason": None,
                 }
             ],
             "last_serial": je.id,
@@ -416,6 +421,7 @@ class TestJSONRelease:
                 "requires_python": None,
                 "summary": None,
                 "yanked": False,
+                "yanked_reason": None,
                 "version": "0.1",
             },
             "releases": {
@@ -438,6 +444,7 @@ class TestJSONRelease:
                         "url": "/the/fake/url/",
                         "requires_python": None,
                         "yanked": False,
+                        "yanked_reason": None,
                     }
                 ]
             },
@@ -457,6 +464,7 @@ class TestJSONRelease:
                     "url": "/the/fake/url/",
                     "requires_python": None,
                     "yanked": False,
+                    "yanked_reason": None,
                 }
             ],
             "last_serial": je.id,
