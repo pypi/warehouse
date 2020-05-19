@@ -84,8 +84,8 @@ cachetools==4.1.0 \
 cbor2==5.1.0 \
     --hash=sha256:43ce11e8c2fe4971d386d1a60cf83bfa0a4a667b97668ba76acbf5e6398821aa \
     # via webauthn
-celery-redbeat==0.13.0 \
-    --hash=sha256:8ba060f5fffa96fc6dbb0e37a10506cada03333f34ba502b134cbbdb08891266 \
+celery-redbeat==1.0.0 \
+    --hash=sha256:36b98c32ea4ca6f6f1ccddc3fdb9f5cd7a4bd273650cf931c6c46fb7fbc60a91 \
     # via -r requirements/main.in
 celery[sqs]==4.4.2 \
     --hash=sha256:108a0bf9018a871620936c33a3ee9f6336a89f8ef0a0f567a9001f4aa361415f \
