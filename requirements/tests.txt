@@ -8,10 +8,10 @@ attrs==19.3.0 \
     --hash=sha256:08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c \
     --hash=sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72 \
     # via pytest
-beautifulsoup4==4.9.0 \
-    --hash=sha256:594ca51a10d2b3443cbac41214e12dbb2a1cd57e1a7344659849e2e20ba6a8d8 \
-    --hash=sha256:a4bbe77fd30670455c5296242967a123ec28c37e9702a8a81bd2f20a4baf0368 \
-    --hash=sha256:d4e96ac9b0c3a6d3f0caae2e4124e6055c5dcafde8e2f831ff194c104f0775a0 \
+beautifulsoup4==4.9.1 \
+    --hash=sha256:73cc4d115b96f79c7d77c1c7f7a0a8d4c57860d1041df407dd1aae7f07a77fd7 \
+    --hash=sha256:a6237df3c32ccfaee4fd201c8f5f9d9df619b93121d01353a64a73ce8c6ef9a8 \
+    --hash=sha256:e718f2342e2e099b640a34ab782407b7b676f47ee272d6739e60b8ea23829f2c \
     # via webtest
 bok-choy==1.1.1 \
     --hash=sha256:67e8a868d645d68cfc0d1d14fe2bf522f1508655242333a1161d748af1d02650 \
