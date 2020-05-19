@@ -165,10 +165,12 @@ class TestDatabaseMacaroonService:
         [
             IndexError,
             TypeError,
+            UnicodeDecodeError,
             ValueError,
             binascii.Error,
             struct.error,
             MacaroonDeserializationException,
+            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ],
     )
     def test_deserialize_raw_macaroon(self, monkeypatch, macaroon_service, exception):
