@@ -73,9 +73,9 @@ boto3==1.13.12 \
     --hash=sha256:bf1346365829525dfd8dbbafb5dbfd7383ad0872370301643d65c6190f7f5813 \
     --hash=sha256:c46f31f085de660b95162c66057bae9ebb1658a245c9210162cee9671b0ff678 \
     # via -r requirements/main.in, celery
-botocore==1.16.12 \
-    --hash=sha256:446c9279105f596765ece99b61656f76c5d5003556cd8301dd506d4f70e18940 \
-    --hash=sha256:b75a5dc97f9ac795139ea2c651c07a8522e31dc280db17243e2b20e5c210547b \
+botocore==1.16.15 \
+    --hash=sha256:0ad0bf4f38948e8dcc9a615ce37e6b170f34992a50ae3d134e7a225fcbdc0cd4 \
+    --hash=sha256:97127ad663502ea519870a10688a0a809d7012a621ab0bbc2bc2052ff0a794ea \
     # via boto3, s3transfer
 cachetools==4.1.0 \
     --hash=sha256:1d057645db16ca7fe1f3bd953558897603d6f0b9c51ed9d11eb4d071ec4e2aab \
