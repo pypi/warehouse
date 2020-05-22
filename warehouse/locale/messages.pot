@@ -809,6 +809,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
+#: warehouse/templates/manage/manage_base.html:167
 msgid "Password"
 msgstr ""
 
@@ -1845,6 +1846,10 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:424
 msgid "Confirm new password"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:440
+msgid "Update password"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:447

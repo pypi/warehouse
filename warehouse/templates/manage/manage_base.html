@@ -164,7 +164,7 @@
           <p>{% trans %}Enter your password to continue.{% endtrans %}</p>
           <div class="form-group">
             <div class="split-layout">
-              <label for="confirm_password">Password</label>
+              <label for="confirm_password">{% trans %}Password{% endtrans %}</label>
               <label for="show-confirm-password-{{ slug }}" class="show-password">
                 <input data-action="change->confirm-password#setPasswordVisibility" data-target="confirm-password.showPassword" id="show-confirm-password-{{ slug }}" type="checkbox">
                 {% trans %}Show password{% endtrans %}
