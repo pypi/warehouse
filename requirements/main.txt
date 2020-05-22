@@ -69,13 +69,13 @@ bleach==3.1.5 \
     --hash=sha256:2bce3d8fab545a6528c8fa5d9f9ae8ebc85a56da365c7f85180bfe96a35ef22f \
     --hash=sha256:3c4c520fdb9db59ef139915a5db79f8b51bc2a7257ea0389f30c846883430a4b \
     # via readme-renderer
-boto3==1.13.12 \
-    --hash=sha256:bf1346365829525dfd8dbbafb5dbfd7383ad0872370301643d65c6190f7f5813 \
-    --hash=sha256:c46f31f085de660b95162c66057bae9ebb1658a245c9210162cee9671b0ff678 \
+boto3==1.13.15 \
+    --hash=sha256:397b7abee7af6477798dcebe5a2c5abe2c61e5bf175248adee3156a627ec117c \
+    --hash=sha256:d9958f08b54493d0fe63d56db202a9f1fff55b87c20e86443638890d7a5fd0e5 \
     # via -r requirements/main.in, celery
-botocore==1.16.12 \
-    --hash=sha256:446c9279105f596765ece99b61656f76c5d5003556cd8301dd506d4f70e18940 \
-    --hash=sha256:b75a5dc97f9ac795139ea2c651c07a8522e31dc280db17243e2b20e5c210547b \
+botocore==1.16.15 \
+    --hash=sha256:0ad0bf4f38948e8dcc9a615ce37e6b170f34992a50ae3d134e7a225fcbdc0cd4 \
+    --hash=sha256:97127ad663502ea519870a10688a0a809d7012a621ab0bbc2bc2052ff0a794ea \
     # via boto3, s3transfer
 cachetools==4.1.0 \
     --hash=sha256:1d057645db16ca7fe1f3bd953558897603d6f0b9c51ed9d11eb4d071ec4e2aab \
@@ -694,9 +694,9 @@ translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4 \
     # via pyramid
-trove-classifiers==2020.5.11 \
-    --hash=sha256:32ca68b5356be0cd5fdedd024e46f6663d40be91015b743cf9fc7f548a288871 \
-    --hash=sha256:388922dfa6b8f9568c946277c1c27987efd8d492b4b47f619fe56c40f260302b \
+trove-classifiers==2020.5.21 \
+    --hash=sha256:0691bb836dc141704b1605ffe6a9dba80e7479c0792dbc476454c9aaaa5b980e \
+    --hash=sha256:06ddeca19f61c6b06451056b53ceab346ed308b231c33acebf07503f77f0a810 \
     # via -r requirements/main.in
 typeguard==2.7.1 \
     --hash=sha256:1d3710251d3d3d6c64e0c49f45edec2e88ddc386a51e89c3ec0703efeb8b3b81 \
