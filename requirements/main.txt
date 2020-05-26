@@ -669,8 +669,8 @@ rsa==4.0 \
     # via google-auth
 s3transfer==0.3.3 \
     --hash=sha256:2482b4259524933a022d59da830f51bd746db62f047d6eb213f2f8855dcb8a13 \
-<<<<<<< HEAD
-    --hash=sha256:921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db
+    --hash=sha256:921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db \
+    # via boto3
 securesystemslib==0.14.2 \
     --hash=sha256:bcac34f254efc106d8717950d79d2c05ddf8d0f9eb5e31bf8fd5531b69ce7ac3 \
     --hash=sha256:ed89b4557a045ad41924433de97ac8ff9ec833e21126a6b6c8395532f21b56c6
@@ -682,21 +682,6 @@ sqlalchemy-citext==1.6.post1 \
     --hash=sha256:8da1ea1b7deba4d1884961bd8a03fe1fd2bb2b3242e849e7696401c1fb4d4606
 sqlalchemy==1.3.15 \
     --hash=sha256:c4cca4aed606297afbe90d4306b49ad3a4cd36feb3f87e4bfd655c57fd9ef445
-=======
-    --hash=sha256:921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db \
-    # via boto3
-six==1.15.0 \
-    --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
-    --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
-sqlalchemy-citext==1.6.3 \
-    --hash=sha256:1d66e7d49826fec28a9ce69053fdf82d3a5ff397968c5bf38a0d83dcb4bf2303 \
-    --hash=sha256:f73aa6aa36a4bdcdd584e590bd69560dc1eb63455e35f50f78bdf7ebb0a8d3fd \
-    # via -r requirements/main.in
-sqlalchemy==1.3.17 \
-    --hash=sha256:156a27548ba4e1fed944ff9fcdc150633e61d350d673ae7baaf6c25c04ac1f71 \
-    # via -r requirements/main.in, alembic, paginate-sqlalchemy, sqlalchemy-citext, zope.sqlalchemy
->>>>>>> upstream/master
 stdlib-list==0.6.0 \
     --hash=sha256:133cc99104f5a4e1604dc88ebb393529bd4c2b99ae7e10d46c0b596f3c67c3f0 \
     # via -r requirements/main.in
@@ -714,21 +699,14 @@ transaction==3.0.0 \
     # via -r requirements/main.in, pyramid-mailer, pyramid-tm, repoze.sendmail, zope.sqlalchemy
 translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
-<<<<<<< HEAD
-    --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4
-trove-classifiers==2020.4.1 \
-    --hash=sha256:9e1dcd47920817eaeb4cc67004b3fee430f3fc692e926f6ab1e337035b7a590d \
-    --hash=sha256:d8adb5d687ee15fe83c4c23404a8fbc0ff267ca997c6870419cc625fdea449e0
-https://github.com/theupdateframework/tuf/archive/c842c739adf80ee3993973cd276042e0ccd43b75.zip \
-    --hash=sha256:07748c506cba4ece6eb93b15f9357a0f7f056c035eec8f87431521830350305b
-=======
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4 \
     # via pyramid
 trove-classifiers==2020.5.21 \
     --hash=sha256:0691bb836dc141704b1605ffe6a9dba80e7479c0792dbc476454c9aaaa5b980e \
     --hash=sha256:06ddeca19f61c6b06451056b53ceab346ed308b231c33acebf07503f77f0a810 \
     # via -r requirements/main.in
->>>>>>> upstream/master
+https://github.com/theupdateframework/tuf/archive/540377eb8e509b31082b3e4d800c15cfe4e38db4.zip \
+    --hash=sha256:07748c506cba4ece6eb93b15f9357a0f7f056c035eec8f87431521830350305b
 typeguard==2.7.1 \
     --hash=sha256:1d3710251d3d3d6c64e0c49f45edec2e88ddc386a51e89c3ec0703efeb8b3b81 \
     --hash=sha256:2d545c71e9439c21bcd7c28f5f55b3606e6106f7031ab58375656a1aed483ef2 \
