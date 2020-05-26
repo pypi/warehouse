@@ -229,6 +229,43 @@ def send_removed_project_email(
     }
 
 
+@_email("yanked-project-release")
+def send_yanked_project_release_email(
+    request, user, *, release, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "project": release.project.name,
+        "release": release.version,
+        "release_date": release.created.strftime("%Y-%m-%d"),
+        "submitter": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+        "yanked_reason": release.yanked_reason,
+    }
+
+
+@_email("unyanked-project-release")
+def send_unyanked_project_release_email(
+    request, user, *, release, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+
+    return {
+        "project": release.project.name,
+        "release": release.version,
+        "release_date": release.created.strftime("%Y-%m-%d"),
+        "submitter": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
 @_email("removed-project-release")
 def send_removed_project_release_email(
     request, user, *, release, submitter_name, submitter_role, recipient_role

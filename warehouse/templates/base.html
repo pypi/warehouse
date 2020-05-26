@@ -94,6 +94,7 @@
 
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
+    {% block additional_rss %}{% endblock %}
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}

@@ -58,7 +58,7 @@ https://github.com/theupdateframework/tuf/archive/c842c739adf80ee3993973cd276042
 typeguard
 webauthn
 whitenoise
-WTForms>=2.0.0
+WTForms[email]>=2.0.0
 yara-python
 zope.sqlalchemy
 zxcvbn

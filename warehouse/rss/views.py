@@ -104,3 +104,33 @@ def rss_packages(request):
     ]
 
     return {"newest_projects": tuple(zip(newest_projects, project_authors))}
+
+
+@view_config(
+    route_name="rss.project.releases",
+    context=Project,
+    renderer="rss/project_releases.xml",
+    decorator=[
+        origin_cache(
+            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+        )
+    ],
+)
+def rss_project_releases(project, request):
+    request.response.content_type = "text/xml"
+
+    request.find_service(name="csp").merge(XML_CSP)
+
+    latest_releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .order_by(Release.created.desc())
+        .limit(40)
+        .all()
+    )
+    release_authors = [_format_author(release) for release in latest_releases]
+
+    return {
+        "project": project,
+        "latest_releases": tuple(zip(latest_releases, release_authors)),
+    }

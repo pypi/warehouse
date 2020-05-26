@@ -115,7 +115,6 @@ class Project(SitemapMixin, db.Model):
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
-    allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
 
     total_size = Column(BigInteger, server_default=sql.text("0"))
@@ -142,8 +141,8 @@ class Project(SitemapMixin, db.Model):
             return (
                 session.query(Release)
                 .filter(
-                    (Release.project == self)
-                    & (Release.canonical_version == canonical_version)
+                    Release.project == self,
+                    Release.canonical_version == canonical_version,
                 )
                 .one()
             )
@@ -154,7 +153,7 @@ class Project(SitemapMixin, db.Model):
             try:
                 return (
                     session.query(Release)
-                    .filter((Release.project == self) & (Release.version == version))
+                    .filter(Release.project == self, Release.version == version)
                     .one()
                 )
             except NoResultFound:
@@ -212,7 +211,9 @@ class Project(SitemapMixin, db.Model):
     def all_versions(self):
         return (
             orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            .query(
+                Release.version, Release.created, Release.is_prerelease, Release.yanked
+            )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
             .all()
@@ -223,7 +224,7 @@ class Project(SitemapMixin, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self)
+            .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -349,6 +350,10 @@ class Release(db.Model):
             uselist=False,
         ),
     )
+
+    yanked = Column(Boolean, nullable=False, server_default=sql.false())
+
+    yanked_reason = Column(Text, nullable=False, server_default="")
 
     _classifiers = orm.relationship(
         Classifier,

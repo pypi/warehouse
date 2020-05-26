@@ -15,18 +15,11 @@ endif
 
 define DEPCHECKER
 import sys
-
-from pip._internal.req import parse_requirements
+from pip_api import parse_requirements
 
 left, right = sys.argv[1:3]
-left_reqs = {
-    d.name.lower()
-	for d in parse_requirements(left, session=object())
-}
-right_reqs = {
-    d.name.lower()
-	for d in parse_requirements(right, session=object())
-}
+left_reqs = parse_requirements(left).keys()
+right_reqs = parse_requirements(right).keys()
 
 extra_in_left = left_reqs - right_reqs
 extra_in_right = right_reqs - left_reqs
@@ -54,9 +47,9 @@ default:
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.7 virtual environment
+	# Create our Python 3.8 virtual environment
 	rm -rf .state/env
-	python3.7 -m venv .state/env
+	python3.8 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -139,12 +132,12 @@ licenses:
 export DEPCHECKER
 deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/lint.txt requirements/lint.txt
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/deploy.txt requirements/deploy.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/main.txt requirements/main.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/lint.txt requirements/lint.txt
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 

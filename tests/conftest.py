@@ -30,14 +30,11 @@ from pytest_postgresql.factories import DatabaseJanitor, get_config
 from sqlalchemy import event
 
 from warehouse import admin, config, static
-from warehouse.accounts import services as account_services, views as account_views
+from warehouse.accounts import services as account_services
 from warehouse.macaroons import services as macaroon_services
-from warehouse.manage import views as manage_views
 from warehouse.metrics import IMetricsService
 
 from .common.db import Session
-
-L10N_TAGGED_MODULES = [account_views, manage_views]
 
 
 def pytest_collection_modifyitems(items):
@@ -101,6 +98,12 @@ def pyramid_services(metrics):
 def pyramid_request(pyramid_services):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
+
+    def localize(message, **kwargs):
+        ts = TranslationString(message, **kwargs)
+        return ts.interpolate()
+
+    dummy_request._ = localize
 
     return dummy_request
 
@@ -315,7 +318,9 @@ def pytest_runtest_makereport(item, call):
             browser = item.funcargs["browser"]
             for log_type in set(browser.log_types) - {"har"}:
                 data = "\n\n".join(
-                    filter(None, (l.get("message") for l in browser.get_log(log_type)))
+                    filter(
+                        None, (log.get("message") for log in browser.get_log(log_type))
+                    )
                 )
                 if data:
                     rep.sections.append(("Captured {} log".format(log_type), data))
@@ -331,13 +336,3 @@ def monkeypatch_session():
     m = MonkeyPatch()
     yield m
     m.undo()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def dummy_localize(monkeypatch_session):
-    def localize(message, **kwargs):
-        ts = TranslationString(message, **kwargs)
-        return ts.interpolate()
-
-    for mod in L10N_TAGGED_MODULES:
-        monkeypatch_session.setattr(mod, "_", localize)
