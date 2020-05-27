@@ -177,7 +177,8 @@ def app_config(database):
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "docs.backend": "warehouse.packaging.services.LocalFileStorage",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
-        "tuf.backend": "warehouse.tuf.services.LocalKeyService",
+        "tuf.key_backend": "warehouse.tuf.services.LocalKeyService",
+        "tuf.repo_backend": "warehouse.tuf.services.LocalRepositoryService",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"
         ),

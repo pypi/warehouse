@@ -25,7 +25,7 @@ def _make_backsigned_fileinfo_from_file(file):
 
 
 def _key_service_for_role(config, role):
-    key_service_class = config.maybe_dotted(config.registry.settings["tuf.backend"])
+    key_service_class = config.maybe_dotted(config.registry.settings["tuf.key_backend"])
     return key_service_class.create_service(role, config)
 
 

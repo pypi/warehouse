@@ -60,7 +60,7 @@ class LocalKeyService:
 
 
 @implementer(IRepositoryService)
-class RepositoryService:
+class LocalRepositoryService:
     def __init__(self, executor):
         self.executor = executor
 
