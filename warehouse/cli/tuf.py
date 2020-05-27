@@ -29,6 +29,11 @@ def _key_service_for_role(config, role):
     return key_service_class.create_service(role, config)
 
 
+def _repository_service(config):
+    repo_service_class = config.maybe_dotted(config.registry.settings["tuf.repo_backend"])
+    return repo_service_class.create_service(config)
+
+
 @warehouse.group()  # pragma: no-branch
 def tuf():
     """
@@ -60,7 +65,7 @@ def new_repo(config):
     """
 
     repository = repository_tool.create_new_repository(
-        config.registry.settings["tuf.repository"]
+        config.registry.settings["tuf.repo.path"]
     )
 
     for role in TOPLEVEL_ROLES:
@@ -96,9 +101,8 @@ def build_targets(config):
     targets role (bins) and its hashed bin delegations (each bin-n).
     """
 
-    repository = repository_tool.load_repository(
-        config.registry.settings["tuf.repository"]
-    )
+    repo_service = _repository_service(config)
+    repository = repo_service.load_repository()
 
     # Load signing keys. We do this upfront for the top-level roles.
     for role in ["snapshot", "targets", "timestamp"]:

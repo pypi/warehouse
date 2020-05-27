@@ -40,6 +40,21 @@ class IRepositoryService(Interface):
         created.
         """
 
+    # def create_repository():
+    #     """
+    #     Return a brand new TUF repository, or raise ValueError if one already exists.
+    #     """
+
+    def load_repository():
+        """
+        Return a TUF Repository object for direct manipulation of the underlying
+        repository.
+
+        NOTE: The Repository object returned from this method cannot be manipulated
+        safely by multiple tasks or threads, especially. It should only be used during
+        TUF initialization or offline maintenance tasks.
+        """
+
     def add_target(file, backsigned=False):
         """
         Given a warehouse.packaging.models.File, add it to the TUF

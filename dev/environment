@@ -42,7 +42,7 @@ TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
 
 TUF_KEY_BACKEND=warehouse.tuf.services.LocalKeyService key.path=/opt/warehouse/src/dev
-TUF_REPO_BACKEND=warehouse.tuf.services.LocalRepositoryService
+TUF_REPO_BACKEND=warehouse.tuf.services.LocalRepositoryService repo.path=/opt/warehouse/src/warehouse/tuf/dist
 TUF_ROOT_SECRET="an insecure private key password"
 TUF_SNAPSHOT_SECRET="an insecure private key password"
 TUF_TARGETS_SECRET="an insecure private key password"

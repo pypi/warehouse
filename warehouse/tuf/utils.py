@@ -10,6 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from contextlib import contextmanager
+
+from securesystemslib.storage import StorageBackendInterface
 import tuf.formats
 import tuf.repository_tool
 
@@ -28,10 +31,25 @@ def make_fileinfo(file, custom=None):
     return fileinfo
 
 
-def load_repository(request):
-    return tuf.repository_tool.load_repository(
-        request.registry.settings["tuf.repository"]
-    )
+class GCSBackend(StorageBackendInterface):
+    @contextmanager
+    def get(self, filepath):
+        pass
+
+    def put(self, fileobj, filepath):
+        pass
+
+    def remove(self, filepath):
+        pass
+
+    def getsize(self, filepath):
+        pass
+
+    def create_folder(self, filepath):
+        pass
+
+    def list_folder(self, filepath):
+        pass
 
 
 class RepoLock:

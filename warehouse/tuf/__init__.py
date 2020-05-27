@@ -20,7 +20,6 @@ BIN_N_ROLE = "bin-n"
 def includeme(config):
     config.add_settings(
         {
-            "tuf.repository": "warehouse/tuf/dist",
             "tuf.keytype": "ed25519",
             "tuf.keyid_hash_algorithm": "sha512",
             "tuf.consistent_snapshot": True,

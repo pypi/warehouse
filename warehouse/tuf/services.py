@@ -61,25 +61,38 @@ class LocalKeyService:
 
 @implementer(IRepositoryService)
 class LocalRepositoryService:
-    def __init__(self, executor):
-        self.executor = executor
+    def __init__(self, repo_path, executor):
+        self._repo_path = repo_path
+        self._executor = executor
 
     @classmethod
-    def create_service(cls, context, request):
-        return cls(request.task(local_repo_add_target).delay)
+    def create_service(cls, request):
+        return cls(
+            request.registry.settings["tuf.repo.path"],
+            request.task(local_repo_add_target).delay
+        )
+
+    def load_repository(self):
+        return repository_tool.load_repository(self._repo_path)
 
     def add_target(self, file, custom=None):
-        self.executor(file, custom=custom)
+        self._executor(file, custom=custom)
 
 
 @implementer(IRepositoryService)
 class GCSRepositoryService:
     def __init__(self, executor):
-        self.executor = executor
+        # TODO(ww): This should be an object that quacks
+        # securesystemslib.storage.StorageBackendInterface.
+        self._store = None
+        self._executor = executor
 
     @classmethod
-    def create_service(cls, context, request):
+    def create_service(cls, request):
         return cls(request.task(gcs_repo_add_target).delay)
 
+    def load_repository(self):
+        return repository_tool.load_repository("tuf", storage_backend=self._store)
+
     def add_target(self, file, custom=None):
-        self.executor(file, custom=custom)
+        self._executor(file, self._store, custom=custom)

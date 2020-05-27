@@ -14,23 +14,33 @@ import redis
 
 from warehouse.tasks import task
 from warehouse.tuf import utils
+from warehouse.tuf.interfaces import IRepositoryService
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def gcs_repo_add_target(task, request, file):
+def gcs_repo_add_target(task, request, file, store, custom=None):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
-        pass
+        # TODO(ww): How slow is this? Does it make more sense to pass the loaded
+        # repository to the task?
+        repo_service = request.find_service(IRepositoryService)
+        repository = repo_service.load_repository()
+        fileinfo = utils.make_fileinfo(file, custom=custom)
+
+        repository.add_target_to_bin(file.path, fileinfo=fileinfo)
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def local_repo_add_target(task, request, file):
+def local_repo_add_target(task, request, file, custom=None):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
-        fileinfo = utils.make_fileinfo(file)
-        repository = utils.load_repository(request)
+        # TODO(ww): How slow is this? Does it make more sense to pass the loaded
+        # repository to the task?
+        repo_service = request.find_service(IRepositoryService)
+        repository = repo_service.load_repository()
+        fileinfo = utils.make_fileinfo(file, custom=custom)
 
         repository.add_target_to_bin(file.path, fileinfo=fileinfo)
 
