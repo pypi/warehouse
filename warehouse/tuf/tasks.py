@@ -17,7 +17,15 @@ from warehouse.tuf import utils
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def add_target(task, request, file):
+def gcs_repo_add_target(task, request, file):
+    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+
+    with utils.RepoLock(r):
+        pass
+
+
+@task(bind=True, ignore_result=True, acks_late=True)
+def local_repo_add_target(task, request, file):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):

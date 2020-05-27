@@ -18,7 +18,7 @@ from tuf import repository_tool
 from zope.interface import implementer
 
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService
-from warehouse.tuf.tasks import add_target
+from warehouse.tuf.tasks import gcs_repo_add_target, local_repo_add_target
 
 
 class InsecureKeyWarning(UserWarning):
@@ -66,7 +66,20 @@ class LocalRepositoryService:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(request.task(add_target).delay)
+        return cls(request.task(local_repo_add_target).delay)
+
+    def add_target(self, file, custom=None):
+        self.executor(file, custom=custom)
+
+
+@implementer(IRepositoryService)
+class GCSRepositoryService:
+    def __init__(self, executor):
+        self.executor = executor
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request.task(gcs_repo_add_target).delay)
 
     def add_target(self, file, custom=None):
         self.executor(file, custom=custom)
