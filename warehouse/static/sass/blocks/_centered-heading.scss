@@ -31,7 +31,7 @@
 
   &__title {
     @include h1-title;
-    padding-bottom: 10px;
+    padding-bottom: 0;
   }
 
   &__rule {

@@ -34,7 +34,7 @@ EXPECTED_SEARCH_FIELDS = [
 
 
 class TestQueries:
-    def test_no_querystring(self):
+    def test_no_terms(self):
         es = Search()
 
         query = queries.get_es_query(es, "", "", [])
@@ -42,17 +42,17 @@ class TestQueries:
         assert query == es.query()
 
     @pytest.mark.parametrize(
-        "querystring,expected_prefix,expected_type",
+        "terms,expected_prefix,expected_type",
         [
             ('"foo bar"', '"foo bar"', "phrase"),
             ('"a"', '"a"', "phrase"),
             ("foo bar", "foo bar", "best_fields"),
         ],
     )
-    def test_quoted_query(self, querystring, expected_prefix, expected_type):
+    def test_quoted_query(self, terms, expected_prefix, expected_type):
         es = Search()
 
-        query = queries.get_es_query(es, querystring, "", [])
+        query = queries.get_es_query(es, terms, "", [])
 
         query_dict = query.to_dict()
         assert len(query_dict["query"]["bool"]["should"]) == 2
@@ -64,18 +64,18 @@ class TestQueries:
         assert must_params[0]["multi_match"] == {
             "fields": EXPECTED_SEARCH_FIELDS,
             "type": expected_type,
-            "query": "foo bar" if querystring != '"a"' else "a",
+            "query": "foo bar" if terms != '"a"' else "a",
         }
         assert query_dict["suggest"] == {
-            "name_suggestion": {"text": querystring, "term": {"field": "name"}}
+            "name_suggestion": {"text": terms, "term": {"field": "name"}}
         }
         assert "sort" not in query_dict  # default "relevance" mode does no sorting
 
     def test_single_not_quoted_character(self):
         es = Search()
-        querystring = "a"
+        terms = "a"
 
-        query = queries.get_es_query(es, querystring, "", [])
+        query = queries.get_es_query(es, terms, "", [])
 
         query_dict = query.to_dict()
         must_params = query_dict["query"]["bool"]["must"]
@@ -86,15 +86,15 @@ class TestQueries:
             "query": "a",
         }
         assert query_dict["suggest"] == {
-            "name_suggestion": {"text": querystring, "term": {"field": "name"}}
+            "name_suggestion": {"text": terms, "term": {"field": "name"}}
         }
         assert "sort" not in query_dict  # default "relevance" mode does no sorting
 
     def test_mixed_quoted_query(self):
         es = Search()
-        querystring = '"foo bar" baz'
+        terms = '"foo bar" baz'
 
-        query = queries.get_es_query(es, querystring, "", [])
+        query = queries.get_es_query(es, terms, "", [])
 
         query_dict = query.to_dict()
         assert len(query_dict["query"]["bool"]["should"]) == 2
@@ -114,7 +114,7 @@ class TestQueries:
             "query": "baz",
         }
         assert query_dict["suggest"] == {
-            "name_suggestion": {"text": querystring, "term": {"field": "name"}}
+            "name_suggestion": {"text": terms, "term": {"field": "name"}}
         }
         assert "sort" not in query_dict  # default "relevance" mode does no sorting
 
@@ -123,9 +123,9 @@ class TestQueries:
     )
     def test_sort_order(self, order, field):
         es = Search()
-        querystring = "foo bar"
+        terms = "foo bar"
 
-        query = queries.get_es_query(es, querystring, order, [])
+        query = queries.get_es_query(es, terms, order, [])
 
         query_dict = query.to_dict()
         assert len(query_dict["query"]["bool"]["should"]) == 2
@@ -140,7 +140,7 @@ class TestQueries:
             "query": "foo bar",
         }
         assert query_dict["suggest"] == {
-            "name_suggestion": {"text": querystring, "term": {"field": "name"}}
+            "name_suggestion": {"text": terms, "term": {"field": "name"}}
         }
         assert query_dict["sort"] == [
             {
@@ -151,12 +151,12 @@ class TestQueries:
             }
         ]
 
-    def test_with_classifiers_with_querystring(self):
+    def test_with_classifiers_with_terms(self):
         es = Search()
-        querystring = "foo bar"
+        terms = "foo bar"
         classifiers = [("c", "foo :: bar"), ("c", "fiz :: buz")]
 
-        query = queries.get_es_query(es, querystring, "", classifiers)
+        query = queries.get_es_query(es, terms, "", classifiers)
 
         query_dict = query.to_dict()
         assert len(query_dict["query"]["bool"]["should"]) == 2
@@ -171,7 +171,7 @@ class TestQueries:
             "query": "foo bar",
         }
         assert query_dict["suggest"] == {
-            "name_suggestion": {"text": querystring, "term": {"field": "name"}}
+            "name_suggestion": {"text": terms, "term": {"field": "name"}}
         }
         assert "sort" not in query_dict
         assert query_dict["query"]["bool"]["must"] == [
@@ -179,14 +179,27 @@ class TestQueries:
         ]
         assert query_dict["query"]["bool"]["minimum_should_match"] == 1
 
-    def test_with_classifiers_with_no_querystring(self):
+    def test_with_classifiers_with_no_terms(self):
         es = Search()
-        querystring = ""
+        terms = ""
         classifiers = [("c", "foo :: bar"), ("c", "fiz :: buz")]
 
-        query = queries.get_es_query(es, querystring, "", classifiers)
+        query = queries.get_es_query(es, terms, "", classifiers)
 
         query_dict = query.to_dict()
         assert query_dict["query"]["bool"]["must"] == [
             {"prefix": {"classifiers": classifier}} for classifier in classifiers
+        ]
+
+    def test_with_classifier_with_no_terms_and_order(self):
+        es = Search()
+        terms = ""
+        classifiers = [("c", "foo :: bar")]
+
+        query = queries.get_es_query(es, terms, "-created", classifiers)
+
+        query_dict = query.to_dict()
+        assert query_dict["query"] == {"prefix": {"classifiers": ("c", "foo :: bar")}}
+        assert query_dict["sort"] == [
+            {"created": {"order": "desc", "unmapped_type": "long"}}
         ]

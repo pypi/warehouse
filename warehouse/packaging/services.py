@@ -43,7 +43,7 @@ class LocalFileStorage:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(request.registry.settings[f"files.path"])
+        return cls(request.registry.settings["files.path"])
 
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
@@ -74,7 +74,7 @@ class LocalDocsStorage:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(request.registry.settings[f"docs.path"])
+        return cls(request.registry.settings["docs.path"])
 
     def remove_by_prefix(self, prefix):
         directory = os.path.join(self.base, prefix)
@@ -84,19 +84,10 @@ class LocalDocsStorage:
             pass
 
 
-@implementer(IFileStorage)
-class S3FileStorage:
+class GenericFileStorage:
     def __init__(self, bucket, *, prefix=None):
         self.bucket = bucket
         self.prefix = prefix
-
-    @classmethod
-    def create_service(cls, context, request):
-        session = request.find_service(name="aws.session")
-        s3 = session.resource("s3")
-        bucket = s3.Bucket(request.registry.settings["files.bucket"])
-        prefix = request.registry.settings.get("files.prefix")
-        return cls(bucket, prefix=prefix)
 
     def _get_path(self, path):
         # Legacy paths will have a first directory of something like 2.7, we
@@ -112,7 +103,21 @@ class S3FileStorage:
 
         return path
 
+
+@implementer(IFileStorage)
+class S3FileStorage(GenericFileStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        session = request.find_service(name="aws.session")
+        s3 = session.resource("s3")
+        bucket = s3.Bucket(request.registry.settings["files.bucket"])
+        prefix = request.registry.settings.get("files.prefix")
+        return cls(bucket, prefix=prefix)
+
     def get(self, path):
+        # Note: this is not actually used in production, instead our CDN is
+        # configured to connect directly to our storage bucket. See:
+        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
         try:
             return self.bucket.Object(self._get_path(path)).get()["Body"]
         except botocore.exceptions.ClientError as exc:
@@ -161,3 +166,28 @@ class S3DocsStorage:
             self.s3_client.delete_objects(
                 Bucket=self.bucket_name, Delete={"Objects": keys_to_delete}
             )
+
+
+@implementer(IFileStorage)
+class GCSFileStorage(GenericFileStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        storage_client = request.find_service(name="gcloud.gcs")
+        bucket_name = request.registry.settings["files.bucket"]
+        bucket = storage_client.get_bucket(bucket_name)
+        prefix = request.registry.settings.get("files.prefix")
+
+        return cls(bucket, prefix=prefix)
+
+    def get(self, path):
+        # Note: this is not actually used in production, instead our CDN is
+        # configured to connect directly to our storage bucket. See:
+        # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
+        raise NotImplementedError
+
+    def store(self, path, file_path, *, meta=None):
+        path = self._get_path(path)
+        blob = self.bucket.blob(path)
+        if meta is not None:
+            blob.metadata = meta
+        blob.upload_from_filename(file_path)

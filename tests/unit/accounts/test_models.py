@@ -71,6 +71,19 @@ class TestUser:
 
         assert user.email == email.email
 
+    def test_get_public_email(self, db_session):
+        user = DBUserFactory.create()
+        email = DBEmailFactory.create(user=user, verified=True, public=True)
+        DBEmailFactory.create(user=user, verified=True, public=False)
+
+        assert user.public_email == email
+
+    def test_no_public_email(self, db_session):
+        user = DBUserFactory.create()
+        DBEmailFactory.create(user=user, primary=True, verified=True)
+
+        assert user.public_email is None
+
     def test_query_by_email_when_primary(self, db_session):
         user = DBUserFactory.create()
         email = DBEmailFactory.create(user=user, primary=True)

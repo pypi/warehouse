@@ -99,15 +99,6 @@ def includeme(config):
     # Journal related Admin pages
     config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
 
-    # Classifier related Admin pages
-    config.add_route("admin.classifiers", "/admin/classifiers/", domain=warehouse)
-    config.add_route(
-        "admin.classifiers.add", "/admin/classifiers/add/", domain=warehouse
-    )
-    config.add_route(
-        "admin.classifiers.deprecate", "/admin/classifiers/deprecate/", domain=warehouse
-    )
-
     # Blacklist related Admin pages
     config.add_route("admin.blacklist.list", "/admin/blacklist/", domain=warehouse)
     config.add_route("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse)
@@ -117,6 +108,7 @@ def includeme(config):
 
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
+    config.add_route("admin.emails.mass", "/admin/emails/mass/", domain=warehouse)
     config.add_route(
         "admin.emails.detail", "/admin/emails/{email_id}/", domain=warehouse
     )

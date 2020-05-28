@@ -115,6 +115,13 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.profile-public-email",
+            "/_includes/profile-public-email/{username}",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -139,6 +146,9 @@ def test_routes(warehouse):
             "accounts.webauthn-authenticate.validate",
             "/account/webauthn-authenticate/validate",
             domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.recovery-code", "/account/recovery-code/", domain=warehouse
         ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call("accounts.register", "/account/register/", domain=warehouse),
@@ -182,6 +192,16 @@ def test_routes(warehouse):
         pretend.call(
             "manage.account.webauthn-provision.delete",
             "/manage/account/webauthn-provision/delete",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.recovery-codes.generate",
+            "/manage/account/recovery-codes/generate",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.recovery-codes.regenerate",
+            "/manage/account/recovery-codes/regenerate",
             domain=warehouse,
         ),
         pretend.call(
@@ -283,6 +303,14 @@ def test_routes(warehouse):
         pretend.call("ses.hook", "/_/ses-hook/", domain=warehouse),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
+        pretend.call(
+            "rss.project.releases",
+            "/rss/project/{name}/releases.xml",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/",
+            read_only=True,
+            domain=warehouse,
+        ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
@@ -341,6 +369,12 @@ def test_routes(warehouse):
             "security",
             "/security/",
             "pages/security.html",
+            view_kw={"has_translations": True},
+        ),
+        pretend.call(
+            "sponsor",
+            "/sponsor/",
+            "pages/sponsor.html",
             view_kw={"has_translations": True},
         ),
         pretend.call(

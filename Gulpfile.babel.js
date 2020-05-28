@@ -49,13 +49,19 @@ var uglify = composer(uglifyjs, console);
 
 // Configure what plugins are used for postcss
 var postCSSPlugins = [
-  cssnano(),
+  cssnano({
+    preset: ["default", {
+      discardComments: {
+        removeAll: true,
+      },
+    }],
+  }),
 ];
 
 // Configure webpack so that it compiles all of our javascript into a bundle.
 let webpackConfig = {
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,

@@ -13,6 +13,7 @@
 from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
+from trove_classifiers import classifiers
 
 from warehouse.classifiers.models import Classifier
 
@@ -74,16 +75,8 @@ def forbidden_legacy(exc, request):
 
 @view_config(route_name="legacy.api.pypi.list_classifiers")
 def list_classifiers(request):
-    classifiers = (
-        request.db.query(Classifier.classifier)
-        .filter(Classifier.deprecated.is_(False))
-        .order_by(Classifier.classifier)
-        .all()
-    )
-
     return Response(
-        text="\n".join(c[0] for c in classifiers),
-        content_type="text/plain; charset=utf-8",
+        text="\n".join(sorted(classifiers)), content_type="text/plain; charset=utf-8",
     )
 
 

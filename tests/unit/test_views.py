@@ -22,11 +22,11 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
 )
+from trove_classifiers import classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
 from warehouse.views import (
-    classifiers,
     current_user_indicator,
     flash_messages,
     forbidden,
@@ -35,6 +35,7 @@ from warehouse.views import (
     health,
     httpexception_view,
     index,
+    list_classifiers,
     locale,
     opensearchxml,
     robotstxt,
@@ -216,13 +217,18 @@ class TestLocale:
             ("/robots.txt", "/robots.txt", {"locale_id": "non-existent-locale"}, False),
         ],
     )
-    def test_locale(self, referer, redirect, get, valid):
+    def test_locale(self, referer, redirect, get, valid, monkeypatch):
+        localizer = pretend.stub(translate=lambda *a: "translated")
+        make_localizer = pretend.call_recorder(lambda *a: localizer)
+        monkeypatch.setattr(views, "make_localizer", make_localizer)
+        tdirs = pretend.stub()
         request = pretend.stub(
             GET=get,
             referer=referer,
             route_path=pretend.call_recorder(lambda r: "/fake-route"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             host=None,
+            registry=pretend.stub(queryUtility=lambda *a: tdirs),
         )
 
         result = locale(request)
@@ -233,6 +239,10 @@ class TestLocale:
         if valid:
             assert "Set-Cookie" in result.headers
             assert f"_LOCALE_={get['locale_id']};" in result.headers["Set-Cookie"]
+            assert make_localizer.calls == [pretend.call(get["locale_id"], tdirs)]
+            assert request.session.flash.calls == [
+                pretend.call("translated", queue="success")
+            ]
         else:
             assert "Set-Cookie" not in result.headers
 
@@ -415,12 +425,7 @@ class TestSearch:
 
 
 def test_classifiers(db_request):
-    classifier_a = ClassifierFactory(classifier="I am first")
-    classifier_b = ClassifierFactory(classifier="I am last")
-
-    assert classifiers(db_request) == {
-        "classifiers": [(classifier_a.classifier,), (classifier_b.classifier,)]
-    }
+    assert list_classifiers(db_request) == {"classifiers": sorted(classifiers)}
 
 
 def test_stats(db_request):

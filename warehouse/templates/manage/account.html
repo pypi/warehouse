@@ -139,6 +139,9 @@
     <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
     {% endif %}
     <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
+    {% if user.has_two_factor and not user.has_recovery_codes %}
+    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate Recovery Codes{% endtrans %}</a>
+    {% endif %}
   </div>
 
   <noscript>
@@ -291,13 +294,32 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ save_account_form.name(placeholder=gettext("No name set"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__input", **{"aria-describedby":"full-name-errors"}) }}
+        {{ save_account_form.name(placeholder=gettext("No name set"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"full-name-errors"}) }}
         <div id="full-name-errors">
           {{ field_errors(save_account_form.name) }}
         </div>
         <p class="form-group__help-text">
           {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
             Displayed on your <a href="{{ href }}">public profile</a>
+          {% endtrans %}
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-group__label" for="public_email">
+          {% trans %}️Public email{% endtrans %}
+          {% if save_account_form.public_email.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        <p class="form-group__text">
+          {{ save_account_form.public_email(class_="form-group__field", **{"aria-secribedby":"public-email-errors"}) }}
+        </p>
+        <div id="public-email-errors">
+          {{ field_errors(save_account_form.public_email) }}
+        </div>
+        <p class="form-group__help-text">
+          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+            One of your verified emails can be displayed on your <a href="{{ href }}">public profile</a> to logged-in users.
           {% endtrans %}
         </p>
       </div>
@@ -346,7 +368,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}
           </span>{% endif %}
         </label>
-        {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__input", **{"aria-describedby":"add-email-errors"}) }}
+        {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"add-email-errors"}) }}
         <div id="add-email-errors">
           {{ field_errors(add_email_form.email) }}
         </div>
@@ -376,7 +398,7 @@
               id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
           </label>
         </div>
-        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__input", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
+        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__field", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
         <div id="current-password-errors">
           {{ field_errors(change_password_form.password) }}
         </div>
@@ -390,7 +412,7 @@
         </label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
+          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
         </div>
         <div id="new-password-errors">
           {{ field_errors(change_password_form.new_password) }}
@@ -404,7 +426,7 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
+        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
         <div id="confirm-password-errors">
           {{ field_errors(change_password_form.password_confirm) }}
         </div>
@@ -415,7 +437,7 @@
         </ul>
       </div>
       <div>
-        <input value="Update password" class="button button--primary" type="submit" data-target="password-match.submit">
+        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-target="password-match.submit">
       </div>
     </form>
   </section>
@@ -465,6 +487,20 @@
             </td>
           </tr>
           {% endfor %}
+          {% if user.has_recovery_codes %}
+          <tr>
+            <th scope="row">
+              {% trans %}Recovery Codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
+            </th>
+            <td class="table__align-right">
+              <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
+              {% set title=gettext("Regenerate Recovery Codes") %}
+              {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
+              {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
+              {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
+            </td>
+          </tr>
+          {% endif %}
         </tbody>
       </table>
       {{ twofa_buttons() }}
@@ -534,6 +570,8 @@
           {% trans %}Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "totp" %}
           {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
+        {% elif event.additional.two_factor_method  == "recovery-code" %}
+          {% trans %}Recovery Code{% endtrans %}
         {% endif %}
       </small>
 
@@ -590,6 +628,20 @@
           {% trans %}Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% endif %}
       </small>
+
+      {% elif event.tag == "account:recovery_codes:generated" %}
+      <strong>{% trans %}Recovery Codes generated{% endtrans %}</strong><br>
+      <small>
+      </small>
+      {% elif event.tag == "account:recovery_codes:regenerated" %}
+      <strong>{% trans %}Recovery Codes regenerated{% endtrans %}</strong><br>
+      <small>
+      </small>
+      {% elif event.tag == "account:recovery_codes:used" %}
+      <strong>{% trans %}Recovery Code used for login{% endtrans %}</strong><br>
+      <small>
+      </small>
+
 
       {% elif event.tag  == "account:api_token:added" %}
       <strong>{% trans %}API token added{% endtrans %}</strong><br>

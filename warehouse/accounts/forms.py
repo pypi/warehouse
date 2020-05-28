@@ -48,7 +48,7 @@ class TOTPValueMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                rf"^[0-9]{{{TOTP_LENGTH}}}$",
+                rf"^ *([0-9] *){{{TOTP_LENGTH}}}$",
                 message=_(
                     "TOTP code must be ${totp_length} digits.",
                     mapping={"totp_length": TOTP_LENGTH},
@@ -61,6 +61,13 @@ class TOTPValueMixin:
 class WebAuthnCredentialMixin:
 
     credential = wtforms.StringField(wtforms.validators.DataRequired())
+
+
+class RecoveryCodeValueMixin:
+
+    recovery_code_value = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired()]
+    )
 
 
 class NewUsernameMixin:
@@ -289,7 +296,7 @@ class _TwoFactorAuthenticationForm(forms.Form):
 
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
-        totp_value = field.data.encode("utf8")
+        totp_value = field.data.replace(" ", "").encode("utf8")
 
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -325,6 +332,16 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential
+
+
+class RecoveryCodeAuthenticationForm(
+    RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
+):
+    def validate_recovery_code_value(self, field):
+        recovery_code_value = field.data.encode("utf-8")
+
+        if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
+            raise wtforms.validators.ValidationError(_("Invalid Recovery Code."))
 
 
 class RequestPasswordResetForm(forms.Form):

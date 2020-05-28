@@ -1,4 +1,4 @@
-/**
+/*!
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,25 +12,31 @@
  * limitations under the License.
  */
 
+/*
+  List with check marks, with items divided by a borer:
 
-import { Controller } from "stimulus";
+  <ul class="hooray-list">
+    <li>List item here</li>
+  </ul>
+*/
 
-export default class extends Controller {
-  static targets = [
-    "parent", "input", "preview", "submit",
-  ]
+.hooray-list {
+  margin-left: 0;
+  border-top: 1px dotted $border-color;
 
-  update() {
-    // Set the preview
-    this.previewTarget.innerHTML = [
-      this.parentTarget.options[this.parentTarget.selectedIndex].text,
-      this.inputTarget.value,
-    ].join(" :: ");
+  li {
+    border-bottom: 1px dotted $border-color;
+    padding: 10px 0 10px 30px;
+    list-style-type: none;
+    position: relative;
 
-    // Enable the input target
-    this.inputTarget.disabled = !this.parentTarget.value;
-
-    // Enable the submit button
-    this.submitTarget.disabled = !(this.parentTarget.value && this.inputTarget.value);
+    &:before {
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      content: "\f00c";
+      color: $text-color;
+      position: absolute;
+      left: 7px;
+    }
   }
 }
