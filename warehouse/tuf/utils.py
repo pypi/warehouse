@@ -11,10 +11,14 @@
 # limitations under the License.
 
 from contextlib import contextmanager
+from io import BytesIO
 
-from securesystemslib.storage import StorageBackendInterface
 import tuf.formats
 import tuf.repository_tool
+
+from google.cloud.exceptions import GoogleCloudError, NotFound
+from securesystemslib.exceptions import StorageError
+from securesystemslib.storage import StorageBackendInterface
 
 
 def make_fileinfo(file, custom=None):
@@ -32,24 +36,67 @@ def make_fileinfo(file, custom=None):
 
 
 class GCSBackend(StorageBackendInterface):
+    def __init__(self, request):
+        self._client = request.find_service(name="gcloud.gcs")
+        # NOTE: This needs to be created.
+        self._bucket = self._client.get_bucket(request.registry.settings["tuf.bucket"])
+
     @contextmanager
     def get(self, filepath):
-        pass
+        try:
+            contents = self._bucket.blob(filepath).download_as_string()
+            yield BytesIO(contents)
+        except NotFound as e:
+            raise StorageError(f"{filepath} not found")
 
     def put(self, fileobj, filepath):
-        pass
+        try:
+            blob = self._bucket.blob(filepath)
+            # NOTE(ww): rewind=True reflects the behavior of the securesystemslib
+            # implementation of StorageBackendInterface, which seeks to the file start.
+            # I'm not sure it's actually required.
+            blob.upload_from_file(fileobj, rewind=True)
+        except GoogleCloudError:
+            # TODO: expose details of the underlying error in the message here?
+            raise StorageError(f"couldn't store to {filepath}")
 
     def remove(self, filepath):
-        pass
+        try:
+            self._bucket.blob(filepath).delete()
+        except NotFound:
+            raise StorageError(f"{filepath} not found")
 
     def getsize(self, filepath):
-        pass
+        blob = self._bucket.get_blob(filepath)
+
+        if blob is None:
+            raise StorageError(f"{filepath} not found")
+
+        return blob.size
 
     def create_folder(self, filepath):
-        pass
+        if not filepath:
+            return
+
+        if not filepath.endswith("/"):
+            filepath = f"{filepath}/"
+
+        try:
+            blob = self._bucket.blob(filepath)
+            blob.upload_from_string(b"")
+        except GoogleCloudError as e:
+            raise StorageError(f"couldn't create folder: {filepath}")
 
     def list_folder(self, filepath):
-        pass
+        if not filepath.endswith("/"):
+            filepath = f"{filepath}/"
+
+        # NOTE: The `nextPageToken` appears to be required due to an implementation detail leak.
+        # See https://github.com/googleapis/google-cloud-python/issues/7875
+        blobs = self._client.list_blobs(
+            self._bucket, prefix=filepath, fields="items(name),nextPageToken"
+        )
+        return [blob.name for blob in blobs]
 
 
 class RepoLock:

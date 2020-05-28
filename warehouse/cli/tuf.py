@@ -30,7 +30,9 @@ def _key_service_for_role(config, role):
 
 
 def _repository_service(config):
-    repo_service_class = config.maybe_dotted(config.registry.settings["tuf.repo_backend"])
+    repo_service_class = config.maybe_dotted(
+        config.registry.settings["tuf.repo_backend"]
+    )
     return repo_service_class.create_service(config)
 
 
@@ -146,13 +148,15 @@ def build_targets(config):
     for file in db.query(File).all():
         fileinfo = _make_backsigned_fileinfo_from_file(file)
         repository.targets(BINS_ROLE).add_target_to_bin(
-            file.path, number_of_bins=config.registry.settings["tuf.bin-n.count"], fileinfo=fileinfo
+            file.path,
+            number_of_bins=config.registry.settings["tuf.bin-n.count"],
+            fileinfo=fileinfo,
         )
 
     repository.mark_dirty(dirty_roles)
     repository.writeall(
         consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
-        use_existing_fileinfo=True
+        use_existing_fileinfo=True,
     )
 
 

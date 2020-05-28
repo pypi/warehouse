@@ -37,5 +37,9 @@ def includeme(config):
     key_service_class = config.maybe_dotted(config.registry.settings["tuf.key_backend"])
     config.register_service_factory(key_service_class.create_service, IKeyService)
 
-    repo_service_class = config.maybe_dotted(config.registry.settings["tuf.repo_backend"])
-    config.register_service_factory(repo_service_class.create_service, IRepositoryService)
+    repo_service_class = config.maybe_dotted(
+        config.registry.settings["tuf.repo_backend"]
+    )
+    config.register_service_factory(
+        repo_service_class.create_service, IRepositoryService
+    )

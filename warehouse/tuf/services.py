@@ -69,7 +69,7 @@ class LocalRepositoryService:
     def create_service(cls, request):
         return cls(
             request.registry.settings["tuf.repo.path"],
-            request.task(local_repo_add_target).delay
+            request.task(local_repo_add_target).delay,
         )
 
     def load_repository(self):
