@@ -30,8 +30,8 @@ Project
 
         {
             "info": {
-                "author": "The Python Packaging Authority",
-                "author_email": "pypa-dev@googlegroups.com",
+                "author": "A. Random Developer",
+                "author_email": "author@example.com",
                 "bugtrack_url": "",
                 "classifiers": [
                     "Development Status :: 3 - Alpha",
