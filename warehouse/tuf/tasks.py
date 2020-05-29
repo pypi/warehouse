@@ -14,11 +14,11 @@ import redis
 
 from warehouse.tasks import task
 from warehouse.tuf import utils, BINS_ROLE
-from warehouse.tuf.interfaces import IRepositoryService
+from warehouse.tuf.interfaces import IKeyService, IRepositoryService
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def gcs_repo_add_target(task, request, filepath, fileinfo):
+def add_target(task, request, filepath, fileinfo):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
@@ -27,19 +27,10 @@ def gcs_repo_add_target(task, request, filepath, fileinfo):
         repo_service = request.find_service(IRepositoryService)
         repository = repo_service.load_repository()
 
-        repository.targets(BINS_ROLE).add_target_to_bin(filepath, fileinfo=fileinfo)
-        repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
-
-
-@task(bind=True, ignore_result=True, acks_late=True)
-def local_repo_add_target(task, request, filepath, fileinfo):
-    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
-
-    with utils.RepoLock(r):
-        # TODO(ww): How slow is this? Does it make more sense to pass the loaded
-        # repository to the task?
-        repo_service = request.find_service(IRepositoryService)
-        repository = repo_service.load_repository()
+        for role in ["snapshot", "bin-n"]:
+            key_service = request.find_service(IKeyService, context=role)
+            role_obj = getattr(repository, role)
+            [role_obj.load_signing_key(k) for k in key_service.get_privkeys()]
 
         repository.targets(BINS_ROLE).add_target_to_bin(filepath, fileinfo=fileinfo)
         repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)

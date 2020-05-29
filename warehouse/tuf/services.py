@@ -18,7 +18,7 @@ from tuf import repository_tool
 from zope.interface import implementer
 
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService
-from warehouse.tuf.tasks import gcs_repo_add_target, local_repo_add_target
+from warehouse.tuf.tasks import add_target
 from warehouse.tuf.utils import make_fileinfo, GCSBackend
 
 
@@ -67,10 +67,10 @@ class LocalRepositoryService:
         self._executor = executor
 
     @classmethod
-    def create_service(cls, _context, request):
+    def create_service(cls, request):
         return cls(
             request.registry.settings["tuf.repo.path"],
-            request.task(local_repo_add_target).delay,
+            request.task(add_target).delay,
         )
 
     def load_repository(self):
@@ -87,8 +87,8 @@ class GCSRepositoryService:
         self._store = GCSBackend(request)
 
     @classmethod
-    def create_service(cls, _context, request):
-        return cls(request.task(gcs_repo_add_target).delay, request)
+    def create_service(cls, request):
+        return cls(request.task(add_target).delay, request)
 
     def load_repository(self):
         return repository_tool.load_repository("tuf", storage_backend=self._store)
