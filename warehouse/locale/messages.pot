@@ -4719,8 +4719,8 @@ msgid ""
 "You can also follow the ongoing development of the project on the <a "
 "href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">distutils-sig mailing list</a> and the <a "
-"href=\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">PyPA Dev message group</a>."
+"href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:761
