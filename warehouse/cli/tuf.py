@@ -91,7 +91,7 @@ def new_repo(config):
 
     repository.mark_dirty(TOPLEVEL_ROLES)
     repository.writeall(
-        consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
+        consistent_snapshot=True,
     )
 
 
@@ -135,7 +135,7 @@ def build_targets(config):
 
     repository.mark_dirty(dirty_roles)
     repository.writeall(
-        consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"]
+        consistent_snapshot=True
     )
 
     # Collect the "paths" for every PyPI package. These are packages already in
@@ -155,7 +155,7 @@ def build_targets(config):
 
     repository.mark_dirty(dirty_roles)
     repository.writeall(
-        consistent_snapshot=config.registry.settings["tuf.consistent_snapshot"],
+        consistent_snapshot=True,
         use_existing_fileinfo=True,
     )
 

@@ -13,12 +13,12 @@
 import redis
 
 from warehouse.tasks import task
-from warehouse.tuf import utils
+from warehouse.tuf import utils, BINS_ROLE
 from warehouse.tuf.interfaces import IRepositoryService
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def gcs_repo_add_target(task, request, file, store, custom=None):
+def gcs_repo_add_target(task, request, filepath, fileinfo):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
@@ -26,13 +26,13 @@ def gcs_repo_add_target(task, request, file, store, custom=None):
         # repository to the task?
         repo_service = request.find_service(IRepositoryService)
         repository = repo_service.load_repository()
-        fileinfo = utils.make_fileinfo(file, custom=custom)
 
-        repository.add_target_to_bin(file.path, fileinfo=fileinfo)
+        repository.targets(BINS_ROLE).add_target_to_bin(filepath, fileinfo=fileinfo)
+        repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def local_repo_add_target(task, request, file, custom=None):
+def local_repo_add_target(task, request, filepath, fileinfo):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
@@ -40,9 +40,9 @@ def local_repo_add_target(task, request, file, custom=None):
         # repository to the task?
         repo_service = request.find_service(IRepositoryService)
         repository = repo_service.load_repository()
-        fileinfo = utils.make_fileinfo(file, custom=custom)
 
-        repository.add_target_to_bin(file.path, fileinfo=fileinfo)
+        repository.targets(BINS_ROLE).add_target_to_bin(filepath, fileinfo=fileinfo)
+        repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
 
     """
     First, it adds the new file path to the relevant bin-n metadata, increments its version number,

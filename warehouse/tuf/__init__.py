@@ -22,7 +22,6 @@ def includeme(config):
         {
             "tuf.keytype": "ed25519",
             "tuf.keyid_hash_algorithm": "sha512",
-            "tuf.consistent_snapshot": True,
             "tuf.root.threshold": 1,
             "tuf.snapshot.threshold": 1,
             "tuf.targets.threshold": 1,
