@@ -13,8 +13,32 @@
 import redis
 
 from warehouse.tasks import task
-from warehouse.tuf import utils, BINS_ROLE
+from warehouse.tuf import utils
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService
+
+
+@task(bind=True, ignore_result=True, acks_late=True)
+def bump_timestamp(task, request):
+    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+
+    with utils.RepoLock(r):
+        pass
+
+
+@task(bind=True, ignore_result=True, acks_late=True)
+def bump_snapshot(task, request):
+    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+
+    with utils.RepoLock(r):
+        pass
+
+
+@task(bind=True, ignore_result=True, acks_late=True)
+def bump_bin_n(task, request):
+    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+
+    with utils.RepoLock(r):
+        pass
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
@@ -32,7 +56,7 @@ def add_target(task, request, filepath, fileinfo):
             role_obj = getattr(repository, role)
             [role_obj.load_signing_key(k) for k in key_service.get_privkeys()]
 
-        repository.targets(BINS_ROLE).add_target_to_bin(filepath, fileinfo=fileinfo)
+        repository.targets("bins").add_target_to_bin(filepath, fileinfo=fileinfo)
         repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
 
     """

@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from celery.schedules import crontab
+
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService
+from warehouse.tuf.tasks import bump_timestamp, bump_snapshot, bump_bin_n
 
 TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 BINS_ROLE = "bins"
@@ -42,3 +45,7 @@ def includeme(config):
     config.register_service_factory(
         repo_service_class.create_service, IRepositoryService
     )
+
+    config.add_periodic_task(crontab(minute=0, hour=0), bump_timestamp)
+    config.add_periodic_task(crontab(minute=0, hour=8), bump_snapshot)
+    config.add_periodic_task(crontab(minute=0, hour=8), bump_bin_n)

@@ -67,7 +67,7 @@ class LocalRepositoryService:
         self._executor = executor
 
     @classmethod
-    def create_service(cls, request):
+    def create_service(cls, context, request):
         return cls(
             request.registry.settings["tuf.repo.path"],
             request.task(add_target).delay,
@@ -87,7 +87,7 @@ class GCSRepositoryService:
         self._store = GCSBackend(request)
 
     @classmethod
-    def create_service(cls, request):
+    def create_service(cls, context, request):
         return cls(request.task(add_target).delay, request)
 
     def load_repository(self):
