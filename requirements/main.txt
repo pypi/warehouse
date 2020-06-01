@@ -362,9 +362,8 @@ lxml==4.5.1 \
     --hash=sha256:f95d28193c3863132b1f55c1056036bf580b5a488d908f7d22a04ace8935a3a9 \
     --hash=sha256:fadd2a63a2bfd7fb604508e553d1cf68eca250b2fbdbd81213b5f6f2fbf23529 \
     # via -r requirements/main.in, premailer
-mako==1.1.2 \
-    --hash=sha256:3139c5d64aa5d175dbafb95027057128b5fbd05a40c53999f3905ceb53366d9d \
-    --hash=sha256:8e8b53c71c7e59f3de716b6832c4e401d903af574f6962edbbbf6ecc2a5fe6c9 \
+mako==1.1.3 \
+    --hash=sha256:8195c8c1400ceb53496064314c6736719c6f25e7479cd24c77be3d9361cddc27 \
     # via alembic
 markupsafe==1.1.1 \
     --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
