@@ -813,13 +813,13 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:76
-#: warehouse/templates/manage/manage_base.html:170
-msgid "Show password"
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
+#: warehouse/templates/accounts/login.html:87
+#: warehouse/templates/manage/manage_base.html:170
+msgid "Show password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:97
