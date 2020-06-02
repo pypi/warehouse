@@ -256,7 +256,7 @@ class TestRemoveProhibitedProjectName:
         db_request.POST["prohibited_project_name_id"] = str(prohibited_project_name.id)
         db_request.route_path = lambda a: "/admin/prohibited_project_names/"
 
-        resp = views.remove_prohibited_project_name(db_request)
+        resp = views.remove_prohibited_project_names(db_request)
 
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/admin/prohibited_project_names/"
