@@ -342,7 +342,7 @@ class TestRegistrationForm:
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(
