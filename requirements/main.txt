@@ -7,9 +7,9 @@
 alembic==1.4.2 \
     --hash=sha256:035ab00497217628bf5d0be82d664d8713ab13d37b630084da8e1f98facf4dbf \
     # via -r requirements/main.in
-amqp==2.5.2 \
-    --hash=sha256:6e649ca13a7df3faacdc8bbb280aa9a6602d22fd9d545336077e573a1f4ff3b8 \
-    --hash=sha256:77f1aef9410698d20eaeac5b73a87817365f457a507d82edf292e12cbb83b08d \
+amqp==2.6.0 \
+    --hash=sha256:24dbaff8ce4f30566bb88976b398e8c4e77637171af3af6f1b9650f48890e60b \
+    --hash=sha256:bb68f8d2bced8f93ccfd07d96c689b716b3227720add971be980accfc2952139 \
     # via kombu
 argon2-cffi==20.1.0 \
     --hash=sha256:05a8ac07c7026542377e38389638a8a1e9b78f1cd8439cd7493b39f08dd75fbf \
@@ -325,9 +325,9 @@ jmespath==0.10.0 \
     --hash=sha256:b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9 \
     --hash=sha256:cdf6525904cc597730141d61b36f2e4b8ecc257c420fa2f4549bac2c2d0cb72f \
     # via boto3, botocore
-kombu==4.6.8 \
-    --hash=sha256:2d1cda774126a044d91a7ff5fa6d09edf99f46924ab332a810760fe6740e9b76 \
-    --hash=sha256:598e7e749d6ab54f646b74b2d2df67755dee13894f73ab02a2a9feb8870c7cb2 \
+kombu==4.6.9 \
+    --hash=sha256:ab0afaa5388dd2979cbc439d3623b86a4f7a58d41f621096bef7767c37bc2505 \
+    --hash=sha256:aece08f48706743aaa1b9d607fee300559481eafcc5ee56451aa0ef867a3be07 \
     # via celery
 limits==1.5.1 \
     --hash=sha256:0e5f8b10f18dd809eb2342f5046eb9aa5e4e69a0258567b5f4aa270647d438b3 \
@@ -362,9 +362,8 @@ lxml==4.5.1 \
     --hash=sha256:f95d28193c3863132b1f55c1056036bf580b5a488d908f7d22a04ace8935a3a9 \
     --hash=sha256:fadd2a63a2bfd7fb604508e553d1cf68eca250b2fbdbd81213b5f6f2fbf23529 \
     # via -r requirements/main.in, premailer
-mako==1.1.2 \
-    --hash=sha256:3139c5d64aa5d175dbafb95027057128b5fbd05a40c53999f3905ceb53366d9d \
-    --hash=sha256:8e8b53c71c7e59f3de716b6832c4e401d903af574f6962edbbbf6ecc2a5fe6c9 \
+mako==1.1.3 \
+    --hash=sha256:8195c8c1400ceb53496064314c6736719c6f25e7479cd24c77be3d9361cddc27 \
     # via alembic
 markupsafe==1.1.1 \
     --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
