@@ -23,8 +23,8 @@ If you run into bugs, you can file them in our `issue tracker`_.
 
 You can also join the chat channels ``#pypa`` (general packaging
 discussion and user support) and ``#pypa-dev`` (discussion about
-development of packaging tools) `on Freenode`_, or the `pypa-dev
-mailing list`_, to ask questions or get involved.
+development of packaging tools) `on Freenode`_, or the `distutils-sig mailing
+list`_, to ask questions or get involved.
 
 Testing
 ----------
@@ -51,7 +51,7 @@ rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
+.. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: https://browserstack.com/
 .. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support
