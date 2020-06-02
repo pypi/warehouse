@@ -64,6 +64,15 @@ Important information should be documented with prose in the ``docs`` section.
 To ensure it builds and passes `doc8`_ style checks you can run
 ``make docs`` and ``make lint`` respectively.
 
+
+Translations
+------------
+
+When making changes to files with strings marked for translation, it's
+necessary to update references to these files any time source strings are change, or the
+line numbers of the source strings in the source files. This can be done by running ``make translations``.
+
+
 Keeping your local branch updated
 ---------------------------------
 

@@ -259,21 +259,21 @@
   <!-- Deletion form -->
   {% include 'delete.html' %}
 
-  <!-- Blacklist form -->
+  <!-- ProhibitedProjectName form -->
   <div class="box box-secondary collapsed-box">
     <div class="box-header with-border">
-      <h3 class="box-title">Blacklist project</h3>
+      <h3 class="box-title">Prohibit Project Name</h3>
       <div class="box-tools">
         <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
       </div>
     </div>
 
-    <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
+    <form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
       <input name="project" type="hidden" value="{{ project.normalized_name }}">
       <div class="box-body">
         <div class="form-group col-sm-12">
-          <label for="blacklistedComment">Comment</label>
-          <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+          <label for="prohibitedComment">Comment</label>
+          <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
         </div>
       </div>
 

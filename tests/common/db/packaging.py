@@ -19,12 +19,12 @@ import factory.fuzzy
 import packaging.utils
 
 from warehouse.packaging.models import (
-    BlacklistedProject,
     Dependency,
     DependencyKind,
     Description,
     File,
     JournalEntry,
+    ProhibitedProjectName,
     Project,
     ProjectEvent,
     Release,
@@ -135,10 +135,10 @@ class JournalEntryFactory(WarehouseFactory):
     submitted_by = factory.SubFactory(UserFactory)
 
 
-class BlacklistedProjectFactory(WarehouseFactory):
+class ProhibitedProjectFactory(WarehouseFactory):
     class Meta:
-        model = BlacklistedProject
+        model = ProhibitedProjectName
 
     created = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
     name = factory.fuzzy.FuzzyText(length=12)
-    blacklisted_by = factory.SubFactory(UserFactory)
+    prohibited_by = factory.SubFactory(UserFactory)
