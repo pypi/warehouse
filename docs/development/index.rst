@@ -16,7 +16,7 @@ check out `"What to put in your bug report"`_ for guidance.
 
 You can also join ``#pypa`` (general packaging discussion and user support) and
 ``#pypa-dev`` (discussion about development of packaging tools) `on Freenode`_,
-or the `pypa-dev mailing list`_, to ask questions or get involved.
+or the `pypa-dev mailing list <https://mail.python.org/mailman3/lists/distutils-sig.python.org/>`_, to ask questions or get involved.
 
 
 .. toctree::
@@ -35,4 +35,4 @@ or the `pypa-dev mailing list`_, to ask questions or get involved.
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`"What to put in your bug report"`: http://www.contribution-guide.org/#what-to-put-in-your-bug-report
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
+.. _`pypa-dev mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
