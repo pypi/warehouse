@@ -20,20 +20,26 @@ from sqlalchemy import func, literal, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import BlacklistedProject, File, Project, Release, Role
+from warehouse.packaging.models import (
+    File,
+    ProhibitedProjectName,
+    Project,
+    Release,
+    Role,
+)
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_project
 
 
 @view_config(
-    route_name="admin.blacklist.list",
-    renderer="admin/blacklist/list.html",
+    route_name="admin.prohibited_project_names.list",
+    renderer="admin/prohibited_project_names/list.html",
     permission="moderator",
     request_method="GET",
     uses_session=True,
 )
-def blacklist(request):
+def prohibited_project_names(request):
     q = request.params.get("q")
 
     try:
@@ -41,8 +47,8 @@ def blacklist(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    blacklist_query = request.db.query(BlacklistedProject).order_by(
-        BlacklistedProject.name
+    prohibited_project_names_query = request.db.query(ProhibitedProjectName).order_by(
+        ProhibitedProjectName.name
     )
 
     if q:
@@ -51,29 +57,31 @@ def blacklist(request):
         filters = []
         for term in terms:
             filters.append(
-                BlacklistedProject.name.ilike(func.normalize_pep426_name(term))
+                ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
             )
 
-        blacklist_query = blacklist_query.filter(or_(*filters))
+        prohibited_project_names_query = prohibited_project_names_query.filter(
+            or_(*filters)
+        )
 
-    blacklist = SQLAlchemyORMPage(
-        blacklist_query,
+    prohibited_project_names = SQLAlchemyORMPage(
+        prohibited_project_names_query,
         page=page_num,
         items_per_page=25,
         url_maker=paginate_url_factory(request),
     )
 
-    return {"blacklist": blacklist, "query": q}
+    return {"prohibited_project_names": prohibited_project_names, "query": q}
 
 
 @view_config(
-    route_name="admin.blacklist.add",
-    renderer="admin/blacklist/confirm.html",
+    route_name="admin.prohibited_project_names.add",
+    renderer="admin/prohibited_project_names/confirm.html",
     permission="moderator",
     request_method="GET",
     uses_session=True,
 )
-def confirm_blacklist(request):
+def confirm_prohibited_project_names(request):
     project_name = request.GET.get("project")
     if project_name is None:
         raise HTTPBadRequest("Have a project to confirm.")
@@ -81,8 +89,8 @@ def confirm_blacklist(request):
     comment = request.GET.get("comment", "")
 
     # We need to look up to see if there is an existing project, releases,
-    # files, roles, etc for what we're attempting to blacklist. If there is we
-    # need to warn that blacklisting will delete those.
+    # files, roles, etc for what we're attempting to prohibit. If there is we
+    # need to warn that prohibiting will delete those.
     project = (
         request.db.query(Project)
         .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
@@ -117,7 +125,7 @@ def confirm_blacklist(request):
         roles = []
 
     return {
-        "blacklist": {"project": project_name, "comment": comment},
+        "prohibited_project_names": {"project": project_name, "comment": comment},
         "existing": {
             "project": project,
             "releases": releases,
@@ -128,22 +136,24 @@ def confirm_blacklist(request):
 
 
 @view_config(
-    route_name="admin.blacklist.add",
+    route_name="admin.prohibited_project_names.add",
     permission="admin",
     request_method="POST",
     uses_session=True,
     require_methods=False,
 )
-def add_blacklist(request):
+def add_prohibited_project_names(request):
     project_name = request.POST.get("project")
     if project_name is None:
         raise HTTPBadRequest("Have a project to confirm.")
     comment = request.POST.get("comment", "")
 
-    # Verify that the user has confirmed the request to blacklist.
+    # Verify that the user has confirmed the request to prohibit.
     confirm = request.POST.get("confirm")
     if not confirm:
-        request.session.flash("Confirm the blacklist request", queue="error")
+        request.session.flash(
+            "Confirm the prohibited project name request", queue="error"
+        )
         return HTTPSeeOther(request.current_route_path())
     elif canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
@@ -155,27 +165,27 @@ def add_blacklist(request):
     if (
         request.db.query(literal(True))
         .filter(
-            request.db.query(BlacklistedProject)
-            .filter(BlacklistedProject.name == project_name)
+            request.db.query(ProhibitedProjectName)
+            .filter(ProhibitedProjectName.name == project_name)
             .exists()
         )
         .scalar()
     ):
         request.session.flash(
-            f"{project_name!r} has already been blacklisted.", queue="error"
+            f"{project_name!r} has already been prohibited.", queue="error"
         )
-        return HTTPSeeOther(request.route_path("admin.blacklist.list"))
+        return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
 
-    # Add our requested blacklist.
+    # Add our requested prohibition.
     request.db.add(
-        BlacklistedProject(
-            name=project_name, comment=comment, blacklisted_by=request.user
+        ProhibitedProjectName(
+            name=project_name, comment=comment, prohibited_by=request.user
         )
     )
 
     # Go through and delete the project and everything related to it so that
-    # our blacklist actually blocks things and isn't ignored (since the
-    # blacklist only takes effect on new project registration).
+    # our prohibition actually blocks things and isn't ignored (since the
+    # prohibition only takes effect on new project registration).
     project = (
         request.db.query(Project)
         .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
@@ -184,40 +194,42 @@ def add_blacklist(request):
     if project is not None:
         remove_project(project, request)
 
-    request.session.flash(f"Blacklisted {project_name!r}", queue="success")
+    request.session.flash(f"Prohibited Project Name {project_name!r}", queue="success")
 
-    return HTTPSeeOther(request.route_path("admin.blacklist.list"))
+    return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
 
 
 @view_config(
-    route_name="admin.blacklist.remove",
+    route_name="admin.prohibited_project_names.remove",
     permission="admin",
     request_method="POST",
     uses_session=True,
     require_methods=False,
 )
-def remove_blacklist(request):
-    blacklist_id = request.POST.get("blacklist_id")
-    if blacklist_id is None:
-        raise HTTPBadRequest("Have a blacklist_id to remove.")
+def remove_prohibited_project_names(request):
+    prohibited_project_name_id = request.POST.get("prohibited_project_name_id")
+    if prohibited_project_name_id is None:
+        raise HTTPBadRequest("Have a prohibited_project_name_id to remove.")
 
     try:
-        blacklist = (
-            request.db.query(BlacklistedProject)
-            .filter(BlacklistedProject.id == blacklist_id)
+        prohibited_project_names = (
+            request.db.query(ProhibitedProjectName)
+            .filter(ProhibitedProjectName.id == prohibited_project_name_id)
             .one()
         )
     except NoResultFound:
         raise HTTPNotFound from None
 
-    request.db.delete(blacklist)
+    request.db.delete(prohibited_project_names)
 
-    request.session.flash(f"{blacklist.name!r} unblacklisted", queue="success")
+    request.session.flash(
+        f"{prohibited_project_names.name!r} unprohibited", queue="success"
+    )
 
     redirect_to = request.POST.get("next")
     # If the user-originating redirection url is not safe, then redirect to
     # the index instead.
     if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
-        redirect_to = request.route_path("admin.blacklist.list")
+        redirect_to = request.route_path("admin.prohibited_project_names.list")
 
     return HTTPSeeOther(redirect_to)
