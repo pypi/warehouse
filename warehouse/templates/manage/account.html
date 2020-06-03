@@ -140,7 +140,7 @@
     {% endif %}
     <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
     {% if user.has_two_factor and not user.has_recovery_codes %}
-    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate Recovery Codes{% endtrans %}</a>
+    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate recovery codes{% endtrans %}</a>
     {% endif %}
   </div>
 
@@ -490,12 +490,12 @@
           {% if user.has_recovery_codes %}
           <tr>
             <th scope="row">
-              {% trans %}Recovery Codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
+              {% trans %}Recovery codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
             </th>
             <td class="table__align-right">
               <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
-              {% set title=gettext("Regenerate Recovery Codes") %}
-              {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
+              {% set title=gettext("Regenerate recovery codes") %}
+              {% set confirm_button_label=gettext("Regenerate recovery codes") %}
               {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
               {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
             </td>
@@ -571,7 +571,7 @@
         {% elif event.additional.two_factor_method  == "totp" %}
           {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "recovery-code" %}
-          {% trans %}Recovery Code{% endtrans %}
+          {% trans %}Recovery code{% endtrans %}
         {% endif %}
       </small>
 
@@ -630,15 +630,15 @@
       </small>
 
       {% elif event.tag == "account:recovery_codes:generated" %}
-      <strong>{% trans %}Recovery Codes generated{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery codes generated{% endtrans %}</strong><br>
       <small>
       </small>
       {% elif event.tag == "account:recovery_codes:regenerated" %}
-      <strong>{% trans %}Recovery Codes regenerated{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery codes regenerated{% endtrans %}</strong><br>
       <small>
       </small>
       {% elif event.tag == "account:recovery_codes:used" %}
-      <strong>{% trans %}Recovery Code used for login{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery code used for login{% endtrans %}</strong><br>
       <small>
       </small>
 

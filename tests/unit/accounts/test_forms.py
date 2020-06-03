@@ -730,7 +730,7 @@ class TestRecoveryCodeForm:
         )
 
         assert not form.validate()
-        assert str(form.recovery_code_value.errors.pop()) == "Invalid Recovery Code."
+        assert str(form.recovery_code_value.errors.pop()) == "Invalid recovery code."
 
     def test_valid_recovery_code(self):
         form = forms.RecoveryCodeAuthenticationForm(

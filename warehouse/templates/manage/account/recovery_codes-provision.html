@@ -14,7 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = gettext("Account Recovery Codes") %}
+{% set title = gettext("Account recovery codes") %}
 
 {% set active_tab = 'account' %}
 
@@ -34,8 +34,8 @@
         <p><strong>{{ _error }}</strong></p>
         <p>{{ _message }}</p>
         <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
-        {% set title=gettext("Regenerate Recovery Codes") %}
-        {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
+        {% set title=gettext("Regenerate recovery codes") %}
+        {% set confirm_button_label=gettext("Regenerate recovery codes") %}
         {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
         {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
       </div>
@@ -49,7 +49,7 @@
     </div>
     <div class="col-half">
       <div>
-        <h2>{% trans %}Save your Recovery Codes{% endtrans %}</h2>
+        <h2>{% trans %}Save your recovery codes{% endtrans %}</h2>
         <div class="recovery-codes">
           <div>
             <div class="recovery-codes__-codes">
@@ -58,7 +58,7 @@
                 <li><code>{{ recovery_code }}</code></li>
                 {% endfor %}
               </ul>
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI Recovery Codes\n' + recovery_codes|join('\n') }}">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}">
                 {% trans %}Copy{% endtrans %}
               </button>
               <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="PyPI-Recovery-Codes.txt" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
