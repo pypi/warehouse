@@ -638,9 +638,9 @@ readme-renderer[md]==26.0 \
     --hash=sha256:cbe9db71defedd2428a1589cdc545f9bd98e59297449f69d721ef8f1cfced68d \
     --hash=sha256:cc4957a803106e820d05d14f71033092537a22daa4f406dfbdd61177e0936376 \
     # via -r requirements/main.in
-redis==3.5.2 \
-    --hash=sha256:2ef11f489003f151777c064c5dbc6653dfb9f3eade159bcadc524619fddc2242 \
-    --hash=sha256:6d65e84bc58091140081ee9d9c187aab0480097750fac44239307a3bdf0b1251 \
+redis==3.5.3 \
+    --hash=sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2 \
+    --hash=sha256:432b788c4530cfe16d8d943a09d40ca6c16149727e4afe8c2c9d5580c59d9f24 \
     # via -r requirements/main.in, celery-redbeat
 repoze.sendmail==4.4.1 \
     --hash=sha256:7a8ea37914a5d38bad38052a83eac1d867b171ff4cc8b4d4994e892c05b0d424 \
