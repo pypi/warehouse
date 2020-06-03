@@ -24,16 +24,16 @@ def _make_backsigned_fileinfo_from_file(file):
     return utils.make_fileinfo(file, custom={"backsigned": True})
 
 
-def _key_service_for_role(config, role):
+def _key_service(config):
     key_service_class = config.maybe_dotted(config.registry.settings["tuf.key_backend"])
-    return key_service_class.create_service(role, config)
+    return key_service_class.create_service(None, config)
 
 
 def _repository_service(config):
     repo_service_class = config.maybe_dotted(
         config.registry.settings["tuf.repo_backend"]
     )
-    return repo_service_class.create_service(config)
+    return repo_service_class.create_service(None, config)
 
 
 @warehouse.group()  # pragma: no-branch
@@ -70,14 +70,13 @@ def new_repo(config):
         config.registry.settings["tuf.repo.path"]
     )
 
+    key_service = _key_service(config)
     for role in TOPLEVEL_ROLES:
-        key_service = _key_service_for_role(config, role)
-
         role_obj = getattr(repository, role)
         role_obj.threshold = config.registry.settings[f"tuf.{role}.threshold"]
 
-        pubkeys = key_service.get_pubkeys()
-        privkeys = key_service.get_privkeys()
+        pubkeys = key_service.pubkeys_for_role(role)
+        privkeys = key_service.privkeys_for_role(role)
         if len(pubkeys) < role_obj.threshold or len(privkeys) < role_obj.threshold:
             raise click.ClickException(
                 f"Unable to initialize TUF repo ({role} needs {role_obj.threshold} keys"
@@ -90,9 +89,7 @@ def new_repo(config):
             role_obj.load_signing_key(privkey)
 
     repository.mark_dirty(TOPLEVEL_ROLES)
-    repository.writeall(
-        consistent_snapshot=True,
-    )
+    repository.writeall(consistent_snapshot=True,)
 
 
 @tuf.command()
@@ -107,24 +104,23 @@ def build_targets(config):
     repository = repo_service.load_repository()
 
     # Load signing keys. We do this upfront for the top-level roles.
+    key_service = _key_service(config)
     for role in ["snapshot", "targets", "timestamp"]:
-        key_service = _key_service_for_role(config, role)
         role_obj = getattr(repository, role)
 
-        [role_obj.load_signing_key(k) for k in key_service.get_privkeys()]
-
-    bins_key_service = _key_service_for_role(config, BINS_ROLE)
-    bin_n_key_service = _key_service_for_role(config, BIN_N_ROLE)
+        [role_obj.load_signing_key(k) for k in key_service.privkeys_for_role(role)]
 
     # NOTE: TUF normally does delegations by path patterns (i.e., globs), but PyPI
     # doesn't store its uploads on the same logical host as the TUF repository.
     # The last parameter to `delegate` is a special sentinel for this.
-    repository.targets.delegate(BINS_ROLE, bins_key_service.get_pubkeys(), [])
-    for privkey in bins_key_service.get_privkeys():
+    repository.targets.delegate(BINS_ROLE, key_service.pubkeys_for_role(BINS_ROLE), [])
+    for privkey in key_service.privkeys_for_role(BINS_ROLE):
         repository.targets(BINS_ROLE).load_signing_key(privkey)
 
     repository.targets(BINS_ROLE).delegate_hashed_bins(
-        [], bin_n_key_service.get_pubkeys(), config.registry.settings["tuf.bin-n.count"]
+        [],
+        key_service.pubkeys_for_role(BIN_N_ROLE),
+        config.registry.settings["tuf.bin-n.count"],
     )
 
     dirty_roles = ["snapshot", "targets", "timestamp", BINS_ROLE]
@@ -134,9 +130,7 @@ def build_targets(config):
         dirty_roles.append(f"{low}-{high}")
 
     repository.mark_dirty(dirty_roles)
-    repository.writeall(
-        consistent_snapshot=True
-    )
+    repository.writeall(consistent_snapshot=True)
 
     # Collect the "paths" for every PyPI package. These are packages already in
     # existence, so we'll add some additional data to their targets to
@@ -155,8 +149,7 @@ def build_targets(config):
 
     repository.mark_dirty(dirty_roles)
     repository.writeall(
-        consistent_snapshot=True,
-        use_existing_fileinfo=True,
+        consistent_snapshot=True, use_existing_fileinfo=True,
     )
 
 

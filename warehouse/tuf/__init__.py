@@ -13,7 +13,7 @@
 from celery.schedules import crontab
 
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService
-from warehouse.tuf.tasks import bump_timestamp, bump_snapshot, bump_bin_n
+from warehouse.tuf.tasks import bump_bin_n, bump_snapshot, bump_timestamp
 
 TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 BINS_ROLE = "bins"

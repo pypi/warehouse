@@ -20,16 +20,14 @@ class IKeyService(Interface):
         created.
         """
 
-    def get_pubkeys():
+    def pubkeys_for_role(rolename):
         """
-        Return a list of (TUF-formatted) public keys for the TUF role that this
-        service was initialized with.
+        Return a list of (TUF-formatted) public keys for the given TUF role.
         """
 
-    def get_privkeys():
+    def privkeys_for_role(rolename):
         """
-        Return a list of (TUF-formatted) private keys for the TUF role that this
-        service was initialized with.
+        Return a list of (TUF-formatted) private keys for the given TUF role.
         """
 
 

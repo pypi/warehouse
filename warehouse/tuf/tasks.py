@@ -49,14 +49,28 @@ def add_target(task, request, filepath, fileinfo):
         # TODO(ww): How slow is this? Does it make more sense to pass the loaded
         # repository to the task?
         repo_service = request.find_service(IRepositoryService)
+        key_service = request.find_service(IKeyService)
         repository = repo_service.load_repository()
 
-        for role in ["snapshot", "bin-n"]:
-            key_service = request.find_service(IKeyService, context=role)
+        dirty_roles = ["snapshot", "timestamp"]
+        for role in dirty_roles:
             role_obj = getattr(repository, role)
-            [role_obj.load_signing_key(k) for k in key_service.get_privkeys()]
+            [role_obj.load_signing_key(k) for k in key_service.privkeys_for_role(role)]
 
-        repository.targets("bins").add_target_to_bin(filepath, fileinfo=fileinfo)
+        # NOTE(ww): I think this should be targets("bins") instead of just targets,
+        # but that fails with a missing delegated role under "bins". Possible
+        # bug in load_repository?
+        dirty_bin = repository.targets.add_target_to_bin(
+            filepath,
+            number_of_bins=request.registry.settings["tuf.bin-n.count"],
+            fileinfo=fileinfo
+        )
+        dirty_roles.append(dirty_bin)
+
+        for k in key_service.privkeys_for_role("bin-n"):
+            repository.targets(dirty_bin).load_signing_key(k)
+
+        repository.mark_dirty(dirty_roles)
         repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
 
     """

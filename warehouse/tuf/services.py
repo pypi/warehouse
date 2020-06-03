@@ -19,7 +19,7 @@ from zope.interface import implementer
 
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService
 from warehouse.tuf.tasks import add_target
-from warehouse.tuf.utils import make_fileinfo, GCSBackend
+from warehouse.tuf.utils import GCSBackend, make_fileinfo
 
 
 class InsecureKeyWarning(UserWarning):
@@ -28,7 +28,7 @@ class InsecureKeyWarning(UserWarning):
 
 @implementer(IKeyService)
 class LocalKeyService:
-    def __init__(self, key_path, role, key_secret):
+    def __init__(self, key_path, request):
         warnings.warn(
             "LocalKeyService is intended only for use in development, you "
             "should not use it in production to avoid unnecessary key exposure.",
@@ -36,26 +36,25 @@ class LocalKeyService:
         )
 
         self._key_path = key_path
-        self._role = role
-        self._key_secret = key_secret
+        self._request = request
 
     @classmethod
     def create_service(cls, context, request):
         return cls(
             request.registry.settings["tuf.key.path"],
-            context,
-            request.registry.settings[f"tuf.{context}.secret"],
+            request
         )
 
-    def get_pubkeys(self):
-        pubkey_path = os.path.join(self._key_path, f"tuf.{self._role}.pub")
+    def pubkeys_for_role(self, rolename):
+        pubkey_path = os.path.join(self._key_path, f"tuf.{rolename}.pub")
         return [repository_tool.import_ed25519_publickey_from_file(pubkey_path)]
 
-    def get_privkeys(self):
-        privkey_path = os.path.join(self._key_path, f"tuf.{self._role}")
+    def privkeys_for_role(self, rolename):
+        privkey_path = os.path.join(self._key_path, f"tuf.{rolename}")
         return [
             repository_tool.import_ed25519_privatekey_from_file(
-                privkey_path, password=self._key_secret
+                privkey_path,
+                password=self._request.registry.settings[f"tuf.{rolename}.secret"],
             )
         ]
 
@@ -69,8 +68,7 @@ class LocalRepositoryService:
     @classmethod
     def create_service(cls, context, request):
         return cls(
-            request.registry.settings["tuf.repo.path"],
-            request.task(add_target).delay,
+            request.registry.settings["tuf.repo.path"], request.task(add_target).delay,
         )
 
     def load_repository(self):
