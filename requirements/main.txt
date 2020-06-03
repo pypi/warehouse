@@ -696,9 +696,9 @@ trove-classifiers==2020.5.21 \
     --hash=sha256:0691bb836dc141704b1605ffe6a9dba80e7479c0792dbc476454c9aaaa5b980e \
     --hash=sha256:06ddeca19f61c6b06451056b53ceab346ed308b231c33acebf07503f77f0a810 \
     # via -r requirements/main.in
-typeguard==2.7.1 \
-    --hash=sha256:1d3710251d3d3d6c64e0c49f45edec2e88ddc386a51e89c3ec0703efeb8b3b81 \
-    --hash=sha256:2d545c71e9439c21bcd7c28f5f55b3606e6106f7031ab58375656a1aed483ef2 \
+typeguard==2.8.0 \
+    --hash=sha256:9d77078393507d733d13ceff9eb75ff298f968d73eb73fb812f748fdc6c55c1d \
+    --hash=sha256:e718f493d805d596cba238a61aa83b874530a333783ca9d597fe5bf27143f042 \
     # via -r requirements/main.in
 urllib3==1.25.9 \
     --hash=sha256:3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527 \
