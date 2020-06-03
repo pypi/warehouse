@@ -72,7 +72,7 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
 #: warehouse/accounts/forms.py:344
-msgid "Invalid Recovery Code."
+msgid "Invalid recovery code."
 msgstr ""
 
 #: warehouse/accounts/forms.py:362
@@ -887,11 +887,12 @@ msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
+msgid "Recovery codes"
 msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+msgid "Login using recovery codes"
 msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1084,10 +1085,6 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr ""
-
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
 msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:122
@@ -1668,7 +1665,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
+msgid "Generate recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:148
@@ -1921,9 +1918,10 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
+msgid "Regenerate recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:509
@@ -1988,7 +1986,7 @@ msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
+msgid "Recovery code"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:579
@@ -2063,15 +2061,15 @@ msgid "Two factor authentication removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
+msgid "Recovery codes generated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
+msgid "Recovery codes regenerated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
+msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:647
@@ -3084,11 +3082,7 @@ msgid "Add token"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
-msgstr ""
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
+msgid "Account recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
@@ -3113,7 +3107,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
+msgid "Save your recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
@@ -4090,8 +4084,8 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:436
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a "
-"Recovery Code\""
+"When prompted for two factor authentication, select \"Login using "
+"recovery codes\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:437
