@@ -595,6 +595,28 @@ Building the docs requires Python 3.8. If it is not installed, the
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
+
+Building translations
+---------------------
+
+Warehouse is translated into a number of different locales, which are stored in
+the :file:`warehouse/locale/` directory.
+
+These translation files contain references to untranslated text in source code
+and HTML templates, as well as the translations which have been submitted by
+our volunteer translators.
+
+When making changes to files with strings marked for translation, it's
+necessary to update these references any time source strings are change, or the
+line numbers of the source strings in the source files.
+
+Use :command:`make` to build the translations. For example:
+
+.. code-block:: console
+
+    make translations
+
+
 What next?
 ----------
 

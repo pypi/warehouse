@@ -7,21 +7,23 @@ set -e
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
+COMMAND_ARGS=$@
+
 # Test the postgres connection
-for arg in "$@"; do
-  shift
-  case "$arg" in
-    "--postgresql-host") export POSTGRES_HOST=$@
+while [ $# -gt 0 ]; do
+  case $1 in
+    "--postgresql-host") POSTGRES_HOST="$2"
   esac
+  shift
 done
 
 # Print all the followng commands
 set -x
 
 # Test the postgres connection
-pg_isready -h $POSTGRES_HOST
+pg_isready -t 10 -h $POSTGRES_HOST
 
 # Actually run our tests.
-python -m coverage run -m pytest --strict $@
+python -m coverage run -m pytest --strict $COMMAND_ARGS
 python -m coverage html
 python -m coverage report -m --fail-under 100
