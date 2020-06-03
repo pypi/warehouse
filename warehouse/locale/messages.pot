@@ -817,12 +817,12 @@ msgstr ""
 msgid "Your password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:92
+#: warehouse/templates/accounts/login.html:94
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:95
+#: warehouse/templates/accounts/login.html:98
 msgid "Forgot password?"
 msgstr ""
 
