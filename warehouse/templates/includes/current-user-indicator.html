@@ -15,10 +15,11 @@
   {% if request.user %}
   <div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
     <nav aria-label="{% trans %}Main navigation{% endtrans %}" class="dropdown dropdown--on-menu dropdown--with-icons">
-      <button type="button" class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View menu{% endtrans %}">
+      <button type="button" class="horizontal-menu__btn horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View menu{% endtrans %}">
+        <img class="icn" src="{{ gravatar(request, request.user.email, size=40) }}" alt="User Image">
         {{ request.user.username }}
         <span class="dropdown__trigger-caret">
-          <i class="fa fa-caret-down" aria-hidden="true"></i>
+          <i class="icn fa fa-caret-down" aria-hidden="true"></i>
         </span>
       </button>
       <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
