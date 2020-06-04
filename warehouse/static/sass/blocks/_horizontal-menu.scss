@@ -52,16 +52,19 @@
 
     &--with-icon {
       .fa {
-        margin-right: 3px;
+        margin-right: 5px;
+      }
+
+      img.fa {
+        border-radius: 10%;
+      }
+
+      &:hover {
+        .fa {
+          opacity: 0.8;
+        }
       }
     }
-  }
-
-  &__btn {
-    display: inline-block;
-    padding: 8px 10px;
-    @include link-without-underline;
-    @include link-focus-state($white);
   }
 
   &--light {
@@ -69,27 +72,7 @@
       color: $white;
 
       &:hover {
-        text-decoration: underline;
         text-decoration-color: $transparent-white;
-      }
-    }
-
-    .horizontal-menu__btn {
-      color: $white;
-
-      &:hover {
-        .icn {
-          opacity: 0.8;
-        }
-      }
-
-      img.icn {
-        border-radius: 10%;
-        margin: 0px 5px;
-      }
-
-      @media only screen and (max-width: $small-tablet) {
-        padding: 25px 10px;
       }
     }
   }
@@ -100,24 +83,6 @@
 
       &:hover {
         text-decoration: underline;
-      }
-
-      @media only screen and (max-width: $small-tablet) {
-        padding: 25px 10px;
-      }
-    }
-
-    .horizontal-menu__btn {
-      padding: 32px ($spacing-unit / 2);
-
-      &:hover {
-        .icn {
-          opacity: 0.8;
-        }
-      }
-
-      img.icn {
-        border-radius: 10%;
       }
 
       @media only screen and (max-width: $small-tablet) {
