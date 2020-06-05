@@ -52,15 +52,17 @@
 
     &--with-icon {
       .fa {
-        margin-right: 5px;
+        margin-right: 3px;
       }
 
-      img.fa {
+      .user-image {
+        margin-right: 5px;
         border-radius: 10%;
       }
 
       &:hover {
-        .fa {
+        .fa,
+        .user-image {
           opacity: 0.8;
         }
       }
