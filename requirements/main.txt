@@ -677,8 +677,9 @@ sqlalchemy-citext==1.6.3 \
 sqlalchemy==1.3.17 \
     --hash=sha256:156a27548ba4e1fed944ff9fcdc150633e61d350d673ae7baaf6c25c04ac1f71 \
     # via -r requirements/main.in, alembic, paginate-sqlalchemy, sqlalchemy-citext, zope.sqlalchemy
-stdlib-list==0.6.0 \
-    --hash=sha256:133cc99104f5a4e1604dc88ebb393529bd4c2b99ae7e10d46c0b596f3c67c3f0 \
+stdlib-list==0.7.0 \
+    --hash=sha256:0ed79a0badf4f666aad046cde364ccac68ca1438a211ec74b0153e0eb5642a3e \
+    --hash=sha256:66c1c1724a12667cdb35be9f43181c3e6646c194e631efaaa93c1f2c2c7a1f7f \
     # via -r requirements/main.in
 structlog==20.1.0 \
     --hash=sha256:7a48375db6274ed1d0ae6123c486472aa1d0890b08d314d2b016f3aa7f35990b \
