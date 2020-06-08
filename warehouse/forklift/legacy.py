@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import email
 import hashlib
 import hmac
@@ -17,6 +18,7 @@ import os.path
 import re
 import tarfile
 import tempfile
+import uuid
 import zipfile
 
 from cgi import FieldStorage, parse_header
@@ -32,7 +34,7 @@ import stdlib_list
 import wtforms
 import wtforms.validators
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone, HTTPInternalServerError
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
@@ -1186,6 +1188,7 @@ def file_upload(request):
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
 
+    file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
         temporary_filename = os.path.join(tmpdir, filename)
 
@@ -1351,6 +1354,7 @@ def file_upload(request):
             ),
             uploaded_via=request.user_agent,
         )
+        file_data = file_
         request.db.add(file_)
 
         # TODO: This should be handled by some sort of database trigger or a
@@ -1394,6 +1398,119 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+    
+    # Push updates to BigQuery
+    bq = request.find_service(name="gcloud.bigquery")
+    form_attrs = vars(form)
+    file_attrs = vars(file_data)
+    release_attrs = vars(file_attrs['release'])
+
+    # Add a new supported_platforms field to the release attributes
+    release_attrs["supported_platform"] = None
+    if file_attrs["filename"].endswith('.whl'):
+        release_attrs["supported_platform"] = _wheel_file_re.match(file_attrs["filename"]).group("plat").split(".")
+
+    # Using the schema to populate the data allows us to automatically
+    # set the values rather than assigning values individually
+    def populate_data_using_schema(schema, row_data):
+
+        for sch in schema:
+            if sch.field_type == "RECORD":
+                row_data[sch.name] = dict()
+                populate_data_using_schema(sch.fields, row_data[sch.name])
+            else:
+                field_name = sch.name
+                field_type = sch.field_type
+                field_data = None
+
+                # The order of data extraction below is determined based on the
+                # classes that are most recently updated
+                if field_name in file_attrs:
+                    field_data = file_attrs[field_name]
+                elif field_name in form_attrs:
+                    field_data = form_attrs[field_name].data
+                elif field_name in release_attrs:
+                    field_data = release_attrs[field_name]
+
+                if isinstance(field_data, datetime.datetime):
+                    field_data = field_data.isoformat()
+                elif isinstance(field_data, uuid.UUID):
+                    field_data = str(field_data)
+                
+                # Replace all empty objects to None will ensure
+                # proper checks if a field is nullable or not
+                if not isinstance(field_data, bool) and not field_data:
+                    field_data = None
+
+                row_data[field_name] = field_data
+
+    distribution_row_data = dict()
+    populate_data_using_schema(bq.get_table(request.registry.settings["warehouse.distribution_table"]).schema, distribution_row_data)
+
+    # Convert the key value format so that it can be
+    # plugged into a SQL query
+    set_params = ""
+    file_params = ""
+    for key, value in distribution_row_data.items():
+        if key != 'files':
+            if value is None:
+                set_params += '{}=NULL,'.format(key)
+            elif isinstance(value, str):
+                set_params += '{}="{}",'.format(key, value)
+            else:
+                set_params += '{}={},'.format(key, value)
+        else:
+            for f_key, f_value in value.items():
+                if f_value is None and f_key == 'comment_text':
+                    # We are doing this because BigQuery does not infer the type of STRUCT
+                    # field in the case of a NULL literal resulting in an error forcing us 
+                    # to cast it to its assigned value
+                    file_params += 'CAST(NULL AS STRING) AS {},'.format(f_key)
+                elif f_value is None:
+                    file_params += 'NULL AS {},'.format(f_key)
+                elif isinstance(f_value, str):
+                    file_params += '"{}" AS {},'.format(f_value, f_key)
+                else:
+                    file_params += '{} AS {},'.format(f_value, f_key)
+    file_params = file_params[:-1]
+
+    query = """
+            UPDATE
+                {table}
+            SET
+                {parameters}
+                files=ARRAY_CONCAT(files,
+                    [
+                        STRUCT(
+                            {file_params}
+                        )
+                    ]
+                )
+            WHERE
+                id=\"{release_id}\";
+            """.format(table=request.registry.settings["warehouse.distribution_table"], parameters=set_params, file_params=file_params, release_id=distribution_row_data["id"])
+    print(query)
+
+    updated_rows = None
+    query_job = bq.query(query)
+    try:
+        updated_rows = query_job.result()
+    except Exception as err:
+        if query_job.errors is None:
+            raise _exc_with_message(HTTPInternalServerError, "An error occurred while updating BigQuery.")
+        else:
+            raise _exc_with_message(HTTPBadRequest, query_job.errors)
+
+    # No update on rows implies that its
+    # a new release hence insert it into a 
+    # new row
+    if updated_rows == None or len(updated_rows) == 0:
+        data_rows = [ distribution_row_data ]
+        insert_errors = bq.insert_rows_json(table=request.registry.settings["warehouse.distribution_table"], json_rows=data_rows)
+        # Normally there should be a error check here if there were any
+        # errors during insert in the data types. However, since the data is
+        # already validated in the above processes, a data type error would be
+        # raised way before it reaches here.
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
