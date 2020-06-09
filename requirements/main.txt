@@ -87,9 +87,9 @@ cbor2==5.1.0 \
 celery-redbeat==1.0.0 \
     --hash=sha256:36b98c32ea4ca6f6f1ccddc3fdb9f5cd7a4bd273650cf931c6c46fb7fbc60a91 \
     # via -r requirements/main.in
-celery[sqs]==4.4.3 \
-    --hash=sha256:5147662e23dc6bc39c17a2cbc9a148debe08ecfb128b0eded14a0d9c81fc5742 \
-    --hash=sha256:df2937b7536a2a9b18024776a3a46fd281721813636c03a5177fa02fe66078f6 \
+celery[sqs]==4.4.5 \
+    --hash=sha256:c3f4173f83ceb5a5c986c5fdaefb9456de3b0729a72a5776e46bd405fda7b647 \
+    --hash=sha256:d1762d6065522879f341c3d67c2b9fe4615eb79756d59acb1434601d4aca474b \
     # via -r requirements/main.in, celery-redbeat
 certifi==2020.4.5.2 \
     --hash=sha256:5ad7e9a056d25ffa5082862e36f119f7f7cec6457fa07ee2f8c339814b80c9b1 \
@@ -231,7 +231,7 @@ first==2.0.2 \
     # via -r requirements/main.in
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d \
-    # via webauthn
+    # via celery, webauthn
 google-api-core==1.17.0 \
     --hash=sha256:c0e430658ed6be902d7ba7095fb0a9cac810270d71bf7ac4484e76c300407aae \
     --hash=sha256:e4082a0b479dc2dee2f8d7b80ea8b5d0184885b773caab15ab1836277a01d689 \
