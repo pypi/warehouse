@@ -647,9 +647,9 @@ repoze.sendmail==4.4.1 \
     --hash=sha256:7a8ea37914a5d38bad38052a83eac1d867b171ff4cc8b4d4994e892c05b0d424 \
     --hash=sha256:f1396893d3aa43502624e88941a441233c06679ae50b1966ffbfccba05da6347 \
     # via pyramid-mailer
-requests-aws4auth==0.9 \
-    --hash=sha256:c9973af472d6d358ee301f077608361e078642aa019785139b588d526f50a23c \
-    --hash=sha256:e20e4941ccd5706973068f9214d40cb2e669461536b3a57b9ac824ae87744c2c \
+requests-aws4auth==1.0 \
+    --hash=sha256:2950f6ff686b5a452a269076d990e4821d959b61cfac319c3d3c6daaa5db55ce \
+    --hash=sha256:73f10dce17f11c93a90e06c8d3c7a28995c1f90a6dbe85a5637033669c3e097d \
     # via -r requirements/main.in
 requests==2.23.0 \
     --hash=sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee \
