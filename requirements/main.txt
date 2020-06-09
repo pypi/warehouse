@@ -236,9 +236,9 @@ google-api-core==1.17.0 \
     --hash=sha256:c0e430658ed6be902d7ba7095fb0a9cac810270d71bf7ac4484e76c300407aae \
     --hash=sha256:e4082a0b479dc2dee2f8d7b80ea8b5d0184885b773caab15ab1836277a01d689 \
     # via google-cloud-bigquery, google-cloud-core
-google-auth==1.16.0 \
-    --hash=sha256:1b3732b121917124adfe602de148ef5cba351792cf9527f99e6b61b84f74a7f5 \
-    --hash=sha256:7a9119c4ed518e4ea596cc896e6c567b923b57db40be70e5aec990055aea85d3 \
+google-auth==1.16.1 \
+    --hash=sha256:2f1a6bc3031fc7cd0c1aeb225ad34febcb60268f71f5df75d5976dd20a52c002 \
+    --hash=sha256:c041ffe8887fda3b040b39700d839fe38260c281ee11dbf6627978e21c99a626 \
     # via google-api-core, google-cloud-bigquery, google-cloud-storage
 google-cloud-bigquery==1.24.0 \
     --hash=sha256:23c9180e87f6093eb6f2ae880d7f7697fdab991a4616439ad0f95cd37014f0dd \
@@ -252,12 +252,13 @@ google-cloud-storage==1.28.1 \
     --hash=sha256:0b28536acab1d7e856a7a89bbfcad41f26f40b46af59786ca874ff0f94bbc0f9 \
     --hash=sha256:a7b5c326e7307a83fa1f1f0ef71aba9ad1f3a2bc6a768401e13fc02369fd8612 \
     # via -r requirements/main.in
-google-resumable-media==0.5.0 \
-    --hash=sha256:2a8fd188afe1cbfd5998bf20602f76b0336aa892de88fe842a806b9a3ed78d2a \
-    --hash=sha256:b86140d5a0b6d290084b11bde90ee9aecad357ba0e0d67388d016b8340320927 \
+google-resumable-media==0.5.1 \
+    --hash=sha256:97155236971970382b738921f978a6f86a7b5a0b0311703d991e065d3cb55773 \
+    --hash=sha256:cdc64378dc9a7a7bf963a8d0c944c99b549dc0c195a9acbf1fcd465f380b9002 \
     # via google-cloud-bigquery, google-cloud-storage
-googleapis-common-protos==1.51.0 \
-    --hash=sha256:013c91704279119150e44ef770086fdbba158c1f978a6402167d47d5409e226e \
+googleapis-common-protos==1.52.0 \
+    --hash=sha256:560716c807117394da12cecb0a54da5a451b5cf9866f1d37e9a5e2329a665351 \
+    --hash=sha256:c8961760f5aad9a711d37b675be103e0cc4e9a39327e0d6d857872f698403e24 \
     # via google-api-core
 hiredis==1.0.1 \
     --hash=sha256:01b577f84c20ecc9c07fc4c184231b08e3c3942de096fa99978e053de231c423 \
@@ -325,9 +326,9 @@ jmespath==0.10.0 \
     --hash=sha256:b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9 \
     --hash=sha256:cdf6525904cc597730141d61b36f2e4b8ecc257c420fa2f4549bac2c2d0cb72f \
     # via boto3, botocore
-kombu==4.6.9 \
-    --hash=sha256:ab0afaa5388dd2979cbc439d3623b86a4f7a58d41f621096bef7767c37bc2505 \
-    --hash=sha256:aece08f48706743aaa1b9d607fee300559481eafcc5ee56451aa0ef867a3be07 \
+kombu==4.6.10 \
+    --hash=sha256:437b9cdea193cc2ed0b8044c85fd0f126bb3615ca2f4d4a35b39de7cacfa3c1a \
+    --hash=sha256:dc282bb277197d723bccda1a9ba30a27a28c9672d0ab93e9e51bb05a37bd29c3 \
     # via celery
 limits==1.5.1 \
     --hash=sha256:0e5f8b10f18dd809eb2342f5046eb9aa5e4e69a0258567b5f4aa270647d438b3 \
