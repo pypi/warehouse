@@ -108,10 +108,10 @@ restructuredtext-lint==1.3.1 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via doc8, stevedore
-stevedore==1.32.0 \
-    --hash=sha256:18afaf1d623af5950cc0f7e75e70f917784c73b652a34a12d90b309451b5500b \
-    --hash=sha256:a4e7dc759fb0f2e3e2f7d8ffe2358c19d45b9b8297f393ef1256858d82f69c9b \
+    # via doc8
+stevedore==2.0.0 \
+    --hash=sha256:001e90cd704be6470d46cc9076434e2d0d566c1379187e7013eb296d3a6032d9 \
+    --hash=sha256:471c920412265cc809540ae6fb01f3f02aba89c79bbc7091372f4745a50f9691 \
     # via doc8
 template-remover==0.1.9 \
     --hash=sha256:480f1ce63f56affac1edb29356afcca1260e8409cd928fcf9438fc149df5ff41 \
