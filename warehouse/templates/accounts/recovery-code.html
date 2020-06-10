@@ -15,13 +15,13 @@
 
 {% block title %}
   {% if form and form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
-  {% trans %}Recovery Codes{% endtrans %}
+  {% trans %}Recovery codes{% endtrans %}
 {% endblock %}
 
 {% block content %}
   <div class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">{% trans %}Login using Recovery Code{% endtrans %}</h1>
+      <h1 class="page-title">{% trans %}Login using recovery codes{% endtrans %}</h1>
       <div class="twofa-login__method">
         <form method="POST" action="{{ request.current_route_path() }}">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

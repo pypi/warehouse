@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import binascii
 import datetime
 import json
 import uuid
@@ -67,20 +66,28 @@ class DatabaseMacaroonService:
 
         return dm
 
+    def _deserialize_raw_macaroon(self, raw_macaroon):
+        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
+
+        if raw_macaroon is None:
+            raise InvalidMacaroon("malformed or nonexistent macaroon")
+
+        try:
+            return pymacaroons.Macaroon.deserialize(raw_macaroon)
+        except (
+            MacaroonDeserializationException,
+            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
+        ):
+            raise InvalidMacaroon("malformed macaroon")
+
     def find_userid(self, raw_macaroon):
         """
         Returns the id of the user associated with the given raw (serialized)
         macaroon.
         """
-        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
-        if raw_macaroon is None:
-            return None
-
         try:
-            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        except binascii.Error:
-            return None
-        except MacaroonDeserializationException:
+            m = self._deserialize_raw_macaroon(raw_macaroon)
+        except InvalidMacaroon:
             return None
 
         dm = self.find_macaroon(m.identifier.decode())
@@ -97,15 +104,7 @@ class DatabaseMacaroonService:
 
         Raises InvalidMacaroon if the macaroon is not valid.
         """
-        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
-        if raw_macaroon is None:
-            raise InvalidMacaroon("malformed or nonexistent macaroon")
-
-        try:
-            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        except MacaroonDeserializationException:
-            raise InvalidMacaroon("malformed macaroon")
-
+        m = self._deserialize_raw_macaroon(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
