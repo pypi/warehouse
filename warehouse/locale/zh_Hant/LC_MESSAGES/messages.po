@@ -9,13 +9,14 @@
 # Tzu-ping Chung <uranusjr@gmail.com>, 2020.
 # ShingZhanho <zhanhoshing@icloud.com>, 2020.
 # anonymous <noreply@weblate.org>, 2020.
+# bcmjddbjd <2585521292@qq.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-04-15 05:56+0000\n"
-"Last-Translator: anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2020-05-28 22:15+0000\n"
+"Last-Translator: Josix <josixwang@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.0-dev\n"
+"X-Generator: Weblate 4.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -48,14 +49,14 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"用戶名無效。 用戶名必須由字母，數字，點，連字符和下劃線組成。 並且還必須以字"
-"母或數字開頭和結尾。 選擇其他用戶名。"
+"使用者名稱無效。 使用者名稱必須由字母，數字，點，連字符和下劃線組成。 並且還"
+"必須以字母或數字開頭和結尾。 選擇其他使用者名稱。"
 
 #: warehouse/accounts/forms.py:99
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr "該用戶名已被另一個帳戶使用。 選擇其他用戶名。"
+msgstr "該使用者名稱已被另一個帳戶使用。 選擇其他使用者名稱。"
 
 #: warehouse/accounts/forms.py:122
 msgid "The password is invalid. Try again."
@@ -103,7 +104,7 @@ msgstr "無效的 WebAuthn 斷言：負載錯誤"
 
 #: warehouse/accounts/forms.py:344
 #, fuzzy
-msgid "Invalid Recovery Code."
+msgid "Invalid recovery code."
 msgstr "無效的重設碼。"
 
 #: warehouse/accounts/forms.py:362
@@ -124,7 +125,7 @@ msgstr "兩階段驗證登入失效或過期。"
 
 #: warehouse/accounts/views.py:272
 msgid "Already authenticated"
-msgstr "身份已經驗證過"
+msgstr "已驗證身份"
 
 #: warehouse/accounts/views.py:340
 msgid "Successful WebAuthn assertion"
@@ -225,8 +226,9 @@ msgid ""
 msgstr "你必須先設定雙重認證來產生重置碼。"
 
 #: warehouse/manage/views.py:681
+#, fuzzy
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "重設碼已生成"
 
 #: warehouse/manage/views.py:682
 msgid "Generating new recovery codes will invalidate your existing codes."
@@ -234,7 +236,7 @@ msgstr "產生新的重置碼會使現有的重置碼失效。"
 
 #: warehouse/manage/views.py:733
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "憑證無效。請再試一次"
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -285,9 +287,9 @@ msgstr "蒙提·派森（Monty Python） - The Cheese Shop Sketch"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/releases.html:123
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -461,19 +463,20 @@ msgstr "密碼欄位不可為空"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
+#, fuzzy
 msgid "Main navigation"
-msgstr ""
+msgstr "主導航欄"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-#: warehouse/templates/includes/current-user-indicator.html:54
+#: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:99
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "取得支援"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:60
+#: warehouse/templates/includes/current-user-indicator.html:61
 msgid "Sponsor"
 msgstr "贊助者"
 
@@ -491,14 +494,14 @@ msgstr "建立帳戶"
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "查看選單"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr ""
+msgstr "選單"
 
 #: warehouse/templates/base.html:54
-#: warehouse/templates/includes/current-user-indicator.html:24
+#: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
 msgstr "主目錄"
 
@@ -514,11 +517,11 @@ msgstr "RSS：40個更新"
 
 #: warehouse/templates/base.html:96
 msgid "RSS: 40 newest packages"
-msgstr ""
+msgstr "RSS：40 個最新的套件"
 
 #: warehouse/templates/base.html:148
 msgid "Skip to main content"
-msgstr ""
+msgstr "跳到主要内容"
 
 #: warehouse/templates/base.html:151
 msgid "Switch to mobile version"
@@ -531,7 +534,7 @@ msgstr "轉換至流動裝置版本"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:151
+#: warehouse/templates/manage/release.html:161
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
 msgstr "警告"
@@ -541,11 +544,14 @@ msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "不支援你正在使用的網路瀏覽器，請更新至新的版本。"
 
 #: warehouse/templates/base.html:171
+#, fuzzy
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"您正在使用 TestPyPI – 一個 Python 套件索引的實例，可以讓您嘗試發佈工具且可以"
+"讓您不會影響實際索引地進行。"
 
 #: warehouse/templates/base.html:181
 msgid ""
@@ -575,7 +581,7 @@ msgstr "搜尋"
 
 #: warehouse/templates/base.html:259
 msgid "Help navigation"
-msgstr ""
+msgstr "說明導航欄"
 
 #: warehouse/templates/base.html:261
 msgid "Installing packages"
@@ -599,7 +605,7 @@ msgstr "關於 PyPI"
 
 #: warehouse/templates/base.html:271
 msgid "About PyPI navigation"
-msgstr ""
+msgstr "關於 PyPI 導航欄"
 
 #: warehouse/templates/base.html:273
 msgid "PyPI on Twitter"
@@ -607,23 +613,25 @@ msgstr "Twitter 上的 PyPI"
 
 #: warehouse/templates/base.html:274
 msgid "Infrastructure dashboard"
-msgstr ""
+msgstr "基礎架構儀表板"
 
 #: warehouse/templates/base.html:275
+#, fuzzy
 msgid "Package index name retention"
-msgstr ""
+msgstr "套件索引名稱保留"
 
 #: warehouse/templates/base.html:276
 msgid "Our sponsors"
-msgstr ""
+msgstr "我們的贊助商"
 
 #: warehouse/templates/base.html:282
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "為 PyPI 貢獻"
 
 #: warehouse/templates/base.html:283
+#, fuzzy
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "如何貢獻導航欄"
 
 #: warehouse/templates/base.html:285
 msgid "Bugs and feedback"
@@ -631,31 +639,33 @@ msgstr "錯誤回報"
 
 #: warehouse/templates/base.html:286
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "在 GitHub 上做出貢獻"
 
 #: warehouse/templates/base.html:287
 msgid "Translate PyPI"
-msgstr ""
+msgstr "翻譯 PyPI"
 
 #: warehouse/templates/base.html:288
+#, fuzzy
 msgid "Development credits"
-msgstr ""
+msgstr "開發功勞"
 
 #: warehouse/templates/base.html:294 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr ""
+msgstr "使用 PyPI"
 
 #: warehouse/templates/base.html:295
+#, fuzzy
 msgid "Using PyPI navigation"
-msgstr ""
+msgstr "使用 PyPI 導航欄"
 
 #: warehouse/templates/base.html:297
 msgid "Code of conduct"
-msgstr ""
+msgstr "行為守則"
 
 #: warehouse/templates/base.html:298
 msgid "Report security issue"
-msgstr ""
+msgstr "回報安全問題"
 
 #: warehouse/templates/base.html:299
 msgid "Privacy policy"
@@ -676,7 +686,7 @@ msgstr ""
 #: warehouse/templates/base.html:315
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
-msgstr ""
+msgstr "由 Python 社群為 Python 社群開發和維護。"
 
 #: warehouse/templates/base.html:317
 msgid "Donate today!"
@@ -862,6 +872,7 @@ msgstr "你的使用者名稱"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
+#: warehouse/templates/manage/manage_base.html:167
 msgid "Password"
 msgstr "密碼"
 
@@ -880,7 +891,7 @@ msgstr "忘記密碼？"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:68
+#: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
 msgstr "登出"
 
@@ -898,7 +909,7 @@ msgstr "%(username)s 的個人檔案"
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:47
 msgid "Avatar for {user} from gravatar.com"
-msgstr ""
+msgstr "gravatar.com 的 {user} 頭貼"
 
 #: warehouse/templates/accounts/profile.html:43
 msgid "Date joined"
@@ -920,6 +931,9 @@ msgid_plural ""
 "            %(count)s projects\n"
 "          "
 msgstr[0] ""
+"\n"
+"            %(count)s 個專案\n"
+"          "
 
 #: warehouse/templates/accounts/profile.html:64
 msgid "No projects"
@@ -938,11 +952,16 @@ msgstr "%(user)s 尚未上載任何專案到PyPI"
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
+#, fuzzy
+#| msgid "Recovery Codes"
+msgid "Recovery codes"
 msgstr "重置碼"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+#, fuzzy
+#| msgid "Login using Recovery Code"
+msgid "Login using recovery codes"
 msgstr "使用重置碼來登入"
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1000,7 +1019,7 @@ msgstr "您的電子郵件地址"
 
 #: warehouse/templates/accounts/register.html:83
 msgid "Confirm form"
-msgstr "確認表單"
+msgstr "確認表"
 
 #: warehouse/templates/accounts/register.html:94
 msgid "Select a username"
@@ -1143,10 +1162,6 @@ msgstr ""
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
 msgstr ""
-
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
-msgstr "使用重置碼來登入"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1358,25 +1373,25 @@ msgid ""
 "link to verify your email address</a>."
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:29
+#: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "你的專案"
 
-#: warehouse/templates/includes/current-user-indicator.html:42
+#: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
 msgstr "帳戶設定"
 
-#: warehouse/templates/includes/current-user-indicator.html:48
+#: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
 msgstr ""
 
@@ -1403,7 +1418,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1685,7 +1700,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:62
+#: warehouse/templates/manage/releases.html:70
 msgid "Options"
 msgstr ""
 
@@ -1728,7 +1743,9 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
+#, fuzzy
+#| msgid "Generate Recovery Codes"
+msgid "Generate recovery codes"
 msgstr "產生重置碼"
 
 #: warehouse/templates/manage/account.html:148
@@ -1905,6 +1922,12 @@ msgstr "新的密碼"
 msgid "Confirm new password"
 msgstr "確認新密碼"
 
+#: warehouse/templates/manage/account.html:440
+#, fuzzy
+#| msgid "Old password"
+msgid "Update password"
+msgstr "舊密碼"
+
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
 msgstr "雙重驗證（2FA）"
@@ -1974,9 +1997,10 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
+msgid "Regenerate recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:509
@@ -2041,8 +2065,10 @@ msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
-msgstr ""
+#, fuzzy
+#| msgid "Recovery Codes"
+msgid "Recovery code"
+msgstr "重置碼"
 
 #: warehouse/templates/manage/account.html:579
 msgid "Email added to account"
@@ -2115,16 +2141,19 @@ msgid "Two factor authentication removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
-msgstr ""
+#, fuzzy
+msgid "Recovery codes generated"
+msgstr "重設碼已生成"
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
-msgstr ""
+#, fuzzy
+msgid "Recovery codes regenerated"
+msgstr "重設碼已生成"
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
-msgstr ""
+#, fuzzy
+msgid "Recovery code used for login"
+msgstr "重設碼已生成"
 
 #: warehouse/templates/manage/account.html:647
 #: warehouse/templates/manage/history.html:65
@@ -2417,7 +2446,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:82
+#: warehouse/templates/manage/releases.html:90
 msgid "Manage"
 msgstr ""
 
@@ -2498,7 +2527,7 @@ msgid "This project has no releases"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:88
+#: warehouse/templates/manage/releases.html:96
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr ""
@@ -2591,7 +2620,7 @@ msgid "Delete file"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:111
 msgid "Delete"
 msgstr ""
 
@@ -2604,7 +2633,7 @@ msgid "No files found"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2622,8 +2651,8 @@ msgid "Release settings"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/releases.html:117
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/releases.html:125
 #, fuzzy
 #| msgid "New releases"
 msgid "Yank release"
@@ -2668,22 +2697,37 @@ msgid ""
 "    "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/release.html:166
+#: warehouse/templates/manage/release.html:148
+#, python-format
+msgid ""
+"\n"
+"          You may provide a reason for yanking this release, which will be "
+"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
+"code>.\n"
+"        "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:152
+#: warehouse/templates/manage/releases.html:132
+msgid "Reason (optional)"
+msgstr ""
+
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:114
-#: warehouse/templates/manage/releases.html:118
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:122
+#: warehouse/templates/manage/releases.html:135
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:149
-#: warehouse/templates/manage/release.html:166
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/releases.html:138
 msgid "Delete release"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/release.html:163
 #, python-format
 msgid ""
 "\n"
@@ -2697,11 +2741,11 @@ msgid_plural ""
 "      "
 msgstr[0] ""
 
-#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:169
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:171
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -2722,11 +2766,17 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:34
+#: warehouse/templates/manage/releases.html:27
+#, fuzzy
+#| msgid "New releases"
+msgid "Yanked reason"
+msgstr "新發行版本"
+
+#: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:45
+#: warehouse/templates/manage/releases.html:48
 #, python-format
 msgid ""
 "\n"
@@ -2738,40 +2788,50 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 
-#: warehouse/templates/manage/releases.html:56
+#: warehouse/templates/manage/releases.html:59
 msgid "No files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:69
 msgid "View release options"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:67
+#: warehouse/templates/manage/releases.html:75
 #, python-format
 msgid "Options for %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:78
 #, fuzzy
 #| msgid "Releases"
 msgid "Un-yank Release"
 msgstr "發行版本"
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:83
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:95
+#: warehouse/templates/manage/releases.html:103
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:121
 #, fuzzy
 #| msgid "New releases"
 msgid "Un-yank release"
 msgstr "新發行版本"
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:128
+#, python-format
+msgid ""
+"\n"
+"              You may provide a reason for yanking this release, which will "
+"be displayed by pip to users who install <code>%(project_name)s=="
+"%(version)s</code>.\n"
+"            "
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:140
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -2780,31 +2840,31 @@ msgid ""
 "\"noopener\">post release</a> instead."
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:139
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:145
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "上一個發行版本日期：%(release_date)s"
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3110,12 +3170,10 @@ msgid "Add token"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
-msgstr ""
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
-msgstr ""
+#, fuzzy
+#| msgid "Enter recovery code"
+msgid "Account recovery codes"
+msgstr "輸入重置碼"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3138,8 +3196,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
-msgstr ""
+#, fuzzy
+#| msgid "Enter recovery code"
+msgid "Save your recovery codes"
+msgstr "輸入重置碼"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 msgid "Download as file"
@@ -3298,7 +3358,7 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:133
 msgid "Latest version"
-msgstr ""
+msgstr "最新版本"
 
 #: warehouse/templates/packaging/detail.html:138
 #, python-format
@@ -4115,8 +4175,8 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:436
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a Recovery "
-"Code\""
+"When prompted for two factor authentication, select \"Login using recovery "
+"codes\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:437
@@ -4733,8 +4793,8 @@ msgid ""
 "You can also follow the ongoing development of the project on the <a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">distutils-sig mailing list</a> and the <a href="
-"\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">PyPA Dev message group</a>."
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:761
@@ -5531,6 +5591,9 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
+
+#~ msgid "Login using a Recovery Code"
+#~ msgstr "使用重置碼來登入"
 
 #, fuzzy
 #~| msgid ""

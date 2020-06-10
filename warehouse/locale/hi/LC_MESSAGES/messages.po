@@ -106,7 +106,9 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अमान्य WebAuthn दावा: खराब पेलोड"
 
 #: warehouse/accounts/forms.py:344
-msgid "Invalid Recovery Code."
+#, fuzzy
+#| msgid "Invalid Recovery Code."
+msgid "Invalid recovery code."
 msgstr "पुनर्प्राप्ति कुंजी अमान्य।"
 
 #: warehouse/accounts/forms.py:362
@@ -284,9 +286,9 @@ msgstr "मोंटी पाइथन - चीज़ शॉप स्केच
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/releases.html:123
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -465,14 +467,14 @@ msgstr "मुख्य नेविगेशन"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-#: warehouse/templates/includes/current-user-indicator.html:54
+#: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:99
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "सहायता"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:60
+#: warehouse/templates/includes/current-user-indicator.html:61
 msgid "Sponsor"
 msgstr "प्रायोजक"
 
@@ -497,7 +499,7 @@ msgid "Menu"
 msgstr "मेन्यू"
 
 #: warehouse/templates/base.html:54
-#: warehouse/templates/includes/current-user-indicator.html:24
+#: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
 msgstr "मुख्य मेन्यू"
 
@@ -530,7 +532,7 @@ msgstr "मोबाइल संस्करण पर स्विच कर�
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:151
+#: warehouse/templates/manage/release.html:161
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
 msgstr "चेतावनी"
@@ -863,6 +865,7 @@ msgstr "आपका उपयोगकर्ता नाम"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
+#: warehouse/templates/manage/manage_base.html:167
 msgid "Password"
 msgstr "पासवर्ड"
 
@@ -881,7 +884,7 @@ msgstr "पासवर्ड भूल गए?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:68
+#: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
 msgstr "लॉग आउट करें"
 
@@ -948,11 +951,16 @@ msgstr "%(user)s ने अभी तक PyPI पर कोई भी प्र�
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
+#, fuzzy
+#| msgid "Recovery Codes"
+msgid "Recovery codes"
 msgstr "पुनर्प्राप्ति कुंजी"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+#, fuzzy
+#| msgid "Login using Recovery Code"
+msgid "Login using recovery codes"
 msgstr "पुनःप्राप्त कुंजी द्वारा लॉगिन करें"
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1159,10 +1167,6 @@ msgstr ""
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
 msgstr "अपनी सुरक्षा कुंजी या आवेदन खो दिया है?"
-
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
-msgstr "पुनःप्राप्त कुंजी द्वारा लॉगिन करें"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1424,25 +1428,25 @@ msgstr ""
 "यदि आप इस अनुरोध के साथ आगे बढ़ना चाहते हैं, तो <a href=\"%(href)s\">अपने ईमेल को "
 "सत्यापित करने के लिए इस लिंक पर क्लिक करें</a>।"
 
-#: warehouse/templates/includes/current-user-indicator.html:29
+#: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "व्यवस्थापक"
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "आपकी परियोजनाएं"
 
-#: warehouse/templates/includes/current-user-indicator.html:42
+#: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
 msgstr "खाता सेटिंग"
 
-#: warehouse/templates/includes/current-user-indicator.html:48
+#: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
 msgstr "सार्वजानिक पार्श्वचित्र (प्रोफाइल)"
 
@@ -1469,7 +1473,7 @@ msgstr "इस अधिसूचना को खारिज करें"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1770,7 +1774,7 @@ msgstr "ईमेल विकल्प देखें"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:62
+#: warehouse/templates/manage/releases.html:70
 msgid "Options"
 msgstr "विकल्प"
 
@@ -1817,7 +1821,9 @@ msgstr ""
 "प्रमाणीकरण</abbr> जोड़ें (उदा। USB कुंजी)"
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
+#, fuzzy
+#| msgid "Generate Recovery Codes"
+msgid "Generate recovery codes"
 msgstr "पुनर्प्राप्ति कोड उत्पन्न करें"
 
 #: warehouse/templates/manage/account.html:148
@@ -2010,6 +2016,12 @@ msgstr "नया पासवर्ड"
 msgid "Confirm new password"
 msgstr "नए पासवर्ड की पुष्टि करें"
 
+#: warehouse/templates/manage/account.html:440
+#, fuzzy
+#| msgid "Old password"
+msgid "Update password"
+msgstr "पुराना पासवर्ड"
+
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
 msgstr "द्वी-करक प्रमाणीकरण (2FA)"
@@ -2083,10 +2095,11 @@ msgstr "पुन्ह्रोत्पादित"
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
-msgstr "पुनर्प्राप्ति कुंजी पुन्ह्रोत्पादित करें"
+msgid "Regenerate recovery codes"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:509
 msgid "You have not enabled two factor authentication on your account."
@@ -2155,7 +2168,9 @@ msgid "None"
 msgstr "कोई नहीं"
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
+#, fuzzy
+#| msgid "Recovery Code"
+msgid "Recovery code"
 msgstr "पुनर्प्राप्ति कुंजी"
 
 #: warehouse/templates/manage/account.html:579
@@ -2231,15 +2246,21 @@ msgid "Two factor authentication removed"
 msgstr "द्वी-करक प्रमाणन हटा"
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
+#, fuzzy
+#| msgid "Recovery Codes generated"
+msgid "Recovery codes generated"
 msgstr "पुनर्प्राप्ति कोड उत्पादित"
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
+#, fuzzy
+#| msgid "Recovery Codes regenerated"
+msgid "Recovery codes regenerated"
 msgstr "पुनर्प्राप्ति कोड पुन्ह्रोत्पादित"
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
+#, fuzzy
+#| msgid "Recovery Code used for login"
+msgid "Recovery code used for login"
 msgstr "लॉगिन के लिए उपयोगित पुनःप्राप्ति कुंजी"
 
 #: warehouse/templates/manage/account.html:647
@@ -2565,7 +2586,7 @@ msgstr "%(ip_address)s से"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:82
+#: warehouse/templates/manage/releases.html:90
 msgid "Manage"
 msgstr "प्रबंधन"
 
@@ -2646,7 +2667,7 @@ msgid "This project has no releases"
 msgstr "इस परियोजना की कोई विज्ञप्तियां नहीं है"
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:88
+#: warehouse/templates/manage/releases.html:96
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr "दृश्य"
@@ -2742,7 +2763,7 @@ msgid "Delete file"
 msgstr "फ़ाइल मिटाएँ"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:111
 msgid "Delete"
 msgstr "मिटाएँ"
 
@@ -2755,7 +2776,7 @@ msgid "No files found"
 msgstr "कोई फाइल नहीं मिली"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2775,8 +2796,8 @@ msgid "Release settings"
 msgstr "रिलीज सेटिंग्स"
 
 #: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/releases.html:117
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/releases.html:125
 #, fuzzy
 #| msgid "New releases"
 msgid "Yank release"
@@ -2822,22 +2843,37 @@ msgid ""
 "    "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/release.html:166
+#: warehouse/templates/manage/release.html:148
+#, python-format
+msgid ""
+"\n"
+"          You may provide a reason for yanking this release, which will be "
+"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
+"code>.\n"
+"        "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:152
+#: warehouse/templates/manage/releases.html:132
+msgid "Reason (optional)"
+msgstr ""
+
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:114
-#: warehouse/templates/manage/releases.html:118
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:122
+#: warehouse/templates/manage/releases.html:135
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "संस्करण"
 
-#: warehouse/templates/manage/release.html:149
-#: warehouse/templates/manage/release.html:166
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/releases.html:138
 msgid "Delete release"
 msgstr "विज्ञप्ति मिटाएँ"
 
-#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/release.html:163
 #, python-format
 msgid ""
 "\n"
@@ -2860,11 +2896,11 @@ msgstr[1] ""
 "जाएँगी।\n"
 "      "
 
-#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:169
 msgid "Deleting will irreversibly delete this release."
 msgstr "मिटाने पर विज्ञप्ति भी अपरिवर्तनीय रूप से मिटा दी जाएगी।"
 
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:171
 #, fuzzy
 #| msgid ""
 #| "You will not be able to re-upload a new distribution of the same type "
@@ -2894,11 +2930,17 @@ msgstr "विज्ञप्ति तिथि"
 msgid "Files"
 msgstr "फ़ाइलें"
 
-#: warehouse/templates/manage/releases.html:34
+#: warehouse/templates/manage/releases.html:27
+#, fuzzy
+#| msgid "New releases"
+msgid "Yanked reason"
+msgstr "नई विज्ञप्ति"
+
+#: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
 msgstr "प्रबंधन संस्करण"
 
-#: warehouse/templates/manage/releases.html:45
+#: warehouse/templates/manage/releases.html:48
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -2925,38 +2967,48 @@ msgstr[1] ""
 "              %(count)s फाइलें\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:56
+#: warehouse/templates/manage/releases.html:59
 msgid "No files"
 msgstr "कोई फाइल नहीं"
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:69
 msgid "View release options"
 msgstr "विज्ञप्ति के विकल्प देखें"
 
-#: warehouse/templates/manage/releases.html:67
+#: warehouse/templates/manage/releases.html:75
 #, python-format
 msgid "Options for %(version)s"
 msgstr "%(version)s के लिए विकल्प"
 
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:78
 #, fuzzy
 #| msgid "Releases"
 msgid "Un-yank Release"
 msgstr "विज्ञप्तियां"
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:83
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:95
+#: warehouse/templates/manage/releases.html:103
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:121
 msgid "Un-yank release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:128
+#, python-format
+msgid ""
+"\n"
+"              You may provide a reason for yanking this release, which will "
+"be displayed by pip to users who install <code>%(project_name)s=="
+"%(version)s</code>.\n"
+"            "
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:140
 #, fuzzy, python-format
 #| msgid ""
 #| "You will not be able to re-upload a new distribution of the same type "
@@ -2973,31 +3025,31 @@ msgstr ""
 "बजाय एक नया संस्करण या एक <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">अवतरण</a> बनाने पर विचार करें।"
 
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "'%(project_name)s' विज्ञप्तियां प्रबंधित करें"
 
-#: warehouse/templates/manage/releases.html:139
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "विज्ञप्तियां (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:145
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "विज्ञप्तियां (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "एक नई विज्ञप्ति बनाना"
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "कोई विज्ञप्तियां नहीं मिली"
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3322,12 +3374,10 @@ msgid "Add token"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
-msgstr ""
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
-msgstr ""
+#, fuzzy
+#| msgid "Enter recovery code"
+msgid "Account recovery codes"
+msgstr "पुनर्प्राप्ति कुंजी प्रदान करें"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3350,8 +3400,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
-msgstr ""
+#, fuzzy
+#| msgid "Enter recovery code"
+msgid "Save your recovery codes"
+msgstr "पुनर्प्राप्ति कुंजी प्रदान करें"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 msgid "Download as file"
@@ -4363,8 +4415,8 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:436
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a Recovery "
-"Code\""
+"When prompted for two factor authentication, select \"Login using recovery "
+"codes\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:437
@@ -4983,14 +5035,23 @@ msgid "Stay updated:"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:751
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
+#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
+#| "public dataset on Google BigQuery</a>"
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">distutils-sig mailing list</a> and the <a href="
-"\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">PyPA Dev message group</a>."
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Librarys.io</a>, या <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">गूगल BigQuery पर हमारे सार्वजनिक डेटासेट</a> का उपयोग करके इस "
+"परियोजना के आंकड़े देखें"
 
 #: warehouse/templates/pages/help.html:761
 #, python-format
@@ -5802,6 +5863,12 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "Login using a Recovery Code"
+#~ msgstr "पुनःप्राप्त कुंजी द्वारा लॉगिन करें"
+
+#~ msgid "Regenerate Recovery Codes"
+#~ msgstr "पुनर्प्राप्ति कुंजी पुन्ह्रोत्पादित करें"
 
 #~ msgid "Delete Release"
 #~ msgstr "रिलीज मिटाएं"
