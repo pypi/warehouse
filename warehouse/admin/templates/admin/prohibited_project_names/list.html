@@ -15,10 +15,10 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
-{% block title %}Blacklist{% endblock %}
+{% block title %}Prohibited Project Names{% endblock %}
 
 {% block breadcrumb %}
-  <li class="active">Blacklist</li>
+  <li class="active">Prohibited Project Names</li>
 {% endblock %}
 
 {% block content %}
@@ -40,28 +40,28 @@
     <table class="table table-hover">
       <tr>
         <th>Name</th>
-        <th>Blacklisted by</th>
-        <th>Blacklisted on</th>
+        <th>Prohibited by</th>
+        <th>Prohibited on</th>
         <th>Comment</th>
         <th>Actions</th>
       </tr>
 
-      {% for blacklisted in blacklist %}
+      {% for prohibited_project_name in prohibited_project_names %}
       <tr>
-        <td>{{ blacklisted.name }}</td>
+        <td>{{ prohibited_project_name.name }}</td>
         <td>
-          {% if blacklisted.blacklisted_by %}
-            <a href="{{ request.route_path('admin.user.detail', user_id=blacklisted.blacklisted_by.id) }}">
-              {{ blacklisted.blacklisted_by.username }}
+          {% if prohibited_project_name.prohibited_by %}
+            <a href="{{ request.route_path('admin.user.detail', user_id=prohibited_project_name.prohibited_by.id) }}">
+              {{ prohibited_project_name.prohibited_by.username }}
             </a>
           {% endif %}
         </td>
-        <td>{{ blacklisted.created|format_datetime() }}</td>
-        <td>{{ blacklisted.comment }}</td>
+        <td>{{ prohibited_project_name.created|format_datetime() }}</td>
+        <td>{{ prohibited_project_name.comment }}</td>
         <td>
-          <form method="POST" action="{{ request.route_path('admin.blacklist.remove') }}">
+          <form method="POST" action="{{ request.route_path('admin.prohibited_project_names.remove') }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="blacklist_id" type="hidden" value="{{ blacklisted.id }}">
+            <input name="prohibited_project_name_id" type="hidden" value="{{ prohibited_project_name.id }}">
             <input name="next" type="hidden" value="{{ request.current_route_path() }}">
             <button type="submit" class="btn btn-link" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="fa fa-times"></i>
@@ -74,12 +74,12 @@
 
     <div class="box-footer">
       <div class="col-sm-5">
-          {{ pagination.summary(blacklist) }}
+          {{ pagination.summary(prohibited_project_names) }}
       </div>
 
       <div class="col-sm-7">
         <div class="pull-right">
-            {{ pagination.paginate(blacklist) }}
+            {{ pagination.paginate(prohibited_project_names) }}
         </div>
       </div>
     </div>
@@ -89,19 +89,19 @@
 
 <div class="box box-primary">
   <div class="box-header with-border">
-    <h3 class="box-title">Blacklist project</h3>
+    <h3 class="box-title">Prohibit project name</h3>
   </div>
 
-  <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
+  <form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
     <div class="box-body">
       <div class="form-group col-sm-4">
-        <label for="blacklistedProject">Project name</label>
-        <input name="project" class="form-control" id="blacklistedProject" placeholder="Enter project to blacklist" {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off">
+        <label for="prohibitedProjectName">Project name</label>
+        <input name="project" class="form-control" id="prohibitedProjectName" placeholder="Enter project name to prohibit " {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off">
       </div>
 
       <div class="form-group col-sm-8">
-        <label for="blacklistedComment">Comment</label>
-        <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+        <label for="prohibitedComment">Comment</label>
+        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
       </div>
     </div>
 

@@ -6,13 +6,14 @@
 # Dalibor Straka <public11@panelnet.cz>, 2020.
 # Šílenej Ajťák <silenej.ajtak@gmail.com>, 2020.
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2020.
+# simberaj <simbera.jan@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-10 13:52+0200\n"
-"PO-Revision-Date: 2020-04-23 21:25+0000\n"
-"Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
+"PO-Revision-Date: 2020-06-01 15:08+0000\n"
+"Last-Translator: simberaj <simbera.jan@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/"
 ">\n"
 "Language: cs\n"
@@ -20,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.0.2-dev\n"
+"X-Generator: Weblate 4.1-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -105,7 +106,9 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Nevalidní aserce WebAuthn: vadný obsah"
 
 #: warehouse/accounts/forms.py:344
-msgid "Invalid Recovery Code."
+#, fuzzy
+#| msgid "Invalid Recovery Code."
+msgid "Invalid recovery code."
 msgstr "Nevalidní obnovovací kód."
 
 #: warehouse/accounts/forms.py:362
@@ -223,7 +226,7 @@ msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Před vygenerováním obnovovacích kódů je nutné nastavit dvoufaktorovou metodu "
-"autentizace."
+"autentizace"
 
 #: warehouse/manage/views.py:681
 msgid "Recovery codes already generated"
@@ -287,9 +290,9 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/releases.html:123
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -468,14 +471,14 @@ msgstr "Hlavní navigace"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-#: warehouse/templates/includes/current-user-indicator.html:54
+#: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:99
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "Pomoc"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:60
+#: warehouse/templates/includes/current-user-indicator.html:61
 msgid "Sponsor"
 msgstr "Sponzor"
 
@@ -500,7 +503,7 @@ msgid "Menu"
 msgstr "Menu"
 
 #: warehouse/templates/base.html:54
-#: warehouse/templates/includes/current-user-indicator.html:24
+#: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
 msgstr "Hlavní menu"
 
@@ -535,7 +538,7 @@ msgstr "Přepnout na mobilní verzi"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:151
+#: warehouse/templates/manage/release.html:161
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
 msgstr "Upozornění"
@@ -871,6 +874,7 @@ msgstr "Vaše uživatelské jméno"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
+#: warehouse/templates/manage/manage_base.html:167
 msgid "Password"
 msgstr "Heslo"
 
@@ -889,7 +893,7 @@ msgstr "Zapomenuté heslo?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:68
+#: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
 msgstr "Odhlásit se"
 
@@ -958,11 +962,16 @@ msgstr "%(user)s nenahrál zatím žádné projekty na PyPI"
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
+#, fuzzy
+#| msgid "Recovery Codes"
+msgid "Recovery codes"
 msgstr "Obnovovací kódy"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+#, fuzzy
+#| msgid "Login using Recovery Code"
+msgid "Login using recovery codes"
 msgstr "Přihlásit pomocí obnovovacího kódu"
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1128,7 +1137,7 @@ msgstr ""
 #: warehouse/templates/accounts/two-factor.html:42
 msgid "Enable JavaScript to log in with a security device (e.g. USB key)"
 msgstr ""
-"Pro přihlášení s bezpečnostním zařízením (např. USB klíč) povolte JavaScript."
+"Pro přihlášení s bezpečnostním zařízením (např. USB klíč) povolte JavaScript"
 
 #: warehouse/templates/accounts/two-factor.html:51
 msgid "Authenticate with device"
@@ -1174,10 +1183,6 @@ msgstr ""
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
 msgstr "Ztratili jste bezpečnostní klíč nebo aplikaci?"
-
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
-msgstr "Přihlášení pomocí obnovovacího kódu"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1329,8 +1334,8 @@ msgid ""
 msgstr ""
 "K získání přístupu k vašemu účtu si <a href=\"%(reset_pw_url)s\">zresetujte "
 "vaše heslo</a> na PyPI. Také dopočujeme návstěvu služby <a href="
-"\"%(reset_pw_url)s\">HaveIBeenPwned</a> a zkontrolování vašich dalších hesel "
-"vůči praktikám pro tvorbu bezpečného hesla."
+"\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> a zkontrolování vašich "
+"dalších hesel vůči praktikám pro tvorbu bezpečného hesla."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
@@ -1348,7 +1353,7 @@ msgstr ""
 "Využíváme bezplatnou bezpečnostní službu <a href=\"%(have_i_been_pwned_url)s"
 "\">HaveIBeenPwned</a>. Když se registrujete, ověřujete, nebo aktualizujete "
 "své heslo, generujeme SHA1 hash Vašeho hesla a použijeme prvních 5 znaků z "
-"hash k rozhodnutí, zda je heslo kompromitováno.  PyPI nikdy neukládá hesla v "
+"hash k rozhodnutí, zda je heslo kompromitováno. PyPI nikdy neukládá hesla v "
 "čitelné formě ani je neodesílá službě  HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
@@ -1439,25 +1444,25 @@ msgstr ""
 "Pokud chcete pokračovat v tomto požadavku, <a href=\"%(href)s\">klikněte na "
 "tento odkaz k ověření vaší e-mailové adresy</a>."
 
-#: warehouse/templates/includes/current-user-indicator.html:29
+#: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "Administrace"
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "Vaše projekty"
 
-#: warehouse/templates/includes/current-user-indicator.html:42
+#: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
 msgstr "Nastavení účtu"
 
-#: warehouse/templates/includes/current-user-indicator.html:48
+#: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
 msgstr "Veřejný profil"
 
@@ -1484,7 +1489,7 @@ msgstr "Skrýt notifikaci"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1785,7 +1790,7 @@ msgstr "Zobrazit možnosti e-mailu"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:62
+#: warehouse/templates/manage/releases.html:70
 msgid "Options"
 msgstr "Možnosti"
 
@@ -1820,16 +1825,22 @@ msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with authentication "
 "application"
 msgstr ""
+"Přidat <abbr title=\"dvoufaktorová autentizace\">2FA</abbr> skrz ověřovací "
+"aplikaci"
 
 #: warehouse/templates/manage/account.html:141
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
 msgstr ""
+"Přidat <abbr title=\"dvoufaktorová autentizace\">2FA</abbr> pomocí "
+"bezpečnostního prvku (např. USB klíč)"
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
-msgstr "Vygenerovat obnovovací kódy"
+#, fuzzy
+#| msgid "Regenerate recovery codes"
+msgid "Generate recovery codes"
+msgstr "Přegenerovat obnovovací kódy"
 
 #: warehouse/templates/manage/account.html:148
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1848,6 +1859,9 @@ msgid ""
 "\">Upgrade your browser</a> to set up two factor authentication with a "
 "security device (e.g. USB key)"
 msgstr ""
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Aktualizujte svůj prohlížeč</a> pro nastavení dvoufaktorové autentizace "
+"pomocí bezpečnostního prvku (např. USB klíč)"
 
 #: warehouse/templates/manage/account.html:167
 #: warehouse/templates/manage/account.html:530
@@ -2014,6 +2028,10 @@ msgstr "Nové heslo"
 msgid "Confirm new password"
 msgstr "Potvrdit nové heslo"
 
+#: warehouse/templates/manage/account.html:440
+msgid "Update password"
+msgstr "Změnit heslo"
+
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
 msgstr "Dvoufaktorová autentizace (2FA)"
@@ -2025,10 +2043,13 @@ msgid ""
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
 "authentication\">2FA</abbr></a>."
 msgstr ""
+"Dvoufaktorová autentizace přidává vašemu účtu další úroveň zabezpečení. <a "
+"href=\"%(href)s\">Více o <abbr title=\"dvoufaktorová autentizace\">2FA</"
+"abbr></a>."
 
 #: warehouse/templates/manage/account.html:453
 msgid "Two factor authentication methods enabled"
-msgstr ""
+msgstr "Aktivní metody dvoufaktorové autentizace"
 
 #: warehouse/templates/manage/account.html:456
 msgid "Two factor method"
@@ -2045,15 +2066,15 @@ msgstr ""
 #: warehouse/templates/manage/account.html:478
 #: warehouse/templates/manage/roles.html:99
 msgid "Remove"
-msgstr ""
+msgstr "Odebrat"
 
 #: warehouse/templates/manage/account.html:465
 msgid "Remove authentication application"
-msgstr ""
+msgstr "Odebrat autentizační aplikaci"
 
 #: warehouse/templates/manage/account.html:466
 msgid "Remove application"
-msgstr ""
+msgstr "Odebrat aplikaci"
 
 #: warehouse/templates/manage/account.html:475
 #: warehouse/templates/manage/account.html:570
@@ -2083,10 +2104,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
-msgstr ""
+msgid "Regenerate recovery codes"
+msgstr "Přegenerovat obnovovací kódy"
 
 #: warehouse/templates/manage/account.html:509
 msgid "You have not enabled two factor authentication on your account."
@@ -2150,8 +2172,10 @@ msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
-msgstr ""
+#, fuzzy
+#| msgid "Recovery Codes"
+msgid "Recovery code"
+msgstr "Obnovovací kódy"
 
 #: warehouse/templates/manage/account.html:579
 msgid "Email added to account"
@@ -2224,15 +2248,21 @@ msgid "Two factor authentication removed"
 msgstr "Dvoufaktorová autentizace byla odebrána"
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
+#, fuzzy
+#| msgid "Recovery Codes generated"
+msgid "Recovery codes generated"
 msgstr "Obnovovací kódy byly vygenerovány"
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
+#, fuzzy
+#| msgid "Recovery Codes regenerated"
+msgid "Recovery codes regenerated"
 msgstr "Obnovovací kódy byly znovu vygenerovány"
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
+#, fuzzy
+#| msgid "Recovery Code used for login"
+msgid "Recovery code used for login"
 msgstr "Obnovovací kód použitý pro přihlášení"
 
 #: warehouse/templates/manage/account.html:647
@@ -2561,7 +2591,7 @@ msgstr "z %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:82
+#: warehouse/templates/manage/releases.html:90
 msgid "Manage"
 msgstr "Spravovat"
 
@@ -2642,7 +2672,7 @@ msgid "This project has no releases"
 msgstr "Tento projekt nemá žádná vydání"
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:88
+#: warehouse/templates/manage/releases.html:96
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr "Zobrazit"
@@ -2735,7 +2765,7 @@ msgid "Delete file"
 msgstr "Smazat soubor"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:111
 msgid "Delete"
 msgstr "Smazat"
 
@@ -2748,7 +2778,7 @@ msgid "No files found"
 msgstr "Nenalezeny žádné soubory"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2768,8 +2798,8 @@ msgid "Release settings"
 msgstr "Nastavení vydání"
 
 #: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/releases.html:117
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/releases.html:125
 #, fuzzy
 #| msgid "New releases"
 msgid "Yank release"
@@ -2816,22 +2846,37 @@ msgid ""
 "    "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/release.html:166
+#: warehouse/templates/manage/release.html:148
+#, python-format
+msgid ""
+"\n"
+"          You may provide a reason for yanking this release, which will be "
+"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
+"code>.\n"
+"        "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:152
+#: warehouse/templates/manage/releases.html:132
+msgid "Reason (optional)"
+msgstr ""
+
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:114
-#: warehouse/templates/manage/releases.html:118
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:122
+#: warehouse/templates/manage/releases.html:135
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Verze"
 
-#: warehouse/templates/manage/release.html:149
-#: warehouse/templates/manage/release.html:166
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/releases.html:138
 msgid "Delete release"
 msgstr "Smazat vydání"
 
-#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/release.html:163
 #, python-format
 msgid ""
 "\n"
@@ -2847,11 +2892,11 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:169
 msgid "Deleting will irreversibly delete this release."
 msgstr "Smazání nezvratně smaže toto vydání."
 
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:171
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -2872,11 +2917,17 @@ msgstr "Datum vydání"
 msgid "Files"
 msgstr "Soubory"
 
-#: warehouse/templates/manage/releases.html:34
+#: warehouse/templates/manage/releases.html:27
+#, fuzzy
+#| msgid "New releases"
+msgid "Yanked reason"
+msgstr "Nová vydání"
+
+#: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
 msgstr "Spravovat verzi"
 
-#: warehouse/templates/manage/releases.html:45
+#: warehouse/templates/manage/releases.html:48
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -2907,38 +2958,48 @@ msgstr[2] ""
 "              %(count)s souborů\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:56
+#: warehouse/templates/manage/releases.html:59
 msgid "No files"
 msgstr "Žádné soubory"
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:69
 msgid "View release options"
 msgstr "Zobrazit možnosti vydání"
 
-#: warehouse/templates/manage/releases.html:67
+#: warehouse/templates/manage/releases.html:75
 #, python-format
 msgid "Options for %(version)s"
 msgstr "Možnosti pro %(version)s"
 
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:78
 #, fuzzy
 #| msgid "Releases"
 msgid "Un-yank Release"
 msgstr "Vydání"
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:83
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:95
+#: warehouse/templates/manage/releases.html:103
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:121
 msgid "Un-yank release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:128
+#, python-format
+msgid ""
+"\n"
+"              You may provide a reason for yanking this release, which will "
+"be displayed by pip to users who install <code>%(project_name)s=="
+"%(version)s</code>.\n"
+"            "
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:140
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -2947,31 +3008,31 @@ msgid ""
 "\"noopener\">post release</a> instead."
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Spravovat vydání %(project_name)s"
 
-#: warehouse/templates/manage/releases.html:139
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Vydání (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:145
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Vydání (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Vytvořit nové vydání"
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Žádná vydání nenalazena"
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3296,12 +3357,10 @@ msgid "Add token"
 msgstr "Přidat token"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
+#, fuzzy
+#| msgid "Account Recovery Codes"
+msgid "Account recovery codes"
 msgstr "Obnovovací kód účtu"
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
-msgstr "Přegenerovat obnovovací kódy"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3324,8 +3383,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
-msgstr ""
+#, fuzzy
+#| msgid "Enter recovery code"
+msgid "Save your recovery codes"
+msgstr "Vložte obnovací kód"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 msgid "Download as file"
@@ -4300,8 +4361,8 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:436
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a Recovery "
-"Code\""
+"When prompted for two factor authentication, select \"Login using recovery "
+"codes\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:437
@@ -4908,14 +4969,23 @@ msgid "Stay updated:"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:751
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
+#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
+#| "public dataset on Google BigQuery</a>"
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">distutils-sig mailing list</a> and the <a href="
-"\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">PyPA Dev message group</a>."
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
+"Zobrazte si statistiky pro tento projekt na <a href=\"%(libs_io_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> nebo "
+"použitím <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">našeho "
+"veřejného datasetu na Google BigQuery</a>"
 
 #: warehouse/templates/pages/help.html:761
 #, python-format
@@ -5629,6 +5699,12 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+
+#~ msgid "Login using a Recovery Code"
+#~ msgstr "Přihlášení pomocí obnovovacího kódu"
+
+#~ msgid "Generate Recovery Codes"
+#~ msgstr "Vygenerovat obnovovací kódy"
 
 #~ msgid "Delete Release"
 #~ msgstr "Smazat vydání"

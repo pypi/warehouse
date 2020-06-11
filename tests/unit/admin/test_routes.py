@@ -101,10 +101,20 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
-        pretend.call("admin.blacklist.list", "/admin/blacklist/", domain=warehouse),
-        pretend.call("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse),
         pretend.call(
-            "admin.blacklist.remove", "/admin/blacklist/remove/", domain=warehouse
+            "admin.prohibited_project_names.list",
+            "/admin/prohibited_project_names/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_project_names.add",
+            "/admin/prohibited_project_names/add/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_project_names.remove",
+            "/admin/prohibited_project_names/remove/",
+            domain=warehouse,
         ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
         pretend.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),
