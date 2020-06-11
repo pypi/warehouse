@@ -432,7 +432,7 @@ msgid "Sponsor"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:18
-#: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
+#: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
 msgstr ""
@@ -813,16 +813,16 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:76
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
+msgstr ""
+
+#: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:97
+#: warehouse/templates/accounts/login.html:96
 msgid "Forgot password?"
 msgstr ""
 
