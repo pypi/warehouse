@@ -25,8 +25,6 @@ import pretend
 import pytest
 import requests
 
-from google.cloud.bigquery import Row, SchemaField
-
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -51,6 +49,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
+from warehouse.packaging.tasks import update_distribution_database
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -1355,90 +1354,26 @@ class TestFileUpload:
                 assert fp.read() == expected
 
         storage_service = pretend.stub(store=storage_service_store)
-
-        # Setup BigQuery stubs
-        db_schema = iter(
-            [
-                SchemaField("id", "STRING", "REQUIRED"),
-                SchemaField("metadata_version", "STRING", "REQUIRED"),
-                SchemaField("project_id", "STRING", "REQUIRED"),
-                SchemaField("name", "STRING", "REQUIRED"),
-                SchemaField("version", "STRING", "REQUIRED"),
-                SchemaField("summary", "STRING", "NULLABLE"),
-                SchemaField("description_id", "STRING", "REQUIRED"),
-                SchemaField("description", "STRING", "REQUIRED"),
-                SchemaField("description_content_type", "STRING", "NULLABLE"),
-                SchemaField("author", "STRING", "NULLABLE"),
-                SchemaField("author_email", "STRING", "NULLABLE"),
-                SchemaField("maintainer", "STRING", "NULLABLE"),
-                SchemaField("maintainer_email", "STRING", "NULLABLE"),
-                SchemaField("license", "STRING", "NULLABLE"),
-                SchemaField("keywords", "STRING", "NULLABLE"),
-                SchemaField("classifiers", "STRING", "REPEATED"),
-                SchemaField("platform", "STRING", "REPEATED"),
-                SchemaField("supported_platform", "STRING", "REPEATED"),
-                SchemaField("home_page", "STRING", "NULLABLE"),
-                SchemaField("download_url", "STRING", "NULLABLE"),
-                SchemaField("requires_python", "STRING", "NULLABLE"),
-                SchemaField("requires", "STRING", "REPEATED"),
-                SchemaField("provides", "STRING", "REPEATED"),
-                SchemaField("obsoletes", "STRING", "REPEATED"),
-                SchemaField("requires_dist", "STRING", "REPEATED"),
-                SchemaField("provides_dist", "STRING", "REPEATED"),
-                SchemaField("obsoletes_dist", "STRING", "REPEATED"),
-                SchemaField("requires_external", "STRING", "REPEATED"),
-                SchemaField("project_urls", "STRING", "REPEATED"),
-                SchemaField("created", "TIMESTAMP", "REQUIRED"),
-                SchemaField("yanked", "BOOLEAN", "REQUIRED"),
-                SchemaField("yanked_reason", "STRING", "NULLABLE"),
-                SchemaField("uploader_id", "STRING", "REQUIRED"),
-                SchemaField("uploaded_via", "STRING", "NULLABLE"),
-                SchemaField("files", "RECORD", "REPEATED", fields=[
-                    SchemaField("filename", "STRING", "REQUIRED"),
-                    SchemaField("size", "INTEGER", "REQUIRED"),
-                    SchemaField("path", "STRING", "REQUIRED"),
-                    SchemaField("python_version", "STRING", "REQUIRED"),
-                    SchemaField("packagetype", "STRING", "REQUIRED"),
-                    SchemaField("comment_text", "STRING", "NULLABLE"),
-                    SchemaField("has_signature", "BOOLEAN", "REQUIRED"),
-                    SchemaField("md5_digest", "STRING", "REQUIRED"),
-                    SchemaField("sha256_digest", "STRING", "REQUIRED"),
-                    SchemaField("blake2_256_digest", "STRING", "REQUIRED")
-                ])
-            ]
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
         )
-        # @pretend.call_recorder
-        # def insert_rows_json(table, json_rows):
-
-
-
-        get_table = pretend.stub(schema=db_schema)
-        bigquery = pretend.stub(get_table=pretend.call_recorder(lambda t: get_table))
-
-
-        @pretend.call_recorder
-        def find_service(svc=None, context=None, name=None):
-            if svc:
-                return {
-                    IFileStorage: storage_service,
-                    IMetricsService: metrics,
-                }.get(svc)
-            elif name == "gcloud.bigquery":
-                return bigquery
-
-            raise LookupError
-
-        db_request.find_service = find_service
         db_request.registry.settings = {
             "warehouse.distribution_table": "example.pypi.distributions"
         }
+
+        update_database = pretend.stub(
+            delay=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *a, **kw: update_database)
 
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(name="gcloud.bigquery"),
             pretend.call(IFileStorage),
         ]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
@@ -1510,6 +1445,8 @@ class TestFileUpload:
                 "10.10.10.40",
             )
         ]
+
+        assert db_request.task.calls == [pretend.call(update_distribution_database)]
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),
