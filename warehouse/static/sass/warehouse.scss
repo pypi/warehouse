@@ -308,7 +308,7 @@ time {
 
 // force email select to display ltr
 // Remove when/if this is marked for translation
-#public_email {
+#public_email {  // sass-lint:disable-line id-name-format
   direction: ltr;
 }
 
