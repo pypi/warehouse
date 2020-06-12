@@ -62,7 +62,7 @@
 {%- endmacro %}
 
 <!DOCTYPE html>
-<html lang="{{ request.locale }}">
+<html lang="{{ request.locale }}" dir="{{ request.locale.text_direction }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -78,11 +78,7 @@
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
 
-    {% if request.locale['bidi'] %}
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-rtl.css') }}">
-    {% else %}
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-ltr.css') }}">
-    {% endif %}
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-{}.css'.format(request.locale.text_direction)) }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
@@ -336,9 +332,16 @@
     <div class="language-switcher">
       <form action="{{ request.route_path('locale') }}">
         <ul>
-          {% for locale, language in KNOWN_LOCALES.items() %}
+          {% for identifier, locale in KNOWN_LOCALES.items() %}
           <li>
-            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
+            <button
+              {% if request.locale_name == identifier %}
+              class="language-switcher__selected"
+              {% endif %}
+              name="locale_id" value="{{ identifier }}" type="submit"
+            >
+              {{ locale.display_name }}
+            </button>
           </li>
           {% endfor %}
         </ul>
