@@ -287,8 +287,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
 #: warehouse/templates/manage/release.html:171
-#: warehouse/templates/manage/releases.html:140
-#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:175
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -471,7 +471,7 @@ msgid "Sponsor"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:18
-#: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
+#: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
 msgstr ""
@@ -850,16 +850,16 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:76
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
+msgstr ""
+
+#: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:97
+#: warehouse/templates/accounts/login.html:96
 msgid "Forgot password?"
 msgstr ""
 
@@ -1371,7 +1371,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1653,7 +1653,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:72
 msgid "Options"
 msgstr ""
 
@@ -2396,7 +2396,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:90
+#: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr ""
 
@@ -2477,7 +2477,7 @@ msgid "This project has no releases"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:96
+#: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr ""
@@ -2570,7 +2570,7 @@ msgid "Delete file"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:111
+#: warehouse/templates/manage/releases.html:113
 msgid "Delete"
 msgstr ""
 
@@ -2583,7 +2583,7 @@ msgid "No files found"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2602,7 +2602,7 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:125
 #: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:127
 msgid "Yank release"
 msgstr ""
 
@@ -2657,22 +2657,22 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/release.html:152
-#: warehouse/templates/manage/releases.html:132
+#: warehouse/templates/manage/releases.html:134
 msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:155
 #: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:122
-#: warehouse/templates/manage/releases.html:135
-#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:124
+#: warehouse/templates/manage/releases.html:137
+#: warehouse/templates/manage/releases.html:144
 msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:159
 #: warehouse/templates/manage/release.html:176
-#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:140
 msgid "Delete release"
 msgstr ""
 
@@ -2737,36 +2737,36 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/releases.html:59
+#: warehouse/templates/manage/releases.html:61
 msgid "No files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:69
+#: warehouse/templates/manage/releases.html:71
 msgid "View release options"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:77
 #, python-format
 msgid "Options for %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:78
+#: warehouse/templates/manage/releases.html:80
 msgid "Un-yank Release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:83
+#: warehouse/templates/manage/releases.html:85
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:105
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/releases.html:123
 msgid "Un-yank release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:128
+#: warehouse/templates/manage/releases.html:130
 #, python-format
 msgid ""
 "\n"
@@ -2776,7 +2776,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -2785,30 +2785,30 @@ msgid ""
 "\"noopener\">post release</a> instead."
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:153
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:158
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:162
+#: warehouse/templates/manage/releases.html:164
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/manage/releases.html:175
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
