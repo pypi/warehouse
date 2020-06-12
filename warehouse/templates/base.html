@@ -62,7 +62,7 @@
 {%- endmacro %}
 
 <!DOCTYPE html>
-<html lang="{{ request.locale['code'] }}" dir="{{ 'rtl' if request.locale['bidi'] else 'ltr'}}">
+<html lang="{{ request.locale }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -336,16 +336,9 @@
     <div class="language-switcher">
       <form action="{{ request.route_path('locale') }}">
         <ul>
-          {% for locale_code, locale in KNOWN_LOCALES.items() %}
+          {% for locale, language in KNOWN_LOCALES.items() %}
           <li>
-            <button
-              {% if request.locale['code'] == locale_code %}
-              class="language-switcher__selected"
-              {% endif %}
-              name="locale_id" value="{{ locale_code }}" type="submit"
-            >
-              {{ locale['name_local'] }}
-            </button>
+            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
           </li>
           {% endfor %}
         </ul>

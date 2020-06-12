@@ -12,6 +12,7 @@
 
 import functools
 
+from babel.core import Locale
 from pyramid import viewderivers
 from pyramid.i18n import TranslationStringFactory, default_locale_negotiator
 from pyramid.threadlocal import get_current_request
@@ -21,32 +22,17 @@ from warehouse.cache.http import add_vary
 # Taken from:
 # https://github.com/django/django/blob/master/django/conf/locale/__init__.py
 KNOWN_LOCALES = {
-    "en": {"bidi": False, "code": "en", "name": "English", "name_local": "English"},
-    "es": {"bidi": False, "code": "es", "name": "Spanish", "name_local": "español"},
-    "fr": {"bidi": False, "code": "fr", "name": "French", "name_local": "français"},
-    "ja": {"bidi": False, "code": "ja", "name": "Japanese", "name_local": "日本語"},
-    "pt_BR": {
-        "bidi": False,
-        "code": "pt_BR",
-        "name": "Brazilian Portuguese",
-        "name_local": "Português Brasileiro",
-    },
-    "uk": {
-        "bidi": False,
-        "code": "uk",
-        "name": "Ukrainian",
-        "name_local": "Українська",
-    },
-    "el": {"bidi": False, "code": "el", "name": "Greek", "name_local": "Ελληνικά"},
-    "de": {"bidi": False, "code": "de", "name": "German", "name_local": "Deutsch"},
-    "zh_Hans": {
-        "bidi": False,
-        "code": "zh_Hans",
-        "name": "Simplified Chinese",
-        "name_local": "简体中文",
-    },
-    "ru": {"bidi": False, "code": "ru", "name": "Russian", "name_local": "Русский"},
-    "he": {"bidi": True, "code": "he", "name": "Hebrew", "name_local": "עברית"},
+    "en": "English",  # English
+    "es": "español",  # Spanish
+    "fr": "français",  # French
+    "ja": "日本語",  # Japanese
+    "pt_BR": "Português Brasileiro",  # Brazilian Portugeuse
+    "uk": "Українська",  # Ukrainian
+    "el": "Ελληνικά",  # Greek
+    "de": "Deutsch",  # German
+    "zh_Hans": "简体中文",  # Simplified Chinese
+    "ru": "Русский",  # Russian
+    "he": "עברית",  # Hebrew
 }
 
 LOCALE_ATTR = "_LOCALE_"
@@ -75,9 +61,9 @@ class LazyString:
 
 def _locale(request):
     """
-    Returns a value from KNOWN_LOCALES based on request.locale_name
+    Computes a babel.core:Locale() object for this request.
     """
-    return KNOWN_LOCALES.get(request.locale_name, "en")
+    return Locale.parse(request.locale_name, sep="_")
 
 
 def _negotiate_locale(request):
