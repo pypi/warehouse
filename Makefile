@@ -161,8 +161,6 @@ shell:
 	docker-compose run --rm web python -m warehouse shell
 
 clean:
-	rm -rf warehouse/static/components
-	rm -rf warehouse/static/dist
 	rm -rf dev/*.sql
 
 purge: stop clean
