@@ -87,13 +87,12 @@ class TestTranslatedView:
 
 
 def test_sets_locale(monkeypatch):
+    locale_name = pretend.stub()
     locale_obj = pretend.stub()
-    locale_cls = pretend.stub(parse=pretend.call_recorder(lambda l, **kw: locale_obj))
-    monkeypatch.setattr(i18n, "Locale", locale_cls)
-    request = pretend.stub(locale_name=pretend.stub())
+    monkeypatch.setattr(i18n, "KNOWN_LOCALES", {locale_name: locale_obj})
+    request = pretend.stub(locale_name=locale_name)
 
     assert i18n._locale(request) is locale_obj
-    assert locale_cls.parse.calls == [pretend.call(request.locale_name, sep="_")]
 
 
 def test_negotiate_locale(monkeypatch):
