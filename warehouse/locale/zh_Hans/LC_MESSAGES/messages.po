@@ -291,8 +291,8 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
 #: warehouse/templates/manage/release.html:171
-#: warehouse/templates/manage/releases.html:140
-#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:175
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -484,7 +484,7 @@ msgid "Sponsor"
 msgstr "赞助"
 
 #: warehouse/templates/accounts/login.html:18
-#: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
+#: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
 msgstr "登录"
@@ -864,16 +864,16 @@ msgstr "您的用户名"
 msgid "Password"
 msgstr "密码"
 
-#: warehouse/templates/accounts/login.html:76
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
+msgstr "您的密码"
+
+#: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr "显示密码"
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
-msgstr "您的密码"
-
-#: warehouse/templates/accounts/login.html:97
+#: warehouse/templates/accounts/login.html:96
 msgid "Forgot password?"
 msgstr "忘记密码了？"
 
@@ -1456,7 +1456,7 @@ msgstr "关闭此通知"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1755,7 +1755,7 @@ msgstr "查看电子邮件选项"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:72
 msgid "Options"
 msgstr "选项"
 
@@ -2539,7 +2539,7 @@ msgstr "来自 %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:90
+#: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr "管理"
 
@@ -2620,7 +2620,7 @@ msgid "This project has no releases"
 msgstr "此项目没有发布过版本"
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:96
+#: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr "视图"
@@ -2715,7 +2715,7 @@ msgid "Delete file"
 msgstr "删除文件"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:111
+#: warehouse/templates/manage/releases.html:113
 msgid "Delete"
 msgstr "删除"
 
@@ -2728,7 +2728,7 @@ msgid "No files found"
 msgstr "未找到文件"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2749,7 +2749,7 @@ msgstr "版本发布设置"
 
 #: warehouse/templates/manage/release.html:125
 #: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:127
 #, fuzzy
 #| msgid "New releases"
 msgid "Yank release"
@@ -2805,22 +2805,22 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/release.html:152
-#: warehouse/templates/manage/releases.html:132
+#: warehouse/templates/manage/releases.html:134
 msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:155
 #: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:122
-#: warehouse/templates/manage/releases.html:135
-#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:124
+#: warehouse/templates/manage/releases.html:137
+#: warehouse/templates/manage/releases.html:144
 msgid "Version"
 msgstr "版本"
 
 #: warehouse/templates/manage/release.html:159
 #: warehouse/templates/manage/release.html:176
-#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:140
 msgid "Delete release"
 msgstr "删除版本"
 
@@ -2908,40 +2908,40 @@ msgstr[0] ""
 "              %(count)s个文件\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:59
+#: warehouse/templates/manage/releases.html:61
 msgid "No files"
 msgstr "没有文件"
 
-#: warehouse/templates/manage/releases.html:69
+#: warehouse/templates/manage/releases.html:71
 msgid "View release options"
 msgstr "查看发布选项"
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:77
 #, python-format
 msgid "Options for %(version)s"
 msgstr "%(version)s 版本的选项"
 
-#: warehouse/templates/manage/releases.html:78
+#: warehouse/templates/manage/releases.html:80
 #, fuzzy
 #| msgid "Releases"
 msgid "Un-yank Release"
 msgstr "发行版"
 
-#: warehouse/templates/manage/releases.html:83
+#: warehouse/templates/manage/releases.html:85
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:105
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/releases.html:123
 #, fuzzy
 #| msgid "pre-release"
 msgid "Un-yank release"
 msgstr "新版本"
 
-#: warehouse/templates/manage/releases.html:128
+#: warehouse/templates/manage/releases.html:130
 #, python-format
 msgid ""
 "\n"
@@ -2951,7 +2951,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 #, fuzzy, python-format
 #| msgid ""
 #| "You will not be able to re-upload a new distribution of the same type "
@@ -2968,31 +2968,31 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">发布"
 "后</a>版本。"
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:153
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "管理‘%(project_name)s’发布版本"
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:158
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "已发布 （%(release_count)s）"
 
-#: warehouse/templates/manage/releases.html:162
+#: warehouse/templates/manage/releases.html:164
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "已发布 （%(release_count)s）"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "Creating a new release"
 msgstr "创建新版本"
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 msgid "No releases found"
 msgstr "未找到版本"
 
-#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/manage/releases.html:175
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
