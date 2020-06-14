@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-06-10 06:50+0000\n"
+"PO-Revision-Date: 2020-06-14 07:32+0000\n"
 "Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
@@ -121,6 +121,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links."
 msgstr ""
+"Terlalu banyak email telah ditambahkan ke akun ini tanpa dilakukan "
+"verifikasi. Periksa kotak masuk Anda dan ikuti tautan verifikasi."
 
 #: warehouse/accounts/views.py:220 warehouse/accounts/views.py:278
 #: warehouse/accounts/views.py:280 warehouse/accounts/views.py:307
