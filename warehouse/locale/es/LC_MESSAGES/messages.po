@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-05-29 08:45+0000\n"
+"PO-Revision-Date: 2020-06-14 07:32+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -112,8 +112,6 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "La aserción de WebAuthn no es válida: carga incorrecta"
 
 #: warehouse/accounts/forms.py:344
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
 msgstr "El código de recuperación no es válido."
 
@@ -982,15 +980,11 @@ msgstr "%(user)s aún no ha cargado ningún proyecto en PyPI"
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-#, fuzzy
-#| msgid "Recovery Codes"
 msgid "Recovery codes"
 msgstr "Códigos de recuperación"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 #: warehouse/templates/accounts/two-factor.html:119
-#, fuzzy
-#| msgid "Login using Recovery Code"
 msgid "Login using recovery codes"
 msgstr "Acceder con código de recuperación"
 
@@ -1876,10 +1870,8 @@ msgstr ""
 "seguridad (p. ej., llave USB)"
 
 #: warehouse/templates/manage/account.html:143
-#, fuzzy
-#| msgid "Regenerate recovery codes"
 msgid "Generate recovery codes"
-msgstr "Volver a generar códigos de recuperación"
+msgstr "Generar códigos de recuperación"
 
 #: warehouse/templates/manage/account.html:148
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -2227,8 +2219,6 @@ msgid "None"
 msgstr "Ninguno"
 
 #: warehouse/templates/manage/account.html:574
-#, fuzzy
-#| msgid "Recovery Code"
 msgid "Recovery code"
 msgstr "Código de recuperación"
 
@@ -2307,20 +2297,14 @@ msgid "Two factor authentication removed"
 msgstr "Retirada de autenticación en dos fases"
 
 #: warehouse/templates/manage/account.html:633
-#, fuzzy
-#| msgid "Recovery Codes generated"
 msgid "Recovery codes generated"
 msgstr "Se generaron códigos de recuperación"
 
 #: warehouse/templates/manage/account.html:637
-#, fuzzy
-#| msgid "Recovery Codes regenerated"
 msgid "Recovery codes regenerated"
 msgstr "Se volvieron a generar códigos de recuperación"
 
 #: warehouse/templates/manage/account.html:641
-#, fuzzy
-#| msgid "Recovery Code used for login"
 msgid "Recovery code used for login"
 msgstr "Código de recuperación utilizado para acceder"
 
@@ -3478,8 +3462,6 @@ msgid "Add token"
 msgstr "Añadir ficha"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-#, fuzzy
-#| msgid "Account Recovery Codes"
 msgid "Account recovery codes"
 msgstr "Códigos de recuperación de la cuenta"
 
@@ -3513,8 +3495,6 @@ msgstr ""
 "perder permanentemente el acceso a su cuenta de PyPI!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-#, fuzzy
-#| msgid "Save your Recovery Codes"
 msgid "Save your recovery codes"
 msgstr "Guarde sus códigos de recuperación"
 
@@ -4760,10 +4740,6 @@ msgid "To sign in with a recovery code:"
 msgstr "Para acceder con un código de recuperación:"
 
 #: warehouse/templates/pages/help.html:436
-#, fuzzy
-#| msgid ""
-#| "When prompted for Two-Factor Authentication, select \"Login using a "
-#| "Recovery Code\""
 msgid ""
 "When prompted for two factor authentication, select \"Login using recovery "
 "codes\""
