@@ -546,6 +546,25 @@
         {{ code_of_conduct() }}
       </section>
 
+      <!-- TODO update the text appropriately-->
+      <h3 id="project-size-limit">{{ file_size_limit() }}</h3>
+      <p>
+        {% trans trimmed dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
+          If you can't upload your project's release to PyPI because you're hitting the project size limit,
+          we can sometimes increase your limit. Make sure you've uploaded at least one release
+          for the project that's <em>under</em> the limit
+          (a <a href="{{ dev_release_href }}" title="{{ title }}" target="_blank" rel="noopener">developmental release version number</a> is fine).
+          Then, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> and tell us:</p>
+        {% endtrans %}
+      <ul>
+        <li>{% trans %}A link to your project on PyPI (or Test PyPI){% endtrans %}</li>
+        <li>{% trans %}The size of your release, in megabytes{% endtrans %}</li>
+        <li>{% trans %}Which index/indexes you need the increase for (PyPI, Test PyPI, or both){% endtrans %}</li>
+        <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
+      </ul>
+      {{ code_of_conduct() }}
+    </section>
+
       <section class="faq-group" id="troubleshooting">
         <h2>{% trans %}Troubleshooting{% endtrans %}</h2>
 
