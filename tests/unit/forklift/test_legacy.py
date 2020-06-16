@@ -770,7 +770,7 @@ class TestIsDuplicateFile:
 
         assert legacy._is_duplicate_file(db_request.db, filename, wrong_hashes) is False
 
-
+#TODO : Project total_size test goes here
 class TestFileUpload:
     def test_fails_disallow_new_upload(self, pyramid_config, pyramid_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1877,6 +1877,49 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 File too large. Limit for project 'foobar' is 60 MB. "
+            "See /the/help/url/"
+        )
+
+    def test_upload_fails_with_too_large_project_size(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(
+            name="foobar", upload_limit=(60 * 1024 * 1024), # 60 MB
+            total_size = (10 * 1024 * 1024 * 1024) - 1  #10 GB
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (project.upload_limit + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-size-limit")]
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Project size too large. Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
 
