@@ -232,9 +232,9 @@ first==2.0.2 \
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d \
     # via celery, webauthn
-google-api-core==1.20.0 \
-    --hash=sha256:65ca5396393b3e592c49cba968380b6d2534d9c78b25fedbedea9dd1c6c50249 \
-    --hash=sha256:eec2c302b50e6db0c713fb84b71b8d75cfad5dc6d4dffc78e9f69ba0008f5ede \
+google-api-core==1.20.1 \
+    --hash=sha256:6b757736bbc699db858794e9b71e2bbf17996075773a40551ef5e6b0fad2a2f9 \
+    --hash=sha256:b310709c325f5f9acee8feb2344c76d23577a07f4c6f4a0272c5e39d09850827 \
     # via google-cloud-bigquery, google-cloud-core
 google-auth==1.16.1 \
     --hash=sha256:2f1a6bc3031fc7cd0c1aeb225ad34febcb60268f71f5df75d5976dd20a52c002 \
