@@ -47,12 +47,13 @@ def test_project_docs(db_session):
 
     for p in projects:
         for r in releases[p]:
-            f = FileFactory.create(
-                release=r,
-                filename="{}-{}.tar.gz".format(p.name, r.version),
-                python_version="source",
-            )
-            r.files.append(f)
+            r.files = [
+                FileFactory.create(
+                    release=r,
+                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    python_version="source",
+                )
+            ]
 
     assert list(_project_docs(db_session)) == [
         {
@@ -86,12 +87,13 @@ def test_single_project_doc(db_session):
 
     for p in projects:
         for r in releases[p]:
-            f = FileFactory.create(
-                release=r,
-                filename="{}-{}.tar.gz".format(p.name, r.version),
-                python_version="source",
-            )
-            r.files.append(f)
+            r.files = [
+                FileFactory.create(
+                    release=r,
+                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    python_version="source",
+                )
+            ]
 
     assert list(_project_docs(db_session, project_name=projects[1].name)) == [
         {
