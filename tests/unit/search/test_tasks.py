@@ -31,7 +31,7 @@ from warehouse.search.tasks import (
     unindex_project,
 )
 
-from ...common.db.packaging import ProjectFactory, ReleaseFactory
+from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 def test_project_docs(db_session):
@@ -44,6 +44,15 @@ def test_project_docs(db_session):
         )
         for p in projects
     }
+
+    for p in projects:
+        for r in releases[p]:
+            f = FileFactory.create(
+                release=r,
+                filename="{}-{}.tar.gz".format(p.name, r.version),
+                python_version="source",
+            )
+            r.files.append(f)
 
     assert list(_project_docs(db_session)) == [
         {
@@ -74,6 +83,15 @@ def test_single_project_doc(db_session):
         )
         for p in projects
     }
+
+    for p in projects:
+        for r in releases[p]:
+            f = FileFactory.create(
+                release=r,
+                filename="{}-{}.tar.gz".format(p.name, r.version),
+                python_version="source",
+            )
+            r.files.append(f)
 
     assert list(_project_docs(db_session, project_name=projects[1].name)) == [
         {

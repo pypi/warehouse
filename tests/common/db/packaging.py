@@ -75,6 +75,7 @@ class ReleaseFactory(WarehouseFactory):
 
     uploader = factory.SubFactory(UserFactory)
     description = factory.SubFactory(DescriptionFactory)
+    files = []
 
 
 class FileFactory(WarehouseFactory):

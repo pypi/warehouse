@@ -37,11 +37,15 @@ from warehouse.search.utils import get_index
 from warehouse.utils.db import windowed_query
 
 
-def _project_docs(db, project_name=None):
+def _project_docs(db, project_name=None, show_empty_releases=False):
+
+    queries = [Release.yanked.is_(False)]
+    if not show_empty_releases:
+        queries.append(Release.files)
 
     releases_list = (
         db.query(Release.id)
-        .filter(Release.yanked.is_(False), Release.files)
+        .filter(*queries)
         .order_by(
             Release.project_id,
             Release.is_prerelease.nullslast(),
