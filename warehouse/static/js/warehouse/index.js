@@ -89,7 +89,7 @@ docReady(Statuspage);
 //   - the copy hash on release maintainers page
 docReady(() => {
   let setCopiedTooltip = (e) => {
-    e.trigger.setAttribute("data-tooltip-label", "Copied!");
+    e.trigger.setAttribute("data-tooltip-label", "Copied");
     e.trigger.setAttribute("role", "alert");
     e.clearSelection();
   };
