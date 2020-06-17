@@ -15,11 +15,11 @@ import functools
 import hashlib
 import hmac
 import logging
+import posixpath
 import secrets
 import urllib.parse
 import uuid
 
-import posixpath
 import requests
 
 from passlib.context import CryptContext
