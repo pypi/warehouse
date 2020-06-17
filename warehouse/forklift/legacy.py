@@ -62,7 +62,7 @@ from warehouse.utils import http, readme
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024  # 8K
 # TODO : Finalize MAX_PROJECT_SIZE, currently 10GB
-MAX_PROJECT_SIZE = 10 * 1024 * 1024 * 1024
+MAX_PROJECT_SIZE = 100 * 1024 * 1024 * 1024
 
 PATH_HASHER = "blake2_256"
 
@@ -1187,6 +1187,7 @@ def file_upload(request):
     # it does then it may or may not be smaller or larger than our global file
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
+    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
 
     with tempfile.TemporaryDirectory() as tmpdir:
         temporary_filename = os.path.join(tmpdir, filename)
@@ -1212,14 +1213,13 @@ def file_upload(request):
                         + "See "
                         + request.help_url(_anchor="file-size-limit"),
                     )
-                # TODO : Add a check for total_size here and stop write here
-                if file_size + project.total_size > MAX_PROJECT_SIZE:
+                if file_size + project.total_size > project_size_limit:
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "Project size too large. Limit for "
                         + "project {name!r} total size is {limit} GB. ".format(
                             name=project.name,
-                            limit=MAX_PROJECT_SIZE // (1024 * 1024 * 1024),
+                            limit=project_size_limit // (1024 * 1024 * 1024),
                         )
                         + "See "
                         + request.help_url(_anchor="project-size-limit"),
