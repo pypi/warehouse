@@ -1,9 +1,6 @@
 {
   "repository": "pypa/warehouse",
   "license": "Apache-2.0",
-  "engines": {
-    "node": "8.15.1"
-  },
   "scripts": {
     "test": "jest"
   },
