@@ -49,7 +49,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
-from warehouse.packaging.tasks import update_distribution_database
+from warehouse.packaging.tasks import upload_bigquery_distributions
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -1446,7 +1446,7 @@ class TestFileUpload:
             )
         ]
 
-        assert db_request.task.calls == [pretend.call(update_distribution_database)]
+        assert db_request.task.calls == [pretend.call(upload_bigquery_distributions)]
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),

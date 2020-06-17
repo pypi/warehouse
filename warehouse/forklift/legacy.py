@@ -57,7 +57,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
-from warehouse.packaging.tasks import update_distribution_database
+from warehouse.packaging.tasks import upload_bigquery_distributions
 from warehouse.utils import http, readme
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
@@ -1398,9 +1398,14 @@ def file_upload(request):
                 },
             )
 
+    # We are flushing the database requests so that we
+    # can access the server default values when initiating celery
+    # tasks.
+    request.db.flush()
+
     # Push updates to BigQuery
     if not request.registry.settings.get("warehouse.distribution_table") is None:
-        request.task(update_distribution_database).delay(file_data, form)
+        request.task(upload_bigquery_distributions).delay(file_data, form)
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
