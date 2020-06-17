@@ -63,9 +63,9 @@ pbr==5.4.5 \
     --hash=sha256:07f558fece33b05caf857474a366dfcc00562bca13dd8b47b2b3e22d9f9bf55c \
     --hash=sha256:579170e23f8e0c2f24b0de612f71f648eccb79fb1322c814ae6b3c07b5ba23e8 \
     # via stevedore
-pep8-naming==0.10.0 \
-    --hash=sha256:5d9f1056cb9427ce344e98d1a7f5665710e2f20f748438e308995852cfa24164 \
-    --hash=sha256:f3b4a5f9dd72b991bf7d8e2a341d2e1aa3a884a769b5aaac4f56825c1763bf3a \
+pep8-naming==0.11.1 \
+    --hash=sha256:a1dd47dd243adfe8a83616e27cf03164960b507530f155db94e10b36a6cd6724 \
+    --hash=sha256:f43bfe3eea7e0d73e8b5d07d6407ab47f2476ccaeff6937c84275cd30b016738 \
     # via -r requirements/lint.in
 pycodestyle==2.6.0 \
     --hash=sha256:2295e7b2f6b5bd100585ebcb1f616591b652db8a741695b3d8f5d28bdc934367 \
