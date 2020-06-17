@@ -545,7 +545,6 @@
           <li>{% trans %}Which index/indexes you need the increase for (PyPI, Test PyPI, or both){% endtrans %}</li>
           <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
         </ul>
-      <!-- TODO update the text appropriately-->
       <h3 id="project-size-limit">{{ project_size_limit() }}</h3>
       <p>
         {% trans trimmed dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
