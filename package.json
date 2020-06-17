@@ -26,7 +26,7 @@
     "debounce": "1.2.0",
     "del": "3.0.0",
     "exports-loader": "0.6.4",
-    "gulp": "4.0.0",
+    "gulp": "^4.0.2",
     "gulp-brotli": "1.2.1",
     "gulp-concat": "2.6.1",
     "gulp-gzip": "1.4.2",
