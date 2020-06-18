@@ -26,7 +26,6 @@ from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
 
 ONE_MB = 1024 * 1024  # bytes
-ONE_GB = 1024 * 1024 * 1024  # bytes
 
 
 @view_config(
@@ -144,8 +143,6 @@ def project_detail(project, request):
         "squattees": squattees,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
-        "ONE_GB": ONE_GB,
-        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
     }
 
 
@@ -309,45 +306,6 @@ def set_upload_limit(project, request):
     )
 
 
-@view_config(
-    route_name="admin.project.set_total_size_limit",
-    permission="moderator",
-    request_method="POST",
-    uses_session=True,
-    require_methods=False,
-)
-def set_total_size_limit(project, request):
-    total_size_limit = request.POST.get("total_size_limit", "")
-
-    if not total_size_limit:
-        total_size_limit = None
-    else:
-        try:
-            total_size_limit = int(total_size_limit)
-        except ValueError:
-            raise HTTPBadRequest(
-                f"Invalid value for total size limit: {total_size_limit}, "
-                f"must be integer or empty string."
-            )
-
-        # The form is in MB, but the database field is in bytes.
-        total_size_limit *= ONE_GB
-
-        if total_size_limit < MAX_PROJECT_SIZE:
-            raise HTTPBadRequest(
-                f"Total project size can not be less than the default limit of "
-                f"{MAX_PROJECT_SIZE / ONE_GB}GB."
-            )
-
-    project.total_size_limit = total_size_limit
-
-    request.session.flash(
-        f"Set the total size limit on {project.name!r}", queue="success"
-    )
-
-    return HTTPSeeOther(
-        request.route_path("admin.project.detail", project_name=project.normalized_name)
-    )
 
 
 @view_config(

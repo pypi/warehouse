@@ -63,16 +63,6 @@
                     {% endif %}
                   </td>
                 </tr>
-                <tr>
-                  <td>Total size limit</td>
-                  <td>
-                    {% if project.total_size_limit %}
-                      {{ project.total_size_limit|filesizeformat(binary=True) }}
-                    {% else %}
-                      Default ({{(100 * 1024 * 1024 * 1024)|filesizeformat(binary=True) }})
-                    {% endif %}
-                  </td>
-                </tr>
               </table>
             </div>
             <h4>Maintainers:</h4>
@@ -325,36 +315,5 @@
       </div>
     </form>
   </div>
-
- <!--Total project size limit form  -->
-  <div class="box box-secondary collapsed-box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Set total size limit</h3>
-      <div class="box-tools">
-        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
-      </div>
-    </div>
-    <form method="POST" action="{{ request.route_path('admin.project.set_total_size_limit', project_name=project.normalized_name) }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <div class="box-body">
-        <div class="form-group col-sm-12">
-          <label for="uploadLimit">Total size limit (in gigabytes)</label>
-          {% if project.total_size_limit %}
-            {% set total_size_limit_value = project.total_size_limit // ONE_GB %}
-          {% else %}
-            {% set total_size_limit_value = '' %}
-          {% endif %}
-          <input type="number" name="total_size_limit" class="form-control" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GB }}" value="{{total_size_limit_value}}">
-        </div>
-      </div>
-
-      <div class="box-footer">
-        <div class="pull-right">
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </div>
-    </form>
-  </div>
-
-
+  
 {% endblock %}

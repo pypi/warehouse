@@ -80,13 +80,6 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
-            "admin.project.set_total_size_limit",
-            "/admin/projects/{project_name}/set_total_size_limit/",
-            factory="warehouse.packaging.models:ProjectFactory",
-            traverse="/{project_name}",
-            domain=warehouse,
-        ),
-        pretend.call(
             "admin.project.add_role",
             "/admin/projects/{project_name}/add_role/",
             factory="warehouse.packaging.models:ProjectFactory",
