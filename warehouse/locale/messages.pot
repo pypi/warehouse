@@ -420,13 +420,8 @@ msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-<<<<<<< HEAD
 #: warehouse/templates/includes/current-user-indicator.html:55
-#: warehouse/templates/pages/help.html:99
-=======
-#: warehouse/templates/includes/current-user-indicator.html:54
 #: warehouse/templates/pages/help.html:101
->>>>>>> 1c0d672f... Added tests, admin functionality, linted & reformatted
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr ""
