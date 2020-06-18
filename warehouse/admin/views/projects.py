@@ -20,7 +20,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.forklift.legacy import MAX_FILESIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
@@ -304,8 +304,6 @@ def set_upload_limit(project, request):
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
     )
-
-
 
 
 @view_config(
