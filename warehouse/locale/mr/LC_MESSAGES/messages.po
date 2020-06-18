@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
-"Report-Msgid-Bugs-To: https://github.com/pypa/warehouse/issues/new\n"
+"Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-03-19 08:45+0000\n"
+"PO-Revision-Date: 2020-06-12 15:22+0000\n"
 "Last-Translator: Prachi Joshi <josprachi@yahoo.com>\n"
 "Language-Team: Marathi <https://hosted.weblate.org/projects/pypa/warehouse/"
 "mr/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.0-dev\n"
+"X-Generator: Weblate 4.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -32,7 +32,7 @@ msgstr "त्या वापरकर्तानावासह कोणत�
 
 #: warehouse/accounts/forms.py:52
 msgid "TOTP code must be ${totp_length} digits."
-msgstr ""
+msgstr "TOTP कोड $ {totp_length} अंकांचा असणे आवश्यक आहे."
 
 #: warehouse/accounts/forms.py:79
 msgid "Choose a username with 50 characters or less."
@@ -44,6 +44,9 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
+"वापरकर्तानाव अवैध आहे. वापरकर्तानावे अक्षरे, संख्या, ठिपके, हायफन आणि अंडरस्कोरची बनलेली "
+"असणे आवश्यक आहे. आणि प्रारंभ आणि समाप्त अक्षर किंवा आकड्याने करणे आवश्यक आहे. भिन्न "
+"वापरकर्तानाव निवडा."
 
 #: warehouse/accounts/forms.py:99
 msgid ""
@@ -96,10 +99,8 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अवैध WebAuthn प्रतिपादन: खराब पेलोड"
 
 #: warehouse/accounts/forms.py:344
-#, fuzzy
-#| msgid "Invalid TOTP code."
-msgid "Invalid Recovery Code."
-msgstr "अवैध TOTP कोड."
+msgid "Invalid recovery code."
+msgstr "अवैध पुनर्प्राप्ती कोड."
 
 #: warehouse/accounts/forms.py:362
 msgid "No user found with that username or email"
@@ -110,6 +111,8 @@ msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links."
 msgstr ""
+"या खात्यात पुष्टी न करता बर्‍याच ईमेल जोडल्या गेल्या आहेत. आपला इनबॉक्स तपासा आणि "
+"सत्यापन दुव्यांचे अनुसरण करा."
 
 #: warehouse/accounts/views.py:220 warehouse/accounts/views.py:278
 #: warehouse/accounts/views.py:280 warehouse/accounts/views.py:307
@@ -127,7 +130,7 @@ msgstr "यशस्वी WebAuthn प्रतिपादन"
 
 #: warehouse/accounts/views.py:393
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "पुनर्प्राप्ती कोड स्वीकारला. पुरवलेला कोड पुन्हा वापरला जाऊ शकत नाही."
 
 #: warehouse/accounts/views.py:479
 msgid ""
@@ -165,56 +168,56 @@ msgstr "अवैध टोकन: या टोकनची विनंती 
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
+msgstr "अवैध टोकन: हा टोकन विनंती केल्यानंतर संकेतशब्द बदलून झाला आहे"
 
 #: warehouse/accounts/views.py:634
 msgid "You have reset your password"
-msgstr ""
+msgstr "आपण आपला संकेतशब्द रीसेट केला आहे"
 
 #: warehouse/accounts/views.py:661
 msgid "Expired token: request a new email verification link"
-msgstr ""
+msgstr "कालबाह्य टोकन: नवीन ईमेल सत्यापन दुव्याची विनंती करा"
 
 #: warehouse/accounts/views.py:663
 msgid "Invalid token: request a new email verification link"
-msgstr ""
+msgstr "अवैध टोकन: नवीन ईमेल सत्यापन दुव्याची विनंती करा"
 
 #: warehouse/accounts/views.py:669
 msgid "Invalid token: not an email verification token"
-msgstr ""
+msgstr "अवैध टोकन: ईमेल सत्यापन टोकन नाही"
 
 #: warehouse/accounts/views.py:678
 msgid "Email not found"
-msgstr ""
+msgstr "ईमेल आढळला नाही"
 
 #: warehouse/accounts/views.py:681
 msgid "Email already verified"
-msgstr ""
+msgstr "ईमेल आधीच सत्यापित आहे"
 
 #: warehouse/accounts/views.py:696
 msgid "You can now set this email as your primary address"
-msgstr ""
+msgstr "आपण आता हा ईमेल आपला प्राथमिक ईमेल म्हणून सेट करू शकता"
 
 #: warehouse/accounts/views.py:700
 msgid "This is your primary address"
-msgstr ""
+msgstr "हा तुमचा प्राथमिक पत्ता आहे"
 
 #: warehouse/accounts/views.py:705
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr ""
+msgstr "ईमेल पत्ता ${email_address} सत्यापित. ${confirm_message}."
 
 #: warehouse/manage/views.py:189
 msgid "Email ${email_address} added - check your email for a verification link"
-msgstr ""
+msgstr "ईमेल ${email_address} जोडला - सत्यापन दुव्यासाठी आपले ईमेल तपासा"
 
 #: warehouse/manage/views.py:670 warehouse/manage/views.py:706
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
-msgstr ""
+msgstr "पुनर्प्राप्ती कोड व्युत्पन्न करण्यापूर्वी आपण दोन घटक पद्धतीची तरतूद करणे आवश्यक आहे"
 
 #: warehouse/manage/views.py:681
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "पुनर्प्राप्ती कोड आधीपासून व्युत्पन्न केले"
 
 #: warehouse/manage/views.py:682
 msgid "Generating new recovery codes will invalidate your existing codes."
@@ -273,9 +276,9 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/releases.html:123
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:175
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -446,21 +449,21 @@ msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-#: warehouse/templates/includes/current-user-indicator.html:54
+#: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:99
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr ""
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:60
+#: warehouse/templates/includes/current-user-indicator.html:61
 #, fuzzy
 #| msgid "Sponsors"
 msgid "Sponsor"
 msgstr "प्रायोजक"
 
 #: warehouse/templates/accounts/login.html:18
-#: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
+#: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
 msgstr ""
@@ -480,7 +483,7 @@ msgid "Menu"
 msgstr ""
 
 #: warehouse/templates/base.html:54
-#: warehouse/templates/includes/current-user-indicator.html:24
+#: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
 msgstr ""
 
@@ -513,7 +516,7 @@ msgstr ""
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:151
+#: warehouse/templates/manage/release.html:161
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
 msgstr ""
@@ -838,25 +841,26 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
+#: warehouse/templates/manage/manage_base.html:167
 msgid "Password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:76
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
+msgstr ""
+
+#: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:97
+#: warehouse/templates/accounts/login.html:96
 msgid "Forgot password?"
 msgstr ""
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:68
+#: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
 msgstr ""
 
@@ -915,11 +919,16 @@ msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
-msgstr ""
+#, fuzzy
+#| msgid "Error code"
+msgid "Recovery codes"
+msgstr "त्रुटी कोड"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+#, fuzzy
+#| msgid "Login using Recovery Code"
+msgid "Login using recovery codes"
 msgstr "रिकव्हरी कोड वापरून लॉगिन करा"
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1113,10 +1122,6 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr ""
-
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
 msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:122
@@ -1321,25 +1326,25 @@ msgid ""
 "link to verify your email address</a>."
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:29
+#: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:42
+#: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:48
+#: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
 msgstr ""
 
@@ -1366,7 +1371,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1648,7 +1653,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:62
+#: warehouse/templates/manage/releases.html:72
 msgid "Options"
 msgstr ""
 
@@ -1691,8 +1696,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
-msgstr ""
+#, fuzzy
+#| msgid "Error code"
+msgid "Generate recovery codes"
+msgstr "त्रुटी कोड"
 
 #: warehouse/templates/manage/account.html:148
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -1868,6 +1875,12 @@ msgstr ""
 msgid "Confirm new password"
 msgstr ""
 
+#: warehouse/templates/manage/account.html:440
+#, fuzzy
+#| msgid "Reset password"
+msgid "Update password"
+msgstr "पासवर्ड रीसेट करा"
+
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
 msgstr ""
@@ -1938,9 +1951,10 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
+msgid "Regenerate recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:509
@@ -2005,8 +2019,10 @@ msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
-msgstr ""
+#, fuzzy
+#| msgid "Error code"
+msgid "Recovery code"
+msgstr "त्रुटी कोड"
 
 #: warehouse/templates/manage/account.html:579
 msgid "Email added to account"
@@ -2079,15 +2095,15 @@ msgid "Two factor authentication removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
+msgid "Recovery codes generated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
+msgid "Recovery codes regenerated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
+msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:647
@@ -2383,7 +2399,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:82
+#: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr ""
 
@@ -2464,7 +2480,7 @@ msgid "This project has no releases"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:88
+#: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr "पहा"
@@ -2557,7 +2573,7 @@ msgid "Delete file"
 msgstr "फाइल हटवा"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:113
 msgid "Delete"
 msgstr "हटवा"
 
@@ -2570,7 +2586,7 @@ msgid "No files found"
 msgstr "कोणत्याही फायली आढळल्या नाहीत"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2588,8 +2604,8 @@ msgid "Release settings"
 msgstr "प्रकाशन सेटिंग्ज"
 
 #: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/releases.html:117
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/releases.html:127
 #, fuzzy
 #| msgid "view release"
 msgid "Yank release"
@@ -2635,22 +2651,37 @@ msgid ""
 "    "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/release.html:166
+#: warehouse/templates/manage/release.html:148
+#, python-format
+msgid ""
+"\n"
+"          You may provide a reason for yanking this release, which will be "
+"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
+"code>.\n"
+"        "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:152
+#: warehouse/templates/manage/releases.html:134
+msgid "Reason (optional)"
+msgstr ""
+
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:114
-#: warehouse/templates/manage/releases.html:118
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:124
+#: warehouse/templates/manage/releases.html:137
+#: warehouse/templates/manage/releases.html:144
 msgid "Version"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:149
-#: warehouse/templates/manage/release.html:166
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/releases.html:140
 msgid "Delete release"
 msgstr "रीलिझ हटवा"
 
-#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/release.html:163
 #, python-format
 msgid ""
 "\n"
@@ -2665,11 +2696,11 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:169
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:171
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -2690,11 +2721,17 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:34
+#: warehouse/templates/manage/releases.html:27
+#, fuzzy
+#| msgid "view release"
+msgid "Yanked reason"
+msgstr "प्रकाशन पहा"
+
+#: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:45
+#: warehouse/templates/manage/releases.html:48
 #, python-format
 msgid ""
 "\n"
@@ -2707,36 +2744,46 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/releases.html:56
+#: warehouse/templates/manage/releases.html:61
 msgid "No files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:71
 msgid "View release options"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:67
+#: warehouse/templates/manage/releases.html:77
 #, python-format
 msgid "Options for %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:80
 msgid "Un-yank Release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:85
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:95
+#: warehouse/templates/manage/releases.html:105
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:123
 msgid "Un-yank release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:130
+#, python-format
+msgid ""
+"\n"
+"              You may provide a reason for yanking this release, which will "
+"be displayed by pip to users who install <code>%(project_name)s=="
+"%(version)s</code>.\n"
+"            "
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:142
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -2745,31 +2792,31 @@ msgid ""
 "\"noopener\">post release</a> instead."
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/releases.html:153
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:139
+#: warehouse/templates/manage/releases.html:158
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:145
+#: warehouse/templates/manage/releases.html:164
 #, fuzzy, python-format
 #| msgid "Delete release"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "रीलिझ हटवा"
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:170
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:172
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:175
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3071,12 +3118,10 @@ msgid "Add token"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
-msgstr ""
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
-msgstr ""
+#, fuzzy
+#| msgid "Error code"
+msgid "Account recovery codes"
+msgstr "त्रुटी कोड"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3099,8 +3144,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
-msgstr ""
+#, fuzzy
+#| msgid "Error code"
+msgid "Save your recovery codes"
+msgstr "त्रुटी कोड"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 #, fuzzy
@@ -4071,8 +4118,8 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:436
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a Recovery "
-"Code\""
+"When prompted for two factor authentication, select \"Login using recovery "
+"codes\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:437
@@ -4682,8 +4729,8 @@ msgid ""
 "You can also follow the ongoing development of the project on the <a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">distutils-sig mailing list</a> and the <a href="
-"\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">PyPA Dev message group</a>."
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:761

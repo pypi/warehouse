@@ -61,7 +61,6 @@ from warehouse.utils import http, readme
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024  # 8K
-# TODO : Finalize MAX_PROJECT_SIZE, currently 10GB
 MAX_PROJECT_SIZE = 100 * 1024 * 1024 * 1024
 
 PATH_HASHER = "blake2_256"

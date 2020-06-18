@@ -50,11 +50,13 @@
         {% pluralize %}
           {{ count }} files
         {% endtrans %}
-          ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
+        (<span dir="ltr">
+        {% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
           {%- if packagetype != 'total' -%}
           {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
           {%- endif -%}
-          {% endfor %})
+        {% endfor %}
+        </span>)
         {% else %}
         {% trans %}No files{% endtrans %}
         {% endif %}

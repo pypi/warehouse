@@ -17,9 +17,9 @@ bok-choy==1.1.1 \
     --hash=sha256:67e8a868d645d68cfc0d1d14fe2bf522f1508655242333a1161d748af1d02650 \
     --hash=sha256:aa807f7cd704699743761921c453df42fbb2f5424709b796e76246c27fdd018a \
     # via -r requirements/tests.in
-certifi==2020.4.5.1 \
-    --hash=sha256:1d987a998c75633c40847cc966fcf5904906c920a7f17ef374f5aa4282abd304 \
-    --hash=sha256:51fcb31174be6e6664c5f69e3e1691a2d72a1a12e90f872cbdb1567eb47b6519 \
+certifi==2020.4.5.2 \
+    --hash=sha256:5ad7e9a056d25ffa5082862e36f119f7f7cec6457fa07ee2f8c339814b80c9b1 \
+    --hash=sha256:9cd41137dc19af6a5e03b630eefe7d1f458d964d406342dd3edf625839b944cc \
     # via requests
 chardet==3.0.4 \
     --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae \
@@ -158,9 +158,9 @@ six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
     # via bok-choy, fakeredis, freezegun, packaging, python-dateutil, responses, webtest
-sortedcontainers==2.1.0 \
-    --hash=sha256:974e9a32f56b17c1bac2aebd9dcf197f3eb9cd30553c5852a3187ad162e1a03a \
-    --hash=sha256:d9e96492dd51fae31e60837736b38fe42a187b5404c16606ff7ee7cd582d4c60 \
+sortedcontainers==2.2.2 \
+    --hash=sha256:4e73a757831fc3ca4de2859c422564239a31d8213d09a2a666e375807034d2ba \
+    --hash=sha256:c633ebde8580f241f274c1f8994a665c0e54a17724fecd0cae2f079e09c36d3f \
     # via fakeredis
 soupsieve==2.0.1 \
     --hash=sha256:1634eea42ab371d3d346309b93df7870a88610f0725d47528be902a0d95ecc55 \
@@ -178,9 +178,9 @@ waitress==1.4.4 \
     --hash=sha256:1bb436508a7487ac6cb097ae7a7fe5413aefca610550baf58f0940e51ecfb261 \
     --hash=sha256:3d633e78149eb83b60a07dfabb35579c29aac2d24bb803c18b26fb2ab1a584db \
     # via webtest
-wcwidth==0.2.3 \
-    --hash=sha256:980fbf4f3c196c0f329cdcd1e84c554d6a211f18e252e525a0cf4223154a41d6 \
-    --hash=sha256:edbc2b718b4db6cdf393eefe3a420183947d6aa312505ce6754516f458ff8830 \
+wcwidth==0.2.4 \
+    --hash=sha256:79375666b9954d4a1a10739315816324c3e73110af9d0e102d906fdb0aec009f \
+    --hash=sha256:8c6b5b6ee1360b842645f336d9e5d68c55817c26d3050f46b235ef2bc650e48f \
     # via pytest
 webob==1.8.6 \
     --hash=sha256:a3c89a8e9ba0aeb17382836cdb73c516d0ecf6630ec40ec28288f3ed459ce87b \

@@ -6,13 +6,15 @@
 # Tal Einat <taleinat@gmail.com>, 2020.
 # anonymous <noreply@weblate.org>, 2020.
 # Anonymous <noreply@weblate.org>, 2020.
+# Bar Tselenchuk <bartselen@gmail.com>, 2020.
+# Moshe Nahmias <moshegrey@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-05-03 16:29+0000\n"
-"Last-Translator: Tal Einat <taleinat@gmail.com>\n"
+"PO-Revision-Date: 2020-06-13 13:13+0000\n"
+"Last-Translator: Moshe Nahmias <moshegrey@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -105,7 +107,7 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "בדיקת WebAuthn כושלת: מטען לא תקין"
 
 #: warehouse/accounts/forms.py:344
-msgid "Invalid Recovery Code."
+msgid "Invalid recovery code."
 msgstr "קוד שחזור לא תקין."
 
 #: warehouse/accounts/forms.py:362
@@ -249,7 +251,7 @@ msgstr "עמוד לא נמצא (404)"
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr "חיפשנו בכל מקום אך לא הצלחנו למצוא דף זה"
+msgstr "חפשנו בכל מקום אך לא הצלחנו למצוא דף זה"
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different"
@@ -257,7 +259,7 @@ msgstr "ועכשיו למשהו <br><span>שונה לגמרי"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "מונטי פייתון - מערכות חנות הגבינות"
+msgstr "מונטי פייתון - מערכון חנות הגבינות"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -284,9 +286,9 @@ msgstr "מונטי פייתון - מערכות חנות הגבינות"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/releases.html:123
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:175
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -465,19 +467,19 @@ msgstr "ניווט ראשי"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-#: warehouse/templates/includes/current-user-indicator.html:54
+#: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:99
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "עזרה"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:60
+#: warehouse/templates/includes/current-user-indicator.html:61
 msgid "Sponsor"
 msgstr "מתן חסות"
 
 #: warehouse/templates/accounts/login.html:18
-#: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
+#: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
 msgstr "הזדהות"
@@ -497,7 +499,7 @@ msgid "Menu"
 msgstr "תפריט"
 
 #: warehouse/templates/base.html:54
-#: warehouse/templates/includes/current-user-indicator.html:24
+#: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
 msgstr "תפריט ראשי"
 
@@ -531,7 +533,7 @@ msgstr "מעבר לגרסת המובייל"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:151
+#: warehouse/templates/manage/release.html:161
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
 msgstr "אזהרה"
@@ -546,7 +548,7 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"הינך משתמש/ת ב-TestPyPI‏ - מופע נפרד של אינקדס החבילות של פייתון שמאפשר לנסות "
+"הינך משתמש/ת ב-TestPyPI‏ - מופע נפרד של אינדקס החבילות של פייתון שמאפשר לנסות "
 "כלי הפצה ותהליכים מבלי להשפיע על האינדקס האמיתי."
 
 #: warehouse/templates/base.html:181
@@ -673,7 +675,7 @@ msgstr "סטטוס: "
 
 #: warehouse/templates/base.html:311
 msgid "all systems operational"
-msgstr "כל מערכות פעילות"
+msgstr "כל המערכות פעילות"
 
 #: warehouse/templates/base.html:315
 msgid ""
@@ -702,15 +704,15 @@ msgstr "חזרה לדף הראשי"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr "אינדקס החבילת של פייתון"
+msgstr "אינדקס החבילות של פייתון"
 
 #: warehouse/templates/index.html:43
 msgid "Test Python package publishing with the Test Python Package Index"
-msgstr "בדיקת פרסום חבילות פייתון באמצעות האידקס לבדיקות TestPyPI"
+msgstr "בדיקת פרסום חבילות פייתון באמצעות האינדקס לבדיקות TestPyPI"
 
 #: warehouse/templates/index.html:45
 msgid "Find, install and publish Python packages with the Python Package Index"
-msgstr "מציאה, התקנה ופרסום של חבילות פייתון באמצעות אינקס החבילות של פייתון"
+msgstr "מציאה, התקנה ופרסום של חבילות פייתון באמצעות אינדקס החבילות של פייתון"
 
 #: warehouse/templates/index.html:61
 #, python-format
@@ -868,25 +870,26 @@ msgstr "שם המשתמש שלך"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
+#: warehouse/templates/manage/manage_base.html:167
 msgid "Password"
 msgstr "סיסמה"
 
-#: warehouse/templates/accounts/login.html:76
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
+msgstr "הסיסמה שלך"
+
+#: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr "הצג סיסמה"
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
-msgstr "הסיסמה שלך"
-
-#: warehouse/templates/accounts/login.html:97
+#: warehouse/templates/accounts/login.html:96
 msgid "Forgot password?"
 msgstr "שכחת סיסמתך?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:68
+#: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
 msgstr "התנתקות"
 
@@ -959,11 +962,12 @@ msgstr "%(user)s לא העלה פרויקטים ל-PyPI, עדיין"
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
+msgid "Recovery codes"
 msgstr "קודים לשחזור"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+msgid "Login using recovery codes"
 msgstr "הזדהות באמצעות קוד שחזור"
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1168,10 +1172,6 @@ msgstr ""
 msgid "Lost your security key or application?"
 msgstr "אבד מפתח האבטחה שלך או האפליצקיה?"
 
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
-msgstr "הזדהות באמצעות קוד שחזור"
-
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
 msgid ""
@@ -1314,7 +1314,7 @@ msgid ""
 "\"%(have_i_been_pwned_url)s\">HaveIBeenPwned</a> and check your other "
 "passwords and get yourself familiar with good password practices."
 msgstr ""
-"כדי להשיג מחדש גישה לחשבונך, <a href=\"%(reset_pw_url)s\">אספ/י את סיסמתך</"
+"כדי להשיג מחדש גישה לחשבונך, <a href=\"%(reset_pw_url)s\">אפס/י את סיסמתך</"
 "a> ב-PyPI. אנחנו גם ממליצים להיכנס אל <a href=\"%(have_i_been_pwned_url)s"
 "\">HaveIBeenPwned</a>, לבדוק את סיסמאותיך האחרות ולהכיר שיטות טובות לבחירת "
 "סיסמאות."
@@ -1334,7 +1334,7 @@ msgid ""
 msgstr ""
 "אנו משתמשים בשירות אבטחה בחינם מאת <a href=\"%(have_i_been_pwned_url)s"
 "\">HaveIBeenPwned</a>. בעת הרשמה, אימות ועדכון סיסמתך, אנחנו מייצרים גיבוב "
-"(hash) מסוג SHA1 של סיסמתך ומשתמשים ב-5 התווים הראשונים של הגיבוב היא להבין "
+"(hash) מסוג SHA1 של סיסמתך ומשתמשים ב-5 התווים הראשונים של הגיבוב כדי להבין "
 "האם סיסמתך נפרצה. הסיסמה הגלויה לעולם אינה נשמרת על ידי PyPI ואינה נשלחת אל "
 "HaveIBeenPwned."
 
@@ -1355,7 +1355,7 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for your PyPI "
 "account '%(username)s'."
 msgstr ""
-"משהו, אולי את/ה, יצר בקשת איפוס סיסמה עבור חשבון ה-PyPI‏ שלך '%(username)s'."
+"מישהו, אולי את/ה, יצר בקשת איפוס סיסמה עבור חשבון ה-PyPI‏ שלך '%(username)s'."
 
 #: warehouse/templates/email/password-reset/body.html:20
 #, python-format
@@ -1395,7 +1395,7 @@ msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"משהו, אולי את/ה, הוסיף מנגנון אימות דו-גורמי %(method)s עבור חשבון ה-PyPI‏ "
+"מישהו, אולי את/ה, הוסיף מנגנון אימות דו-גורמי %(method)s עבור חשבון ה-PyPI‏ "
 "שלך <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
@@ -1404,7 +1404,7 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"משהו, אולי את/ה, הסיר מנגנון אימות דו-גורמי %(method)s מחשבון ה-PyPI‏ שלך "
+"מישהו, אולי את/ה, הסיר מנגנון אימות דו-גורמי %(method)s מחשבון ה-PyPI‏ שלך "
 "<strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
@@ -1413,7 +1413,7 @@ msgid ""
 "Someone, perhaps you, has added this email address (<code>%(email_address)s</"
 "code>) to their PyPI account."
 msgstr ""
-"משהו, אולי את/ה, הוסיף את כתובת האי-מייל הזו (<code>%(email_address)s</"
+"מישהו, אולי את/ה, הוסיף את כתובת האי-מייל הזו (<code>%(email_address)s</"
 "code>) לחשבון ה-PyPI‏ שלו/ה."
 
 #: warehouse/templates/email/verify-email/body.html:20
@@ -1425,25 +1425,25 @@ msgstr ""
 "אם ברצונך להמשיך בבקשה זו, <a href=\"%(href)s\">לחצ/י על קישור זה כדי לאמת "
 "את כתובת האי-מייל שלך</a>."
 
-#: warehouse/templates/includes/current-user-indicator.html:29
+#: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "ניהול"
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "הפרויקטים שלך"
 
-#: warehouse/templates/includes/current-user-indicator.html:42
+#: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
 msgstr "הגדרות חשבון"
 
-#: warehouse/templates/includes/current-user-indicator.html:48
+#: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
 msgstr "פרופיל פומבי"
 
@@ -1470,7 +1470,7 @@ msgstr "סלק הודעה זו"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1770,7 +1770,7 @@ msgstr "צפייה באפשרויות אי-מייל"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:62
+#: warehouse/templates/manage/releases.html:72
 msgid "Options"
 msgstr "אפשרויות"
 
@@ -1817,7 +1817,7 @@ msgstr ""
 "באמצעות מכשיר אימות (כגון מפתח USB)"
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
+msgid "Generate recovery codes"
 msgstr "ייצור קודים לשחזור"
 
 #: warehouse/templates/manage/account.html:148
@@ -2008,6 +2008,10 @@ msgstr "סיסמה חדשה"
 msgid "Confirm new password"
 msgstr "אימות סיסמה חדשה"
 
+#: warehouse/templates/manage/account.html:440
+msgid "Update password"
+msgstr "עדכון סיסמה"
+
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
 msgstr "אימות דו-גורמי (2FA)"
@@ -2081,9 +2085,10 @@ msgstr "ייצור מחדש"
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
+msgid "Regenerate recovery codes"
 msgstr "ייצור מחדש של קודים לשחזור"
 
 #: warehouse/templates/manage/account.html:509
@@ -2152,7 +2157,7 @@ msgid "None"
 msgstr "אין"
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
+msgid "Recovery code"
 msgstr "קוד שחזור"
 
 #: warehouse/templates/manage/account.html:579
@@ -2228,15 +2233,15 @@ msgid "Two factor authentication removed"
 msgstr "אימות דו-גורמי הוסר"
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
+msgid "Recovery codes generated"
 msgstr "קודים לשחזור יוצרו"
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
+msgid "Recovery codes regenerated"
 msgstr "קודים לשחזור יוצרו מחדש"
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
+msgid "Recovery code used for login"
 msgstr "נעשה שימוש בקוד שחזור להתחברות"
 
 #: warehouse/templates/manage/account.html:647
@@ -2576,7 +2581,7 @@ msgstr "מאת %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:82
+#: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr "ניהול"
 
@@ -2657,7 +2662,7 @@ msgid "This project has no releases"
 msgstr "לפרויקט זה אין גרסאות"
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:88
+#: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr "צפייה"
@@ -2753,7 +2758,7 @@ msgid "Delete file"
 msgstr "מחיקת קובץ"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:113
 msgid "Delete"
 msgstr "מחיקה"
 
@@ -2766,7 +2771,7 @@ msgid "No files found"
 msgstr "לא נמצאו קבצים"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2786,8 +2791,8 @@ msgid "Release settings"
 msgstr "הגדרות גרסה"
 
 #: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/releases.html:117
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/releases.html:127
 msgid "Yank release"
 msgstr "גריעת גרסה"
 
@@ -2860,22 +2865,41 @@ msgstr ""
 "      למידע נוסף, ראה/י את <a href=\"%(href)s\">PEP 592</a>.\n"
 "    "
 
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/release.html:166
+#: warehouse/templates/manage/release.html:148
+#, python-format
+msgid ""
+"\n"
+"          You may provide a reason for yanking this release, which will be "
+"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
+"code>.\n"
+"        "
+msgstr ""
+"\n"
+"          תוכל/י לספק סיבה לגריעת גרסה זו, אשר תוצג למשתמשי pip אשר יתקינו "
+"את <code>%(project_name)s==%(version)s</code>.\n"
+"        "
+
+#: warehouse/templates/manage/release.html:152
+#: warehouse/templates/manage/releases.html:134
+msgid "Reason (optional)"
+msgstr "סיבה (לא חובה)"
+
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:114
-#: warehouse/templates/manage/releases.html:118
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:124
+#: warehouse/templates/manage/releases.html:137
+#: warehouse/templates/manage/releases.html:144
 msgid "Version"
 msgstr "גרסה"
 
-#: warehouse/templates/manage/release.html:149
-#: warehouse/templates/manage/release.html:166
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/releases.html:140
 msgid "Delete release"
 msgstr "מחיקת גרסה"
 
-#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/release.html:163
 #, python-format
 msgid ""
 "\n"
@@ -2904,11 +2928,11 @@ msgstr[3] ""
 "        מחיקה תסיר גרסה זו באופן בלתי הפיך, יחד עם %(count)s קבצים.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:169
 msgid "Deleting will irreversibly delete this release."
 msgstr "מחיקה תסיר גרסה זו באופן בלתי הפיך."
 
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:171
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -2932,11 +2956,15 @@ msgstr "תאריך שחרור גרסה"
 msgid "Files"
 msgstr "קבצים"
 
-#: warehouse/templates/manage/releases.html:34
+#: warehouse/templates/manage/releases.html:27
+msgid "Yanked reason"
+msgstr "סיבה לגריעה"
+
+#: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
 msgstr "ניהול גרסה"
 
-#: warehouse/templates/manage/releases.html:45
+#: warehouse/templates/manage/releases.html:48
 #, python-format
 msgid ""
 "\n"
@@ -2963,36 +2991,50 @@ msgstr[3] ""
 "          %(count)s קבצים\n"
 "        "
 
-#: warehouse/templates/manage/releases.html:56
+#: warehouse/templates/manage/releases.html:61
 msgid "No files"
 msgstr "אין קבצים"
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:71
 msgid "View release options"
 msgstr "צפייה באפשרויות גרסה"
 
-#: warehouse/templates/manage/releases.html:67
+#: warehouse/templates/manage/releases.html:77
 #, python-format
 msgid "Options for %(version)s"
 msgstr "אפשרויות עבור %(version)s"
 
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:80
 msgid "Un-yank Release"
 msgstr "ביטול גריעת גרסה"
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:85
 msgid "Un-yank"
 msgstr "ביטול גריעה"
 
-#: warehouse/templates/manage/releases.html:95
+#: warehouse/templates/manage/releases.html:105
 msgid "Yank"
 msgstr "גריעה"
 
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:123
 msgid "Un-yank release"
 msgstr "ביטול גריעת גרסה"
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:130
+#, python-format
+msgid ""
+"\n"
+"              You may provide a reason for yanking this release, which will "
+"be displayed by pip to users who install <code>%(project_name)s=="
+"%(version)s</code>.\n"
+"            "
+msgstr ""
+"\n"
+"              תוכל/י לספק סיבה לגריעת גרסה זו, אשר תוצג למשתמשי pip אשר "
+"יתקינו את <code>%(project_name)s==%(version)s</code>.\n"
+"            "
+
+#: warehouse/templates/manage/releases.html:142
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -3004,30 +3046,30 @@ msgstr ""
 "לגרוע גרסה זו, ליצור גרסה חדשה או <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">גרסת post</a> במקום."
 
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/releases.html:153
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "ניהול גרסאות '%(project_name)s'"
 
-#: warehouse/templates/manage/releases.html:139
+#: warehouse/templates/manage/releases.html:158
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "גרסאות (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:145
+#: warehouse/templates/manage/releases.html:164
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "גרסאות שנגרעו (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:170
 msgid "Creating a new release"
 msgstr "יצירת גרסה חדשה"
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:172
 msgid "No releases found"
 msgstr "לא נמצאו גרסאות"
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:175
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3371,12 +3413,8 @@ msgid "Add token"
 msgstr "הוספת אסימון"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
+msgid "Account recovery codes"
 msgstr "קודים לשחזור חשבון"
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
-msgstr "ייצור מחדש של קודים לשחזור"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3407,7 +3445,7 @@ msgstr ""
 "הגישה לחשבון ה-PyPI שלך!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
+msgid "Save your recovery codes"
 msgstr "שמירת הקודים לשחזור"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
@@ -4580,8 +4618,8 @@ msgstr "כדי להתחבר עם קוד שחזור:"
 
 #: warehouse/templates/pages/help.html:436
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a Recovery "
-"Code\""
+"When prompted for two factor authentication, select \"Login using recovery "
+"codes\""
 msgstr ""
 "כאשר תתבקש/י לספק אימות דו-גורמי, בחר/י ב-\"התחברות באמצעות קוד שחזור\""
 
@@ -4991,7 +5029,7 @@ msgstr "אם הינך משתמש/ת ב<a href=\"#apitoken\">אסימון API</a>
 
 #: warehouse/templates/pages/help.html:582
 msgid "Ensure that your API Token is valid and has not been revoked."
-msgstr "ודא/י שאסימון ה-API שלך תקין ושהוא לא נרגע."
+msgstr "ודא/י שאסימון ה-API שלך תקין ושהוא לא נגרע."
 
 #: warehouse/templates/pages/help.html:583
 msgid ""
@@ -5111,7 +5149,7 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">use "
 "twine to upload your project to PyPI</a>."
 msgstr ""
-"בגרסה קודמת של PyPI, היה אפשר למתחזקים להעלות גרסאות ל-PyPI באמצעות טופס "
+"בגרסה קודמת של PyPI, איפשר למתחזקים להעלות גרסאות ל-PyPI באמצעות טופס "
 "בדפדפן. יכולת זאת הוסרה בגרסה החדשה של PyPI – במקום זאת אנו ממליצים ש<a href="
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">תשתמש/י "
 "ב-twine כדי להעלות את הפרויקט שלך ל-PyPI</a>."
@@ -5202,7 +5240,7 @@ msgid ""
 "software that runs PyPI. Before writing a new issue, first check that a "
 "similar issue does not already exist."
 msgstr ""
-"אם הינך חוה בעיה אם PyPI עצמו, אנחנו מברכים על משוב <strong>בונה</strong> "
+"אם הינך חווה בעיה אם PyPI עצמו, אנחנו מברכים על משוב <strong>בונה</strong> "
 "ודיווחי באגים באמצעות <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">מערכת מעקב הסוגיות</a> שלנו. שים/י לב שמערכת זו "
 "נועדה רק לסוגיות בנוגע לתוכנה המפעילה את PyPI. לפני כתיבת סוגיה חדשה, בדק/י "
@@ -5268,7 +5306,7 @@ msgid ""
 msgstr ""
 "PyPI מופעל על ידי <a href=\"%(warehouse_href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">Warehouse</a> ועל ידי מגוון של כלים ושירותים "
-"המסופקים על ידי <a href=\"%(sponsors_href)s\">נותני נחסות הנדיבים שלנו</a>."
+"המסופקים על ידי <a href=\"%(sponsors_href)s\">נותני החסות הנדיבים שלנו</a>."
 
 #: warehouse/templates/pages/help.html:711
 msgid ""
@@ -5277,7 +5315,7 @@ msgid ""
 "robust, tested, and ready for expected browser and API traffic."
 msgstr ""
 "מאז ה-16 באפריל 2018, PyPI.org נמצא בסטטוס \"production\", שמשמעותו שהוא יצא "
-"מ-\"בטא\" והחליף את האתר הישם (pypi.python.org). כעת הוא איתן, בדוק, ומוכן "
+"מ-\"בטא\" והחליף את האתר הישן (pypi.python.org). כעת הוא איתן, בדוק, ומוכן "
 "לתעבורת דפדפנים ו-API צפויה."
 
 #: warehouse/templates/pages/help.html:713
@@ -5299,7 +5337,7 @@ msgstr ""
 "delivery network\">CDN</abbr> הודות לנותן החסות שלנו <a href="
 "\"%(fastly_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Fastly</a> וכך באופן כללי זמין בכל העולם. עם זאת, האתר מנוהל ברובו על ידי "
-"מתנדבים, אנחנו לא מספיק התחייבות לרמת שירות (SLA) מסוימת וכפי שניתן לצפות "
+"מתנדבים, אנחנו לא מספקים התחייבות לרמת שירות (SLA) מסוימת וכפי שניתן לצפות "
 "ממערכת מבוזרת ענקית דברים עלולים להשתבש לעיתים (ואכן כך קורה). ראה/י את <a "
 "href=\"%(status_page_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">עמוד הסטטוס שלנו</a> בנוגע לחוסר זמינות ותקריות בהווה ובעבר. אם "
@@ -5314,7 +5352,7 @@ msgid ""
 "(also known as <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">the Warehouse project</a>)."
 msgstr ""
-"יש לנו כמו עצומה של עבודה לעשות כדי להמשיך לתחזק ולשפר את PyPI (הידועים גם "
+"יש לנו כמות עצומה של עבודה לעשות כדי להמשיך לתחזק ולשפר את PyPI (הידועים גם "
 "בשם <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">פרויקט Warehouse</a>)."
 
@@ -5389,14 +5427,14 @@ msgid ""
 "You can also follow the ongoing development of the project on the <a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">distutils-sig mailing list</a> and the <a href="
-"\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">PyPA Dev message group</a>."
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 "ניתן גם לעקוב אחר הפיתוח לאורך הזמן של הפרויקט ב<a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">רשימת המייל distutils-sig</a> וב<a href=\"%(message_group_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">קבוצת ההודעות PyPA "
-"Dev</a>."
+"\"noopener\">רשימת המייל distutils-sig</a> וב<a href="
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">פורום Python packaging ב-Discourse</a>."
 
 #: warehouse/templates/pages/help.html:761
 #, python-format
@@ -6247,6 +6285,15 @@ msgstr[3] ""
 "\n"
 "                  לא היו תוצאות עבור המסננים '%(filters)s'\n"
 "                "
+
+#~ msgid "Login using a Recovery Code"
+#~ msgstr "הזדהות באמצעות קוד שחזור"
+
+#~ msgid "Generate Recovery Codes"
+#~ msgstr "ייצור קודים לשחזור"
+
+#~ msgid "Regenerate Recovery Codes"
+#~ msgstr "ייצור מחדש של קודים לשחזור"
 
 #~ msgid "Delete Release"
 #~ msgstr "מחיקת גרסה"

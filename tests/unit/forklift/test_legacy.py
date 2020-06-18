@@ -1924,7 +1924,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + "Limit for project 'foobar' total size is 100 GB. "
+            + " Limit for project 'foobar' total size is 100 GB. "
             "See /the/help/url/"
         )
 
@@ -1975,7 +1975,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + "Limit for project 'foobar' total size is 100 GB. "
+            + " Limit for project 'foobar' total size is 100 GB. "
             "See /the/help/url/"
         )
 

@@ -32,6 +32,8 @@ import uglifyjs from "uglify-js";
 import named from "vinyl-named";
 import webpack from "webpack";
 import gulpWebpack from "webpack-stream";
+import rtlcss from "gulp-rtlcss";
+import rename from "gulp-rename";
 
 
 // Configure where our files come from, where they get saved too, and what path
@@ -283,7 +285,7 @@ gulp.task("dist:admin:manifest", () => {
 
 
 
-gulp.task("dist:css", () => {
+gulp.task("dist:css-ltr", () => {
   let sassPath = path.join(staticPrefix, "sass");
 
   return gulp.src(path.join(sassPath, "warehouse.scss"))
@@ -291,6 +293,22 @@ gulp.task("dist:css", () => {
     .pipe(
       gulpSass({ includePaths: [sassPath] })
         .on("error", gulpSass.logError))
+    .pipe(rename({ suffix: "-ltr" }))
+    .pipe(postcss(postCSSPlugins))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest(path.join(distPath, "css")));
+});
+
+gulp.task("dist:css-rtl", () => {
+  let sassPath = path.join(staticPrefix, "sass");
+
+  return gulp.src(path.join(sassPath, "warehouse.scss"))
+    .pipe(sourcemaps.init())
+    .pipe(
+      gulpSass({ includePaths: [sassPath] })
+        .on("error", gulpSass.logError))
+    .pipe(rtlcss()) // Convert to RTL.
+    .pipe(rename({ suffix: "-rtl" }))
     .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
@@ -445,7 +463,8 @@ gulp.task("dist", gulp.series(
   // Build all of our static assets.
   gulp.parallel(
     "dist:fontawesome",
-    "dist:css",
+    "dist:css-ltr",
+    "dist:css-rtl",
     "dist:noscript",
     "dist:js",
     "dist:admin:fonts",
