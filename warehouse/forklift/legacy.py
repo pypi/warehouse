@@ -1218,7 +1218,7 @@ def file_upload(request):
                         "Project size too large. Limit for "
                         + "project {name!r} total size is {limit} GB. ".format(
                             name=project.name,
-                            limit=project_size_limit // (1024 * 1024 * 1024),
+                            limit=project_size_limit // (ONE_GB),
                         )
                         + "See "
                         + request.help_url(_anchor="project-size-limit"),
