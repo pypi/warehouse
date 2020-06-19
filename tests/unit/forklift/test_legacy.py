@@ -1891,8 +1891,8 @@ class TestFileUpload:
         project = ProjectFactory.create(
             name="foobar",
             upload_limit=(60 * 1024 * 1024),  # 60 MB
-            total_size=legacy.MAX_PROJECT_SIZE - 1  # 100 GB - 1
             # Default total_size_limit(legacy.MAX_PROJECT_SIZE)
+            total_size=legacy.MAX_PROJECT_SIZE - 1,  # 10 GB - 1
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1924,7 +1924,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + " Limit for project 'foobar' total size is 100 GB. "
+            + " Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
 
@@ -1940,7 +1940,7 @@ class TestFileUpload:
         project = ProjectFactory.create(
             name="foobar",
             upload_limit=(60 * 1024 * 1024),  # 60 MB
-            total_size=legacy.MAX_PROJECT_SIZE,  # 100 GB
+            total_size=legacy.MAX_PROJECT_SIZE,  # 10 GB
             total_size_limit=legacy.MAX_PROJECT_SIZE
             + one_megabyte  # Custom Limit for the project
             # Default total_size_limit(legacy.MAX_PROJECT_SIZE)
@@ -1975,7 +1975,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + " Limit for project 'foobar' total size is 100 GB. "
+            + " Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
 
@@ -1991,7 +1991,7 @@ class TestFileUpload:
         project = ProjectFactory.create(
             name="foobar",
             upload_limit=(60 * 1024 * 1024),  # 60 MB
-            total_size=legacy.MAX_PROJECT_SIZE,  # 100 GB
+            total_size=legacy.MAX_PROJECT_SIZE,  # 10 GB
             total_size_limit=legacy.MAX_PROJECT_SIZE
             + (one_megabyte * 60)  # Custom Limit for the project
             # Default total_size_limit(legacy.MAX_PROJECT_SIZE)
