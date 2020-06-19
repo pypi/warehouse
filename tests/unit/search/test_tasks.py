@@ -31,7 +31,7 @@ from warehouse.search.tasks import (
     unindex_project,
 )
 
-from ...common.db.packaging import ProjectFactory, ReleaseFactory
+from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 def test_project_docs(db_session):
@@ -44,6 +44,16 @@ def test_project_docs(db_session):
         )
         for p in projects
     }
+
+    for p in projects:
+        for r in releases[p]:
+            r.files = [
+                FileFactory.create(
+                    release=r,
+                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    python_version="source",
+                )
+            ]
 
     assert list(_project_docs(db_session)) == [
         {
@@ -75,6 +85,16 @@ def test_single_project_doc(db_session):
         for p in projects
     }
 
+    for p in projects:
+        for r in releases[p]:
+            r.files = [
+                FileFactory.create(
+                    release=r,
+                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    python_version="source",
+                )
+            ]
+
     assert list(_project_docs(db_session, project_name=projects[1].name)) == [
         {
             "_id": p.normalized_name,
@@ -92,6 +112,47 @@ def test_single_project_doc(db_session):
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
         if p.name == projects[1].name
+    ]
+
+
+def test_project_docs_empty(db_session):
+    projects = [ProjectFactory.create() for _ in range(2)]
+    releases = {
+        p: sorted(
+            [ReleaseFactory.create(project=p) for _ in range(3)],
+            key=lambda r: packaging.version.parse(r.version),
+            reverse=True,
+        )
+        for p in projects
+    }
+
+    project_with_files = projects[0]
+    for r in releases[project_with_files]:
+        r.files = [
+            FileFactory.create(
+                release=r,
+                filename="{}-{}.tar.gz".format(project_with_files.name, r.version),
+                python_version="source",
+            )
+        ]
+
+    assert list(_project_docs(db_session)) == [
+        {
+            "_id": p.normalized_name,
+            "_type": "doc",
+            "_source": {
+                "created": p.created,
+                "name": p.name,
+                "normalized_name": p.normalized_name,
+                "version": [r.version for r in prs],
+                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
+                "description": first(
+                    prs, key=lambda r: not r.is_prerelease
+                ).description.raw,
+            },
+        }
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].id)
+        if p == project_with_files
     ]
 
 
