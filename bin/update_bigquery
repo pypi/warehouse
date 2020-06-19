@@ -1,0 +1,391 @@
+#!/usr/bin/env python3
+
+##################################################################
+#   Spin up a virtual env and run the following command to       #
+#   install the necessary libraries:                             #
+#   python3 -m pip install psycopg2 google-cloud-bigquery tqdm   #
+##################################################################
+
+# TODO: Update config information for prod until the first function definition accordingly
+
+import datetime
+import time
+
+from google.cloud import bigquery
+import psycopg2
+from tqdm import tqdm
+
+# PostgreSQL config
+database_url=""
+port=""
+database=""
+username=""
+password=""
+
+# BigQuery config
+gcloud_credentials="" # Path to service account JSON key
+gcloud_project="" # Project ID
+bq_table_name="" # Table name e.g: warehouse.distributions
+
+# Timestamp
+last_timestamp="" # Oldest timestamp from prod BigQuery table e.g: 2020-10-10T00:34:29.866516
+
+# Logfile
+logFile="./logfile.txt"
+
+def get_schema():
+    return [
+        {
+            "name": "metadata_version",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "name",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "version",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "summary",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "description",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "description_content_type",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "author",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "author_email",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "maintainer",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "maintainer_email",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "license",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "keywords",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "classifiers",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "platform",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "home_page",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "download_url",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "requires_python",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "requires",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "provides",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "obsoletes",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "requires_dist",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "provides_dist",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "obsoletes_dist",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "requires_external",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "project_urls",
+            "type": "STRING",
+            "mode": "REPEATED"
+        },
+        {
+            "name": "yanked",
+            "type": "BOOLEAN",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "yanked_reason",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "uploaded_via",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "upload_time",
+            "type": "TIMESTAMP",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "filename",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "size",
+            "type": "INTEGER",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "path",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "python_version",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "packagetype",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "comment_text",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "has_signature",
+            "type": "BOOLEAN",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "md5_digest",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "sha256_digest",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        },
+        {
+            "name": "blake2_256_digest",
+            "type": "STRING",
+            "mode": "REQUIRED"
+        }
+    ]
+    
+def log(data, print_data=False):
+    if print_data:
+        print(data)
+
+    with open(logFile, 'a+') as log_file:
+        log_file.write(datetime.datetime.now().isoformat() + " ::\t" + data + "\n")
+            
+def parse_sql_output(sql_data):
+
+    # Parse dependencies before populating schema data
+    dep_kind = {
+        1: "requires",
+        2: "provides",
+        3: "obsoletes",
+        4: "requires_dist",
+        5: "provides_dist",
+        6: "obsoletes_dist",
+        7: "requires_external",
+        8: "project_urls"
+    }
+    for i in range(len(sql_data)):
+        if sql_data[i]['kind']:
+            sql_data[i][dep_kind[sql_data[i]['kind']]] = sql_data[i]['specifier']
+
+    schema = get_schema()
+
+    return_data = dict()
+    for row in sql_data:
+        if (row['id'], row['filename']) in return_data:
+            output_data = return_data[(row['id'], row['filename'])]
+        else:
+            output_data = dict()
+
+        for sch in schema:
+            field_data = None
+
+            if sch['name'] in row:
+                field_data = row[sch['name']]
+
+            if not isinstance(field_data, bool) and not field_data:
+                field_data = None
+
+            if sch['mode'] == "REPEATED":
+                if not field_data is None:
+                    if not sch['name'] in output_data or not output_data[sch['name']]:
+                        output_data[sch['name']] = [field_data]
+                    elif not field_data in output_data[sch['name']]:
+                        output_data[sch['name']].append(field_data)
+                elif field_data is None and not sch['name'] in output_data:
+                    output_data[sch['name']] = []
+            else:
+                output_data[sch['name']] = field_data
+
+        return_data[(row['id'], row['filename'])] = output_data
+    
+    return_data = [return_data[key] for key in return_data]
+    return return_data
+
+if __name__ == "__main__":
+
+    log(("=" * 25) + " Migration initiated " + ("=" * 25))
+
+    connection = None
+    connection = psycopg2.connect(
+                    host=database_url,
+                    dbname=database,
+                    user=username,
+                    password=password,
+                    port=port
+                )
+    log("PostgreSQL connection initated.", print_data=True)
+
+    with connection.cursor() as cursor:
+        start=time.time()
+        print("BEGIN query for all release ids")
+
+        # Querying the 'release_files' table instead of the 'releases'
+        # table for the release id ensures that a release with no files
+        # isn't selected
+        cursor.execute(
+            """
+            SELECT row_to_json(metadata)
+            FROM (
+                SELECT DISTINCT release_id
+                FROM release_files
+                WHERE upload_time < '{0}'
+            ) metadata
+            ;
+            """.format(last_timestamp) 
+        )
+        release_ids = [row[0]['release_id'] for row in cursor.fetchall()]
+
+        end=time.time()
+        log('GET all release ids ({0:.2f}s)'.format(end-start), print_data=True)
+        start=time.time()
+        log("BEGIN query for release file data", print_data=True)
+
+        chunk_size = 1000
+        total_size = 0
+        uploaded_size = 0
+        for ind in tqdm(range(0, len(release_ids), chunk_size)):
+            cursor.execute( 
+                """
+                SELECT row_to_json(metadata)
+                FROM (
+                    SELECT
+                        r.id, p.name, r.version, r.summary, d.raw as description, d.content_type as description_content_type, 
+                        r.author, r.author_email, r.maintainer, r.maintainer_email, r.license, r.keywords, r.platform,
+                        r.home_page, r.requires_python, r.download_url, r.created, r.yanked, r.yanked_reason, r.uploader_id, 
+                        f.python_version, f.filename, f.size, f.path, f.packagetype, f.comment_text, f.has_signature, f.md5_digest,
+                        f.sha256_digest, f.blake2_256_digest, f.uploaded_via, f.upload_time, p.name, t.classifier as classifiers, f.id as file_id, 
+                        dep.kind, dep.specifier
+                    FROM
+                        releases as r
+                        LEFT JOIN projects as p ON r.project_id = p.id
+                        LEFT JOIN release_descriptions as d ON r.description_id = d.id
+                        LEFT JOIN release_files as f ON r.id = f.release_id
+                        LEFT JOIN release_classifiers as c ON r.id = c.release_id
+                        LEFT JOIN trove_classifiers as t ON c.trove_id = t.id
+                        LEFT JOIN release_dependencies as dep ON r.id = dep.release_id
+                    WHERE
+                        r.id in ({0})
+                ) metadata
+                ;
+                """.format(', '.join("'{0}'".format(val) for val in release_ids[ind:ind + chunk_size]))
+            )
+            release_rows = [row[0] for row in cursor.fetchall()]
+
+            # Parse SQL data to JSON data that can be accepted by
+            # BigQuery API
+            rows_to_insert = parse_sql_output(release_rows)
+            total_size += len(rows_to_insert)
+
+            try:
+                bq_client = bigquery.Client.from_service_account_json(gcloud_credentials, project=gcloud_project)
+                job_config = bigquery.LoadJobConfig(schema=get_schema())
+                load_job = bq_client.load_table_from_json(rows_to_insert, bq_table_name, job_config=job_config)
+                data = load_job.result()
+                if load_job.errors:
+                    log("ERROR: The following files failed to upload (path): [{0}]\n{1}".format(', '.join("'{0}'".format(val['path']) for val in release_rows), load_job.errors))
+                else:
+                    uploaded_size += len(rows_to_insert)
+            except Exception as exc:
+                log("ERROR: The following files failed to upload (path): [{0}]\n{1}".format(', '.join("'{0}'".format(val['path']) for val in release_rows), str(exc)))
+        
+        end=time.time()
+        log("UPLOADED {0}/{1} rows to BigQuery ({2:.2f}s)".format(uploaded_size, total_size, end-start), print_data=True)
+
+    connection.close()
+    log("PostgreSQL connection closed", print_data=True)
+
+    if uploaded_size != total_size:
+        log("Upload failed. Please check '{0}' for detailed errors.".format(logFile), print_data=True)
+    else:
+        log("Upload successful.", print_data=True)
+
+    log(("=" * 25) + " Migration completed " + ("=" * 25))
