@@ -388,7 +388,7 @@ class TestProjectSetTotalSizeLimit:
         project = ProjectFactory.create(name="foo")
 
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["total_size_limit"] = "90"
+        db_request.POST["total_size_limit"] = "9"
 
         with pytest.raises(HTTPBadRequest):
             views.set_total_size_limit(project, db_request)
