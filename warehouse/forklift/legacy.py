@@ -46,13 +46,13 @@ from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
-    BlacklistedProject,
     Dependency,
     DependencyKind,
     Description,
     File,
     Filename,
     JournalEntry,
+    ProhibitedProjectName,
     Project,
     Release,
     Role,
@@ -871,12 +871,12 @@ def file_upload(request):
                 ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
             ) from None
 
-        # Before we create the project, we're going to check our blacklist to
+        # Before we create the project, we're going to check our prohibited names to
         # see if this project is even allowed to be registered. If it is not,
         # then we're going to deny the request to create this project.
         if request.db.query(
             exists().where(
-                BlacklistedProject.name == func.normalize_pep426_name(form.name.data)
+                ProhibitedProjectName.name == func.normalize_pep426_name(form.name.data)
             )
         ).scalar():
             raise _exc_with_message(

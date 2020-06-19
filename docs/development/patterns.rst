@@ -66,9 +66,9 @@ File            Purpose
 To add a new dependency:
 
 1. Add the project name to the appropriate ``.in`` file
-2. Recompile the dependencies for each modified ``.in`` file::
+2. From the repositories root directory, recompile the dependencies for each modified ``.in`` file::
 
-   $ pip-compile --allow-unsafe --generate-hashes {file}.in
+   $ pip-compile --allow-unsafe --generate-hashes --output-file=requirements/{file}.txt requirements/{file}.in
 
 3. Commit the changes
 
@@ -79,9 +79,9 @@ Only top-level dependencies should be removed. The process is similar to the
 process for adding new dependencies:
 
 1. Remove the project name from the appropriate ``.in`` file
-2. Recompile the dependencies for each modified ``.in`` file::
+2. From the repositories root directory, recompile the dependencies for each modified ``.in`` file::
 
-   $ pip-compile --allow-unsafe --generate-hashes {file}.in
+   $ pip-compile --allow-unsafe --generate-hashes --output-file=requirements/{file}.txt requirements/{file}.in
 
 3. Commit the changes
 

@@ -433,7 +433,7 @@
         <p><strong>{% trans %}To sign in with a recovery code:{% endtrans %}</strong></p>
         <ol>
           <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
-          <li>{% trans %}When prompted for Two-Factor Authentication, select "Login using a Recovery Code"{% endtrans %}</li>
+          <li>{% trans %}When prompted for two factor authentication, select "Login using recovery codes"{% endtrans %}</li>
           <li>{% trans %}As each code can be used only once, you might want to mark the code as used{% endtrans %}</li>
           <li>{% trans %}If you have few recovery codes remaining, you may also want to generate a new set using the "Regenerate recovery codes" button in your account settings.{% endtrans %}</li>
         </ol>
@@ -748,10 +748,10 @@
         </p>
         <p>
           <strong>{% trans %}Stay updated:{% endtrans %}</strong>
-          {% trans trimmed mailing_list_href='https://mail.python.org/mailman/listinfo/distutils-sig', message_group_href='https://groups.google.com/forum/#!forum/pypa-dev', title=gettext('External link') %}
+          {% trans trimmed mailing_list_href='https://mail.python.org/mailman/listinfo/distutils-sig', discourse_forum_href='https://discuss.python.org/c/packaging', title=gettext('External link') %}
             You can also follow the ongoing development of the project on the
             <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">distutils-sig mailing list</a>
-            and the <a href="{{ message_group_href }}" title="{{ title }}" target="_blank" rel="noopener">PyPA Dev message group</a>.
+            and the <a href="{{ discourse_forum_href }}" title="{{ title }}" target="_blank" rel="noopener">Python packaging forum on Discourse</a>.
           {% endtrans %}
         </p>
         {{ code_of_conduct() }}

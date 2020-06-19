@@ -111,7 +111,9 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Geçersiz WebAuthn önermesi: Kötü yük"
 
 #: warehouse/accounts/forms.py:344
-msgid "Invalid Recovery Code."
+#, fuzzy
+#| msgid "Invalid Recovery Code."
+msgid "Invalid recovery code."
 msgstr "Geçersiz Kurtarma Kodu."
 
 #: warehouse/accounts/forms.py:362
@@ -294,9 +296,9 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/releases.html:123
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:175
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -477,19 +479,19 @@ msgstr "Ana navigasyon"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-#: warehouse/templates/includes/current-user-indicator.html:54
+#: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:99
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr "Yardım"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:60
+#: warehouse/templates/includes/current-user-indicator.html:61
 msgid "Sponsor"
 msgstr "Sponsor"
 
 #: warehouse/templates/accounts/login.html:18
-#: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
+#: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
 msgstr "Giriş yap"
@@ -509,7 +511,7 @@ msgid "Menu"
 msgstr "Menü"
 
 #: warehouse/templates/base.html:54
-#: warehouse/templates/includes/current-user-indicator.html:24
+#: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
 msgstr "Ana menü"
 
@@ -544,7 +546,7 @@ msgstr "Mobil sürüme geç"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:151
+#: warehouse/templates/manage/release.html:161
 #: warehouse/templates/manage/settings.html:56
 msgid "Warning"
 msgstr "Uyarı"
@@ -879,25 +881,26 @@ msgstr "Sizin kullanıcı adınız"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
 #: warehouse/templates/accounts/reset-password.html:38
+#: warehouse/templates/manage/manage_base.html:167
 msgid "Password"
 msgstr "Parola"
 
-#: warehouse/templates/accounts/login.html:76
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
+msgstr "Sizin parolanız"
+
+#: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr "Parolayı göster"
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
-msgstr "Sizin parolanız"
-
-#: warehouse/templates/accounts/login.html:97
+#: warehouse/templates/accounts/login.html:96
 msgid "Forgot password?"
 msgstr "Parolanızı unuttunuz mu?"
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:68
+#: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
 msgstr "Çıkış yap"
 
@@ -962,11 +965,16 @@ msgstr "%(user)s PyPI'a henüz bir proje yüklemedi"
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
+#, fuzzy
+#| msgid "Recovery Codes"
+msgid "Recovery codes"
 msgstr "Kurtarma Kodları"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+#, fuzzy
+#| msgid "Login using Recovery Code"
+msgid "Login using recovery codes"
 msgstr "Kurtarma Kodunu kullanarak Oturum Aç"
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1177,10 +1185,6 @@ msgstr ""
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
 msgstr "Güvenlik anahtarınızı veya uygulamanızı mı kaybettiniz?"
-
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
-msgstr "Kurtarma Kodunu kullanarak Oturum Aç"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1445,25 +1449,25 @@ msgstr ""
 "Bu isteğe devam etmek istiyorsanız, <a href=\"%(href)s\">bu linke tıklayarak "
 "e-posta adresinizi onaylayın</a>."
 
-#: warehouse/templates/includes/current-user-indicator.html:29
+#: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "Yönetici"
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr "Sizin projeleriniz"
 
-#: warehouse/templates/includes/current-user-indicator.html:42
+#: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
 msgstr "Hesap ayarları"
 
-#: warehouse/templates/includes/current-user-indicator.html:48
+#: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
 msgstr "Herkese açık profil"
 
@@ -1490,7 +1494,7 @@ msgstr "Bu bildirimi kapat"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1794,7 +1798,7 @@ msgstr "E-posta Ayarlarını Görüntüle"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:62
+#: warehouse/templates/manage/releases.html:72
 msgid "Options"
 msgstr "Ayarlar"
 
@@ -1841,8 +1845,10 @@ msgstr ""
 "authentication\">2FA</abbr> ekleyin"
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
-msgstr "Kurtarma Kodları Oluşturun"
+#, fuzzy
+#| msgid "Regenerate recovery codes"
+msgid "Generate recovery codes"
+msgstr "Kurtarma kodlarını yeniden oluştur"
 
 #: warehouse/templates/manage/account.html:148
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -2037,6 +2043,12 @@ msgstr "Yeni Şifre"
 msgid "Confirm new password"
 msgstr "Yeni parolanı onayla"
 
+#: warehouse/templates/manage/account.html:440
+#, fuzzy
+#| msgid "Old password"
+msgid "Update password"
+msgstr "Eski Şifre"
+
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
 msgstr "Çift Faktörlü Kimlik Doğrulama (2FA)"
@@ -2113,10 +2125,11 @@ msgstr "Yeniden oluştur"
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
-msgstr "Kurtarma Kodlarını Yeniden Oluştur"
+msgid "Regenerate recovery codes"
+msgstr "Kurtarma kodlarını yeniden oluştur"
 
 #: warehouse/templates/manage/account.html:509
 msgid "You have not enabled two factor authentication on your account."
@@ -2184,7 +2197,9 @@ msgid "None"
 msgstr "Mevcut değil"
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
+#, fuzzy
+#| msgid "Recovery Code"
+msgid "Recovery code"
 msgstr "Kurtarma Kodu"
 
 #: warehouse/templates/manage/account.html:579
@@ -2261,15 +2276,21 @@ msgid "Two factor authentication removed"
 msgstr "Çift faktör kimlik doğrulama kaldırıldı"
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
+#, fuzzy
+#| msgid "Recovery Codes generated"
+msgid "Recovery codes generated"
 msgstr "Kurtarma Kodları oluşturuldu"
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
+#, fuzzy
+#| msgid "Recovery Codes regenerated"
+msgid "Recovery codes regenerated"
 msgstr "Kurtarma Kodları yeniden oluşturuldu"
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
+#, fuzzy
+#| msgid "Recovery Code used for login"
+msgid "Recovery code used for login"
 msgstr "Oturum açma için kullanılan Kurtarma Kodu"
 
 #: warehouse/templates/manage/account.html:647
@@ -2601,7 +2622,7 @@ msgstr "%(ip_address)s Adresi"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:82
+#: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr "Yönet"
 
@@ -2682,7 +2703,7 @@ msgid "This project has no releases"
 msgstr "Bu proje için hiçbir sürüm yayınlanmadı"
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:88
+#: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr "Görüntüle"
@@ -2778,7 +2799,7 @@ msgid "Delete file"
 msgstr "Dosyayı Kaldır"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:113
 msgid "Delete"
 msgstr "Kaldır"
 
@@ -2791,7 +2812,7 @@ msgid "No files found"
 msgstr "Hiçbir dosya bulunamadı"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:155
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2812,8 +2833,8 @@ msgid "Release settings"
 msgstr "Yayınlanma Ayarları"
 
 #: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/releases.html:117
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/releases.html:127
 #, fuzzy
 #| msgid "New releases"
 msgid "Yank release"
@@ -2859,22 +2880,37 @@ msgid ""
 "    "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:145
-#: warehouse/templates/manage/release.html:166
+#: warehouse/templates/manage/release.html:148
+#, python-format
+msgid ""
+"\n"
+"          You may provide a reason for yanking this release, which will be "
+"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
+"code>.\n"
+"        "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:152
+#: warehouse/templates/manage/releases.html:134
+msgid "Reason (optional)"
+msgstr ""
+
+#: warehouse/templates/manage/release.html:155
+#: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:114
-#: warehouse/templates/manage/releases.html:118
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:124
+#: warehouse/templates/manage/releases.html:137
+#: warehouse/templates/manage/releases.html:144
 msgid "Version"
 msgstr "Sürüm"
 
-#: warehouse/templates/manage/release.html:149
-#: warehouse/templates/manage/release.html:166
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/releases.html:140
 msgid "Delete release"
 msgstr "Sürümü Kaldır"
 
-#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/release.html:163
 #, python-format
 msgid ""
 "\n"
@@ -2897,11 +2933,11 @@ msgstr[1] ""
 "geri dönülemez şekilde kaldıracaktır.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:159
+#: warehouse/templates/manage/release.html:169
 msgid "Deleting will irreversibly delete this release."
 msgstr "Silme işlemi bu sürümü geri dönülemez şekilde kaldıracaktır."
 
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:171
 #, fuzzy
 #| msgid ""
 #| "You will not be able to re-upload a new distribution of the same type "
@@ -2932,11 +2968,17 @@ msgstr "Yayınlanma Tarihi"
 msgid "Files"
 msgstr "Dosyalar"
 
-#: warehouse/templates/manage/releases.html:34
+#: warehouse/templates/manage/releases.html:27
+#, fuzzy
+#| msgid "New releases"
+msgid "Yanked reason"
+msgstr "Yeni sürümler"
+
+#: warehouse/templates/manage/releases.html:37
 msgid "Manage version"
 msgstr "Sürümü Yönet"
 
-#: warehouse/templates/manage/releases.html:45
+#: warehouse/templates/manage/releases.html:48
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -2963,40 +3005,50 @@ msgstr[1] ""
 "              %(count)s Dosya\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:56
+#: warehouse/templates/manage/releases.html:61
 msgid "No files"
 msgstr "Hiçbir dosya mevcut değil"
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:71
 msgid "View release options"
 msgstr "Yayınlama Ayarlarını Görüntüler"
 
-#: warehouse/templates/manage/releases.html:67
+#: warehouse/templates/manage/releases.html:77
 #, python-format
 msgid "Options for %(version)s"
 msgstr "%(version)s Ayarları"
 
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:80
 #, fuzzy
 #| msgid "Releases"
 msgid "Un-yank Release"
 msgstr "Yayınlananlar"
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:85
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:95
+#: warehouse/templates/manage/releases.html:105
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:123
 #, fuzzy
 #| msgid "pre-release"
 msgid "Un-yank release"
 msgstr "ön sürüm"
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:130
+#, python-format
+msgid ""
+"\n"
+"              You may provide a reason for yanking this release, which will "
+"be displayed by pip to users who install <code>%(project_name)s=="
+"%(version)s</code>.\n"
+"            "
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:142
 #, fuzzy, python-format
 #| msgid ""
 #| "You will not be able to re-upload a new distribution of the same type "
@@ -3014,31 +3066,31 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">post-relase</a> yapmayı "
 "düşünün."
 
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/releases.html:153
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "'%(project_name)s' Sürümlerini Yönet"
 
-#: warehouse/templates/manage/releases.html:139
+#: warehouse/templates/manage/releases.html:158
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Sürümler (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:145
+#: warehouse/templates/manage/releases.html:164
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Sürümler (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:170
 msgid "Creating a new release"
 msgstr "Yeni Sürüm Oluştur"
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:172
 msgid "No releases found"
 msgstr "Hiçbir sürüm bulunamadı"
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:175
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3386,12 +3438,10 @@ msgid "Add token"
 msgstr "Belirteç ekle"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
+#, fuzzy
+#| msgid "Account Recovery Codes"
+msgid "Account recovery codes"
 msgstr "Hesap Kurtarma Kodları"
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
-msgstr "Kurtarma kodlarını yeniden oluştur"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3424,7 +3474,9 @@ msgstr ""
 "olarak kaybedebilirsiniz!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
+#, fuzzy
+#| msgid "Save your Recovery Codes"
+msgid "Save your recovery codes"
 msgstr "Kurtarma Kodlarınızı Kaydedin"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
@@ -4668,9 +4720,13 @@ msgid "To sign in with a recovery code:"
 msgstr "Bir kurtarma koduyla oturum açmak için:"
 
 #: warehouse/templates/pages/help.html:436
+#, fuzzy
+#| msgid ""
+#| "When prompted for Two-Factor Authentication, select \"Login using a "
+#| "Recovery Code\""
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a Recovery "
-"Code\""
+"When prompted for two factor authentication, select \"Login using recovery "
+"codes\""
 msgstr ""
 "İki Faktörlü Kimlik Doğrulaması istendiğinde \"Kurtarma Kodu Kullanarak "
 "Oturum Aç\" ı seçin"
@@ -5505,14 +5561,25 @@ msgid "Stay updated:"
 msgstr "Güncel kalın:"
 
 #: warehouse/templates/pages/help.html:751
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "To learn how to install a file from PyPI, visit the <a href="
+#| "\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#| "\"noopener\">installation tutorial</a> on the <a href="
+#| "\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#| "\"noopener\">Python Packaging User Guide</a>."
 msgid ""
 "You can also follow the ongoing development of the project on the <a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">distutils-sig mailing list</a> and the <a href="
-"\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">PyPA Dev message group</a>."
+"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
+"PyPI' dan bir dosyanın nasıl yükleneceğini öğrenmek için lütfen <a href="
+"\"%(user_guide_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">Python Packaging User Guide</a> üzerinde ki <a href="
+"\"%(installation_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">kurulum rehberine</a> göz atın."
 
 #: warehouse/templates/pages/help.html:761
 #, python-format
@@ -6379,6 +6446,15 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "Login using a Recovery Code"
+#~ msgstr "Kurtarma Kodunu kullanarak Oturum Aç"
+
+#~ msgid "Generate Recovery Codes"
+#~ msgstr "Kurtarma Kodları Oluşturun"
+
+#~ msgid "Regenerate Recovery Codes"
+#~ msgstr "Kurtarma Kodlarını Yeniden Oluştur"
 
 #~ msgid "Delete Release"
 #~ msgstr "Sürümü Kaldır"

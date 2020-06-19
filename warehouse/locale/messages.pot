@@ -72,7 +72,7 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
 #: warehouse/accounts/forms.py:344
-msgid "Invalid Recovery Code."
+msgid "Invalid recovery code."
 msgstr ""
 
 #: warehouse/accounts/forms.py:362
@@ -247,8 +247,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
 #: warehouse/templates/manage/release.html:171
-#: warehouse/templates/manage/releases.html:140
-#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:175
 #: warehouse/templates/packaging/detail.html:306
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -420,19 +420,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
-#: warehouse/templates/includes/current-user-indicator.html:54
+#: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:99
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
 msgstr ""
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
-#: warehouse/templates/includes/current-user-indicator.html:60
+#: warehouse/templates/includes/current-user-indicator.html:61
 msgid "Sponsor"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:18
-#: warehouse/templates/accounts/login.html:94 warehouse/templates/base.html:43
+#: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
 msgstr ""
@@ -452,7 +452,7 @@ msgid "Menu"
 msgstr ""
 
 #: warehouse/templates/base.html:54
-#: warehouse/templates/includes/current-user-indicator.html:24
+#: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
 msgstr ""
 
@@ -813,22 +813,22 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:76
+#: warehouse/templates/accounts/login.html:75
+msgid "Your password"
+msgstr ""
+
+#: warehouse/templates/accounts/login.html:92
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Show password"
 msgstr ""
 
-#: warehouse/templates/accounts/login.html:79
-msgid "Your password"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:97
+#: warehouse/templates/accounts/login.html:96
 msgid "Forgot password?"
 msgstr ""
 
 #: warehouse/templates/accounts/logout.html:16
 #: warehouse/templates/accounts/logout.html:25
-#: warehouse/templates/includes/current-user-indicator.html:68
+#: warehouse/templates/includes/current-user-indicator.html:69
 msgid "Log out"
 msgstr ""
 
@@ -887,11 +887,12 @@ msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-msgid "Recovery Codes"
+msgid "Recovery codes"
 msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:24
-msgid "Login using Recovery Code"
+#: warehouse/templates/accounts/two-factor.html:119
+msgid "Login using recovery codes"
 msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:40
@@ -1084,10 +1085,6 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr ""
-
-#: warehouse/templates/accounts/two-factor.html:119
-msgid "Login using a Recovery Code"
 msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:122
@@ -1297,25 +1294,25 @@ msgid ""
 " link to verify your email address</a>."
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:29
+#: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:37
 #: warehouse/templates/manage/manage_base.html:32
 #: warehouse/templates/manage/manage_base.html:52
 #: warehouse/templates/manage/projects.html:18
 msgid "Your projects"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:42
+#: warehouse/templates/includes/current-user-indicator.html:43
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/manage_base.html:38
 #: warehouse/templates/manage/manage_base.html:58
 msgid "Account settings"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:48
+#: warehouse/templates/includes/current-user-indicator.html:49
 msgid "Public profile"
 msgstr ""
 
@@ -1342,7 +1339,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 #: warehouse/templates/search/results.html:201
@@ -1625,7 +1622,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:70
+#: warehouse/templates/manage/releases.html:72
 msgid "Options"
 msgstr ""
 
@@ -1668,7 +1665,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:143
-msgid "Generate Recovery Codes"
+msgid "Generate recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:148
@@ -1921,9 +1918,10 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
+#: warehouse/templates/manage/account/recovery_codes-provision.html:36
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
-msgid "Regenerate Recovery Codes"
+msgid "Regenerate recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:509
@@ -1988,7 +1986,7 @@ msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:574
-msgid "Recovery Code"
+msgid "Recovery code"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:579
@@ -2063,15 +2061,15 @@ msgid "Two factor authentication removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:633
-msgid "Recovery Codes generated"
+msgid "Recovery codes generated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:637
-msgid "Recovery Codes regenerated"
+msgid "Recovery codes regenerated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:641
-msgid "Recovery Code used for login"
+msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:647
@@ -2366,7 +2364,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:57
-#: warehouse/templates/manage/releases.html:90
+#: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr ""
 
@@ -2447,7 +2445,7 @@ msgid "This project has no releases"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:67
-#: warehouse/templates/manage/releases.html:96
+#: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:348
 msgid "View"
 msgstr ""
@@ -2540,7 +2538,7 @@ msgid "Delete file"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:111
+#: warehouse/templates/manage/releases.html:113
 msgid "Delete"
 msgstr ""
 
@@ -2553,7 +2551,7 @@ msgid "No files found"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
 msgid "Dismiss"
@@ -2572,7 +2570,7 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:125
 #: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/releases.html:125
+#: warehouse/templates/manage/releases.html:127
 msgid "Yank release"
 msgstr ""
 
@@ -2628,22 +2626,22 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/release.html:152
-#: warehouse/templates/manage/releases.html:132
+#: warehouse/templates/manage/releases.html:134
 msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:155
 #: warehouse/templates/manage/release.html:176
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:122
-#: warehouse/templates/manage/releases.html:135
-#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:124
+#: warehouse/templates/manage/releases.html:137
+#: warehouse/templates/manage/releases.html:144
 msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:159
 #: warehouse/templates/manage/release.html:176
-#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:140
 msgid "Delete release"
 msgstr ""
 
@@ -2708,36 +2706,36 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/releases.html:59
+#: warehouse/templates/manage/releases.html:61
 msgid "No files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:69
+#: warehouse/templates/manage/releases.html:71
 msgid "View release options"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:75
+#: warehouse/templates/manage/releases.html:77
 #, python-format
 msgid "Options for %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:78
+#: warehouse/templates/manage/releases.html:80
 msgid "Un-yank Release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:83
+#: warehouse/templates/manage/releases.html:85
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:103
+#: warehouse/templates/manage/releases.html:105
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:121
+#: warehouse/templates/manage/releases.html:123
 msgid "Un-yank release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:128
+#: warehouse/templates/manage/releases.html:130
 #, python-format
 msgid ""
 "\n"
@@ -2747,7 +2745,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type "
@@ -2756,30 +2754,30 @@ msgid ""
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:151
+#: warehouse/templates/manage/releases.html:153
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:158
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:162
+#: warehouse/templates/manage/releases.html:164
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/manage/releases.html:175
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" "
@@ -3084,11 +3082,7 @@ msgid "Add token"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-msgid "Account Recovery Codes"
-msgstr ""
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:36
-msgid "Regenerate recovery codes"
+msgid "Account recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
@@ -3113,7 +3107,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-msgid "Save your Recovery Codes"
+msgid "Save your recovery codes"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
@@ -4090,8 +4084,8 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:436
 msgid ""
-"When prompted for Two-Factor Authentication, select \"Login using a "
-"Recovery Code\""
+"When prompted for two factor authentication, select \"Login using "
+"recovery codes\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:437
@@ -4719,8 +4713,8 @@ msgid ""
 "You can also follow the ongoing development of the project on the <a "
 "href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">distutils-sig mailing list</a> and the <a "
-"href=\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">PyPA Dev message group</a>."
+"href=\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Python packaging forum on Discourse</a>."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:761

@@ -341,7 +341,7 @@ class RecoveryCodeAuthenticationForm(
         recovery_code_value = field.data.encode("utf-8")
 
         if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
-            raise wtforms.validators.ValidationError(_("Invalid Recovery Code."))
+            raise wtforms.validators.ValidationError(_("Invalid recovery code."))
 
 
 class RequestPasswordResetForm(forms.Form):
