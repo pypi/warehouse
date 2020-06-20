@@ -698,9 +698,9 @@ translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4 \
     # via pyramid
-trove-classifiers==2020.5.21 \
-    --hash=sha256:0691bb836dc141704b1605ffe6a9dba80e7479c0792dbc476454c9aaaa5b980e \
-    --hash=sha256:06ddeca19f61c6b06451056b53ceab346ed308b231c33acebf07503f77f0a810 \
+trove-classifiers==2020.6.20 \
+    --hash=sha256:14b331541cbfc63bab496809bbb8c09c86ffb6f5c5a0265556480e4f19f5827c \
+    --hash=sha256:d3fa8d413853348ae97bb2a60f332083ee2551bf60baf34c459da2de99148f3e \
     # via -r requirements/main.in
 typeguard==2.9.1 \
     --hash=sha256:529ef3d88189cc457f4340388028412f71be8091c2c943465146d4170fb67288 \
