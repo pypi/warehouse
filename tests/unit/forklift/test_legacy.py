@@ -1924,11 +1924,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-<<<<<<< HEAD
-            + "Limit for project 'foobar' total size is 100 GB. "
-=======
             + " Limit for project 'foobar' total size is 10 GB. "
->>>>>>> 78d53753... Added changes and fixed tests
             "See /the/help/url/"
         )
 
