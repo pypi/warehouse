@@ -35,6 +35,8 @@
   {% set icon = "fab fa-gitlab" %}
 {% elif parsed.netloc == "gitter.im" or parsed.netloc.endswith(".gitter.im") %}
   {% set icon = "fab fa-gitter" %}
+{% elif parsed.netloc in ["discord.com", "discordapp.com", "discord.gg"] or parsed.netloc.endswith(("discord.com", "discordapp.com", "discord.gg")) %}
+  {% set icon = "fab fa-discord" %}
 {% elif parsed.netloc == "google.com" or parsed.netloc.endswith(".google.com") %}
   {% set icon = "fab fa-google" %}
 {% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
