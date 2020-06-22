@@ -171,6 +171,11 @@ def get_schema():
             "mode": "NULLABLE"
         },
         {
+            "name": "deleted",
+            "type": "BOOLEAN",
+            "mode": "REQUIRED"
+        },
+        {
             "name": "uploaded_via",
             "type": "STRING",
             "mode": "NULLABLE"
@@ -285,6 +290,7 @@ def parse_sql_output(sql_data):
             else:
                 output_data[sch['name']] = field_data
 
+        output_data["deleted"] = False
         return_data[(row['id'], row['filename'])] = output_data
     
     return_data = [return_data[key] for key in return_data]
