@@ -162,6 +162,23 @@ class User(SitemapMixin, db.Model):
             .all()
         )
 
+    @property
+    def recent_emails(self):
+        from warehouse.email.ses.models import EmailMessage
+
+        session = orm.object_session(self)
+        last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
+        user_emails = [x.email for x in self.emails]
+        return (
+            session.query(EmailMessage)
+            .filter(
+                (EmailMessage.to.in_(user_emails))
+                & (EmailMessage.created >= last_ninety)
+            )
+            .order_by(EmailMessage.created.desc())
+            .all()
+        )
+
 
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"

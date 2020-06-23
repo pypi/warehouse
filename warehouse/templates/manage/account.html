@@ -554,7 +554,8 @@
     <h2>{% trans %}Security history{% endtrans %}</h2>
 
     {% set recent_events = user.recent_events %}
-    {% if recent_events|length > 0 %}
+    {% set recent_emails = user.recent_emails %}
+    {% if recent_events|length > 0 or recent_emails|length > 0 %}
 
     {% macro event_summary(event) -%}
       {% if event.tag == "account:create" %}
@@ -600,6 +601,12 @@
           {{ event.additional.new_primary }}
         </small>
         {% endif %}
+      {% elif event.tag == "account:email:sent" %}
+      <strong>{% trans %}Email sent{% endtrans %}</strong><br>
+      <small>
+        {% trans %}From:{% endtrans %} {{ event.from_ }}<br>
+        {% trans %}Subject:{% endtrans %} {{event.subject}}
+      </small>
 
       {% elif event.tag  == "account:password:reset:request" %}
       <strong>{% trans %}Password reset requested{% endtrans %}</strong>
@@ -681,6 +688,20 @@
           <td>
             <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
             {{ event.ip_address }}
+          </td>
+        </tr>
+        {% endfor %}
+        {% for email in recent_emails %}
+          {% set email.tag="account:email:sent" %}
+        <tr>
+          <td>{{ event_summary(event) }}</td>
+          <td>
+            <span class="table__mobile-label">{% trans %}Date / time{% endtrans %}</span>
+            {{ humanize(event.created, time="true") }}
+          </td>
+          <td>
+            <span class="table__mobile-label">{% trans %}Email address{% endtrans %}</span>
+            {{ event.to }}
           </td>
         </tr>
         {% endfor %}

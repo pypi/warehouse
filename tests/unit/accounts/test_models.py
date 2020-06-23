@@ -21,6 +21,7 @@ from ...common.db.accounts import (
     UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
 )
+from ...common.db.ses import EmailMessageFactory as DBEmailMessageFactory
 
 
 class TestUserFactory:
@@ -114,3 +115,13 @@ class TestUser:
         assert len(user.recent_events) == 1
         assert user.events == [recent_event, stale_event]
         assert user.recent_events == [recent_event]
+
+    def test_recent_emails(self, db_session):
+        user = DBUserFactory.create()
+        p_email = DBEmailFactory.create(user=user, primary=True)
+        s_email = DBEmailFactory.create(user=user, primary=False)
+        recent_email = DBEmailMessageFactory(to=user.emails[0].email)
+
+        assert user.emails == [s_email, p_email]
+        assert len(user.recent_emails) == 1
+        assert user.recent_emails == [recent_email]
