@@ -196,6 +196,8 @@ class TestLogin:
             name="unauthenticated_userid",
         )
 
+        pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}
+
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
