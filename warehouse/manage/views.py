@@ -165,7 +165,11 @@ class ManageAccountViews:
 
         return {**self.default_response, "save_account_form": form}
 
-    @view_config(request_method="POST", request_param=AddEmailForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=AddEmailForm.__params__,
+        require_reauth=True,
+    )
     def add_email(self):
         form = AddEmailForm(
             self.request.POST,
@@ -198,7 +202,9 @@ class ManageAccountViews:
 
         return {**self.default_response, "add_email_form": form}
 
-    @view_config(request_method="POST", request_param=["delete_email_id"])
+    @view_config(
+        request_method="POST", request_param=["delete_email_id"], require_reauth=True
+    )
     def delete_email(self):
         try:
             email = (
@@ -230,7 +236,9 @@ class ManageAccountViews:
             )
         return self.default_response
 
-    @view_config(request_method="POST", request_param=["primary_email_id"])
+    @view_config(
+        request_method="POST", request_param=["primary_email_id"], require_reauth=True
+    )
     def change_primary_email(self):
         previous_primary_email = self.request.user.primary_email
         try:
@@ -331,7 +339,9 @@ class ManageAccountViews:
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    @view_config(
+        request_method="POST", request_param=DeleteTOTPForm.__params__
+    )  # TODO: gate_action instead of confirm pass form
     def delete_account(self):
         confirm_password = self.request.params.get("confirm_password")
         if not confirm_password:
