@@ -788,7 +788,7 @@ class TestFileUpload:
         assert resp.status_code == 403
         assert resp.status == (
             "403 New uploads are temporarily disabled. "
-            "See /the/help/url/ for details"
+            "See /the/help/url/ for more information."
         )
 
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
@@ -816,14 +816,16 @@ class TestFileUpload:
                 "'' is an invalid value for Metadata-Version. "
                 "Error: This field is required. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {"metadata_version": "-1"},
                 "'-1' is an invalid value for Metadata-Version. "
                 "Error: Use a known metadata version. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # name errors.
             (
@@ -831,7 +833,8 @@ class TestFileUpload:
                 "'' is an invalid value for Name. "
                 "Error: This field is required. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
@@ -839,7 +842,8 @@ class TestFileUpload:
                 "Error: Start and end with a letter or numeral containing "
                 "only ASCII numeric and '.', '_' and '-'. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # version errors.
             (
@@ -847,7 +851,8 @@ class TestFileUpload:
                 "'' is an invalid value for Version. "
                 "Error: This field is required. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {"metadata_version": "1.2", "name": "example", "version": "dog"},
@@ -855,7 +860,8 @@ class TestFileUpload:
                 "Error: Start and end with a letter or numeral "
                 "containing only ASCII numeric and '.', '_' and '-'. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # filetype/pyversion errors.
             (
@@ -931,7 +937,8 @@ class TestFileUpload:
                 "'" + "A" * 513 + "' is an invalid value for Summary. "
                 "Error: Field cannot be longer than 512 characters. "
                 "See "
-                "https://packaging.python.org/specifications/core-metadata",
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             (
                 {
@@ -942,12 +949,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                (
-                    "{!r} is an invalid value for Summary. ".format("A\nB")
-                    + "Error: Use a single line only. "
-                    "See "
-                    "https://packaging.python.org/specifications/core-metadata"
-                ),
+                "{!r} is an invalid value for Summary. ".format("A\nB")
+                + "Error: Use a single line only. "
+                "See "
+                "https://packaging.python.org/specifications/core-metadata"
+                " for more information.",
             ),
             # classifiers are a FieldStorage
             (
@@ -1194,7 +1200,7 @@ class TestFileUpload:
             "403 New project registration temporarily "
             "disabled. See "
             "/the/help/url/ for "
-            "details"
+            "more information."
         )
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
@@ -1553,7 +1559,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (https://www.python.org/dev/peps/pep-0527)"
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information."
         )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
@@ -1877,7 +1884,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 File too large. Limit for project 'foobar' is 60 MB. "
-            "See /the/help/url/"
+            "See /the/help/url/ for more information."
         )
 
     def test_upload_fails_with_too_large_project_size_default_limit(
@@ -2165,7 +2172,7 @@ class TestFileUpload:
         assert resp.status == (
             "400 This filename has already been used, use a "
             "different version. "
-            "See /the/help/url/"
+            "See /the/help/url/ for more information."
         )
 
     def test_upload_noop_with_existing_filename_same_content(
@@ -2265,7 +2272,9 @@ class TestFileUpload:
 
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
-        assert resp.status == "400 File already exists. See /the/help/url/"
+        assert resp.status == (
+            "400 File already exists. See /the/help/url/ for more information."
+        )
 
     def test_upload_fails_with_diff_filename_same_blake2(
         self, pyramid_config, db_request
@@ -2320,7 +2329,9 @@ class TestFileUpload:
 
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
-        assert resp.status == "400 File already exists. See /the/help/url/"
+        assert resp.status == (
+            "400 File already exists. See /the/help/url/ for more information."
+        )
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -2396,7 +2407,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (https://www.python.org/dev/peps/pep-0527)"
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information."
         )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
@@ -3311,7 +3323,7 @@ class TestFileUpload:
                     "400 User {!r} does not have a verified primary email "
                     "address. Please add a verified primary email before "
                     "attempting to upload to PyPI. See /the/help/url/ for "
-                    "more information.for more information."
+                    "more information."
                 ).format(user.username)
             )
 
@@ -3362,7 +3374,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 403
-        assert resp.status == ("403 Read-only mode: Uploads are temporarily disabled")
+        assert resp.status == ("403 Read-only mode: Uploads are temporarily disabled.")
 
     def test_fails_without_user(self, pyramid_config, pyramid_request):
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
@@ -3377,7 +3389,7 @@ class TestFileUpload:
         assert resp.status_code == 403
         assert resp.status == (
             "403 Invalid or non-existent authentication information. "
-            "See /the/help/url/ for details"
+            "See /the/help/url/ for more information."
         )
 
 
