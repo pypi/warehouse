@@ -57,6 +57,7 @@
 
 {% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
+{% macro suspicious_activity() %}{% trans %}What should I do if I notice suspicious activity on my account?{% endtrans %}{% endmacro %}
 {% macro twoFA() %}{% trans %}What is two factor authentication and how does it work on PyPI?{% endtrans %}{% endmacro %}
 {% macro totp() %}{% trans %}How does two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro utfkey() %}{% trans %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
@@ -121,6 +122,7 @@
         <ul>
           <li><a href="#verified-email">{{ verified_email() }}</a></li>
           <li><a href="#compromised-password">{{ compromised_password() }}</a></li>
+          <li><a href="#suspicious-activity">{{ suspicious_activity() }}</a></li>
           <li><a href="#twofa">{{ twoFA() }}</a></li>
           <li><a href="#totp">{{ totp() }}</a></li>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
@@ -269,6 +271,18 @@
             If you have received this error while attempting to log in or upload to PyPI,
             then your password has been reset and you cannot log in to PyPI until you
             <a href="{{ reset_pwd_href }}">reset your password</a>.
+          </p>
+        {% endtrans %}
+
+        <h3 id="suspicious-activity">{{ suspicious_activity() }}</h3>
+        {% trans trimmed reset_pwd_href=request.route_url('accounts.request-password-reset') %}
+          <p>
+            All PyPI user events are stored under <a href="/manage/account/#account-events">Security history</a> in Account settings.
+            If there are any events that seem suspicious, take the following steps:
+            <ul>
+              <li><a href="{{ reset_pwd_href }}">Reset your password</a></li>
+              <li>Contact the PyPI admins about the event at <a href="mailto:admin@python.org">admin at python dot org</a></li>
+            </ul>
           </p>
         {% endtrans %}
 
