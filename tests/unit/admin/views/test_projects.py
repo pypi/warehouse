@@ -111,6 +111,8 @@ class TestProjectDetail:
             "squattees": [squattee],
             "ONE_MB": views.ONE_MB,
             "MAX_FILESIZE": views.MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,
+            "ONE_GB": views.ONE_GB,
         }
 
     def test_non_normalized_name(self, db_request):
@@ -330,6 +332,66 @@ class TestProjectJournalsList:
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)
+
+
+class TestProjectSetTotalSizeLimit:
+    def test_sets_total_size_limitwith_integer(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["total_size_limit"] = "150"
+
+        views.set_total_size_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Set the total size limit on 'foo'", queue="success")
+        ]
+
+        assert project.total_size_limit == 150 * views.ONE_GB
+
+    def test_sets_total_size_limitwith_none(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        project.total_size_limit = 150 * views.ONE_GB
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+
+        views.set_total_size_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Set the total size limit on 'foo'", queue="success")
+        ]
+
+        assert project.total_size_limit is None
+
+    def test_sets_total_size_limitwith_non_integer(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["total_size_limit"] = "meep"
+
+        with pytest.raises(HTTPBadRequest):
+            views.set_total_size_limit(project, db_request)
+
+    def test_sets_total_size_limit_with_less_than_minimum(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["total_size_limit"] = "9"
+
+        with pytest.raises(HTTPBadRequest):
+            views.set_total_size_limit(project, db_request)
 
 
 class TestProjectSetLimit:
