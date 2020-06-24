@@ -59,13 +59,12 @@ from warehouse.packaging.models import (
 )
 from warehouse.utils import http, readme
 
-MAX_FILESIZE = 60 * 1024 * 1024  # 60M
-MAX_SIGSIZE = 8 * 1024  # 8K
-MAX_PROJECT_SIZE = 10 * 1024 * 1024 * 1024  # 10GB
-
-
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
+
+MAX_FILESIZE = 60 * ONE_MB
+MAX_SIGSIZE = 8 * 1024
+MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
 
@@ -1222,7 +1221,7 @@ def file_upload(request):
                         HTTPBadRequest,
                         "Project size too large. Limit for "
                         + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // (ONE_GB),
+                            name=project.name, limit=project_size_limit // ONE_GB,
                         )
                         + "See "
                         + request.help_url(_anchor="project-size-limit"),
