@@ -326,9 +326,9 @@ jmespath==0.10.0 \
     --hash=sha256:b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9 \
     --hash=sha256:cdf6525904cc597730141d61b36f2e4b8ecc257c420fa2f4549bac2c2d0cb72f \
     # via boto3, botocore
-kombu==4.6.10 \
-    --hash=sha256:437b9cdea193cc2ed0b8044c85fd0f126bb3615ca2f4d4a35b39de7cacfa3c1a \
-    --hash=sha256:dc282bb277197d723bccda1a9ba30a27a28c9672d0ab93e9e51bb05a37bd29c3 \
+kombu==4.6.11 \
+    --hash=sha256:be48cdffb54a2194d93ad6533d73f69408486483d189fe9f5990ee24255b0e0a \
+    --hash=sha256:ca1b45faac8c0b18493d02a8571792f3c40291cf2bcf1f55afed3d8f3aa7ba74 \
     # via celery
 limits==1.5.1 \
     --hash=sha256:0e5f8b10f18dd809eb2342f5046eb9aa5e4e69a0258567b5f4aa270647d438b3 \
