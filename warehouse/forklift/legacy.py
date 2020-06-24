@@ -740,14 +740,14 @@ def file_upload(request):
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
-            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
+            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
         )
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
         raise _exc_with_message(
             HTTPForbidden,
             "New uploads are temporarily disabled. "
-            "See {projecthelp} for details".format(
+            "See {projecthelp} for more information.".format(
                 projecthelp=request.help_url(_anchor="admin-intervention")
             ),
         )
@@ -762,7 +762,7 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             "Invalid or non-existent authentication information. "
-            "See {projecthelp} for details".format(
+            "See {projecthelp} for more information.".format(
                 projecthelp=request.help_url(_anchor="invalid-auth")
             ),
         )
@@ -780,7 +780,6 @@ def file_upload(request):
                 "User {!r} does not have a verified primary email address. "
                 "Please add a verified primary email before attempting to "
                 "upload to PyPI. See {project_help} for more information."
-                "for more information."
             ).format(
                 request.user.username,
                 project_help=request.help_url(_anchor="verified-email"),
@@ -837,6 +836,7 @@ def file_upload(request):
                     + "Error: {} ".format(form.errors[field_name][0])
                     + "See "
                     "https://packaging.python.org/specifications/core-metadata"
+                    + " for more information."
                 )
             else:
                 error_message = "Invalid value for {field}. Error: {msgs[0]}".format(
@@ -871,7 +871,7 @@ def file_upload(request):
                 HTTPForbidden,
                 (
                     "New project registration temporarily disabled. "
-                    "See {projecthelp} for details"
+                    "See {projecthelp} for more information."
                 ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
             ) from None
 
@@ -887,8 +887,7 @@ def file_upload(request):
                 HTTPBadRequest,
                 (
                     "The name {name!r} isn't allowed. "
-                    "See {projecthelp} "
-                    "for more information."
+                    "See {projecthelp} for more information."
                 ).format(
                     name=form.name.data,
                     projecthelp=request.help_url(_anchor="project-name"),
@@ -1168,7 +1167,8 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPBadRequest,
             "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (https://www.python.org/dev/peps/pep-0527)",
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information.",
         )
 
     # Make sure that our filename matches the project that it is being uploaded
@@ -1214,7 +1214,8 @@ def file_upload(request):
                             name=project.name, limit=file_size_limit // ONE_MB
                         )
                         + "See "
-                        + request.help_url(_anchor="file-size-limit"),
+                        + request.help_url(_anchor="file-size-limit")
+                        + " for more information.",
                     )
                 if file_size + project.total_size > project_size_limit:
                     raise _exc_with_message(
@@ -1266,7 +1267,8 @@ def file_upload(request):
                 # ref: https://github.com/pypa/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse"),
+                + request.help_url(_anchor="file-name-reuse")
+                + " for more information.",
             )
 
         # Check to see if the file that was uploaded exists in our filename log
@@ -1277,7 +1279,9 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename has already been used, use a "
                 "different version. "
-                "See " + request.help_url(_anchor="file-name-reuse"),
+                "See "
+                + request.help_url(_anchor="file-name-reuse")
+                + " for more information.",
             )
 
         # Check to see if uploading this file would create a duplicate sdist
