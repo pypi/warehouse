@@ -20,7 +20,7 @@ from celery.schedules import crontab
 from first import first
 
 from warehouse import tasks
-from warehouse.accounts.interfaces import ITokenService
+from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
@@ -39,6 +39,18 @@ def send_email(task, request, recipient, msg):
 
     try:
         sender.send(recipient, msg)
+
+        user_service = request.find_service(IUserService, context=None)
+        user_service.record_event(
+            request.user.id,
+            tag="account:email:sent",
+            ip_address=request.remote_addr,
+            additional={
+                "from_": sender._sender,
+                "to": recipient,
+                "subject": msg.subject,
+            },
+        )
     except Exception as exc:
         task.retry(exc=exc)
 
