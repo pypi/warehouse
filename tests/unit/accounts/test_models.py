@@ -21,7 +21,6 @@ from ...common.db.accounts import (
     UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
 )
-from ...common.db.ses import EmailMessageFactory as DBEmailMessageFactory
 
 
 class TestUserFactory:

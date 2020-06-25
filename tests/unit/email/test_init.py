@@ -22,6 +22,11 @@ from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
+from ...common.db.accounts import (
+    EmailFactory as DBEmailFactory,
+    UserFactory as DBUserFactory,
+)
+
 
 @pytest.mark.parametrize(
     ("user", "address", "expected"),
@@ -178,7 +183,7 @@ class TestSendEmailToUser:
 
 
 class TestSendEmail:
-    def test_send_email_success(self, monkeypatch):
+    def test_send_email_success_ip_redacted(self, db_session, monkeypatch):
         class FakeMailSender:
             def __init__(self):
                 self.emails = []
@@ -208,6 +213,9 @@ class TestSendEmail:
                     }
                 )
 
+        user_factory = DBUserFactory.create()
+        DBEmailFactory.create(user=user_factory, primary=False, email="recipient")
+
         user_service = FakeUserEventService()
         sender = FakeMailSender()
         task = pretend.stub()
@@ -220,6 +228,84 @@ class TestSendEmail:
             ),
             user=pretend.stub(id=pretend.stub()),
             remote_addr="0.0.0.0",
+            db=db_session,
+        )
+
+        msg = EmailMessage(subject="subject", body_text="body")
+
+        email.send_email(task, request, "recipient", attr.asdict(msg))
+
+        assert request.find_service.calls == [
+            pretend.call(IEmailSender),
+            pretend.call(IUserService, context=None),
+        ]
+        assert sender.emails == [
+            {
+                "subject": "subject",
+                "body": "body",
+                "html": None,
+                "recipient": "recipient",
+            }
+        ]
+        assert user_service.events == [
+            {
+                "user_id": request.user.id,
+                "tag": "account:email:sent",
+                "ip_address": "Redacted",
+                "additional": {
+                    "from_": "noreply@example.com",
+                    "to": "recipient",
+                    "subject": msg.subject,
+                },
+            }
+        ]
+
+    def test_send_email_success(self, db_session, monkeypatch):
+        class FakeMailSender:
+            def __init__(self):
+                self.emails = []
+                self._sender = "DevPyPI <noreply@example.com>"
+
+            def send(self, recipient, msg):
+                self.emails.append(
+                    {
+                        "subject": msg.subject,
+                        "body": msg.body_text,
+                        "html": msg.body_html,
+                        "recipient": recipient,
+                    }
+                )
+
+        class FakeUserEventService:
+            def __init__(self):
+                self.events = []
+
+            def record_event(self, user_id, tag, ip_address, additional):
+                self.events.append(
+                    {
+                        "user_id": user_id,
+                        "tag": tag,
+                        "ip_address": ip_address,
+                        "additional": additional,
+                    }
+                )
+
+        user_factory = DBUserFactory.create()
+        DBEmailFactory.create(user=user_factory, primary=False, email="recipient")
+
+        user_service = FakeUserEventService()
+        sender = FakeMailSender()
+        task = pretend.stub()
+        request = pretend.stub(
+            find_service=pretend.call_recorder(
+                lambda svc, context=None: {
+                    IUserService: user_service,
+                    IEmailSender: sender,
+                }.get(svc)
+            ),
+            user=pretend.stub(id=user_factory.id),
+            remote_addr="0.0.0.0",
+            db=db_session,
         )
 
         msg = EmailMessage(subject="subject", body_text="body")
@@ -244,7 +330,7 @@ class TestSendEmail:
                 "tag": "account:email:sent",
                 "ip_address": "0.0.0.0",
                 "additional": {
-                    "from_": sender._sender,
+                    "from_": "noreply@example.com",
                     "to": "recipient",
                     "subject": msg.subject,
                 },

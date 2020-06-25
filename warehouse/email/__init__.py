@@ -13,6 +13,7 @@
 import functools
 
 from email.headerregistry import Address
+from email.utils import parseaddr
 
 import attr
 
@@ -21,6 +22,7 @@ from first import first
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, IUserService
+from warehouse.accounts.models import Email
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
@@ -40,14 +42,25 @@ def send_email(task, request, recipient, msg):
     try:
         sender.send(recipient, msg)
 
+        # We want to only the show the IP address for the email
+        # if the email was sent to the user who triggered the email
+        user_email = (
+            request.db.query(Email).filter(Email.email == parseaddr(recipient)[1]).one()
+        )
+
+        if user_email.user_id != request.user.id:
+            ip_address = "Redacted"
+        else:
+            ip_address = request.remote_addr
+
         user_service = request.find_service(IUserService, context=None)
         user_service.record_event(
             request.user.id,
             tag="account:email:sent",
-            ip_address=request.remote_addr,
+            ip_address=ip_address,
             additional={
-                "from_": sender._sender,
-                "to": recipient,
+                "from_": parseaddr(sender._sender)[1],
+                "to": parseaddr(recipient)[1],
                 "subject": msg.subject,
             },
         )
