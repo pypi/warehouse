@@ -1703,7 +1703,7 @@ class TestResetPassword:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token: user has logged in since this token was " "requested",
+                "Invalid token: user has logged in since this token was requested",
                 queue="error",
             )
         ]

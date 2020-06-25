@@ -597,7 +597,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # TODO: track and audit this, seems alertable
         return _error(
             request._(
-                "Invalid token: user has logged in since " "this token was requested"
+                "Invalid token: user has logged in since this token was requested"
             )
         )
 
