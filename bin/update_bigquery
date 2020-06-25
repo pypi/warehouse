@@ -161,21 +161,6 @@ def get_schema():
             "mode": "REPEATED"
         },
         {
-            "name": "yanked",
-            "type": "BOOLEAN",
-            "mode": "REQUIRED"
-        },
-        {
-            "name": "yanked_reason",
-            "type": "STRING",
-            "mode": "NULLABLE"
-        },
-        {
-            "name": "deleted",
-            "type": "BOOLEAN",
-            "mode": "REQUIRED"
-        },
-        {
             "name": "uploaded_via",
             "type": "STRING",
             "mode": "NULLABLE"
@@ -290,7 +275,6 @@ def parse_sql_output(sql_data):
             else:
                 output_data[sch['name']] = field_data
 
-        output_data["deleted"] = False
         return_data[(row['id'], row['filename'])] = output_data
     
     return_data = [return_data[key] for key in return_data]
@@ -346,8 +330,8 @@ if __name__ == "__main__":
                     SELECT
                         r.id, p.name, r.version, r.summary, d.raw as description, d.content_type as description_content_type, 
                         r.author, r.author_email, r.maintainer, r.maintainer_email, r.license, r.keywords, r.platform,
-                        r.home_page, r.requires_python, r.download_url, r.created, r.yanked, r.yanked_reason, r.uploader_id, 
-                        f.python_version, f.filename, f.size, f.path, f.packagetype, f.comment_text, f.has_signature, f.md5_digest,
+                        r.home_page, r.requires_python, r.download_url, r.created, r.uploader_id, f.python_version, 
+                        f.filename, f.size, f.path, f.packagetype, f.comment_text, f.has_signature, f.md5_digest,
                         f.sha256_digest, f.blake2_256_digest, f.uploaded_via, f.upload_time, p.name, t.classifier as classifiers, f.id as file_id, 
                         dep.kind, dep.specifier
                     FROM
