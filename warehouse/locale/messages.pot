@@ -1343,7 +1343,7 @@ msgstr ""
 #: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:50
-#: warehouse/templates/search/results.html:201
+#: warehouse/templates/search/results.html:199
 msgid "Close"
 msgstr ""
 
@@ -5346,50 +5346,50 @@ msgid "All of PyPI"
 msgstr ""
 
 #: warehouse/templates/search/results.html:18
-#: warehouse/templates/search/results.html:116
-#: warehouse/templates/search/results.html:214
+#: warehouse/templates/search/results.html:114
+#: warehouse/templates/search/results.html:212
 msgid "Search results"
 msgstr ""
 
-#: warehouse/templates/search/results.html:42
+#: warehouse/templates/search/results.html:40
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
 msgstr ""
 
-#: warehouse/templates/search/results.html:84
+#: warehouse/templates/search/results.html:82
 msgid "Close panel"
 msgstr ""
 
-#: warehouse/templates/search/results.html:88
+#: warehouse/templates/search/results.html:86
 #, python-format
 msgid "Filter by <a href=\"%(href)s\">classifier</a>"
 msgstr ""
 
-#: warehouse/templates/search/results.html:119
+#: warehouse/templates/search/results.html:117
 msgid "Enter a search query, or select a filter from the list of classifiers."
 msgstr ""
 
-#: warehouse/templates/search/results.html:120
+#: warehouse/templates/search/results.html:118
 msgid "Enter a search query, or add a filter by clicking on the button."
 msgstr ""
 
-#: warehouse/templates/search/results.html:121
+#: warehouse/templates/search/results.html:119
 msgid "You can combine searches and classifier filters. Examples:"
 msgstr ""
 
-#: warehouse/templates/search/results.html:125
+#: warehouse/templates/search/results.html:123
 msgid "Python 3 compatible projects"
 msgstr ""
 
-#: warehouse/templates/search/results.html:130
+#: warehouse/templates/search/results.html:128
 msgid "Sphinx extensions that have a stable/production status"
 msgstr ""
 
-#: warehouse/templates/search/results.html:135
+#: warehouse/templates/search/results.html:133
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
 msgstr ""
 
-#: warehouse/templates/search/results.html:152
+#: warehouse/templates/search/results.html:150
 #, python-format
 msgid ""
 "\n"
@@ -5402,12 +5402,12 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/search/results.html:159
+#: warehouse/templates/search/results.html:157
 #, python-format
 msgid "for \"%(term)s\""
 msgstr ""
 
-#: warehouse/templates/search/results.html:163
+#: warehouse/templates/search/results.html:161
 msgid ""
 "\n"
 "                  with the selected classifier\n"
@@ -5419,36 +5419,36 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/search/results.html:179
+#: warehouse/templates/search/results.html:177
 msgid "Order by"
 msgstr ""
 
-#: warehouse/templates/search/results.html:181
+#: warehouse/templates/search/results.html:179
 msgid "Relevance"
 msgstr ""
 
-#: warehouse/templates/search/results.html:182
+#: warehouse/templates/search/results.html:180
 msgid "Date last updated"
 msgstr ""
 
-#: warehouse/templates/search/results.html:183
+#: warehouse/templates/search/results.html:181
 msgid "Trending"
 msgstr ""
 
-#: warehouse/templates/search/results.html:196
+#: warehouse/templates/search/results.html:194
 msgid "Filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:207
+#: warehouse/templates/search/results.html:205
 msgid "Add filter"
 msgstr ""
 
-#: warehouse/templates/search/results.html:223
+#: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(term)s'"
 msgstr ""
 
-#: warehouse/templates/search/results.html:225
+#: warehouse/templates/search/results.html:223
 #, python-format
 msgid ""
 "\n"
