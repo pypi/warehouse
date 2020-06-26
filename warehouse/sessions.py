@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 import time
 
@@ -82,6 +83,9 @@ def _changed_method(method):
 
 @implementer(ISession)
 class Session(dict):
+    reauth_timestamp_cookie_name = "session_reauth_timestamp"
+    reauth_max_age = 30  # 60 * 60 # 1 hour
+    max_age = 12 * 60 * 60  # 12 hours
 
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
@@ -139,6 +143,34 @@ class Session(dict):
 
     def should_save(self):
         return self._changed
+
+    def record_auth_timestamp(self, request, response):
+        auth_signer = crypto.Signer(
+            request.registry.settings["sessions.secret"], salt="session"
+        )
+
+        response.set_cookie(
+            self.reauth_timestamp_cookie_name,
+            auth_signer.sign(str(datetime.datetime.now().timestamp())),
+            max_age=12 * 60 * 60,
+            httponly=True,
+        )
+
+    def needs_reauthentication(self, request):
+        reauth_signer = crypto.Signer(
+            request.registry.settings["sessions.secret"], salt="session"
+        )
+
+        try:
+            auth_time = float(
+                reauth_signer.unsign(
+                    request.cookies.get(self.reauth_timestamp_cookie_name)
+                )
+            )
+            current_time = datetime.datetime.now().timestamp()
+            return current_time - auth_time >= self.reauth_max_age
+        except (crypto.BadSignature, ValueError):
+            return True
 
     # Flash Messages Methods
     def _get_flash_queue_key(self, queue):

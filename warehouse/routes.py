@@ -296,6 +296,9 @@ def includeme(config):
     )
     config.add_route("packaging.file", files_url)
 
+    # Re-Authentication Route
+    config.add_route("reauthenticate", "/reauthenticate/", domain=warehouse)
+
     # SES Webhooks
     config.add_route("ses.hook", "/_/ses-hook/", domain=warehouse)
 

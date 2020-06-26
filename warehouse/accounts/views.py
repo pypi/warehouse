@@ -53,7 +53,6 @@ from warehouse.email import (
     send_password_change_email,
     send_password_reset_email,
 )
-from warehouse.manage import RE_AUTHENTICATION_KEY
 from warehouse.packaging.models import Project, Release
 from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils import crypto
@@ -197,16 +196,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .lower(),
                 )
 
-                signer = crypto.Signer(
-                    request.registry.settings["sessions.secret"], salt="session"
-                )
-
-                resp.set_cookie(
-                    RE_AUTHENTICATION_KEY,
-                    signer.sign(str(datetime.datetime.now().timestamp())),
-                    max_age=12 * 60 * 60,
-                    httponly=True,
-                )
+                request.session.record_auth_timestamp(request, resp)
             return resp
 
     return {

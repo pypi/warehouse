@@ -300,6 +300,7 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("packaging.file", "https://files.example.com/packages/{path}"),
+        pretend.call("reauthenticate", "/reauthenticate/", domain=warehouse),
         pretend.call("ses.hook", "/_/ses-hook/", domain=warehouse),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
