@@ -1897,9 +1897,8 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         project = ProjectFactory.create(
             name="foobar",
-            upload_limit=(60 * 1024 * 1024),  # 60 MB
-            # Default total_size_limit(legacy.MAX_PROJECT_SIZE)
-            total_size=legacy.MAX_PROJECT_SIZE - 1,  # 10 GB - 1
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE - 1,
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1946,11 +1945,10 @@ class TestFileUpload:
         one_megabyte = 1 * 1024 * 1024
         project = ProjectFactory.create(
             name="foobar",
-            upload_limit=(60 * 1024 * 1024),  # 60 MB
-            total_size=legacy.MAX_PROJECT_SIZE,  # 10 GB
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE,
             total_size_limit=legacy.MAX_PROJECT_SIZE
-            + one_megabyte  # Custom Limit for the project
-            # Default total_size_limit(legacy.MAX_PROJECT_SIZE)
+            + one_megabyte,  # Custom Limit for the project
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1997,11 +1995,10 @@ class TestFileUpload:
         one_megabyte = 1 * 1024 * 1024
         project = ProjectFactory.create(
             name="foobar",
-            upload_limit=(60 * 1024 * 1024),  # 60 MB
-            total_size=legacy.MAX_PROJECT_SIZE,  # 10 GB
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE,
             total_size_limit=legacy.MAX_PROJECT_SIZE
-            + (one_megabyte * 60)  # Custom Limit for the project
-            # Default total_size_limit(legacy.MAX_PROJECT_SIZE)
+            + (one_megabyte * 60),  # Custom Limit for the project
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
