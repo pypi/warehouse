@@ -29,7 +29,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import remove_project
+from warehouse.utils.project import destroy_project
 
 
 @view_config(
@@ -192,7 +192,7 @@ def add_prohibited_project_names(request):
         .first()
     )
     if project is not None:
-        remove_project(project, request)
+        destroy_project(project, request)
 
     request.session.flash(f"Prohibited Project Name {project_name!r}", queue="success")
 

@@ -23,7 +23,7 @@
     {% if projects %}
     {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
-    <div class="package-snippet">
+    <div class="package-snippet {{"deleted" if project.deleted else ""}}">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
@@ -45,26 +45,39 @@
           {% endif %}
         </div>
         <div class="package-snippet__buttons">
-          <a
-            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
-            class="button button--primary"
-            {% if project.name in projects_owned %}
-            title="{% trans %}Manage this project{% endtrans %}"
-            {% else %}
-            disabled
-            title="{% trans %}You are not an owner of this project{% endtrans %}"
-            {% endif %}
-            >{% trans %}Manage{% endtrans %}</a>
-          <a
-            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
-            class="button"
-            {% if project.releases %}
-            title="{% trans %}View this project's public page{% endtrans %}"
-            {% else %}
-            disabled
-            title="{% trans %}This project has no releases{% endtrans %}"
-            {% endif %}
-            >{% trans %}View{% endtrans %}</a>
+          {% if project.deleted %}
+            <a
+              href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+              class="button button--primary"
+              {% if project.name in projects_owned %}
+              title="Restore this project"
+              {% else %}
+              disabled
+              title="You are not an owner of this project"
+              {% endif %}
+              >Restore</a>
+          {% else %}
+            <a
+              href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+              class="button button--primary"
+              {% if project.name in projects_owned %}
+              title="Manage this project"
+              {% else %}
+              disabled
+              title="You are not an owner of this project"
+              {% endif %}
+              >Manage</a>
+            <a
+              href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
+              class="button"
+              {% if project.releases %}
+              title="View this project's public page"
+              {% else %}
+              disabled
+              title="This project has no releases"
+              {% endif %}
+              >View</a>
+          {% endif %}
         </div>
       </div>
     </div>

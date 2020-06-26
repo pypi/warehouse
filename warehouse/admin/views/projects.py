@@ -23,7 +23,7 @@ from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, remove_project
+from warehouse.utils.project import confirm_project, destroy_project
 
 ONE_MB = 1024 * 1024  # bytes
 ONE_GB = 1024 * 1024 * 1024  # bytes
@@ -478,6 +478,6 @@ def delete_role(project, request):
 )
 def delete_project(project, request):
     confirm_project(project, request, fail_route="admin.project.detail")
-    remove_project(project, request)
+    destroy_project(project, request)
 
     return HTTPSeeOther(request.route_path("admin.project.list"))

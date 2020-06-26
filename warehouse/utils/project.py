@@ -43,9 +43,11 @@ def confirm_project(project, request, fail_route):
         raise HTTPSeeOther(request.route_path(fail_route, project_name=project_name))
 
 
-def remove_project(project, request, flash=True):
-    # TODO: We don't actually delete files from the data store. We should add
-    #       some kind of garbage collection at some point.
+def destroy_project(project, request):
+    """
+    This permanently removes the project and everything belonging to it.
+    Only for use by administrative routes.
+    """
 
     request.db.add(
         JournalEntry(
@@ -61,11 +63,10 @@ def remove_project(project, request, flash=True):
     # Flush so we can repeat this multiple times if necessary
     request.db.flush()
 
-    if flash:
-        request.session.flash(f"Deleted the project {project.name!r}", queue="success")
+    request.session.flash(f"Destroyed the project {project.name!r}", queue="success")
 
 
-def destroy_docs(project, request, flash=True):
+def destroy_docs(project, request):
     request.db.add(
         JournalEntry(
             name=project.name,
@@ -79,7 +80,5 @@ def destroy_docs(project, request, flash=True):
 
     project.has_docs = False
 
-    if flash:
-        request.session.flash(
-            f"Deleted docs for project {project.name!r}", queue="success"
-        )
+    request.session.flash(f"Deleted docs for project {project.name!r}", queue="success")
+

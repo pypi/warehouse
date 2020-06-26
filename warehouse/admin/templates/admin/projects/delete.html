@@ -19,7 +19,7 @@
 
   <div class="box box-secondary collapsed-box">
     <div class="box-header with-border">
-      <h3 class="box-title">Delete Project</h3>
+      <h3 class="box-title">Destroy Project</h3>
       <div class="box-tools">
         <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
       </div>
@@ -27,13 +27,13 @@
 
     <div class="box-body">
       <p>
-        Deleting will irreversibly delete this project along with
+        This will irreversibly remove this project from the database along with
         <a href="{{ request.route_path('admin.project.releases', project_name=project_name) }}">{{ project.releases|length() }} releases</a>.
       </p>
 
       <div class="form-group col-sm-12">
         <label for="confirm_project_name">
-          Are you sure you want to delete <strong>{{ project_name }}</strong>?
+          Are you sure you want to destroy <strong>{{ project_name }}</strong>?
         </label>
         <input name="confirm_project_name" class="form-control" type="text" placeholder="Enter project name to confirm" {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off">
       </div>

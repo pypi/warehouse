@@ -27,8 +27,8 @@ from warehouse.packaging.models import (
 from warehouse.utils.project import (
     confirm_project,
     destroy_docs,
+    destroy_project,
     remove_documentation,
-    remove_project,
 )
 
 from ...common.db.accounts import UserFactory
@@ -92,8 +92,7 @@ def test_confirm_incorrect_input():
     ]
 
 
-@pytest.mark.parametrize("flash", [True, False])
-def test_remove_project(db_request, flash):
+def test_destroy_project(db_request):
     user = UserFactory.create()
     project = ProjectFactory.create(name="foo")
     release = ReleaseFactory.create(project=project)
@@ -105,15 +104,11 @@ def test_remove_project(db_request, flash):
     db_request.remote_addr = "192.168.1.1"
     db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
 
-    remove_project(project, db_request, flash=flash)
+    destroy_project(project, db_request)
 
-    if flash:
-        assert db_request.session.flash.calls == [
-            call("Deleted the project 'foo'", queue="success")
-        ]
-    else:
-        assert db_request.session.flash.calls == []
-
+    assert db_request.session.flash.calls == [
+        call("Deleted the project 'foo'", queue="success")
+    ]
     assert not (db_request.db.query(Role).filter(Role.project == project).count())
     assert not (
         db_request.db.query(File)
@@ -144,8 +139,7 @@ def test_remove_project(db_request, flash):
     assert journal_entry.submitted_from == db_request.remote_addr
 
 
-@pytest.mark.parametrize("flash", [True, False])
-def test_destroy_docs(db_request, flash):
+def test_destroy_docs(db_request):
     user = UserFactory.create()
     project = ProjectFactory.create(name="foo", has_docs=True)
     RoleFactory.create(user=user, project=project)
@@ -156,7 +150,7 @@ def test_destroy_docs(db_request, flash):
     remove_documentation_recorder = stub(delay=call_recorder(lambda *a, **kw: None))
     db_request.task = call_recorder(lambda *a, **kw: remove_documentation_recorder)
 
-    destroy_docs(project, db_request, flash=flash)
+    destroy_docs(project, db_request)
 
     journal_entry = (
         db_request.db.query(JournalEntry)
@@ -176,13 +170,11 @@ def test_destroy_docs(db_request, flash):
     )
 
     assert remove_documentation_recorder.delay.calls == [call("foo")]
+    assert db_request.session.flash.calls == [
+        call("Deleted docs for project 'foo'", queue="success")
+    ]
 
-    if flash:
-        assert db_request.session.flash.calls == [
-            call("Deleted docs for project 'foo'", queue="success")
-        ]
-    else:
-        assert db_request.session.flash.calls == []
+
 
 
 def test_remove_documentation(db_request):

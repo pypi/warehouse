@@ -34,8 +34,10 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    event,
     UniqueConstraint,
     func,
+    inspect,
     orm,
     sql,
 )
@@ -45,6 +47,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.orm.query import Query
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -52,6 +55,32 @@ from warehouse.classifiers.models import Classifier
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
+
+
+@event.listens_for(Query, "before_compile", retval=True)
+def before_compile(query):
+    """A query compilation rule that will add limiting criteria for every
+    subclass of HasPrivate"""
+
+    if query._execution_options.get("include_deleted", False):
+        return query
+
+    for ent in query.column_descriptions:
+        entity = ent["entity"]
+        if entity is None:
+            continue
+        insp = inspect(entity)
+        mapper = getattr(insp, "mapper", None)
+        if mapper and issubclass(mapper.class_, SoftDeleteable):
+            query = query.enable_assertions(False).filter(ent["entity"].deleted.is_(False))
+
+    return query
+
+
+class SoftDeleteable(object):
+    """Mixin that identifies a class as being soft-deleteable"""
+
+    deleted = Column(Boolean, nullable=False, server_default=sql.false())
 
 
 class Role(db.Model):
@@ -92,7 +121,7 @@ class ProjectFactory:
             raise KeyError from None
 
 
-class Project(SitemapMixin, db.Model):
+class Project(SitemapMixin, SoftDeleteable, db.Model):
 
     __tablename__ = "projects"
     __table_args__ = (
@@ -296,7 +325,7 @@ class Description(db.Model):
     rendered_by = Column(Text, nullable=False)
 
 
-class Release(db.Model):
+class Release(SoftDeleteable, db.Model):
 
     __tablename__ = "releases"
 
@@ -455,7 +484,7 @@ class Release(db.Model):
         )
 
 
-class File(db.Model):
+class File(SoftDeleteable, db.Model):
 
     __tablename__ = "release_files"
 
