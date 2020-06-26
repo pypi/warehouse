@@ -880,7 +880,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "bdist_wat",
                 },
-                "Error: Python version is required for binary distribution " "uploads.",
+                "Error: Python version is required for binary distribution uploads.",
             ),
             (
                 {
@@ -2574,7 +2574,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert re.match(
-            "400 Binary wheel .* has an unsupported " "platform tag .*", resp.status
+            "400 Binary wheel .* has an unsupported platform tag .*", resp.status
         )
 
     def test_upload_updates_existing_project_name(
