@@ -12,8 +12,6 @@
 
 import datetime
 
-from celery.exceptions import MaxRetriesExceededError
-
 from warehouse import tasks
 from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Description, Project
@@ -118,7 +116,13 @@ def update_description_html(request):
 
 
 @tasks.task(
-    bind=True, ignore_result=True, acks_late=True, retry_backoff=15, retry_jitter=False
+    bind=True,
+    ignore_result=True,
+    acks_late=True,
+    autoretry_for=(Exception,),
+    retry_backoff=15,
+    retry_jitter=False,
+    max_retries=5,
 )
 def upload_bigquery_distributions(task, request, file, form):
     """
@@ -158,17 +162,5 @@ def upload_bigquery_distributions(task, request, file, form):
     table_name = request.registry.settings["warehouse.distribution_table"]
     populate_data_using_schema(bq.get_table(table_name).schema, distribution_row_data)
 
-    try:
-        data_rows = [distribution_row_data]
-        bq.insert_rows_json(table=table_name, json_rows=data_rows)
-        # While there are expected to be error checks on the format of the
-        # input data, the data is already pre-validated when this task is
-        # initiated hence any error in the data format would be raised before
-        # this point in code. The only check here is to ensure BigQuery is not down
-    except Exception:
-        try:
-            task.retry(max_retries=5)
-        except MaxRetriesExceededError:
-            # TODO: Log this failed request for further analysis and possibly
-            # propogate this to other tasks that fail silently
-            pass
+    data_rows = [distribution_row_data]
+    bq.insert_rows_json(table=table_name, json_rows=data_rows)

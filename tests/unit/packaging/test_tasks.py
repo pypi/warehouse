@@ -13,7 +13,6 @@
 import pretend
 import pytest
 
-from celery.exceptions import MaxRetriesExceededError
 from google.cloud.bigquery import Row, SchemaField
 from wtforms import Field, Form, StringField
 
@@ -306,96 +305,6 @@ class TestUploadBigQueryMetadata:
                 ],
             )
         ]
-
-    @pytest.mark.parametrize(("form_factory", "db_schema"), input_parameters)
-    def test_connection_error(self, db_request, form_factory, db_schema):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        release_file = FileFactory.create(
-            release=release, filename=f"foobar-{release.version}.tar.gz"
-        )
-
-        # Process the mocked wtform fields
-        for key, value in form_factory.items():
-            if isinstance(value, StringField) or isinstance(value, self.ListField):
-                value.process(None)
-
-        get_table = pretend.stub(schema=db_schema)
-        bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda t: get_table),
-            insert_rows_json=pretend.call_recorder(
-                lambda t, d: pretend.raiser(ConnectionError)
-            ),
-        )
-
-        @pretend.call_recorder
-        def find_service(name=None):
-            if name == "gcloud.bigquery":
-                return bigquery
-            raise LookupError
-
-        db_request.find_service = find_service
-        db_request.registry.settings = {
-            "warehouse.distribution_table": "example.pypi.distributions"
-        }
-
-        retry_error = pretend.raiser(MaxRetriesExceededError)
-        task = pretend.stub(retry=pretend.call_recorder(retry_error))
-        upload_bigquery_distributions(task, db_request, release_file, form_factory)
-
-        assert bigquery.insert_rows_json.calls == [
-            pretend.call(
-                table="example.pypi.distributions",
-                json_rows=[
-                    {
-                        "metadata_version": form_factory["metadata_version"].data,
-                        "name": form_factory["name"].data,
-                        "version": release_file.release.version,
-                        "summary": form_factory["summary"].data or None,
-                        "description": form_factory["description"].data or None,
-                        "description_content_type": form_factory[
-                            "description_content_type"
-                        ].data
-                        or None,
-                        "author": form_factory["author"].data or None,
-                        "author_email": form_factory["author_email"].data or None,
-                        "maintainer": form_factory["maintainer"].data or None,
-                        "maintainer_email": form_factory["maintainer_email"].data
-                        or None,
-                        "license": form_factory["license"].data or None,
-                        "keywords": form_factory["description_content_type"].data
-                        or None,
-                        "classifiers": form_factory["classifiers"].data or [],
-                        "platform": form_factory["platform"].data or [],
-                        "home_page": form_factory["home_page"].data or None,
-                        "download_url": form_factory["download_url"].data or None,
-                        "requires_python": form_factory["requires_python"].data or None,
-                        "requires": form_factory["requires"].data or [],
-                        "provides": form_factory["provides"].data or [],
-                        "obsoletes": form_factory["obsoletes"].data or [],
-                        "requires_dist": form_factory["requires_dist"].data or [],
-                        "provides_dist": form_factory["provides_dist"].data or [],
-                        "obsoletes_dist": form_factory["obsoletes_dist"].data or [],
-                        "requires_external": form_factory["requires_external"].data
-                        or [],
-                        "project_urls": form_factory["project_urls"].data or [],
-                        "uploaded_via": release_file.uploaded_via,
-                        "upload_time": release_file.upload_time.isoformat(),
-                        "filename": release_file.filename,
-                        "size": release_file.size,
-                        "path": release_file.path,
-                        "python_version": release_file.python_version,
-                        "packagetype": release_file.packagetype,
-                        "comment_text": release_file.comment_text or None,
-                        "has_signature": release_file.has_signature,
-                        "md5_digest": release_file.md5_digest,
-                        "sha256_digest": release_file.sha256_digest,
-                        "blake2_256_digest": release_file.blake2_256_digest,
-                    },
-                ],
-            )
-        ]
-        assert task.retry.calls == [pretend.call(max_retries=5)]
 
 
 def test_update_description_html(monkeypatch, db_request):

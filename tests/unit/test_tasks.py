@@ -17,6 +17,7 @@ import pytest
 import transaction
 
 from celery import Celery, Task
+from celery.exceptions import MaxRetriesExceededError
 from kombu import Queue
 from pyramid import scripting
 from pyramid_retry import RetryableException
@@ -152,6 +153,24 @@ class TestWarehouseTask:
             assert apply_async.calls == [pretend.call(task, *args, **kwargs)]
         else:
             assert apply_async.calls == []
+
+    def test_on_failure(self, monkeypatch):
+        task = tasks.WarehouseTask()
+        task.app = Celery()
+
+        logger = pretend.stub(warning=pretend.call_recorder(lambda *a, **kw: None))
+        monkeypatch.setattr(tasks, "logger", logger)
+
+        with pytest.raises(MaxRetriesExceededError) as exc_info:
+            raise (MaxRetriesExceededError)
+
+        task.on_failure(
+            MaxRetriesExceededError, "1234", pretend.stub(), pretend.stub(), exc_info
+        )
+
+        assert logger.warning.calls == [
+            pretend.call("Task id 1234 failed.", exc_info=exc_info)
+        ]
 
     def test_creates_request(self, monkeypatch):
         registry = pretend.stub()
