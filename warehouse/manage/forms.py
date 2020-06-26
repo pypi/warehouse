@@ -116,7 +116,10 @@ class ConfirmPasswordForm(UsernameMixin, PasswordMixin, forms.Form):
 
 
 class ReAuthenticateForm(PasswordMixin, forms.Form):
-    __params__ = ["password"]
+    __params__ = ["username", "password", "next_route"]
+
+    username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+    next_route = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)

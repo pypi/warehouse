@@ -12,6 +12,7 @@
 
 
 import collections
+import datetime
 
 import elasticsearch
 
@@ -41,6 +42,7 @@ from sqlalchemy.sql import exists
 from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
+from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
@@ -48,9 +50,11 @@ from warehouse.classifiers.models import Classifier
 from warehouse.db import DatabaseNotAvailable
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
+from warehouse.manage.forms import ReAuthenticateForm
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
+from warehouse.utils import crypto
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
@@ -459,3 +463,33 @@ def force_status(request):
         raise exception_response(int(request.matchdict["status"]))
     except KeyError:
         raise exception_response(404) from None
+
+
+@view_config(
+    route_name="reauthenticate",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    has_translations=True,
+)
+def reauthenticate(request, _form_class=ReAuthenticateForm):
+    user_service = request.find_service(IUserService, context=None)
+
+    form = _form_class(
+        request.POST,
+        request=request,
+        user_service=user_service,
+        check_password_metrics_tags=[
+            "method:reauth",
+            "auth_method:reauthenticate_form",
+        ],
+    )
+
+    redirect_to = request.route_path(form.next_route.data or "manage.projects")
+
+    resp = HTTPSeeOther(redirect_to)
+
+    if request.method == "POST" and form.validate():
+        request.session.record_auth_timestamp(request, resp)
+
+    return resp

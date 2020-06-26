@@ -111,6 +111,7 @@ def user_projects(request):
     require_methods=False,
     permission="manage:user",
     has_translations=True,
+    require_reauth=True,
 )
 class ManageAccountViews:
     def __init__(self, request):
@@ -944,6 +945,7 @@ def get_user_role_in_project(project, user, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=False,
 )
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
@@ -986,6 +988,7 @@ def delete_project(project, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=False,
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -1005,6 +1008,7 @@ def destroy_project_docs(project, request):
     uses_session=True,
     permission="manage:project",
     has_translations=True,
+    require_reauth=False,
 )
 def manage_project_releases(project, request):
     # Get the counts for all the files for this project, grouped by the
@@ -1049,6 +1053,7 @@ def manage_project_releases(project, request):
     require_methods=False,
     permission="manage:project",
     has_translations=True,
+    require_reauth=False,
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -1063,7 +1068,11 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
-    @view_config(request_method="POST", request_param=["confirm_yank_version"])
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_yank_version"],
+        require_reauth=False,
+    )
     def yank_project_release(self):
         version = self.request.POST.get("confirm_yank_version")
         yanked_reason = self.request.POST.get("yanked_reason", "")
@@ -1143,7 +1152,11 @@ class ManageProjectRelease:
             )
         )
 
-    @view_config(request_method="POST", request_param=["confirm_unyank_version"])
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_unyank_version"],
+        require_reauth=False,
+    )
     def unyank_project_release(self):
         version = self.request.POST.get("confirm_unyank_version")
         if not version:
@@ -1220,7 +1233,11 @@ class ManageProjectRelease:
             )
         )
 
-    @view_config(request_method="POST", request_param=["confirm_delete_version"])
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_delete_version"],
+        require_reauth=False,
+    )
     def delete_project_release(self):
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
@@ -1313,7 +1330,9 @@ class ManageProjectRelease:
         )
 
     @view_config(
-        request_method="POST", request_param=["confirm_project_name", "file_id"]
+        request_method="POST",
+        request_param=["confirm_project_name", "file_id"],
+        require_reauth=False,
     )
     def delete_project_release_file(self):
         def _error(message):
@@ -1418,6 +1437,7 @@ class ManageProjectRelease:
     require_methods=False,
     permission="manage:project",
     has_translations=True,
+    require_reauth=False,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -1517,6 +1537,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=False,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     form = _form_class(request.POST)
@@ -1569,6 +1590,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=False,
 )
 def delete_project_role(project, request):
     try:
