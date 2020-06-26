@@ -25,7 +25,11 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
 
-from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.interfaces import (
+    IPasswordBreachedService,
+    ITokenService,
+    IUserService,
+)
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
@@ -72,6 +76,7 @@ from warehouse.packaging.models import (
     ProjectEvent,
     Release,
     Role,
+    RoleInvitation,
     RoleInvitationStatus,
 )
 from warehouse.utils.http import is_safe_url
@@ -915,24 +920,6 @@ def manage_projects(request):
         return project.created
 
     all_user_projects = user_projects(request)
-    not_approved_project_roles = (
-        request.db.query(Role)
-        .filter(
-            Role.user_id == request.user.id,
-            Role.invitation_status == RoleInvitationStatus.Pending.value,
-        )
-        .with_entities(Role.project_id)
-        .all()
-    )
-    not_approved_project_ids = set(
-        [_role.project_id for _role in not_approved_project_roles]
-    )
-    approved_projects = list(
-        filter(
-            lambda _project: _project.id not in not_approved_project_ids,
-            request.user.projects,
-        )
-    )
     projects_owned = set(
         project.name for project in all_user_projects["projects_owned"]
     )
@@ -940,7 +927,7 @@ def manage_projects(request):
         project.name for project in all_user_projects["projects_sole_owned"]
     )
     return {
-        "projects": sorted(approved_projects, key=_key, reverse=True),
+        "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
     }
@@ -1503,67 +1490,93 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 queue="error",
             )
         else:
-            request.db.add(
-                Role(user=user, project=project, role_name=form.role_name.data)
+            token_service = request.find_service(ITokenService, name="email")
+            token = token_service.dumps(
+                {
+                    "action": "email-project-role-verify",
+                    "desired_role": role_name,
+                    "user_id": user.id,
+                    "project_id": project.id
+                }
             )
-            request.db.add(
-                JournalEntry(
-                    name=project.name,
-                    action=f"add {role_name} {username}",
-                    submitted_by=request.user,
-                    submitted_from=request.remote_addr,
+            user_invite = (
+                request.db.query(RoleInvitation)
+                .filter(RoleInvitation.user == user)
+                .filter(RoleInvitation.project == project)
+                .one_or_none()
+            )
+
+            send_email = False
+            if user_invite:
+                if user_invite.invite_status == RoleInvitationStatus.Expired.value:
+                    send_email = True
+                    user_invite.invite_status = RoleInvitationStatus.Pending.value
+                    user_invite.token = token
+                else:
+                    request.session.flash(
+                        f"User '{username}' already has an active invite/role. "
+                        f"Please try again later.",
+                        queue="error",
+                    )
+            else:
+                send_email = True
+                request.db.add(
+                    RoleInvitation(
+                        user=user,
+                        project=project,
+                        invite_status=RoleInvitationStatus.Pending.value,
+                        token=token
+                    )
                 )
-            )
-            project.record_event(
-                tag="project:role:add",
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by": request.user.username,
-                    "role_name": role_name,
-                    "target_user": username,
-                },
-            )
 
-            owner_roles = (
-                request.db.query(Role)
-                .join(Role.user)
-                .filter(Role.role_name == "Owner", Role.project == project)
-            )
-            owner_users = {owner.user for owner in owner_roles}
+            if send_email:
+                request.db.add(
+                    JournalEntry(
+                        name=project.name,
+                        action=f"invite {role_name} {username}",
+                        submitted_by=request.user,
+                        submitted_from=request.remote_addr,
+                    )
+                )
+                send_project_role_verification_email(
+                    request,
+                    user,
+                    desired_role=role_name,
+                    initiator_username=request.user.username,
+                    project_name=project.name,
+                    email_token=token,
+                    token_age=token_service.max_age // 60 // 60
+                )
+                project.record_event(
+                    tag="project:role:invite",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by": request.user.username,
+                        "role_name": role_name,
+                        "target_user": username,
+                    },
+                )
+                request.db.flush()  # in order to get id
+                request.session.flash(
+                    f"Invitation sent to '{username}'", queue="success"
+                )
 
-            # Don't send to the owner that added the new role
-            owner_users.discard(request.user)
-
-            # Don't send owners email to new user if they are now an owner
-            owner_users.discard(user)
-
-            send_collaborator_added_email(
-                request,
-                owner_users,
-                user=user,
-                project=project,
-                role_name=role_name,
-                invitation_status=RoleInvitationStatus.Pending.value,
-            )
-            request.db.add(role)
-            request.db.flush()  # in order to get role id
-
-            # send_project_role_verification_email needs to get request and user as
-            # first args because of the @email_ decorator
-            send_project_role_verification_email(
-                request,
-                user,
-                desired_role=role_name,
-                initiator_username=request.user.username,
-                project_name=project.name,
-                role_id=role.id,
-            )
-            request.session.flash("Invitation sent", queue="success")
         form = _form_class(user_service=user_service)
 
     roles = set(request.db.query(Role).join(User).filter(Role.project == project).all())
+    invitations = set(
+        request.db.query(RoleInvitation)
+        .join(User)
+        .filter(RoleInvitation.project == project)
+        .all()
+    )
 
-    return {"project": project, "roles": roles, "form": form}
+    return {
+        "project": project,
+        "roles": roles,
+        "invitations": invitations,
+        "form": form,
+    }
 
 
 @view_config(

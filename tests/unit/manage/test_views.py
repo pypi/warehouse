@@ -26,7 +26,11 @@ from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
-from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.interfaces import (
+    IPasswordBreachedService,
+    ITokenService,
+    IUserService,
+)
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -37,6 +41,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectEvent,
     Role,
+    RoleInvitation,
     User,
 )
 from warehouse.utils.paginate import paginate_url_factory
@@ -50,6 +55,7 @@ from ...common.db.packaging import (
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
+    RoleInvitationFactory,
     UserFactory,
 )
 
@@ -3344,7 +3350,9 @@ class TestManageProjectRoles:
 
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create()
+        user_2 = UserFactory.create()
         role = RoleFactory.create(user=user, project=project)
+        role_invitation = RoleInvitationFactory.create(user=user_2, project=project)
 
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
@@ -3357,13 +3365,16 @@ class TestManageProjectRoles:
         assert result == {
             "project": project,
             "roles": {role},
+            "invitations": {role_invitation},
             "form": form_obj,
         }
 
     def test_post_new_role_validation_fails(self, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
+        user_2 = UserFactory.create(username="newuser")
         role = RoleFactory.create(user=user, project=project)
+        role_invitation = RoleInvitationFactory.create(user=user_2, project=project)
 
         user_service = pretend.stub()
         db_request.find_service = pretend.call_recorder(
@@ -3385,6 +3396,7 @@ class TestManageProjectRoles:
         assert result == {
             "project": project,
             "roles": {role},
+            "invitations": {role_invitation},
             "form": form_obj,
         }
 
@@ -3404,8 +3416,12 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
+        token_service = pretend.stub(dumps=lambda data: "TOKEN", max_age=6 * 60 * 60)
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
@@ -3432,7 +3448,8 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
@@ -3440,15 +3457,21 @@ class TestManageProjectRoles:
             pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Invitation sent", queue="success")
+            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
         ]
 
-        # Only one role is created
-        role = db_request.db.query(Role).filter(Role.user == new_user).one()
+        # Only one role invitation is created
+        role_invitation = (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == new_user)
+            .filter(RoleInvitation.project == project)
+            .one()
+        )
 
         assert result == {
             "project": project,
-            "roles": {role, owner_1_role, owner_2_role},
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {role_invitation},
             "form": form_obj,
         }
 
@@ -3456,10 +3479,18 @@ class TestManageProjectRoles:
             pretend.call(
                 db_request,
                 new_user,
-                desired_role=owner_2_role.role_name,
+                desired_role=form_obj.role_name.data,
                 initiator_username=db_request.user.username,
                 project_name=project.name,
-                role_id=role.id,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-project-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "project_id": project.id,
+                    }
+                ),
+                token_age=token_service.max_age // 60 // 60,
             )
         ]
 
@@ -3508,8 +3539,109 @@ class TestManageProjectRoles:
         assert result == {
             "project": project,
             "roles": {role},
+            "invitations": set(),
             "form": form_obj,
         }
+
+    def test_reinvite_role_after_expiration(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foobar")
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = RoleFactory.create(
+            user=owner_1, project=project, role_name="Owner"
+        )
+        owner_2_role = RoleFactory.create(
+            user=owner_2, project=project, role_name="Owner"
+        )
+        new_user_role_invitation = RoleInvitationFactory.create(
+            user=new_user, project=project, invite_status="expired"
+        )
+
+        user_service = pretend.stub(
+            find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
+        )
+        token_service = pretend.stub(dumps=lambda data: "TOKEN", max_age=6 * 60 * 60)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_1
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=new_user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        send_project_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_project_role_verification_email",
+            send_project_role_verification_email,
+        )
+
+        result = views.manage_project_roles(project, db_request, _form_class=form_class)
+
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
+        ]
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(db_request.POST, user_service=user_service),
+            pretend.call(user_service=user_service),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
+        ]
+
+        # Only one role invitation is created
+        role_invitation = (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == new_user)
+            .filter(RoleInvitation.project == project)
+            .one()
+        )
+
+        assert result["invitations"] != {new_user_role_invitation}
+
+        assert result == {
+            "project": project,
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {role_invitation},
+            "form": form_obj,
+        }
+
+        assert send_project_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=form_obj.role_name.data,
+                initiator_username=db_request.user.username,
+                project_name=project.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-project-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "project_id": project.id,
+                    }
+                ),
+                token_age=token_service.max_age // 60 // 60,
+            )
+        ]
 
     @pytest.mark.parametrize("with_email", [True, False])
     def test_post_unverified_email(self, db_request, with_email):
@@ -3557,7 +3689,79 @@ class TestManageProjectRoles:
         # No additional roles are created
         assert db_request.db.query(Role).all() == []
 
-        assert result == {"project": project, "roles": set(), "form": form_obj}
+        assert result == {
+            "project": project,
+            "roles": set(),
+            "invitations": set(),
+            "form": form_obj,
+        }
+
+    @pytest.mark.parametrize("status", ["pending", "accepted"])
+    def test_cannot_reinvite_role(self, db_request, status):
+        project = ProjectFactory.create(name="foobar")
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = RoleFactory.create(
+            user=owner_1, project=project, role_name="Owner"
+        )
+        owner_2_role = RoleFactory.create(
+            user=owner_2, project=project, role_name="Owner"
+        )
+        new_user_invitation = RoleInvitationFactory.create(
+            user=new_user, project=project, invite_status=status
+        )
+
+        user_service = pretend.stub(
+            find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
+        )
+        token_service = pretend.stub(dumps=lambda data: None)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_1
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=new_user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.manage_project_roles(project, db_request, _form_class=form_class)
+
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
+        ]
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(db_request.POST, user_service=user_service),
+            pretend.call(user_service=user_service),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"User '{new_user.username}' already has an active invite/role. "
+                f"Please try again later.",
+                queue="error",
+            )
+        ]
+
+        assert result == {
+            "project": project,
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {new_user_invitation},
+            "form": form_obj,
+        }
 
 
 class TestChangeProjectRoles:

@@ -54,12 +54,6 @@ from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
 
 
-class RoleInvitationStatus(enum.Enum):
-    
-    Pending = "pending"
-    Accepted = "accepted"
-
-
 class Role(db.Model):
 
     __tablename__ = "roles"
@@ -68,7 +62,7 @@ class Role(db.Model):
         UniqueConstraint("user_id", "project_id", name="_roles_user_project_uc"),
     )
 
-    __repr__ = make_repr("role_name", "user", "project", "invitation_status")
+    __repr__ = make_repr("role_name")
 
     role_name = Column(Text, nullable=False)
     user_id = Column(
@@ -78,7 +72,39 @@ class Role(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    invitation_status = Column(Text)
+
+    user = orm.relationship(User, lazy=False)
+    project = orm.relationship("Project", lazy=False)
+
+
+class RoleInvitationStatus(enum.Enum):
+
+    Pending = "pending"
+    Accepted = "accepted"
+    Expired = "expired"
+
+
+class RoleInvitation(db.Model):
+
+    __tablename__ = "role_invitations"
+    __table_args__ = (
+        Index("role_invitations_user_id_idx", "user_id"),
+        UniqueConstraint(
+            "user_id", "project_id", name="_role_invitations_user_project_uc"
+        ),
+    )
+
+    __repr__ = make_repr("invite_status", "user", "project")
+
+    invite_status = Column(Text, nullable=False)
+    token = Column(Text, nullable=False)
+    user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+    )
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
