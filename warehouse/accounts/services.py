@@ -15,7 +15,7 @@ import functools
 import hashlib
 import hmac
 import logging
-import posixpath
+import os
 import secrets
 import urllib.parse
 import uuid
@@ -689,7 +689,7 @@ class HaveIBeenPwnedPasswordBreachedService:
         self._metrics.increment(*args, **kwargs)
 
     def _get_url(self, prefix):
-        return urllib.parse.urljoin(self._api_base, posixpath.join("/range/", prefix))
+        return urllib.parse.urljoin(self._api_base, os.path.join("/range/", prefix))
 
     def check_password(self, password, *, tags=None):
         # The HIBP API implements a k-Anonymity scheme, by which you can take a given
