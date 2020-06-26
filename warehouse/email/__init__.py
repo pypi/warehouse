@@ -35,31 +35,23 @@ def _compute_recipient(user, email):
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, recipient, msg):
+def send_email(task, request, recipient, msg, user_id, ip_address):
     msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
+    from_address = parseaddr(
+        sender.sender if hasattr(sender, "sender") else sender._sender
+    )[1]
 
     try:
         sender.send(recipient, msg)
 
-        # We want to only the show the IP address for the email
-        # if the email was sent to the user who triggered the email
-        user_email = (
-            request.db.query(Email).filter(Email.email == parseaddr(recipient)[1]).one()
-        )
-
-        if user_email.user_id != request.user.id:
-            ip_address = "Redacted"
-        else:
-            ip_address = request.remote_addr
-
         user_service = request.find_service(IUserService, context=None)
         user_service.record_event(
-            request.user.id,
+            user_id,
             tag="account:email:sent",
             ip_address=ip_address,
             additional={
-                "from_": parseaddr(sender._sender)[1],
+                "from_": from_address,
                 "to": parseaddr(recipient)[1],
                 "subject": msg.subject,
             },
@@ -81,8 +73,16 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     if email is None or not (email.verified or allow_unverified):
         return
 
+    # We should only store/display IP address of an 'email sent' event if the user
+    # who triggered the email event is the one who receives the email. Else display
+    # 'Redacted' to prevent user privacy concerns
+    user_email = request.db.query(Email).filter(Email.email == email.email).one()
+    ip_address = (
+        request.remote_addr if user_email.user_id == request.user.id else "Redacted"
+    )
+
     request.task(send_email).delay(
-        _compute_recipient(user, email.email), attr.asdict(msg)
+        _compute_recipient(user, email.email), attr.asdict(msg), user.id, ip_address
     )
 
 
