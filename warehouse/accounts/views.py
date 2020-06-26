@@ -82,7 +82,8 @@ def unverified_emails(exc, request):
     return HTTPTooManyRequests(
         request._(
             "Too many emails have been added to this account without verifying "
-            "them. Check your inbox and follow the verification links."
+            "them. Check your inbox and follow the verification links. (IP: ${ip})",
+            mapping={"ip": request.remote_addr},
         ),
         retry_after=exc.resets_in.total_seconds(),
     )
@@ -596,7 +597,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # TODO: track and audit this, seems alertable
         return _error(
             request._(
-                "Invalid token: user has logged in since " "this token was requested"
+                "Invalid token: user has logged in since this token was requested"
             )
         )
 
