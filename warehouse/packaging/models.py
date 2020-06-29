@@ -82,6 +82,7 @@ class RoleInvitationStatus(enum.Enum):
     Pending = "pending"
     Accepted = "accepted"
     Expired = "expired"
+    Revoked = "revoked"
 
 
 class RoleInvitation(db.Model):

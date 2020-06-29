@@ -103,7 +103,7 @@
       </tr>
     {% endfor %}
     {% for invite in invitations|sort(attribute="user.username") %}
-      {% if invite.invite_status != RoleInvitationStatus.Accepted.value %}
+      {% if invite.invite_status != RoleInvitationStatus.Accepted.value and invite.invite_status != RoleInvitationStatus.Revoked.value %}
         <tr>
           <th scope="row">
             <a href="{{ request.route_path('accounts.profile', username=invite.user.username) }}" class="table__user-details">
@@ -119,22 +119,44 @@
               </span>
             </a>
           </th>
-          <td>
           {% if invite.invite_status == "pending" %}
-            {% trans %}Invite Pending{% endtrans %}
-          {% elif invite.invite_status == "expired" %}
-            {% trans %}Invitation Expired{% endtrans %}
+            {% set request_path = request.route_path('manage.project.revoke_invite', project_name=project.name) %}
+          {% else %}
+            {% set request_path = request.route_path('manage.project.roles', project_name=project.name) %}
           {% endif %}
-          </td>
-          <td class="table__align-right">
-            <button class="button">
-              {% if invite.invite_status == RoleInvitationStatus.Pending.value %}
-                Revoke
-              {% else %}
-                Re-Invite
+          <form method="POST" action="{{ request_path }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input name="user_id" type="hidden" value="{{ invite.user_id }}">
+            <input name="username" type="hidden" value="{{ invite.user.username }}">
+            <td>
+              {% if invite.invite_status == "pending" %}
+                {% trans %}Invite pending{% endtrans %}
+              {% elif invite.invite_status == "expired" %}
+                <label for="role_name" class="sr-only">Role name</label>
+                {{ form.role_name }}
+                {% set role_name= form.role_name.__dict__ %}
               {% endif %}
-            </button>
-          </td>
+            </td>
+            <td class="table__align-right">
+              {% if invite.invite_status == RoleInvitationStatus.Pending.value %}
+                <button
+                  type="submit"
+                  class="button"
+                  title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
+                >
+                {% trans %}Revoke invite{% endtrans %}
+                </button>
+              {% else %}
+                <button 
+                  type="submit"
+                  class="button"
+                  title="{% trans user=invite.user.username %}Re-invite {{ user }} to the project{% endtrans %}"
+                >
+                {% trans %}Re-invite{% endtrans %}
+                </button>
+              {% endif %}
+            </td>
+          </form>
         </tr>
       {% endif %}
     {% endfor %}
@@ -149,7 +171,7 @@
             <label for="role_name" class="sr-only">Role name</label>
             {{ form.role_name }}
           </td>
-          <td class="table__action">
+          <td class="table__action table__align-right">
             <input type="submit" value="Invite" class="button button--primary">
           </td>
         </tr>

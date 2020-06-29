@@ -29,6 +29,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    TokenExpired,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
@@ -1497,7 +1498,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     "desired_role": role_name,
                     "user_id": user.id,
                     "project_id": project.id,
-                    "submitter_id": request.user.id
+                    "submitter_id": request.user.id,
                 }
             )
             user_invite = (
@@ -1509,16 +1510,19 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
             send_email = False
             if user_invite:
-                if user_invite.invite_status == RoleInvitationStatus.Expired.value:
-                    send_email = True
-                    user_invite.invite_status = RoleInvitationStatus.Pending.value
-                    user_invite.token = token
-                else:
+                if (
+                    user_invite.invite_status == RoleInvitationStatus.Pending.value
+                    or user_invite.invite_status == RoleInvitationStatus.Accepted.value
+                ):
                     request.session.flash(
                         f"User '{username}' already has an active invite/role. "
                         f"Please try again later.",
                         queue="error",
                     )
+                else:
+                    send_email = True
+                    user_invite.invite_status = RoleInvitationStatus.Pending.value
+                    user_invite.token = token
             else:
                 send_email = True
                 request.db.add(
@@ -1578,6 +1582,63 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         "invitations": invitations,
         "form": form,
     }
+
+
+@view_config(
+    route_name="manage.project.revoke_invite",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+)
+def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="email")
+
+    try:
+        user = user_service.get_user(request.POST["user_id"])
+        user_invite = (
+            request.db.query(RoleInvitation)
+            .filter(RoleInvitation.project == project)
+            .filter(RoleInvitation.user == user)
+            .one()
+        )
+        token_data = token_service.loads(user_invite.token)
+
+        user_invite.invite_status = RoleInvitationStatus.Revoked.value
+
+        role_name = token_data.get("desired_role")
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"revoke_invite {role_name} {user.username}",
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        )
+        project.record_event(
+            tag="project:role:revoke_invite",
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": role_name,
+                "target_user": user.username,
+            },
+        )
+
+        request.session.flash(
+            f"Invitation revoked from '{user.username}'.", queue="success"
+        )
+    except NoResultFound:
+        request.session.flash("Could not find role invitation.", queue="error")
+    except TokenExpired:
+        user_invite.invite_status = RoleInvitationStatus.Revoked.value
+        request.session.flash("Invitation already expired.", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.roles", project_name=project.name)
+    )
 
 
 @view_config(

@@ -259,6 +259,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.project.revoke_invite",
+            "/manage/project/{project_name}/collaboration/revoke_invite/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.project.change_role",
             "/manage/project/{project_name}/collaboration/change/",
             factory="warehouse.packaging.models:ProjectFactory",

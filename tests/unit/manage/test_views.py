@@ -30,6 +30,7 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+    TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
@@ -42,6 +43,7 @@ from warehouse.packaging.models import (
     ProjectEvent,
     Role,
     RoleInvitation,
+    RoleInvitationStatus,
     User,
 )
 from warehouse.utils.paginate import paginate_url_factory
@@ -3762,6 +3764,139 @@ class TestManageProjectRoles:
             "invitations": {new_user_invitation},
             "form": form_obj,
         }
+
+
+class TestRevokeRoleInvitation:
+    def test_revoke_invitation(self, db_request, token_service):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        user_invite = RoleInvitationFactory.create(user=user, project=project)
+        owner_user = UserFactory.create()
+        RoleFactory(user=owner_user, project=project, role_name="Owner")
+
+        user_service = pretend.stub(get_user=lambda userid: user)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/projects"
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.revoke_project_role_invitation(
+            project, db_request, _form_class=form_class
+        )
+        db_request.db.flush()
+
+        assert user_invite.invite_status == RoleInvitationStatus.Revoked.value
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation revoked from '{user.username}'.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/projects"
+
+    def test_invitation_does_not_exist(self, db_request, token_service):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        owner_user = UserFactory.create()
+        RoleFactory(user=owner_user, project=project, role_name="Owner")
+
+        user_service = pretend.stub(get_user=lambda userid: user)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/projects"
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.revoke_project_role_invitation(
+            project, db_request, _form_class=form_class
+        )
+        db_request.db.flush()
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find role invitation.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/projects"
+
+    def test_token_expired(self, db_request, token_service):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        user_invite = RoleInvitationFactory.create(user=user, project=project)
+        owner_user = UserFactory.create()
+        RoleFactory(user=owner_user, project=project, role_name="Owner")
+
+        user_service = pretend.stub(get_user=lambda userid: user)
+        token_service.loads = pretend.call_recorder(pretend.raiser(TokenExpired))
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/projects"
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.revoke_project_role_invitation(
+            project, db_request, _form_class=form_class
+        )
+        db_request.db.flush()
+
+        assert user_invite.invite_status == RoleInvitationStatus.Revoked.value
+        assert db_request.session.flash.calls == [
+            pretend.call("Invitation already expired.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/projects"
 
 
 class TestChangeProjectRoles:

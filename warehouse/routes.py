@@ -251,6 +251,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.project.revoke_invite",
+        "/manage/project/{project_name}/collaboration/revoke_invite/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.project.change_role",
         "/manage/project/{project_name}/collaboration/change/",
         factory="warehouse.packaging.models:ProjectFactory",
