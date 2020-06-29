@@ -119,80 +119,33 @@
               </span>
             </a>
           </th>
-          {% if invite.invite_status == "pending" %}
-            {% set request_path = request.route_path('manage.project.revoke_invite', project_name=project.name) %}
-          {% else %}
-            {% set request_path = request.route_path('manage.project.roles', project_name=project.name) %}
-          {% endif %}
-          <form method="POST" action="{{ request_path }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="user_id" type="hidden" value="{{ invite.user_id }}">
-            <input name="username" type="hidden" value="{{ invite.user.username }}">
-            <td>
-              {% if invite.invite_status == "pending" %}
-                {% trans %}Invite pending{% endtrans %}
-              {% elif invite.invite_status == "expired" %}
-                <label for="role_name" class="sr-only">Role name</label>
-                {{ form.role_name }}
-                {% set role_name= form.role_name.__dict__ %}
-              {% endif %}
-            </td>
-            <td class="table__align-right">
-              {% if invite.invite_status == RoleInvitationStatus.Pending.value %}
-                <button
-                  type="submit"
-                  class="button"
-                  title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
-                >
-                {% trans %}Revoke invite{% endtrans %}
-                </button>
-              {% else %}
-                <button 
-                  type="submit"
-                  class="button"
-                  title="{% trans user=invite.user.username %}Re-invite {{ user }} to the project{% endtrans %}"
-                >
-                {% trans %}Re-invite{% endtrans %}
-                </button>
-              {% endif %}
-            </td>
-          </form>
+          <td>
+            {% if invite.invite_status == "pending" %}
+              {% trans %}Invite pending{% endtrans %}
+            {% elif invite.invite_status == "expired" %}
+              {% trans %}Invite expired{% endtrans %}
+            {% endif %}
+          </td>
+          <td class="table__align-right">
+            <form method="POST" action="{{ request.route_path('manage.project.revoke_invite', project_name=project.name) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <input name="user_id" type="hidden" value="{{ invite.user_id }}">
+              <button
+                type="submit"
+                class="button"
+                title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
+              >
+              {% trans %}Revoke invite{% endtrans %}
+              </button>
+            </form>
+          </td>
         </tr>
       {% endif %}
     {% endfor %}
-      <form method="POST">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <tr>
-          <td class="table__user">
-            <label for="username" class="sr-only">User's username</label>
-            {{ form.username(placeholder="User's username") }}
-          </td>
-          <td class="table__role">
-            <label for="role_name" class="sr-only">Role name</label>
-            {{ form.role_name }}
-          </td>
-          <td class="table__action table__align-right">
-            <input type="submit" value="Invite" class="button button--primary">
-          </td>
-        </tr>
-        {% if form.errors %}
-          <tr class="formset-table__errors">
-            <td colspan="3">
-              <ul class="form-errors form-errors--full-width">
-              {% for field, errors in form.errors|dictsort if errors %}
-                {% for error in errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-              {% endfor %}
-              </ul>
-            </td>
-          </tr>
-        {% endif %}
-      </form>
     </tbody>
   </table>
 
-  <h3>{% trans %}Add collaborator{% endtrans %}</h3>
+  <h3>{% trans %}Invite collaborator{% endtrans %}</h3>
   <form method="POST">
     <div class="form-group">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -220,7 +173,7 @@
       </div>
     </div>
     <div>
-      <input type="submit" value="{% trans %}Add collaborator{% endtrans %}" class="button button--primary">
+      <input type="submit" value="{% trans %}Invite collaborator{% endtrans %}" class="button button--primary">
     </div>
   </form>
 

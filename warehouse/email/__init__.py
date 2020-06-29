@@ -233,7 +233,7 @@ def send_project_role_verification_email(
         "desired_role": desired_role,
         "email_address": user.email,
         "initiator_username": initiator_username,
-        "n_hours": token_age,
+        "n_hours": token_age // 60 // 60,
         "project_name": project_name,
         "token": email_token,
     }

@@ -1365,7 +1365,7 @@ class TestProjectRoleVerificationEmail:
             initiator_username="initiating_user",
             project_name="project_name",
             email_token="TOKEN",
-            token_age=token_service.max_age // 60 // 60,
+            token_age=token_service.max_age,
         )
 
         assert result == {

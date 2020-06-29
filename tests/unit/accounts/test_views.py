@@ -34,8 +34,8 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.packaging.models import Role, RoleInvitationStatus
+from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.packaging import ProjectFactory, RoleFactory, RoleInvitationFactory
