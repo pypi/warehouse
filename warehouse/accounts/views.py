@@ -51,6 +51,7 @@ from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
+    send_added_as_collaborator_email,
     send_collaborator_added_email,
     send_email_verification_email,
     send_password_change_email,
@@ -61,6 +62,7 @@ from warehouse.packaging.models import (
     Project,
     Release,
     Role,
+    RoleInvitation,
     RoleInvitationStatus,
 )
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -748,9 +750,11 @@ def _get_two_factor_data(request, _redirect_to="/"):
     route_name="accounts.verify-project-role",
     uses_session=True,
     permission="manage:user",
+    has_translations=True,
 )
 def verify_project_role(request):
     token_service = request.find_service(ITokenService, name="email")
+    user_service = request.find_service(IUserService, context=None)
 
     def _error(message):
         request.session.flash(message, queue="error")
@@ -770,49 +774,63 @@ def verify_project_role(request):
     if data.get("action") != "email-project-role-verify":
         return _error("Invalid token: not an email verification token")
 
-    current_user = request.user
-    try:
-        # role_id is filtered for uniqueness
-        # user_id is filtered for index
-        role = (
-            request.db.query(Role)
-            .filter(Role.user_id == current_user.id, Role.id == data["role_id"])
-            .one()
-        )
-    except NoResultFound:
-        return _error("Role not found")
+    user = user_service.get_user(data.get("user_id"))
+    project = (
+        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+    )
+    desired_role = data.get("desired_role")
 
-    if role.invitation_status != RoleInvitationStatus.Pending.value:
-        return _error("Role already assigned")
+    role_invite = (
+        request.db.query(RoleInvitation)
+        .filter(RoleInvitation.project == project)
+        .filter(RoleInvitation.user == user)
+        .one()
+    )
 
-    role.invitation_status = RoleInvitationStatus.Accepted.value
+    if role_invite.invite_status != RoleInvitationStatus.Pending.value:
+        return _error("Role invitation is already assigned or has been revoked.")
 
+    role_invite.invite_status = RoleInvitationStatus.Accepted.value
+    request.db.add(Role(user=user, project=project, role_name=desired_role))
     request.db.add(
         JournalEntry(
-            name=role.project.name,
-            action=f"approved {current_user.name}",
-            submitted_by=current_user,
+            name=project.name,
+            action=f"accepted {desired_role} {user.username}",
+            submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
     )
 
-    owner_roles = request.db.query(Role).filter(
-        Role.role_name == "Owner",
-        Role.project == role.project,
-        Role.user != current_user,
+    owner_roles = (
+        request.db.query(Role)
+        .filter(Role.project == project)
+        .filter(Role.role_name == "Owner")
+        .all()
     )
     owner_users = {owner.user for owner in owner_roles}
 
+    # Don't send email to new user if they are now an owner
+    owner_users.discard(user)
+
+    submitter_user = user_service.get_user(data.get("submitter_id"))
     send_collaborator_added_email(
         request,
         owner_users,
-        user=current_user,
-        submitter=current_user,
-        project_name=role.project.name,
-        role=role.role_name,
+        user=user,
+        submitter=submitter_user,
+        project_name=project.name,
+        role=desired_role,
     )
 
-    request.session.flash(f"Role successfully added.", queue="success")
+    send_added_as_collaborator_email(
+        request,
+        user,
+        submitter=submitter_user,
+        project_name=project.name,
+        role=desired_role,
+    )
+
+    request.session.flash(f"Added collaborator '{user.username}'", queue="success")
     return HTTPSeeOther(request.route_path("manage.projects"))
 
 

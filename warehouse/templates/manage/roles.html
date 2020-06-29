@@ -25,9 +25,9 @@
     <p>{% trans %}There are two possible roles for collaborators:{% endtrans %}</p>
     <dl>
       <dt>{% trans %}Maintainer{% endtrans %}</dt>
-      <dd>{% trans %}Can upload releases for a package. Cannot add collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
+      <dd>{% trans %}Can upload releases for a package. Cannot invite collaborators. Cannot delete files, releases, or the project.{% endtrans %}</dd>
       <dt>{% trans %}Owner{% endtrans %}</dt>
-      <dd>{% trans %}Can upload releases. Can add other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
+      <dd>{% trans %}Can upload releases. Can invite other collaborators. Can delete files, releases, or the entire project.{% endtrans %}</dd>
     </dl>
   </div>
   <table class="table table--collaborators">
@@ -96,15 +96,47 @@
                 title="{% trans user=role.user.username %}Remove {{ user }} from this project{% endtrans %}"
               {% endif %}
             >
-            {% if role.invitation_status == RoleInvitationStatus.Pending.value %}
-              Revoke invitation
-            {% else %}
-              Remove
-            {% endif %}
+            Remove
             </button>
           </form>
         </td>
       </tr>
+    {% endfor %}
+    {% for invite in invitations|sort(attribute="user.username") %}
+      {% if invite.invite_status != RoleInvitationStatus.Accepted.value %}
+        <tr>
+          <th scope="row">
+            <a href="{{ request.route_path('accounts.profile', username=invite.user.username) }}" class="table__user-details">
+              {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=invite.user.name|default(invite.user.username, true)) %}
+              <span class="table__user-gravatar">
+                <img src="{{ gravatar(request, invite.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
+              </span>
+              <span class="table__user-text">
+                <strong>{{ invite.user.username }}</strong>
+                {% if invite.user.name %}
+                  <br><span>{{ invite.user.name }}</span>
+                {% endif %}
+              </span>
+            </a>
+          </th>
+          <td>
+          {% if invite.invite_status == "pending" %}
+            {% trans %}Invite Pending{% endtrans %}
+          {% elif invite.invite_status == "expired" %}
+            {% trans %}Invitation Expired{% endtrans %}
+          {% endif %}
+          </td>
+          <td class="table__align-right">
+            <button class="button">
+              {% if invite.invite_status == RoleInvitationStatus.Pending.value %}
+                Revoke
+              {% else %}
+                Re-Invite
+              {% endif %}
+            </button>
+          </td>
+        </tr>
+      {% endif %}
     {% endfor %}
       <form method="POST">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

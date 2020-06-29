@@ -3615,7 +3615,7 @@ class TestManageProjectRoles:
             .one()
         )
 
-        assert result["invitations"] != {new_user_role_invitation}
+        assert result["invitations"] == {new_user_role_invitation}
 
         assert result == {
             "project": project,

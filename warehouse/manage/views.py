@@ -1496,7 +1496,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     "action": "email-project-role-verify",
                     "desired_role": role_name,
                     "user_id": user.id,
-                    "project_id": project.id
+                    "project_id": project.id,
+                    "submitter_id": request.user.id
                 }
             )
             user_invite = (
@@ -1525,7 +1526,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                         user=user,
                         project=project,
                         invite_status=RoleInvitationStatus.Pending.value,
-                        token=token
+                        token=token,
                     )
                 )
 
@@ -1545,7 +1546,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     initiator_username=request.user.username,
                     project_name=project.name,
                     email_token=token,
-                    token_age=token_service.max_age // 60 // 60
+                    token_age=token_service.max_age // 60 // 60,
                 )
                 project.record_event(
                     tag="project:role:invite",
