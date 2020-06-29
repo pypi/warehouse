@@ -1008,7 +1008,7 @@ def destroy_project_docs(project, request):
     uses_session=True,
     permission="manage:project",
     has_translations=True,
-    require_reauth=False,
+    require_reauth=True,
 )
 def manage_project_releases(project, request):
     # Get the counts for all the files for this project, grouped by the
@@ -1053,7 +1053,7 @@ def manage_project_releases(project, request):
     require_methods=False,
     permission="manage:project",
     has_translations=True,
-    require_reauth=False,
+    require_reauth=True,
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -1437,7 +1437,7 @@ class ManageProjectRelease:
     require_methods=False,
     permission="manage:project",
     has_translations=True,
-    require_reauth=False,
+    require_reauth=True,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)

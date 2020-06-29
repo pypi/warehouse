@@ -84,8 +84,7 @@ def _changed_method(method):
 @implementer(ISession)
 class Session(dict):
     reauth_timestamp_cookie_name = "session_reauth_timestamp"
-    reauth_max_age = 30  # 60 * 60 # 1 hour
-    max_age = 12 * 60 * 60  # 12 hours
+    time_to_reauth = 60 * 60  # 1 hour
 
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
@@ -102,7 +101,7 @@ class Session(dict):
     setdefault = _changed_method(dict.setdefault)
     update = _changed_method(dict.update)
 
-    def __init__(self, data=None, session_id=None, new=True):
+    def __init__(self, data=None, session_id=None, new=True, max_age=12 * 60 * 60):
         # Brand new sessions don't have any data, so we'll just create an empty
         # dictionary for them.
         if data is None:
@@ -119,6 +118,8 @@ class Session(dict):
 
         # We'll track all of the IDs that have been invalidated here
         self.invalidated = set()
+
+        self.max_age = max_age
 
     @property
     def sid(self):
@@ -145,31 +146,32 @@ class Session(dict):
         return self._changed
 
     def record_auth_timestamp(self, request, response):
-        auth_signer = crypto.Signer(
+        auth_signer = crypto.TimestampSigner(
             request.registry.settings["sessions.secret"], salt="session"
         )
 
         response.set_cookie(
             self.reauth_timestamp_cookie_name,
             auth_signer.sign(str(datetime.datetime.now().timestamp())),
-            max_age=12 * 60 * 60,
+            max_age=self.max_age,
             httponly=True,
         )
 
     def needs_reauthentication(self, request):
-        reauth_signer = crypto.Signer(
+        reauth_signer = crypto.TimestampSigner(
             request.registry.settings["sessions.secret"], salt="session"
         )
 
         try:
             auth_time = float(
                 reauth_signer.unsign(
-                    request.cookies.get(self.reauth_timestamp_cookie_name)
+                    request.cookies.get(self.reauth_timestamp_cookie_name),
+                    max_age=self.max_age,
                 )
             )
             current_time = datetime.datetime.now().timestamp()
-            return current_time - auth_time >= self.reauth_max_age
-        except (crypto.BadSignature, ValueError):
+            return current_time - auth_time >= self.time_to_reauth
+        except (crypto.SignatureExpired, crypto.BadSignature, ValueError):
             return True
 
     # Flash Messages Methods
@@ -279,7 +281,7 @@ class SessionFactory:
 
         # If we were able to load existing session data, load it into a
         # Session class
-        session = Session(data, session_id, False)
+        session = Session(data, session_id, False, max_age=self.max_age)
 
         return session
 
