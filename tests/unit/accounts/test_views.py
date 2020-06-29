@@ -198,6 +198,8 @@ class TestLogin:
         )
 
         pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}
+        pyramid_request.session.record_auth_timestamp = lambda req, resp: None
+        pyramid_request.session.needs_reauthentication = lambda req: False
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -276,6 +278,9 @@ class TestLogin:
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
         pyramid_request.remote_addr = "0.0.0.0"
+
+        pyramid_request.session.record_auth_timestamp = lambda req, resp: None
+        pyramid_request.session.needs_reauthentication = lambda req: False
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),

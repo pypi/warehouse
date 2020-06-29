@@ -12,7 +12,7 @@
 
 
 import collections
-import datetime
+import json
 
 import elasticsearch
 
@@ -54,7 +54,6 @@ from warehouse.manage.forms import ReAuthenticateForm
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import File, Project, Release, release_classifiers
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
-from warehouse.utils import crypto
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
@@ -485,7 +484,12 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         ],
     )
 
-    redirect_to = request.route_path(form.next_route.data or "manage.projects")
+    if form.next_route.data and form.next_route_matchdict.data:
+        redirect_to = request.route_path(
+            form.next_route.data, **json.loads(form.next_route_matchdict.data)
+        )
+    else:
+        redirect_to = request.route_path("manage.projects")
 
     resp = HTTPSeeOther(redirect_to)
 

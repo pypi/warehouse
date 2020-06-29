@@ -32,6 +32,7 @@
          <form method="POST" action="{{ request.route_path('reauthenticate') }}">
            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
            <input name="next_route" type="hidden" value="{{ request.matched_route.name }}">
+           <input name="next_route_matchdict" type="hidden" value="{{ request.matchdict_json }}">
            <input name="username" type="hidden" value="{{ request.user.username }}">
    
            {% if form.errors.__all__ %}

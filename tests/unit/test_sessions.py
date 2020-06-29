@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import time
 
 import msgpack
@@ -157,6 +158,51 @@ class TestSession:
         assert not session.should_save()
         session.changed()
         assert session.should_save()
+
+    def test_reauth_record(self, pyramid_request):
+        session = Session()
+        response = pretend.stub(
+            set_cookie=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+
+        pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}
+        pyramid_request.session.reauth_timestamp_cookie_name = "dummy_cookie"
+
+        session.record_auth_timestamp(pyramid_request, response)
+
+        assert len(response.set_cookie.calls) == 1
+
+    def test_needs_reauth(self, pyramid_request):
+        session = Session()
+
+        session.reauth_timestamp_cookie_name = "dummy_cookie"
+
+        pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}
+
+        dummy_signer = crypto.TimestampSigner(
+            pyramid_request.registry.settings["sessions.secret"], salt="session"
+        )
+
+        pyramid_request.cookies = {
+            session.reauth_timestamp_cookie_name: dummy_signer.sign(
+                str(datetime.datetime.now().timestamp())
+            )
+        }
+
+        assert not session.needs_reauthentication(pyramid_request)
+
+    def test_needs_reauth_bad_signature(self, pyramid_request):
+        session = Session()
+
+        session.reauth_timestamp_cookie_name = "dummy_cookie"
+
+        pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}
+
+        pyramid_request.cookies = {
+            session.reauth_timestamp_cookie_name: "bad_signature"
+        }
+
+        assert session.needs_reauthentication(pyramid_request)
 
     @pytest.mark.parametrize(
         ("data", "method", "args"),
