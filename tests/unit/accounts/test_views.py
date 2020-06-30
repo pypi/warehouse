@@ -197,8 +197,9 @@ class TestLogin:
         )
 
         pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}
-        pyramid_request.session.record_auth_timestamp = lambda req, resp: None
-        pyramid_request.session.needs_reauthentication = lambda req: False
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -251,6 +252,7 @@ class TestLogin:
         assert remember.calls == [pretend.call(pyramid_request, str(user_id))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
@@ -278,8 +280,9 @@ class TestLogin:
         pyramid_request.POST["next"] = expected_next_url
         pyramid_request.remote_addr = "0.0.0.0"
 
-        pyramid_request.session.record_auth_timestamp = lambda req, resp: None
-        pyramid_request.session.needs_reauthentication = lambda req: False
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -300,6 +303,7 @@ class TestLogin:
                 additional={"two_factor_method": None},
             )
         ]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)

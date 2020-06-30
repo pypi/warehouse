@@ -495,7 +495,7 @@ class TestReAuthentication:
         _ = reauthenticate(pyramid_request, _form_class=form_class)
 
         assert pyramid_request.session.record_auth_timestamp.calls == (
-            [pretend.call(pyramid_request, response)] if next_route is not None else []
+            [pretend.call()] if next_route is not None else []
         )
         assert form_class.calls == [
             pretend.call(

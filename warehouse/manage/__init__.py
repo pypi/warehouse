@@ -10,11 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import functools
 import json
-
-import msgpack
 
 from pyramid import viewderivers
 from pyramid.renderers import render_to_response
@@ -30,7 +27,7 @@ def reauth_view(view, info):
         def wrapped(context, request):
             request.matchdict_json = json.dumps(request.matchdict)
 
-            if request.session.needs_reauthentication(request):
+            if request.session.needs_reauthentication():
                 user_service = request.find_service(IUserService, context=None)
 
                 form = ReAuthenticateForm(

@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from pyramid import renderers, viewderivers
+from pyramid import viewderivers
 
 from warehouse import manage
 
@@ -28,7 +28,7 @@ class TestReAuthView:
         request = pretend.stub(
             matchdict="{}",
             session=pretend.stub(
-                needs_reauthentication=pretend.call_recorder(lambda req: False)
+                needs_reauthentication=pretend.call_recorder(lambda *args: False)
             ),
         )
         response = pretend.stub()
@@ -43,6 +43,9 @@ class TestReAuthView:
 
         assert derived_view(context, request) is response
         assert view.calls == [pretend.call(context, request)]
+        assert request.session.needs_reauthentication.calls == (
+            [pretend.call()] if requires_reauth else []
+        )
 
     def test_reauth(self, monkeypatch):
         context = pretend.stub()
@@ -51,7 +54,7 @@ class TestReAuthView:
             matchdict="{}",
             POST=pretend.stub(),
             session=pretend.stub(
-                needs_reauthentication=pretend.call_recorder(lambda req: True)
+                needs_reauthentication=pretend.call_recorder(lambda *args: True)
             ),
             user=pretend.stub(),
         )
@@ -77,6 +80,7 @@ class TestReAuthView:
 
         assert derived_view(context, request) is not response
         assert view.calls == []
+        assert request.session.needs_reauthentication.calls == [pretend.call()]
 
 
 def test_includeme():

@@ -55,7 +55,6 @@ from warehouse.email import (
 )
 from warehouse.packaging.models import Project, Release
 from warehouse.rate_limiting.interfaces import IRateLimiter
-from warehouse.utils import crypto
 from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
@@ -195,7 +194,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .lower(),
                 )
 
-                request.session.record_auth_timestamp(request, resp)
+                request.session.record_auth_timestamp()
             return resp
 
     return {
