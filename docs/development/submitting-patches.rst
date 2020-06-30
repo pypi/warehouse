@@ -72,7 +72,8 @@ When making changes to files with strings marked for translation, it's
 necessary to update references to these files any time source strings are change, or the
 line numbers of the source strings in the source files. This can be done by running ``make translations``.
 
-For instructions on how to mark strings and views for translation, see the `Translation Docs`_.
+For instructions on how to mark strings and views for translation,
+see the `Translation Docs`_.
 
 
 Keeping your local branch updated

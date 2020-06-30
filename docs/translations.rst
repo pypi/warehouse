@@ -37,23 +37,27 @@ To add a new known locale:
 Marking new strings for translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In an HTML template, use the :code:`{% trans %}` and :code:`{% endtrans %}` tags to mark a string for translation.
+In an HTML template, use the :code:`{% trans %}` and :code:`{% endtrans %}`
+tags to mark a string for translation.
 
-In Python, given a request context, call :code:`request._(message)` to mark :code:`message` for translation. Without a request context, you can do the following:
+In Python, given a request context, call :code:`request._(message)` to mark
+:code:`message` for translation. Without a request context, you can do the following:
 
 .. code-block:: python
 
    from warehouse.i18n import localize as _
    message = _("Your message here.")
-   
+
 Marking views as translatable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a view's renderer uses translations, you should mark the view as translatable by setting the :code:`has_translations` option in the view's configuration:
+If a view's renderer uses translations, you should mark the view as
+translatable by setting the :code:`has_translations` option in
+the view's configuration:
 
 .. code-block:: python
    :emphasize-lines: 4
-   
+
    @viewconfig(
       route_name="sample.route",
       renderer="translatable_sample.html",
