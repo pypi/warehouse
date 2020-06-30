@@ -75,6 +75,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.set_total_size_limit",
+        "/admin/projects/{project_name}/set_total_size_limit/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.add_role",
         "/admin/projects/{project_name}/add_role/",
         factory="warehouse.packaging.models:ProjectFactory",
