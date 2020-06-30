@@ -494,6 +494,6 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     resp = HTTPSeeOther(redirect_to)
 
     if request.method == "POST" and form.validate():
-        request.session.record_auth_timestamp(request, resp)
+        request.session.record_auth_timestamp()
 
     return resp

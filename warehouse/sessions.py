@@ -83,13 +83,13 @@ def _changed_method(method):
 
 @implementer(ISession)
 class Session(dict):
-    reauth_timestamp_cookie_name = "session_reauth_timestamp"
     time_to_reauth = 60 * 60  # 1 hour
 
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
     _totp_secret_key = "_totp_secret"
     _webauthn_challenge_key = "_webauthn_challenge"
+    _reauth_timestamp_key = "_reauth_timestamp"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -145,33 +145,20 @@ class Session(dict):
     def should_save(self):
         return self._changed
 
-    def record_auth_timestamp(self, request, response):
-        auth_signer = crypto.TimestampSigner(
-            request.registry.settings["sessions.secret"], salt=self._sid
-        )
+    def record_auth_timestamp(self):
+        self[self._reauth_timestamp_key] = str(datetime.datetime.now().timestamp())
+        self.changed()
 
-        response.set_cookie(
-            self.reauth_timestamp_cookie_name,
-            auth_signer.sign(str(datetime.datetime.now().timestamp())),
-            max_age=self.max_age,
-            httponly=True,
-        )
-
-    def needs_reauthentication(self, request):
-        reauth_signer = crypto.TimestampSigner(
-            request.registry.settings["sessions.secret"], salt=self._sid
-        )
+    def needs_reauthentication(self):
+        reauth_timestamp = self.get(self._reauth_timestamp_key)
+        if reauth_timestamp is None:
+            return True
 
         try:
-            auth_time = float(
-                reauth_signer.unsign(
-                    request.cookies.get(self.reauth_timestamp_cookie_name),
-                    max_age=self.max_age,
-                )
-            )
+            auth_time = float(reauth_timestamp)
             current_time = datetime.datetime.now().timestamp()
             return current_time - auth_time >= self.time_to_reauth
-        except (crypto.SignatureExpired, crypto.BadSignature, ValueError):
+        except (ValueError, TypeError):
             return True
 
     # Flash Messages Methods
