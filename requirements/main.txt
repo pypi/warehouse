@@ -236,9 +236,9 @@ google-api-core==1.20.0 \
     --hash=sha256:65ca5396393b3e592c49cba968380b6d2534d9c78b25fedbedea9dd1c6c50249 \
     --hash=sha256:eec2c302b50e6db0c713fb84b71b8d75cfad5dc6d4dffc78e9f69ba0008f5ede \
     # via google-cloud-bigquery, google-cloud-core
-google-auth==1.16.1 \
-    --hash=sha256:2f1a6bc3031fc7cd0c1aeb225ad34febcb60268f71f5df75d5976dd20a52c002 \
-    --hash=sha256:c041ffe8887fda3b040b39700d839fe38260c281ee11dbf6627978e21c99a626 \
+google-auth==1.18.0 \
+    --hash=sha256:5e3f540b7b0b892000d542cea6b818b837c230e9a4db9337bb2973bcae0fc078 \
+    --hash=sha256:d6b390d3bb0969061ffec7e5766c45c1b39e13c302691e35029f1ad1ccd8ca3b \
     # via google-api-core, google-cloud-bigquery, google-cloud-storage
 google-cloud-bigquery==1.25.0 \
     --hash=sha256:7466163fa6bd9c923944c566dcafa5191214db8896657ee5feb1859a63e0ba2a \
