@@ -55,7 +55,7 @@ def forklifted(request):
     return _exc_with_message(
         HTTPGone,
         (
-            "This API has moved to https://{}/legacy/. See {} for more " "information."
+            "This API has moved to https://{}/legacy/. See {} for more information."
         ).format(domain, information_url),
     )
 
