@@ -42,6 +42,7 @@ In an HTML template, use the :code:`{% trans %}` and :code:`{% endtrans %}` tags
 In Python, given a request context, call :code:`request._(message)` to mark :code:`message` for translation. Without a request context, you can do the following:
 
 .. code-block:: python
+
    from warehouse.i18n import localize as _
    message = _("Your message here.")
    
