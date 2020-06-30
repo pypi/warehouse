@@ -174,11 +174,6 @@ class TestSession:
         session[session._reauth_timestamp_key] = 0
         assert session.needs_reauthentication()
 
-    def test_reauth_needed_bad_value(self):
-        session = Session()
-        session[session._reauth_timestamp_key] = "bad value"
-        assert session.needs_reauthentication()
-
     def test_reauth_needed_no_value(self):
         session = Session()
         assert session.needs_reauthentication()
