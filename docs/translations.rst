@@ -34,11 +34,22 @@ To add a new known locale:
 .. |warehouse/i18n/__init__.py| replace:: ``warehouse/i18n/__init__.py``
 .. _warehouse/i18n/__init__.py: https://github.com/pypa/warehouse/blob/master/warehouse/i18n/__init__.py
 
-Marking new strings for translation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Marking new strings for translation and pluralization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In an HTML template, use the :code:`{% trans %}` and :code:`{% endtrans %}`
-tags to mark a string for translation.
+tags to mark a string for translation. To pluralize a translated string,
+use the :code:`{% pluralize %}` tag to separate the singular and plural
+variants of a string, for example:
+
+.. code-block:: html
+      :emphasize-lines: 3
+
+      {% trans n_hours=n_hours %}
+      This link will expire in {{ n_hours }} hour.
+      {% pluralize %}
+      This link will expire in {{ n_hours }} hours.
+      {% endtrans %}
 
 In Python, given a request context, call :code:`request._(message)` to mark
 :code:`message` for translation. Without a request context, you can do the following:
