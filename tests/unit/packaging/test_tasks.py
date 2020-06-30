@@ -21,7 +21,7 @@ from warehouse.packaging.models import Description, Project
 from warehouse.packaging.tasks import (
     compute_trending,
     update_description_html,
-    upload_bigquery_distributions,
+    update_bigquery_release_files,
 )
 from warehouse.utils import readme
 
@@ -247,11 +247,11 @@ class TestUploadBigQueryMetadata:
 
         db_request.find_service = find_service
         db_request.registry.settings = {
-            "warehouse.distribution_table": "example.pypi.distributions"
+            "warehouse.release_files_table": "example.pypi.distributions"
         }
 
         task = pretend.stub()
-        upload_bigquery_distributions(task, db_request, release_file, form_factory)
+        update_bigquery_release_files(task, db_request, release_file, form_factory)
 
         assert bigquery.insert_rows_json.calls == [
             pretend.call(

@@ -123,7 +123,7 @@ class WarehouseTask(celery.Task):
             super().apply_async(*args, **kwargs)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        logger.warning("Task id {id} failed.".format(id=task_id), exc_info=einfo)
+        logger.error("Task id {id} failed.".format(id=task_id), exc_info=einfo)
 
 
 def task(**kwargs):

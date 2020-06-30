@@ -158,7 +158,7 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        logger = pretend.stub(warning=pretend.call_recorder(lambda *a, **kw: None))
+        logger = pretend.stub(error=pretend.call_recorder(lambda *a, **kw: None))
         monkeypatch.setattr(tasks, "logger", logger)
 
         with pytest.raises(MaxRetriesExceededError) as exc_info:
@@ -168,7 +168,7 @@ class TestWarehouseTask:
             MaxRetriesExceededError, "1234", pretend.stub(), pretend.stub(), exc_info
         )
 
-        assert logger.warning.calls == [
+        assert logger.error.calls == [
             pretend.call("Task id 1234 failed.", exc_info=exc_info)
         ]
 

@@ -49,7 +49,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
-from warehouse.packaging.tasks import upload_bigquery_distributions
+from warehouse.packaging.tasks import update_bigquery_release_files
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -1361,13 +1361,13 @@ class TestFileUpload:
             }.get(svc)
         )
         db_request.registry.settings = {
-            "warehouse.distribution_table": "example.pypi.distributions"
+            "warehouse.release_files_table": "example.pypi.distributions"
         }
 
-        update_database = pretend.stub(
+        update_bigquery = pretend.stub(
             delay=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.task = pretend.call_recorder(lambda *a, **kw: update_database)
+        db_request.task = pretend.call_recorder(lambda *a, **kw: update_bigquery)
 
         resp = legacy.file_upload(db_request)
 
@@ -1446,7 +1446,7 @@ class TestFileUpload:
             )
         ]
 
-        assert db_request.task.calls == [pretend.call(upload_bigquery_distributions)]
+        assert db_request.task.calls == [pretend.call(update_bigquery_release_files)]
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),

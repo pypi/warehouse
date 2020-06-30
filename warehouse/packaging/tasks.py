@@ -124,7 +124,7 @@ def update_description_html(request):
     retry_jitter=False,
     max_retries=5,
 )
-def upload_bigquery_distributions(task, request, file, form):
+def update_bigquery_release_files(task, request, file, form):
     """
     Adds release file metadata to public BigQuery database
     """
@@ -159,7 +159,7 @@ def upload_bigquery_distributions(task, request, file, form):
                 row_data[sch.name] = field_data
 
     distribution_row_data = dict()
-    table_name = request.registry.settings["warehouse.distribution_table"]
+    table_name = request.registry.settings["warehouse.release_files_table"]
     populate_data_using_schema(bq.get_table(table_name).schema, distribution_row_data)
 
     data_rows = [distribution_row_data]

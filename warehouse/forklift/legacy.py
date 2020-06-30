@@ -57,7 +57,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
-from warehouse.packaging.tasks import upload_bigquery_distributions
+from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
@@ -1404,8 +1404,8 @@ def file_upload(request):
     request.db.flush()
 
     # Push updates to BigQuery
-    if not request.registry.settings.get("warehouse.distribution_table") is None:
-        request.task(upload_bigquery_distributions).delay(file_data, form)
+    if not request.registry.settings.get("warehouse.release_files_table") is None:
+        request.task(update_bigquery_release_files).delay(file_data, form)
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
