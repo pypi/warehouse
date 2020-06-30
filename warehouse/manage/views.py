@@ -754,6 +754,7 @@ class ProvisionRecoveryCodesViews:
     renderer="manage/token.html",
     route_name="manage.account.token",
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -785,7 +786,7 @@ class ProvisionMacaroonViews:
     def manage_macaroons(self):
         return self.default_response
 
-    @view_config(request_method="POST")
+    @view_config(request_method="POST", require_reauth=True)
     def create_macaroon(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
@@ -842,7 +843,11 @@ class ProvisionMacaroonViews:
 
         return {**response, "create_macaroon_form": form}
 
-    @view_config(request_method="POST", request_param=DeleteMacaroonForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=DeleteMacaroonForm.__params__,
+        require_reauth=True,
+    )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
             password=self.request.POST["confirm_password"],
@@ -924,6 +929,7 @@ def manage_projects(request):
     uses_session=True,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def manage_project_settings(project, request):
     return {"project": project}
@@ -945,7 +951,7 @@ def get_user_role_in_project(project, user, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
-    require_reauth=False,
+    require_reauth=True,
 )
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
@@ -988,7 +994,7 @@ def delete_project(project, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
-    require_reauth=False,
+    require_reauth=True,
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -1071,7 +1077,7 @@ class ManageProjectRelease:
     @view_config(
         request_method="POST",
         request_param=["confirm_yank_version"],
-        require_reauth=False,
+        require_reauth=True,
     )
     def yank_project_release(self):
         version = self.request.POST.get("confirm_yank_version")
@@ -1155,7 +1161,7 @@ class ManageProjectRelease:
     @view_config(
         request_method="POST",
         request_param=["confirm_unyank_version"],
-        require_reauth=False,
+        require_reauth=True,
     )
     def unyank_project_release(self):
         version = self.request.POST.get("confirm_unyank_version")
@@ -1236,7 +1242,7 @@ class ManageProjectRelease:
     @view_config(
         request_method="POST",
         request_param=["confirm_delete_version"],
-        require_reauth=False,
+        require_reauth=True,
     )
     def delete_project_release(self):
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
@@ -1332,7 +1338,7 @@ class ManageProjectRelease:
     @view_config(
         request_method="POST",
         request_param=["confirm_project_name", "file_id"],
-        require_reauth=False,
+        require_reauth=True,
     )
     def delete_project_release_file(self):
         def _error(message):
@@ -1537,7 +1543,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
-    require_reauth=False,
+    require_reauth=True,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     form = _form_class(request.POST)
@@ -1590,7 +1596,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
-    require_reauth=False,
+    require_reauth=True,
 )
 def delete_project_role(project, request):
     try:
