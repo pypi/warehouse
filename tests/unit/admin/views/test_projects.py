@@ -405,7 +405,8 @@ class TestProjectSetLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = "90"
+        new_upload_limit = views.MAX_FILESIZE // views.ONE_MB
+        db_request.POST["upload_limit"] = str(new_upload_limit)
 
         views.set_upload_limit(project, db_request)
 
@@ -413,7 +414,7 @@ class TestProjectSetLimit:
             pretend.call("Set the upload limit on 'foo'", queue="success")
         ]
 
-        assert project.upload_limit == 90 * views.ONE_MB
+        assert project.upload_limit == new_upload_limit * views.ONE_MB
 
     def test_sets_limit_with_none(self, db_request):
         project = ProjectFactory.create(name="foo")
