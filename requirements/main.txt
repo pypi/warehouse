@@ -91,9 +91,9 @@ celery[sqs]==4.4.5 \
     --hash=sha256:c3f4173f83ceb5a5c986c5fdaefb9456de3b0729a72a5776e46bd405fda7b647 \
     --hash=sha256:d1762d6065522879f341c3d67c2b9fe4615eb79756d59acb1434601d4aca474b \
     # via -r requirements/main.in, celery-redbeat
-certifi==2020.4.5.2 \
-    --hash=sha256:5ad7e9a056d25ffa5082862e36f119f7f7cec6457fa07ee2f8c339814b80c9b1 \
-    --hash=sha256:9cd41137dc19af6a5e03b630eefe7d1f458d964d406342dd3edf625839b944cc \
+certifi==2020.6.20 \
+    --hash=sha256:5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3 \
+    --hash=sha256:8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41 \
     # via -r requirements/main.in, requests
 cffi==1.14.0 \
     --hash=sha256:001bf3242a1bb04d985d63e138230802c6c8d4db3668fb545fb5005ddf5bb5ff \
@@ -200,9 +200,9 @@ decorator==4.4.2 \
     --hash=sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760 \
     --hash=sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7 \
     # via datadog
-disposable-email-domains==0.0.61 \
-    --hash=sha256:d42395a18c244b8d1544e5ebbabc1a8f1522ed5b91d729325e603038edf37947 \
-    --hash=sha256:f90e431b281aea166bac97fa2aae7271f78eb1624420bb313de4b009efa1a050 \
+disposable-email-domains==0.0.63 \
+    --hash=sha256:1edc89e5fe21c9213953753c0d5e3c5cdb5f8758a55e9a3a94859f6b9518dfd4 \
+    --hash=sha256:9bb1ab8e6a2756b7a3027c5cff823d36e006ac89c505ded4c8db3d2b450cb804 \
     # via -r requirements/main.in
 dnspython==1.16.0 \
     --hash=sha256:36c5e8e38d4369a08b6780b7f27d790a292b2b08eea01607865bf0936c558e01 \
@@ -248,9 +248,9 @@ google-cloud-core==1.3.0 \
     --hash=sha256:6ae5c62931e8345692241ac1939b85a10d6c38dc9e2854bdbacb7e5ac3033229 \
     --hash=sha256:878f9ad080a40cdcec85b92242c4b5819eeb8f120ebc5c9f640935e24fc129d8 \
     # via google-cloud-bigquery, google-cloud-storage
-google-cloud-storage==1.28.1 \
-    --hash=sha256:0b28536acab1d7e856a7a89bbfcad41f26f40b46af59786ca874ff0f94bbc0f9 \
-    --hash=sha256:a7b5c326e7307a83fa1f1f0ef71aba9ad1f3a2bc6a768401e13fc02369fd8612 \
+google-cloud-storage==1.29.0 \
+    --hash=sha256:15c8ab11d17e3a32c154662bb001c2097515799f3fd4947a10b1fceb7b6e9a1e \
+    --hash=sha256:958b4ec0ec0104ea2d436606a4d39eb6c5cf719b8b69d1676de75294bf02de3e \
     # via -r requirements/main.in
 google-resumable-media==0.5.1 \
     --hash=sha256:97155236971970382b738921f978a6f86a7b5a0b0311703d991e065d3cb55773 \
@@ -698,9 +698,9 @@ translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4 \
     # via pyramid
-trove-classifiers==2020.5.21 \
-    --hash=sha256:0691bb836dc141704b1605ffe6a9dba80e7479c0792dbc476454c9aaaa5b980e \
-    --hash=sha256:06ddeca19f61c6b06451056b53ceab346ed308b231c33acebf07503f77f0a810 \
+trove-classifiers==2020.6.20 \
+    --hash=sha256:14b331541cbfc63bab496809bbb8c09c86ffb6f5c5a0265556480e4f19f5827c \
+    --hash=sha256:d3fa8d413853348ae97bb2a60f332083ee2551bf60baf34c459da2de99148f3e \
     # via -r requirements/main.in
 typeguard==2.9.1 \
     --hash=sha256:529ef3d88189cc457f4340388028412f71be8091c2c943465146d4170fb67288 \
@@ -808,7 +808,7 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==47.1.1 \
-    --hash=sha256:145fa62b9d7bb544fce16e9b5a9bf4ab2032d2f758b7cd674af09a92736aff74 \
-    --hash=sha256:74f33f44290f95c5c4a7c13ccc9d6d1a16837fe9dce0acf411dd244e7de95143 \
+setuptools==47.3.1 \
+    --hash=sha256:4ba6f9789ea243a6b8ba57da81f75a53494456117810436fd9277a74d1c915d1 \
+    --hash=sha256:843037738d1e34e8b326b5e061f474aca6ef9d7ece41329afbc8aac6195a3920 \
     # via -r requirements/main.in, google-api-core, google-auth, plaster, protobuf, pyramid, repoze.sendmail, zope.deprecation, zope.interface, zope.sqlalchemy

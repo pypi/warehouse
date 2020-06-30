@@ -1,9 +1,6 @@
 {
   "repository": "pypa/warehouse",
   "license": "Apache-2.0",
-  "engines": {
-    "node": "8.15.1"
-  },
   "scripts": {
     "test": "jest"
   },
@@ -29,7 +26,7 @@
     "debounce": "1.2.0",
     "del": "3.0.0",
     "exports-loader": "0.6.4",
-    "gulp": "4.0.0",
+    "gulp": "^4.0.2",
     "gulp-brotli": "1.2.1",
     "gulp-concat": "2.6.1",
     "gulp-gzip": "1.4.2",
@@ -39,7 +36,7 @@
     "gulp-rev-all": "0.9.8",
     "gulp-rev-napkin": "0.1.0",
     "gulp-rtlcss": "^1.4.1",
-    "gulp-sass": "4.0.2",
+    "gulp-sass": "^4.1.0",
     "gulp-sourcemaps": "2.6.1",
     "gulp-uglify": "3.0.0",
     "imports-loader": "0.7.1",
