@@ -129,7 +129,7 @@ class TestFastlyCache:
         assert response.headers == {
             "Surrogate-Key": "abc defg",
             "Surrogate-Control": (
-                "max-age=9123, stale-while-revalidate=4567, " "stale-if-error=2276"
+                "max-age=9123, stale-while-revalidate=4567, stale-if-error=2276"
             ),
         }
 
