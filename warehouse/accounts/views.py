@@ -764,17 +764,20 @@ def verify_project_role(request):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error("Expired token: request a new project role invite")
+        return _error(request._("Expired token: request a new project role invite"))
     except TokenInvalid:
-        return _error("Invalid token: request a new project role invite")
+        return _error(request._("Invalid token: request a new project role invite"))
     except TokenMissing:
-        return _error("Invalid token: no token supplied")
+        return _error(request._("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
     if data.get("action") != "email-project-role-verify":
-        return _error("Invalid token: not an email verification token")
+        return _error(request._("Invalid token: not an email verification token"))
 
     user = user_service.get_user(data.get("user_id"))
+    if user != request.user:
+        return _error(request._("Invite is not valid"))
+
     project = (
         request.db.query(Project).filter(Project.id == data.get("project_id")).one()
     )
@@ -788,7 +791,9 @@ def verify_project_role(request):
     )
 
     if role_invite.invite_status != RoleInvitationStatus.Pending.value:
-        return _error("Role invitation is already assigned or has been revoked.")
+        return _error(
+            request._("Role invitation is already assigned or has been revoked.")
+        )
 
     role_invite.invite_status = RoleInvitationStatus.Accepted.value
     request.db.add(Role(user=user, project=project, role_name=desired_role))
@@ -830,7 +835,12 @@ def verify_project_role(request):
         role=desired_role,
     )
 
-    request.session.flash(f"Added collaborator '{user.username}'", queue="success")
+    request.session.flash(
+        request._(
+            "Added collaborator '${username}'", mapping={"username": user.username},
+        ),
+        queue="success",
+    )
     return HTTPSeeOther(request.route_path("manage.projects"))
 
 
