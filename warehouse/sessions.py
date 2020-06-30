@@ -147,7 +147,7 @@ class Session(dict):
 
     def record_auth_timestamp(self, request, response):
         auth_signer = crypto.TimestampSigner(
-            request.registry.settings["sessions.secret"], salt="session"
+            request.registry.settings["sessions.secret"], salt=self._sid
         )
 
         response.set_cookie(
@@ -159,7 +159,7 @@ class Session(dict):
 
     def needs_reauthentication(self, request):
         reauth_signer = crypto.TimestampSigner(
-            request.registry.settings["sessions.secret"], salt="session"
+            request.registry.settings["sessions.secret"], salt=self._sid
         )
 
         try:
