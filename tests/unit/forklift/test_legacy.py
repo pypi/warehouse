@@ -880,7 +880,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "bdist_wat",
                 },
-                "Error: Python version is required for binary distribution " "uploads.",
+                "Error: Python version is required for binary distribution uploads.",
             ),
             (
                 {
@@ -1851,9 +1851,7 @@ class TestFileUpload:
         user = UserFactory.create()
         db_request.user = user
         EmailFactory.create(user=user)
-        project = ProjectFactory.create(
-            name="foobar", upload_limit=(60 * 1024 * 1024)  # 60 MB
-        )
+        project = ProjectFactory.create(name="foobar", upload_limit=(100 * 1024 * 1024))
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
@@ -1883,9 +1881,211 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-size-limit")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File too large. Limit for project 'foobar' is 60 MB. "
+            "400 File too large. Limit for project 'foobar' is 100 MB. "
             "See /the/help/url/ for more information."
         )
+
+    def test_upload_fails_with_too_large_project_size_default_limit(
+        self, pyramid_config, db_request
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(
+            name="foobar",
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE - 1,
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * 2),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-size-limit")]
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Project size too large."
+            + " Limit for project 'foobar' total size is 10 GB. "
+            "See /the/help/url/"
+        )
+
+    def test_upload_fails_with_too_large_project_size_custom_limit(
+        self, pyramid_config, db_request
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        one_megabyte = 1 * 1024 * 1024
+        project = ProjectFactory.create(
+            name="foobar",
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE,
+            total_size_limit=legacy.MAX_PROJECT_SIZE
+            + one_megabyte,  # Custom Limit for the project
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (one_megabyte + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [pretend.call(_anchor="project-size-limit")]
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Project size too large."
+            + " Limit for project 'foobar' total size is 10 GB. "
+            "See /the/help/url/"
+        )
+
+    def test_upload_succeeds_custom_project_size_limit(
+        self, pyramid_config, db_request, metrics
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        one_megabyte = 1 * 1024 * 1024
+        project = ProjectFactory.create(
+            name="foobar",
+            upload_limit=legacy.MAX_FILESIZE,
+            total_size=legacy.MAX_PROJECT_SIZE,
+            total_size_limit=legacy.MAX_PROJECT_SIZE
+            + (one_megabyte * 60),  # Custom Limit for the project
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Project object has been created.
+        project = db_request.db.query(Project).filter(Project.name == "example").one()
+
+        # Ensure that a Role with the user as owner has been created.
+        role = (
+            db_request.db.query(Role)
+            .filter((Role.user == user) & (Role.project == project))
+            .one()
+        )
+        assert role.role_name == "Owner"
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload("submitted_by"))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [
+            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
+            for j in journals
+        ] == [
+            ("example", None, "create", user, "10.10.10.10"),
+            (
+                "example",
+                None,
+                "add Owner {}".format(user.username),
+                user,
+                "10.10.10.10",
+            ),
+            ("example", "1.0", "new release", user, "10.10.10.10"),
+            (
+                "example",
+                "1.0",
+                "add source file example-1.0.tar.gz",
+                user,
+                "10.10.10.10",
+            ),
+        ]
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -2574,7 +2774,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert re.match(
-            "400 Binary wheel .* has an unsupported " "platform tag .*", resp.status
+            "400 Binary wheel .* has an unsupported platform tag .*", resp.status
         )
 
     def test_upload_updates_existing_project_name(
