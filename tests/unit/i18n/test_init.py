@@ -89,8 +89,18 @@ class TestTranslatedView:
 def test_sets_locale(monkeypatch):
     locale_name = pretend.stub()
     locale_obj = pretend.stub()
-    monkeypatch.setattr(i18n, "KNOWN_LOCALES", {locale_name: locale_obj})
+    monkeypatch.setattr(
+        i18n, "KNOWN_LOCALES", {locale_name: locale_obj, "en": pretend.stub()}
+    )
     request = pretend.stub(locale_name=locale_name)
+
+    assert i18n._locale(request) is locale_obj
+
+
+def test_when_locale_is_missing(monkeypatch):
+    locale_obj = pretend.stub()
+    monkeypatch.setattr(i18n, "KNOWN_LOCALES", {"en": locale_obj})
+    request = pretend.stub(locale_name=None)
 
     assert i18n._locale(request) is locale_obj
 

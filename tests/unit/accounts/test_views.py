@@ -53,12 +53,13 @@ class TestFailedLoginView:
     def test_too_many_emails_added(self, pyramid_request):
         exc = TooManyEmailsAdded(resets_in=datetime.timedelta(seconds=600))
 
+        pyramid_request.remote_addr = "1.2.3.4"
         resp = views.unverified_emails(exc, pyramid_request)
 
         assert resp.status == "429 Too Many Requests"
         assert resp.detail == (
             "Too many emails have been added to this account without verifying "
-            "them. Check your inbox and follow the verification links."
+            "them. Check your inbox and follow the verification links. (IP: 1.2.3.4)"
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
@@ -1702,7 +1703,7 @@ class TestResetPassword:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token: user has logged in since this token was " "requested",
+                "Invalid token: user has logged in since this token was requested",
                 queue="error",
             )
         ]
