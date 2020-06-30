@@ -50,7 +50,7 @@ def test_forklifted(settings, expected_domain):
 
     assert resp.status_code == 410
     assert resp.status == (
-        "410 This API has moved to https://{}/legacy/. See {} for more " "information."
+        "410 This API has moved to https://{}/legacy/. See {} for more information."
     ).format(expected_domain, information_url)
 
 
