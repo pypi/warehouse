@@ -49,6 +49,30 @@ In Python, given a request context, call :code:`request._(message)` to mark
    message = _("Your message here.")
 
 
+Passing non-translatable values to translated strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To pass values you don't want to be translated into
+translated strings, define them inside the :code:`{% trans %}` tag.
+For example, to pass a non-translatable link
+:code:`request.route_path('classifiers')` into a string, instead of
+placing it directly in the string like so:
+
+.. code-block:: html
+
+      {% trans trimmed %}
+      Filter by <a href="request.route_path('classifiers')">classifier</a>
+      {% endtrans %}
+
+Instead, define it inside the :code:`{% trans %}` tag:
+
+.. code-block:: html
+
+      {% trans trimmed href=request.route_path('classifiers') %}
+      Filter by <a href="{{ href }}">classifier</a>
+      {% endtrans %}
+
+
 Marking new strings for pluralization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -59,13 +83,13 @@ variants of a string, for example:
 .. code-block:: html
       :emphasize-lines: 3
 
-      {% trans n_hours=n_hours %}
+      {% trans trimmed n_hours=n_hours %}
       This link will expire in {{ n_hours }} hour.
       {% pluralize %}
       This link will expire in {{ n_hours }} hours.
       {% endtrans %}
 
-This is not yet possible in Python for Warehouse.
+This is not yet directly possible in Python for Warehouse.
 
 Marking views as translatable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
