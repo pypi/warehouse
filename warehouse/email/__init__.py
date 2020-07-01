@@ -38,9 +38,7 @@ def _compute_recipient(user, email):
 def send_email(task, request, recipient, msg, user_id, ip_address):
     msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
-    from_address = parseaddr(
-        sender.sender if hasattr(sender, "sender") else sender._sender
-    )[1]
+    from_address = parseaddr(sender.from_address)[1]
 
     try:
         sender.send(recipient, msg)

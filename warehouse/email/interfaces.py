@@ -10,10 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from zope.interface import Interface
+from zope.interface import Attribute, Interface
 
 
 class IEmailSender(Interface):
+    from_address = Attribute("The email address of the sender")
+
     def create_service(context, request):
         """
         Create the service, given the context and request for which it is being

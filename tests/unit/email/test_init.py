@@ -210,7 +210,7 @@ class TestSendEmail:
         class FakeMailSender:
             def __init__(self):
                 self.emails = []
-                self._sender = "DevPyPI <noreply@example.com>"
+                self.from_address = "DevPyPI <noreply@example.com>"
 
             def send(self, recipient, msg):
                 self.emails.append(
@@ -285,7 +285,7 @@ class TestSendEmail:
 
         class FakeMailSender:
             def __init__(self):
-                self.sender = "DevPyPI <noreply@example.com>"
+                self.from_address = "DevPyPI <noreply@example.com>"
 
             def send(self, recipient, msg):
                 raise exc

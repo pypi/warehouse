@@ -603,9 +603,9 @@
       {% elif event.tag == "account:email:sent" %}
       <strong>{% trans %}Email sent{% endtrans %}</strong><br>
       <small>
-        {% trans %}From:{% endtrans %} {{ event.additional.from_ }}<br>
-        {% trans %}To:{% endtrans %} {{ event.additional.to }}<br>
-        {% trans %}Subject:{% endtrans %} {{event.additional.subject}}
+        {% trans %}From:{% endtrans %} <span class="table__monospace">{{ event.additional.from_ }}</span><br>
+        {% trans %}To:{% endtrans %} <span class="table__monospace">{{ event.additional.to }}</span><br>
+        {% trans %}Subject:{% endtrans %} <span class="table__monospace">{{event.additional.subject}}</span>
       </small>
 
       {% elif event.tag  == "account:password:reset:request" %}
@@ -669,7 +669,11 @@
       {% endif %}
     {%- endmacro %}
 
-    <p>{% trans %}Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="/help#suspicious-activity">secure your account</a> as soon as possible.{% endtrans %}</p>
+    <p>
+      {% trans trimmed faq_url=request.help_url(_anchor='suspicious-activity')%}
+      Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
+      {% endtrans %}
+    </p>
     <table class="table table--security-logs">
       <caption class="sr-only">{% trans %}Recent account activity{% endtrans %}</caption>
       <thead>

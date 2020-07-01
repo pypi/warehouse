@@ -277,7 +277,7 @@
         <h3 id="suspicious-activity">{{ suspicious_activity() }}</h3>
         {% trans trimmed reset_pwd_href=request.route_url('accounts.request-password-reset'), admin_email='mailto:admin@python.org'%}
           <p>
-            All PyPI user events are stored under <a href="/manage/account/#account-events">Security history</a> in Account settings.
+            All PyPI user events are stored under security history in account settings.
             If there are any events that seem suspicious, take the following steps:
             <ul>
               <li><a href="{{ reset_pwd_href }}">Reset your password</a></li>
