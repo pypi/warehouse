@@ -20,12 +20,15 @@ from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Description, Project
 from warehouse.packaging.tasks import (
     compute_trending,
-    update_description_html,
+    sync_bigquery_release_files,
     update_bigquery_release_files,
+    update_description_html,
 )
 from warehouse.utils import readme
 
+from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
+    DependencyFactory,
     DescriptionFactory,
     FileFactory,
     ProjectFactory,
@@ -121,7 +124,73 @@ class TestComputeTrending:
         }
 
 
-class TestUploadBigQueryMetadata:
+def test_update_description_html(monkeypatch, db_request):
+    current_version = "24.0"
+    previous_version = "23.0"
+
+    monkeypatch.setattr(readme, "renderer_version", lambda: current_version)
+
+    descriptions = [
+        DescriptionFactory.create(html="rendered", rendered_by=current_version),
+        DescriptionFactory.create(html="not this one", rendered_by=previous_version),
+        DescriptionFactory.create(html="", rendered_by=""),  # Initial migration state
+    ]
+
+    update_description_html(db_request)
+
+    assert set(
+        db_request.db.query(
+            Description.raw, Description.html, Description.rendered_by
+        ).all()
+    ) == {
+        (descriptions[0].raw, "rendered", current_version),
+        (descriptions[1].raw, readme.render(descriptions[1].raw), current_version),
+        (descriptions[2].raw, readme.render(descriptions[2].raw), current_version),
+    }
+
+
+bq_schema = [
+    SchemaField("metadata_version", "STRING", "NULLABLE"),
+    SchemaField("name", "STRING", "REQUIRED"),
+    SchemaField("version", "STRING", "REQUIRED"),
+    SchemaField("summary", "STRING", "NULLABLE"),
+    SchemaField("description", "STRING", "NULLABLE"),
+    SchemaField("description_content_type", "STRING", "NULLABLE"),
+    SchemaField("author", "STRING", "NULLABLE"),
+    SchemaField("author_email", "STRING", "NULLABLE"),
+    SchemaField("maintainer", "STRING", "NULLABLE"),
+    SchemaField("maintainer_email", "STRING", "NULLABLE"),
+    SchemaField("license", "STRING", "NULLABLE"),
+    SchemaField("keywords", "STRING", "NULLABLE"),
+    SchemaField("classifiers", "STRING", "REPEATED"),
+    SchemaField("platform", "STRING", "REPEATED"),
+    SchemaField("home_page", "STRING", "NULLABLE"),
+    SchemaField("download_url", "STRING", "NULLABLE"),
+    SchemaField("requires_python", "STRING", "NULLABLE"),
+    SchemaField("requires", "STRING", "REPEATED"),
+    SchemaField("provides", "STRING", "REPEATED"),
+    SchemaField("obsoletes", "STRING", "REPEATED"),
+    SchemaField("requires_dist", "STRING", "REPEATED"),
+    SchemaField("provides_dist", "STRING", "REPEATED"),
+    SchemaField("obsoletes_dist", "STRING", "REPEATED"),
+    SchemaField("requires_external", "STRING", "REPEATED"),
+    SchemaField("project_urls", "STRING", "REPEATED"),
+    SchemaField("uploaded_via", "STRING", "NULLABLE"),
+    SchemaField("upload_time", "TIMESTAMP", "REQUIRED"),
+    SchemaField("filename", "STRING", "REQUIRED"),
+    SchemaField("size", "INTEGER", "REQUIRED"),
+    SchemaField("path", "STRING", "REQUIRED"),
+    SchemaField("python_version", "STRING", "REQUIRED"),
+    SchemaField("packagetype", "STRING", "REQUIRED"),
+    SchemaField("comment_text", "STRING", "NULLABLE"),
+    SchemaField("has_signature", "BOOLEAN", "REQUIRED"),
+    SchemaField("md5_digest", "STRING", "REQUIRED"),
+    SchemaField("sha256_digest", "STRING", "REQUIRED"),
+    SchemaField("blake2_256_digest", "STRING", "REQUIRED"),
+]
+
+
+class TestUpdateBigQueryMetadata:
     class ListField(Field):
         def process_formdata(self, valuelist):
             self.data = [v.strip() for v in valuelist if v.strip()]
@@ -172,50 +241,12 @@ class TestUploadBigQueryMetadata:
                 "requires_external": ListField(default=[]).bind(Form(), "test"),
                 "project_urls": ListField(default=[]).bind(Form(), "test"),
             },
-            [
-                SchemaField("metadata_version", "STRING", "NULLABLE"),
-                SchemaField("name", "STRING", "REQUIRED"),
-                SchemaField("version", "STRING", "REQUIRED"),
-                SchemaField("summary", "STRING", "NULLABLE"),
-                SchemaField("description", "STRING", "NULLABLE"),
-                SchemaField("description_content_type", "STRING", "NULLABLE"),
-                SchemaField("author", "STRING", "NULLABLE"),
-                SchemaField("author_email", "STRING", "NULLABLE"),
-                SchemaField("maintainer", "STRING", "NULLABLE"),
-                SchemaField("maintainer_email", "STRING", "NULLABLE"),
-                SchemaField("license", "STRING", "NULLABLE"),
-                SchemaField("keywords", "STRING", "NULLABLE"),
-                SchemaField("classifiers", "STRING", "REPEATED"),
-                SchemaField("platform", "STRING", "REPEATED"),
-                SchemaField("home_page", "STRING", "NULLABLE"),
-                SchemaField("download_url", "STRING", "NULLABLE"),
-                SchemaField("requires_python", "STRING", "NULLABLE"),
-                SchemaField("requires", "STRING", "REPEATED"),
-                SchemaField("provides", "STRING", "REPEATED"),
-                SchemaField("obsoletes", "STRING", "REPEATED"),
-                SchemaField("requires_dist", "STRING", "REPEATED"),
-                SchemaField("provides_dist", "STRING", "REPEATED"),
-                SchemaField("obsoletes_dist", "STRING", "REPEATED"),
-                SchemaField("requires_external", "STRING", "REPEATED"),
-                SchemaField("project_urls", "STRING", "REPEATED"),
-                SchemaField("uploaded_via", "STRING", "NULLABLE"),
-                SchemaField("upload_time", "TIMESTAMP", "REQUIRED"),
-                SchemaField("filename", "STRING", "REQUIRED"),
-                SchemaField("size", "INTEGER", "REQUIRED"),
-                SchemaField("path", "STRING", "REQUIRED"),
-                SchemaField("python_version", "STRING", "REQUIRED"),
-                SchemaField("packagetype", "STRING", "REQUIRED"),
-                SchemaField("comment_text", "STRING", "NULLABLE"),
-                SchemaField("has_signature", "BOOLEAN", "REQUIRED"),
-                SchemaField("md5_digest", "STRING", "REQUIRED"),
-                SchemaField("sha256_digest", "STRING", "REQUIRED"),
-                SchemaField("blake2_256_digest", "STRING", "REQUIRED"),
-            ],
+            bq_schema,
         )
     ]
 
-    @pytest.mark.parametrize(("form_factory", "db_schema"), input_parameters)
-    def test_insert_new_row(self, db_request, form_factory, db_schema):
+    @pytest.mark.parametrize(("form_factory", "bq_schema"), input_parameters)
+    def test_insert_new_row(self, db_request, form_factory, bq_schema):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         release_file = FileFactory.create(
@@ -233,7 +264,7 @@ class TestUploadBigQueryMetadata:
                 raise Exception("Incorrect table name")
             return []
 
-        get_table = pretend.stub(schema=db_schema)
+        get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
             get_table=pretend.call_recorder(lambda t: get_table),
             insert_rows_json=insert_rows,
@@ -253,6 +284,8 @@ class TestUploadBigQueryMetadata:
         task = pretend.stub()
         update_bigquery_release_files(task, db_request, release_file, form_factory)
 
+        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
+        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
         assert bigquery.insert_rows_json.calls == [
             pretend.call(
                 table="example.pypi.distributions",
@@ -307,26 +340,100 @@ class TestUploadBigQueryMetadata:
         ]
 
 
-def test_update_description_html(monkeypatch, db_request):
-    current_version = "24.0"
-    previous_version = "23.0"
+class TestSyncBigQueryMetadata:
+    @pytest.mark.parametrize("bq_schema", [bq_schema])
+    def test_sync_rows(self, db_request, bq_schema):
+        project = ProjectFactory.create()
+        description = DescriptionFactory.create()
+        release = ReleaseFactory.create(project=project, description=description)
+        release_file = FileFactory.create(
+            release=release, filename=f"foobar-{release.version}.tar.gz"
+        )
+        release_file2 = FileFactory.create(
+            release=release, filename=f"fizzbuzz-{release.version}.tar.gz"
+        )
+        release._classifiers.append(ClassifierFactory.create(classifier="foo :: bar"))
+        release._classifiers.append(ClassifierFactory.create(classifier="foo :: baz"))
+        release._classifiers.append(ClassifierFactory.create(classifier="fiz :: buz"))
+        DependencyFactory.create(release=release, kind=1)
+        DependencyFactory.create(release=release, kind=1)
+        DependencyFactory.create(release=release, kind=2)
+        DependencyFactory.create(release=release, kind=3)
+        DependencyFactory.create(release=release, kind=4)
 
-    monkeypatch.setattr(readme, "renderer_version", lambda: current_version)
+        query = pretend.stub(
+            result=pretend.call_recorder(
+                lambda *a, **kw: [{"md5_digest": release_file2.md5_digest}]
+            )
+        )
+        get_table = pretend.stub(schema=bq_schema)
+        bigquery = pretend.stub(
+            get_table=pretend.call_recorder(lambda t: get_table),
+            insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
+            query=pretend.call_recorder(lambda q: query),
+        )
 
-    descriptions = [
-        DescriptionFactory.create(html="rendered", rendered_by=current_version),
-        DescriptionFactory.create(html="not this one", rendered_by=previous_version),
-        DescriptionFactory.create(html="", rendered_by=""),  # Initial migration state
-    ]
+        @pretend.call_recorder
+        def find_service(name=None):
+            if name == "gcloud.bigquery":
+                return bigquery
+            raise LookupError
 
-    update_description_html(db_request)
+        db_request.find_service = find_service
+        db_request.registry.settings = {
+            "warehouse.release_files_table": "example.pypi.distributions"
+        }
 
-    assert set(
-        db_request.db.query(
-            Description.raw, Description.html, Description.rendered_by
-        ).all()
-    ) == {
-        (descriptions[0].raw, "rendered", current_version),
-        (descriptions[1].raw, readme.render(descriptions[1].raw), current_version),
-        (descriptions[2].raw, readme.render(descriptions[2].raw), current_version),
-    }
+        sync_bigquery_release_files(db_request)
+
+        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
+        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.query.calls == [
+            pretend.call("SELECT md5_digest FROM example.pypi.distributions")
+        ]
+        assert bigquery.insert_rows_json.calls == [
+            pretend.call(
+                table="example.pypi.distributions",
+                json_rows=[
+                    {
+                        "metadata_version": None,
+                        "name": project.name,
+                        "version": release.version,
+                        "summary": release.summary,
+                        "description": description.raw,
+                        "description_content_type": description.content_type or None,
+                        "author": release.author or None,
+                        "author_email": release.author_email or None,
+                        "maintainer": release.maintainer or None,
+                        "maintainer_email": release.maintainer_email or None,
+                        "license": release.license or None,
+                        "keywords": release.keywords or None,
+                        "classifiers": release.classifiers or [],
+                        "platform": release.platform or [],
+                        "home_page": release.home_page or None,
+                        "download_url": release.download_url or None,
+                        "requires_python": release.requires_python or None,
+                        "requires": release.requires or [],
+                        "provides": release.provides or [],
+                        "obsoletes": release.obsoletes or [],
+                        "requires_dist": release.requires_dist or [],
+                        "provides_dist": release.provides_dist or [],
+                        "obsoletes_dist": release.obsoletes_dist or [],
+                        "requires_external": release.requires_external or [],
+                        "project_urls": release.project_urls or [],
+                        "uploaded_via": release_file.uploaded_via,
+                        "upload_time": release_file.upload_time.isoformat(),
+                        "filename": release_file.filename,
+                        "size": release_file.size,
+                        "path": release_file.path,
+                        "python_version": release_file.python_version,
+                        "packagetype": release_file.packagetype,
+                        "comment_text": release_file.comment_text or None,
+                        "has_signature": release_file.has_signature,
+                        "md5_digest": release_file.md5_digest,
+                        "sha256_digest": release_file.sha256_digest,
+                        "blake2_256_digest": release_file.blake2_256_digest,
+                    },
+                ],
+            )
+        ]

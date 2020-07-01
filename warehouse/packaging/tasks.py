@@ -14,15 +14,7 @@ import datetime
 
 from warehouse import tasks
 from warehouse.cache.origin import IOriginCache
-from warehouse.classifiers.models import Classifier
-from warehouse.packaging.models import (
-    Dependency,
-    Description,
-    File,
-    Project,
-    Release,
-    release_classifiers,
-)
+from warehouse.packaging.models import Description, File, Project, Release
 from warehouse.utils import readme
 
 
@@ -138,20 +130,82 @@ def update_bigquery_release_files(task, request, file, form):
     """
     bq = request.find_service(name="gcloud.bigquery")
 
+    table_name = request.registry.settings["warehouse.release_files_table"]
+    table_schema = bq.get_table(table_name).schema
+
     # Using the schema to populate the data allows us to automatically
     # set the values to their respective fields rather than assigning
     # values individually
-    def populate_data_using_schema(schema, row_data):
+    json_rows = dict()
+    for sch in table_schema:
+        # The order of data extraction below is determined based on the
+        # classes that are most recently updated
+        if hasattr(file, sch.name):
+            field_data = getattr(file, sch.name)
+        else:
+            field_data = form[sch.name].data
 
-        for sch in schema:
+        if isinstance(field_data, datetime.datetime):
+            field_data = field_data.isoformat()
+
+        # Replace all empty objects to None will ensure
+        # proper checks if a field is nullable or not
+        if not isinstance(field_data, bool) and not field_data:
             field_data = None
 
+        if field_data is None and sch.mode == "REPEATED":
+            json_rows[sch.name] = []
+        else:
+            json_rows[sch.name] = field_data
+    json_rows = [json_rows]
+
+    bq.insert_rows_json(table=table_name, json_rows=json_rows)
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def sync_bigquery_release_files(request):
+    bq = request.find_service(name="gcloud.bigquery")
+    table_name = request.registry.settings["warehouse.release_files_table"]
+    table_schema = bq.get_table(table_name).schema
+
+    db_release_files = request.db.query(File).all()
+    db_file_digests = [file.md5_digest for file in db_release_files]
+
+    bq_file_digests = bq.query(f"SELECT md5_digest FROM {table_name}").result()
+    bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
+
+    md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
+
+    release_files = (
+        request.db.query(File)
+        .join(Release, Release.id == File.release_id)
+        .filter(File.md5_digest.in_(md5_diff_list))
+        .all()
+    )
+
+    # Using the schema to populate the data allows us to automatically
+    # set the values to their respective fields rather than assigning
+    # values individually
+    def populate_data_using_schema(file):
+        release = file.release
+        project = release.project
+
+        row_data = dict()
+        for sch in table_schema:
             # The order of data extraction below is determined based on the
             # classes that are most recently updated
             if hasattr(file, sch.name):
                 field_data = getattr(file, sch.name)
+            elif hasattr(release, sch.name) and sch.name == "description":
+                field_data = getattr(release, sch.name).raw
+            elif sch.name == "description_content_type":
+                field_data = getattr(release, "description").content_type
+            elif hasattr(release, sch.name):
+                field_data = getattr(release, sch.name)
+            elif hasattr(project, sch.name):
+                field_data = getattr(project, sch.name)
             else:
-                field_data = form[sch.name].data
+                field_data = None
 
             if isinstance(field_data, datetime.datetime):
                 field_data = field_data.isoformat()
@@ -165,89 +219,8 @@ def update_bigquery_release_files(task, request, file, form):
                 row_data[sch.name] = []
             else:
                 row_data[sch.name] = field_data
+        return row_data
 
-    distribution_row_data = dict()
-    table_name = request.registry.settings["warehouse.release_files_table"]
-    populate_data_using_schema(bq.get_table(table_name).schema, distribution_row_data)
+    json_rows = [populate_data_using_schema(file) for file in release_files]
 
-    data_rows = [distribution_row_data]
-    bq.insert_rows_json(table=table_name, json_rows=data_rows)
-
-
-@tasks.task(ignore_result=True, acks_late=True)
-def sync_bigquery_release_files(request):
-    bq = request.find_service(name="gcloud.bigquery")
-    table_name = request.registry.settings["warehouse.release_files_table"]
-    table_schema = bq.get_table(table_name).schema
-
-    db_release_files = (
-        request.db.query(File).all()
-    )
-    db_file_digests = [file.md5_digest for file in db_release_files]
-
-    bq_file_digests = bq.query(f"SELECT md5_digest FROM {table_name}").result()
-    bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
-
-    md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
-
-    release_files = (
-        request.db.query(Release)
-        .join(Project, Release.project_id == Project.id)
-        .join(Description, Release.description_id == Description.id)
-        .join(File, Release.id == File.release_id)
-        .join(release_classifiers, Release.id == release_classifiers.release_id)
-        .join(Classifier, release_classifiers.trove_id == Classifer.id)
-        .join(Dependency, Release.id == Dependency.release_id)
-        .filter(File.md5_digest.in_(md5_diff_list))
-        .all()
-    )
-
-    rows_to_insert = parse_sql(release_files)
-
-    # Parse dependencies before populating schema data
-    dep_kind = {
-        1: "requires",
-        2: "provides",
-        3: "obsoletes",
-        4: "requires_dist",
-        5: "provides_dist",
-        6: "obsoletes_dist",
-        7: "requires_external",
-        8: "project_urls"
-    }
-    for i in range(len(release_files)):
-        if release_files[i]['kind']:
-            release_files[i][dep_kind[release_files[i]['kind']]] = release_files[i]['specifier']
-
-    rows_to_insert = dict()
-    for row in release_files:
-        if (row['id'], row['filename']) in return_data:
-            output_data = return_data[(row['id'], row['filename'])]
-        else:
-            output_data = dict()
-
-        for sch in table_schema:
-            field_data = None
-
-            if sch.name in row:
-                field_data = row[sch.name]
-
-            if not isinstance(field_data, bool) and not field_data:
-                field_data = None
-
-            if sch.mode == "REPEATED":
-                if not field_data is None:
-                    if not sch.name in output_data or not output_data[sch.name]:
-                        output_data[sch.name] = [field_data]
-                    elif not field_data in output_data[sch.name]:
-                        output_data[sch.name].append(field_data)
-                elif field_data is None and not sch.name in output_data:
-                    output_data[sch.name] = []
-            else:
-                output_data[sch.name] = field_data
-
-        rows_to_insert[(row['id'], row['filename'])] = output_data
-
-    rows_to_insert = [rows_to_insert[key] for key in rows_to_insert]
-
-    bq.insert_rows_json(table=table_name, json_rows=rows_to_insert)
+    bq.insert_rows_json(table=table_name, json_rows=json_rows)

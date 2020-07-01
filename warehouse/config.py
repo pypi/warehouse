@@ -159,7 +159,9 @@ def configure(settings=None):
     maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
-    maybe_set(settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE")
+    maybe_set(
+        settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE"
+    )
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
