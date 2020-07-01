@@ -95,14 +95,12 @@ def user_projects(request):
             request.db.query(Project)
             .join(projects_owned, Project.id == projects_owned.c.id)
             .order_by(Project.name)
-            .execution_options(include_deleted=True)
             .all()
         ),
         "projects_sole_owned": (
             request.db.query(Project)
             .join(with_sole_owner)
             .order_by(Project.name)
-            .execution_options(include_deleted=True)
             .all()
         ),
     }
@@ -113,16 +111,15 @@ def soft_delete_file(file_):
 
 
 def soft_delete_release(release):
-    release.deleted = True
     for file_ in release.files:
         soft_delete_file(file_)
+    release.deleted = True
 
 
 def soft_delete_project(project):
-    project.deleted = True
     for release in project.releases:
         soft_delete_release(release)
-
+    project.deleted = True
 
 @view_defaults(
     route_name="manage.account",
@@ -988,7 +985,7 @@ def delete_project(project, request):
     request.db.add(
         JournalEntry(
             name=project.name,
-            action="remove project",
+            action="delete project",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
@@ -1038,6 +1035,7 @@ def manage_project_releases(project, request):
         .group_by(Release.id)
         .group_by(File.packagetype)
         .filter(Release.project == project)
+        .execution_options(include_deleted=True)
         .all()
     )
 

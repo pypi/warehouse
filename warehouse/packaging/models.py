@@ -60,8 +60,7 @@ from warehouse.utils.attrs import make_repr
 @event.listens_for(Query, "before_compile", retval=True)
 def before_compile(query):
     """A query compilation rule that will add limiting criteria for every
-    subclass of HasPrivate"""
-
+    subclass of SoftDeletable"""
     if query._execution_options.get("include_deleted", False):
         return query
 
@@ -72,8 +71,7 @@ def before_compile(query):
         insp = inspect(entity)
         mapper = getattr(insp, "mapper", None)
         if mapper and issubclass(mapper.class_, SoftDeleteable):
-            query = query.enable_assertions(False).filter(ent["entity"].deleted.is_(False))
-
+            query = query.enable_assertions(False).filter(ent['entity'].deleted == False)
     return query
 
 
