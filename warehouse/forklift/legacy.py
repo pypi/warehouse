@@ -62,7 +62,7 @@ from warehouse.utils import http, readme
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
 
-MAX_FILESIZE = 60 * ONE_MB
+MAX_FILESIZE = 100 * ONE_MB
 MAX_SIGSIZE = 8 * 1024
 MAX_PROJECT_SIZE = 10 * ONE_GB
 

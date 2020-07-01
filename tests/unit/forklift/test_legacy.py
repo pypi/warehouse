@@ -1851,9 +1851,7 @@ class TestFileUpload:
         user = UserFactory.create()
         db_request.user = user
         EmailFactory.create(user=user)
-        project = ProjectFactory.create(
-            name="foobar", upload_limit=(60 * 1024 * 1024)  # 60 MB
-        )
+        project = ProjectFactory.create(name="foobar", upload_limit=(100 * 1024 * 1024))
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
@@ -1883,7 +1881,7 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-size-limit")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File too large. Limit for project 'foobar' is 60 MB. "
+            "400 File too large. Limit for project 'foobar' is 100 MB. "
             "See /the/help/url/ for more information."
         )
 
