@@ -56,6 +56,12 @@
                   <th><th>
                 </tr>
                 <tr>
+                  <td>Total size</td>
+                  <td>{{ project.total_size }}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
                   <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
                     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                     <td>Upload limit</td>
