@@ -63,9 +63,9 @@ pbr==5.4.5 \
     --hash=sha256:07f558fece33b05caf857474a366dfcc00562bca13dd8b47b2b3e22d9f9bf55c \
     --hash=sha256:579170e23f8e0c2f24b0de612f71f648eccb79fb1322c814ae6b3c07b5ba23e8 \
     # via stevedore
-pep8-naming==0.10.0 \
-    --hash=sha256:5d9f1056cb9427ce344e98d1a7f5665710e2f20f748438e308995852cfa24164 \
-    --hash=sha256:f3b4a5f9dd72b991bf7d8e2a341d2e1aa3a884a769b5aaac4f56825c1763bf3a \
+pep8-naming==0.11.1 \
+    --hash=sha256:a1dd47dd243adfe8a83616e27cf03164960b507530f155db94e10b36a6cd6724 \
+    --hash=sha256:f43bfe3eea7e0d73e8b5d07d6407ab47f2476ccaeff6937c84275cd30b016738 \
     # via -r requirements/lint.in
 pycodestyle==2.6.0 \
     --hash=sha256:2295e7b2f6b5bd100585ebcb1f616591b652db8a741695b3d8f5d28bdc934367 \
@@ -109,9 +109,9 @@ six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
     # via doc8
-stevedore==2.0.0 \
-    --hash=sha256:001e90cd704be6470d46cc9076434e2d0d566c1379187e7013eb296d3a6032d9 \
-    --hash=sha256:471c920412265cc809540ae6fb01f3f02aba89c79bbc7091372f4745a50f9691 \
+stevedore==2.0.1 \
+    --hash=sha256:609912b87df5ad338ff8e44d13eaad4f4170a65b79ae9cb0aa5632598994a1b7 \
+    --hash=sha256:c4724f8d7b8f6be42130663855d01a9c2414d6046055b5a65ab58a0e38637688 \
     # via doc8
 template-remover==0.1.9 \
     --hash=sha256:480f1ce63f56affac1edb29356afcca1260e8409cd928fcf9438fc149df5ff41 \
