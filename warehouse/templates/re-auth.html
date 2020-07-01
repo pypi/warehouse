@@ -12,77 +12,77 @@
     # limitations under the License.
    -#}
    {% extends "base.html" %}
-   
+
    {% block title %}
      {% if form.errors %}{% trans %}Error processing form{% endtrans %} -{% endif %}
      {% trans %}Confirm password{% endtrans %}
    {% endblock %}
-   
-   {% block content %}
-     {% if testPyPI %}
-       {% set title = "TestPyPI" %}
-     {% else %}
-       {% set title = "PyPI" %}
-     {% endif %}
-   
-     <div class="horizontal-section">
-       <div class="site-container">
-         <h1 class="page-title">{% trans title=title %}Confirm password to continue{% endtrans %}</h1>
-   
-         <form method="POST" action="{{ request.route_path('reauthenticate') }}">
-           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-           <input name="next_route" type="hidden" value="{{ request.matched_route.name }}">
-           <input name="next_route_matchdict" type="hidden" value="{{ request.matchdict_json }}">
-           <input name="username" type="hidden" value="{{ request.user.username }}">
-   
-           {% if form.errors.__all__ %}
-           <ul class="form-errors" role="alert">
-             {% for error in form.errors.__all__ %}
-             <li>{{ error }}</li>
-             {% endfor %}
-           </ul>
-           {% endif %}
-   
-           <div data-controller="password" class="form-group">
-             <div>
-               <label for="password" class="form-group__label">
-                 {% trans %}Password{% endtrans %}
-                 {% if form.password.flags.required %}
-                 <span class="form-group__required">{% trans %}{% endtrans %}</span>
-                 {% endif %}
-               </label>
-             </div>
-             {{ form.password(placeholder=gettext("Your password"), required="required", class_="form-group__field", autocomplete="current-password", spellcheck="false", data_target="password.password", **{"aria-describedby":"password-errors"}) }}
-             <div id="password-errors">
-               {% if form.password.errors %}
-               <ul class="form-errors" role="alert">
-                 {% for error in form.password.errors %}
-                 <li>{{ error }}</li>
-                 {% endfor %}
-               </ul>
-               {% endif %}
-             </div>
-             <div class="form-group">
-               <div class="split-layout margin-top--large margin-bottom--large">
-                 <div>
-                   <input type="submit" value="{% trans %}Confirm password{% endtrans %}" class="button button--primary">
-                 </div>
-                 <label for="show-password">
-                   <input data-action="change->password#togglePasswords" data-target="password.showPassword"
-                     id="show-password" type="checkbox">&nbsp;{% trans %}Show password{% endtrans %}
-                 </label>
-               </div>
-               <span>
-                 <a href="{{request.route_url('accounts.request-password-reset')}}">{% trans %}Forgot password?{% endtrans %}</a>
-               </span>
-             </div>
-             <span>
-                <b>Tip:</b> you are about to perform a <a href="{{request.route_url('help')}}">{% trans %}sensitive action{% endtrans %}</a>. If you are not on a personal computer, make sure to log out once you're done with your session.
-                We won't ask you to confirm your password again for the next hour.
-             </span>
-           </div>
-         </form>
-       </div>
-     </div>
-   {% endblock %}
+
+  {% block content %}
+    {% if testPyPI %}
+      {% set title = "TestPyPI" %}
+    {% else %}
+      {% set title = "PyPI" %}
+    {% endif %}
+
+  <div class="horizontal-section">
+    <div class="site-container">
+      <h1 class="page-title">{% trans title=title %}Confirm password to continue{% endtrans %}</h1>
+
+        <form method="POST" action="{{ request.route_path('reauthenticate') }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <input name="next_route" type="hidden" value="{{ request.matched_route.name }}">
+          <input name="next_route_matchdict" type="hidden" value="{{ request.matchdict_json }}">
+          <input name="username" type="hidden" value="{{ request.user.username }}">
+
+          {% if form.errors.__all__ %}
+          <ul class="form-errors" role="alert">
+            {% for error in form.errors.__all__ %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          <div data-controller="password" class="form-group">
+            <div>
+              <label for="password" class="form-group__label">
+                {% trans %}Password{% endtrans %}
+                {% if form.password.flags.required %}
+                <span class="form-group__required">{% trans %}{% endtrans %}</span>
+                {% endif %}
+              </label>
+            </div>
+            {{ form.password(placeholder=gettext("Your password"), required="required", class_="form-group__field", autocomplete="current-password", spellcheck="false", data_target="password.password", **{"aria-describedby":"password-errors"}) }}
+            <div id="password-errors">
+              {% if form.password.errors %}
+              <ul class="form-errors" role="alert">
+                {% for error in form.password.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
+            <div class="form-group">
+              <div class="split-layout margin-top--large margin-bottom--large">
+                <div>
+                  <input type="submit" value="{% trans %}Confirm password{% endtrans %}" class="button button--primary">
+                </div>
+                <label for="show-password">
+                  <input data-action="change->password#togglePasswords" data-target="password.showPassword"
+                    id="show-password" type="checkbox">&nbsp;{% trans %}Show password{% endtrans %}
+                </label>
+              </div>
+              <span>
+                <a href="{{request.route_url('accounts.request-password-reset')}}">{% trans %}Forgot password?{% endtrans %}</a>
+              </span>
+            </div>
+            <span>
+              <b>Tip:</b> you are about to perform a <a href="{{request.route_url('help')}}">{% trans %}sensitive action{% endtrans %}</a>. If you are not on a personal computer, make sure to log out once you're done with your session.
+              We won't ask you to confirm your password again for the next hour.
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endblock %}
    
