@@ -835,7 +835,7 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==47.3.1 \
-    --hash=sha256:4ba6f9789ea243a6b8ba57da81f75a53494456117810436fd9277a74d1c915d1 \
-    --hash=sha256:843037738d1e34e8b326b5e061f474aca6ef9d7ece41329afbc8aac6195a3920 \
+setuptools==47.3.2 \
+    --hash=sha256:bdd65594e333d1c07ad78908f0917efbeaa405f83b70039f46ff267d2d29d6d1 \
+    --hash=sha256:e9242c6c3895a473185d58c0c9e58c0a72de99dad97ce2990e24a7fc8b2d5c3e \
     # via -r requirements/main.in, google-api-core, google-auth, plaster, protobuf, pyramid, repoze.sendmail, zope.deprecation, zope.interface, zope.sqlalchemy
