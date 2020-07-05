@@ -404,9 +404,19 @@ def stats(request):
         .all()
     )
     # Move top packages into a dict to make JSON more self describing
+
+    print("TOP PACKAGES:")
+    print(top_100_packages)
+    print("TOP PACKAGES WITH ZERO_SIZE:")
+    zero_package = ('zero_size_package', 0)
+    none_package = ('none_package', None)
+    top_100_packages.append(zero_package)
+    top_100_packages.append(none_package)
+    print(top_100_packages)
+
     top_packages = {
-        pkg_name: {"size": int(pkg_bytes) if pkg_bytes is not None else 0}
-        for pkg_name, pkg_bytes in top_100_packages
+        pkg_name: {"size": int(pkg_bytes)}
+        for pkg_name, pkg_bytes in top_100_packages if pkg_bytes not in [0, None]
     }
 
     return {"total_packages_size": total_size, "top_packages": top_packages}
