@@ -404,7 +404,6 @@ def stats(request):
         .all()
     )
     # Move top packages into a dict to make JSON more self describing
-
     top_packages = {
         pkg_name: {"size": int(pkg_bytes)}
         for pkg_name, pkg_bytes in top_100_packages if pkg_bytes not in [0, None]
