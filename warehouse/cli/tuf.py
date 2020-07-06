@@ -113,7 +113,7 @@ def build_targets(config):
     # NOTE: TUF normally does delegations by path patterns (i.e., globs), but PyPI
     # doesn't store its uploads on the same logical host as the TUF repository.
     # The last parameter to `delegate` is a special sentinel for this.
-    repository.targets.delegate(BINS_ROLE, key_service.pubkeys_for_role(BINS_ROLE), [])
+    repository.targets.delegate(BINS_ROLE, key_service.pubkeys_for_role(BINS_ROLE), ["*"])
     for privkey in key_service.privkeys_for_role(BINS_ROLE):
         repository.targets(BINS_ROLE).load_signing_key(privkey)
 
