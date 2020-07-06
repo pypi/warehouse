@@ -772,7 +772,7 @@ def verify_project_role(request):
 
     # Check whether this token is being used correctly
     if data.get("action") != "email-project-role-verify":
-        return _error(request._("Invalid token: not an email verification token"))
+        return _error(request._("Invalid token: not a collaboration invitation token"))
 
     user = user_service.get_user(data.get("user_id"))
     if user != request.user:
