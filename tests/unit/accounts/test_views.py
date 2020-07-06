@@ -2034,17 +2034,24 @@ class TestVerifyProjectRole:
         assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token: not an email verification token", queue="error"
+                "Invalid token: not a collaboration invitation token", queue="error"
             )
         ]
 
-    def test_verify_project_role_already_approved(
-        self, db_request, user_service, token_service
+    @pytest.mark.parametrize(
+        ("status", "message"),
+        [
+            ("accepted", "Role invitation is already accepted."),
+            ("revoked", "Role invitation has been revoked."),
+        ],
+    )
+    def test_verify_project_role_declined(
+        self, db_request, user_service, token_service, status, message
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
         role_invitation = RoleInvitationFactory.create(
-            user=user, project=project, invite_status="expired"
+            user=user, project=project, invite_status=status
         )
 
         db_request.user = user
@@ -2071,10 +2078,10 @@ class TestVerifyProjectRole:
 
         views.verify_project_role(db_request)
 
-        assert role_invitation.invite_status == RoleInvitationStatus.Expired.value
+        assert role_invitation.invite_status == status
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Role invitation is already assigned or has been revoked.",
+                message,
                 queue="error",
             )
         ]

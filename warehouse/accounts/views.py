@@ -790,9 +790,13 @@ def verify_project_role(request):
         .one()
     )
 
-    if role_invite.invite_status != RoleInvitationStatus.Pending.value:
+    if role_invite.invite_status == RoleInvitationStatus.Revoked.value:
         return _error(
-            request._("Role invitation is already assigned or has been revoked.")
+            request._("Role invitation has been revoked.")
+        )
+    elif role_invite.invite_status == RoleInvitationStatus.Accepted.value:
+        return _error(
+            request._("Role invitation is already accepted.")
         )
 
     role_invite.invite_status = RoleInvitationStatus.Accepted.value
@@ -804,6 +808,24 @@ def verify_project_role(request):
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
+    )
+    project.record_event(
+        tag="project:role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "role_name": desired_role,
+            "target_user": user.username,
+        },
+    )
+    user.record_event(
+        tag="account:role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "project_name": project.name,
+            "role_name": desired_role,
+        },
     )
 
     owner_roles = (

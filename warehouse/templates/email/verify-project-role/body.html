@@ -14,7 +14,7 @@
 {% extends "email/_base/body.html" %}
 
 {% block content %}
-<p>{{ initiator_username }} has invited you (<code>{{ email_address }}</code>) to join their PyPI project "{{ project_name }}".</p>
+<p><a href="{{ request.route_url('accounts.profile', username=initiator_username) }}">{{ initiator_username }}</a> has invited you (<code>{{ email_address }}</code>) to join their PyPI project "{{ project_name }}".</p>
 
 <p>If you wish to proceed, <a href="{{ request.route_url('accounts.verify-project-role', _query={'token': token}) }}">click this link to accept this invitation</a></p>
 
