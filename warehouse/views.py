@@ -399,16 +399,14 @@ def stats(request):
     top_100_packages = (
         request.db.query(Project)
         .with_entities(Project.name, Project.total_size)
-        .filter(Project.total_size > 0)
         .order_by(Project.total_size.desc().nullslast())
         .limit(100)
         .all()
     )
     # Move top packages into a dict to make JSON more self describing
     top_packages = {
-        pkg_name: {"size": int(pkg_bytes)}
+        pkg_name: {"size": int(pkg_bytes) if pkg_bytes is not None else 0}
         for pkg_name, pkg_bytes in top_100_packages
-        if pkg_bytes is not None
     }
 
     return {"total_packages_size": total_size, "top_packages": top_packages}
