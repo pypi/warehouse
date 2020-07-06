@@ -122,6 +122,9 @@ def build_targets(config):
         key_service.pubkeys_for_role(BIN_N_ROLE),
         config.registry.settings["tuf.bin-n.count"],
     )
+    for privkey in key_service.privkeys_for_role(BIN_N_ROLE):
+        for delegation in repository.targets(BINS_ROLE).delegations:
+            delegation.load_signing_key(privkey)
 
     dirty_roles = ["snapshot", "targets", "timestamp", BINS_ROLE]
     for idx in range(1, 2 ** 16, 4):
