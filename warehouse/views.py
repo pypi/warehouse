@@ -399,6 +399,7 @@ def stats(request):
     top_100_packages = (
         request.db.query(Project)
         .with_entities(Project.name, Project.total_size)
+        .filter(Project.total_size > 0)
         .order_by(Project.total_size.desc())
         .limit(100)
         .all()
