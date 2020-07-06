@@ -16,7 +16,7 @@
 {% block content %}
 <p>{{ initiator_username }} has invited you (<code>{{ email_address }}</code>) to join their PyPI project "{{ project_name }}".</p>
 
-<p>If you wish to accept this invitation, <a href="{{ request.route_url('accounts.verify-project-role', _query={'token': token}) }}">click this link</a></p>
+<p>If you wish to proceed, <a href="{{ request.route_url('accounts.verify-project-role', _query={'token': token}) }}">click this link to accept this invitation</a></p>
 
 <p>Otherwise, you can safely ignore this email.</p>
 
