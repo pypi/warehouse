@@ -400,7 +400,7 @@ def stats(request):
         request.db.query(Project)
         .with_entities(Project.name, Project.total_size)
         .filter(Project.total_size > 0)
-        .order_by(Project.total_size.desc())
+        .order_by(Project.total_size.desc().nullslast())
         .limit(100)
         .all()
     )
