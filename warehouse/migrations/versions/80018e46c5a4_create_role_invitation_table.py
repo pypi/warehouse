@@ -13,7 +13,7 @@
 create role invitation table
 
 Revision ID: 80018e46c5a4
-Revises: bc8f7b526961
+Revises: 87509f4ae027
 Create Date: 2020-06-28 14:53:07.803972
 """
 import sqlalchemy as sa
@@ -22,7 +22,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "80018e46c5a4"
-down_revision = "bc8f7b526961"
+down_revision = "87509f4ae027"
 
 
 def upgrade():
