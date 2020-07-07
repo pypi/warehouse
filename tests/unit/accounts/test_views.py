@@ -2079,12 +2079,7 @@ class TestVerifyProjectRole:
         views.verify_project_role(db_request)
 
         assert role_invitation.invite_status == status
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                message,
-                queue="error",
-            )
-        ]
+        assert db_request.session.flash.calls == [pretend.call(message, queue="error",)]
         assert db_request.route_path.calls == [pretend.call("manage.account")]
 
     def test_verify_fails_with_different_user(

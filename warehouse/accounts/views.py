@@ -791,13 +791,9 @@ def verify_project_role(request):
     )
 
     if role_invite.invite_status == RoleInvitationStatus.Revoked.value:
-        return _error(
-            request._("Role invitation has been revoked.")
-        )
+        return _error(request._("Role invitation has been revoked."))
     elif role_invite.invite_status == RoleInvitationStatus.Accepted.value:
-        return _error(
-            request._("Role invitation is already accepted.")
-        )
+        return _error(request._("Role invitation is already accepted."))
 
     role_invite.invite_status = RoleInvitationStatus.Accepted.value
     request.db.add(Role(user=user, project=project, role_name=desired_role))

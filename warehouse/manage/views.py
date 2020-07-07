@@ -1476,6 +1476,13 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             .filter(Role.user == user, Role.project == project)
             .first()
         )
+        user_invite = (
+            request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
+
         if existing_role:
             request.session.flash(
                 (
@@ -1490,6 +1497,23 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 f"address and cannot be added as a {role_name} for project",
                 queue="error",
             )
+        elif (
+            user_invite
+            and user_invite.invite_status == RoleInvitationStatus.Pending.value
+        ):
+            request.session.flash(
+                f"User '{username}' already has an active invite. "
+                f"Please try again later.",
+                queue="error",
+            )
+        elif (
+            user_invite
+            and user_invite.invite_status == RoleInvitationStatus.Accepted.value
+        ):
+            request.session.flash(
+                f"User '{username}' is already a collaborator on the project.",
+                queue="error",
+            )
         else:
             token_service = request.find_service(ITokenService, name="email")
             token = token_service.dumps(
@@ -1501,30 +1525,10 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     "submitter_id": request.user.id,
                 }
             )
-            user_invite = (
-                request.db.query(RoleInvitation)
-                .filter(RoleInvitation.user == user)
-                .filter(RoleInvitation.project == project)
-                .one_or_none()
-            )
-
-            send_email = False
             if user_invite:
-                if (
-                    user_invite.invite_status == RoleInvitationStatus.Pending.value
-                    or user_invite.invite_status == RoleInvitationStatus.Accepted.value
-                ):
-                    request.session.flash(
-                        f"User '{username}' already has an active invite/role. "
-                        f"Please try again later.",
-                        queue="error",
-                    )
-                else:
-                    send_email = True
-                    user_invite.invite_status = RoleInvitationStatus.Pending.value
-                    user_invite.token = token
+                user_invite.invite_status = RoleInvitationStatus.Pending.value
+                user_invite.token = token
             else:
-                send_email = True
                 request.db.add(
                     RoleInvitation(
                         user=user,
@@ -1534,37 +1538,34 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     )
                 )
 
-            if send_email:
-                request.db.add(
-                    JournalEntry(
-                        name=project.name,
-                        action=f"invite {role_name} {username}",
-                        submitted_by=request.user,
-                        submitted_from=request.remote_addr,
-                    )
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action=f"invite {role_name} {username}",
+                    submitted_by=request.user,
+                    submitted_from=request.remote_addr,
                 )
-                send_project_role_verification_email(
-                    request,
-                    user,
-                    desired_role=role_name,
-                    initiator_username=request.user.username,
-                    project_name=project.name,
-                    email_token=token,
-                    token_age=token_service.max_age,
-                )
-                project.record_event(
-                    tag="project:role:invite",
-                    ip_address=request.remote_addr,
-                    additional={
-                        "submitted_by": request.user.username,
-                        "role_name": role_name,
-                        "target_user": username,
-                    },
-                )
-                request.db.flush()  # in order to get id
-                request.session.flash(
-                    f"Invitation sent to '{username}'", queue="success"
-                )
+            )
+            send_project_role_verification_email(
+                request,
+                user,
+                desired_role=role_name,
+                initiator_username=request.user.username,
+                project_name=project.name,
+                email_token=token,
+                token_age=token_service.max_age,
+            )
+            project.record_event(
+                tag="project:role:invite",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "role_name": role_name,
+                    "target_user": username,
+                },
+            )
+            request.db.flush()  # in order to get id
+            request.session.flash(f"Invitation sent to '{username}'", queue="success")
 
         form = _form_class(user_service=user_service)
 
@@ -1634,7 +1635,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
         request.session.flash("Could not find role invitation.", queue="error")
     except TokenExpired:
         user_invite.invite_status = RoleInvitationStatus.Revoked.value
-        request.session.flash("Invitation already expired.", queue="error")
+        request.session.flash("Invitation revoked.", queue="success")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
