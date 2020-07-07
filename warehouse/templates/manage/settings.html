@@ -20,6 +20,11 @@
 {% block main %}
   <h2>{% trans %}Project settings{% endtrans %}</h2>
 
+  {% trans project_upload_limit=project.upload_limit | float | filesizeformat() , help_url=request.help_url(_anchor='file-size-limit') %}Project upload limit is: 
+  <a href="{{ help_url }}">{{ project_upload_limit }} </a>{% endtrans %}<br><br>
+  {% trans project_total_limit=project.total_size_limit | float | filesizeformat() , help_url=request.help_url(_anchor='project-size-limit') %}Project total size limit is: 
+  <a href="{{ help_url }}">{{ project_total_limit }} </a>{% endtrans %}<br><br>
+
   <h3>{% trans %}API tokens{% endtrans %}</h3>
   <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
   {% if user.has_primary_verified_email %}
