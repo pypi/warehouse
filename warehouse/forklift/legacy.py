@@ -57,6 +57,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
+from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
 
 ONE_MB = 1 * 1024 * 1024
@@ -1191,6 +1192,7 @@ def file_upload(request):
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
     project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
 
+    file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
         temporary_filename = os.path.join(tmpdir, filename)
 
@@ -1366,6 +1368,7 @@ def file_upload(request):
             ),
             uploaded_via=request.user_agent,
         )
+        file_data = file_
         request.db.add(file_)
 
         # TODO: This should be handled by some sort of database trigger or a
@@ -1409,6 +1412,15 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+    # We are flushing the database requests so that we
+    # can access the server default values when initiating celery
+    # tasks.
+    request.db.flush()
+
+    # Push updates to BigQuery
+    if not request.registry.settings.get("warehouse.release_files_table") is None:
+        request.task(update_bigquery_release_files).delay(file_data, form)
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])

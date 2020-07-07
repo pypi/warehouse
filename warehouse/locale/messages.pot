@@ -4221,9 +4221,9 @@ msgstr ""
 #: warehouse/templates/pages/help.html:488
 #, python-format
 msgid ""
-"You can <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">analyze PyPI download usage statistics via our public "
-"dataset on Google BigQuery</a>."
+"You can analyze PyPI project/package metadata and <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">download usage "
+"statistics</a> via our public dataset on Google BigQuery."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:490
