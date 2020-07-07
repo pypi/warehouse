@@ -1915,3 +1915,48 @@ class TestProfilePublicEmail:
         request = pretend.stub()
 
         assert views.profile_public_email(user, request) == {"user": user}
+
+
+class TestReAuthentication:
+    @pytest.mark.parametrize("next_route", [None, "/manage/accounts", "/projects/"])
+    def test_reauth(self, monkeypatch, pyramid_request, pyramid_services, next_route):
+        user_service = pretend.stub()
+        response = pretend.stub()
+
+        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
+
+        pyramid_services.register_service(IUserService, None, user_service)
+
+        pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
+
+        form_obj = pretend.stub(
+            next_route=pretend.stub(data=next_route),
+            next_route_matchdict=pretend.stub(data="{}"),
+            validate=lambda: True,
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        if next_route is not None:
+            pyramid_request.method = "POST"
+            pyramid_request.POST["next_route"] = next_route
+            pyramid_request.POST["next_route_matchdict"] = "{}"
+
+        _ = views.reauthenticate(pyramid_request, _form_class=form_class)
+
+        assert pyramid_request.session.record_auth_timestamp.calls == (
+            [pretend.call()] if next_route is not None else []
+        )
+        assert form_class.calls == [
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                user_service=user_service,
+                check_password_metrics_tags=[
+                    "method:reauth",
+                    "auth_method:reauthenticate_form",
+                ],
+            )
+        ]

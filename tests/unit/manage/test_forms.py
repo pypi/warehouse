@@ -133,15 +133,6 @@ class TestChangePasswordForm:
         assert form._breach_service is breach_service
 
 
-class TestReAuthenticateForm:
-    def test_creation(self):
-        user_service = pretend.stub()
-
-        form = forms.ReAuthenticateForm(user_service=user_service)
-
-        assert form.user_service is user_service
-
-
 class TestProvisionTOTPForm:
     def test_creation(self):
         totp_secret = pretend.stub()

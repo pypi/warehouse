@@ -101,7 +101,7 @@ class Session(dict):
     setdefault = _changed_method(dict.setdefault)
     update = _changed_method(dict.update)
 
-    def __init__(self, data=None, session_id=None, new=True, max_age=12 * 60 * 60):
+    def __init__(self, data=None, session_id=None, new=True):
         # Brand new sessions don't have any data, so we'll just create an empty
         # dictionary for them.
         if data is None:
@@ -118,8 +118,6 @@ class Session(dict):
 
         # We'll track all of the IDs that have been invalidated here
         self.invalidated = set()
-
-        self.max_age = max_age
 
     @property
     def sid(self):
@@ -265,7 +263,7 @@ class SessionFactory:
 
         # If we were able to load existing session data, load it into a
         # Session class
-        session = Session(data, session_id, False, max_age=self.max_age)
+        session = Session(data, session_id, False)
 
         return session
 

@@ -115,20 +115,6 @@ class ConfirmPasswordForm(UsernameMixin, PasswordMixin, forms.Form):
         self.user_service = user_service
 
 
-class ReAuthenticateForm(PasswordMixin, forms.Form):
-    __params__ = ["username", "password", "next_route", "next_route_matchdict"]
-
-    username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
-    next_route = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
-    next_route_matchdict = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired()]
-    )
-
-    def __init__(self, *args, user_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_service = user_service
-
-
 class DeleteTOTPForm(ConfirmPasswordForm):
     # TODO: delete?
     pass

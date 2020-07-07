@@ -16,8 +16,8 @@ import json
 from pyramid import viewderivers
 from pyramid.renderers import render_to_response
 
+from warehouse.accounts.forms import ReAuthenticateForm
 from warehouse.accounts.interfaces import IUserService
-from warehouse.manage.forms import ReAuthenticateForm  # TODO: move to accounts yea
 
 
 def reauth_view(view, info):

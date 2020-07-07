@@ -29,7 +29,7 @@
     <div class="site-container">
       <h1 class="page-title">{% trans title=title %}Confirm password to continue{% endtrans %}</h1>
 
-        <form method="POST" action="{{ request.route_path('reauthenticate') }}">
+        <form method="POST" action="{{ request.route_path('accounts.reauthenticate') }}">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
           <input name="next_route" type="hidden" value="{{ request.matched_route.name }}">
           <input name="next_route_matchdict" type="hidden" value="{{ request.matchdict_json }}">

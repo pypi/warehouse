@@ -140,6 +140,9 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "accounts.reauthenticate", "/accounts/reauthenticate/", domain=warehouse
+    )
+    config.add_route(
         "accounts.recovery-code", "/account/recovery-code/", domain=warehouse,
     )
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
@@ -295,9 +298,6 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("packaging.file", files_url)
-
-    # Re-Authentication Route
-    config.add_route("reauthenticate", "/reauthenticate/", domain=warehouse)
 
     # SES Webhooks
     config.add_route("ses.hook", "/_/ses-hook/", domain=warehouse)

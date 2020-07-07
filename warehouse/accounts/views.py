@@ -12,6 +12,7 @@
 
 import datetime
 import hashlib
+import json
 import uuid
 
 from first import first
@@ -27,6 +28,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
     LoginForm,
+    ReAuthenticateForm,
     RecoveryCodeAuthenticationForm,
     RegistrationForm,
     RequestPasswordResetForm,
@@ -817,3 +819,38 @@ def edit_profile_button(user, request):
 )
 def profile_public_email(user, request):
     return {"user": user}
+
+
+@view_config(
+    route_name="accounts.reauthenticate",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    has_translations=True,
+)
+def reauthenticate(request, _form_class=ReAuthenticateForm):
+    user_service = request.find_service(IUserService, context=None)
+
+    form = _form_class(
+        request.POST,
+        request=request,
+        user_service=user_service,
+        check_password_metrics_tags=[
+            "method:reauth",
+            "auth_method:reauthenticate_form",
+        ],
+    )
+
+    if form.next_route.data and form.next_route_matchdict.data:
+        redirect_to = request.route_path(
+            form.next_route.data, **json.loads(form.next_route_matchdict.data)
+        )
+    else:
+        redirect_to = request.route_path("manage.projects")
+
+    resp = HTTPSeeOther(redirect_to)
+
+    if request.method == "POST" and form.validate():
+        request.session.record_auth_timestamp()
+
+    return resp
