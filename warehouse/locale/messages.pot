@@ -2875,14 +2875,14 @@ msgstr ""
 #: warehouse/templates/manage/settings.html:23
 #, python-format
 msgid ""
-"Project upload limit is: \n"
+"Project upload limit is:\n"
 "  <a href=\"%(help_url)s\">%(project_upload_limit)s </a>"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:25
 #, python-format
 msgid ""
-"Project total size limit is: \n"
+"Project total size limit is:\n"
 "  <a href=\"%(help_url)s\">%(project_total_limit)s </a>"
 msgstr ""
 
