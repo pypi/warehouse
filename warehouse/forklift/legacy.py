@@ -60,9 +60,13 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
 
-MAX_FILESIZE = 60 * 1024 * 1024  # 60M
-MAX_SIGSIZE = 8 * 1024  # 8K
-MAX_PROJECT_SIZE = 10 * 1024 * 1024 * 1024  # 10GB
+ONE_MB = 1 * 1024 * 1024
+ONE_GB = 1 * 1024 * 1024 * 1024
+
+MAX_FILESIZE = 100 * ONE_MB
+MAX_SIGSIZE = 8 * 1024
+MAX_PROJECT_SIZE = 10 * ONE_GB
+
 PATH_HASHER = "blake2_256"
 
 
@@ -1186,6 +1190,7 @@ def file_upload(request):
     # it does then it may or may not be smaller or larger than our global file
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
+    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
 
     file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1207,11 +1212,21 @@ def file_upload(request):
                         HTTPBadRequest,
                         "File too large. "
                         + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // (1024 * 1024)
+                            name=project.name, limit=file_size_limit // ONE_MB
                         )
                         + "See "
                         + request.help_url(_anchor="file-size-limit")
                         + " for more information.",
+                    )
+                if file_size + project.total_size > project_size_limit:
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "Project size too large. Limit for "
+                        + "project {name!r} total size is {limit} GB. ".format(
+                            name=project.name, limit=project_size_limit // ONE_GB,
+                        )
+                        + "See "
+                        + request.help_url(_anchor="project-size-limit"),
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
