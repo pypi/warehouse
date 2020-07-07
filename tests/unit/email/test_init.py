@@ -117,6 +117,7 @@ class TestSendEmailToUser:
                 {"subject": "My Subject", "body_text": "My Body", "body_html": None},
                 user.id,
                 request.remote_addr,
+                False,
             )
         ]
 
@@ -201,6 +202,7 @@ class TestSendEmailToUser:
                 {"subject": "My Subject", "body_text": "My Body", "body_html": None},
                 user.id,
                 request.remote_addr,
+                False,
             )
         ]
 
@@ -252,7 +254,7 @@ class TestSendEmail:
         msg = EmailMessage(subject="subject", body_text="body")
 
         email.send_email(
-            task, request, "recipient", attr.asdict(msg), user_id, "0.0.0.0"
+            task, request, "recipient", attr.asdict(msg), user_id, "0.0.0.0", False
         )
 
         assert request.find_service.calls == [
@@ -276,6 +278,7 @@ class TestSendEmail:
                     "from_": "noreply@example.com",
                     "to": "recipient",
                     "subject": msg.subject,
+                    "redact_ip": False,
                 },
             }
         ]
@@ -420,6 +423,7 @@ class TestSendPasswordResetEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -502,6 +506,7 @@ class TestEmailVerificationEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -566,6 +571,7 @@ class TestPasswordChangeEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -677,6 +683,7 @@ class TestPasswordCompromisedHIBPEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -741,6 +748,7 @@ class TestPasswordCompromisedEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -806,6 +814,7 @@ class TestAccountDeletionEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -925,6 +934,7 @@ class TestPrimaryEmailChangeEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -1075,7 +1085,8 @@ class TestCollaboratorAddedEmail:
                     )
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1091,6 +1102,7 @@ class TestCollaboratorAddedEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -1184,6 +1196,7 @@ class TestCollaboratorAddedEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]
 
@@ -1268,7 +1281,8 @@ class TestAddedAsCollaboratorEmail:
                     )
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             )
         ]
 
@@ -1431,7 +1445,8 @@ class TestRemovedProjectEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1447,6 +1462,7 @@ class TestRemovedProjectEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -1540,7 +1556,8 @@ class TestRemovedProjectEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1556,6 +1573,7 @@ class TestRemovedProjectEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -1665,7 +1683,8 @@ class TestYankedReleaseEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1681,6 +1700,7 @@ class TestYankedReleaseEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -1788,7 +1808,8 @@ class TestYankedReleaseEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1804,6 +1825,7 @@ class TestYankedReleaseEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -1912,7 +1934,8 @@ class TestUnyankedReleaseEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1928,6 +1951,7 @@ class TestUnyankedReleaseEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -2034,7 +2058,8 @@ class TestUnyankedReleaseEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2050,6 +2075,7 @@ class TestUnyankedReleaseEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -2158,7 +2184,8 @@ class TestRemovedReleaseEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2174,6 +2201,7 @@ class TestRemovedReleaseEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -2280,7 +2308,8 @@ class TestRemovedReleaseEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2296,6 +2325,7 @@ class TestRemovedReleaseEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -2405,7 +2435,8 @@ class TestRemovedReleaseFileEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2421,6 +2452,7 @@ class TestRemovedReleaseFileEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -2528,7 +2560,8 @@ class TestRemovedReleaseFileEmail:
                     ),
                 ),
                 stub_user.id,
-                "Redacted",
+                pyramid_request.remote_addr,
+                True,
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2544,6 +2577,7 @@ class TestRemovedReleaseFileEmail:
                 ),
                 stub_submitter_user.id,
                 pyramid_request.remote_addr,
+                False,
             ),
         ]
 
@@ -2626,5 +2660,6 @@ class TestTwoFactorEmail:
                 ),
                 stub_user.id,
                 pyramid_request.remote_addr,
+                False,
             )
         ]

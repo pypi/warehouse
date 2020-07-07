@@ -691,7 +691,7 @@
           </td>
           <td>
             <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
-            {{ event.ip_address }}
+            {{ "Redacted" if event.additional.redact_ip else event.ip_address }}
           </td>
         </tr>
         {% endfor %}

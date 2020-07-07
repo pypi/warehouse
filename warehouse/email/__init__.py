@@ -35,7 +35,9 @@ def _compute_recipient(user, email):
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, recipient, msg, user_id, ip_address):
+def send_email(
+    task, request, recipient, msg, sending_user_id, ip_address, redact_ip=True
+):
     msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
     from_address = parseaddr(sender.from_address)[1]
@@ -45,13 +47,14 @@ def send_email(task, request, recipient, msg, user_id, ip_address):
 
         user_service = request.find_service(IUserService, context=None)
         user_service.record_event(
-            user_id,
+            sending_user_id,
             tag="account:email:sent",
             ip_address=ip_address,
             additional={
                 "from_": from_address,
                 "to": parseaddr(recipient)[1],
                 "subject": msg.subject,
+                "redact_ip": redact_ip,
             },
         )
     except Exception as exc:
@@ -75,12 +78,14 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     # who triggered the email event is the one who receives the email. Else display
     # 'Redacted' to prevent user privacy concerns
     user_email = request.db.query(Email).filter(Email.email == email.email).one()
-    ip_address = (
-        request.remote_addr if user_email.user_id == request.user.id else "Redacted"
-    )
+    redact_ip = user_email.user_id != request.user.id
 
     request.task(send_email).delay(
-        _compute_recipient(user, email.email), attr.asdict(msg), user.id, ip_address
+        _compute_recipient(user, email.email),
+        attr.asdict(msg),
+        user.id,
+        request.remote_addr,
+        redact_ip,
     )
 
 

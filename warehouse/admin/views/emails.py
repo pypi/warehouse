@@ -99,6 +99,8 @@ def email_mass(request):
                         "body_text": row["body_text"],
                         "body_html": row.get("body_html"),
                     },
+                    user.id,
+                    request.remote_addr,
                 )
         request.session.flash("Mass emails sent", queue="success")
     else:
