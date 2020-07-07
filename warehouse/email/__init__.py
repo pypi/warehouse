@@ -228,6 +228,22 @@ def send_removed_project_email(
         "recipient_role_descr": recipient_role_descr,
     }
 
+@_email("restored-project")
+def send_restored_project_email(
+    request, user, *, project_name, submitter_name, submitter_role, recipient_role
+):
+    recipient_role_descr = "an owner"
+    if recipient_role == "Maintainer":
+        recipient_role_descr = "a maintainer"
+    #TODO 4440 : How do we customize the email? Who do we send the email to?
+    return {
+        "project_name": project_name,
+        "submitter_name": submitter_name,
+        "submitter_role": submitter_role.lower(),
+        "recipient_role_descr": recipient_role_descr,
+    }
+
+
 
 @_email("yanked-project-release")
 def send_yanked_project_release_email(

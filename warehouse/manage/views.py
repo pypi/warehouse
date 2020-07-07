@@ -107,19 +107,19 @@ def user_projects(request):
 
 
 def soft_delete_file(file_):
-    file_.deleted = True
+    file_.soft_deleted = True
 
 
 def soft_delete_release(release):
     for file_ in release.files:
         soft_delete_file(file_)
-    release.deleted = True
+    release.soft_deleted = True
 
 
 def soft_delete_project(project):
     for release in project.releases:
         soft_delete_release(release)
-    project.deleted = True
+    project.soft_deleted = True
 
 @view_defaults(
     route_name="manage.account",

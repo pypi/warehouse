@@ -66,6 +66,40 @@ def destroy_project(project, request):
     request.session.flash(f"Destroyed the project {project.name!r}", queue="success")
 
 
+def _soft_restore_file(file_):
+    file_.soft_deleted = False
+
+
+def _soft_restore_release(release):
+    release.soft_deleted = False
+    for file_ in release.files:
+        _soft_restore_file(file_)
+
+
+def _soft_restore_project(project):
+    project.soft_deleted = False
+    for release in project.releases:
+        _soft_restore_release(release)
+
+def soft_restore_project(project, request):
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="restore project",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    _soft_restore_project(project)
+
+    request.db.flush()
+
+    request.session.flash(f"Restored the project {project.name!r}", queue="success")
+
+
+
 def destroy_docs(project, request):
     request.db.add(
         JournalEntry(

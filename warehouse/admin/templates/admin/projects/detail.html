@@ -266,9 +266,12 @@
       </div>
   </div>
 
-  <!-- Deletion form -->
+  {% if project.soft_deleted %}
+  <!-- Restoration form -->
+  {% include 'restore.html' %}
+  {% endif %}
+  <!-- Destroy form -->
   {% include 'delete.html' %}
-
   <!-- ProhibitedProjectName form -->
   <div class="box box-secondary collapsed-box">
     <div class="box-header with-border">

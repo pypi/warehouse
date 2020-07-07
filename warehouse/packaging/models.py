@@ -71,14 +71,15 @@ def before_compile(query):
         insp = inspect(entity)
         mapper = getattr(insp, "mapper", None)
         if mapper and issubclass(mapper.class_, SoftDeleteable):
-            query = query.enable_assertions(False).filter(ent['entity'].deleted == False)
+            query = query.enable_assertions(False).filter(ent['entity'].soft_deleted == False)
+            # query = query
     return query
 
 
 class SoftDeleteable(object):
     """Mixin that identifies a class as being soft-deleteable"""
 
-    deleted = Column(Boolean, nullable=False, server_default=sql.false())
+    soft_deleted = Column(Boolean, nullable=False, server_default=sql.false())
 
 
 class Role(db.Model):

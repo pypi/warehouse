@@ -23,7 +23,7 @@
     {% if projects %}
     {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
-    <div class="package-snippet {{"deleted" if project.deleted else ""}}">
+    <div class="package-snippet {{"deleted" if project.soft_deleted else ""}}">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
           <h3 class="package-snippet__title">{{ project.name }}
@@ -45,18 +45,7 @@
           {% endif %}
         </div>
         <div class="package-snippet__buttons">
-          {% if project.deleted %}
-            <a
-              href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
-              class="button button--primary"
-              {% if project.name in projects_owned %}
-              title="Restore this project"
-              {% else %}
-              disabled
-              title="You are not an owner of this project"
-              {% endif %}
-              >Restore</a>
-          {% else %}
+            {% if project.name in projects_owned %}
             <a
               href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
               class="button button--primary"

@@ -23,7 +23,7 @@ from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, destroy_project
+from warehouse.utils.project import confirm_project, destroy_project, soft_restore_project
 
 ONE_MB = 1024 * 1024  # bytes
 ONE_GB = 1024 * 1024 * 1024  # bytes
@@ -467,6 +467,22 @@ def delete_role(project, request):
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
     )
+
+
+
+@view_config(
+    route_name="admin.project.restore",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def restore_project(project, request):
+    confirm_project(project, request, fail_route="admin.project.detail")
+    soft_restore_project(project, request)
+
+    return HTTPSeeOther(request.route_path("admin.project.list"))
+
 
 
 @view_config(
