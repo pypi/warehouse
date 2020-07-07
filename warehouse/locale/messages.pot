@@ -487,7 +487,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/settings.html:56
+#: warehouse/templates/manage/settings.html:61
 msgid "Warning"
 msgstr ""
 
@@ -1342,7 +1342,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
-#: warehouse/templates/manage/settings.html:50
+#: warehouse/templates/manage/settings.html:55
 #: warehouse/templates/search/results.html:199
 msgid "Close"
 msgstr ""
@@ -1937,12 +1937,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:521
-#: warehouse/templates/manage/settings.html:23
+#: warehouse/templates/manage/settings.html:28
 msgid "API tokens"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:522
-#: warehouse/templates/manage/settings.html:24
+#: warehouse/templates/manage/settings.html:29
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
@@ -2554,7 +2554,7 @@ msgstr ""
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:174
 #: warehouse/templates/manage/roles.html:24
-#: warehouse/templates/manage/settings.html:50
+#: warehouse/templates/manage/settings.html:55
 msgid "Dismiss"
 msgstr ""
 
@@ -2872,23 +2872,37 @@ msgstr ""
 msgid "Project settings"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:28
+#: warehouse/templates/manage/settings.html:23
+#, python-format
+msgid ""
+"Project upload limit is:\n"
+"  <a href=\"%(help_url)s\">%(project_upload_limit)s </a>"
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:25
+#, python-format
+msgid ""
+"Project total size limit is:\n"
+"  <a href=\"%(help_url)s\">%(project_total_limit)s </a>"
+msgstr ""
+
+#: warehouse/templates/manage/settings.html:33
 #, python-format
 msgid "Create a token for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:33
+#: warehouse/templates/manage/settings.html:38
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:41
+#: warehouse/templates/manage/settings.html:46
 msgid "Project description and sidebar"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:43
+#: warehouse/templates/manage/settings.html:48
 #, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, "
@@ -2904,16 +2918,16 @@ msgid ""
 "for more help."
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:54
-#: warehouse/templates/manage/settings.html:85
+#: warehouse/templates/manage/settings.html:59
+#: warehouse/templates/manage/settings.html:90
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:57
+#: warehouse/templates/manage/settings.html:62
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:62
+#: warehouse/templates/manage/settings.html:67
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -2924,15 +2938,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/settings.html:68
+#: warehouse/templates/manage/settings.html:73
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:72
+#: warehouse/templates/manage/settings.html:77
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:74
+#: warehouse/templates/manage/settings.html:79
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
@@ -2941,7 +2955,7 @@ msgid ""
 "number + distribution type)"
 msgstr ""
 
-#: warehouse/templates/manage/settings.html:85
+#: warehouse/templates/manage/settings.html:90
 msgid "Project Name"
 msgstr ""
 
