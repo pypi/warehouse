@@ -28,6 +28,7 @@ import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.packaging.models import (
@@ -2287,7 +2288,11 @@ class TestManageProjectSettings:
         request = pretend.stub()
         project = pretend.stub()
 
-        assert views.manage_project_settings(project, request) == {"project": project}
+        assert views.manage_project_settings(project, request) == {
+            "project": project,
+            "MAX_FILESIZE": MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        }
 
     def test_delete_project_no_confirm(self):
         project = pretend.stub(normalized_name="foo")
