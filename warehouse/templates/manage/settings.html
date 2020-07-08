@@ -20,10 +20,23 @@
 {% block main %}
   <h2>{% trans %}Project settings{% endtrans %}</h2>
 
-  {% trans project_upload_limit=project.upload_limit | float | filesizeformat(true) , help_url=request.help_url(_anchor='file-size-limit') %}Project upload limit is:
-  <a href="{{ help_url }}">{{ project_upload_limit }} </a>{% endtrans %}<br><br>
-  {% trans project_total_limit=project.total_size_limit | float | filesizeformat(true) , help_url=request.help_url(_anchor='project-size-limit') %}Project total size limit is:
-  <a href="{{ help_url }}">{{ project_total_limit }} </a>{% endtrans %}<br><br>
+  Project upload limit :
+  {% if project.upload_limit %}
+    {{ project.upload_limit|filesizeformat(binary=True) }}
+  {% else %}
+    Default ({{  MAX_FILESIZE|filesizeformat(binary=True) }})
+  {% endif %}
+  {% trans help_url=request.help_url(_anchor='file-size-limit') %}
+  <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}<br><br>
+
+  Project total size limit :
+  {% if project.total_size_limit %}
+    {{ project.total_size_limit|filesizeformat(binary=True) }}
+  {% else %}
+    Default ({{  MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+  {% endif %}
+  {% trans help_url=request.help_url(_anchor='project-size-limit') %}
+  <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}<br><br>
 
   <h3>{% trans %}API tokens{% endtrans %}</h3>
   <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
