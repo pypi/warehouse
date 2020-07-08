@@ -44,6 +44,7 @@ from warehouse.email import (
     send_unyanked_project_release_email,
     send_yanked_project_release_email,
 )
+from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -915,7 +916,11 @@ def manage_projects(request):
     has_translations=True,
 )
 def manage_project_settings(project, request):
-    return {"project": project}
+    return {
+        "project": project,
+        "MAX_FILESIZE": MAX_FILESIZE,
+        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+    }
 
 
 def get_user_role_in_project(project, user, request):
