@@ -281,8 +281,51 @@ class TestUpdateBigQueryMetadata:
             "warehouse.release_files_table": "example.pypi.distributions"
         }
 
+        dist_metadata = {
+            "metadata_version": form_factory["metadata_version"].data,
+            "name": form_factory["name"].data,
+            "version": form_factory["version"].data,
+            "summary": form_factory["summary"].data,
+            "description": form_factory["description"].data,
+            "author": form_factory["author"].data,
+            "description_content_type": form_factory["description_content_type"].data,
+            "author_email": form_factory["author_email"].data,
+            "maintainer": form_factory["maintainer"].data,
+            "maintainer_email": form_factory["maintainer_email"].data,
+            "license": form_factory["license"].data,
+            "keywords": form_factory["keywords"].data,
+            "classifiers": form_factory["classifiers"].data,
+            "platform": form_factory["platform"].data,
+            "home_page": form_factory["home_page"].data,
+            "download_url": form_factory["download_url"].data,
+            "requires_python": form_factory["requires_python"].data,
+            "pyversion": form_factory["pyversion"].data,
+            "filetype": form_factory["filetype"].data,
+            "comment": form_factory["comment"].data,
+            "requires": form_factory["requires"].data,
+            "provides": form_factory["provides"].data,
+            "obsoletes": form_factory["obsoletes"].data,
+            "requires_dist": form_factory["requires_dist"].data,
+            "provides_dist": form_factory["provides_dist"].data,
+            "obsoletes_dist": form_factory["obsoletes_dist"].data,
+            "requires_external": form_factory["requires_external"].data,
+            "project_urls": form_factory["project_urls"].data,
+            "filename": release_file.filename,
+            "python_version": release_file.python_version,
+            "packagetype": release_file.packagetype,
+            "comment_text": release_file.comment_text,
+            "size": release_file.size,
+            "has_signature": release_file.has_signature,
+            "md5_digest": release_file.md5_digest,
+            "sha256_digest": release_file.sha256_digest,
+            "blake2_256_digest": release_file.blake2_256_digest,
+            "path": release_file.path,
+            "uploaded_via": release_file.uploaded_via,
+            "upload_time": release_file.upload_time,
+        }
+
         task = pretend.stub()
-        update_bigquery_release_files(task, db_request, release_file, form_factory)
+        update_bigquery_release_files(task, db_request, dist_metadata)
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
         assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]

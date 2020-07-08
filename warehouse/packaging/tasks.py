@@ -124,7 +124,7 @@ def update_description_html(request):
     retry_jitter=False,
     max_retries=5,
 )
-def update_bigquery_release_files(task, request, file, form):
+def update_bigquery_release_files(task, request, dist_metadata):
     """
     Adds release file metadata to public BigQuery database
     """
@@ -138,12 +138,7 @@ def update_bigquery_release_files(task, request, file, form):
     # values individually
     json_rows = dict()
     for sch in table_schema:
-        # The order of data extraction below is determined based on the
-        # classes that are most recently updated
-        if hasattr(file, sch.name):
-            field_data = getattr(file, sch.name)
-        else:
-            field_data = form[sch.name].data
+        field_data = dist_metadata[sch.name]
 
         if isinstance(field_data, datetime.datetime):
             field_data = field_data.isoformat()
