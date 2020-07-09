@@ -56,8 +56,8 @@ use our RSS feeds.
 No new integrations should use the XML-RPC APIs as they are planned for
 deprecation. Existing consumers should migrate to JSON/RSS/Legacy APIs.
 
-Available APIs
---------------
+Available APIs & Datasets
+-------------------------
 
 .. toctree::
     :maxdepth: 2
@@ -68,3 +68,4 @@ Available APIs
     stats
     xml-rpc
     integration-guide
+    bigquery-dataset
