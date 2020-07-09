@@ -10,21 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
+from pyramid.tweens import EXCVIEW, INGRESS
+
 import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.pyramid import PyramidIntegration
 from sentry_sdk.integrations.wsgi import SentryWsgiMiddleware
 
-def sentry_tween_factory(handler, registry):
-    def sentry_tween(request):
-        try:
-            return handler(request)
-        except:  # noqa
-            request.sentry.capture_exception()
-            raise
-
-    return raven_tween
-
 def _sentry(request):
-    # request.add_finished_callback(lambda r: r.sentry.context.clear())
     return request.registry["sentry"]
 
 # There is an 'ignore_errors' kwarg for sentry_sdk.init however it is supposedly
@@ -39,11 +35,10 @@ ignore_exceptions = (
     SystemExit,
     # Gunicorn internally raises these errors, and will catch them and handle
     # them correctly... however they have to first pass through our WSGI
-    # middleware for Raven which is catching them and logging them. Instead we
+    # middleware which is catching them and logging them. Instead we
     # will ignore them.
     # We have to list these as strings, and list all of them because we don't
-    # want to import Gunicorn in our application, and when using strings Raven
-    # doesn't handle inheritance.
+    # want to import Gunicorn in our application
     "gunicorn.http.errors.ParseException",
     "gunicorn.http.errors.NoMoreData",
     "gunicorn.http.errors.InvalidRequestLine",
@@ -60,32 +55,32 @@ ignore_exceptions = (
     "gunicorn.http.errors.InvalidSchemeHeaders",
 )
 def before_send(event, hint):
-    if 'exc_info' in hint:
-        exc_type, exc_value, tb = hint['exc_info']
-        if isinstance(exc_value, ignore_exceptions):
+    if "exc_info" in hint:
+        exc_type, exc_value, tb = hint["exc_info"]
+        if exc_type in ignore_exceptions or type(exc_value).__name__ in ignore_exceptions:
             return None
     return event
 
 def includeme(config):
     # Initialize sentry and stash it in the registry
     sentry_sdk.init(
-        dsn=config.registry.settings.get("sentry.dsn"),
+        dsn=config.registry.settings["sentry.dsn"],
         release=config.registry.settings["warehouse.commit"],
         transport=config.registry.settings.get("sentry.transport"),
         before_send=before_send,
         attach_stacktrace=True,
+        integrations=[
+            # This allows us to not create a tween for
+            # pyramid as it automatically integrates itself
+            PyramidIntegration(),
+            CeleryIntegration(),
+            LoggingIntegration(),
+        ]
     )
     config.registry["sentry"] = sentry_sdk
 
     # Create a request method that'll get us the Sentry SDK in each request.
-    config.add_request_method(_raven, name="raven", reify=True)
-
-    # Add a tween that will handle catching any exceptions that get raised.
-    config.add_tween(
-        "warehouse.sentry.sentry_tween_factory",
-        under=["pyramid_debugtoolbar.toolbar_tween_factory", INGRESS],
-        over=EXCVIEW,
-    )
+    config.add_request_method(_sentry, name="sentry", reify=True)
 
     # Wrap the WSGI object with the middle to catch any exceptions we don't
     # catch elsewhere.
