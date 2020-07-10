@@ -10,21 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
-from pyramid.tweens import EXCVIEW, INGRESS
-
 import sentry_sdk
+
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.pyramid import PyramidIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.wsgi import SentryWsgiMiddleware
+
 
 def _sentry(request):
     return request.registry["sentry"]
 
-# There is an 'ignore_errors' kwarg for sentry_sdk.init however it is supposedly
-# WIP and unstable compared to the before_send kwarg. We can switch to
+
+# There is an 'ignore_errors' kwarg for sentry_sdk.init() however it is supposedly
+# WIP and unstable compared to the 'before_send' kwarg. We can switch to
 # 'ignore_errors' once https://github.com/getsentry/sentry-python/issues/149
 # is closed.
 ignore_exceptions = (
@@ -36,9 +36,8 @@ ignore_exceptions = (
     # Gunicorn internally raises these errors, and will catch them and handle
     # them correctly... however they have to first pass through our WSGI
     # middleware which is catching them and logging them. Instead we
-    # will ignore them.
-    # We have to list these as strings, and list all of them because we don't
-    # want to import Gunicorn in our application
+    # will ignore them. We have to list these as strings, and list all
+    # of them because we don't want to import Gunicorn in our application
     "gunicorn.http.errors.ParseException",
     "gunicorn.http.errors.NoMoreData",
     "gunicorn.http.errors.InvalidRequestLine",
@@ -54,12 +53,20 @@ ignore_exceptions = (
     "gunicorn.http.errors.ForbiddenProxyRequest",
     "gunicorn.http.errors.InvalidSchemeHeaders",
 )
+
+
 def before_send(event, hint):
     if "exc_info" in hint:
         exc_type, exc_value, tb = hint["exc_info"]
-        if exc_type in ignore_exceptions or type(exc_value).__name__ in ignore_exceptions:
+        if (
+            exc_type in ignore_exceptions
+            or type(exc_value).__name__ in ignore_exceptions
+        ):
             return None
+        else:
+            return event
     return event
+
 
 def includeme(config):
     # Initialize sentry and stash it in the registry
@@ -70,12 +77,14 @@ def includeme(config):
         before_send=before_send,
         attach_stacktrace=True,
         integrations=[
-            # This allows us to not create a tween for
-            # pyramid as it automatically integrates itself
+            # This allows us to not create a tween
+            # and a tween handler as it automatically
+            # integrates with pyramid
             PyramidIntegration(),
             CeleryIntegration(),
+            SqlalchemyIntegration(),
             LoggingIntegration(),
-        ]
+        ],
     )
     config.registry["sentry"] = sentry_sdk
 
