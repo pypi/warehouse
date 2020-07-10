@@ -132,9 +132,6 @@ def build_targets(config):
         high = f"{idx + 2:04x}"
         dirty_roles.append(f"{low}-{high}")
 
-    repository.mark_dirty(dirty_roles)
-    repository.writeall(consistent_snapshot=True)
-
     # Collect the "paths" for every PyPI package. These are packages already in
     # existence, so we'll add some additional data to their targets to
     # indicate that we're back-signing them.
