@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import functools
+import logging
 import urllib.parse
 
 import celery
@@ -36,6 +37,8 @@ celery.app.backends.BACKEND_ALIASES[
 
 # We need to register that the sqs:// url scheme uses a netloc
 urllib.parse.uses_netloc.append("sqs")
+
+logger = logging.getLogger(__name__)
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
@@ -118,6 +121,9 @@ class WarehouseTask(celery.Task):
     def _after_commit_hook(self, success, *args, **kwargs):
         if success:
             super().apply_async(*args, **kwargs)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        logger.error("Task id {id} failed.".format(id=task_id), exc_info=einfo)
 
 
 def task(**kwargs):
