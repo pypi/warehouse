@@ -69,10 +69,11 @@ def before_send(event, hint):
 
 
 def includeme(config):
+
     # Initialize sentry and stash it in the registry
     sentry_sdk.init(
-        dsn=config.registry.settings["sentry.dsn"],
-        release=config.registry.settings["warehouse.commit"],
+        dsn=config.registry.settings.get("sentry.dsn"),
+        release=config.registry.settings.get("warehouse.commit"),
         transport=config.registry.settings.get("sentry.transport"),
         before_send=before_send,
         attach_stacktrace=True,

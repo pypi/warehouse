@@ -631,10 +631,6 @@ pytz==2020.1 \
     --hash=sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed \
     --hash=sha256:c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048 \
     # via babel, celery, google-api-core
-raven==6.10.0 \
-    --hash=sha256:3fa6de6efa2493a7c827472e984ce9b020797d0da16f1db67197bcc23c8fae54 \
-    --hash=sha256:44a13f87670836e153951af9a3c80405d36b43097db869a36e92809673692ce4 \
-    # via -r requirements/main.in
 readme-renderer[md]==26.0 \
     --hash=sha256:cbe9db71defedd2428a1589cdc545f9bd98e59297449f69d721ef8f1cfced68d \
     --hash=sha256:cc4957a803106e820d05d14f71033092537a22daa4f406dfbdd61177e0936376 \
