@@ -109,9 +109,9 @@ six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
     # via doc8
-stevedore==2.0.1 \
-    --hash=sha256:609912b87df5ad338ff8e44d13eaad4f4170a65b79ae9cb0aa5632598994a1b7 \
-    --hash=sha256:c4724f8d7b8f6be42130663855d01a9c2414d6046055b5a65ab58a0e38637688 \
+stevedore==3.1.0 \
+    --hash=sha256:79270bd5fb4a052e76932e9fef6e19afa77090c4000f2680eb8c2e887d2e6e36 \
+    --hash=sha256:9fb12884b510fdc25f8a883bb390b8ff82f67863fb360891a33135bcb2ce8c54 \
     # via doc8
 template-remover==0.1.9 \
     --hash=sha256:480f1ce63f56affac1edb29356afcca1260e8409cd928fcf9438fc149df5ff41 \
