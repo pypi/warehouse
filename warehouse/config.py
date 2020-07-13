@@ -424,7 +424,6 @@ def configure(settings=None):
         over=[
             "warehouse.cache.http.conditional_http_tween_factory",
             "pyramid_debugtoolbar.toolbar_tween_factory",
-            "warehouse.raven.raven_tween_factory",
             EXCVIEW,
         ],
     )
@@ -470,9 +469,9 @@ def configure(settings=None):
     # TODO: Remove this, this is at the wrong layer.
     config.add_wsgi_middleware(HostRewrite)
 
-    # We want Raven to be the last things we add here so that it's the outer
+    # We want Sentry to be the last things we add here so that it's the outer
     # most WSGI middleware.
-    config.include(".raven")
+    config.include(".sentry")
 
     # Register Content-Security-Policy service
     config.include(".csp")
