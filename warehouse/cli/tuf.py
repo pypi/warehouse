@@ -91,12 +91,7 @@ def new_repo(config):
             )
 
         for pubkey in pubkeys:
-            expires = None
-            if config.registry.settings["warehouse.env"] == Environment.development:
-                expires = datetime.datetime.now() + datetime.timedelta(
-                    seconds=config.registry.settings["tuf.development_key_expiry"]
-                )
-            role_obj.add_verification_key(pubkey, expires=expires)
+            role_obj.add_verification_key(pubkey)
 
         for privkey in privkeys:
             role_obj.load_signing_key(privkey)
