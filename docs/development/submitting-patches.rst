@@ -72,6 +72,9 @@ When making changes to files with strings marked for translation, it's
 necessary to update references to these files any time source strings are change, or the
 line numbers of the source strings in the source files. This can be done by running ``make translations``.
 
+For instructions on how to mark strings and views for translation,
+see the `Translation Docs`_.
+
 
 Keeping your local branch updated
 ---------------------------------
@@ -187,3 +190,4 @@ feature branch at least once while you are working on it.
 .. _`doc8`: https://github.com/stackforge/doc8
 .. _`coverage.py`: https://pypi.org/project/coverage
 .. _`the Black Code Style`: https://github.com/ambv/black#the-black-code-style
+.. _`Translation Docs`: https://warehouse.readthedocs.io/translations/

@@ -57,11 +57,16 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
+from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.tuf.interfaces import IRepositoryService
 from warehouse.utils import http, readme
 
-MAX_FILESIZE = 60 * 1024 * 1024  # 60M
-MAX_SIGSIZE = 8 * 1024  # 8K
+ONE_MB = 1 * 1024 * 1024
+ONE_GB = 1 * 1024 * 1024 * 1024
+
+MAX_FILESIZE = 100 * ONE_MB
+MAX_SIGSIZE = 8 * 1024
+MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
 
@@ -736,14 +741,14 @@ def file_upload(request):
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
-            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
+            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
         )
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
         raise _exc_with_message(
             HTTPForbidden,
             "New uploads are temporarily disabled. "
-            "See {projecthelp} for details".format(
+            "See {projecthelp} for more information.".format(
                 projecthelp=request.help_url(_anchor="admin-intervention")
             ),
         )
@@ -758,7 +763,7 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             "Invalid or non-existent authentication information. "
-            "See {projecthelp} for details".format(
+            "See {projecthelp} for more information.".format(
                 projecthelp=request.help_url(_anchor="invalid-auth")
             ),
         )
@@ -776,7 +781,6 @@ def file_upload(request):
                 "User {!r} does not have a verified primary email address. "
                 "Please add a verified primary email before attempting to "
                 "upload to PyPI. See {project_help} for more information."
-                "for more information."
             ).format(
                 request.user.username,
                 project_help=request.help_url(_anchor="verified-email"),
@@ -833,6 +837,7 @@ def file_upload(request):
                     + "Error: {} ".format(form.errors[field_name][0])
                     + "See "
                     "https://packaging.python.org/specifications/core-metadata"
+                    + " for more information."
                 )
             else:
                 error_message = "Invalid value for {field}. Error: {msgs[0]}".format(
@@ -867,7 +872,7 @@ def file_upload(request):
                 HTTPForbidden,
                 (
                     "New project registration temporarily disabled. "
-                    "See {projecthelp} for details"
+                    "See {projecthelp} for more information."
                 ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
             ) from None
 
@@ -883,8 +888,7 @@ def file_upload(request):
                 HTTPBadRequest,
                 (
                     "The name {name!r} isn't allowed. "
-                    "See {projecthelp} "
-                    "for more information."
+                    "See {projecthelp} for more information."
                 ).format(
                     name=form.name.data,
                     projecthelp=request.help_url(_anchor="project-name"),
@@ -1164,7 +1168,8 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPBadRequest,
             "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (https://www.python.org/dev/peps/pep-0527)",
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information.",
         )
 
     # Make sure that our filename matches the project that it is being uploaded
@@ -1186,7 +1191,9 @@ def file_upload(request):
     # it does then it may or may not be smaller or larger than our global file
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
+    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
 
+    file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
         temporary_filename = os.path.join(tmpdir, filename)
 
@@ -1206,10 +1213,21 @@ def file_upload(request):
                         HTTPBadRequest,
                         "File too large. "
                         + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // (1024 * 1024)
+                            name=project.name, limit=file_size_limit // ONE_MB
                         )
                         + "See "
-                        + request.help_url(_anchor="file-size-limit"),
+                        + request.help_url(_anchor="file-size-limit")
+                        + " for more information.",
+                    )
+                if file_size + project.total_size > project_size_limit:
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "Project size too large. Limit for "
+                        + "project {name!r} total size is {limit} GB. ".format(
+                            name=project.name, limit=project_size_limit // ONE_GB,
+                        )
+                        + "See "
+                        + request.help_url(_anchor="project-size-limit"),
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1251,7 +1269,8 @@ def file_upload(request):
                 # ref: https://github.com/pypa/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse"),
+                + request.help_url(_anchor="file-name-reuse")
+                + " for more information.",
             )
 
         # Check to see if the file that was uploaded exists in our filename log
@@ -1262,7 +1281,9 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename has already been used, use a "
                 "different version. "
-                "See " + request.help_url(_anchor="file-name-reuse"),
+                "See "
+                + request.help_url(_anchor="file-name-reuse")
+                + " for more information.",
             )
 
         # Check to see if uploading this file would create a duplicate sdist
@@ -1348,6 +1369,7 @@ def file_upload(request):
             ),
             uploaded_via=request.user_agent,
         )
+        file_data = file_
         request.db.add(file_)
 
         # TODO: This should be handled by some sort of database trigger or a
@@ -1394,6 +1416,57 @@ def file_upload(request):
 
         repository = request.find_service(IRepositoryService)
         repository.add_target(file_)
+
+    # We are flushing the database requests so that we
+    # can access the server default values when initiating celery
+    # tasks.
+    request.db.flush()
+
+    # Push updates to BigQuery
+    dist_metadata = {
+        "metadata_version": form["metadata_version"].data,
+        "name": form["name"].data,
+        "version": form["version"].data,
+        "summary": form["summary"].data,
+        "description": form["description"].data,
+        "author": form["author"].data,
+        "description_content_type": form["description_content_type"].data,
+        "author_email": form["author_email"].data,
+        "maintainer": form["maintainer"].data,
+        "maintainer_email": form["maintainer_email"].data,
+        "license": form["license"].data,
+        "keywords": form["keywords"].data,
+        "classifiers": form["classifiers"].data,
+        "platform": form["platform"].data,
+        "home_page": form["home_page"].data,
+        "download_url": form["download_url"].data,
+        "requires_python": form["requires_python"].data,
+        "pyversion": form["pyversion"].data,
+        "filetype": form["filetype"].data,
+        "comment": form["comment"].data,
+        "requires": form["requires"].data,
+        "provides": form["provides"].data,
+        "obsoletes": form["obsoletes"].data,
+        "requires_dist": form["requires_dist"].data,
+        "provides_dist": form["provides_dist"].data,
+        "obsoletes_dist": form["obsoletes_dist"].data,
+        "requires_external": form["requires_external"].data,
+        "project_urls": form["project_urls"].data,
+        "filename": file_data.filename,
+        "python_version": file_data.python_version,
+        "packagetype": file_data.packagetype,
+        "comment_text": file_data.comment_text,
+        "size": file_data.size,
+        "has_signature": file_data.has_signature,
+        "md5_digest": file_data.md5_digest,
+        "sha256_digest": file_data.sha256_digest,
+        "blake2_256_digest": file_data.blake2_256_digest,
+        "path": file_data.path,
+        "uploaded_via": file_data.uploaded_via,
+        "upload_time": file_data.upload_time,
+    }
+    if not request.registry.settings.get("warehouse.release_files_table") is None:
+        request.task(update_bigquery_release_files).delay(dist_metadata)
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])

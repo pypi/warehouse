@@ -325,7 +325,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".routes"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
-            pretend.call(".raven"),
+            pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
             pretend.call(".http"),
@@ -366,7 +366,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             over=[
                 "warehouse.cache.http.conditional_http_tween_factory",
                 "pyramid_debugtoolbar.toolbar_tween_factory",
-                "warehouse.raven.raven_tween_factory",
                 EXCVIEW,
             ],
         ),
