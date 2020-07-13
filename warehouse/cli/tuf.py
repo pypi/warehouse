@@ -126,7 +126,7 @@ def build_targets(config):
     # NOTE: TUF normally does delegations by path patterns (i.e., globs), but PyPI
     # doesn't store its uploads on the same logical host as the TUF repository.
     # The last parameter to `delegate` is a special sentinel for this.
-    repository.targets.delegate(BINS_ROLE, key_service.pubkeys_for_role(BINS_ROLE), [])
+    repository.targets.delegate(BINS_ROLE, key_service.pubkeys_for_role(BINS_ROLE), ["*"])
     for privkey in key_service.privkeys_for_role(BINS_ROLE):
         repository.targets(BINS_ROLE).load_signing_key(privkey)
 
@@ -135,15 +135,15 @@ def build_targets(config):
         key_service.pubkeys_for_role(BIN_N_ROLE),
         config.registry.settings["tuf.bin-n.count"],
     )
+    for privkey in key_service.privkeys_for_role(BIN_N_ROLE):
+        for delegation in repository.targets(BINS_ROLE).delegations:
+            delegation.load_signing_key(privkey)
 
     dirty_roles = ["snapshot", "targets", "timestamp", BINS_ROLE]
     for idx in range(1, 2 ** 16, 4):
         low = f"{idx - 1:04x}"
         high = f"{idx + 2:04x}"
         dirty_roles.append(f"{low}-{high}")
-
-    repository.mark_dirty(dirty_roles)
-    repository.writeall(consistent_snapshot=True)
 
     # Collect the "paths" for every PyPI package. These are packages already in
     # existence, so we'll add some additional data to their targets to
