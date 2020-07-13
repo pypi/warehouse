@@ -12,6 +12,8 @@
 
 import datetime
 
+from google.cloud.bigquery import LoadJobConfig
+
 from warehouse import tasks
 from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Description, File, Project, Release
@@ -150,6 +152,8 @@ def update_bigquery_release_files(task, request, dist_metadata):
 
         if field_data is None and sch.mode == "REPEATED":
             json_rows[sch.name] = []
+        elif field_data and sch.mode == "REPEATED" and not isinstance(field_data, list):
+            json_rows[sch.name] = [field_data]
         else:
             json_rows[sch.name] = field_data
     json_rows = [json_rows]
@@ -163,13 +167,15 @@ def sync_bigquery_release_files(request):
     table_name = request.registry.settings["warehouse.release_files_table"]
     table_schema = bq.get_table(table_name).schema
 
-    db_release_files = request.db.query(File).all()
-    db_file_digests = [file.md5_digest for file in db_release_files]
+    db_release_files = request.db.query(File.md5_digest).all()
+    db_file_digests = [file[0] for file in db_release_files]
 
     bq_file_digests = bq.query(f"SELECT md5_digest FROM {table_name}").result()
     bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
 
     md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
+    if len(md5_diff_list) == 0:
+        return
 
     release_files = (
         request.db.query(File)
@@ -205,6 +211,16 @@ def sync_bigquery_release_files(request):
             if isinstance(field_data, datetime.datetime):
                 field_data = field_data.isoformat()
 
+            # Some of the fields from SQLAlchemy are of type _AssociationList,
+            # so this is duck typing it as a list instead of importing
+            # _AssociationList as it is meant to be private to SQLAlchemy
+            if (
+                hasattr(field_data, "__iter__")
+                and not hasattr(field_data, "strip")
+                and not hasattr(field_data, "keys")
+            ):
+                field_data = list(field_data)
+
             # Replace all empty objects to None will ensure
             # proper checks if a field is nullable or not
             if not isinstance(field_data, bool) and not field_data:
@@ -212,10 +228,18 @@ def sync_bigquery_release_files(request):
 
             if field_data is None and sch.mode == "REPEATED":
                 row_data[sch.name] = []
+            elif (
+                field_data
+                and sch.mode == "REPEATED"
+                and not isinstance(field_data, list)
+            ):
+                row_data[sch.name] = [field_data]
             else:
                 row_data[sch.name] = field_data
         return row_data
 
     json_rows = [populate_data_using_schema(file) for file in release_files]
 
-    bq.insert_rows_json(table=table_name, json_rows=json_rows)
+    bq.load_table_from_json(
+        json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
+    ).result()
