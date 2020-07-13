@@ -10,11 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
 import click
 
 from tuf import repository_tool
 
 from warehouse.cli import warehouse
+from warehouse.config import Environment
 from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES, utils
 
 # TUF_REPO = "warehouse/tuf/dist"
@@ -75,6 +78,11 @@ def new_repo(config):
         role_obj = getattr(repository, role)
         role_obj.threshold = config.registry.settings[f"tuf.{role}.threshold"]
 
+        if config.registry.settings["warehouse.env"] == Environment.development:
+            role_obj.expiration = datetime.datetime.now() + datetime.timedelta(
+                seconds=config.registry.settings["tuf.development_metadata_expiry"]
+            )
+
         pubkeys = key_service.pubkeys_for_role(role)
         privkeys = key_service.privkeys_for_role(role)
         if len(pubkeys) < role_obj.threshold or len(privkeys) < role_obj.threshold:
@@ -83,7 +91,12 @@ def new_repo(config):
             )
 
         for pubkey in pubkeys:
-            role_obj.add_verification_key(pubkey)
+            expires = None
+            if config.registry.settings["warehouse.env"] == Environment.development:
+                expires = datetime.datetime.now() + datetime.timedelta(
+                    seconds=config.registry.settings["tuf.development_key_expiry"]
+                )
+            role_obj.add_verification_key(pubkey, expires=expires)
 
         for privkey in privkeys:
             role_obj.load_signing_key(privkey)

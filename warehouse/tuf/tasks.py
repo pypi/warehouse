@@ -22,7 +22,14 @@ def bump_timestamp(task, request):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
-        pass
+        repo_service = request.find_service(IRepositoryService)
+        key_service = request.find_service(IKeyService)
+        repository = repo_service.load_repository()
+
+        for key in key_service.privkeys_for_role("timestamp"):
+            repository.timestamp.load_signing_key(key)
+        repository.mark_dirty(["timestamp"])
+        repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
@@ -34,7 +41,7 @@ def bump_snapshot(task, request):
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def bump_bin_n(task, request):
+def bump_bins(task, request):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
@@ -63,7 +70,7 @@ def add_target(task, request, filepath, fileinfo):
         dirty_bin = repository.targets.add_target_to_bin(
             filepath,
             number_of_bins=request.registry.settings["tuf.bin-n.count"],
-            fileinfo=fileinfo
+            fileinfo=fileinfo,
         )
         dirty_roles.append(dirty_bin)
 

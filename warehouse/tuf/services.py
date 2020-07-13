@@ -40,10 +40,7 @@ class LocalKeyService:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(
-            request.registry.settings["tuf.key.path"],
-            request
-        )
+        return cls(request.registry.settings["tuf.key.path"], request)
 
     def pubkeys_for_role(self, rolename):
         pubkey_path = os.path.join(self._key_path, f"tuf.{rolename}.pub")
