@@ -18,7 +18,7 @@ from warehouse.tuf.interfaces import IKeyService, IRepositoryService
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def bump_timestamp(task, request):
+def bump_role(task, request, role):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with utils.RepoLock(r):
@@ -26,26 +26,11 @@ def bump_timestamp(task, request):
         key_service = request.find_service(IKeyService)
         repository = repo_service.load_repository()
 
-        for key in key_service.privkeys_for_role("timestamp"):
-            repository.timestamp.load_signing_key(key)
-        repository.mark_dirty(["timestamp"])
+        for key in key_service.privkeys_for_role(role):
+            role_obj = getattr(repository, role)
+            role_obj.load_signing_key(key)
+        repository.mark_dirty([role])
         repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
-
-
-@task(bind=True, ignore_result=True, acks_late=True)
-def bump_snapshot(task, request):
-    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
-
-    with utils.RepoLock(r):
-        pass
-
-
-@task(bind=True, ignore_result=True, acks_late=True)
-def bump_bins(task, request):
-    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
-
-    with utils.RepoLock(r):
-        pass
 
 
 @task(bind=True, ignore_result=True, acks_late=True)

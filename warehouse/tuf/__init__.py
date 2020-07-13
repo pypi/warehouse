@@ -13,7 +13,7 @@
 from celery.schedules import crontab
 
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService
-from warehouse.tuf.tasks import bump_bins, bump_snapshot, bump_timestamp
+from warehouse.tuf.tasks import bump_role
 
 TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 BINS_ROLE = "bins"
@@ -48,6 +48,10 @@ def includeme(config):
 
     # Per PEP458: The timestamp, snapshot, and bins metadata expire every 24 hours.
     # We conservatively bump every 6 hours.
-    config.add_periodic_task(crontab(minute=0, hour="*/6"), bump_timestamp)
-    config.add_periodic_task(crontab(minute=0, hour="*/6"), bump_snapshot)
-    config.add_periodic_task(crontab(minute=0, hour="*/6"), bump_bins)
+    config.add_periodic_task(
+        crontab(minute=0, hour="*/6"), bump_role, args=("timestamp",)
+    )
+    config.add_periodic_task(
+        crontab(minute=0, hour="*/6"), bump_role, args=("snapshot",)
+    )
+    config.add_periodic_task(crontab(minute=0, hour="*/6"), bump_role, args=("bins",))
