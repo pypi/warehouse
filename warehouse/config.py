@@ -243,10 +243,9 @@ def configure(settings=None):
             ],
         )
 
-        # For development only: these artificially prolong the expirations of any
-        # Warehouse-generated TUF signing keys and metadata by approximately one year.
+        # For development only: this artificially prolongs the expirations of any
+        # Warehouse-generated TUF metadata by approximately one year.
         settings.setdefault("tuf.development_key_expiry", 31536000)
-        settings.setdefault("tuf.development_metadata_expiry", 31536000)
 
     # Actually setup our Pyramid Configurator with the values pulled in from
     # the environment as well as the ones passed in to the configure function.
