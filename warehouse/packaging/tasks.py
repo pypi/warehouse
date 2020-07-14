@@ -12,6 +12,8 @@
 
 import datetime
 
+from google.cloud.bigquery import LoadJobConfig
+
 from warehouse import tasks
 from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Description, File, Project, Release
@@ -150,6 +152,17 @@ def update_bigquery_release_files(task, request, dist_metadata):
 
         if field_data is None and sch.mode == "REPEATED":
             json_rows[sch.name] = []
+        elif field_data and sch.mode == "REPEATED":
+            # Currently, some of the metadata fields such as
+            # the 'platform' tag are incorrectly classified as a
+            # str instead of a list, hence, this workaround to comply
+            # with PEP 345 and the Core Metadata specifications.
+            # This extra check can be removed once
+            # https://github.com/pypa/warehouse/issues/8257 is fixed
+            if isinstance(field_data, str):
+                json_rows[sch.name] = [field_data]
+            else:
+                json_rows[sch.name] = list(field_data)
         else:
             json_rows[sch.name] = field_data
     json_rows = [json_rows]
@@ -163,13 +176,17 @@ def sync_bigquery_release_files(request):
     table_name = request.registry.settings["warehouse.release_files_table"]
     table_schema = bq.get_table(table_name).schema
 
-    db_release_files = request.db.query(File).all()
+    db_release_files = request.db.query(File.md5_digest).all()
     db_file_digests = [file.md5_digest for file in db_release_files]
 
     bq_file_digests = bq.query(f"SELECT md5_digest FROM {table_name}").result()
     bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
 
     md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
+
+    if not md5_diff_list:
+        # There are no files that need synced to BigQuery
+        return
 
     release_files = (
         request.db.query(File)
@@ -212,10 +229,23 @@ def sync_bigquery_release_files(request):
 
             if field_data is None and sch.mode == "REPEATED":
                 row_data[sch.name] = []
+            elif field_data and sch.mode == "REPEATED":
+                # Currently, some of the metadata fields such as
+                # the 'platform' tag are incorrectly classified as a
+                # str instead of a list, hence, this workaround to comply
+                # with PEP 345 and the Core Metadata specifications.
+                # This extra check can be removed once
+                # https://github.com/pypa/warehouse/issues/8257 is fixed
+                if isinstance(field_data, str):
+                    row_data[sch.name] = [field_data]
+                else:
+                    row_data[sch.name] = list(field_data)
             else:
                 row_data[sch.name] = field_data
         return row_data
 
     json_rows = [populate_data_using_schema(file) for file in release_files]
 
-    bq.insert_rows_json(table=table_name, json_rows=json_rows)
+    bq.load_table_from_json(
+        json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
+    ).result()
