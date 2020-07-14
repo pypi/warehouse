@@ -122,9 +122,6 @@ class WarehouseTask(celery.Task):
         if success:
             super().apply_async(*args, **kwargs)
 
-    def on_failure(self, exc, task_id, args, kwargs, einfo):
-        logger.error("Task id {id} failed.".format(id=task_id), exc_info=einfo)
-
 
 def task(**kwargs):
     kwargs.setdefault("shared", False)

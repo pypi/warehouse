@@ -41,12 +41,12 @@ pyramid_retry>=0.3
 pyramid_rpc>=0.7
 pyramid_services>=2.1
 pyramid_tm>=0.12
-raven
 readme_renderer[md]>=0.7.0
 requests
 requests-aws4auth
 redis>=2.8.0
 rfc3986
+sentry-sdk
 setuptools
 sqlalchemy>=0.9
 sqlalchemy-citext
