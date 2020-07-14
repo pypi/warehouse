@@ -183,7 +183,9 @@ def sync_bigquery_release_files(request):
     bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
 
     md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
-    if len(md5_diff_list) == 0:
+
+    if not md5_diff_list:
+        # There are no files that need synced to BigQuery
         return
 
     release_files = (
