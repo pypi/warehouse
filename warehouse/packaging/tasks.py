@@ -152,8 +152,17 @@ def update_bigquery_release_files(task, request, dist_metadata):
 
         if field_data is None and sch.mode == "REPEATED":
             json_rows[sch.name] = []
-        elif field_data and sch.mode == "REPEATED" and not isinstance(field_data, list):
-            json_rows[sch.name] = [field_data]
+        elif field_data and sch.mode == "REPEATED":
+            # Currently, some of the metadata fields such as
+            # the 'platform' tag are incorrectly classified as a
+            # str instead of a list, hence, this workaround to comply
+            # with PEP 345 and the Core Metadata specifications.
+            # This extra check can be removed once
+            # https://github.com/pypa/warehouse/issues/8257 is fixed
+            if isinstance(field_data, str):
+                json_rows[sch.name] = [field_data]
+            else:
+                json_rows[sch.name] = list(field_data)
         else:
             json_rows[sch.name] = field_data
     json_rows = [json_rows]
@@ -211,16 +220,6 @@ def sync_bigquery_release_files(request):
             if isinstance(field_data, datetime.datetime):
                 field_data = field_data.isoformat()
 
-            # Some of the fields from SQLAlchemy are of type _AssociationList,
-            # so this is duck typing it as a list instead of importing
-            # _AssociationList as it is meant to be private to SQLAlchemy
-            if (
-                hasattr(field_data, "__iter__")
-                and not hasattr(field_data, "strip")
-                and not hasattr(field_data, "keys")
-            ):
-                field_data = list(field_data)
-
             # Replace all empty objects to None will ensure
             # proper checks if a field is nullable or not
             if not isinstance(field_data, bool) and not field_data:
@@ -228,12 +227,17 @@ def sync_bigquery_release_files(request):
 
             if field_data is None and sch.mode == "REPEATED":
                 row_data[sch.name] = []
-            elif (
-                field_data
-                and sch.mode == "REPEATED"
-                and not isinstance(field_data, list)
-            ):
-                row_data[sch.name] = [field_data]
+            elif field_data and sch.mode == "REPEATED":
+                # Currently, some of the metadata fields such as
+                # the 'platform' tag are incorrectly classified as a
+                # str instead of a list, hence, this workaround to comply
+                # with PEP 345 and the Core Metadata specifications.
+                # This extra check can be removed once
+                # https://github.com/pypa/warehouse/issues/8257 is fixed
+                if isinstance(field_data, str):
+                    row_data[sch.name] = [field_data]
+                else:
+                    row_data[sch.name] = list(field_data)
             else:
                 row_data[sch.name] = field_data
         return row_data
