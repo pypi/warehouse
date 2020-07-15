@@ -1,0 +1,37 @@
+{#
+  # Licensed under the Apache License, Version 2.0 (the "License");
+  # you may not use this file except in compliance with the License.
+  # You may obtain a copy of the License at
+  #
+  # http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing, software
+  # distributed under the License is distributed on an "AS IS" BASIS,
+  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  # See the License for the specific language governing permissions and
+  # limitations under the License.
+ -#}
+ {% extends "email/_base/body.html" %}
+ 
+ {% set site = request.registry.settings["site.name"] %}
+ 
+ {% block content %}
+ <p>
+   {% trans project=project, submitter=submitter, role=role %}
+   Your role in the {{ project }} project has been changed by {{ submitter }}.
+
+   {% if role == 'Owner' %}
+   You are now a project owner. You can add other collaborators,
+   upload releases and delete files, releases or the entire project.
+   {% elif role == 'Maintainer' %}
+   You are now a project maintainer. You can upload releases but cannot add collaborators,
+   delete files, releases or the project.
+   {% endtrans %}
+  </p>
+ {% endblock %}
+ 
+ 
+ {% block reason %}
+ {% trans submitter=submitter, project=project %}You are receiving this because your role was changed by {{ submitter }} on the {{ project }} project.{% endtrans %}
+ {% endblock %}
+ 
