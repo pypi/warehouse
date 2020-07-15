@@ -225,7 +225,9 @@ def send_added_as_collaborator_email(request, user, *, submitter, project_name, 
 
 
 @_email("collaborator-removed")
-def send_collaborator_removed_email(request, recipients, *, user, submitter, project_name):
+def send_collaborator_removed_email(
+    request, recipients, *, user, submitter, project_name
+):
     return {
         "username": user.username,
         "project": project_name,
@@ -236,14 +238,15 @@ def send_collaborator_removed_email(request, recipients, *, user, submitter, pro
 @_email("removed-as-collaborator")
 def send_removed_as_collaborator_email(request, user, *, submitter, project_name):
     return {
-        "username": user.username,
         "project": project_name,
         "submitter": submitter.username,
     }
 
 
 @_email("collaborator-role-changed")
-def send_collaborator_role_changed_email(request, recipients, *, user, submitter, project_name, role):
+def send_collaborator_role_changed_email(
+    request, recipients, *, user, submitter, project_name, role
+):
     return {
         "username": user.username,
         "project": project_name,
@@ -251,14 +254,17 @@ def send_collaborator_role_changed_email(request, recipients, *, user, submitter
         "role": role,
     }
 
+
 @_email("role-changed-as-collaborator")
-def send_role_changed_as_collaborator_email(request, user, *, submitter, project_name, role):
+def send_role_changed_as_collaborator_email(
+    request, user, *, submitter, project_name, role
+):
     return {
-        "username": user.username,
         "project": project_name,
         "submitter": submitter.username,
         "role": role,
     }
+
 
 @_email("two-factor-added")
 def send_two_factor_added_email(request, user, method):

@@ -1500,6 +1500,333 @@ class TestAddedAsCollaboratorEmail:
         assert send_email.delay.calls == []
 
 
+class TestCollaboratorRemovedEmail:
+    def test_collaborator_removed_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-removed/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-removed/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-removed/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_collaborator_removed_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            user=stub_user,
+            submitter=stub_submitter_user,
+            project_name="test_project",
+        )
+
+        assert result == {
+            "username": stub_user.username,
+            "project": "test_project",
+            "submitter": stub_submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(username=stub_user.username)
+        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
+
+
+class TestRemovedAsCollaboratorEmail:
+    def test_removed_as_collaborator_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername", email="submiteremail"
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-as-collaborator/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-as-collaborator/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-as-collaborator/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_removed_as_collaborator_email(
+            pyramid_request,
+            stub_user,
+            submitter=stub_submitter_user,
+            project_name="test_project",
+        )
+
+        assert result == {
+            "project": "test_project",
+            "submitter": stub_submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(project="test_project")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(project="test_project")
+
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            )
+        ]
+
+
+class TestRoleChangedEmail:
+    def test_role_changed_email(self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername",
+            name="",
+            email="submiteremail@example.com",
+            primary_email=pretend.stub(
+                email="submiteremail@example.com", verified=True
+            ),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-role-changed/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-role-changed/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-role-changed/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_collaborator_role_changed_email(
+            pyramid_request,
+            [stub_user, stub_submitter_user],
+            user=stub_user,
+            submitter=stub_submitter_user,
+            project_name="test_project",
+            role="Owner",
+        )
+
+        assert result == {
+            "username": stub_user.username,
+            "project": "test_project",
+            "role": "Owner",
+            "submitter": stub_submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(username=stub_user.username)
+        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(role="Owner")
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+            pretend.call(
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            ),
+        ]
+
+
+class TestRoleChangedAsCollaboratorEmail:
+    def test_role_changed_as_collaborator_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_submitter_user = pretend.stub(
+            username="submitterusername", email="submiteremail"
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/role-changed-as-collaborator/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/role-changed-as-collaborator/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/role-changed-as-collaborator/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_role_changed_as_collaborator_email(
+            pyramid_request,
+            stub_user,
+            submitter=stub_submitter_user,
+            project_name="test_project",
+            role="Owner",
+        )
+
+        assert result == {
+            "project": "test_project",
+            "role": "Owner",
+            "submitter": stub_submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
+
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+            )
+        ]
+
+
 class TestRemovedProjectEmail:
     def test_removed_project_email_to_maintainer(
         self, pyramid_request, pyramid_config, monkeypatch
