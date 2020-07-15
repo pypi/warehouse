@@ -38,6 +38,17 @@ def test_tls_redis_backend():
 
 
 class TestWarehouseTask:
+    def test_header(self):
+        def header(request, thing):
+            pass
+
+        task_type = type(
+            "Foo", (tasks.WarehouseTask,), {"__header__": staticmethod(header)}
+        )
+
+        obj = task_type()
+        obj.__header__(object())
+
     def test_call(self, monkeypatch):
         request = pretend.stub()
         registry = pretend.stub()
