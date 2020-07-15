@@ -51,6 +51,8 @@ class TLSRedisBackend(celery.backends.redis.RedisBackend):
 class WarehouseTask(celery.Task):
     def __new__(cls, *args, **kwargs):
         obj = super().__new__(cls, *args, **kwargs)
+        if getattr(obj, "__header__", None) is not None:
+            obj.__header__ = functools.partial(obj.__header__, object())
 
         # We do this here instead of inside of __call__ so that exceptions
         # coming from the transaction manager get caught by the autoretry
