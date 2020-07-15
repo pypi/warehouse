@@ -3688,13 +3688,15 @@ class TestChangeProjectRoles:
 
 
 class TestDeleteProjectRoles:
-    def test_delete_role(self, db_request):
+    def test_delete_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
+        owner_user = UserFactory.create(username="owner_user")
+        owner_role = RoleFactory.create(user=owner_user, project=project, role_name="Owner")
 
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
+        db_request.user = owner_user
         db_request.remote_addr = "10.10.10.10"
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.session = pretend.stub(
@@ -3702,12 +3704,34 @@ class TestDeleteProjectRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
+        send_collaborator_removed_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_collaborator_removed_email", send_collaborator_removed_email)
+        send_removed_as_collaborator_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_removed_as_collaborator_email", send_removed_as_collaborator_email)
+
         result = views.delete_project_role(project, db_request)
 
         assert db_request.route_path.calls == [
             pretend.call("manage.project.roles", project_name=project.name)
         ]
         assert db_request.db.query(Role).all() == []
+        assert send_collaborator_removed_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                submitter=owner_user,
+                project_name="foobar",
+            )
+        ]
+        assert send_removed_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=owner_user,
+                project_name="foobar",
+            )
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed role", queue="success")
         ]

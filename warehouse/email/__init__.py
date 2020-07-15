@@ -226,7 +226,7 @@ def send_added_as_collaborator_email(request, user, *, submitter, project_name, 
 
 @_email("collaborator-removed")
 def send_collaborator_removed_email(
-    request, recipients, *, user, submitter, project_name
+    request, email_recipients, *, user, submitter, project_name
 ):
     return {
         "username": user.username,

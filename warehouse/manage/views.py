@@ -33,12 +33,16 @@ from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
     send_collaborator_added_email,
+    send_collaborator_removed_email,
+    send_collaborator_role_changed_email,
     send_email_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
+    send_removed_as_collaborator_email,
     send_removed_project_email,
     send_removed_project_release_email,
     send_removed_project_release_file_email,
+    send_role_changed_as_collaborator_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
@@ -1585,6 +1589,33 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         "target_user": role.user.username,
                     },
                 )
+
+                owner_roles = (
+                    request.db.query(Role)
+                    .filter(Role.project == project)
+                    .filter(Role.role_name == "Owner")
+                    .all()
+                )
+                owner_users = {owner.user for owner in owner_roles}
+                # Don't send owner notification email to new user if they are now an owner 
+                owner_users.discard(role.user)
+                send_collaborator_role_changed_email(
+                    request,
+                    owner_users,
+                    user=role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
+                send_role_changed_as_collaborator_email(
+                    request,
+                    role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
                 request.session.flash("Changed role", queue="success")
         except NoResultFound:
             request.session.flash("Could not find role", queue="error")
@@ -1615,6 +1646,7 @@ def delete_project_role(project, request):
         if removing_self:
             request.session.flash("Cannot remove yourself as Owner", queue="error")
         else:
+            role_user = role.user
             request.db.delete(role)
             request.db.add(
                 JournalEntry(
@@ -1633,6 +1665,29 @@ def delete_project_role(project, request):
                     "target_user": role.user.username,
                 },
             )
+            
+            owner_roles = (
+                request.db.query(Role)
+                .filter(Role.project == project)
+                .filter(Role.role_name == "Owner")
+                .all()
+            )
+            owner_users = {owner.user for owner in owner_roles}
+            send_collaborator_removed_email(
+                request,
+                owner_users,
+                user=role.user,
+                submitter=request.user,
+                project_name=project.name,
+            )
+
+            send_removed_as_collaborator_email(
+                request,
+                role.user,
+                submitter=request.user,
+                project_name=project.name,
+            )
+
             request.session.flash("Removed role", queue="success")
     except NoResultFound:
         request.session.flash("Could not find role", queue="error")
