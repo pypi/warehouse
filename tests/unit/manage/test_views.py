@@ -3590,14 +3590,16 @@ class TestManageProjectRoles:
 
 
 class TestChangeProjectRoles:
-    def test_change_role(self, db_request):
+    def test_change_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
         new_role_name = "Maintainer"
 
+        user_2 = UserFactory.create()
+
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
+        db_request.user = user_2
         db_request.remote_addr = "10.10.10.10"
         db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
         db_request.session = pretend.stub(
@@ -3605,11 +3607,35 @@ class TestChangeProjectRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
+        send_collaborator_role_changed_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_collaborator_role_changed_email", send_collaborator_role_changed_email)
+        send_role_changed_as_collaborator_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_role_changed_as_collaborator_email", send_role_changed_as_collaborator_email)
+
         result = views.change_project_role(project, db_request)
 
         assert role.role_name == new_role_name
         assert db_request.route_path.calls == [
             pretend.call("manage.project.roles", project_name=project.name)
+        ]
+        assert send_collaborator_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                user=user,
+                submitter=user_2,
+                project_name="foobar",
+                role=new_role_name,
+            )
+        ]
+        assert send_role_changed_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=user_2,
+                project_name="foobar",
+                role=new_role_name,
+            )
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Changed role", queue="success")
@@ -3692,11 +3718,10 @@ class TestDeleteProjectRoles:
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
-        owner_user = UserFactory.create(username="owner_user")
-        owner_role = RoleFactory.create(user=owner_user, project=project, role_name="Owner")
+        user_2 = UserFactory.create()
 
         db_request.method = "POST"
-        db_request.user = owner_user
+        db_request.user = user_2
         db_request.remote_addr = "10.10.10.10"
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.session = pretend.stub(
@@ -3704,9 +3729,9 @@ class TestDeleteProjectRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        send_collaborator_removed_email = pretend.call_recorder(lambda *a: None)
+        send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(views, "send_collaborator_removed_email", send_collaborator_removed_email)
-        send_removed_as_collaborator_email = pretend.call_recorder(lambda *a: None)
+        send_removed_as_collaborator_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(views, "send_removed_as_collaborator_email", send_removed_as_collaborator_email)
 
         result = views.delete_project_role(project, db_request)
@@ -3718,9 +3743,9 @@ class TestDeleteProjectRoles:
         assert send_collaborator_removed_email.calls == [
             pretend.call(
                 db_request,
-                {owner_user},
+                set(),
                 user=user,
-                submitter=owner_user,
+                submitter=user_2,
                 project_name="foobar",
             )
         ]
@@ -3728,7 +3753,7 @@ class TestDeleteProjectRoles:
             pretend.call(
                 db_request,
                 user,
-                submitter=owner_user,
+                submitter=user_2,
                 project_name="foobar",
             )
         ]
