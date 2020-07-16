@@ -15,19 +15,15 @@
  
  {% set site = request.registry.settings["site.name"] %}
  
- {% block content %}
-{% trans project=project, submitter=submitter, role=role %}
-Your role in the {{ project }} project has been changed by {{ submitter }}.
+{% block content %}
+{% trans project=project, submitter=submitter%}Your role in the {{ project }} project has been changed by {{ submitter }}.{% endtrans %}
 
 {% if role == 'Owner' %}
-You are now a project owner. You can add other collaborators,
-upload releases and delete files, releases or the entire project.
+{% trans %}You are now a project owner. You can add other collaborators, upload releases and delete files, releases or the entire project.{% endtrans %}
 {% elif role == 'Maintainer' %}
-You are now a project maintainer. You can upload releases but cannot add collaborators,
-delete files, releases or the project.
-{% endtrans %}
- {% endblock %}
- 
+{% trans %}You are now a project maintainer. You can upload releases but cannot add collaborators, delete files, releases or the project.{% endtrans %}
+{% endif %}
+{% endblock %}
  
  {% block reason %}
  {% trans submitter=submitter, project=project %}You are receiving this because your role was changed by {{ submitter }} on the {{ project }} project.{% endtrans %}

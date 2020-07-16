@@ -23,7 +23,7 @@ A collaborator was removed from a project you own on {{ site }}:
   Removed by: {{ submitter }}
 
 If this was a mistake, you can email admin@pypi.org to communicate with the PyPI administrators.
-{{ endtrans }}
+{% endtrans %}
 {% endblock %}
 
 {% block reason %}
