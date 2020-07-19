@@ -38,7 +38,6 @@ from warehouse.accounts.forms import (
     WebAuthnAuthenticationForm,
 )
 from warehouse.accounts.interfaces import (
-    IGitHubTokenScanningPayloadVerifyService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,

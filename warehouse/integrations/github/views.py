@@ -21,8 +21,10 @@ def github_disclose_token(request):
     key_id = request.headers.get("GITHUB-PUBLIC-KEY-IDENTIFIER")
     signature = request.headers.get("GITHUB-PUBLIC-KEY-SIGNATURE")
 
-    verifier = request.find_service(
-        IGitHubTokenScanningPayloadVerifyService, context=None
+    verifier = GitHubTokenScanningPayloadVerifier(
+        session=request.http,
+        metrics=request.find_service(IMetricsService, context=None),
+        api_token=request.registry.settings["github.token"],
     )
 
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):

@@ -20,7 +20,6 @@ from warehouse.accounts.auth_policy import (
     SessionAuthenticationPolicy,
 )
 from warehouse.accounts.interfaces import (
-    IGitHubTokenScanningPayloadVerifyService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -28,7 +27,6 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.predicates import HeadersPredicate
 from warehouse.accounts.services import (
-    GitHubTokenScanningPayloadVerifyService,
     HaveIBeenPwnedPasswordBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
