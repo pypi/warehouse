@@ -234,7 +234,7 @@ class GitHubTokenScanningPayloadVerifier:
             return self.public_keys_cache
 
         token_scanning_pubkey_api_url = (
-            "https://api.github.com/meta/public_keys/token_scanning"
+            "https://api.github.com/meta/public_keys/secret_scanning"
         )
         headers = self._get_headers()
         try:
