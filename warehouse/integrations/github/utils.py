@@ -12,6 +12,7 @@
 
 import base64
 import re
+import time
 
 import attr
 
@@ -185,6 +186,9 @@ class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
     pass
 
 
+PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
+
+
 class GitHubTokenScanningPayloadVerifier:
     """
     Checks payload signature using:
@@ -196,6 +200,9 @@ class GitHubTokenScanningPayloadVerifier:
         self._metrics = metrics
         self._session = session
         self._api_token = api_token
+
+        self.public_keys_cached_at = 0
+        self.public_keys_cache = None
 
     def verify(self, *, payload, key_id, signature):
 
@@ -223,7 +230,8 @@ class GitHubTokenScanningPayloadVerifier:
         return {}
 
     def _retrieve_public_key_payload(self):
-        # TODO: cache ?
+        if self.public_keys_cached_at + PUBLIC_KEYS_CACHE_TIME < time.time():
+            return self.public_keys_cache
 
         token_scanning_pubkey_api_url = (
             "https://api.github.com/meta/public_keys/token_scanning"
@@ -232,7 +240,8 @@ class GitHubTokenScanningPayloadVerifier:
         try:
             response = self._session.get(token_scanning_pubkey_api_url, headers=headers)
             response.raise_for_status()
-            return response.json()
+            self.public_keys_cache = response.json()
+            return self.public_keys_cache
         except requests.HTTPError as exc:
             # TODO Log, including status code and body
             raise GitHubPublicKeyMetaAPIError(
