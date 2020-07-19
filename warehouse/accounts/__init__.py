@@ -155,16 +155,6 @@ def includeme(config):
         breached_pw_class.create_service, IPasswordBreachedService
     )
 
-    # Register the service for checking GitHub token scanning requests signatures.
-    token_scanning_class = config.maybe_dotted(
-        config.registry.settings.get(
-            "github_token_scanning.backend", GitHubTokenScanningPayloadVerifyService
-        )
-    )
-    config.register_service_factory(
-        token_scanning_class.create_service, IGitHubTokenScanningPayloadVerifyService
-    )
-
     # Register our authentication and authorization policies
     config.set_authentication_policy(
         MultiAuthenticationPolicy(
@@ -193,5 +183,3 @@ def includeme(config):
     config.register_service_factory(
         RateLimit("2 per day"), IRateLimiter, name="email.add"
     )
-
-    config.add_route_predicate("headers", HeadersPredicate)

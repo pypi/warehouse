@@ -173,7 +173,7 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "accounts.github-disclose-token",
-            "/account/disclose-token/github",
+            "/_/github/disclose-token",
             domain=warehouse,
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
