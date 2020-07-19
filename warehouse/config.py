@@ -364,8 +364,8 @@ def configure(settings=None):
     # Register support for our legacy action URLs
     config.include(".legacy.action_routing")
 
-    # Register support for our domain predicates
-    config.include(".domain")
+    # Register support for our custom predicates
+    config.include(".predicates")
 
     # Register support for template views.
     config.add_directive("add_template_view", template_view, action_wrap=False)

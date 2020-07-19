@@ -12,6 +12,11 @@
 
 from pyramid.util import is_same_domain
 
+from typing import List
+
+from pyramid import predicates
+from pyramid.exceptions import ConfigurationError
+
 
 class DomainPredicate:
     def __init__(self, val, config):
@@ -31,5 +36,26 @@ class DomainPredicate:
         return is_same_domain(request.domain, self.val)
 
 
+class HeadersPredicate:
+    def __init__(self, val: List[str], config):
+        if not val:
+            raise ConfigurationError(
+                "Excpected at least one value in headers predicate"
+            )
+
+        self.sub_predicates = [
+            predicates.HeaderPredicate(subval, config) for subval in val
+        ]
+
+    def text(self):
+        return ", ".join(sub.text() for sub in self.sub_predicates)
+
+    phash = text
+
+    def __call__(self, context, request):
+        return all(sub(context, request) for sub in self.sub_predicates)
+
+
 def includeme(config):
     config.add_route_predicate("domain", DomainPredicate)
+    config.add_route_predicate("require_headers", HeadersPredicate)

@@ -3,6 +3,7 @@
     require_csrf=False,
     renderer="json",
     route_name="accounts.github-disclose-token",
+    # If those headers are missing, response will be a 404
     headers=["GITHUB-PUBLIC-KEY-IDENTIFIER", "GITHUB-PUBLIC-KEY-SIGNATURE"],
     has_translations=False,
 )
