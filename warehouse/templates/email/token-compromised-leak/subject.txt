@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans site=request.registry.settings["site.name"] %}Your API credentials from {{ site }} were leaked{% endtrans %}{% endblock %}
+{% block subject %}Your API credentials from {{ request.registry.settings["site.name"] }} were leaked{% endblock %}

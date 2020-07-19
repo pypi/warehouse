@@ -4,7 +4,7 @@
     renderer="json",
     route_name="accounts.github-disclose-token",
     headers=["GITHUB-PUBLIC-KEY-IDENTIFIER", "GITHUB-PUBLIC-KEY-SIGNATURE"],
-    has_translations=True,  # Not the view itself, but the email it sends
+    has_translations=False,
 )
 def github_disclose_token(request):
     # GitHub calls this API view when they have identified a string matching

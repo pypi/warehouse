@@ -15,52 +15,55 @@
 
 
 {% block content %}
-{% trans %}What?{% endtrans %}
+What happened?
 
 {% set site_name=request.registry.settings["site.name"] %}
 
-{% trans site_name=site_name %}A third party ({{ origin }})
-has informed us that a {{ site_name }} API token associated
-with your account "{{ username }}" was found to be accessible at the following public
-url. We have revoked this token.{% endtrans %}
+A third party ({{ origin }}) has informed us that a {{ site_name }} API token
+associated with your account "{{ username }}" was found to be accessible at the
+following public url. We have revoked this token.
 
 {{ public_url }}
 
-{% trans %}What should I do?{% endtrans %}
+What should I do?
 
-{% trans %}First, we recommend that you inspect the public page where the token
+First, we recommend that you inspect the public page where the token
 appeared. Please investigate whether this is the result of an error on your side or if
-someone else acquired and published your token.{% endtrans %}
+someone else acquired and published your token.
 
-{% trans site_name=site_name %}
 If the token was not published by you, it means it was stolen, either from
 you or from {{ site_name }}. We urge you to take all the necessary steps to secure all your
-credentials.{% endtrans %}
-{% trans site_name=site_name, href="https://python-security.readthedocs.io/packages.html#vulnerabilites-in-the-package-index" %}
+credentials.
+
 In the case of a breach of the {{ site_name }} database, you will find informations
 and support in the python-security documentation at:
-{{ href }}{% endtrans %}
-{% trans trimmed email_href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
-In case of doubt, you can email <a href="{{ email_href }}">{{ email_address }}</a> to communicate with the PyPI administrators.
-{% endtrans %}
 
-{% trans %}Once you have taken the applicable steps to ensure the token will not leak again,
+    https://python-security.readthedocs.io/packages.html#vulnerabilites-in-the-package-index
+
+In case of doubt, you can send an email to admin@pypi.org to communicate with the PyPI
+administrators.
+
+Once you have taken the applicable steps to ensure the token will not leak again,
 you're welcome to generate a new one. Log into your account and head to your profile
 page to create a new API token. You will need to update your existing integrations
-with the new token.{% endtrans %}
+with the new token.
 
-{% trans %}Lastly, please review the releases of all your packages. You should make
+Lastly, please review the releases of all your packages. You should make
 sure a third party did not use your publicly accessible token to impersonate
-you and release a malicious package.{% endtrans %}
+you and release a malicious package.
 
 
-{% trans %}How do you know this?{% endtrans %}
+How do you know this?
 
-{% trans site_name=site_name %}This is an automated message. Our partner {{ origin }} analyzes all the
-contents it recieves for potential {{ site_name }} token leaks and warns us every time it finds one.
-We check every disclosure we recieve and take action when the token appears valid.{% endtrans %}
+This is an automated message. Our partner {{ origin }} analyzes all the
+contents it recieves for potential {{ site_name }} token leaks and warns us every time
+it finds one. We check every disclosure we recieve and take action when the token
+appears valid.
 
-{% trans trimmed faq_url=request.help_url(_anchor='compromised-token'), email_href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
-For more information, see our <a href="{{ faq_url }}">FAQ</a>. For help, you can email <a href="{{ email_href }}">{{ email_address }}</a> to communicate with the PyPI administrators.
+{% trans trimmed ='mailto:admin@pypi.org', email_address='' %}
+For more information, see our FAQ at {{ request.help_url(_anchor='compromised-token') }}
+
+For help, you can send an email to admin@pypi.org to communicate with the PyPI
+administrators.
 {% endtrans %}
 {% endblock %}
