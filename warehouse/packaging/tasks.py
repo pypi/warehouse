@@ -12,6 +12,8 @@
 
 import datetime
 
+from itertools import product
+
 from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
@@ -176,25 +178,6 @@ def sync_bigquery_release_files(request):
     table_name = request.registry.settings["warehouse.release_files_table"]
     table_schema = bq.get_table(table_name).schema
 
-    db_release_files = request.db.query(File.md5_digest).all()
-    db_file_digests = [file.md5_digest for file in db_release_files]
-
-    bq_file_digests = bq.query(f"SELECT md5_digest FROM {table_name}").result()
-    bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
-
-    md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
-
-    if not md5_diff_list:
-        # There are no files that need synced to BigQuery
-        return
-
-    release_files = (
-        request.db.query(File)
-        .join(Release, Release.id == File.release_id)
-        .filter(File.md5_digest.in_(md5_diff_list))
-        .all()
-    )
-
     # Using the schema to populate the data allows us to automatically
     # set the values to their respective fields rather than assigning
     # values individually
@@ -244,8 +227,39 @@ def sync_bigquery_release_files(request):
                 row_data[sch.name] = field_data
         return row_data
 
-    json_rows = [populate_data_using_schema(file) for file in release_files]
+    for first, second in product("0123456789abcdef", repeat=2):
+        db_release_files = (
+            request.db.query(File.md5_digest)
+            .filter(File.md5_digest.like(f"{first}{second}%"))
+            .yield_per(1000)
+            .all()
+        )
+        db_file_digests = [file.md5_digest for file in db_release_files]
 
-    bq.load_table_from_json(
-        json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
-    ).result()
+        bq_file_digests = bq.query(
+            (
+                "SELECT md5_digest ",
+                f"FROM {table_name}",
+                f"WHERE md5_digest LIKE '{first}{second}%'",
+            )
+        ).result()
+        bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
+
+        md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
+        if not md5_diff_list:
+            # There are no files that need synced to BigQuery
+            continue
+
+        release_files = (
+            request.db.query(File)
+            .join(Release, Release.id == File.release_id)
+            .filter(File.md5_digest.in_(md5_diff_list))
+            .all()
+        )
+
+        json_rows = [populate_data_using_schema(file) for file in release_files]
+
+        bq.load_table_from_json(
+            json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
+        ).result()
+        break
