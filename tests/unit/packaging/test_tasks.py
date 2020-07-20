@@ -445,14 +445,14 @@ class TestSyncBigQueryMetadata:
             pretend.call(
                 (
                     "SELECT md5_digest ",
-                    "FROM example.pypi.distributions",
+                    "FROM example.pypi.distributions ",
                     "WHERE md5_digest LIKE '00%'",
                 )
             ),
             pretend.call(
                 (
                     "SELECT md5_digest ",
-                    "FROM example.pypi.distributions",
+                    "FROM example.pypi.distributions ",
                     "WHERE md5_digest LIKE '01%'",
                 )
             ),
@@ -543,7 +543,7 @@ class TestSyncBigQueryMetadata:
             pretend.call(
                 (
                     "SELECT md5_digest ",
-                    "FROM example.pypi.distributions",
+                    "FROM example.pypi.distributions ",
                     f"WHERE md5_digest LIKE '{first}{second}%'",
                 )
             )

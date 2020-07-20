@@ -239,7 +239,7 @@ def sync_bigquery_release_files(request):
         bq_file_digests = bq.query(
             (
                 "SELECT md5_digest ",
-                f"FROM {table_name}",
+                f"FROM {table_name} ",
                 f"WHERE md5_digest LIKE '{first}{second}%'",
             )
         ).result()
