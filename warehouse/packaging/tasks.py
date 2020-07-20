@@ -176,7 +176,7 @@ def sync_bigquery_release_files(request):
     table_name = request.registry.settings["warehouse.release_files_table"]
     table_schema = bq.get_table(table_name).schema
 
-    db_release_files = request.db.query(File.md5_digest).all()
+    db_release_files = request.db.query(File.md5_digest).yield_per(1000).all()
     db_file_digests = [file.md5_digest for file in db_release_files]
 
     bq_file_digests = bq.query(f"SELECT md5_digest FROM {table_name}").result()
