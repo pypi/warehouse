@@ -443,18 +443,14 @@ class TestSyncBigQueryMetadata:
         assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
         assert bigquery.query.calls == [
             pretend.call(
-                (
-                    "SELECT md5_digest ",
-                    "FROM example.pypi.distributions ",
-                    "WHERE md5_digest LIKE '00%'",
-                )
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                "WHERE md5_digest LIKE '00%'"
             ),
             pretend.call(
-                (
-                    "SELECT md5_digest ",
-                    "FROM example.pypi.distributions ",
-                    "WHERE md5_digest LIKE '01%'",
-                )
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                "WHERE md5_digest LIKE '01%'"
             ),
         ]
         assert bigquery.load_table_from_json.calls == [
@@ -541,11 +537,9 @@ class TestSyncBigQueryMetadata:
         assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
         assert bigquery.query.calls == [
             pretend.call(
-                (
-                    "SELECT md5_digest ",
-                    "FROM example.pypi.distributions ",
-                    f"WHERE md5_digest LIKE '{first}{second}%'",
-                )
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                f"WHERE md5_digest LIKE '{first}{second}%'",
             )
             for first, second in product("0123456789abcdef", repeat=2)
         ]
