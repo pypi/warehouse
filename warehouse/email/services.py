@@ -64,10 +64,6 @@ class SMTPEmailSender:
         self.mailer = mailer
         self.sender = sender
 
-    @property
-    def from_address(self):
-        return self.sender
-
     @classmethod
     def create_service(cls, context, request):
         sitename = request.registry.settings["site.name"]
@@ -92,10 +88,6 @@ class SESEmailSender:
         self._client = client
         self._sender = sender
         self._db = db
-
-    @property
-    def from_address(self):
-        return self._sender
 
     @classmethod
     def create_service(cls, context, request):

@@ -101,6 +101,7 @@ class TestSendEmailToUser:
             ),
             remote_addr="0.0.0.0",
             user=user,
+            registry=pretend.stub(settings={"mail.sender": "noreply@example.com"}),
         )
 
         if address is not None:
@@ -115,9 +116,16 @@ class TestSendEmailToUser:
             pretend.call(
                 expected,
                 {"subject": "My Subject", "body_text": "My Body", "body_html": None},
-                user.id,
-                request.remote_addr,
-                False,
+                {
+                    "sending_user_id": user.id,
+                    "ip_address": request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": address.email if address else primary_email,
+                        "subject": "My Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -184,6 +192,7 @@ class TestSendEmailToUser:
             ),
             remote_addr="0.0.0.0",
             user=user,
+            registry=pretend.stub(settings={"mail.sender": "noreply@example.com"}),
         )
 
         if address is not None:
@@ -200,9 +209,16 @@ class TestSendEmailToUser:
             pretend.call(
                 expected,
                 {"subject": "My Subject", "body_text": "My Body", "body_html": None},
-                user.id,
-                request.remote_addr,
-                False,
+                {
+                    "sending_user_id": user.id,
+                    "ip_address": request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": address.email if address else primary_email,
+                        "subject": "My Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -212,7 +228,6 @@ class TestSendEmail:
         class FakeMailSender:
             def __init__(self):
                 self.emails = []
-                self.from_address = "DevPyPI <noreply@example.com>"
 
             def send(self, recipient, msg):
                 self.emails.append(
@@ -254,7 +269,20 @@ class TestSendEmail:
         msg = EmailMessage(subject="subject", body_text="body")
 
         email.send_email(
-            task, request, "recipient", attr.asdict(msg), user_id, "0.0.0.0", False
+            task,
+            request,
+            "recipient",
+            attr.asdict(msg),
+            {
+                "sending_user_id": user_id,
+                "ip_address": "0.0.0.0",
+                "additional": {
+                    "from_": "noreply@example.com",
+                    "to": "recipient",
+                    "subject": msg.subject,
+                    "redact_ip": False,
+                },
+            },
         )
 
         assert request.find_service.calls == [
@@ -287,9 +315,6 @@ class TestSendEmail:
         exc = Exception()
 
         class FakeMailSender:
-            def __init__(self):
-                self.from_address = "DevPyPI <noreply@example.com>"
-
             def send(self, recipient, msg):
                 raise exc
 
@@ -306,7 +331,20 @@ class TestSendEmail:
 
         with pytest.raises(celery.exceptions.Retry):
             email.send_email(
-                task, request, "recipient", attr.asdict(msg), user_id, "0.0.0.0"
+                task,
+                request,
+                "recipient",
+                attr.asdict(msg),
+                {
+                    "sending_user_id": user_id,
+                    "ip_address": "0.0.0.0",
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "recipient",
+                        "subject": msg.subject,
+                        "redact_ip": False,
+                    },
+                },
             )
 
         assert task.retry.calls == [pretend.call(exc=exc)]
@@ -379,6 +417,7 @@ class TestSendPasswordResetEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_password_reset_email(
             pyramid_request, (stub_user, stub_email)
@@ -421,9 +460,18 @@ class TestSendPasswordResetEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "other@example.com"
+                        if stub_email
+                        else "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -471,6 +519,7 @@ class TestEmailVerificationEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_email_verification_email(
             pyramid_request, (stub_user, stub_email,),
@@ -504,9 +553,16 @@ class TestEmailVerificationEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -548,6 +604,7 @@ class TestPasswordChangeEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_password_change_email(pyramid_request, stub_user)
 
@@ -569,9 +626,16 @@ class TestPasswordChangeEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -612,6 +676,7 @@ class TestPasswordChangeEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_password_change_email(pyramid_request, stub_user)
 
@@ -663,6 +728,7 @@ class TestPasswordCompromisedHIBPEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_password_compromised_email_hibp(pyramid_request, stub_user)
 
@@ -681,9 +747,16 @@ class TestPasswordCompromisedHIBPEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -728,6 +801,7 @@ class TestPasswordCompromisedEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_password_compromised_email(pyramid_request, stub_user)
 
@@ -746,9 +820,16 @@ class TestPasswordCompromisedEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -791,6 +872,7 @@ class TestAccountDeletionEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_account_deletion_email(pyramid_request, stub_user)
 
@@ -812,9 +894,16 @@ class TestAccountDeletionEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -857,6 +946,7 @@ class TestAccountDeletionEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_account_deletion_email(pyramid_request, stub_user)
 
@@ -904,6 +994,7 @@ class TestPrimaryEmailChangeEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_primary_email_change_email(
             pyramid_request,
@@ -932,9 +1023,16 @@ class TestPrimaryEmailChangeEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "old_email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -973,6 +1071,7 @@ class TestPrimaryEmailChangeEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_primary_email_change_email(
             pyramid_request,
@@ -1041,6 +1140,7 @@ class TestCollaboratorAddedEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_collaborator_added_email(
             pyramid_request,
@@ -1084,9 +1184,16 @@ class TestCollaboratorAddedEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1100,9 +1207,16 @@ class TestCollaboratorAddedEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1154,6 +1268,7 @@ class TestCollaboratorAddedEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_collaborator_added_email(
             pyramid_request,
@@ -1194,9 +1309,16 @@ class TestCollaboratorAddedEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -1244,6 +1366,7 @@ class TestAddedAsCollaboratorEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_added_as_collaborator_email(
             pyramid_request,
@@ -1280,9 +1403,16 @@ class TestAddedAsCollaboratorEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             )
         ]
 
@@ -1328,6 +1458,7 @@ class TestAddedAsCollaboratorEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_added_as_collaborator_email(
             pyramid_request,
@@ -1403,6 +1534,7 @@ class TestRemovedProjectEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_removed_project_email(
             pyramid_request,
@@ -1444,9 +1576,16 @@ class TestRemovedProjectEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1460,9 +1599,16 @@ class TestRemovedProjectEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1514,6 +1660,7 @@ class TestRemovedProjectEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_removed_project_email(
             pyramid_request,
@@ -1555,9 +1702,16 @@ class TestRemovedProjectEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1571,9 +1725,16 @@ class TestRemovedProjectEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1628,6 +1789,7 @@ class TestYankedReleaseEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1682,9 +1844,16 @@ class TestYankedReleaseEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1698,9 +1867,16 @@ class TestYankedReleaseEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1753,6 +1929,7 @@ class TestYankedReleaseEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1807,9 +1984,16 @@ class TestYankedReleaseEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1823,9 +2007,16 @@ class TestYankedReleaseEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1880,6 +2071,7 @@ class TestUnyankedReleaseEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1933,9 +2125,16 @@ class TestUnyankedReleaseEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1949,9 +2148,16 @@ class TestUnyankedReleaseEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2004,6 +2210,7 @@ class TestUnyankedReleaseEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -2057,9 +2264,16 @@ class TestUnyankedReleaseEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2073,9 +2287,16 @@ class TestUnyankedReleaseEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2130,6 +2351,7 @@ class TestRemovedReleaseEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -2183,9 +2405,16 @@ class TestRemovedReleaseEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2199,9 +2428,16 @@ class TestRemovedReleaseEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2254,6 +2490,7 @@ class TestRemovedReleaseEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -2307,9 +2544,16 @@ class TestRemovedReleaseEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2323,9 +2567,16 @@ class TestRemovedReleaseEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2380,6 +2631,7 @@ class TestRemovedReleaseFileEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -2434,9 +2686,16 @@ class TestRemovedReleaseFileEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2450,9 +2709,16 @@ class TestRemovedReleaseFileEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2505,6 +2771,7 @@ class TestRemovedReleaseFileEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -2559,9 +2826,16 @@ class TestRemovedReleaseFileEmail:
                         ),
                     ),
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                True,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2575,9 +2849,16 @@ class TestRemovedReleaseFileEmail:
                         ),
                     )
                 ),
-                stub_submitter_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2636,6 +2917,7 @@ class TestTwoFactorEmail:
         )
         pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         send_method = getattr(email, f"send_two_factor_{action}_email")
         result = send_method(pyramid_request, stub_user, method=method)
@@ -2658,8 +2940,15 @@ class TestTwoFactorEmail:
                         ),
                     )
                 ),
-                stub_user.id,
-                pyramid_request.remote_addr,
-                False,
+                {
+                    "sending_user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]

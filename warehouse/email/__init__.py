@@ -13,7 +13,6 @@
 import functools
 
 from email.headerregistry import Address
-from email.utils import parseaddr
 
 import attr
 
@@ -35,27 +34,19 @@ def _compute_recipient(user, email):
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(
-    task, request, recipient, msg, sending_user_id, ip_address, redact_ip=True
-):
+def send_email(task, request, recipient, msg, success_event):
     msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
-    from_address = parseaddr(sender.from_address)[1]
 
     try:
         sender.send(recipient, msg)
 
         user_service = request.find_service(IUserService, context=None)
         user_service.record_event(
-            sending_user_id,
+            success_event["sending_user_id"],
             tag="account:email:sent",
-            ip_address=ip_address,
-            additional={
-                "from_": from_address,
-                "to": parseaddr(recipient)[1],
-                "subject": msg.subject,
-                "redact_ip": redact_ip,
-            },
+            ip_address=success_event["ip_address"],
+            additional=success_event["additional"],
         )
     except Exception as exc:
         task.retry(exc=exc)
@@ -84,9 +75,16 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     request.task(send_email).delay(
         _compute_recipient(user, email.email),
         attr.asdict(msg),
-        user.id,
-        request.remote_addr,
-        redact_ip,
+        {
+            "sending_user_id": user.id,
+            "ip_address": request.remote_addr,
+            "additional": {
+                "from_": request.registry.settings.get("mail.sender"),
+                "to": email.email,
+                "subject": msg.subject,
+                "redact_ip": redact_ip,
+            },
+        },
     )
 
 

@@ -99,8 +99,16 @@ def email_mass(request):
                         "body_text": row["body_text"],
                         "body_html": row.get("body_html"),
                     },
-                    user.id,
-                    request.remote_addr,
+                    {
+                        "sending_user_id": user.id,
+                        "ip_address": request.remote_addr,
+                        "additional": {
+                            "from_": request.registry.settings.get("mail.sender"),
+                            "to": email.email,
+                            "subject": row["subject"],
+                            "redact_ip": True,
+                        },
+                    },
                 )
         request.session.flash("Mass emails sent", queue="success")
     else:

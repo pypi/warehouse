@@ -114,13 +114,6 @@ class TestSMTPEmailSender:
         assert service.mailer is mailer
         assert service.sender == "DevPyPI <noreply@example.com>"
 
-    def test_from_address(self):
-        mailer = DummyMailer()
-        service = SMTPEmailSender(mailer, sender="DevPyPI <noreply@example.com>")
-        address = service.from_address
-
-        assert address == "DevPyPI <noreply@example.com>"
-
     def test_send(self):
         mailer = DummyMailer()
         service = SMTPEmailSender(mailer, sender="DevPyPI <noreply@example.com>")
@@ -146,14 +139,6 @@ class TestSMTPEmailSender:
 class TestSESEmailSender:
     def test_verify_service(self):
         assert verifyClass(IEmailSender, SESEmailSender)
-
-    def test_from_address(self):
-        service = SESEmailSender(
-            pretend.stub(), sender="DevPyPI <noreply@example.com>", db=pretend.stub()
-        )
-        address = service.from_address
-
-        assert address == "DevPyPI <noreply@example.com>"
 
     def test_creates_service(self):
         aws_client = pretend.stub()
