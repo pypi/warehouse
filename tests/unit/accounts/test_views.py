@@ -1902,8 +1902,9 @@ class TestVerifyEmail:
 
 
 class TestVerifyProjectRole:
+    @pytest.mark.parametrize("desired_role", ["Maintainer", "Owner"])
     def test_verify_project_role(
-        self, db_request, user_service, token_service, monkeypatch
+        self, db_request, user_service, token_service, monkeypatch, desired_role
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
@@ -1913,12 +1914,12 @@ class TestVerifyProjectRole:
 
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
-        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
         db_request.remote_addr = "192.168.1.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
-                "desired_role": "Maintainer",
+                "desired_role": desired_role,
                 "user_id": user.id,
                 "project_id": project.id,
                 "submitter_id": db_request.user.id,
@@ -1967,7 +1968,10 @@ class TestVerifyProjectRole:
         )
 
         assert db_request.session.flash.calls == [
-            pretend.call(f"Added collaborator '{user.username}'", queue="success")
+            pretend.call(
+                f"You are now {desired_role} of the '{project.name}' project.",
+                queue="success",
+            )
         ]
 
         assert collaborator_added_email.calls == [
@@ -1977,7 +1981,7 @@ class TestVerifyProjectRole:
                 user=user,
                 submitter=db_request.user,
                 project_name=project.name,
-                role="Maintainer",
+                role=desired_role,
             )
         ]
         assert added_as_collaborator_email.calls == [
@@ -1986,13 +1990,17 @@ class TestVerifyProjectRole:
                 user,
                 submitter=db_request.user,
                 project_name=project.name,
-                role="Maintainer",
+                role=desired_role,
             )
         ]
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.roles", project_name=project.name)
+            if desired_role == "Owner"
+            else pretend.call("packaging.project", name=project.name)
+        ]
 
     @pytest.mark.parametrize(
         ("exception", "message"),

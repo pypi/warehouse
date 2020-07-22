@@ -855,11 +855,18 @@ def verify_project_role(request):
 
     request.session.flash(
         request._(
-            "Added collaborator '${username}'", mapping={"username": user.username},
+            "You are now ${role} of the '${project_name}' project.",
+            mapping={"project_name": project.name, "role": desired_role},
         ),
         queue="success",
     )
-    return HTTPSeeOther(request.route_path("manage.projects"))
+
+    if desired_role == "Owner":
+        return HTTPSeeOther(
+            request.route_path("manage.project.roles", project_name=project.name)
+        )
+    else:
+        return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
 def _login_user(request, userid, two_factor_method=None):
