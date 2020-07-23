@@ -34,7 +34,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.packaging.models import Role, RoleInvitationStatus
+from warehouse.packaging.models import Role, RoleInvitation, RoleInvitationStatus
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -1960,7 +1960,12 @@ class TestVerifyProjectRole:
             pretend.call(db_request.user.id),
         ]
 
-        assert role_invitation.invite_status == RoleInvitationStatus.Accepted.value
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
         assert (
             db_request.db.query(Role)
             .filter(Role.project == project, Role.user == user)
@@ -2046,21 +2051,11 @@ class TestVerifyProjectRole:
             )
         ]
 
-    @pytest.mark.parametrize(
-        ("status", "message"),
-        [
-            ("accepted", "Role invitation is already accepted."),
-            ("revoked", "Role invitation has been revoked."),
-        ],
-    )
     def test_verify_project_role_declined(
-        self, db_request, user_service, token_service, status, message
+        self, db_request, user_service, token_service
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        role_invitation = RoleInvitationFactory.create(
-            user=user, project=project, invite_status=status
-        )
 
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
@@ -2086,8 +2081,9 @@ class TestVerifyProjectRole:
 
         views.verify_project_role(db_request)
 
-        assert role_invitation.invite_status == status
-        assert db_request.session.flash.calls == [pretend.call(message, queue="error",)]
+        assert db_request.session.flash.calls == [
+            pretend.call("Role invitation has been accepted/revoked.", queue="error",)
+        ]
         assert db_request.route_path.calls == [pretend.call("manage.account")]
 
     def test_verify_fails_with_different_user(
@@ -2122,7 +2118,7 @@ class TestVerifyProjectRole:
         views.verify_project_role(db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Invite is not valid", queue="error")
+            pretend.call("Role invitation is not valid.", queue="error")
         ]
         assert db_request.route_path.calls == [pretend.call("manage.account")]
 

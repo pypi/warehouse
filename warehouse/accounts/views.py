@@ -776,7 +776,7 @@ def verify_project_role(request):
 
     user = user_service.get_user(data.get("user_id"))
     if user != request.user:
-        return _error(request._("Invite is not valid"))
+        return _error(request._("Role invitation is not valid."))
 
     project = (
         request.db.query(Project).filter(Project.id == data.get("project_id")).one()
@@ -787,16 +787,14 @@ def verify_project_role(request):
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.project == project)
         .filter(RoleInvitation.user == user)
-        .one()
+        .one_or_none()
     )
 
-    if role_invite.invite_status == RoleInvitationStatus.Revoked.value:
-        return _error(request._("Role invitation has been revoked."))
-    elif role_invite.invite_status == RoleInvitationStatus.Accepted.value:
-        return _error(request._("Role invitation is already accepted."))
+    if not role_invite:
+        return _error(request._("Role invitation has been accepted/revoked."))
 
-    role_invite.invite_status = RoleInvitationStatus.Accepted.value
     request.db.add(Role(user=user, project=project, role_name=desired_role))
+    request.db.delete(role_invite)
     request.db.add(
         JournalEntry(
             name=project.name,

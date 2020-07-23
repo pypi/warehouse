@@ -3418,7 +3418,9 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
-        token_service = pretend.stub(dumps=lambda data: "TOKEN", max_age=6 * 60 * 60)
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+        )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
                 ITokenService: token_service,
@@ -3504,8 +3506,14 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+        )
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
@@ -3522,7 +3530,8 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
@@ -3564,7 +3573,9 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
-        token_service = pretend.stub(dumps=lambda data: "TOKEN", max_age=6 * 60 * 60)
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+        )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
                 ITokenService: token_service,
@@ -3655,8 +3666,14 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None,
+        )
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
@@ -3673,7 +3690,8 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
@@ -3698,17 +3716,7 @@ class TestManageProjectRoles:
             "form": form_obj,
         }
 
-    @pytest.mark.parametrize(
-        ("status", "message"),
-        [
-            (
-                "pending",
-                "User 'new_user' already has an active invite. Please try again later.",
-            ),
-            ("accepted", "User 'new_user' is already a collaborator on the project."),
-        ],
-    )
-    def test_cannot_reinvite_role(self, db_request, status, message):
+    def test_cannot_reinvite_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
         new_user = UserFactory.create(username="new_user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
@@ -3721,14 +3729,22 @@ class TestManageProjectRoles:
             user=owner_2, project=project, role_name="Owner"
         )
         new_user_invitation = RoleInvitationFactory.create(
-            user=new_user, project=project, invite_status=status
+            user=new_user, project=project, invite_status="pending"
         )
 
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN",
+            max_age=6 * 60 * 60,
+            loads=lambda data: {"desired_role": "Maintainer"},
+        )
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context=None: {IUserService: user_service}.get(iface)
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
@@ -3748,13 +3764,19 @@ class TestManageProjectRoles:
 
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(db_request.POST, user_service=user_service),
             pretend.call(user_service=user_service),
         ]
-        assert db_request.session.flash.calls == [pretend.call(message, queue="error",)]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "User 'new_user' already has an active invite. Please try again later.",
+                queue="error",
+            )
+        ]
 
         assert result == {
             "project": project,
@@ -3805,7 +3827,12 @@ class TestRevokeRoleInvitation:
         )
         db_request.db.flush()
 
-        assert user_invite.invite_status == RoleInvitationStatus.Revoked.value
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation revoked from '{user.username}'.", queue="success")
         ]
@@ -3889,9 +3916,14 @@ class TestRevokeRoleInvitation:
         )
         db_request.db.flush()
 
-        assert user_invite.invite_status == RoleInvitationStatus.Revoked.value
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
         assert db_request.session.flash.calls == [
-            pretend.call("Invitation revoked.", queue="success")
+            pretend.call("Invitation already expired.", queue="success")
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/projects/roles"
