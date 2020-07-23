@@ -1470,6 +1470,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         role_name = form.role_name.data
         userid = user_service.find_userid(username)
         user = user_service.get_user(userid)
+        token_service = request.find_service(ITokenService, name="email")
 
         existing_role = (
             request.db.query(Role)
@@ -1482,6 +1483,12 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             .filter(RoleInvitation.project == project)
             .one_or_none()
         )
+        # Cover edge case where invite is invalid but task
+        # has not updated invite status
+        try:
+            invite_token = token_service.loads(user_invite.token)
+        except:
+            invite_token = None
 
         if existing_role:
             request.session.flash(
@@ -1500,23 +1507,15 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         elif (
             user_invite
             and user_invite.invite_status == RoleInvitationStatus.Pending.value
+            and invite_token
         ):
             request.session.flash(
                 f"User '{username}' already has an active invite. "
                 f"Please try again later.",
                 queue="error",
             )
-        elif (
-            user_invite
-            and user_invite.invite_status == RoleInvitationStatus.Accepted.value
-        ):
-            request.session.flash(
-                f"User '{username}' is already a collaborator on the project.",
-                queue="error",
-            )
         else:
-            token_service = request.find_service(ITokenService, name="email")
-            token = token_service.dumps(
+            invite_token = token_service.dumps(
                 {
                     "action": "email-project-role-verify",
                     "desired_role": role_name,
@@ -1527,14 +1526,14 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
             if user_invite:
                 user_invite.invite_status = RoleInvitationStatus.Pending.value
-                user_invite.token = token
+                user_invite.token = invite_token
             else:
                 request.db.add(
                     RoleInvitation(
                         user=user,
                         project=project,
                         invite_status=RoleInvitationStatus.Pending.value,
-                        token=token,
+                        token=invite_token,
                     )
                 )
 
