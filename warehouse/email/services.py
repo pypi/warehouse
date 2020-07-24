@@ -33,7 +33,7 @@ def _format_sender(sitename, sender):
         return str(Address(sitename, addr_spec=sender))
 
 
-@attr.s(auto_attribs=True, frozen=True, slots=True)
+
 class EmailMessage:
 
     subject: str
