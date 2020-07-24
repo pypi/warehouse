@@ -178,7 +178,6 @@ class GitHubTokenScanningPayloadVerifier:
             self.public_keys_cache = response.json()
             return self.public_keys_cache
         except requests.HTTPError as exc:
-            # TODO Log, including status code and body
             raise GitHubPublicKeyMetaAPIError(
                 f"Invalid response code {response.status_code}: {response.text[:100]}",
                 f"public_key_api.status.{response.status_code}",
@@ -189,7 +188,6 @@ class GitHubTokenScanningPayloadVerifier:
                 "public_key_api.invalid_json",
             ) from exc
         except requests.RequestException as exc:
-            # TODO Log
             raise GitHubPublicKeyMetaAPIError(
                 "Could not connect to GitHub", "public_key_api.network_error"
             ) from exc
@@ -283,8 +281,6 @@ class TokenLeakAnalyzer:
                 record=disclosure_record
             )
         except InvalidTokenLeakRequest as exc:
-            # TODO Logging something here would be useful in case we recieve
-            # unexpected pattern type.
             self._metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
             return
 
@@ -318,7 +314,7 @@ class TokenLeakAnalyzer:
                     disclosure_record=disclosure_record, origin=origin
                 )
             except Exception:
-                # TODO log, but don't stop processing other leaks.
-                # It seems logger.exception() is not used in the codebase. What is
-                # expected ?
+                self._metrics.increment(f"warehouse.token_leak.{origin}.error")
                 continue
+            else:
+                self._metrics.increment(f"warehouse.token_leak.{origin}.processed")
