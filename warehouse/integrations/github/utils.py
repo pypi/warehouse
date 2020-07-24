@@ -14,8 +14,6 @@ import base64
 import re
 import time
 
-import attr
-
 from warehouse.email import send_token_compromised_email_leak
 from warehouse.macaroons.caveats import InvalidMacaroon
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -84,11 +82,10 @@ class InvalidTokenLeakRequest(Exception):
         super().__init__(message)
 
 
-@attr.s(auto_attribs=True, frozen=True, slots=True)
 class TokenLeakDisclosureRequest:
-
-    token: str
-    public_url: str
+    def __init__(self, token: str, public_url: str):
+        self.token = token
+        self.public_url = public_url
 
     @classmethod
     def from_api_record(cls, record, *, matchers=TOKEN_LEAK_MATCHERS):
