@@ -35,11 +35,6 @@ If the token was not published by you, it means it was stolen, either from
 you or from {{ site_name }}. We urge you to take all the necessary steps to secure all your
 credentials.
 
-In the case of a breach of the {{ site_name }} database, you will find informations
-and support in the python-security documentation at:
-
-    https://python-security.readthedocs.io/packages.html#vulnerabilites-in-the-package-index
-
 In case of doubt, you can send an email to admin@pypi.org to communicate with the PyPI
 administrators.
 
@@ -51,7 +46,6 @@ with the new token.
 Lastly, please review the releases of all your packages. You should make
 sure a third party did not use your publicly accessible token to impersonate
 you and release a malicious package.
-
 
 How do you know this?
 
