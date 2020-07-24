@@ -122,63 +122,6 @@ class TokenLeakDisclosureRequest:
         return cls(token=extracted_token, public_url=record["url"])
 
 
-class TokenLeakAnalyzer:
-    def __init__(self, request):
-        self._request = request
-        self._metrics = self._request.find_service(IMetricsService, context=None)
-        self._macaroon_service = self._request.find_service(
-            IMacaroonService, context=None
-        )
-
-    def analyze_disclosure(self, disclosure_record, origin):
-
-        self._metrics.increment(f"warehouse.token_leak.{origin}.recieved")
-
-        try:
-            disclosure = TokenLeakDisclosureRequest.from_api_record(
-                record=disclosure_record
-            )
-        except InvalidTokenLeakRequest as exc:
-            # TODO Logging something here would be useful in case we recieve
-            # unexpected pattern type.
-            self._metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
-            return
-
-        try:
-            database_macaroon = self._macaroon_service.check_if_macaroon_exists(
-                raw_macaroon=disclosure.token
-            )
-        except InvalidMacaroon:
-            self._metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
-            return
-
-        self._metrics.increment(f"warehouse.token_leak.{origin}.valid")
-        self._macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
-
-        send_token_compromised_email_leak(
-            self._request,
-            database_macaroon.user,
-            public_url=disclosure.public_url,
-            origin=origin,
-        )
-
-    def analyze_disclosures(self, disclosure_records, origin):
-        if not isinstance(disclosure_records, list):
-            raise InvalidTokenLeakRequest(
-                "Invalid format: payload is not a list", "format"
-            )
-        for disclosure_record in disclosure_records:
-            try:
-                self.analyze_disclosure(
-                    disclosure_record=disclosure_record, origin=origin
-                )
-            except Exception:
-                # TODO log, but don't stop processing other leaks.
-                # It seems logger.exception() is not used in the codebase. What is
-                # expected ?
-                continue
-
-
 class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
     pass
 
@@ -321,3 +264,60 @@ class GitHubTokenScanningPayloadVerifier:
             raise InvalidTokenLeakRequest(
                 "Invalid cryptographic values", "invalid_crypto"
             ) from exc
+
+
+class TokenLeakAnalyzer:
+    def __init__(self, request):
+        self._request = request
+        self._metrics = self._request.find_service(IMetricsService, context=None)
+        self._macaroon_service = self._request.find_service(
+            IMacaroonService, context=None
+        )
+
+    def analyze_disclosure(self, disclosure_record, origin):
+
+        self._metrics.increment(f"warehouse.token_leak.{origin}.recieved")
+
+        try:
+            disclosure = TokenLeakDisclosureRequest.from_api_record(
+                record=disclosure_record
+            )
+        except InvalidTokenLeakRequest as exc:
+            # TODO Logging something here would be useful in case we recieve
+            # unexpected pattern type.
+            self._metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
+            return
+
+        try:
+            database_macaroon = self._macaroon_service.check_if_macaroon_exists(
+                raw_macaroon=disclosure.token
+            )
+        except InvalidMacaroon:
+            self._metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
+            return
+
+        self._metrics.increment(f"warehouse.token_leak.{origin}.valid")
+        self._macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
+
+        send_token_compromised_email_leak(
+            self._request,
+            database_macaroon.user,
+            public_url=disclosure.public_url,
+            origin=origin,
+        )
+
+    def analyze_disclosures(self, disclosure_records, origin):
+        if not isinstance(disclosure_records, list):
+            raise InvalidTokenLeakRequest(
+                "Invalid format: payload is not a list", "format"
+            )
+        for disclosure_record in disclosure_records:
+            try:
+                self.analyze_disclosure(
+                    disclosure_record=disclosure_record, origin=origin
+                )
+            except Exception:
+                # TODO log, but don't stop processing other leaks.
+                # It seems logger.exception() is not used in the codebase. What is
+                # expected ?
+                continue
