@@ -308,6 +308,7 @@ class TokenLeakAnalyzer:
 
     def analyze_disclosures(self, disclosure_records, origin):
         if not isinstance(disclosure_records, list):
+            self._metrics.increment(f"warehouse.token_leak.{origin}.error.format")
             raise InvalidTokenLeakRequest(
                 "Invalid format: payload is not a list", "format"
             )

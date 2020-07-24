@@ -21,30 +21,29 @@ def github_disclose_token(request):
     # Thanks to the predicates, we know the headers we need are defined.
     key_id = request.headers.get("GITHUB-PUBLIC-KEY-IDENTIFIER")
     signature = request.headers.get("GITHUB-PUBLIC-KEY-SIGNATURE")
+    metrics = request.find_service(IMetricsService, context=None)
 
     verifier = GitHubTokenScanningPayloadVerifier(
         session=request.http,
-        metrics=request.find_service(IMetricsService, context=None),
+        metrics=metrics,
         api_token=request.registry.settings["github.token"],
     )
 
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):
-        request.response.status_int = 403
-        return {"error": "invalid signature"}
+        return Response(status=400)
 
     try:
         disclosures = request.json_body
     except json.decoder.JSONDecodeError:
-        request.response.status_int = 400
-        return {"error": "body is not valid json"}
+        metrics.increment("warehouse.token_leak.github.error.payload.json_error")
+        return Response(status=400)
 
     analyzer = TokenLeakAnalyzer(request=request)
 
     try:
         analyzer.analyze_disclosures(disclosure_records=disclosures, origin="github")
     except InvalidTokenLeakRequest:
-        request.response.status_int = 400
-        return {"error": "cannot read disclosures from payload"}
+        return Response(status=400)
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.#
     return Response(status=204)
