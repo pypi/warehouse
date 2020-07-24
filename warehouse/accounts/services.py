@@ -10,27 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
 import collections
-import enum
 import functools
 import hashlib
-import json
 import logging
 import os
-import re
 import secrets
-import typing
 import urllib.parse
 
-import attr
 import requests
 
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric.ec import ECDSA
-from cryptography.hazmat.primitives.hashes import SHA256
 from passlib.context import CryptContext
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -50,7 +39,6 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
-from warehouse.accounts.utils import InvalidTokenLeakRequest
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -771,4 +759,3 @@ class NullPasswordBreachedService:
         # This service allows *every* password as a non-breached password. It will never
         # tell a user their password isn't good enough.
         return False
-

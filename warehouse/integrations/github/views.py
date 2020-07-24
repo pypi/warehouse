@@ -1,3 +1,12 @@
+import json
+
+from pyramid.response import Response
+from pyramid.view import view_config
+
+from warehouse.integrations.github import utils
+from warehouse.metrics import IMetricsService
+
+
 @view_config(
     require_methods=["POST"],
     require_csrf=False,
@@ -23,7 +32,7 @@ def github_disclose_token(request):
     signature = request.headers.get("GITHUB-PUBLIC-KEY-SIGNATURE")
     metrics = request.find_service(IMetricsService, context=None)
 
-    verifier = GitHubTokenScanningPayloadVerifier(
+    verifier = utils.GitHubTokenScanningPayloadVerifier(
         session=request.http,
         metrics=metrics,
         api_token=request.registry.settings["github.token"],
@@ -38,11 +47,11 @@ def github_disclose_token(request):
         metrics.increment("warehouse.token_leak.github.error.payload.json_error")
         return Response(status=400)
 
-    analyzer = TokenLeakAnalyzer(request=request)
+    analyzer = utils.TokenLeakAnalyzer(request=request)
 
     try:
         analyzer.analyze_disclosures(disclosure_records=disclosures, origin="github")
-    except InvalidTokenLeakRequest:
+    except utils.InvalidTokenLeakRequest:
         return Response(status=400)
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.#

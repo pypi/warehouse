@@ -12,7 +12,6 @@
 
 import datetime
 import hashlib
-import json
 import uuid
 
 from first import first
@@ -21,7 +20,6 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.security import forget, remember
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
@@ -49,7 +47,6 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
-from warehouse.accounts.utils import InvalidTokenLeakRequest, TokenLeakAnalyzer
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (

@@ -25,7 +25,6 @@ from warehouse.accounts.interfaces import (
     IUserService,
 )
 from warehouse.accounts.models import DisableReason
-from warehouse.accounts.predicates import HeadersPredicate
 from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullPasswordBreachedService,

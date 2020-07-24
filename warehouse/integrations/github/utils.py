@@ -11,8 +11,17 @@
 # limitations under the License.
 
 import base64
+import json
 import re
 import time
+
+import requests
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ec import ECDSA
+from cryptography.hazmat.primitives.hashes import SHA256
 
 from warehouse.email import send_token_compromised_email_leak
 from warehouse.macaroons.caveats import InvalidMacaroon
