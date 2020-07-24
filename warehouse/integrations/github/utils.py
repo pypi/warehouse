@@ -193,7 +193,7 @@ class GitHubTokenScanningPayloadVerifier:
     - `cryptography` for signature verification
     """
 
-    def __init__(self, *, session, metrics, api_token=None):
+    def __init__(self, *, session, metrics, api_token):
         self._metrics = metrics
         self._session = session
         self._api_token = api_token
@@ -221,11 +221,6 @@ class GitHubTokenScanningPayloadVerifier:
         self._metrics.increment("warehouse.token_leak.github.auth.success")
         return True
 
-    def _get_headers(self):
-        if self._api_token:
-            return {"Authorization": f"token {self._api_token}"}
-        return {}
-
     def _retrieve_public_key_payload(self):
         if self.public_keys_cached_at + PUBLIC_KEYS_CACHE_TIME < time.time():
             return self.public_keys_cache
@@ -233,7 +228,7 @@ class GitHubTokenScanningPayloadVerifier:
         token_scanning_pubkey_api_url = (
             "https://api.github.com/meta/public_keys/secret_scanning"
         )
-        headers = self._get_headers()
+        headers = {"Authorization": f"token {self._api_token}"}
         try:
             response = self._session.get(token_scanning_pubkey_api_url, headers=headers)
             response.raise_for_status()
