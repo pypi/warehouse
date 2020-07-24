@@ -68,4 +68,4 @@ Available APIs & Datasets
     stats
     xml-rpc
     integration-guide
-    bigquery-dataset
+    bigquery-datasets
