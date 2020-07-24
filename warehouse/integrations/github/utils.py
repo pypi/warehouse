@@ -273,57 +273,61 @@ class GitHubTokenScanningPayloadVerifier:
             ) from exc
 
 
-class TokenLeakAnalyzer:
-    def __init__(self, request):
-        self._request = request
-        self._metrics = self._request.find_service(IMetricsService, context=None)
-        self._macaroon_service = self._request.find_service(
-            IMacaroonService, context=None
+def _analyze_disclosure(request, disclosure_record, origin):
+
+    metrics = request.find_service(IMetricsService, context=None)
+
+    metrics.increment(f"warehouse.token_leak.{origin}.recieved")
+
+    try:
+        disclosure = TokenLeakDisclosureRequest.from_api_record(
+            record=disclosure_record
         )
+    except InvalidTokenLeakRequest as exc:
+        metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
+        return
 
-    def analyze_disclosure(self, disclosure_record, origin):
-
-        self._metrics.increment(f"warehouse.token_leak.{origin}.recieved")
-
-        try:
-            disclosure = TokenLeakDisclosureRequest.from_api_record(
-                record=disclosure_record
-            )
-        except InvalidTokenLeakRequest as exc:
-            self._metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
-            return
-
-        try:
-            database_macaroon = self._macaroon_service.check_if_macaroon_exists(
-                raw_macaroon=disclosure.token
-            )
-        except InvalidMacaroon:
-            self._metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
-            return
-
-        self._metrics.increment(f"warehouse.token_leak.{origin}.valid")
-        self._macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
-
-        send_token_compromised_email_leak(
-            self._request,
-            database_macaroon.user,
-            public_url=disclosure.public_url,
-            origin=origin,
+    macaroon_service = request.find_service(IMacaroonService, context=None)
+    try:
+        database_macaroon = macaroon_service.check_if_macaroon_exists(
+            raw_macaroon=disclosure.token
         )
+    except InvalidMacaroon:
+        metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
+        return
 
-    def analyze_disclosures(self, disclosure_records, origin):
-        if not isinstance(disclosure_records, list):
-            self._metrics.increment(f"warehouse.token_leak.{origin}.error.format")
-            raise InvalidTokenLeakRequest(
-                "Invalid format: payload is not a list", "format"
-            )
-        for disclosure_record in disclosure_records:
-            try:
-                self.analyze_disclosure(
-                    disclosure_record=disclosure_record, origin=origin
-                )
-            except Exception:
-                self._metrics.increment(f"warehouse.token_leak.{origin}.error")
-                continue
-            else:
-                self._metrics.increment(f"warehouse.token_leak.{origin}.processed")
+    metrics.increment(f"warehouse.token_leak.{origin}.valid")
+
+    macaroon_service.delete_macaroon(macaroon_id=str(database_macaroon.id))
+
+    send_token_compromised_email_leak(
+        request,
+        database_macaroon.user,
+        public_url=disclosure.public_url,
+        origin=origin,
+    )
+    metrics.increment(f"warehouse.token_leak.{origin}.processed")
+
+
+def analyze_disclosure(request, disclosure_record, origin):
+    try:
+        _analyze_disclosure(
+            request=request, disclosure_record=disclosure_record, origin=origin,
+        )
+    except Exception:
+        metrics = request.find_service(IMetricsService, context=None)
+        metrics.increment(f"warehouse.token_leak.{origin}.error")
+        raise
+
+
+def analyze_disclosures(self, disclosure_records, origin, metrics):
+    from warehouse.integrations.github import tasks
+
+    if not isinstance(disclosure_records, list):
+        metrics.increment(f"warehouse.token_leak.{origin}.error.format")
+        raise InvalidTokenLeakRequest("Invalid format: payload is not a list", "format")
+
+    for disclosure_record in disclosure_records:
+        tasks.analyze_disclosure_task.delay(
+            disclosure_record=disclosure_record, origin=origin
+        )
