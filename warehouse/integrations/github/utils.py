@@ -125,7 +125,7 @@ class TokenLeakDisclosureRequest:
             extracted_token = matcher.extract(record["token"])
         except ExtractionFailed:
             raise InvalidTokenLeakRequest(
-                f"Cannot extract token from recieved match", reason="extraction"
+                "Cannot extract token from recieved match", reason="extraction"
             )
 
         return cls(token=extracted_token, public_url=record["url"])
