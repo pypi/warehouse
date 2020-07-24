@@ -61,3 +61,5 @@ WTForms[email]>=2.0.0
 yara-python
 zope.sqlalchemy
 zxcvbn
+
+@attr.s(auto_attribs=True, frozen=True, slots=True)
