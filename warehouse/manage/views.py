@@ -1492,16 +1492,22 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         if existing_role:
             request.session.flash(
-                (
-                    f"User '{username}' already has {existing_role.role_name} "
-                    "role for project"
+                request._(
+                    "User '${username}' already has ${role_name} role for project",
+                    mapping={
+                        "username": username,
+                        "role_name": existing_role.role_name,
+                    },
                 ),
                 queue="error",
             )
         elif user.primary_email is None or not user.primary_email.verified:
             request.session.flash(
-                f"User '{username}' does not have a verified primary email "
-                f"address and cannot be added as a {role_name} for project",
+                request._(
+                    "User '${username}' does not have a verified primary email "
+                    "address and cannot be added as a ${role_name} for project",
+                    mapping={"username": username, "role_name": role_name},
+                ),
                 queue="error",
             )
         elif (
@@ -1510,8 +1516,11 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             and invite_token
         ):
             request.session.flash(
-                f"User '{username}' already has an active invite. "
-                f"Please try again later.",
+                request._(
+                    "User '${username}' already has an active invite. "
+                    "Please try again later.",
+                    mapping={"username": username},
+                ),
                 queue="error",
             )
         else:
@@ -1564,7 +1573,12 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 },
             )
             request.db.flush()  # in order to get id
-            request.session.flash(f"Invitation sent to '{username}'", queue="success")
+            request.session.flash(
+                request._(
+                    "Invitation sent to '${username}'", mapping={"username": username},
+                ),
+                queue="success",
+            )
 
         form = _form_class(user_service=user_service)
 
@@ -1641,7 +1655,11 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
         },
     )
     request.session.flash(
-        request._(f"Invitation revoked from '{user.username}'."), queue="success"
+        request._(
+            "Invitation revoked from '${username}'.",
+            mapping={"username": user.username},
+        ),
+        queue="success",
     )
 
     return HTTPSeeOther(
