@@ -118,12 +118,12 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync):
         assert config.add_periodic_task.calls == [
             pretend.call(crontab(minute="*/5"), update_description_html),
             pretend.call(crontab(minute=0, hour=3), compute_trending),
-            pretend.call(crontab(minute=0), sync_bigquery_release_files),
+            pretend.call(crontab(minute="*/15"), sync_bigquery_release_files),
         ]
     elif with_bq_sync:
         assert config.add_periodic_task.calls == [
             pretend.call(crontab(minute="*/5"), update_description_html),
-            pretend.call(crontab(minute=0), sync_bigquery_release_files),
+            pretend.call(crontab(minute="*/15"), sync_bigquery_release_files),
         ]
     elif with_trending:
         assert config.add_periodic_task.calls == [
