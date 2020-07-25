@@ -38,7 +38,6 @@ from pyramid.httpexceptions import (
     HTTPGone,
     HTTPPermanentRedirect,
 )
-
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
