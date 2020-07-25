@@ -26,4 +26,4 @@ def test_incorrect_post_redirect(webtest):
     )
 
     assert "location" in resp.headers
-    assert resp.headers["location"].endswith("/legacy/")
+    assert resp.headers["location"] == "http://localhost/legacy/"

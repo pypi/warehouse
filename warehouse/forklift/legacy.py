@@ -1525,5 +1525,5 @@ def missing_trailing_slash_redirect(request):
         HTTPPermanentRedirect,
         "An upload was attempted to /legacy, but the expected upload URL is "
         "/legacy/, with the trailing /",
-        location="/legacy/",
+        location=request.route_path("forklift.legacy.file_upload"),
     )
