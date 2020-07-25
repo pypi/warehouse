@@ -174,11 +174,11 @@ class GitHubTokenScanningPayloadVerifier:
         return True
 
     def _retrieve_public_key_payload(self):
-        if self.public_keys_cached_at + PUBLIC_KEYS_CACHE_TIME < time.time():
+        if self.public_keys_cached_at + PUBLIC_KEYS_CACHE_TIME > time.time():
             return self.public_keys_cache
 
         token_scanning_pubkey_api_url = (
-            "https://api.github.com/meta/public_keys/secret_scanning"
+            "https://api.github.com/meta/public_keys/token_scanning"
         )
         headers = {"Authorization": f"token {self._api_token}"}
         try:
@@ -316,11 +316,11 @@ def analyze_disclosure(request, disclosure_record, origin):
         )
     except Exception:
         metrics = request.find_service(IMetricsService, context=None)
-        metrics.increment(f"warehouse.token_leak.{origin}.error")
+        metrics.increment(f"warehouse.token_leak.{origin}.error.unknown")
         raise
 
 
-def analyze_disclosures(self, disclosure_records, origin, metrics):
+def analyze_disclosures(disclosure_records, origin, metrics):
     from warehouse.integrations.github import tasks
 
     if not isinstance(disclosure_records, list):

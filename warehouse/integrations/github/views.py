@@ -1,3 +1,15 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 
 from pyramid.response import Response
@@ -11,9 +23,9 @@ from warehouse.metrics import IMetricsService
     require_methods=["POST"],
     require_csrf=False,
     renderer="json",
-    route_name="accounts.github-disclose-token",
+    route_name="integrations.github.disclose-token",
     # If those headers are missing, response will be a 404
-    headers=["GITHUB-PUBLIC-KEY-IDENTIFIER", "GITHUB-PUBLIC-KEY-SIGNATURE"],
+    require_headers=["GITHUB-PUBLIC-KEY-IDENTIFIER", "GITHUB-PUBLIC-KEY-SIGNATURE"],
     has_translations=False,
 )
 def github_disclose_token(request):
@@ -47,10 +59,10 @@ def github_disclose_token(request):
         metrics.increment("warehouse.token_leak.github.error.payload.json_error")
         return Response(status=400)
 
-    analyzer = utils.TokenLeakAnalyzer(request=request)
-
     try:
-        analyzer.analyze_disclosures(disclosure_records=disclosures, origin="github")
+        utils.analyze_disclosures(
+            disclosure_records=disclosures, origin="github", metrics=metrics
+        )
     except utils.InvalidTokenLeakRequest:
         return Response(status=400)
 
