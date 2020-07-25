@@ -171,11 +171,6 @@ def test_routes(warehouse):
             "/account/verify-project-role/",
             domain=warehouse,
         ),
-        pretend.call(
-            "accounts.github-disclose-token",
-            "/_/github/disclose-token",
-            domain=warehouse,
-        ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
             "manage.account.totp-provision",
@@ -329,6 +324,11 @@ def test_routes(warehouse):
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
             read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
+            "integrations.github.disclose-token",
+            "/_/github/disclose-token",
             domain=warehouse,
         ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),

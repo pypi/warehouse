@@ -10,11 +10,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.exceptions import ConfigurationError
-
 import pretend
 import pytest
-from warehouse.accounts.predicates import HeadersPredicate
+
+from pyramid.exceptions import ConfigurationError
+
+from warehouse.predicates import DomainPredicate, HeadersPredicate, includeme
+
+
+class TestDomainPredicate:
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [(None, "domain = None"), ("pypi.io", "domain = {!r}".format("pypi.io"))],
+    )
+    def test_text(self, value, expected):
+        predicate = DomainPredicate(value, None)
+        assert predicate.text() == expected
+        assert predicate.phash() == expected
+
+    def test_when_not_set(self):
+        predicate = DomainPredicate(None, None)
+        assert predicate(None, None)
+
+    def test_valid_value(self):
+        predicate = DomainPredicate("upload.pypi.io", None)
+        assert predicate(None, pretend.stub(domain="upload.pypi.io"))
+
+    def test_invalid_value(self):
+        predicate = DomainPredicate("upload.pyp.io", None)
+        assert not predicate(None, pretend.stub(domain="pypi.io"))
 
 
 class TestHeadersPredicate:
@@ -47,3 +71,17 @@ class TestHeadersPredicate:
     def test_invalid_value(self, value):
         predicate = HeadersPredicate(value, None)
         assert not predicate(None, pretend.stub(headers={"Foo": "a", "Bar": "baz"}))
+
+
+def test_includeme():
+    config = pretend.stub(
+        add_route_predicate=pretend.call_recorder(lambda name, pred: None),
+        add_view_predicate=pretend.call_recorder(lambda name, pred: None),
+    )
+    includeme(config)
+
+    assert config.add_route_predicate.calls == [pretend.call("domain", DomainPredicate)]
+
+    assert config.add_view_predicate.calls == [
+        pretend.call("require_headers", HeadersPredicate)
+    ]
