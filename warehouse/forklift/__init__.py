@@ -40,6 +40,9 @@ def includeme(config):
     config.add_legacy_action_route(
         "forklift.legacy.doc_upload", "doc_upload", domain=forklift
     )
+
+    config.add_route("forklift.legacy.redirect", "/legacy", domain=forklift)
+
     config.add_request_method(_help_url, name="help_url")
 
     if forklift:
@@ -57,14 +60,6 @@ def includeme(config):
         config.add_template_view(
             "forklift.legacy.invalid_request",
             "/legacy/",
-            "upload.html",
-            route_kw={"domain": forklift},
-            view_kw={"has_translations": True},
-        )
-
-        config.add_template_view(
-            "forklift.legacy.redirect",
-            "/legacy",
             "upload.html",
             route_kw={"domain": forklift},
             view_kw={"has_translations": True},

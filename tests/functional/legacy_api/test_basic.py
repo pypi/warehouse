@@ -13,7 +13,7 @@
 import pytest
 
 
-def test_incorrect_post_redirect(webtest, action):
+def test_incorrect_post_redirect(webtest):
     """
     Per issue #8104, we should issue an HTTP-308 for a POST
     in /legacy and point the user to the correct endpoint,
@@ -22,3 +22,7 @@ def test_incorrect_post_redirect(webtest, action):
     See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308
     """
     resp = webtest.post("/legacy", status=308)
+    assert resp.status == (
+        "308 It looks like you forgot a trailing /"
+        "Please make your POST request to /legacy/. This is /legacy"
+    )

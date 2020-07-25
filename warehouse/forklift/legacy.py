@@ -32,7 +32,13 @@ import stdlib_list
 import wtforms
 import wtforms.validators
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone, HTTPPermanentRedirect
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPForbidden,
+    HTTPGone,
+    HTTPPermanentRedirect,
+)
+
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
@@ -1507,12 +1513,15 @@ def doc_upload(request):
 
 
 @view_config(
-    route_name="forklift.legacy.redirect",
-    require_csrf=False,
-    require_methods=["POST"],
+    route_name="forklift.legacy.redirect", require_csrf=False, require_methods=["POST"],
 )
 def permanent_redirect(request):
+    """
+    Deals with requests aimed at /legacy and points the user to the correct
+    /legacy/ route.
+    """
     return _exc_with_message(
         HTTPPermanentRedirect,
-        "It looks like you forgot a trailing / "
-        "Please make your POST request to /legacy/. This is /legacy")
+        "It looks like you forgot a trailing /"
+        "Please make your POST request to /legacy/. This is /legacy",
+    )

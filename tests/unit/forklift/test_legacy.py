@@ -3430,3 +3430,13 @@ def test_doc_upload(pyramid_request):
         "410 Uploading documentation is no longer supported, we recommend "
         "using https://readthedocs.org/."
     )
+
+
+def test_permanent_redirect(pyramid_request):
+    resp = legacy.permanent_redirect(pyramid_request)
+
+    assert resp.status_code == 308
+    assert resp.status == (
+        "308 It looks like you forgot a trailing /"
+        "Please make your POST request to /legacy/. This is /legacy"
+    )
