@@ -3432,11 +3432,11 @@ def test_doc_upload(pyramid_request):
     )
 
 
-def test_permanent_redirect(pyramid_request):
-    resp = legacy.permanent_redirect(pyramid_request)
+def test_missing_trailing_slash_redirect(pyramid_request):
+    resp = legacy.missing_trailing_slash_redirect(pyramid_request)
 
     assert resp.status_code == 308
     assert resp.status == (
-        "308 It looks like you forgot a trailing /"
-        "Please make your POST request to /legacy/. This is /legacy"
+        "308 An upload was attempted to /legacy, but the expected upload URL is "
+        "/legacy/, with the trailing /"
     )

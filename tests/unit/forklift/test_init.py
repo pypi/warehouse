@@ -51,7 +51,9 @@ def test_includeme(forklift_domain, monkeypatch):
     ]
 
     assert config.add_route.calls == [
-        pretend.call("forklift.legacy.redirect", "/legacy", domain=forklift_domain),
+        pretend.call(
+            "forklift.legacy.missing_trailing_slash", "/legacy", domain=forklift_domain
+        ),
     ]
 
     assert config.add_request_method.calls == [pretend.call(_help_url, name="help_url")]

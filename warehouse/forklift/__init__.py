@@ -41,7 +41,9 @@ def includeme(config):
         "forklift.legacy.doc_upload", "doc_upload", domain=forklift
     )
 
-    config.add_route("forklift.legacy.redirect", "/legacy", domain=forklift)
+    config.add_route(
+        "forklift.legacy.missing_trailing_slash", "/legacy", domain=forklift
+    )
 
     config.add_request_method(_help_url, name="help_url")
 

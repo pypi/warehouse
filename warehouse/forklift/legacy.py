@@ -185,10 +185,10 @@ _valid_description_content_types = {"text/plain", "text/x-rst", "text/markdown"}
 _valid_markdown_variants = {"CommonMark", "GFM"}
 
 
-def _exc_with_message(exc, message):
+def _exc_with_message(exc, message, **kwargs):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
-    resp = exc(message)
+    resp = exc(detail=message, **kwargs)
     resp.status = "{} {}".format(resp.status_code, message)
     return resp
 
@@ -1512,15 +1512,18 @@ def doc_upload(request):
 
 
 @view_config(
-    route_name="forklift.legacy.redirect", require_csrf=False, require_methods=["POST"],
+    route_name="forklift.legacy.missing_trailing_slash",
+    require_csrf=False,
+    require_methods=["POST"],
 )
-def permanent_redirect(request):
+def missing_trailing_slash_redirect(request):
     """
-    Deals with requests aimed at /legacy and points the user to the correct
-    /legacy/ route.
+    Redirect requests to /legacy to the correct /legacy/ route with a
+    HTTP-308 Permanent Redirect
     """
     return _exc_with_message(
         HTTPPermanentRedirect,
-        "It looks like you forgot a trailing /"
-        "Please make your POST request to /legacy/. This is /legacy",
+        "An upload was attempted to /legacy, but the expected upload URL is "
+        "/legacy/, with the trailing /",
+        location="/legacy/",
     )

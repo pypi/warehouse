@@ -21,6 +21,9 @@ def test_incorrect_post_redirect(webtest):
     """
     resp = webtest.post("/legacy", status=308)
     assert resp.status == (
-        "308 It looks like you forgot a trailing /"
-        "Please make your POST request to /legacy/. This is /legacy"
+        "308 An upload was attempted to /legacy, but the expected upload URL is "
+        "/legacy/, with the trailing /"
     )
+
+    assert "location" in resp.headers
+    assert resp.headers["location"].endswith("/legacy/")
