@@ -58,4 +58,4 @@ class HeadersPredicate:
 
 def includeme(config):
     config.add_route_predicate("domain", DomainPredicate)
-    config.add_route_predicate("require_headers", HeadersPredicate)
+    config.add_view_predicate("require_headers", HeadersPredicate)
