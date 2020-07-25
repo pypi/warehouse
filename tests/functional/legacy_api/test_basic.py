@@ -13,6 +13,12 @@
 import pytest
 
 
-@pytest.mark.parametrize("action", ["submit", "submit_pkg_info"])
-def test_removed_upload_apis(webtest, action):
+def test_incorrect_post_redirect(webtest, action):
+    """
+    Per issue #8104, we should issue an HTTP-308 for a POST
+    in /legacy and point the user to the correct endpoint,
+    /legacy/
+
+    See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/308
+    """
     resp = webtest.post("/legacy", status=308)

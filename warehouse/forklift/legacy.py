@@ -32,7 +32,7 @@ import stdlib_list
 import wtforms
 import wtforms.validators
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone, HTTPPermanentRedirect
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
@@ -1504,3 +1504,15 @@ def doc_upload(request):
         "Uploading documentation is no longer supported, we recommend using "
         "https://readthedocs.org/.",
     )
+
+
+@view_config(
+    route_name="forklift.legacy.redirect",
+    require_csrf=False,
+    require_methods=["POST"],
+)
+def permanent_redirect(request):
+    return _exc_with_message(
+        HTTPPermanentRedirect,
+        "It looks like you forgot a trailing / "
+        "Please make your POST request to /legacy/. This is /legacy")

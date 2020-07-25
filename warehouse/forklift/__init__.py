@@ -61,3 +61,11 @@ def includeme(config):
             route_kw={"domain": forklift},
             view_kw={"has_translations": True},
         )
+
+        config.add_template_view(
+            "forklift.legacy.redirect",
+            "/legacy",
+            "upload.html",
+            route_kw={"domain": forklift},
+            view_kw={"has_translations": True},
+        )
