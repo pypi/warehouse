@@ -12,7 +12,6 @@
 
 import collections
 import datetime
-import json
 import uuid
 
 import freezegun

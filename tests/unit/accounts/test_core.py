@@ -309,7 +309,6 @@ def test_includeme(monkeypatch):
     authn_cls = pretend.call_recorder(lambda *a: authn_obj)
     authz_obj = pretend.stub()
     authz_cls = pretend.call_recorder(lambda *a, **kw: authz_obj)
-    headers_pred_cls = pretend.stub()
     monkeypatch.setattr(accounts, "BasicAuthAuthenticationPolicy", basic_authn_cls)
     monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", session_authn_cls)
     monkeypatch.setattr(accounts, "MacaroonAuthenticationPolicy", macaroon_authn_cls)

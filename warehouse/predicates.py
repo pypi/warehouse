@@ -10,12 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.util import is_same_domain
-
 from typing import List
 
 from pyramid import predicates
 from pyramid.exceptions import ConfigurationError
+from pyramid.util import is_same_domain
 
 
 class DomainPredicate:

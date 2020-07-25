@@ -260,7 +260,7 @@ class TestDatabaseMacaroonService:
 
     def test_check_if_macaroon_exists_malformed_macaroon(self, macaroon_service):
         with pytest.raises(services.InvalidMacaroon):
-            macaroon_service.check_if_macaroon_exists(f"pypi-thiswillnotdeserialize")
+            macaroon_service.check_if_macaroon_exists("pypi-thiswillnotdeserialize")
 
     def test_check_if_macaroon_exists_valid_macaroon(
         self, monkeypatch, macaroon_service
