@@ -3433,6 +3433,9 @@ def test_doc_upload(pyramid_request):
 
 
 def test_missing_trailing_slash_redirect(pyramid_request):
+
+    pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/legacy/")
+
     resp = legacy.missing_trailing_slash_redirect(pyramid_request)
 
     assert resp.status_code == 308
@@ -3440,3 +3443,4 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         "308 An upload was attempted to /legacy, but the expected upload URL is "
         "/legacy/, with the trailing /"
     )
+    assert resp.headers["Location"] == "/legacy/"
