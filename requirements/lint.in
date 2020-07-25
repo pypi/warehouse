@@ -3,4 +3,4 @@ flake8
 html-linter
 pep8-naming
 black==19.10b0
-isort
+isort>=5
