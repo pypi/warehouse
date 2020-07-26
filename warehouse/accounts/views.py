@@ -65,8 +65,8 @@ def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
         request._(
             "There have been too many unsuccessful login attempts. "
-            f"You have been locked out for {exc.resets_in.total_seconds()/60} minutes. "
-            "Please try again later."
+            "You have been locked out for %d minutes. "
+            "Please try again later.".format(exc.resets_in.total_seconds()/60)
         ),
         retry_after=exc.resets_in.total_seconds(),
     )

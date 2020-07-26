@@ -125,8 +125,8 @@ class PasswordMixin:
                 raise wtforms.validators.ValidationError(
                     _(
                         "There have been too many unsuccessful login attempts. "
-                        f"You have been locked out for {err.resets_in.total_seconds()} "
-                        "minutes. Please try again later."
+                        "You have been locked out for %s minutes. "
+                        "Please try again later.".format(err.resets_in.total_seconds())
                     )
                 ) from None
 

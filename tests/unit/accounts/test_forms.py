@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import datetime
 
 import pretend
 import pytest
@@ -174,7 +175,7 @@ class TestLoginForm:
     def test_validate_password_too_many_failed(self):
         @pretend.call_recorder
         def check_password(userid, password, tags=None):
-            raise TooManyFailedLogins(resets_in=None)
+            raise TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
 
         request = pretend.stub()
         user_service = pretend.stub(
