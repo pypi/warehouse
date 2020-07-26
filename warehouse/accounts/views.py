@@ -64,7 +64,9 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
         request._(
-            "There have been too many unsuccessful login attempts. Try again later."
+            "There have been too many unsuccessful login attempts. "
+            f"You have been locked out for {exc.resets_in.total_seconds()/60} minutes. "
+            "Please try again later."
         ),
         retry_after=exc.resets_in.total_seconds(),
     )

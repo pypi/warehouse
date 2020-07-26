@@ -121,11 +121,12 @@ class PasswordMixin:
                     raise wtforms.validators.ValidationError(
                         _("The password is invalid. Try again.")
                     )
-            except TooManyFailedLogins:
+            except TooManyFailedLogins as err:
                 raise wtforms.validators.ValidationError(
                     _(
                         "There have been too many unsuccessful login attempts. "
-                        "Try again later."
+                        f"You have been locked out for {err.resets_in.total_seconds()} "
+                        "minutes. Please try again later."
                     )
                 ) from None
 
