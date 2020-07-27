@@ -21,8 +21,8 @@ def test_incorrect_post_redirect(webtest):
     """
     resp = webtest.post("/legacy", status=308)
     assert resp.status == (
-        "308 An upload was attempted to /legacy, but the expected upload URL is "
-        "/legacy/, with the trailing /"
+        "308 An upload was attempted to /legacy but the expected upload URL is "
+        "/legacy/ (with a trailing slash)"
     )
 
     assert "location" in resp.headers
