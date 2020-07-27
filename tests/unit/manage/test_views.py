@@ -3607,10 +3607,22 @@ class TestChangeProjectRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        send_collaborator_role_changed_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_collaborator_role_changed_email", send_collaborator_role_changed_email)
-        send_role_changed_as_collaborator_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_role_changed_as_collaborator_email", send_role_changed_as_collaborator_email)
+        send_collaborator_role_changed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_collaborator_role_changed_email",
+            send_collaborator_role_changed_email,
+        )
+        send_role_changed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_role_changed_as_collaborator_email",
+            send_role_changed_as_collaborator_email,
+        )
 
         result = views.change_project_role(project, db_request)
 
@@ -3730,9 +3742,17 @@ class TestDeleteProjectRoles:
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
         send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_collaborator_removed_email", send_collaborator_removed_email)
-        send_removed_as_collaborator_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_removed_as_collaborator_email", send_removed_as_collaborator_email)
+        monkeypatch.setattr(
+            views, "send_collaborator_removed_email", send_collaborator_removed_email
+        )
+        send_removed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_collaborator_email",
+            send_removed_as_collaborator_email,
+        )
 
         result = views.delete_project_role(project, db_request)
 
@@ -3742,20 +3762,11 @@ class TestDeleteProjectRoles:
         assert db_request.db.query(Role).all() == []
         assert send_collaborator_removed_email.calls == [
             pretend.call(
-                db_request,
-                set(),
-                user=user,
-                submitter=user_2,
-                project_name="foobar",
+                db_request, set(), user=user, submitter=user_2, project_name="foobar",
             )
         ]
         assert send_removed_as_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                submitter=user_2,
-                project_name="foobar",
-            )
+            pretend.call(db_request, user, submitter=user_2, project_name="foobar",)
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed role", queue="success")

@@ -1597,7 +1597,8 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     .all()
                 )
                 owner_users = {owner.user for owner in owner_roles}
-                # Don't send owner notification email to new user if they are now an owner 
+                # Don't send owner notification email to new user
+                # if they are now an owner
                 owner_users.discard(role.user)
                 send_collaborator_role_changed_email(
                     request,
@@ -1646,7 +1647,6 @@ def delete_project_role(project, request):
         if removing_self:
             request.session.flash("Cannot remove yourself as Owner", queue="error")
         else:
-            role_user = role.user
             request.db.delete(role)
             request.db.add(
                 JournalEntry(
@@ -1665,7 +1665,7 @@ def delete_project_role(project, request):
                     "target_user": role.user.username,
                 },
             )
-            
+
             owner_roles = (
                 request.db.query(Role)
                 .filter(Role.project == project)
@@ -1682,10 +1682,7 @@ def delete_project_role(project, request):
             )
 
             send_removed_as_collaborator_email(
-                request,
-                role.user,
-                submitter=request.user,
-                project_name=project.name,
+                request, role.user, submitter=request.user, project_name=project.name,
             )
 
             request.session.flash("Removed role", queue="success")

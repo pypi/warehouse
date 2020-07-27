@@ -98,7 +98,6 @@ def test_render_templates():
                 try:
                     env.get_template(rel_file)
                 except Exception as e:
-                    print(rel_file)
                     exceptions.append(e)
 
     assert len(exceptions) == 0
