@@ -57,7 +57,7 @@
                 </tr>
                 <tr>
                   <td>Total size</td>
-                  <td>{{ project.total_size }}</td>
+                  <td>{{ project.total_size|filesizeformat(binary=True) }}</td>
                   <td></td>
                   <td></td>
                 </tr>

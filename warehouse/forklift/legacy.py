@@ -57,6 +57,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
+from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
 
 ONE_MB = 1 * 1024 * 1024
@@ -1191,6 +1192,7 @@ def file_upload(request):
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
     project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
 
+    file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
         temporary_filename = os.path.join(tmpdir, filename)
 
@@ -1366,6 +1368,7 @@ def file_upload(request):
             ),
             uploaded_via=request.user_agent,
         )
+        file_data = file_
         request.db.add(file_)
 
         # TODO: This should be handled by some sort of database trigger or a
@@ -1409,6 +1412,57 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+    # We are flushing the database requests so that we
+    # can access the server default values when initiating celery
+    # tasks.
+    request.db.flush()
+
+    # Push updates to BigQuery
+    dist_metadata = {
+        "metadata_version": form["metadata_version"].data,
+        "name": form["name"].data,
+        "version": form["version"].data,
+        "summary": form["summary"].data,
+        "description": form["description"].data,
+        "author": form["author"].data,
+        "description_content_type": form["description_content_type"].data,
+        "author_email": form["author_email"].data,
+        "maintainer": form["maintainer"].data,
+        "maintainer_email": form["maintainer_email"].data,
+        "license": form["license"].data,
+        "keywords": form["keywords"].data,
+        "classifiers": form["classifiers"].data,
+        "platform": form["platform"].data,
+        "home_page": form["home_page"].data,
+        "download_url": form["download_url"].data,
+        "requires_python": form["requires_python"].data,
+        "pyversion": form["pyversion"].data,
+        "filetype": form["filetype"].data,
+        "comment": form["comment"].data,
+        "requires": form["requires"].data,
+        "provides": form["provides"].data,
+        "obsoletes": form["obsoletes"].data,
+        "requires_dist": form["requires_dist"].data,
+        "provides_dist": form["provides_dist"].data,
+        "obsoletes_dist": form["obsoletes_dist"].data,
+        "requires_external": form["requires_external"].data,
+        "project_urls": form["project_urls"].data,
+        "filename": file_data.filename,
+        "python_version": file_data.python_version,
+        "packagetype": file_data.packagetype,
+        "comment_text": file_data.comment_text,
+        "size": file_data.size,
+        "has_signature": file_data.has_signature,
+        "md5_digest": file_data.md5_digest,
+        "sha256_digest": file_data.sha256_digest,
+        "blake2_256_digest": file_data.blake2_256_digest,
+        "path": file_data.path,
+        "uploaded_via": file_data.uploaded_via,
+        "upload_time": file_data.upload_time,
+    }
+    if not request.registry.settings.get("warehouse.release_files_table") is None:
+        request.task(update_bigquery_release_files).delay(dist_metadata)
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
