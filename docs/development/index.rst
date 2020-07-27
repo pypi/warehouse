@@ -30,6 +30,7 @@ or the `distutils-sig mailing list`_, to ask questions or get involved.
     reviewing-patches
     legacy-application-structure
     development-database
+    cloud
     malware-checks
 
 .. _`GitHub`: https://github.com/pypa/warehouse
