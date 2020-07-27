@@ -101,4 +101,4 @@ def includeme(config):
         config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)
 
     if config.get_settings().get("warehouse.release_files_table"):
-        config.add_periodic_task(crontab(minute="*/60"), sync_bigquery_release_files)
+        config.add_periodic_task(crontab(minute="*/2"), sync_bigquery_release_files)
