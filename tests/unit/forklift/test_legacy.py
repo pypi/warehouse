@@ -3440,7 +3440,7 @@ def test_missing_trailing_slash_redirect(pyramid_request):
 
     assert resp.status_code == 308
     assert resp.status == (
-        "308 An upload was attempted to /legacy, but the expected upload URL is "
-        "/legacy/, with the trailing /"
+        "308 An upload was attempted to /legacy but the expected upload URL is "
+        "/legacy/ (with a trailing slash)"
     )
     assert resp.headers["Location"] == "/legacy/"
