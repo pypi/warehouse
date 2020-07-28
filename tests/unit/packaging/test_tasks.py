@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from itertools import product
+
 import pretend
 import pytest
 
@@ -391,10 +393,14 @@ class TestSyncBigQueryMetadata:
         release = ReleaseFactory.create(project=project, description=description)
         release.platform = "test_platform"
         release_file = FileFactory.create(
-            release=release, filename=f"foobar-{release.version}.tar.gz"
+            release=release,
+            filename=f"foobar-{release.version}.tar.gz",
+            md5_digest="01ca4238a0b923820dcc509a6f75849b",
         )
         release_file2 = FileFactory.create(
-            release=release, filename=f"fizzbuzz-{release.version}.tar.gz"
+            release=release,
+            filename=f"fizzbuzz-{release.version}.tar.gz",
+            md5_digest="01casd342fb952820dcc509a6f75849b",
         )
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: bar"))
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: baz"))
@@ -436,7 +442,16 @@ class TestSyncBigQueryMetadata:
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
         assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
         assert bigquery.query.calls == [
-            pretend.call("SELECT md5_digest FROM example.pypi.distributions")
+            pretend.call(
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                "WHERE md5_digest LIKE '00%'"
+            ),
+            pretend.call(
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                "WHERE md5_digest LIKE '01%'"
+            ),
         ]
         assert bigquery.load_table_from_json.calls == [
             pretend.call(
@@ -521,5 +536,10 @@ class TestSyncBigQueryMetadata:
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
         assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
         assert bigquery.query.calls == [
-            pretend.call("SELECT md5_digest FROM example.pypi.distributions")
+            pretend.call(
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                f"WHERE md5_digest LIKE '{first}{second}%'",
+            )
+            for first, second in product("0123456789abcdef", repeat=2)
         ]
