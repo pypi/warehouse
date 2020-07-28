@@ -163,26 +163,26 @@ cmarkgfm==0.4.2 \
     --hash=sha256:e8932bddf159064f04e946fbb64693753488de21586f20e840b3be51745c8c09 \
     --hash=sha256:f20900f16377f2109783ae9348d34bc80530808439591c3d3df73d5c7ef1a00c \
     # via readme-renderer
-cryptography==2.9.2 \
-    --hash=sha256:091d31c42f444c6f519485ed528d8b451d1a0c7bf30e8ca583a0cac44b8a0df6 \
-    --hash=sha256:18452582a3c85b96014b45686af264563e3e5d99d226589f057ace56196ec78b \
-    --hash=sha256:1dfa985f62b137909496e7fc182dac687206d8d089dd03eaeb28ae16eec8e7d5 \
-    --hash=sha256:1e4014639d3d73fbc5ceff206049c5a9a849cefd106a49fa7aaaa25cc0ce35cf \
-    --hash=sha256:22e91636a51170df0ae4dcbd250d318fd28c9f491c4e50b625a49964b24fe46e \
-    --hash=sha256:3b3eba865ea2754738616f87292b7f29448aec342a7c720956f8083d252bf28b \
-    --hash=sha256:651448cd2e3a6bc2bb76c3663785133c40d5e1a8c1a9c5429e4354201c6024ae \
-    --hash=sha256:726086c17f94747cedbee6efa77e99ae170caebeb1116353c6cf0ab67ea6829b \
-    --hash=sha256:844a76bc04472e5135b909da6aed84360f522ff5dfa47f93e3dd2a0b84a89fa0 \
-    --hash=sha256:88c881dd5a147e08d1bdcf2315c04972381d026cdb803325c03fe2b4a8ed858b \
-    --hash=sha256:96c080ae7118c10fcbe6229ab43eb8b090fccd31a09ef55f83f690d1ef619a1d \
-    --hash=sha256:a0c30272fb4ddda5f5ffc1089d7405b7a71b0b0f51993cb4e5dbb4590b2fc229 \
-    --hash=sha256:bb1f0281887d89617b4c68e8db9a2c42b9efebf2702a3c5bf70599421a8623e3 \
-    --hash=sha256:c447cf087cf2dbddc1add6987bbe2f767ed5317adb2d08af940db517dd704365 \
-    --hash=sha256:c4fd17d92e9d55b84707f4fd09992081ba872d1a0c610c109c18e062e06a2e55 \
-    --hash=sha256:d0d5aeaedd29be304848f1c5059074a740fa9f6f26b84c5b63e8b29e73dfc270 \
-    --hash=sha256:daf54a4b07d67ad437ff239c8a4080cfd1cc7213df57d33c97de7b4738048d5e \
-    --hash=sha256:e993468c859d084d5579e2ebee101de8f5a27ce8e2159959b6673b418fd8c785 \
-    --hash=sha256:f118a95c7480f5be0df8afeb9a11bd199aa20afab7a96bcf20409b411a3a85f0 \
+cryptography==3.0 \
+    --hash=sha256:0c608ff4d4adad9e39b5057de43657515c7da1ccb1807c3a27d4cf31fc923b4b \
+    --hash=sha256:0cbfed8ea74631fe4de00630f4bb592dad564d57f73150d6f6796a24e76c76cd \
+    --hash=sha256:124af7255ffc8e964d9ff26971b3a6153e1a8a220b9a685dc407976ecb27a06a \
+    --hash=sha256:384d7c681b1ab904fff3400a6909261cae1d0939cc483a68bdedab282fb89a07 \
+    --hash=sha256:45741f5499150593178fc98d2c1a9c6722df88b99c821ad6ae298eff0ba1ae71 \
+    --hash=sha256:4b9303507254ccb1181d1803a2080a798910ba89b1a3c9f53639885c90f7a756 \
+    --hash=sha256:4d355f2aee4a29063c10164b032d9fa8a82e2c30768737a2fd56d256146ad559 \
+    --hash=sha256:51e40123083d2f946794f9fe4adeeee2922b581fa3602128ce85ff813d85b81f \
+    --hash=sha256:8713ddb888119b0d2a1462357d5946b8911be01ddbf31451e1d07eaa5077a261 \
+    --hash=sha256:8e924dbc025206e97756e8903039662aa58aa9ba357d8e1d8fc29e3092322053 \
+    --hash=sha256:8ecef21ac982aa78309bb6f092d1677812927e8b5ef204a10c326fc29f1367e2 \
+    --hash=sha256:8ecf9400d0893836ff41b6f977a33972145a855b6efeb605b49ee273c5e6469f \
+    --hash=sha256:9367d00e14dee8d02134c6c9524bb4bd39d4c162456343d07191e2a0b5ec8b3b \
+    --hash=sha256:a09fd9c1cca9a46b6ad4bea0a1f86ab1de3c0c932364dbcf9a6c2a5eeb44fa77 \
+    --hash=sha256:ab49edd5bea8d8b39a44b3db618e4783ef84c19c8b47286bf05dfdb3efb01c83 \
+    --hash=sha256:bea0b0468f89cdea625bb3f692cd7a4222d80a6bdafd6fb923963f2b9da0e15f \
+    --hash=sha256:bec7568c6970b865f2bcebbe84d547c52bb2abadf74cefce396ba07571109c67 \
+    --hash=sha256:ce82cc06588e5cbc2a7df3c8a9c778f2cb722f56835a23a68b5a7264726bb00c \
+    --hash=sha256:dea0ba7fe6f9461d244679efa968d215ea1f989b9c1957d7f10c21e5c7c09ad6 \
     # via -r requirements/main.in, pyopenssl, webauthn
 cssselect==1.1.0 \
     --hash=sha256:f612ee47b749c877ebae5bb77035d8f4202c6ad0f0fc1271b3c18ad6c4468ecf \
@@ -691,9 +691,8 @@ six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
     # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
-sqlalchemy-citext==1.6.3 \
-    --hash=sha256:1d66e7d49826fec28a9ce69053fdf82d3a5ff397968c5bf38a0d83dcb4bf2303 \
-    --hash=sha256:f73aa6aa36a4bdcdd584e590bd69560dc1eb63455e35f50f78bdf7ebb0a8d3fd \
+sqlalchemy-citext==1.7.0 \
+    --hash=sha256:69ba00f5505f92a1455a94eefc6d3fcf72dda3691ab5398a0b4d0d8d85bd6aab \
     # via -r requirements/main.in
 sqlalchemy==1.3.18 \
     --hash=sha256:0942a3a0df3f6131580eddd26d99071b48cfe5aaf3eab2783076fbc5a1c1882e \
