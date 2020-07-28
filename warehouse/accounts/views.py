@@ -12,6 +12,7 @@
 
 import datetime
 import hashlib
+import humanize
 import uuid
 
 from first import first
@@ -65,8 +66,9 @@ def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
         request._(
             "There have been too many unsuccessful login attempts. "
-            "You have been locked out for {0} minutes. "
-            "Please try again later.".format(exc.resets_in.total_seconds() / 60)
+            "You have been locked out for {0}. "
+            "Please try again later.".format(
+                humanize.naturaldelta(exc.resets_in.total_seconds()))
         ),
         retry_after=exc.resets_in.total_seconds(),
     )

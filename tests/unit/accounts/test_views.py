@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import humanize
 import uuid
 
 import freezegun
@@ -47,8 +48,9 @@ class TestFailedLoginView:
         assert resp.status == "429 Too Many Failed Login Attempts"
         assert resp.detail == (
             "There have been too many unsuccessful login attempts. "
-            "You have been locked out for {0} minutes. "
-            "Please try again later.".format(exc.resets_in.total_seconds() / 60)
+            "You have been locked out for {0}. "
+            "Please try again later.".format(
+                humanize.naturaldelta(exc.resets_in.total_seconds()))
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 

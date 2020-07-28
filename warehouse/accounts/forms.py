@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import humanize
 import json
 
 from email.headerregistry import Address
@@ -125,8 +126,9 @@ class PasswordMixin:
                 raise wtforms.validators.ValidationError(
                     _(
                         "There have been too many unsuccessful login attempts. "
-                        "You have been locked out for {0} minutes. "
-                        "Please try again later.".format(err.resets_in.total_seconds())
+                        "You have been locked out for {0}. "
+                        "Please try again later.".format(
+                            humanize.naturaldelta(err.resets_in.total_seconds()))
                     )
                 ) from None
 
