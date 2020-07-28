@@ -6,20 +6,17 @@ have struggled to make Warehouse performant during local development. This
 page provides instructions on how to develop Warehouse in the cloud to avoid
 resource constraints.
 
-While these instructions are specfic to one developer's experience, they apply
-to other cloud providers and IDEs.
-
 Cloud server
 ------------
 
 The first step is to get a Virtual Machine in the cloud. This could be an AWS
-EC2 instance, GCP Compute Engine, Digital Ocean droplet, etc. In my
-experience, a machine with 4GB RAM is sufficient if you only use it for
-Warehouse.
+EC2 instance, GCP Compute Engine, Digital Ocean droplet, etc. A machine with
+4GB RAM is sufficient if you only use it for Warehouse and nothing else.
 
-Note that there is a monthly cost associated with these instances. I got a
-suitable instance for $20 / month, and costs can be saved by terminating the
-instance if you don't plan to use it for a few days.
+Note that there is a monthly cost associated with these instances. Depending
+on the cloud provider, instances are available for approximately $20 / month,
+and costs can be saved by terminating the instance if you don't plan to use it
+for a few days.
 
 Development setup
 -----------------
@@ -49,8 +46,8 @@ two good options:
 1. Edit code directly on the cloud server using an editor like vim or emacs
 2. Edit code locally in an IDE that is connected to the server over SSH
 
-I use option 2 with the VSCode `Remote SSH`_ extension. Other IDEs including
-PyCharm offer similar features, though I haven't tried them.
+One verified option for #2 is to use VSCode with the `Remote SSH`_ extension.
+Other IDEs including PyCharm also offer similar features.
 
 .. _Remote SSH: https://code.visualstudio.com/docs/remote/ssh
 
