@@ -103,44 +103,42 @@
       </tr>
     {% endfor %}
     {% for invite in invitations|sort(attribute="user.username") %}
-      {% if invite.invite_status != RoleInvitationStatus.Accepted.value and invite.invite_status != RoleInvitationStatus.Revoked.value %}
-        <tr>
-          <th scope="row">
-            <a href="{{ request.route_path('accounts.profile', username=invite.user.username) }}" class="table__user-details">
-              {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=invite.user.name|default(invite.user.username, true)) %}
-              <span class="table__user-gravatar">
-                <img src="{{ gravatar(request, invite.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
-              </span>
-              <span class="table__user-text">
-                <strong>{{ invite.user.username }}</strong>
-                {% if invite.user.name %}
-                  <br><span>{{ invite.user.name }}</span>
-                {% endif %}
-              </span>
-            </a>
-          </th>
-          <td>
-            {% if invite.invite_status == "pending" %}
-              {% trans %}Invite pending{% endtrans %}
-            {% elif invite.invite_status == "expired" %}
-              {% trans %}Invite expired{% endtrans %}
-            {% endif %}
-          </td>
-          <td class="table__align-right">
-            <form method="POST" action="{{ request.route_path('manage.project.revoke_invite', project_name=project.name) }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <input name="user_id" type="hidden" value="{{ invite.user_id }}">
-              <button
-                type="submit"
-                class="button"
-                title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
-              >
-              {% trans %}Revoke invite{% endtrans %}
-              </button>
-            </form>
-          </td>
-        </tr>
-      {% endif %}
+      <tr>
+        <th scope="row">
+          <a href="{{ request.route_path('accounts.profile', username=invite.user.username) }}" class="table__user-details">
+            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=invite.user.name|default(invite.user.username, true)) %}
+            <span class="table__user-gravatar">
+              <img src="{{ gravatar(request, invite.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
+            </span>
+            <span class="table__user-text">
+              <strong>{{ invite.user.username }}</strong>
+              {% if invite.user.name %}
+                <br><span>{{ invite.user.name }}</span>
+              {% endif %}
+            </span>
+          </a>
+        </th>
+        <td>
+          {% if invite.invite_status == "pending" %}
+            {% trans %}Invite pending{% endtrans %}
+          {% elif invite.invite_status == "expired" %}
+            {% trans %}Invite expired{% endtrans %}
+          {% endif %}
+        </td>
+        <td class="table__align-right">
+          <form method="POST" action="{{ request.route_path('manage.project.revoke_invite', project_name=project.name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input name="user_id" type="hidden" value="{{ invite.user_id }}">
+            <button
+              type="submit"
+              class="button"
+              title="{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}"
+            >
+            {% trans %}Revoke invite{% endtrans %}
+            </button>
+          </form>
+        </td>
+      </tr>
     {% endfor %}
     </tbody>
   </table>
@@ -173,7 +171,7 @@
       </div>
     </div>
     <div>
-      <input type="submit" value="{% trans %}Invite collaborator{% endtrans %}" class="button button--primary">
+      <input type="submit" value="{% trans %}Invite{% endtrans %}" class="button button--primary">
     </div>
   </form>
 

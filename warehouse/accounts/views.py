@@ -748,6 +748,8 @@ def _get_two_factor_data(request, _redirect_to="/"):
 
 @view_config(
     route_name="accounts.verify-project-role",
+    renderer="accounts/invite-confirmation.html",
+    require_methods=False,
     uses_session=True,
     permission="manage:user",
     has_translations=True,
@@ -782,6 +784,14 @@ def verify_project_role(request):
         request.db.query(Project).filter(Project.id == data.get("project_id")).one()
     )
     desired_role = data.get("desired_role")
+
+    # Use the renderer to bring up a confirmation page
+    # before adding as contributor
+    if request.method == "GET":
+        return {
+            "project_name": project.name,
+            "desired_role": desired_role,
+        }
 
     role_invite = (
         request.db.query(RoleInvitation)
