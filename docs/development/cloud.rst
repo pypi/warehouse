@@ -14,8 +14,8 @@ EC2 instance, GCP Compute Engine, Digital Ocean droplet, etc. A machine with
 4GB RAM is sufficient if you only use it for Warehouse and nothing else.
 
 Note that there is a monthly cost associated with these instances. Depending
-on the cloud provider, instances are available for approximately $20 / month,
-and costs can be saved by terminating the instance if you don't plan to use it
+on the cloud provider, instances are available for approximately $20 / month.
+Costs can be saved by terminating the instance if you don't plan to use it
 for a few days.
 
 Development setup
@@ -23,7 +23,7 @@ Development setup
 
 SSH into the cloud server. Create a new SSH key on this server and associate
 it with your Github account. Clone the Warehouse repo and go through the
-normal setup instructions for building the Docker images and starting the
+:ref:`normal setup instructions <running-warehouse-containers>` for building the Docker images and starting the
 containers.
 
 Open ports
@@ -46,8 +46,8 @@ two good options:
 1. Edit code directly on the cloud server using an editor like vim or emacs
 2. Edit code locally in an IDE that is connected to the server over SSH
 
-One verified option for #2 is to use VSCode with the `Remote SSH`_ extension.
-Other IDEs including PyCharm also offer similar features.
+One verified approach for #2 is to use VSCode with the `Remote SSH`_
+extension. Other IDEs including PyCharm also offer similar features.
 
 .. _Remote SSH: https://code.visualstudio.com/docs/remote/ssh
 
