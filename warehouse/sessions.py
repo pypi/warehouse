@@ -144,17 +144,14 @@ class Session(dict):
         return self._changed
 
     def record_auth_timestamp(self):
-        self[self._reauth_timestamp_key] = str(datetime.datetime.now().timestamp())
+        self[self._reauth_timestamp_key] = datetime.datetime.now().timestamp()
         self.changed()
 
     def needs_reauthentication(self):
-        reauth_timestamp = self.get(self._reauth_timestamp_key)
-        if reauth_timestamp is None:
-            return True
-
-        auth_time = float(reauth_timestamp)
+        reauth_timestamp = self.get(self._reauth_timestamp_key, 0)
         current_time = datetime.datetime.now().timestamp()
-        return current_time - auth_time >= self.time_to_reauth
+
+        return current_time - reauth_timestamp >= self.time_to_reauth
 
     # Flash Messages Methods
     def _get_flash_queue_key(self, queue):
