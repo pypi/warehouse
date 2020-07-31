@@ -77,7 +77,7 @@
               </span>
             </div>
             <span>
-              <b>Tip:</b> you are about to perform a <a href="{{request.route_url('help')}}">{% trans %}sensitive action{% endtrans %}</a>. If you are not on a personal computer, make sure to log out once you're done with your session.
+              <b>Tip:</b> you are about to perform a <a href="{{ request.help_url(_anchor="sensitiveactions") }}">{% trans %}sensitive action{% endtrans %}</a>. If you are not on a personal computer, make sure to log out once you're done with your session.
               We won't ask you to confirm your password again for the next hour.
             </span>
           </div>
@@ -85,4 +85,3 @@
       </div>
     </div>
   {% endblock %}
-   
