@@ -834,6 +834,9 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     form = _form_class(
         request.POST,
         request=request,
+        username=request.user.username,
+        next_route=request.matched_route.name,
+        next_route_matchdict=json.dumps(request.matchdict),
         user_service=user_service,
         check_password_metrics_tags=[
             "method:reauth",

@@ -25,13 +25,16 @@ def reauth_view(view, info):
 
         @functools.wraps(view)
         def wrapped(context, request):
-            request.matchdict_json = json.dumps(request.matchdict)
-
             if request.session.needs_reauthentication():
                 user_service = request.find_service(IUserService, context=None)
 
                 form = ReAuthenticateForm(
-                    request.POST, request=request, user_service=user_service,
+                    request.POST,
+                    request=request,
+                    username=request.user.username,
+                    next_route=request.matched_route.name,
+                    next_route_matchdict=json.dumps(request.matchdict),
+                    user_service=user_service,
                 )
 
                 return render_to_response(

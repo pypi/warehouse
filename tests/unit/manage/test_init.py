@@ -51,12 +51,13 @@ class TestReAuthView:
         context = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda service, context: pretend.stub()),
-            matchdict="{}",
             POST=pretend.stub(),
             session=pretend.stub(
                 needs_reauthentication=pretend.call_recorder(lambda *args: True)
             ),
-            user=pretend.stub(),
+            user=pretend.stub(username=pretend.stub()),
+            matched_route=pretend.stub(name=pretend.stub()),
+            matchdict={"foo": "bar"},
         )
         response = pretend.stub()
 
@@ -71,7 +72,6 @@ class TestReAuthView:
 
         @pretend.call_recorder
         def view(context, request):
-            assert isinstance(request.matchdict_json, str)
             return response
 
         info = pretend.stub(options={}, exception_only=False)

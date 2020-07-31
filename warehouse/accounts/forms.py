@@ -17,6 +17,7 @@ from email.headerregistry import Address
 import disposable_email_domains
 import jinja2
 import wtforms
+import wtforms.fields
 import wtforms.fields.html5
 
 import warehouse.utils.webauthn as webauthn
@@ -337,9 +338,13 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
 class ReAuthenticateForm(PasswordMixin, forms.Form):
     __params__ = ["username", "password", "next_route", "next_route_matchdict"]
 
-    username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
-    next_route = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
-    next_route_matchdict = wtforms.StringField(
+    username = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+    next_route = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+    next_route_matchdict = wtforms.fields.HiddenField(
         validators=[wtforms.validators.DataRequired()]
     )
 

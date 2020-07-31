@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import json
 import uuid
 
 import freezegun
@@ -1931,6 +1932,9 @@ class TestReAuthentication:
         pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
             lambda *args: None
         )
+        pyramid_request.user = pretend.stub(username=pretend.stub())
+        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
+        pyramid_request.matchdict = {"foo": "bar"}
 
         form_obj = pretend.stub(
             next_route=pretend.stub(data=next_route),
@@ -1953,6 +1957,9 @@ class TestReAuthentication:
             pretend.call(
                 pyramid_request.POST,
                 request=pyramid_request,
+                username=pyramid_request.user.username,
+                next_route=pyramid_request.matched_route.name,
+                next_route_matchdict=json.dumps(pyramid_request.matchdict),
                 user_service=user_service,
                 check_password_metrics_tags=[
                     "method:reauth",
