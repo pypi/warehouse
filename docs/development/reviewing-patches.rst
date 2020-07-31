@@ -153,7 +153,7 @@ Merge requirements
 
 .. _`excellent to one another`: https://speakerdeck.com/ohrite/better-code-review
 
-.. _`Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
+.. _`Code of Conduct`: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md
 
 .. _`twine`: https://github.com/pypa/twine
 
