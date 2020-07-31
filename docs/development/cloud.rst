@@ -23,8 +23,8 @@ Development setup
 
 SSH into the cloud server. Create a new SSH key on this server and associate
 it with your Github account. Clone the Warehouse repo and go through the
-:ref:`normal setup instructions <running-warehouse-containers>` for building the Docker images and starting the
-containers.
+:ref:`normal setup instructions <running-warehouse-containers>` for building
+the Docker images and starting the containers.
 
 Open ports
 ----------
