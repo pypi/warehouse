@@ -83,7 +83,7 @@ def _changed_method(method):
 
 @implementer(ISession)
 class Session(dict):
-    time_to_reauth = 60 * 60  # 1 hour
+    time_to_reauth = 30 * 60  # 30 minutes
 
     _csrf_token_key = "_csrf_token"
     _flash_key = "_flash_messages"
