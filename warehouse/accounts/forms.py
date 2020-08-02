@@ -10,12 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import humanize
 import json
 
 from email.headerregistry import Address
 
 import disposable_email_domains
+import humanize
 import jinja2
 import wtforms
 import wtforms.fields.html5
@@ -128,7 +128,8 @@ class PasswordMixin:
                         "There have been too many unsuccessful login attempts. "
                         "You have been locked out for {0}. "
                         "Please try again later.".format(
-                            humanize.naturaldelta(err.resets_in.total_seconds()))
+                            humanize.naturaldelta(err.resets_in.total_seconds())
+                        )
                     )
                 ) from None
 

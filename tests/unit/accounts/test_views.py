@@ -11,10 +11,10 @@
 # limitations under the License.
 
 import datetime
-import humanize
 import uuid
 
 import freezegun
+import humanize
 import pretend
 import pytest
 
@@ -50,7 +50,8 @@ class TestFailedLoginView:
             "There have been too many unsuccessful login attempts. "
             "You have been locked out for {0}. "
             "Please try again later.".format(
-                humanize.naturaldelta(exc.resets_in.total_seconds()))
+                humanize.naturaldelta(exc.resets_in.total_seconds())
+            )
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 

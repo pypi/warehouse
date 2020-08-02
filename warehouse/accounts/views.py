@@ -12,8 +12,9 @@
 
 import datetime
 import hashlib
-import humanize
 import uuid
+
+import humanize
 
 from first import first
 from pyramid.httpexceptions import (
@@ -68,7 +69,8 @@ def failed_logins(exc, request):
             "There have been too many unsuccessful login attempts. "
             "You have been locked out for {0}. "
             "Please try again later.".format(
-                humanize.naturaldelta(exc.resets_in.total_seconds()))
+                humanize.naturaldelta(exc.resets_in.total_seconds())
+            )
         ),
         retry_after=exc.resets_in.total_seconds(),
     )
