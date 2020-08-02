@@ -306,6 +306,10 @@ html5lib==1.1 \
     --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d \
     --hash=sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f \
     # via -r requirements/main.in
+humanize==2.5.0 \
+    --hash=sha256:89062c6db8601693b7d223443d0d7529aa9577df43a1387ddd4b9c273abb4a51 \
+    --hash=sha256:8a68bd9bccb899fd9bfb1e6d96c1e84e4475551cc9a5b5bdbd69b9b1cfd19c80 \
+    # via -r requirements/main.in
 hupper==1.10.2 \
     --hash=sha256:3818f53dabc24da66f65cf4878c1c7a9b5df0c46b813e014abdd7c569eb9a02a \
     --hash=sha256:5de835f3b58324af2a8a16f52270c4d1a3d1734c45eed94b77fd622aea737f29 \
