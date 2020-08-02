@@ -3430,7 +3430,7 @@ msgstr ""
 msgid ""
 "All users submitting feedback, reporting issues or contributing to "
 "Warehouse are expected to follow the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPA Code of "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PSF Code of "
 "Conduct</a>."
 msgstr ""
 
