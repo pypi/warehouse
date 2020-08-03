@@ -100,7 +100,8 @@ def email_mass(request):
                         "body_html": row.get("body_html"),
                     },
                     {
-                        "sending_user_id": user.id,
+                        "tag": "account:email:sent",
+                        "user_id": user.id,
                         "ip_address": request.remote_addr,
                         "additional": {
                             "from_": request.registry.settings.get("mail.sender"),

@@ -42,12 +42,7 @@ def send_email(task, request, recipient, msg, success_event):
         sender.send(recipient, msg)
 
         user_service = request.find_service(IUserService, context=None)
-        user_service.record_event(
-            success_event["sending_user_id"],
-            tag="account:email:sent",
-            ip_address=success_event["ip_address"],
-            additional=success_event["additional"],
-        )
+        user_service.record_event(**success_event)
     except Exception as exc:
         task.retry(exc=exc)
 
@@ -76,7 +71,8 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
         _compute_recipient(user, email.email),
         attr.asdict(msg),
         {
-            "sending_user_id": user.id,
+            "tag": "account:email:sent",
+            "user_id": user.id,
             "ip_address": request.remote_addr,
             "additional": {
                 "from_": request.registry.settings.get("mail.sender"),

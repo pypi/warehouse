@@ -168,7 +168,8 @@ class TestEmailMass:
                     "body_html": None,
                 },
                 {
-                    "sending_user_id": user1.id,
+                    "tag": "account:email:sent",
+                    "user_id": user1.id,
                     "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
@@ -186,7 +187,8 @@ class TestEmailMass:
                     "body_html": None,
                 },
                 {
-                    "sending_user_id": user2.id,
+                    "tag": "account:email:sent",
+                    "user_id": user2.id,
                     "ip_address": db_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
