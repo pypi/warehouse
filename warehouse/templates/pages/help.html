@@ -63,6 +63,7 @@
 {% macro utfdevices() %}{% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %}{% endmacro %}
 {% macro recoverycodes() %}{% trans %}How does two factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
+{% macro sensitiveactions() %}{% trans %}Why do certain actions require me to confirm my password?{% endtrans %}{% endmacro %}
 
 {% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
@@ -126,6 +127,7 @@
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
           <li><a href="#recoverycodes">{{ recoverycodes() }}</a></li>
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
+          <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
         </ul>
       </section>
 
@@ -469,6 +471,14 @@
           {% endtrans %}
         </p>
         <p>{% trans %}Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.{% endtrans %}</p>
+
+        <h3 id="sensitiveactions">{{ sensitiveactions() }}</h3>
+
+        {% trans %}
+          <p>PyPI asks you to confirm your password before you want to perform a <i>sensitive action</i>. Sensitive actions include things like adding or removing maintainers, deleting distributions, generating API tokens, and setting up two-factor authentication.</p>
+          <p>You'll only have to re-confirm your password if it's been more than an hour since you last confirmed it.</p>
+          <p><strong>We strongly recommend you only perform such actions on your personal, password-protected computer.</strong></p>
+        {% endtrans %}
 
       </section>
 
