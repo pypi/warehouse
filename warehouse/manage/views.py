@@ -1673,6 +1673,9 @@ def delete_project_role(project, request):
                 .all()
             )
             owner_users = {owner.user for owner in owner_roles}
+            # Don't send owner notification email to new user
+            # if they are now an owner
+            owner_users.discard(role.user)
             send_collaborator_removed_email(
                 request,
                 owner_users,
