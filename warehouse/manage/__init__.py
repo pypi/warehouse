@@ -13,7 +13,6 @@
 import functools
 import json
 
-from pyramid import viewderivers
 from pyramid.renderers import render_to_response
 
 from warehouse.accounts.forms import ReAuthenticateForm
@@ -54,6 +53,4 @@ reauth_view.options = {"require_reauth"}
 
 
 def includeme(config):
-    config.add_view_deriver(
-        reauth_view, over="rendered_view", under=viewderivers.INGRESS
-    )
+    config.add_view_deriver(reauth_view, over="rendered_view", under="decorated_view")

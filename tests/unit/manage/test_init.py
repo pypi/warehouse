@@ -13,8 +13,6 @@
 import pretend
 import pytest
 
-from pyramid import viewderivers
-
 from warehouse import manage
 
 
@@ -91,7 +89,5 @@ def test_includeme():
     manage.includeme(config)
 
     assert config.add_view_deriver.calls == [
-        pretend.call(
-            manage.reauth_view, over="rendered_view", under=viewderivers.INGRESS
-        )
+        pretend.call(manage.reauth_view, over="rendered_view", under="decorated_view")
     ]
