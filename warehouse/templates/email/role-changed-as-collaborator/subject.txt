@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans %}Collaborator role change notification{% endtrans %}{% endblock %}
+{% block subject %}Collaborator role change notification{% endblock %}

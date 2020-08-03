@@ -24,7 +24,6 @@ ul.collaborator-details {
 
 {% block content %}
 <p>
-  {% trans username=username, project=project, submitter=submitter, site=site, role=role %}
   A collaborator's role was changed on a project you own on {{ site }}:
 
   <ul class="collaborator-details">
@@ -34,13 +33,12 @@ ul.collaborator-details {
     <li><strong>Changed by</strong>: {{ submitter }}</li>
   </ul>
 </p>
-{% endtrans %}
 
-<p>{% trans admin_mail="mailto:admin@pypi.org" %}If this was a mistake, you can email <a href="{{ admin_mail }}">admin@pypi.org</a> to communicate with the PyPI administrators.{% endtrans %}</p>
+<p>If this was a mistake, you can email <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI administrators.</p>
 {% endblock %}
 
 
 {% block reason %}
-{% trans %}You are receiving this because you are an owner of this project.{% endtrans %}
+You are receiving this because you are an owner of this project.
 {% endblock %}
    

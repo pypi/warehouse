@@ -17,17 +17,17 @@
 
 {% block content %}
 <p>
-  {% trans project=project, submitter=submitter%}Your role in the {{ project }} project has been changed by {{ submitter }}.{% endtrans %}
+  Your role in the {{ project }} project has been changed by {{ submitter }}.
 
   {% if role == 'Owner' %}
-  {% trans %}You are now a project owner. You can add other collaborators, upload releases and delete files, releases or the entire project.{% endtrans %}
+  You are now a project owner. You can add other collaborators, upload releases and delete files, releases or the entire project.
   {% elif role == 'Maintainer' %}
-  {% trans %}You are now a project maintainer. You can upload releases but cannot add collaborators, delete files, releases or the project.{% endtrans %}
+  You are now a project maintainer. You can upload releases but cannot add collaborators, delete files, releases or the project.
   {% endif %}
 </p>
 {% endblock %}
 
 
 {% block reason %}
-{% trans submitter=submitter, project=project %}You are receiving this because your role was changed by {{ submitter }} on the {{ project }} project.{% endtrans %}
+You are receiving this because your role was changed by {{ submitter }} on the {{ project }} project.
 {% endblock %}

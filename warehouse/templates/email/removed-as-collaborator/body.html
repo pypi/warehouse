@@ -16,11 +16,11 @@
 {% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-<p>{% trans project=project, submitter=submitter %}You have been removed as collaborator by {{ submitter }} from {{ project }} on {{ site }}.{% endtrans %}</p>
+<p>You have been removed as collaborator by {{ submitter }} from {{ project }} on {{ site }}.</p>
 {% endblock %}
 
 
 {% block reason %}
-{% trans submitter=submitter, project=project %}You are receiving this because you were removed as a collaborator by {{ submitter }} from {{ project }}.{% endtrans %}
+You are receiving this because you were removed as a collaborator by {{ submitter }} from {{ project }}.
 {% endblock %}
  

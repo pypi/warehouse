@@ -15,7 +15,6 @@
 {% set site = request.registry.settings["site.name"] %}
 
 {% block content %}
-{% trans username=username, project=project, submitter=submitter, site=site, role=role %}
 A collaborator's role was changed on a project you own on {{ site }}:
 
   Username: {{ username }}
@@ -24,9 +23,8 @@ A collaborator's role was changed on a project you own on {{ site }}:
   Changed by: {{ submitter }}
 
 If this was a mistake, you can email admin@pypi.org to communicate with the PyPI administrators.
-{% endtrans %}
 {% endblock %}
 
 {% block reason %}
-{% trans %}You are receiving this because you are an owner of this project.{% endtrans %}
+You are receiving this because you are an owner of this project.
 {% endblock %}
