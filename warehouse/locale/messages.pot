@@ -764,6 +764,34 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
+#: warehouse/templates/accounts/login.html:51
+#: warehouse/templates/accounts/login.html:71
+#: warehouse/templates/accounts/recovery-code.html:42
+#: warehouse/templates/accounts/register.html:47
+#: warehouse/templates/accounts/register.html:66
+#: warehouse/templates/accounts/register.html:91
+#: warehouse/templates/accounts/register.html:112
+#: warehouse/templates/accounts/register.html:137
+#: warehouse/templates/accounts/request-password-reset.html:41
+#: warehouse/templates/accounts/reset-password.html:40
+#: warehouse/templates/accounts/reset-password.html:63
+#: warehouse/templates/accounts/two-factor.html:89
+#: warehouse/templates/manage/account.html:294
+#: warehouse/templates/manage/account.html:311
+#: warehouse/templates/manage/account.html:368
+#: warehouse/templates/manage/account.html:393
+#: warehouse/templates/manage/account.html:410
+#: warehouse/templates/manage/account.html:426
+#: warehouse/templates/manage/account/totp-provision.html:69
+#: warehouse/templates/manage/account/webauthn-provision.html:44
+#: warehouse/templates/manage/roles.html:115
+#: warehouse/templates/manage/roles.html:127
+#: warehouse/templates/manage/token.html:134
+#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/re-auth.html:51
+msgid "(required)"
+msgstr ""
+
 #: warehouse/templates/accounts/login.html:75
 #: warehouse/templates/re-auth.html:55
 msgid "Your password"
@@ -815,33 +843,6 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
 #: warehouse/templates/manage/roles.html:118
 msgid "Username"
-msgstr ""
-
-#: warehouse/templates/accounts/login.html:51
-#: warehouse/templates/accounts/login.html:71
-#: warehouse/templates/accounts/recovery-code.html:42
-#: warehouse/templates/accounts/register.html:47
-#: warehouse/templates/accounts/register.html:66
-#: warehouse/templates/accounts/register.html:91
-#: warehouse/templates/accounts/register.html:112
-#: warehouse/templates/accounts/register.html:137
-#: warehouse/templates/accounts/request-password-reset.html:41
-#: warehouse/templates/accounts/reset-password.html:40
-#: warehouse/templates/accounts/reset-password.html:63
-#: warehouse/templates/accounts/two-factor.html:89
-#: warehouse/templates/manage/account.html:294
-#: warehouse/templates/manage/account.html:311
-#: warehouse/templates/manage/account.html:368
-#: warehouse/templates/manage/account.html:393
-#: warehouse/templates/manage/account.html:410
-#: warehouse/templates/manage/account.html:426
-#: warehouse/templates/manage/account/totp-provision.html:69
-#: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:115
-#: warehouse/templates/manage/roles.html:127
-#: warehouse/templates/manage/token.html:134
-#: warehouse/templates/manage/token.html:151
-msgid "(required)"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:54
