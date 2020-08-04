@@ -18,7 +18,7 @@ import pretend
 import pytest
 
 from warehouse import email
-from warehouse.accounts.interfaces import ITokenService
+from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
@@ -82,13 +82,26 @@ class TestSendEmailToUser:
     def test_sends_to_user_with_verified(
         self, name, username, primary_email, address, expected
     ):
-        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
-        request = pretend.stub(task=pretend.call_recorder(lambda x: task))
-
         user = pretend.stub(
             name=name,
             username=username,
             primary_email=pretend.stub(email=primary_email, verified=True),
+            id="id",
+        )
+
+        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            task=pretend.call_recorder(lambda x: task),
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(
+                        one=lambda: pretend.stub(user_id=user.id)
+                    )
+                ),
+            ),
+            remote_addr="0.0.0.0",
+            user=user,
+            registry=pretend.stub(settings={"mail.sender": "noreply@example.com"}),
         )
 
         if address is not None:
@@ -103,6 +116,17 @@ class TestSendEmailToUser:
             pretend.call(
                 expected,
                 {"subject": "My Subject", "body_text": "My Body", "body_html": None},
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user.id,
+                    "ip_address": request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": address.email if address else primary_email,
+                        "subject": "My Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -120,7 +144,7 @@ class TestSendEmailToUser:
         user = pretend.stub(
             primary_email=pretend.stub(
                 email=primary_email, verified=True if address is not None else False
-            )
+            ),
         )
 
         if address is not None:
@@ -148,15 +172,28 @@ class TestSendEmailToUser:
     def test_sends_unverified_with_override(
         self, username, primary_email, address, expected
     ):
-        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
-        request = pretend.stub(task=pretend.call_recorder(lambda x: task))
-
         user = pretend.stub(
             username=username,
             name="",
             primary_email=pretend.stub(
                 email=primary_email, verified=True if address is not None else False
             ),
+            id="id",
+        )
+
+        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(
+            task=pretend.call_recorder(lambda x: task),
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(
+                        one=lambda: pretend.stub(user_id=user.id)
+                    )
+                ),
+            ),
+            remote_addr="0.0.0.0",
+            user=user,
+            registry=pretend.stub(settings={"mail.sender": "noreply@example.com"}),
         )
 
         if address is not None:
@@ -173,12 +210,23 @@ class TestSendEmailToUser:
             pretend.call(
                 expected,
                 {"subject": "My Subject", "body_text": "My Body", "body_html": None},
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user.id,
+                    "ip_address": request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": address.email if address else primary_email,
+                        "subject": "My Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
 
 class TestSendEmail:
-    def test_send_email_success(self, monkeypatch):
+    def test_send_email_success(self, db_session, monkeypatch):
         class FakeMailSender:
             def __init__(self):
                 self.emails = []
@@ -193,23 +241,76 @@ class TestSendEmail:
                     }
                 )
 
+        class FakeUserEventService:
+            def __init__(self):
+                self.events = []
+
+            def record_event(self, user_id, tag, ip_address, additional):
+                self.events.append(
+                    {
+                        "user_id": user_id,
+                        "tag": tag,
+                        "ip_address": ip_address,
+                        "additional": additional,
+                    }
+                )
+
+        user_service = FakeUserEventService()
         sender = FakeMailSender()
         task = pretend.stub()
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda *a, **kw: sender)
+            find_service=pretend.call_recorder(
+                lambda svc, context=None: {
+                    IUserService: user_service,
+                    IEmailSender: sender,
+                }.get(svc)
+            ),
         )
+        user_id = pretend.stub()
 
         msg = EmailMessage(subject="subject", body_text="body")
 
-        email.send_email(task, request, "recipient", attr.asdict(msg))
+        email.send_email(
+            task,
+            request,
+            "recipient",
+            attr.asdict(msg),
+            {
+                "tag": "account:email:sent",
+                "user_id": user_id,
+                "ip_address": "0.0.0.0",
+                "additional": {
+                    "from_": "noreply@example.com",
+                    "to": "recipient",
+                    "subject": msg.subject,
+                    "redact_ip": False,
+                },
+            },
+        )
 
-        assert request.find_service.calls == [pretend.call(IEmailSender)]
+        assert request.find_service.calls == [
+            pretend.call(IEmailSender),
+            pretend.call(IUserService, context=None),
+        ]
         assert sender.emails == [
             {
                 "subject": "subject",
                 "body": "body",
                 "html": None,
                 "recipient": "recipient",
+            }
+        ]
+        assert user_service.events == [
+            {
+                "user_id": user_id,
+                "tag": "account:email:sent",
+                "ip_address": "0.0.0.0",
+                "additional": {
+                    "from_": "noreply@example.com",
+                    "to": "recipient",
+                    "subject": msg.subject,
+                    "redact_ip": False,
+                },
             }
         ]
 
@@ -228,10 +329,27 @@ class TestSendEmail:
 
         sender, task = FakeMailSender(), Task()
         request = pretend.stub(find_service=lambda *a, **kw: sender)
+        user_id = pretend.stub()
         msg = EmailMessage(subject="subject", body_text="body")
 
         with pytest.raises(celery.exceptions.Retry):
-            email.send_email(task, request, "recipient", attr.asdict(msg))
+            email.send_email(
+                task,
+                request,
+                "recipient",
+                attr.asdict(msg),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user_id,
+                    "ip_address": "0.0.0.0",
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "recipient",
+                        "subject": msg.subject,
+                        "redact_ip": False,
+                    },
+                },
+            )
 
         assert task.retry.calls == [pretend.call(exc=exc)]
 
@@ -294,6 +412,17 @@ class TestSendPasswordResetEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         result = email.send_password_reset_email(
             pyramid_request, (stub_user, stub_email)
         )
@@ -335,6 +464,19 @@ class TestSendPasswordResetEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "other@example.com"
+                        if stub_email
+                        else "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -344,6 +486,9 @@ class TestEmailVerificationEmail:
         self, pyramid_request, pyramid_config, token_service, monkeypatch
     ):
 
+        stub_user = pretend.stub(
+            id="id", username=None, name=None, email="foo@example.com",
+        )
         stub_email = pretend.stub(id="id", email="email@example.com", verified=False)
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOKEN")
@@ -370,12 +515,19 @@ class TestEmailVerificationEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_email_verification_email(
-            pyramid_request,
-            (
-                pretend.stub(username=None, name=None, email="foo@example.com"),
-                stub_email,
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
             ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_email_verification_email(
+            pyramid_request, (stub_user, stub_email,),
         )
 
         assert result == {
@@ -406,6 +558,17 @@ class TestEmailVerificationEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -413,6 +576,7 @@ class TestEmailVerificationEmail:
 class TestPasswordChangeEmail:
     def test_password_change_email(self, pyramid_request, pyramid_config, monkeypatch):
         stub_user = pretend.stub(
+            id="id",
             username="username",
             name="",
             email="email@example.com",
@@ -437,6 +601,17 @@ class TestPasswordChangeEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         result = email.send_password_change_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
@@ -457,6 +632,17 @@ class TestPasswordChangeEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -488,6 +674,17 @@ class TestPasswordChangeEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         result = email.send_password_change_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
@@ -504,6 +701,7 @@ class TestPasswordCompromisedHIBPEmail:
         self, pyramid_request, pyramid_config, monkeypatch, verified
     ):
         stub_user = pretend.stub(
+            id="id",
             username="username",
             name="",
             email="email@example.com",
@@ -528,6 +726,17 @@ class TestPasswordCompromisedHIBPEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         result = email.send_password_compromised_email_hibp(pyramid_request, stub_user)
 
         assert result == {}
@@ -545,6 +754,17 @@ class TestPasswordCompromisedHIBPEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -555,6 +775,7 @@ class TestPasswordCompromisedEmail:
         self, pyramid_request, pyramid_config, monkeypatch, verified
     ):
         stub_user = pretend.stub(
+            id="id",
             username="username",
             name="",
             email="email@example.com",
@@ -579,6 +800,17 @@ class TestPasswordCompromisedEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         result = email.send_password_compromised_email(pyramid_request, stub_user)
 
         assert result == {}
@@ -596,6 +828,17 @@ class TestPasswordCompromisedEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -604,6 +847,7 @@ class TestAccountDeletionEmail:
     def test_account_deletion_email(self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
+            id="id",
             username="username",
             name="",
             email="email@example.com",
@@ -628,6 +872,17 @@ class TestAccountDeletionEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         result = email.send_account_deletion_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
@@ -648,6 +903,17 @@ class TestAccountDeletionEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -656,6 +922,7 @@ class TestAccountDeletionEmail:
     ):
 
         stub_user = pretend.stub(
+            id="id",
             username="username",
             name="",
             email="email@example.com",
@@ -680,6 +947,17 @@ class TestAccountDeletionEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         result = email.send_account_deletion_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
@@ -696,7 +974,7 @@ class TestPrimaryEmailChangeEmail:
     ):
 
         stub_user = pretend.stub(
-            email="new_email@example.com", username="username", name=""
+            id="id", email="new_email@example.com", username="username", name=""
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/primary-email-change/subject.txt"
@@ -716,6 +994,17 @@ class TestPrimaryEmailChangeEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_primary_email_change_email(
             pyramid_request,
@@ -744,6 +1033,17 @@ class TestPrimaryEmailChangeEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "old_email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -752,7 +1052,7 @@ class TestPrimaryEmailChangeEmail:
     ):
 
         stub_user = pretend.stub(
-            email="new_email@example.com", username="username", name=""
+            id="id", email="new_email@example.com", username="username", name=""
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/primary-email-change/subject.txt"
@@ -772,6 +1072,17 @@ class TestPrimaryEmailChangeEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_primary_email_change_email(
             pyramid_request,
@@ -796,12 +1107,14 @@ class TestCollaboratorAddedEmail:
     ):
 
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -827,6 +1140,18 @@ class TestCollaboratorAddedEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_collaborator_added_email(
             pyramid_request,
@@ -870,6 +1195,17 @@ class TestCollaboratorAddedEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -883,6 +1219,17 @@ class TestCollaboratorAddedEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -891,12 +1238,14 @@ class TestCollaboratorAddedEmail:
     ):
 
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=False),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -922,6 +1271,17 @@ class TestCollaboratorAddedEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_submitter_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_collaborator_added_email(
             pyramid_request,
@@ -962,6 +1322,17 @@ class TestCollaboratorAddedEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
@@ -972,13 +1343,14 @@ class TestAddedAsCollaboratorEmail:
     ):
 
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
-            username="submitterusername", email="submiteremail"
+            id="id_2", username="submitterusername", email="submiteremail",
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/subject.txt"
@@ -998,6 +1370,17 @@ class TestAddedAsCollaboratorEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_added_as_collaborator_email(
             pyramid_request,
@@ -1034,6 +1417,17 @@ class TestAddedAsCollaboratorEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             )
         ]
 
@@ -1042,13 +1436,14 @@ class TestAddedAsCollaboratorEmail:
     ):
 
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=False),
         )
         stub_submitter_user = pretend.stub(
-            username="submitterusername", email="submiteremail"
+            id="id_2", username="submitterusername", email="submiteremail",
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/subject.txt"
@@ -1068,6 +1463,17 @@ class TestAddedAsCollaboratorEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_added_as_collaborator_email(
             pyramid_request,
@@ -1099,12 +1505,14 @@ class TestRemovedProjectEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1130,6 +1538,18 @@ class TestRemovedProjectEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_removed_project_email(
             pyramid_request,
@@ -1171,6 +1591,17 @@ class TestRemovedProjectEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1184,6 +1615,17 @@ class TestRemovedProjectEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1191,12 +1633,14 @@ class TestRemovedProjectEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1222,6 +1666,18 @@ class TestRemovedProjectEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_removed_project_email(
             pyramid_request,
@@ -1263,6 +1719,17 @@ class TestRemovedProjectEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1276,6 +1743,17 @@ class TestRemovedProjectEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1285,12 +1763,14 @@ class TestYankedReleaseEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1317,6 +1797,18 @@ class TestYankedReleaseEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1371,6 +1863,17 @@ class TestYankedReleaseEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1384,6 +1887,17 @@ class TestYankedReleaseEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1391,12 +1905,14 @@ class TestYankedReleaseEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1423,6 +1939,18 @@ class TestYankedReleaseEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1477,6 +2005,17 @@ class TestYankedReleaseEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1490,6 +2029,17 @@ class TestYankedReleaseEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1499,12 +2049,14 @@ class TestUnyankedReleaseEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1531,6 +2083,18 @@ class TestUnyankedReleaseEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1584,6 +2148,17 @@ class TestUnyankedReleaseEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1597,6 +2172,17 @@ class TestUnyankedReleaseEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1604,12 +2190,14 @@ class TestUnyankedReleaseEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1636,6 +2224,18 @@ class TestUnyankedReleaseEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1689,6 +2289,17 @@ class TestUnyankedReleaseEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1702,6 +2313,17 @@ class TestUnyankedReleaseEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1711,12 +2333,14 @@ class TestRemovedReleaseEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1743,6 +2367,18 @@ class TestRemovedReleaseEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1796,6 +2432,17 @@ class TestRemovedReleaseEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1809,6 +2456,17 @@ class TestRemovedReleaseEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1816,12 +2474,14 @@ class TestRemovedReleaseEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1848,6 +2508,18 @@ class TestRemovedReleaseEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -1901,6 +2573,17 @@ class TestRemovedReleaseEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -1914,6 +2597,17 @@ class TestRemovedReleaseEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -1923,12 +2617,14 @@ class TestRemovedReleaseFileEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -1955,6 +2651,18 @@ class TestRemovedReleaseFileEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -2009,6 +2717,17 @@ class TestRemovedReleaseFileEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2022,6 +2741,17 @@ class TestRemovedReleaseFileEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2029,12 +2759,14 @@ class TestRemovedReleaseFileEmail:
         self, pyramid_request, pyramid_config, monkeypatch
     ):
         stub_user = pretend.stub(
+            id="id_1",
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
+            id="id_2",
             username="submitterusername",
             name="",
             email="submiteremail@example.com",
@@ -2061,6 +2793,18 @@ class TestRemovedReleaseFileEmail:
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
+
+        ids = [stub_submitter_user.id, stub_user.id]
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=ids.pop())
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_submitter_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         release = pretend.stub(
             version="0.0.0",
@@ -2115,6 +2859,17 @@ class TestRemovedReleaseFileEmail:
                         ),
                     ),
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
@@ -2128,6 +2883,17 @@ class TestRemovedReleaseFileEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_submitter_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "submiteremail@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             ),
         ]
 
@@ -2152,6 +2918,7 @@ class TestTwoFactorEmail:
         pretty_method,
     ):
         stub_user = pretend.stub(
+            id="id",
             username="username",
             name="",
             email="email@example.com",
@@ -2176,6 +2943,17 @@ class TestTwoFactorEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.remote_addr = "0.0.0.0"
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
         send_method = getattr(email, f"send_two_factor_{action}_email")
         result = send_method(pyramid_request, stub_user, method=method)
 
@@ -2197,5 +2975,16 @@ class TestTwoFactorEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": pyramid_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]

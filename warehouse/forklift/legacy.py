@@ -32,7 +32,12 @@ import stdlib_list
 import wtforms
 import wtforms.validators
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPForbidden,
+    HTTPGone,
+    HTTPPermanentRedirect,
+)
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
@@ -181,10 +186,10 @@ _valid_description_content_types = {"text/plain", "text/x-rst", "text/markdown"}
 _valid_markdown_variants = {"CommonMark", "GFM"}
 
 
-def _exc_with_message(exc, message):
+def _exc_with_message(exc, message, **kwargs):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
-    resp = exc(message)
+    resp = exc(detail=message, **kwargs)
     resp.status = "{} {}".format(resp.status_code, message)
     return resp
 
@@ -1507,4 +1512,22 @@ def doc_upload(request):
         HTTPGone,
         "Uploading documentation is no longer supported, we recommend using "
         "https://readthedocs.org/.",
+    )
+
+
+@view_config(
+    route_name="forklift.legacy.missing_trailing_slash",
+    require_csrf=False,
+    require_methods=["POST"],
+)
+def missing_trailing_slash_redirect(request):
+    """
+    Redirect requests to /legacy to the correct /legacy/ route with a
+    HTTP-308 Permanent Redirect
+    """
+    return _exc_with_message(
+        HTTPPermanentRedirect,
+        "An upload was attempted to /legacy but the expected upload URL is "
+        "/legacy/ (with a trailing slash)",
+        location=request.route_path("forklift.legacy.file_upload"),
     )

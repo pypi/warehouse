@@ -700,6 +700,24 @@ class TestWebAuthnAuthenticationForm:
         assert form.validated_credential == ("foo", 123456)
 
 
+class TestReAuthenticateForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+
+        form = forms.ReAuthenticateForm(user_service=user_service)
+
+        assert form.user_service is user_service
+        assert form.__params__ == [
+            "username",
+            "password",
+            "next_route",
+            "next_route_matchdict",
+        ]
+        assert isinstance(form.username, wtforms.StringField)
+        assert isinstance(form.next_route, wtforms.StringField)
+        assert isinstance(form.next_route_matchdict, wtforms.StringField)
+
+
 class TestRecoveryCodeForm:
     def test_creation(self):
         user_id = pretend.stub()
