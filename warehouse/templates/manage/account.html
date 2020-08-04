@@ -600,6 +600,13 @@
           {{ event.additional.new_primary }}
         </small>
         {% endif %}
+      {% elif event.tag == "account:email:sent" %}
+      <strong>{% trans %}Email sent{% endtrans %}</strong><br>
+      <small>
+        {% trans %}From:{% endtrans %} <span class="table__monospace">{{ event.additional.from_ }}</span><br>
+        {% trans %}To:{% endtrans %} <span class="table__monospace">{{ event.additional.to }}</span><br>
+        {% trans %}Subject:{% endtrans %} <span class="table__monospace">{{event.additional.subject}}</span>
+      </small>
 
       {% elif event.tag  == "account:password:reset:request" %}
       <strong>{% trans %}Password reset requested{% endtrans %}</strong>
@@ -662,7 +669,11 @@
       {% endif %}
     {%- endmacro %}
 
-    <p>{% trans %}Events appear here as security-related actions occur on your account.{% endtrans %}</p>
+    <p>
+      {% trans trimmed faq_url=request.help_url(_anchor='suspicious-activity')%}
+      Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
+      {% endtrans %}
+    </p>
     <table class="table table--security-logs">
       <caption class="sr-only">{% trans %}Recent account activity{% endtrans %}</caption>
       <thead>
@@ -680,7 +691,7 @@
           </td>
           <td>
             <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
-            {{ event.ip_address }}
+            {{ "Redacted" if event.additional.redact_ip else event.ip_address }}
           </td>
         </tr>
         {% endfor %}

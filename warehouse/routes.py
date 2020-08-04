@@ -140,6 +140,9 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "accounts.reauthenticate", "/accounts/reauthenticate/", domain=warehouse
+    )
+    config.add_route(
         "accounts.recovery-code", "/account/recovery-code/", domain=warehouse,
     )
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)

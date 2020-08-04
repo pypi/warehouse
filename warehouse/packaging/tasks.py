@@ -227,7 +227,7 @@ def sync_bigquery_release_files(request):
                 row_data[sch.name] = field_data
         return row_data
 
-    for first, second in product("0123456789abcdef", repeat=2):
+    for first, second in product("fedcba9876543210", repeat=2):
         db_release_files = (
             request.db.query(File.md5_digest)
             .filter(File.md5_digest.like(f"{first}{second}%"))
