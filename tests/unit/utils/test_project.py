@@ -102,7 +102,6 @@ def test_remove_project(db_request, flash):
     DependencyFactory.create(release=release)
 
     db_request.user = user
-    db_request.remote_addr = "192.168.1.1"
     db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
 
     remove_project(project, db_request, flash=flash)
@@ -151,7 +150,6 @@ def test_destroy_docs(db_request, flash):
     RoleFactory.create(user=user, project=project)
 
     db_request.user = user
-    db_request.remote_addr = "192.168.1.1"
     db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
     remove_documentation_recorder = stub(delay=call_recorder(lambda *a, **kw: None))
     db_request.task = call_recorder(lambda *a, **kw: remove_documentation_recorder)

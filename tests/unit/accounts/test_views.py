@@ -54,13 +54,13 @@ class TestFailedLoginView:
     def test_too_many_emails_added(self, pyramid_request):
         exc = TooManyEmailsAdded(resets_in=datetime.timedelta(seconds=600))
 
-        pyramid_request.remote_addr = "1.2.3.4"
         resp = views.unverified_emails(exc, pyramid_request)
 
         assert resp.status == "429 Too Many Requests"
         assert resp.detail == (
             "Too many emails have been added to this account without verifying "
-            "them. Check your inbox and follow the verification links. (IP: 1.2.3.4)"
+            "them. Check your inbox and follow the verification links. (IP: "
+            f"{ pyramid_request.remote_addr })"
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
@@ -191,7 +191,6 @@ class TestLogin:
             invalidate=pretend.call_recorder(lambda: None),
             new_csrf_token=pretend.call_recorder(lambda: None),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
 
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()) if with_user else None,
@@ -241,7 +240,7 @@ class TestLogin:
             pretend.call(
                 user_id,
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None},
             )
         ]
@@ -280,7 +279,6 @@ class TestLogin:
 
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
-        pyramid_request.remote_addr = "0.0.0.0"
 
         pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
             lambda *args: None
@@ -301,7 +299,7 @@ class TestLogin:
             pretend.call(
                 1,
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None},
             )
         ]
@@ -336,7 +334,6 @@ class TestLogin:
         pyramid_request.method = "POST"
         if redirect_url:
             pyramid_request.POST["next"] = redirect_url
-        pyramid_request.remote_addr = "0.0.0.0"
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -566,7 +563,6 @@ class TestTwoFactor:
         }[interface]
 
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.session = pretend.stub(
             items=lambda: [("a", "b"), ("foo", "bar")],
             update=new_session.update,
@@ -606,7 +602,7 @@ class TestTwoFactor:
             pretend.call(
                 "1",
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": "totp"},
             )
         ]
@@ -977,7 +973,6 @@ class TestRecoveryCode:
         }[interface]
 
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.session = pretend.stub(
             items=lambda: [("a", "b"), ("foo", "bar")],
             update=new_session.update,
@@ -1016,10 +1011,14 @@ class TestRecoveryCode:
             pretend.call(
                 "1",
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": "recovery-code"},
             ),
-            pretend.call("1", tag="account:recovery_codes:used", ip_address="0.0.0.0",),
+            pretend.call(
+                "1",
+                tag="account:recovery_codes:used",
+                ip_address=pyramid_request.remote_addr,
+            ),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -1219,7 +1218,6 @@ class TestRegister:
             )
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "0.0.0.0"
         db_request.POST.update(
             {
                 "username": "username_value",
@@ -1316,7 +1314,6 @@ class TestRequestPasswordReset:
 
         stub_user = pretend.stub(id=pretend.stub(), username=pretend.stub())
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
         user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
@@ -1374,7 +1371,6 @@ class TestRequestPasswordReset:
             emails=[pretend.stub(email="foo@example.com")],
         )
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
@@ -1437,7 +1433,6 @@ class TestRequestPasswordReset:
             ],
         )
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
@@ -1559,7 +1554,6 @@ class TestResetPassword:
         monkeypatch.setattr(views, "send_password_change_email", send_email)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
-        db_request.remote_addr = "0.0.0.0"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "password-reset",
@@ -1778,7 +1772,6 @@ class TestVerifyEmail:
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "0.0.0.0"
         token_service.loads = pretend.call_recorder(
             lambda token: {"action": "email-verify", "email.id": str(email.id)}
         )
