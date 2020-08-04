@@ -98,6 +98,7 @@ def pyramid_services(metrics):
 def pyramid_request(pyramid_services):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
+    dummy_request.remote_addr = "1.2.3.4"
 
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)
