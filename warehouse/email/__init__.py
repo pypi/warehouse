@@ -20,7 +20,8 @@ from celery.schedules import crontab
 from first import first
 
 from warehouse import tasks
-from warehouse.accounts.interfaces import ITokenService
+from warehouse.accounts.interfaces import ITokenService, IUserService
+from warehouse.accounts.models import Email
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
@@ -33,12 +34,15 @@ def _compute_recipient(user, email):
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, recipient, msg):
+def send_email(task, request, recipient, msg, success_event):
     msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
 
     try:
         sender.send(recipient, msg)
+
+        user_service = request.find_service(IUserService, context=None)
+        user_service.record_event(**success_event)
     except Exception as exc:
         task.retry(exc=exc)
 
@@ -56,8 +60,27 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     if email is None or not (email.verified or allow_unverified):
         return
 
+    # We should only store/display IP address of an 'email sent' event if the user
+    # who triggered the email event is the one who receives the email. Else display
+    # 'Redacted' to prevent user privacy concerns. If we don't know the user who
+    # triggered the action, default to showing the IP of the source.
+    user_email = request.db.query(Email).filter(Email.email == email.email).one()
+    redact_ip = user_email.user_id != request.user.id if request.user else False
+
     request.task(send_email).delay(
-        _compute_recipient(user, email.email), attr.asdict(msg)
+        _compute_recipient(user, email.email),
+        attr.asdict(msg),
+        {
+            "tag": "account:email:sent",
+            "user_id": user.id,
+            "ip_address": request.remote_addr,
+            "additional": {
+                "from_": request.registry.settings.get("mail.sender"),
+                "to": email.email,
+                "subject": msg.subject,
+                "redact_ip": redact_ip,
+            },
+        },
     )
 
 
