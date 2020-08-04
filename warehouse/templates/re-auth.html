@@ -77,8 +77,11 @@
               </span>
             </div>
             <span>
-              {% trans href=request.help_url(_anchor="sensitiveactions") %}<b>Tip:</b> you are about to perform a <a href="{{ href }}">sensitive action</a>. If you are not on a personal computer, make sure to log out once you're done with your session.
-              We won't ask you to confirm your password again for the next hour.{% endtrans %}
+              {% trans href=request.help_url(_anchor="sensitiveactions") %}
+              <b>Tip:</b> you are about to perform a <a href="{{ href }}">sensitive action</a>.
+              If you are not on a personal computer, make sure to log out once you're done with your session.
+              We won't ask you to confirm your password again for the next hour.
+              {% endtrans %}
             </span>
           </div>
         </form>
