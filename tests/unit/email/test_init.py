@@ -1329,14 +1329,15 @@ class TestCollaboratorAddedEmail:
 
 class TestProjectRoleVerificationEmail:
     def test_project_role_verification_email(
-        self, pyramid_request, pyramid_config, token_service, monkeypatch
+        self, db_request, pyramid_config, token_service, monkeypatch
     ):
-        stub_user = pretend.stub(
-            id="deadbeef-dead-beef-dead-beefdeadbeef",
-            username="username",
-            name="",
+        stub_user = UserFactory.create()
+        EmailFactory.create(
             email="email@example.com",
-            primary_email=pretend.stub(email="email@example.com", verified=True),
+            primary=True,
+            verified=True,
+            public=True,
+            user=stub_user,
         )
 
         subject_renderer = pyramid_config.testing_add_renderer(
@@ -1355,11 +1356,14 @@ class TestProjectRoleVerificationEmail:
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
         )
-        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        db_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        db_request.user = stub_user
+        db_request.registry.settings = {"mail.sender": "noreply@example.com"}
+        db_request.remote_addr = "0.0.0.0"
         monkeypatch.setattr(email, "send_email", send_email)
 
         result = email.send_project_role_verification_email(
-            pyramid_request,
+            db_request,
             stub_user,
             desired_role="Maintainer",
             initiator_username="initiating_user",
@@ -1379,10 +1383,10 @@ class TestProjectRoleVerificationEmail:
         subject_renderer.assert_()
         body_renderer.assert_(token="TOKEN", email_address=stub_user.email)
         html_renderer.assert_(token="TOKEN", email_address=stub_user.email)
-        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert db_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                f"{stub_user.username} <{stub_user.email}>",
+                f"{stub_user.name} <{stub_user.email}>",
                 attr.asdict(
                     EmailMessage(
                         subject="Email Subject",
@@ -1393,6 +1397,17 @@ class TestProjectRoleVerificationEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": "0.0.0.0",
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
