@@ -781,7 +781,16 @@ msgid "Forgot password?"
 msgstr ""
 
 #: warehouse/templates/re-auth.html:80
-msgid "sensitive action"
+#, python-format
+msgid ""
+"\n"
+"              <b>Tip:</b> you are about to perform a <a "
+"href=\"%(href)s\">sensitive action</a>.\n"
+"              If you are not on a personal computer, make sure to log out"
+" once you're done with your session.\n"
+"              We won't ask you to confirm your password again for the "
+"next hour.\n"
+"              "
 msgstr ""
 
 #: warehouse/templates/upload.html:25
