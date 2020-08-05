@@ -47,9 +47,9 @@ flake8==3.8.3 \
 html-linter==0.4.0 \
     --hash=sha256:342dad677f2fc810a2562fde0959046ed0d8fa1387bd9e085869e908c1941191 \
     # via -r requirements/lint.in
-isort==5.2.2 \
-    --hash=sha256:96b27045e3187b9bdde001143b79f9b10a462f372bff7062302818013b6c86f3 \
-    --hash=sha256:aea484023188ef1c38256dd24afa96e914adafe3a911a1786800a74e433006d1 \
+isort==5.3.0 \
+    --hash=sha256:723de131d9ae9d2561844f0ee525ce33a396a11bcda57174f036ed5ab3d6a122 \
+    --hash=sha256:cdca22530d093ed16983ba52c41560fa0219d1b958e44fd2ae2995dcc7b785be \
     # via -r requirements/lint.in
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
