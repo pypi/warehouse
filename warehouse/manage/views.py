@@ -1487,7 +1487,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         # has not updated invite status
         try:
             invite_token = token_service.loads(user_invite.token)
-        except:
+        except (TokenExpired, AttributeError):
             invite_token = None
 
         if existing_role:
