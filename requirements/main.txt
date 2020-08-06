@@ -272,9 +272,9 @@ google-crc32c==0.1.0 \
     --hash=sha256:dcc75bc9ef5a0ba3989408a227f4e6b609e989427727f4bca3aaad1f2ba4c98d \
     --hash=sha256:f42f3df1ac90326c1229ffb71471f1d1504f8c68fad6b627c996df732e800c6c \
     # via google-resumable-media
-google-resumable-media==0.7.0 \
-    --hash=sha256:280ea71f49105ebab8a3ca7a24edd0d17d49a94721b602a64523b1d090c73bd0 \
-    --hash=sha256:85848d9353770e88562e7d61dae4d3b83999de5a19ba6f466da8eb4b7b18772c \
+google-resumable-media==0.7.1 \
+    --hash=sha256:0572998cc2c7ba9ca996337896a2f93dbe8bc88866ebd81c8b7f4d7b07222957 \
+    --hash=sha256:57841f5e65fb285c01071f439724745b2549a72eb75e5fd979198eb518608ed0 \
     # via google-cloud-bigquery, google-cloud-storage
 googleapis-common-protos==1.52.0 \
     --hash=sha256:560716c807117394da12cecb0a54da5a451b5cf9866f1d37e9a5e2329a665351 \
