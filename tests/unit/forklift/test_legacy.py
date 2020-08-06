@@ -3430,3 +3430,17 @@ def test_doc_upload(pyramid_request):
         "410 Uploading documentation is no longer supported, we recommend "
         "using https://readthedocs.org/."
     )
+
+
+def test_missing_trailing_slash_redirect(pyramid_request):
+
+    pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/legacy/")
+
+    resp = legacy.missing_trailing_slash_redirect(pyramid_request)
+
+    assert resp.status_code == 308
+    assert resp.status == (
+        "308 An upload was attempted to /legacy but the expected upload URL is "
+        "/legacy/ (with a trailing slash)"
+    )
+    assert resp.headers["Location"] == "/legacy/"

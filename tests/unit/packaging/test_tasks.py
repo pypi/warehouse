@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from itertools import product
+
 import pretend
 import pytest
 
@@ -215,7 +217,7 @@ class TestUpdateBigQueryMetadata:
                 "classifiers": ListField(
                     default=["Environment :: Other Environment"]
                 ).bind(Form(), "test"),
-                "platform": StringField(default="").bind(Form(), "test"),
+                "platform": StringField(default="test_platform").bind(Form(), "test"),
                 "home_page": StringField(default="").bind(Form(), "test"),
                 "download_url": StringField(default="").bind(Form(), "test"),
                 "requires_python": StringField(default="").bind(Form(), "test"),
@@ -352,7 +354,7 @@ class TestUpdateBigQueryMetadata:
                         "keywords": form_factory["description_content_type"].data
                         or None,
                         "classifiers": form_factory["classifiers"].data or [],
-                        "platform": form_factory["platform"].data or [],
+                        "platform": [form_factory["platform"].data] or [],
                         "home_page": form_factory["home_page"].data or None,
                         "download_url": form_factory["download_url"].data or None,
                         "requires_python": form_factory["requires_python"].data or None,
@@ -385,15 +387,20 @@ class TestUpdateBigQueryMetadata:
 
 class TestSyncBigQueryMetadata:
     @pytest.mark.parametrize("bq_schema", [bq_schema])
-    def test_sync_rows(self, db_request, bq_schema):
+    def test_sync_rows(self, db_request, monkeypatch, bq_schema):
         project = ProjectFactory.create()
         description = DescriptionFactory.create()
         release = ReleaseFactory.create(project=project, description=description)
+        release.platform = "test_platform"
         release_file = FileFactory.create(
-            release=release, filename=f"foobar-{release.version}.tar.gz"
+            release=release,
+            filename=f"foobar-{release.version}.tar.gz",
+            md5_digest="feca4238a0b923820dcc509a6f75849b",
         )
         release_file2 = FileFactory.create(
-            release=release, filename=f"fizzbuzz-{release.version}.tar.gz"
+            release=release,
+            filename=f"fizzbuzz-{release.version}.tar.gz",
+            md5_digest="fecasd342fb952820dcc509a6f75849b",
         )
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: bar"))
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: baz"))
@@ -403,6 +410,8 @@ class TestSyncBigQueryMetadata:
         DependencyFactory.create(release=release, kind=2)
         DependencyFactory.create(release=release, kind=3)
         DependencyFactory.create(release=release, kind=4)
+        load_config = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr("warehouse.packaging.tasks.LoadJobConfig", load_config)
 
         query = pretend.stub(
             result=pretend.call_recorder(
@@ -410,9 +419,10 @@ class TestSyncBigQueryMetadata:
             )
         )
         get_table = pretend.stub(schema=bq_schema)
+        get_result = pretend.stub(result=lambda: None)
         bigquery = pretend.stub(
             get_table=pretend.call_recorder(lambda t: get_table),
-            insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
+            load_table_from_json=pretend.call_recorder(lambda *a, **kw: get_result),
             query=pretend.call_recorder(lambda q: query),
         )
 
@@ -432,12 +442,20 @@ class TestSyncBigQueryMetadata:
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
         assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
         assert bigquery.query.calls == [
-            pretend.call("SELECT md5_digest FROM example.pypi.distributions")
-        ]
-        assert bigquery.insert_rows_json.calls == [
             pretend.call(
-                table="example.pypi.distributions",
-                json_rows=[
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                "WHERE md5_digest LIKE 'ff%'"
+            ),
+            pretend.call(
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                "WHERE md5_digest LIKE 'fe%'"
+            ),
+        ]
+        assert bigquery.load_table_from_json.calls == [
+            pretend.call(
+                [
                     {
                         "metadata_version": None,
                         "name": project.name,
@@ -452,7 +470,7 @@ class TestSyncBigQueryMetadata:
                         "license": release.license or None,
                         "keywords": release.keywords or None,
                         "classifiers": release.classifiers or [],
-                        "platform": release.platform or [],
+                        "platform": [release.platform] or [],
                         "home_page": release.home_page or None,
                         "download_url": release.download_url or None,
                         "requires_python": release.requires_python or None,
@@ -478,5 +496,50 @@ class TestSyncBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
+                "example.pypi.distributions",
+                job_config=None,
             )
+        ]
+
+    @pytest.mark.parametrize("bq_schema", [bq_schema])
+    def test_no_diff(self, db_request, monkeypatch, bq_schema):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
+        release_file = FileFactory.create(
+            release=release, filename=f"foobar-{release.version}.tar.gz"
+        )
+
+        query = pretend.stub(
+            result=pretend.call_recorder(
+                lambda *a, **kw: [{"md5_digest": release_file.md5_digest}]
+            )
+        )
+        get_table = pretend.stub(schema=bq_schema)
+        bigquery = pretend.stub(
+            get_table=pretend.call_recorder(lambda t: get_table),
+            query=pretend.call_recorder(lambda q: query),
+        )
+
+        @pretend.call_recorder
+        def find_service(name=None):
+            if name == "gcloud.bigquery":
+                return bigquery
+            raise LookupError
+
+        db_request.find_service = find_service
+        db_request.registry.settings = {
+            "warehouse.release_files_table": "example.pypi.distributions"
+        }
+
+        sync_bigquery_release_files(db_request)
+
+        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
+        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.query.calls == [
+            pretend.call(
+                "SELECT md5_digest "
+                "FROM example.pypi.distributions "
+                f"WHERE md5_digest LIKE '{first}{second}%'",
+            )
+            for first, second in product("fedcba9876543210", repeat=2)
         ]

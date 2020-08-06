@@ -15,6 +15,8 @@ import shutil
 import warnings
 
 import botocore.exceptions
+import google.api_core.exceptions
+import google.api_core.retry
 
 from zope.interface import implementer
 
@@ -171,6 +173,11 @@ class S3DocsStorage:
 @implementer(IFileStorage)
 class GCSFileStorage(GenericFileStorage):
     @classmethod
+    @google.api_core.retry.Retry(
+        predicate=google.api_core.retry.if_exception_type(
+            google.api_core.exceptions.ServiceUnavailable
+        )
+    )
     def create_service(cls, context, request):
         storage_client = request.find_service(name="gcloud.gcs")
         bucket_name = request.registry.settings["files.bucket"]
@@ -185,6 +192,11 @@ class GCSFileStorage(GenericFileStorage):
         # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
         raise NotImplementedError
 
+    @google.api_core.retry.Retry(
+        predicate=google.api_core.retry.if_exception_type(
+            google.api_core.exceptions.ServiceUnavailable
+        )
+    )
     def store(self, path, file_path, *, meta=None):
         path = self._get_path(path)
         blob = self.bucket.blob(path)

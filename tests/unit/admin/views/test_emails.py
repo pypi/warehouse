@@ -145,9 +145,11 @@ class TestEmailMass:
         db_request.params = {"csvfile": pretend.stub(file=input_file)}
         db_request.task = lambda a: pretend.stub(delay=delay)
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.remote_addr = "0.0.0.0"
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = views.email_mass(db_request)
 
@@ -165,6 +167,17 @@ class TestEmailMass:
                     "body_text": "Test Body 1",
                     "body_html": None,
                 },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user1.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": email1.email,
+                        "subject": "Test Subject 1",
+                        "redact_ip": True,
+                    },
+                },
             ),
             pretend.call(
                 email2.email,
@@ -172,6 +185,17 @@ class TestEmailMass:
                     "subject": "Test Subject 2",
                     "body_text": "Test Body 2",
                     "body_html": None,
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user2.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": email2.email,
+                        "subject": "Test Subject 2",
+                        "redact_ip": True,
+                    },
                 },
             ),
         ]

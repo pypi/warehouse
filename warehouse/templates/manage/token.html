@@ -24,6 +24,11 @@
 {% endblock %}
 
 {% block main %}
+  {% if testPyPI %}
+    {% set site = "testpypi" %}
+  {% else %}
+    {% set site = "pypi" %}
+  {% endif %}
   <h1 class="page-title">{{ title }}</h1>
 
   {% if serialized_macaroon %}
@@ -68,7 +73,7 @@
 
     <ul>
       <li>{% trans token='__token__' %}Set your username to <code>{{ token }}</code>{% endtrans %}</li>
-      <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
+      <li>{% trans prefix='-' %}Set your password to the token value, including the <code>{{ site }}{{ prefix }}</code> prefix{% endtrans %}</li>
     </ul>
 
     {% if macaroon.caveats.permissions == "user" %}
@@ -79,7 +84,7 @@
       {% endtrans %}
     </p>
     <pre class="code-block">
-[pypi]
+[{{ site }}]
   username = __token__
   password = {{ serialized_macaroon }}</pre>
     {% else %}
@@ -91,15 +96,15 @@
     <pre class="code-block">
 [distutils]
   index-servers =
-    pypi
+    {{ site }}
     PROJECT_NAME
 
-[pypi]
+[{{ site }}]
   username = __token__
   password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
-  repository = https://upload.pypi.org/legacy/
+  repository = https://upload.{{ site }}.org/legacy/
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>
