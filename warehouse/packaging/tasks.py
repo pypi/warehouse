@@ -12,8 +12,6 @@
 
 import datetime
 
-from itertools import product
-
 from google.cloud.bigquery import LoadJobConfig
 
 from warehouse import tasks
@@ -239,7 +237,7 @@ def sync_bigquery_release_files(request):
     del db_release_files
 
     bq_query_job = bq.query(
-        "SELECT DISTINCT md5_digest " f"FROM {table_name} " "ORDER BY md5_digest ASC"
+        f"SELECT DISTINCT md5_digest FROM {table_name} ORDER BY md5_digest ASC"
     )
     bq_query_job.result()
     destination = bq.get_table(bq_query_job.destination)
