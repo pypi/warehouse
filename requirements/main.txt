@@ -750,9 +750,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3 \
     # via pyramid
-trove-classifiers==2020.7.30 \
-    --hash=sha256:18ae23b211aebf54242b6d2bef916ca28a8c91d366f4c07ed3e2d48b3a12d6ab \
-    --hash=sha256:2845eac2b5a4ffa7335aaddf45e7b8be9d4ae042e410e6564bca35b5fb79f0ce \
+trove-classifiers==2020.8.6 \
+    --hash=sha256:0e5ec7ee343477380859cdeb2270185642da89de5ae75f7a5d04d97e1ccc6a20 \
+    --hash=sha256:33227276c68c4d051f7c0fcd2285bd2ff2dd11046c9487802b5d12ed8e3cc88b \
     # via -r requirements/main.in
 typeguard==2.9.1 \
     --hash=sha256:529ef3d88189cc457f4340388028412f71be8091c2c943465146d4170fb67288 \
