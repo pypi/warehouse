@@ -421,7 +421,6 @@ class TestSendPasswordResetEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -524,7 +523,6 @@ class TestEmailVerificationEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -610,7 +608,6 @@ class TestPasswordChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -683,7 +680,6 @@ class TestPasswordChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -735,7 +731,6 @@ class TestPasswordCompromisedHIBPEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -809,7 +804,6 @@ class TestPasswordCompromisedEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -881,7 +875,6 @@ class TestAccountDeletionEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -956,7 +949,6 @@ class TestAccountDeletionEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1004,7 +996,6 @@ class TestPrimaryEmailChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1082,7 +1073,6 @@ class TestPrimaryEmailChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1151,7 +1141,6 @@ class TestCollaboratorAddedEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1281,7 +1270,6 @@ class TestCollaboratorAddedEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1380,7 +1368,6 @@ class TestAddedAsCollaboratorEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1473,7 +1460,6 @@ class TestAddedAsCollaboratorEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1511,7 +1497,6 @@ class TestCollaboratorRemovedEmail:
             primary=True, verified=True, public=True, user=submitter_user
         )
         db_request.user = submitter_user
-        db_request.remote_addr = "0.0.0.0"
 
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/collaborator-removed/subject.txt"
@@ -1620,7 +1605,6 @@ class TestRemovedAsCollaboratorEmail:
             primary=True, verified=True, public=True, user=submitter_user
         )
         db_request.user = submitter_user
-        db_request.remote_addr = "0.0.0.0"
 
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/removed-as-collaborator/subject.txt"
@@ -1696,7 +1680,6 @@ class TestRoleChangedEmail:
             primary=True, verified=True, public=True, user=submitter_user
         )
         db_request.user = submitter_user
-        db_request.remote_addr = "0.0.0.0"
 
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/collaborator-role-changed/subject.txt"
@@ -1809,7 +1792,6 @@ class TestRoleChangedAsCollaboratorEmail:
             primary=True, verified=True, public=True, user=submitter_user
         )
         db_request.user = submitter_user
-        db_request.remote_addr = "0.0.0.0"
 
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/role-changed-as-collaborator/subject.txt"
@@ -1927,7 +1909,6 @@ class TestRemovedProjectEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2055,7 +2036,6 @@ class TestRemovedProjectEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2186,7 +2166,6 @@ class TestYankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2328,7 +2307,6 @@ class TestYankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2472,7 +2450,6 @@ class TestUnyankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2613,7 +2590,6 @@ class TestUnyankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2756,7 +2732,6 @@ class TestRemovedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2897,7 +2872,6 @@ class TestRemovedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -3040,7 +3014,6 @@ class TestRemovedReleaseFileEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -3182,7 +3155,6 @@ class TestRemovedReleaseFileEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -3330,7 +3302,6 @@ class TestTwoFactorEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 

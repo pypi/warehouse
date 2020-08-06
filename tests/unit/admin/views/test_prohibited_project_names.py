@@ -211,7 +211,6 @@ class TestAddProhibitedProjectName:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_path = lambda a: "/admin/prohibited_project_names/"
-        db_request.remote_addr = "192.168.1.1"
 
         project = ProjectFactory.create(name="foo")
         release = ReleaseFactory.create(project=project)

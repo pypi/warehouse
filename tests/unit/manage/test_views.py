@@ -228,7 +228,6 @@ class TestManageAccount:
             emails=[], username="username", name="Name", id=pretend.stub()
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
-        pyramid_request.remote_addr = "0.0.0.0"
         monkeypatch.setattr(
             views,
             "AddEmailForm",
@@ -406,7 +405,6 @@ class TestManageAccount:
         )
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
-        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -446,7 +444,6 @@ class TestManageAccount:
         )
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
-        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -1648,7 +1645,6 @@ class TestProvisionRecoveryCodes:
             IUserService: user_service
         }[interface]
         pyramid_request.user = pretend.stub(id=1, username="username")
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -2413,8 +2409,6 @@ class TestManageProjectSettings:
             views, "send_removed_project_email", send_removed_project_email
         )
 
-        db_request.remote_addr = "192.168.1.1"
-
         result = views.delete_project(project, db_request)
 
         assert db_request.session.flash.calls == [
@@ -2501,7 +2495,6 @@ class TestManageProjectDocumentation:
         )
         db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
         db_request.task = task
 
         result = views.destroy_project_docs(project, db_request)
@@ -3162,7 +3155,6 @@ class TestManageProjectRelease:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.user = user
-        db_request.remote_addr = "1.2.3.4"
 
         get_user_role_in_project = pretend.call_recorder(
             lambda project, user, req: "Owner"
@@ -3197,7 +3189,7 @@ class TestManageProjectRelease:
                 version=release.version,
                 action=f"remove file {release_file.filename}",
                 submitted_by=user,
-                submitted_from="1.2.3.4",
+                submitted_from=db_request.remote_addr,
             )
             .one()
         )
@@ -3417,7 +3409,6 @@ class TestManageProjectRoles:
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
-        db_request.remote_addr = "10.10.10.10"
         db_request.user = owner_1
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -3600,7 +3591,6 @@ class TestChangeProjectRoles:
 
         db_request.method = "POST"
         db_request.user = user_2
-        db_request.remote_addr = "10.10.10.10"
         db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3734,7 +3724,6 @@ class TestDeleteProjectRoles:
 
         db_request.method = "POST"
         db_request.user = user_2
-        db_request.remote_addr = "10.10.10.10"
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
