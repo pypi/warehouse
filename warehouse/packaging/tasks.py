@@ -227,37 +227,42 @@ def sync_bigquery_release_files(request):
                 row_data[sch.name] = field_data
         return row_data
 
-    for first, second in product("fedcba9876543210", repeat=2):
-        db_release_files = (
-            request.db.query(File.md5_digest)
-            .filter(File.md5_digest.like(f"{first}{second}%"))
-            .yield_per(1000)
-            .all()
-        )
-        db_file_digests = [file.md5_digest for file in db_release_files]
+    md5_diff_list = list()
 
-        bq_file_digests = bq.query(
-            "SELECT md5_digest "
-            f"FROM {table_name} "
-            f"WHERE md5_digest LIKE '{first}{second}%'"
-        ).result()
-        bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
+    db_release_files = (
+        request.db.query(File.md5_digest)
+        .yield_per(1000)
+        .order_by(File.md5_digest.asc())
+        .all()
+    )
+    md5_diff_list = [file.md5_digest for file in db_release_files]
+    del db_release_files
 
-        md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
-        if not md5_diff_list:
-            # There are no files that need synced to BigQuery
-            continue
+    bq_query_job = bq.query(
+        "SELECT DISTINCT md5_digest " f"FROM {table_name} " "ORDER BY md5_digest ASC"
+    )
+    bq_query_job.result()
+    destination = bq.get_table(bq_query_job.destination)
+    bq_files = bq.list_rows(destination, page_size=1000)
+    for row in bq_files:
+        if row.get("md5_digest") in md5_diff_list:
+            md5_diff_list.remove(row.get("md5_digest"))
+    md5_diff_list = md5_diff_list[:1000]
+    del bq_query_job, destination, bq_files
 
-        release_files = (
-            request.db.query(File)
-            .join(Release, Release.id == File.release_id)
-            .filter(File.md5_digest.in_(md5_diff_list))
-            .all()
-        )
+    if not md5_diff_list:
+        # There are no files that need synced to BigQuery
+        return
 
-        json_rows = [populate_data_using_schema(file) for file in release_files]
+    release_files = (
+        request.db.query(File)
+        .join(Release, Release.id == File.release_id)
+        .filter(File.md5_digest.in_(md5_diff_list))
+        .all()
+    )
+    del md5_diff_list
 
-        bq.load_table_from_json(
-            json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
-        ).result()
-        break
+    json_rows = [populate_data_using_schema(file) for file in release_files]
+    bq.load_table_from_json(
+        json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
+    ).result()
