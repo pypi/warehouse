@@ -1960,3 +1960,13 @@ class TestReAuthentication:
                 ],
             )
         ]
+
+    def test_reauth_no_user(self, monkeypatch, pyramid_request):
+        pyramid_request.user = None
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+
+        result = views.reauthenticate(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        assert result.headers["Location"] == "/the-redirect"
