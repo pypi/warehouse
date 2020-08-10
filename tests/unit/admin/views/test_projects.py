@@ -504,7 +504,6 @@ class TestDeleteProject:
         )
         db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
 
         views.delete_project(project, db_request)
 
@@ -528,7 +527,6 @@ class TestAddRole:
         db_request.POST["username"] = user.username
         db_request.POST["role_name"] = role_name
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
 
         views.add_role(project, db_request)
 
@@ -622,7 +620,6 @@ class TestDeleteRole:
         db_request.POST["username"] = user.username
         db_request.matchdict["role_id"] = role.id
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
 
         views.delete_role(project, db_request)
 
@@ -645,7 +642,6 @@ class TestDeleteRole:
         )
         db_request.matchdict["role_id"] = uuid.uuid4()
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
 
         with pytest.raises(HTTPSeeOther):
             views.delete_role(project, db_request)
@@ -665,7 +661,6 @@ class TestDeleteRole:
         )
         db_request.matchdict["role_id"] = role.id
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
 
         with pytest.raises(HTTPSeeOther):
             views.delete_role(project, db_request)

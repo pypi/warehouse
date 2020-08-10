@@ -395,12 +395,12 @@ class TestSyncBigQueryMetadata:
         release_file = FileFactory.create(
             release=release,
             filename=f"foobar-{release.version}.tar.gz",
-            md5_digest="01ca4238a0b923820dcc509a6f75849b",
+            md5_digest="feca4238a0b923820dcc509a6f75849b",
         )
         release_file2 = FileFactory.create(
             release=release,
             filename=f"fizzbuzz-{release.version}.tar.gz",
-            md5_digest="01casd342fb952820dcc509a6f75849b",
+            md5_digest="fecasd342fb952820dcc509a6f75849b",
         )
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: bar"))
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: baz"))
@@ -445,12 +445,12 @@ class TestSyncBigQueryMetadata:
             pretend.call(
                 "SELECT md5_digest "
                 "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE '00%'"
+                "WHERE md5_digest LIKE 'ff%'"
             ),
             pretend.call(
                 "SELECT md5_digest "
                 "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE '01%'"
+                "WHERE md5_digest LIKE 'fe%'"
             ),
         ]
         assert bigquery.load_table_from_json.calls == [
@@ -541,5 +541,5 @@ class TestSyncBigQueryMetadata:
                 "FROM example.pypi.distributions "
                 f"WHERE md5_digest LIKE '{first}{second}%'",
             )
-            for first, second in product("0123456789abcdef", repeat=2)
+            for first, second in product("fedcba9876543210", repeat=2)
         ]

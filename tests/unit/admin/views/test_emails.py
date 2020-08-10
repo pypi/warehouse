@@ -145,7 +145,6 @@ class TestEmailMass:
         db_request.params = {"csvfile": pretend.stub(file=input_file)}
         db_request.task = lambda a: pretend.stub(delay=delay)
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.remote_addr = "0.0.0.0"
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )

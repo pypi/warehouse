@@ -22,6 +22,8 @@ from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 
+from ...common.db.accounts import EmailFactory, UserFactory
+
 
 @pytest.mark.parametrize(
     ("user", "address", "expected"),
@@ -419,7 +421,6 @@ class TestSendPasswordResetEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -522,7 +523,6 @@ class TestEmailVerificationEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -608,7 +608,6 @@ class TestPasswordChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -681,7 +680,6 @@ class TestPasswordChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -733,7 +731,6 @@ class TestPasswordCompromisedHIBPEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -807,7 +804,6 @@ class TestPasswordCompromisedEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -879,7 +875,6 @@ class TestAccountDeletionEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -954,7 +949,6 @@ class TestAccountDeletionEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1002,7 +996,6 @@ class TestPrimaryEmailChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1080,7 +1073,6 @@ class TestPrimaryEmailChangeEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1149,7 +1141,6 @@ class TestCollaboratorAddedEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1279,7 +1270,6 @@ class TestCollaboratorAddedEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1378,7 +1368,6 @@ class TestAddedAsCollaboratorEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1471,7 +1460,6 @@ class TestAddedAsCollaboratorEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1498,6 +1486,380 @@ class TestAddedAsCollaboratorEmail:
 
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
+
+
+class TestCollaboratorRemovedEmail:
+    def test_collaborator_removed_email(self, db_request, pyramid_config, monkeypatch):
+        removed_user = UserFactory.create()
+        EmailFactory.create(primary=True, verified=True, public=True, user=removed_user)
+        submitter_user = UserFactory.create()
+        EmailFactory.create(
+            primary=True, verified=True, public=True, user=submitter_user
+        )
+        db_request.user = submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-removed/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-removed/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-removed/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_collaborator_removed_email(
+            db_request,
+            [removed_user, submitter_user],
+            user=removed_user,
+            submitter=submitter_user,
+            project_name="test_project",
+        )
+
+        assert result == {
+            "username": removed_user.username,
+            "project": "test_project",
+            "submitter": submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(username=removed_user.username)
+        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(submitter=submitter_user.username)
+        html_renderer.assert_(username=removed_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(submitter=submitter_user.username)
+
+        assert db_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{ removed_user.name } <{ removed_user.primary_email.email }>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": removed_user.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": None,
+                        "to": removed_user.primary_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
+            ),
+            pretend.call(
+                f"{ submitter_user.name } <{ submitter_user.primary_email.email }>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": submitter_user.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": None,
+                        "to": submitter_user.primary_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            ),
+        ]
+
+
+class TestRemovedAsCollaboratorEmail:
+    def test_removed_as_collaborator_email(
+        self, db_request, pyramid_config, monkeypatch
+    ):
+        removed_user = UserFactory.create()
+        EmailFactory.create(primary=True, verified=True, public=True, user=removed_user)
+        submitter_user = UserFactory.create()
+        EmailFactory.create(
+            primary=True, verified=True, public=True, user=submitter_user
+        )
+        db_request.user = submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-as-collaborator/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-as-collaborator/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/removed-as-collaborator/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_removed_as_collaborator_email(
+            db_request,
+            removed_user,
+            submitter=submitter_user,
+            project_name="test_project",
+        )
+
+        assert result == {
+            "project": "test_project",
+            "submitter": submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=submitter_user.username)
+        body_renderer.assert_(project="test_project")
+        html_renderer.assert_(submitter=submitter_user.username)
+        html_renderer.assert_(project="test_project")
+
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{ removed_user.name } <{ removed_user.primary_email.email }>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": removed_user.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": None,
+                        "to": removed_user.primary_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+
+class TestRoleChangedEmail:
+    def test_role_changed_email(self, db_request, pyramid_config, monkeypatch):
+        changed_user = UserFactory.create()
+        EmailFactory.create(primary=True, verified=True, public=True, user=changed_user)
+        submitter_user = UserFactory.create()
+        EmailFactory.create(
+            primary=True, verified=True, public=True, user=submitter_user
+        )
+        db_request.user = submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-role-changed/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-role-changed/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-role-changed/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_collaborator_role_changed_email(
+            db_request,
+            [changed_user, submitter_user],
+            user=changed_user,
+            submitter=submitter_user,
+            project_name="test_project",
+            role="Owner",
+        )
+
+        assert result == {
+            "username": changed_user.username,
+            "project": "test_project",
+            "role": "Owner",
+            "submitter": submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(username=changed_user.username)
+        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(role="Owner")
+        body_renderer.assert_(submitter=submitter_user.username)
+        html_renderer.assert_(username=changed_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=submitter_user.username)
+
+        assert db_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{ changed_user.name } <{ changed_user.primary_email.email }>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": changed_user.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": None,
+                        "to": changed_user.primary_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
+            ),
+            pretend.call(
+                f"{ submitter_user.name } <{ submitter_user.primary_email.email }>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": submitter_user.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": None,
+                        "to": submitter_user.primary_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            ),
+        ]
+
+
+class TestRoleChangedAsCollaboratorEmail:
+    def test_role_changed_as_collaborator_email(
+        self, db_request, pyramid_config, monkeypatch
+    ):
+        changed_user = UserFactory.create()
+        EmailFactory.create(primary=True, verified=True, public=True, user=changed_user)
+        submitter_user = UserFactory.create()
+        EmailFactory.create(
+            primary=True, verified=True, public=True, user=submitter_user
+        )
+        db_request.user = submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/role-changed-as-collaborator/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/role-changed-as-collaborator/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/role-changed-as-collaborator/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_role_changed_as_collaborator_email(
+            db_request,
+            changed_user,
+            submitter=submitter_user,
+            project_name="test_project",
+            role="Owner",
+        )
+
+        assert result == {
+            "project": "test_project",
+            "role": "Owner",
+            "submitter": submitter_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=submitter_user.username)
+        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=submitter_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
+
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{ changed_user.name } <{ changed_user.primary_email.email }>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": changed_user.id,
+                    "ip_address": db_request.remote_addr,
+                    "additional": {
+                        "from_": None,
+                        "to": changed_user.primary_email.email,
+                        "subject": "Email Subject",
+                        "redact_ip": True,
+                    },
+                },
+            ),
+        ]
 
 
 class TestRemovedProjectEmail:
@@ -1547,7 +1909,6 @@ class TestRemovedProjectEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1675,7 +2036,6 @@ class TestRemovedProjectEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1806,7 +2166,6 @@ class TestYankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -1948,7 +2307,6 @@ class TestYankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2092,7 +2450,6 @@ class TestUnyankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2233,7 +2590,6 @@ class TestUnyankedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2376,7 +2732,6 @@ class TestRemovedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2517,7 +2872,6 @@ class TestRemovedReleaseEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2660,7 +3014,6 @@ class TestRemovedReleaseFileEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2802,7 +3155,6 @@ class TestRemovedReleaseFileEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_submitter_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
@@ -2950,7 +3302,6 @@ class TestTwoFactorEmail:
                 )
             ),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
