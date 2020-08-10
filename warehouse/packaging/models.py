@@ -648,7 +648,7 @@ class File(HasEvents, db.Model):
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    python_version = mapped_column(Text)
+    python_version = mapped_column(Text, nullable=False)
     requires_python = mapped_column(Text)
     packagetype = mapped_column(
         Enum(
@@ -660,16 +660,19 @@ class File(HasEvents, db.Model):
             "bdist_wheel",
             "bdist_wininst",
             "sdist",
-        )
+        ),
+        nullable=False,
     )
     comment_text = mapped_column(Text)
-    filename = mapped_column(Text, unique=True)
+    filename = mapped_column(Text, unique=True, nullable=False)
     path = mapped_column(Text, unique=True, nullable=False)
-    size = mapped_column(Integer)
+    size = mapped_column(Integer, nullable=False)
     md5_digest = mapped_column(Text, unique=True, nullable=False)
     sha256_digest = mapped_column(CITEXT, unique=True, nullable=False)
     blake2_256_digest = mapped_column(CITEXT, unique=True, nullable=False)
-    upload_time = mapped_column(DateTime(timezone=False), server_default=func.now())
+    upload_time = mapped_column(
+        DateTime(timezone=False), server_default=func.now(), nullable=False
+    )
     uploaded_via = mapped_column(Text)
 
     # PEP 658
