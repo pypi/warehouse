@@ -147,7 +147,11 @@ def update_bigquery_release_files(task, request, dist_metadata):
 
         # Replace all empty objects to None will ensure
         # proper checks if a field is nullable or not
-        if not isinstance(field_data, bool) and not field_data:
+        if (
+            not isinstance(field_data, bool)
+            and not isinstance(field_data, int)
+            and not field_data
+        ):
             field_data = None
 
         if field_data is None and sch.mode == "REPEATED":
@@ -205,7 +209,11 @@ def sync_bigquery_release_files(request):
 
             # Replace all empty objects to None will ensure
             # proper checks if a field is nullable or not
-            if not isinstance(field_data, bool) and not field_data:
+            if (
+                not isinstance(field_data, bool)
+                and not isinstance(field_data, int)
+                and not field_data
+            ):
                 field_data = None
 
             if field_data is None and sch.mode == "REPEATED":
