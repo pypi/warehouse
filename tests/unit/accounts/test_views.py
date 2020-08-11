@@ -2029,7 +2029,7 @@ class TestVerifyProjectRole:
 
         views.verify_project_role(pyramid_request)
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
         assert pyramid_request.session.flash.calls == [
             pretend.call(message, queue="error")
         ]
@@ -2045,7 +2045,7 @@ class TestVerifyProjectRole:
 
         views.verify_project_role(pyramid_request)
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Invalid token: not a collaboration invitation token", queue="error"
@@ -2084,7 +2084,7 @@ class TestVerifyProjectRole:
         assert db_request.session.flash.calls == [
             pretend.call("Role invitation no longer exists.", queue="error",)
         ]
-        assert db_request.route_path.calls == [pretend.call("manage.account")]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
 
     def test_verify_project_role_declined(
         self, db_request, user_service, token_service
@@ -2162,7 +2162,7 @@ class TestVerifyProjectRole:
         assert db_request.session.flash.calls == [
             pretend.call("Role invitation is not valid.", queue="error")
         ]
-        assert db_request.route_path.calls == [pretend.call("manage.account")]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
 
     def test_verify_role_get_confirmation(
         self, db_request, user_service, token_service

@@ -2284,6 +2284,7 @@ class TestManageProjects:
                 newer_project_with_no_releases.name,
             },
             "projects_sole_owned": {newer_project_with_no_releases.name},
+            "project_invites": [],
         }
 
 

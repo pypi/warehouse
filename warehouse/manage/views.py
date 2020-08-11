@@ -933,7 +933,9 @@ def manage_projects(request):
         .filter(RoleInvitation.user == request.user)
         .all()
     )
-    project_invites = [(role_invite.project, role_invite.token) for role_invite in project_invites]
+    project_invites = [
+        (role_invite.project, role_invite.token) for role_invite in project_invites
+    ]
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
