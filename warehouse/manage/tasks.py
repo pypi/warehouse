@@ -19,7 +19,7 @@ from warehouse.packaging.models import RoleInvitation, RoleInvitationStatus
 def update_role_invitation_status(request):
     invites = (
         request.db.query(RoleInvitation)
-        .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending.value)
+        .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending)
         .all()
     )
     token_service = request.find_service(ITokenService, name="email")
@@ -28,4 +28,4 @@ def update_role_invitation_status(request):
         try:
             token_service.loads(invite.token)
         except TokenExpired:
-            invite.invite_status = RoleInvitationStatus.Expired.value
+            invite.invite_status = RoleInvitationStatus.Expired

@@ -2052,9 +2052,7 @@ class TestVerifyProjectRole:
             )
         ]
 
-    def test_verify_project_role_declined(
-        self, db_request, user_service, token_service
-    ):
+    def test_verify_project_role_revoked(self, db_request, user_service, token_service):
         project = ProjectFactory.create()
         user = UserFactory.create()
 
@@ -2084,9 +2082,50 @@ class TestVerifyProjectRole:
         views.verify_project_role(db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Role invitation has been accepted/revoked.", queue="error",)
+            pretend.call("Role invitation no longer exists.", queue="error",)
         ]
         assert db_request.route_path.calls == [pretend.call("manage.account")]
+
+    def test_verify_project_role_declined(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        RoleInvitationFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.verify_project_role(db_request)
+
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
 
     def test_verify_fails_with_different_user(
         self, db_request, user_service, token_service
@@ -2130,6 +2169,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
+        RoleInvitationFactory.create(user=user, project=project)
 
         db_request.user = user
         db_request.method = "GET"

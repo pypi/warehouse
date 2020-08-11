@@ -95,7 +95,10 @@ class RoleInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "project")
 
-    invite_status = Column(Text, nullable=False)
+    invite_status = Column(
+        Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
     token = Column(Text, nullable=False)
     user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False

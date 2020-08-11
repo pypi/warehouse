@@ -1512,7 +1512,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
         elif (
             user_invite
-            and user_invite.invite_status == RoleInvitationStatus.Pending.value
+            and user_invite.invite_status == RoleInvitationStatus.Pending
             and invite_token
         ):
             request.session.flash(
@@ -1534,14 +1534,14 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 }
             )
             if user_invite:
-                user_invite.invite_status = RoleInvitationStatus.Pending.value
+                user_invite.invite_status = RoleInvitationStatus.Pending
                 user_invite.token = invite_token
             else:
                 request.db.add(
                     RoleInvitation(
                         user=user,
                         project=project,
-                        invite_status=RoleInvitationStatus.Pending.value,
+                        invite_status=RoleInvitationStatus.Pending,
                         token=invite_token,
                     )
                 )

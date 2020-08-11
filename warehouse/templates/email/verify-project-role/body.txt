@@ -16,7 +16,7 @@
 {% block content %}
 {{ initiator_username }} has invited you ({{ email_address }}) to their PyPI project "{{ project_name }}".
 
-If you wish to accept this invitation, follow this link:
+To accept or reject this invitation, follow this link:
 
 {{ request.route_url('accounts.verify-project-role', _query={'token': token}) }}
 

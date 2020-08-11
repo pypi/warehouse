@@ -785,14 +785,6 @@ def verify_project_role(request):
     )
     desired_role = data.get("desired_role")
 
-    # Use the renderer to bring up a confirmation page
-    # before adding as contributor
-    if request.method == "GET":
-        return {
-            "project_name": project.name,
-            "desired_role": desired_role,
-        }
-
     role_invite = (
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.project == project)
@@ -801,7 +793,18 @@ def verify_project_role(request):
     )
 
     if not role_invite:
-        return _error(request._("Role invitation has been accepted/revoked."))
+        return _error(request._("Role invitation no longer exists."))
+
+    # Use the renderer to bring up a confirmation page
+    # before adding as contributor
+    if request.method == "GET":
+        return {
+            "project_name": project.name,
+            "desired_role": desired_role,
+        }
+    elif request.method == "POST" and "decline" in request.POST:
+        request.db.delete(role_invite)
+        return HTTPSeeOther(request.route_path("manage.projects"))
 
     request.db.add(Role(user=user, project=project, role_name=desired_role))
     request.db.delete(role_invite)

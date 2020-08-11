@@ -23,13 +23,14 @@
   <div class="form-group">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <span class="form-group__text">
-      {% trans project_name=project_name, role_name=desired_role %}
-      Would you like to accept this invitation to join '{{ project_name }}' as a project {{ role_name }}?
+      {% trans project_name=project_name, role_name=desired_role, project_link=request.route_url('packaging.project', name=project_name) %}
+      Would you like to accept this invitation to join '<a href="{{ project_link }}">{{ project_name }}</a>' as a project {{ role_name }}?
       {% endtrans %}
     </span>
   </div>
   <div>
-    <input type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
+    <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
+    <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
   </div>
 </form>
 

@@ -33,7 +33,7 @@ class TestUpdateInvitationStatus:
         assert db_request.find_service.calls == [
             pretend.call(ITokenService, name="email")
         ]
-        assert invite.invite_status == RoleInvitationStatus.Expired.value
+        assert invite.invite_status == RoleInvitationStatus.Expired
 
     def test_no_updates(self, db_request):
         project = ProjectFactory.create()
@@ -48,4 +48,4 @@ class TestUpdateInvitationStatus:
         assert db_request.find_service.calls == [
             pretend.call(ITokenService, name="email")
         ]
-        assert invite.invite_status == RoleInvitationStatus.Pending.value
+        assert invite.invite_status == RoleInvitationStatus.Pending
