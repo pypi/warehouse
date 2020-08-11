@@ -47,7 +47,7 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <input name="token" type="hidden" value="{{ token }}">
             <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
-            <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button button--danger">
+            <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
           </form>
         </div>
       </div>
