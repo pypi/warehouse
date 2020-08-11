@@ -119,9 +119,9 @@
           </a>
         </th>
         <td>
-          {% if invite.invite_status == "pending" %}
+          {% if invite.invite_status == RoleInvitationStatus.Pending %}
             {% trans %}Invite pending{% endtrans %}
-          {% elif invite.invite_status == "expired" %}
+          {% elif invite.invite_status == RoleInvitationStatus.Expired %}
             {% trans %}Invite expired{% endtrans %}
           {% endif %}
         </td>

@@ -760,7 +760,7 @@ def verify_project_role(request):
 
     def _error(message):
         request.session.flash(message, queue="error")
-        return HTTPSeeOther(request.route_path("manage.account"))
+        return HTTPSeeOther(request.route_path("manage.projects"))
 
     try:
         token = request.params.get("token")
@@ -804,6 +804,13 @@ def verify_project_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         request.db.delete(role_invite)
+        request.session.flash(
+            request._(
+                "Invitation for '${project_name}' is declined.",
+                mapping={"project_name": project.name},
+            ),
+            queue="success",
+        )
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     request.db.add(Role(user=user, project=project, role_name=desired_role))

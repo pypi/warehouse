@@ -927,10 +927,18 @@ def manage_projects(request):
     projects_sole_owned = set(
         project.name for project in all_user_projects["projects_sole_owned"]
     )
+    project_invites = (
+        request.db.query(RoleInvitation)
+        .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending)
+        .filter(RoleInvitation.user == request.user)
+        .all()
+    )
+    project_invites = [(role_invite.project, role_invite.token) for role_invite in project_invites]
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
+        "project_invites": project_invites,
     }
 
 
