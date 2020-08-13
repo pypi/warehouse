@@ -159,6 +159,9 @@ def configure(settings=None):
     maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
+    maybe_set(
+        settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE"
+    )
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
@@ -421,7 +424,6 @@ def configure(settings=None):
         over=[
             "warehouse.cache.http.conditional_http_tween_factory",
             "pyramid_debugtoolbar.toolbar_tween_factory",
-            "warehouse.raven.raven_tween_factory",
             EXCVIEW,
         ],
     )
@@ -467,9 +469,9 @@ def configure(settings=None):
     # TODO: Remove this, this is at the wrong layer.
     config.add_wsgi_middleware(HostRewrite)
 
-    # We want Raven to be the last things we add here so that it's the outer
+    # We want Sentry to be the last things we add here so that it's the outer
     # most WSGI middleware.
-    config.include(".raven")
+    config.include(".sentry")
 
     # Register Content-Security-Policy service
     config.include(".csp")

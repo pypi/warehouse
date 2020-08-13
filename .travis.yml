@@ -3,7 +3,7 @@ python: 3.8.2
 
 env:
   global:
-    - TRAVIS_NODE_VERSION=10.19.0
+    - TRAVIS_NODE_VERSION=14.4.0
 
 dist: bionic
 
@@ -13,8 +13,6 @@ addons:
   postgresql: 10
   apt:
     packages:
-    - postgresql-10
-    - postgresql-client-10
     - nasm
     - libgnutls28-dev
 

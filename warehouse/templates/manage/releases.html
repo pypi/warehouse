@@ -15,7 +15,7 @@
 
 {% set active_tab = 'releases' %}
 
-{% macro release_table(releases) %}
+{% macro release_table(releases, show_yanked_reason=False) %}
 <table class="table table--releases">
   <caption class="sr-only">{% trans project_name=project.name %}Releases for {{ project_name }}{% endtrans %}</caption>
   <thead>
@@ -23,6 +23,9 @@
       <th scope="col">{% trans %}Version{% endtrans %}</th>
       <th scope="col">{% trans %}Release date{% endtrans %}</th>
       <th scope="col">{% trans %}Files{% endtrans %}</th>
+      {% if show_yanked_reason %}
+      <th scope="col">{% trans %}Yanked reason{% endtrans %}</th>
+      {% endif %}
       <th scope="col"></th>
     </tr>
   </thead>
@@ -47,15 +50,22 @@
         {% pluralize %}
           {{ count }} files
         {% endtrans %}
-          ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
+        (<span dir="ltr">
+        {% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
           {%- if packagetype != 'total' -%}
           {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
           {%- endif -%}
-          {% endfor %})
+        {% endfor %}
+        </span>)
         {% else %}
         {% trans %}No files{% endtrans %}
         {% endif %}
       </td>
+      {% if show_yanked_reason %}
+      <td>
+          {{ release.yanked_reason }}
+      </td>
+      {% endif %}
       <td class="table__align-right">
         <nav class="dropdown dropdown--with-icons">
           <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View release options{% endtrans %}">
@@ -115,7 +125,16 @@
         {% else %}
           {% set slug = 'yank_release-modal-{}'.format(loop.index) %}
           {% set title = gettext("Yank release") %}
-          {{ confirm_modal(title, gettext('Version'), 'yank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False) }}
+          {% set extra_description %}
+          <p>
+            {% trans project_name=project.name, version=release.version %}
+              You may provide a reason for yanking this release, which will be displayed by pip to users who install <code>{{ project_name }}=={{ version }}</code>.
+            {% endtrans %}
+          </p>
+          <label for="yanked_reason">{% trans %}Reason (optional){% endtrans %}</label>
+          <input name="yanked_reason" id="yanked_reason" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+          {% endset %}
+          {{ confirm_modal(title, gettext('Version'), 'yank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False, extra_description=extra_description) }}
 
           {% set slug = 'delete_release-modal-{}'.format(loop.index) %}
           {% set title = gettext("Delete release") %}
@@ -143,7 +162,7 @@
   {% set yanked_releases = project.releases|selectattr("yanked")|list %}
   {% if yanked_releases %}
   <h2>{% trans release_count=yanked_releases|length %}Yanked Releases ({{ release_count }}){% endtrans %}</h2>
-  {{ release_table(yanked_releases) }}
+  {{ release_table(yanked_releases, show_yanked_reason=True) }}
   {% endif %}
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">

@@ -148,6 +148,9 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "accounts.reauthenticate", "/account/reauthenticate/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.recovery-code", "/account/recovery-code/", domain=warehouse
         ),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),

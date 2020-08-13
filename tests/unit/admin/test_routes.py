@@ -80,6 +80,13 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.set_total_size_limit",
+            "/admin/projects/{project_name}/set_total_size_limit/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.add_role",
             "/admin/projects/{project_name}/add_role/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -101,10 +108,20 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
-        pretend.call("admin.blacklist.list", "/admin/blacklist/", domain=warehouse),
-        pretend.call("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse),
         pretend.call(
-            "admin.blacklist.remove", "/admin/blacklist/remove/", domain=warehouse
+            "admin.prohibited_project_names.list",
+            "/admin/prohibited_project_names/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_project_names.add",
+            "/admin/prohibited_project_names/add/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.prohibited_project_names.remove",
+            "/admin/prohibited_project_names/remove/",
+            domain=warehouse,
         ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
         pretend.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),

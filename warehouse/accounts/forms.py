@@ -17,6 +17,7 @@ from email.headerregistry import Address
 import disposable_email_domains
 import jinja2
 import wtforms
+import wtforms.fields
 import wtforms.fields.html5
 
 import warehouse.utils.webauthn as webauthn
@@ -334,6 +335,24 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         self.validated_credential = validated_credential
 
 
+class ReAuthenticateForm(PasswordMixin, forms.Form):
+    __params__ = ["username", "password", "next_route", "next_route_matchdict"]
+
+    username = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+    next_route = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+    next_route_matchdict = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+
+
 class RecoveryCodeAuthenticationForm(
     RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
 ):
@@ -341,7 +360,7 @@ class RecoveryCodeAuthenticationForm(
         recovery_code_value = field.data.encode("utf-8")
 
         if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
-            raise wtforms.validators.ValidationError(_("Invalid Recovery Code."))
+            raise wtforms.validators.ValidationError(_("Invalid recovery code."))
 
 
 class RequestPasswordResetForm(forms.Form):

@@ -114,6 +114,7 @@ class Project(SitemapMixin, db.Model):
     )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
+    total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     zscore = Column(Float, nullable=True)
 
@@ -353,6 +354,8 @@ class Release(db.Model):
 
     yanked = Column(Boolean, nullable=False, server_default=sql.false())
 
+    yanked_reason = Column(Text, nullable=False, server_default="")
+
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
@@ -571,13 +574,13 @@ class JournalEntry(db.ModelBase):
     submitted_from = Column(Text)
 
 
-class BlacklistedProject(db.Model):
+class ProhibitedProjectName(db.Model):
 
-    __tablename__ = "blacklist"
+    __tablename__ = "prohibited_project_names"
     __table_args__ = (
         CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="blacklist_valid_name",
+            name="prohibited_project_valid_name",
         ),
     )
 
@@ -587,8 +590,8 @@ class BlacklistedProject(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     name = Column(Text, unique=True, nullable=False)
-    _blacklisted_by = Column(
-        "blacklisted_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    _prohibited_by = Column(
+        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
     )
-    blacklisted_by = orm.relationship(User)
+    prohibited_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")

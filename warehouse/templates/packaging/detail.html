@@ -21,7 +21,7 @@
    {% set icon = "fas fa-cloud-download-alt" %}
 {% elif name|lower in ["home", "homepage", "home page"] %}
   {% set icon = "fas fa-home" %}
-{% elif name|lower in ["changelog", "change log", "changes", "release notes", "news", "what's new"] %}
+{% elif name|lower in ["changelog", "change log", "changes", "release notes", "news", "what's new", "history"] %}
   {% set icon = "fas fa-gift" %}
 {% elif name.lower().startswith(("docs", "documentation")) or parsed.netloc in ["readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org"] or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")) or parsed.netloc.startswith(("docs.", "documentation.")) %}
   {% set icon = "fas fa-book" %}
@@ -35,6 +35,8 @@
   {% set icon = "fab fa-gitlab" %}
 {% elif parsed.netloc == "gitter.im" or parsed.netloc.endswith(".gitter.im") %}
   {% set icon = "fab fa-gitter" %}
+{% elif parsed.netloc in ["discord.com", "discordapp.com", "discord.gg"] or parsed.netloc.endswith(("discord.com", "discordapp.com", "discord.gg")) %}
+  {% set icon = "fab fa-discord" %}
 {% elif parsed.netloc == "google.com" or parsed.netloc.endswith(".google.com") %}
   {% set icon = "fab fa-google" %}
 {% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}

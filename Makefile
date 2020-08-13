@@ -100,13 +100,13 @@ static_pipeline: .state/docker-build
 								  bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/isort -rc *.py warehouse/ tests/
+	$(BINDIR)/isort *.py warehouse/ tests/
 	$(BINDIR)/black *.py warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
 	$(BINDIR)/black --check *.py warehouse/ tests/
-	$(BINDIR)/isort -rc -c *.py warehouse/ tests/
+	$(BINDIR)/isort --check *.py warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
@@ -161,8 +161,6 @@ shell:
 	docker-compose run --rm web python -m warehouse shell
 
 clean:
-	rm -rf warehouse/static/components
-	rm -rf warehouse/static/dist
 	rm -rf dev/*.sql
 
 purge: stop clean

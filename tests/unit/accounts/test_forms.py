@@ -342,7 +342,7 @@ class TestRegistrationForm:
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_config):
         form = forms.RegistrationForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(
@@ -700,6 +700,24 @@ class TestWebAuthnAuthenticationForm:
         assert form.validated_credential == ("foo", 123456)
 
 
+class TestReAuthenticateForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+
+        form = forms.ReAuthenticateForm(user_service=user_service)
+
+        assert form.user_service is user_service
+        assert form.__params__ == [
+            "username",
+            "password",
+            "next_route",
+            "next_route_matchdict",
+        ]
+        assert isinstance(form.username, wtforms.StringField)
+        assert isinstance(form.next_route, wtforms.StringField)
+        assert isinstance(form.next_route_matchdict, wtforms.StringField)
+
+
 class TestRecoveryCodeForm:
     def test_creation(self):
         user_id = pretend.stub()
@@ -730,7 +748,7 @@ class TestRecoveryCodeForm:
         )
 
         assert not form.validate()
-        assert str(form.recovery_code_value.errors.pop()) == "Invalid Recovery Code."
+        assert str(form.recovery_code_value.errors.pop()) == "Invalid recovery code."
 
     def test_valid_recovery_code(self):
         form = forms.RecoveryCodeAuthenticationForm(

@@ -33,17 +33,22 @@ from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
     send_collaborator_added_email,
+    send_collaborator_removed_email,
+    send_collaborator_role_changed_email,
     send_email_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
+    send_removed_as_collaborator_email,
     send_removed_project_email,
     send_removed_project_release_email,
     send_removed_project_release_file_email,
+    send_role_changed_as_collaborator_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
     send_yanked_project_release_email,
 )
+from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -111,6 +116,7 @@ def user_projects(request):
     require_methods=False,
     permission="manage:user",
     has_translations=True,
+    require_reauth=True,
 )
 class ManageAccountViews:
     def __init__(self, request):
@@ -164,7 +170,11 @@ class ManageAccountViews:
 
         return {**self.default_response, "save_account_form": form}
 
-    @view_config(request_method="POST", request_param=AddEmailForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=AddEmailForm.__params__,
+        require_reauth=True,
+    )
     def add_email(self):
         form = AddEmailForm(
             self.request.POST,
@@ -197,7 +207,9 @@ class ManageAccountViews:
 
         return {**self.default_response, "add_email_form": form}
 
-    @view_config(request_method="POST", request_param=["delete_email_id"])
+    @view_config(
+        request_method="POST", request_param=["delete_email_id"], require_reauth=True
+    )
     def delete_email(self):
         try:
             email = (
@@ -229,7 +241,9 @@ class ManageAccountViews:
             )
         return self.default_response
 
-    @view_config(request_method="POST", request_param=["primary_email_id"])
+    @view_config(
+        request_method="POST", request_param=["primary_email_id"], require_reauth=True
+    )
     def change_primary_email(self):
         previous_primary_email = self.request.user.primary_email
         try:
@@ -330,7 +344,9 @@ class ManageAccountViews:
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    @view_config(
+        request_method="POST", request_param=DeleteTOTPForm.__params__
+    )  # TODO: gate_action instead of confirm pass form
     def delete_account(self):
         confirm_password = self.request.params.get("confirm_password")
         if not confirm_password:
@@ -743,6 +759,7 @@ class ProvisionRecoveryCodesViews:
     renderer="manage/token.html",
     route_name="manage.account.token",
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -774,7 +791,7 @@ class ProvisionMacaroonViews:
     def manage_macaroons(self):
         return self.default_response
 
-    @view_config(request_method="POST")
+    @view_config(request_method="POST", require_reauth=True)
     def create_macaroon(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
@@ -831,7 +848,11 @@ class ProvisionMacaroonViews:
 
         return {**response, "create_macaroon_form": form}
 
-    @view_config(request_method="POST", request_param=DeleteMacaroonForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=DeleteMacaroonForm.__params__,
+        require_reauth=True,
+    )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
             password=self.request.POST["confirm_password"],
@@ -913,9 +934,14 @@ def manage_projects(request):
     uses_session=True,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def manage_project_settings(project, request):
-    return {"project": project}
+    return {
+        "project": project,
+        "MAX_FILESIZE": MAX_FILESIZE,
+        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+    }
 
 
 def get_user_role_in_project(project, user, request):
@@ -934,6 +960,7 @@ def get_user_role_in_project(project, user, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
@@ -976,6 +1003,7 @@ def delete_project(project, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -995,6 +1023,7 @@ def destroy_project_docs(project, request):
     uses_session=True,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def manage_project_releases(project, request):
     # Get the counts for all the files for this project, grouped by the
@@ -1039,6 +1068,7 @@ def manage_project_releases(project, request):
     require_methods=False,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -1053,9 +1083,15 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
-    @view_config(request_method="POST", request_param=["confirm_yank_version"])
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_yank_version"],
+        require_reauth=True,
+    )
     def yank_project_release(self):
         version = self.request.POST.get("confirm_yank_version")
+        yanked_reason = self.request.POST.get("yanked_reason", "")
+
         if not version:
             self.request.session.flash("Confirm the request", queue="error")
             return HTTPSeeOther(
@@ -1100,10 +1136,12 @@ class ManageProjectRelease:
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
+                "yanked_reason": yanked_reason,
             },
         )
 
         self.release.yanked = True
+        self.release.yanked_reason = yanked_reason
 
         self.request.session.flash(
             f"Yanked release {self.release.version!r}", queue="success"
@@ -1129,7 +1167,11 @@ class ManageProjectRelease:
             )
         )
 
-    @view_config(request_method="POST", request_param=["confirm_unyank_version"])
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_unyank_version"],
+        require_reauth=True,
+    )
     def unyank_project_release(self):
         version = self.request.POST.get("confirm_unyank_version")
         if not version:
@@ -1180,6 +1222,7 @@ class ManageProjectRelease:
         )
 
         self.release.yanked = False
+        self.release.yanked_reason = ""
 
         self.request.session.flash(
             f"Un-yanked release {self.release.version!r}", queue="success"
@@ -1205,7 +1248,11 @@ class ManageProjectRelease:
             )
         )
 
-    @view_config(request_method="POST", request_param=["confirm_delete_version"])
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_delete_version"],
+        require_reauth=True,
+    )
     def delete_project_release(self):
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
@@ -1298,7 +1345,9 @@ class ManageProjectRelease:
         )
 
     @view_config(
-        request_method="POST", request_param=["confirm_project_name", "file_id"]
+        request_method="POST",
+        request_param=["confirm_project_name", "file_id"],
+        require_reauth=True,
     )
     def delete_project_release_file(self):
         def _error(message):
@@ -1403,6 +1452,7 @@ class ManageProjectRelease:
     require_methods=False,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -1502,6 +1552,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     form = _form_class(request.POST)
@@ -1538,6 +1589,34 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         "target_user": role.user.username,
                     },
                 )
+
+                owner_roles = (
+                    request.db.query(Role)
+                    .filter(Role.project == project)
+                    .filter(Role.role_name == "Owner")
+                    .all()
+                )
+                owner_users = {owner.user for owner in owner_roles}
+                # Don't send owner notification email to new user
+                # if they are now an owner
+                owner_users.discard(role.user)
+                send_collaborator_role_changed_email(
+                    request,
+                    owner_users,
+                    user=role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
+                send_role_changed_as_collaborator_email(
+                    request,
+                    role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
                 request.session.flash("Changed role", queue="success")
         except NoResultFound:
             request.session.flash("Could not find role", queue="error")
@@ -1554,6 +1633,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def delete_project_role(project, request):
     try:
@@ -1585,6 +1665,29 @@ def delete_project_role(project, request):
                     "target_user": role.user.username,
                 },
             )
+
+            owner_roles = (
+                request.db.query(Role)
+                .filter(Role.project == project)
+                .filter(Role.role_name == "Owner")
+                .all()
+            )
+            owner_users = {owner.user for owner in owner_roles}
+            # Don't send owner notification email to new user
+            # if they are now an owner
+            owner_users.discard(role.user)
+            send_collaborator_removed_email(
+                request,
+                owner_users,
+                user=role.user,
+                submitter=request.user,
+                project_name=project.name,
+            )
+
+            send_removed_as_collaborator_email(
+                request, role.user, submitter=request.user, project_name=project.name,
+            )
+
             request.session.flash("Removed role", queue="success")
     except NoResultFound:
         request.session.flash("Could not find role", queue="error")

@@ -13,11 +13,11 @@
 -#}
 {% extends "admin/base.html" %}
 
-{% block title %}Confirm Blacklist for {{ blacklist.project }}{% endblock %}
+{% block title %}Confirm Project Name Prohibition for {{ prohibited_project_names.project }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.blacklist.list') }}">Blacklist</a></li>
-  <li class="active">Confirm for {{ blacklist.project }}</li>
+  <li><a href="{{ request.route_path('admin.prohibited_project_names.list') }}">Prohibit</a></li>
+  <li class="active">Confirm for {{ prohibited_project_names.project }}</li>
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,7 @@
           <div class="box-body">
               {% if existing.project %}
               <p>
-                Blacklisting {{ blacklist.project }} will irreversibly delete
+                Prohibiting {{ prohibited_project_names.project }} will irreversibly delete
                 the <a href="{{ request.route_path('admin.project.detail', project_name=existing.project.normalized_name) }}">{{ existing.project.name }}</a>
                 project along with
                 <a href="{{ request.route_path('admin.project.releases', project_name=existing.project.normalized_name) }}">{{ existing.releases|length() }} releases</a>
@@ -50,14 +50,14 @@
               {% endif %}
 
               <p>
-                Are you sure you want to blacklist
-                <strong>{{ blacklist.project }}</strong>?
+                Are you sure you want to prohibit
+                <strong>{{ prohibited_project_names.project }}</strong>?
               </p>
 
               <form action="{{ request.current_route_path() }}" method="POST">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                <input name="project" type="hidden" value="{{ blacklist.project }}">
-                <input name="comment" type="Hidden" value="{{ blacklist.comment }}">
+                <input name="project" type="hidden" value="{{ prohibited_project_names.project }}">
+                <input name="comment" type="Hidden" value="{{ prohibited_project_names.comment }}">
 
                 <div class="form-group col-sm-8">
                   <input name="confirm" class="form-control" type="text" placeholder="Enter project name to confirm" autocomplete="off" autocorrect="off" autocapitalize="off">

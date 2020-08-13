@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import json
 import uuid
 
 import freezegun
@@ -58,7 +59,8 @@ class TestFailedLoginView:
         assert resp.status == "429 Too Many Requests"
         assert resp.detail == (
             "Too many emails have been added to this account without verifying "
-            "them. Check your inbox and follow the verification links."
+            "them. Check your inbox and follow the verification links. (IP: "
+            f"{ pyramid_request.remote_addr })"
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
@@ -189,11 +191,15 @@ class TestLogin:
             invalidate=pretend.call_recorder(lambda: None),
             new_csrf_token=pretend.call_recorder(lambda: None),
         )
-        pyramid_request.remote_addr = "0.0.0.0"
 
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()) if with_user else None,
             name="unauthenticated_userid",
+        )
+
+        pyramid_request.registry.settings = {"sessions.secret": "dummy_secret"}
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
         )
 
         form_obj = pretend.stub(
@@ -234,7 +240,7 @@ class TestLogin:
             pretend.call(
                 user_id,
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None},
             )
         ]
@@ -247,6 +253,7 @@ class TestLogin:
         assert remember.calls == [pretend.call(pyramid_request, str(user_id))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
@@ -272,7 +279,10 @@ class TestLogin:
 
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
-        pyramid_request.remote_addr = "0.0.0.0"
+
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -289,10 +299,11 @@ class TestLogin:
             pretend.call(
                 1,
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None},
             )
         ]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
@@ -323,7 +334,6 @@ class TestLogin:
         pyramid_request.method = "POST"
         if redirect_url:
             pyramid_request.POST["next"] = redirect_url
-        pyramid_request.remote_addr = "0.0.0.0"
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -553,7 +563,6 @@ class TestTwoFactor:
         }[interface]
 
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.session = pretend.stub(
             items=lambda: [("a", "b"), ("foo", "bar")],
             update=new_session.update,
@@ -593,7 +602,7 @@ class TestTwoFactor:
             pretend.call(
                 "1",
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": "totp"},
             )
         ]
@@ -964,7 +973,6 @@ class TestRecoveryCode:
         }[interface]
 
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.session = pretend.stub(
             items=lambda: [("a", "b"), ("foo", "bar")],
             update=new_session.update,
@@ -1003,10 +1011,14 @@ class TestRecoveryCode:
             pretend.call(
                 "1",
                 tag="account:login:success",
-                ip_address="0.0.0.0",
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": "recovery-code"},
             ),
-            pretend.call("1", tag="account:recovery_codes:used", ip_address="0.0.0.0",),
+            pretend.call(
+                "1",
+                tag="account:recovery_codes:used",
+                ip_address=pyramid_request.remote_addr,
+            ),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -1206,7 +1218,6 @@ class TestRegister:
             )
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "0.0.0.0"
         db_request.POST.update(
             {
                 "username": "username_value",
@@ -1303,7 +1314,6 @@ class TestRequestPasswordReset:
 
         stub_user = pretend.stub(id=pretend.stub(), username=pretend.stub())
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
         user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
@@ -1361,7 +1371,6 @@ class TestRequestPasswordReset:
             emails=[pretend.stub(email="foo@example.com")],
         )
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
@@ -1424,7 +1433,6 @@ class TestRequestPasswordReset:
             ],
         )
         pyramid_request.method = "POST"
-        pyramid_request.remote_addr = "0.0.0.0"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
@@ -1546,7 +1554,6 @@ class TestResetPassword:
         monkeypatch.setattr(views, "send_password_change_email", send_email)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
-        db_request.remote_addr = "0.0.0.0"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "password-reset",
@@ -1702,7 +1709,7 @@ class TestResetPassword:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token: user has logged in since this token was " "requested",
+                "Invalid token: user has logged in since this token was requested",
                 queue="error",
             )
         ]
@@ -1765,7 +1772,6 @@ class TestVerifyEmail:
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "0.0.0.0"
         token_service.loads = pretend.call_recorder(
             lambda token: {"action": "email-verify", "email.id": str(email.id)}
         )
@@ -1903,3 +1909,64 @@ class TestProfilePublicEmail:
         request = pretend.stub()
 
         assert views.profile_public_email(user, request) == {"user": user}
+
+
+class TestReAuthentication:
+    @pytest.mark.parametrize("next_route", [None, "/manage/accounts", "/projects/"])
+    def test_reauth(self, monkeypatch, pyramid_request, pyramid_services, next_route):
+        user_service = pretend.stub()
+        response = pretend.stub()
+
+        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
+
+        pyramid_services.register_service(IUserService, None, user_service)
+
+        pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
+        pyramid_request.user = pretend.stub(username=pretend.stub())
+        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
+        pyramid_request.matchdict = {"foo": "bar"}
+
+        form_obj = pretend.stub(
+            next_route=pretend.stub(data=next_route),
+            next_route_matchdict=pretend.stub(data="{}"),
+            validate=lambda: True,
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        if next_route is not None:
+            pyramid_request.method = "POST"
+            pyramid_request.POST["next_route"] = next_route
+            pyramid_request.POST["next_route_matchdict"] = "{}"
+
+        _ = views.reauthenticate(pyramid_request, _form_class=form_class)
+
+        assert pyramid_request.session.record_auth_timestamp.calls == (
+            [pretend.call()] if next_route is not None else []
+        )
+        assert form_class.calls == [
+            pretend.call(
+                pyramid_request.POST,
+                request=pyramid_request,
+                username=pyramid_request.user.username,
+                next_route=pyramid_request.matched_route.name,
+                next_route_matchdict=json.dumps(pyramid_request.matchdict),
+                user_service=user_service,
+                check_password_metrics_tags=[
+                    "method:reauth",
+                    "auth_method:reauthenticate_form",
+                ],
+            )
+        ]
+
+    def test_reauth_no_user(self, monkeypatch, pyramid_request):
+        pyramid_request.user = None
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+
+        result = views.reauthenticate(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        assert result.headers["Location"] == "/the-redirect"

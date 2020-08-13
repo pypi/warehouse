@@ -75,6 +75,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.set_total_size_limit",
+        "/admin/projects/{project_name}/set_total_size_limit/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.add_role",
         "/admin/projects/{project_name}/add_role/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -99,11 +106,21 @@ def includeme(config):
     # Journal related Admin pages
     config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
 
-    # Blacklist related Admin pages
-    config.add_route("admin.blacklist.list", "/admin/blacklist/", domain=warehouse)
-    config.add_route("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse)
+    # Prohibited Project Name related Admin pages
     config.add_route(
-        "admin.blacklist.remove", "/admin/blacklist/remove/", domain=warehouse
+        "admin.prohibited_project_names.list",
+        "/admin/prohibited_project_names/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.add",
+        "/admin/prohibited_project_names/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.remove",
+        "/admin/prohibited_project_names/remove/",
+        domain=warehouse,
     )
 
     # Email related Admin pages

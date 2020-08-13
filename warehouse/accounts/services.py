@@ -13,12 +13,10 @@
 import collections
 import functools
 import hashlib
-import hmac
 import logging
-import posixpath
+import os
 import secrets
 import urllib.parse
-import uuid
 
 import requests
 
@@ -106,7 +104,6 @@ class DatabaseUserService:
     @functools.lru_cache()
     def find_userid_by_email(self, email):
         try:
-            # flake8: noqa
             user_id = (self.db.query(Email.user_id).filter(Email.email == email).one())[
                 0
             ]
@@ -596,7 +593,7 @@ class TokenService:
             )
         except SignatureExpired:
             raise TokenExpired
-        except BadData:  #  Catch all other exceptions
+        except BadData:  # Catch all other exceptions
             raise TokenInvalid
 
         return data
@@ -645,7 +642,10 @@ class TokenServiceFactory:
 @implementer(IPasswordBreachedService)
 class HaveIBeenPwnedPasswordBreachedService:
 
-    _failure_message_preamble = "This password appears in a security breach or has been compromised and cannot be used."
+    _failure_message_preamble = (
+        "This password appears in a security breach or has been "
+        "compromised and cannot be used."
+    )
 
     def __init__(
         self,
@@ -689,7 +689,7 @@ class HaveIBeenPwnedPasswordBreachedService:
         self._metrics.increment(*args, **kwargs)
 
     def _get_url(self, prefix):
-        return urllib.parse.urljoin(self._api_base, posixpath.join("/range/", prefix))
+        return urllib.parse.urljoin(self._api_base, os.path.join("/range/", prefix))
 
     def check_password(self, password, *, tags=None):
         # The HIBP API implements a k-Anonymity scheme, by which you can take a given

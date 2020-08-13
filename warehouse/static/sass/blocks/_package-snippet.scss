@@ -28,6 +28,8 @@
 
 .package-snippet {
   @include card;
+  direction: ltr;
+  text-align: left;
   display: block;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;

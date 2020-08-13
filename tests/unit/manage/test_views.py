@@ -28,6 +28,7 @@ import warehouse.utils.otp as otp
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.packaging.models import (
@@ -227,7 +228,6 @@ class TestManageAccount:
             emails=[], username="username", name="Name", id=pretend.stub()
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
-        pyramid_request.remote_addr = "0.0.0.0"
         monkeypatch.setattr(
             views,
             "AddEmailForm",
@@ -405,7 +405,6 @@ class TestManageAccount:
         )
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
-        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -445,7 +444,6 @@ class TestManageAccount:
         )
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
-        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -1647,7 +1645,6 @@ class TestProvisionRecoveryCodes:
             IUserService: user_service
         }[interface]
         pyramid_request.user = pretend.stub(id=1, username="username")
-        pyramid_request.remote_addr = "0.0.0.0"
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -2287,7 +2284,11 @@ class TestManageProjectSettings:
         request = pretend.stub()
         project = pretend.stub()
 
-        assert views.manage_project_settings(project, request) == {"project": project}
+        assert views.manage_project_settings(project, request) == {
+            "project": project,
+            "MAX_FILESIZE": MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        }
 
     def test_delete_project_no_confirm(self):
         project = pretend.stub(normalized_name="foo")
@@ -2408,8 +2409,6 @@ class TestManageProjectSettings:
             views, "send_removed_project_email", send_removed_project_email
         )
 
-        db_request.remote_addr = "192.168.1.1"
-
         result = views.delete_project(project, db_request)
 
         assert db_request.session.flash.calls == [
@@ -2496,7 +2495,6 @@ class TestManageProjectDocumentation:
         )
         db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
         db_request.task = task
 
         result = views.destroy_project_docs(project, db_request)
@@ -2607,9 +2605,13 @@ class TestManageProjectRelease:
             ),
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
             yanked=False,
+            yanked_reason="",
         )
         request = pretend.stub(
-            POST={"confirm_yank_version": release.version},
+            POST={
+                "confirm_yank_version": release.version,
+                "yanked_reason": "Yanky Doodle went to town",
+            },
             method="POST",
             db=pretend.stub(add=pretend.call_recorder(lambda a: None),),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
@@ -2644,6 +2646,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert release.yanked
+        assert release.yanked_reason == "Yanky Doodle went to town"
 
         assert get_user_role_in_project.calls == [
             pretend.call(release.project, request.user, request,),
@@ -2684,13 +2687,17 @@ class TestManageProjectRelease:
                 additional={
                     "submitted_by": request.user.username,
                     "canonical_version": release.canonical_version,
+                    "yanked_reason": "Yanky Doodle went to town",
                 },
             )
         ]
 
     def test_yank_project_release_no_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=False
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=False,
+            yanked_reason="",
         )
         request = pretend.stub(
             POST={"confirm_yank_version": ""},
@@ -2707,6 +2714,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert not release.yanked
+        assert not release.yanked_reason
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -2721,7 +2729,10 @@ class TestManageProjectRelease:
 
     def test_yank_project_release_bad_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=False
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=False,
+            yanked_reason="",
         )
         request = pretend.stub(
             POST={"confirm_yank_version": "invalid"},
@@ -2738,6 +2749,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert not release.yanked
+        assert not release.yanked_reason
 
         assert request.session.flash.calls == [
             pretend.call(
@@ -2803,6 +2815,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert not release.yanked
+        assert not release.yanked_reason
 
         assert get_user_role_in_project.calls == [
             pretend.call(release.project, request.user, request),
@@ -2849,10 +2862,16 @@ class TestManageProjectRelease:
 
     def test_unyank_project_release_no_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=True
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=True,
+            yanked_reason="",
         )
         request = pretend.stub(
-            POST={"confirm_unyank_version": ""},
+            POST={
+                "confirm_unyank_version": "",
+                "yanked_reason": "Yanky Doodle went to town",
+            },
             method="POST",
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
@@ -2866,6 +2885,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert release.yanked
+        assert not release.yanked_reason
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -2880,10 +2900,13 @@ class TestManageProjectRelease:
 
     def test_unyank_project_release_bad_confirm(self):
         release = pretend.stub(
-            version="1.2.3", project=pretend.stub(name="foobar"), yanked=True
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=True,
+            yanked_reason="Old reason",
         )
         request = pretend.stub(
-            POST={"confirm_unyank_version": "invalid"},
+            POST={"confirm_unyank_version": "invalid", "yanked_reason": "New reason"},
             method="POST",
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
@@ -2897,6 +2920,7 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert release.yanked
+        assert release.yanked_reason == "Old reason"
 
         assert request.session.flash.calls == [
             pretend.call(
@@ -3131,7 +3155,6 @@ class TestManageProjectRelease:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.user = user
-        db_request.remote_addr = "1.2.3.4"
 
         get_user_role_in_project = pretend.call_recorder(
             lambda project, user, req: "Owner"
@@ -3166,7 +3189,7 @@ class TestManageProjectRelease:
                 version=release.version,
                 action=f"remove file {release_file.filename}",
                 submitted_by=user,
-                submitted_from="1.2.3.4",
+                submitted_from=db_request.remote_addr,
             )
             .one()
         )
@@ -3386,7 +3409,6 @@ class TestManageProjectRoles:
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
-        db_request.remote_addr = "10.10.10.10"
         db_request.user = owner_1
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -3559,26 +3581,63 @@ class TestManageProjectRoles:
 
 
 class TestChangeProjectRoles:
-    def test_change_role(self, db_request):
+    def test_change_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
         new_role_name = "Maintainer"
 
+        user_2 = UserFactory.create()
+
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.user = user_2
         db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
+        send_collaborator_role_changed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_collaborator_role_changed_email",
+            send_collaborator_role_changed_email,
+        )
+        send_role_changed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_role_changed_as_collaborator_email",
+            send_role_changed_as_collaborator_email,
+        )
+
         result = views.change_project_role(project, db_request)
 
         assert role.role_name == new_role_name
         assert db_request.route_path.calls == [
             pretend.call("manage.project.roles", project_name=project.name)
+        ]
+        assert send_collaborator_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                user=user,
+                submitter=user_2,
+                project_name="foobar",
+                role=new_role_name,
+            )
+        ]
+        assert send_role_changed_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=user_2,
+                project_name="foobar",
+                role=new_role_name,
+            )
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Changed role", queue="success")
@@ -3657,19 +3716,32 @@ class TestChangeProjectRoles:
 
 
 class TestDeleteProjectRoles:
-    def test_delete_role(self, db_request):
+    def test_delete_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
+        user_2 = UserFactory.create()
 
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.user = user_2
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_collaborator_removed_email", send_collaborator_removed_email
+        )
+        send_removed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_collaborator_email",
+            send_removed_as_collaborator_email,
+        )
 
         result = views.delete_project_role(project, db_request)
 
@@ -3677,6 +3749,14 @@ class TestDeleteProjectRoles:
             pretend.call("manage.project.roles", project_name=project.name)
         ]
         assert db_request.db.query(Role).all() == []
+        assert send_collaborator_removed_email.calls == [
+            pretend.call(
+                db_request, set(), user=user, submitter=user_2, project_name="foobar",
+            )
+        ]
+        assert send_removed_as_collaborator_email.calls == [
+            pretend.call(db_request, user, submitter=user_2, project_name="foobar",)
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed role", queue="success")
         ]

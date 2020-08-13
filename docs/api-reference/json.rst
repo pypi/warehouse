@@ -73,7 +73,8 @@ Project
                 "requires_python": null,
                 "summary": "A sample Python project",
                 "version": "1.2.0",
-                "yanked": false
+                "yanked": false,
+                "yanked_reason": null
             },
             "last_serial": 1591652,
             "releases": {
@@ -94,7 +95,8 @@ Project
                         "size": 3795,
                         "upload_time_iso_8601": "2015-06-14T14:38:05.093750Z",
                         "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     },
                     {
                         "comment_text": "",
@@ -111,7 +113,8 @@ Project
                         "size": 3148,
                         "upload_time_iso_8601": "2015-06-14T14:37:56Z",
                         "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     }
                 ]
             },
@@ -131,7 +134,8 @@ Project
                     "size": 3795,
                     "upload_time_iso_8601": "2015-06-14T14:38:05.234526",
                     "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
-                    "yanked": false
+                    "yanked": false,
+                    "yanked_reason": null
                 },
                 {
                     "comment_text": "",
@@ -148,7 +152,8 @@ Project
                     "size": 3148,
                     "upload_time_iso_8601": "2015-06-14T14:37:56.000001Z",
                     "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
-                    "yanked": false
+                    "yanked": false,
+                    "yanked_reason": null
                 }
             ]
         }
@@ -207,7 +212,8 @@ Release
                 "requires_python": null,
                 "summary": "",
                 "version": "1.0",
-                "yanked": false
+                "yanked": false,
+                "yanked_reason": null
             },
             "last_serial": 1591652,
             "releases": {
@@ -228,7 +234,8 @@ Release
                         "size": 3795,
                         "upload_time_iso_8601": "2015-06-14T14:38:05.869374Z",
                         "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     },
                     {
                         "comment_text": "",
@@ -245,7 +252,8 @@ Release
                         "size": 3148,
                         "upload_time_iso_8601": "2015-06-14T14:37:56.394783Z",
                         "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
-                        "yanked": false
+                        "yanked": false,
+                        "yanked_reason": null
                     }
                 ]
             },
