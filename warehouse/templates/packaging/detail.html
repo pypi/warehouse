@@ -82,7 +82,11 @@
     {% set project_version = "==" + release.version %}
   {%- endif -%}
 
-  pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+  {%- if release.version.epoch -%}
+    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
+  {%- else -%}
+    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+  {%- endif -%}
 {%- endmacro -%}
 
 {% block title %}{{ release.project.name }}{% endblock %}
