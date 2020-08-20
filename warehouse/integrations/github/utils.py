@@ -135,6 +135,10 @@ class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
     pass
 
 
+class CacheMiss(Exception):
+    pass
+
+
 PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
 
 
@@ -155,12 +159,28 @@ class GitHubTokenScanningPayloadVerifier:
 
     def verify(self, *, payload, key_id, signature):
 
+        public_key = None
         try:
-            pubkey_api_data = self._retrieve_public_key_payload()
-            public_keys = self._extract_public_keys(pubkey_api_data)
+            public_keys = self._get_cached_public_keys()
             public_key = self._check_public_key(
                 github_public_keys=public_keys, key_id=key_id
             )
+        except (CacheMiss, InvalidTokenLeakRequest):
+            # No cache or outdated cache, it's ok, we'll do a real call.
+            # Just record a metric so that we can know if all calls lead to
+            # cache misses
+            self._metrics.increment("warehouse.token_leak.github.auth.cache.miss")
+        else:
+            self._metrics.increment("warehouse.token_leak.github.auth.cache.hit")
+
+        try:
+            if not public_key:
+                pubkey_api_data = self._retrieve_public_key_payload()
+                public_keys = self._extract_public_keys(pubkey_api_data)
+                public_key = self._check_public_key(
+                    github_public_keys=public_keys, key_id=key_id
+                )
+
             self._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
@@ -173,9 +193,16 @@ class GitHubTokenScanningPayloadVerifier:
         self._metrics.increment("warehouse.token_leak.github.auth.success")
         return True
 
+    def _get_cached_public_keys(self):
+        if not self.public_keys_cache:
+            raise CacheMiss
+
+        if self.public_keys_cached_at + PUBLIC_KEYS_CACHE_TIME < time.time():
+            raise CacheMiss
+
+        return self.public_keys_cache
+
     def _retrieve_public_key_payload(self):
-        if self.public_keys_cached_at + PUBLIC_KEYS_CACHE_TIME > time.time():
-            return self.public_keys_cache
 
         token_scanning_pubkey_api_url = (
             "https://api.github.com/meta/public_keys/token_scanning"
@@ -184,8 +211,7 @@ class GitHubTokenScanningPayloadVerifier:
         try:
             response = self._session.get(token_scanning_pubkey_api_url, headers=headers)
             response.raise_for_status()
-            self.public_keys_cache = response.json()
-            return self.public_keys_cache
+            return response.json()
         except requests.HTTPError as exc:
             raise GitHubPublicKeyMetaAPIError(
                 f"Invalid response code {response.status_code}: {response.text[:100]}",
@@ -239,7 +265,7 @@ class GitHubTokenScanningPayloadVerifier:
 
             yield {"key": public_key["key"], "key_id": public_key["key_identifier"]}
 
-        return public_keys
+        self.public_keys_cache = public_keys
 
     def _check_public_key(self, github_public_keys, key_id):
         for record in github_public_keys:

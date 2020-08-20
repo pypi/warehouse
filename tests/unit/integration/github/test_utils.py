@@ -108,7 +108,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         assert verifier._metrics is metrics
         assert verifier._api_token == token
 
-    def test_verify(self):
+    def test_verify_cache_miss(self):
         # Example taken from
         # https://gist.github.com/ewjoachim/7dde11c31d9686ed6b4431c3ca166da2
         meta_payload = {
@@ -148,7 +148,46 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.success")
+            pretend.call("warehouse.token_leak.github.auth.cache.miss"),
+            pretend.call("warehouse.token_leak.github.auth.success"),
+        ]
+
+    def test_verify_cache_hit(self):
+        session = pretend.stub()
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
+        verifier = utils.GitHubTokenScanningPayloadVerifier(
+            session=session, metrics=metrics, api_token="api-token"
+        )
+        verifier.public_keys_cached_at = time.time()
+        verifier.public_keys_cache = [
+            {
+                "key_id": "90a421169f0a406205f1563a953312f0be898d3c"
+                "7b6c06b681aa86a874555f4a",
+                "key": "-----BEGIN PUBLIC KEY-----\n"
+                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9MJJHnMfn2+H4xL4YaPDA4RpJqU"
+                "q\nkCmRCBnYERxZanmcpzQSXs1X/AljlKkbJ8qpVIW4clayyef9gWhFbNHWAA==\n"
+                "-----END PUBLIC KEY-----",
+            }
+        ]
+
+        key_id = "90a421169f0a406205f1563a953312f0be898d3c7b6c06b681aa86a874555f4a"
+        signature = (
+            "MEQCIAfgjgz6Ou/3DXMYZBervz1TKCHFsvwMcbuJhNZse622AiAG86/"
+            "cku2XdcmFWNHl2WSJi2fkE8t+auvB24eURaOd2A=="
+        )
+
+        payload = (
+            '[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+            'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+            'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+        )
+        assert (
+            verifier.verify(payload=payload, key_id=key_id, signature=signature) is True
+        )
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.token_leak.github.auth.cache.hit"),
+            pretend.call("warehouse.token_leak.github.auth.success"),
         ]
 
     def test_verify_error(self):
@@ -163,7 +202,8 @@ class TestGitHubTokenScanningPayloadVerifier:
         assert verifier.verify(payload={}, key_id="a", signature="a") is False
 
         assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.github.auth.error.bla")
+            pretend.call("warehouse.token_leak.github.auth.cache.miss"),
+            pretend.call("warehouse.token_leak.github.auth.error.bla"),
         ]
 
     def test_retrieve_public_key_payload(self):
@@ -189,7 +229,6 @@ class TestGitHubTokenScanningPayloadVerifier:
         verifier = utils.GitHubTokenScanningPayloadVerifier(
             session=session, metrics=metrics, api_token="api-token"
         )
-        verifier.public_keys_cache = []
         assert verifier._retrieve_public_key_payload() == meta_payload
         assert session.get.calls == [
             pretend.call(
@@ -198,7 +237,7 @@ class TestGitHubTokenScanningPayloadVerifier:
             )
         ]
 
-    def test_retrieve_public_key_payload_cache_hit(self):
+    def test_get_cached_public_key_cache_hit(self):
         metrics = pretend.stub()
         session = pretend.stub()
         token = "api_token"
@@ -209,7 +248,32 @@ class TestGitHubTokenScanningPayloadVerifier:
         verifier.public_keys_cached_at = time.time()
         cache = verifier.public_keys_cache = pretend.stub()
 
-        assert verifier._retrieve_public_key_payload() is cache
+        assert verifier._get_cached_public_keys() is cache
+
+    def test_get_cached_public_key_cache_miss_no_cache(self):
+        metrics = pretend.stub()
+        session = pretend.stub()
+        token = "api_token"
+
+        verifier = utils.GitHubTokenScanningPayloadVerifier(
+            session=session, metrics=metrics, api_token=token
+        )
+
+        with pytest.raises(utils.CacheMiss):
+            verifier._get_cached_public_keys()
+
+    def test_get_cached_public_key_cache_miss_too_old(self):
+        metrics = pretend.stub()
+        session = pretend.stub()
+        token = "api_token"
+
+        verifier = utils.GitHubTokenScanningPayloadVerifier(
+            session=session, metrics=metrics, api_token=token
+        )
+        verifier.public_keys_cache = pretend.stub()
+
+        with pytest.raises(utils.CacheMiss):
+            verifier._get_cached_public_keys()
 
     def test_retrieve_public_key_payload_http_error(self):
         response = pretend.stub(
