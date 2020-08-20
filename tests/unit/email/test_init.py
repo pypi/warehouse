@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+from tests.conftest import pyramid_request
 
 import attr
 import celery.exceptions
@@ -768,15 +769,23 @@ class TestPasswordCompromisedHIBPEmail:
 
 class TestTokenCompromisedLeakEmail:
     @pytest.mark.parametrize("verified", [True, False])
-    def test_password_compromised_email_hibp(
+    def test_password_compromised_email(
         self, pyramid_request, pyramid_config, monkeypatch, verified
     ):
         stub_user = pretend.stub(
+            id=3,
             username="username",
             name="",
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=verified),
         )
+        pyramid_request.user = None
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(one=lambda: stub_user)
+            ),
+        )
+
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/token-compromised-leak/subject.txt"
         )
@@ -819,6 +828,17 @@ class TestTokenCompromisedLeakEmail:
                         ),
                     )
                 ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": 3,
+                    "ip_address": "1.2.3.4",
+                    "additional": {
+                        "from_": None,
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
             )
         ]
 
