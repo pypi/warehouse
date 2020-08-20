@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-from tests.conftest import pyramid_request
 
 import attr
 import celery.exceptions
