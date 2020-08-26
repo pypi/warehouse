@@ -98,9 +98,9 @@ class TestLogin:
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         form_obj = pretend.stub()
@@ -132,9 +132,9 @@ class TestLogin:
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -179,9 +179,9 @@ class TestLogin:
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -272,9 +272,9 @@ class TestLogin:
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -1919,7 +1919,7 @@ class TestReAuthentication:
 
         monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
 
         pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
         pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
