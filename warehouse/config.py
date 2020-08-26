@@ -184,6 +184,12 @@ def configure(settings=None):
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
+    maybe_set(
+        settings,
+        "warehouse.xmlrpc.client.ratelimit_string",
+        "XMLRPC_RATELIMIT_STRING",
+        default="3600 per hour",
+    )
     maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
     maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
     maybe_set(

@@ -16,6 +16,9 @@ from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 def includeme(config):
+    ratelimit_string = config.registry.settings.get(
+        "warehouse.xmlrpc.client.ratelimit_string"
+    )
     config.register_service_factory(
-        RateLimit("30 per minute;900 per hour"), IRateLimiter, name="xmlrpc.client"
+        RateLimit(ratelimit_string), IRateLimiter, name="xmlrpc.client"
     )
