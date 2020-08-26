@@ -2514,6 +2514,13 @@ class TestFileUpload:
             "manylinux2014_ppc64",
             "manylinux2014_ppc64le",
             "manylinux2014_s390x",
+            "manylinux_2_5_i686",
+            "manylinux_2_12_x86_64",
+            "manylinux_2_17_aarch64",
+            "manylinux_2_17_armv7l",
+            "manylinux_2_17_ppc64",
+            "manylinux_2_17_ppc64le",
+            "manylinux_3_0_s390x",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
             # A real tag used by e.g. some numpy wheels

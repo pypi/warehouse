@@ -138,6 +138,17 @@ _macosx_arches = {
     "fat64",
     "universal",
 }
+# manylinux pep600 is a little more complicated:
+_manylinux_platform_re = re.compile(r"manylinux_(\d+)+_(\d+)+_(?P<arch>.*)")
+_manylinux_arches = {
+    "x86_64",
+    "i686",
+    "aarch64",
+    "armv7l",
+    "ppc64",
+    "ppc64le",
+    "s390x",
+}
 
 
 # Actual checking code;
@@ -146,6 +157,9 @@ def _valid_platform_tag(platform_tag):
         return True
     m = _macosx_platform_re.match(platform_tag)
     if m and m.group("arch") in _macosx_arches:
+        return True
+    m = _manylinux_platform_re.match(platform_tag)
+    if m and m.group("arch") in _manylinux_arches:
         return True
     return False
 

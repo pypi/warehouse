@@ -69,12 +69,6 @@ services:
       - packages:/var/opt/warehouse/packages
     ports:
       - "80:8000"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - notdatadog
 
   files:
     build:
@@ -99,13 +93,6 @@ services:
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - smtp
-      - notdatadog
 
   static:
     build:

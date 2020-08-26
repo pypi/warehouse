@@ -829,6 +829,9 @@ def profile_public_email(user, request):
     has_translations=True,
 )
 def reauthenticate(request, _form_class=ReAuthenticateForm):
+    if request.user is None:
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
     user_service = request.find_service(IUserService, context=None)
 
     form = _form_class(
