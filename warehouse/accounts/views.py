@@ -197,7 +197,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .lower(),
                 )
 
-                request.session.record_auth_timestamp()
             return resp
 
     return {
@@ -257,7 +256,6 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 .hexdigest()
                 .lower(),
             )
-
             return resp
         else:
             form.totp_value.data = ""
@@ -784,7 +782,7 @@ def _login_user(request, userid, two_factor_method=None):
         ip_address=request.remote_addr,
         additional={"two_factor_method": two_factor_method},
     )
-
+    request.session.record_auth_timestamp()
     return headers
 
 
