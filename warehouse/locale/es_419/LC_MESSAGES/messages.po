@@ -1,15 +1,14 @@
-# Fahad Shihab <fahadshihab@gmail.com>, 2020.
-# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020.
+# Jose Florez <florezjoserodolfo@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
-"POT-Creation-Date: 2020-03-17 06:45+0200\n"
-"PO-Revision-Date: 2020-08-23 23:51+0000\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
-"Language-Team: Malayalam <https://hosted.weblate.org/projects/pypa/warehouse/"
-"ml/>\n"
-"Language: ml\n"
+"POT-Creation-Date: 2020-08-29 01:05+0200\n"
+"PO-Revision-Date: 2020-08-29 06:16+0000\n"
+"Last-Translator: Jose Florez <florezjoserodolfo@gmail.com>\n"
+"Language-Team: Spanish (Latin America) <https://hosted.weblate.org/projects/"
+"pypa/warehouse/es_419/>\n"
+"Language: es_419\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,19 +17,19 @@ msgstr ""
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr "ഭാഷ അപ്‌ഡേറ്റുചെയ്‌തു"
+msgstr "Configuración regional actualizada"
 
 #: warehouse/accounts/forms.py:42
 msgid "No user found with that username"
-msgstr "ആ ഉപയോക്തൃനാമത്തിൽ ഒരു ഉപയോക്താവിനെയും കണ്ടെത്തിയില്ല"
+msgstr "Ningún usuario encontrado con ese nombre de usuario"
 
 #: warehouse/accounts/forms.py:53
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP കോഡ് ${totp_length} അക്കങ്ങളായിരിക്കണം."
+msgstr "El código TOTP debe tener ${totp_length} dígitos."
 
 #: warehouse/accounts/forms.py:80
 msgid "Choose a username with 50 characters or less."
-msgstr "50 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക"
+msgstr "Elija un nombre de usuario con 50 caracteres o menos."
 
 #: warehouse/accounts/forms.py:86
 msgid ""
@@ -38,44 +37,46 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ഉപയോക്തൃനാമം അസാധുവാണ്. ഉപയോക്തൃനാമങ്ങൾ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഡോട്ടുകൾ, ഹൈഫനുകൾ, അടിവരകൾ "
-"എന്നിവ ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും "
-"വേണം. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
+"El nombre de usuario no es válido. Los nombres de usuario deben estar "
+"compuestos por letras, números, puntos, guiones y guiones bajos. Y también "
+"debe comenzar y terminar con una letra o un número. Elija un nombre de "
+"usuario diferente."
 
 #: warehouse/accounts/forms.py:100
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"ഈ ഉപയോക്തൃനാമം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
+"Este nombre de usuario ya está siendo utilizado por otra cuenta. Elija un "
+"nombre de usuario diferente."
 
 #: warehouse/accounts/forms.py:123
 msgid "The password is invalid. Try again."
-msgstr "പാസ്‌വേഡ് അസാധുവാണ്. വീണ്ടും ശ്രമിക്ക്."
+msgstr "La contraseña es inválida. Inténtalo de nuevo."
 
 #: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:68
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr "വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
+msgstr ""
+"Ha habido demasiados intentos de inicio de sesión fallidos. Inténtelo de "
+"nuevo más tarde."
 
 #: warehouse/accounts/forms.py:149
 msgid "Your passwords don't match. Try again."
-msgstr "നിങ്ങളുടെ പാസ്‌വേഡുകൾ പൊരുത്തപ്പെടുന്നില്ല. വീണ്ടും ശ്രമിക്ക്."
+msgstr "Tus contraseñas no coinciden. Inténtalo de nuevo."
 
 #: warehouse/accounts/forms.py:180 warehouse/accounts/forms.py:191
 msgid "The email address isn't valid. Try again."
-msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്ക്."
+msgstr ""
 
 #: warehouse/accounts/forms.py:199
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"ഈ ഡൊമെയ്‌നിൽ നിന്ന് നിങ്ങൾക്ക് ഒരു ഇമെയിൽ വിലാസം ഉപയോഗിക്കാൻ കഴിയില്ല. മറ്റൊരു ഇമെയിൽ "
-"ഉപയോഗിക്കുക."
 
 #: warehouse/accounts/forms.py:210
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "ഈ ഇമെയിൽ വിലാസം ഇതിനകം ഈ അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
+msgstr ""
 
 #: warehouse/accounts/forms.py:217
 msgid ""
