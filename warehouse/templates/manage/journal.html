@@ -25,7 +25,7 @@
   <p>{% trans %}Each time you or your collaborators update this project, the action is recorded and displayed here.{% endtrans %}</p>
 
   <div class="callout-block callout-block--warning no-top-margin">
-    <p>{% trans href=request.route_path('manage.project.history', project_name=project.normalized_name) %}This feature will be deprecated in the future, replaced by the <a href="{{ href }}">security history page</a>.{% endtrans %}
+    <p>{% trans href=request.route_path('manage.project.history', project_name=project.normalized_name) %}This feature will be deprecated in the future, replaced by the <a href="{{ href }}">security history page</a>.{% endtrans %}</p>
   </div>
 
   <table class="table table--history">
