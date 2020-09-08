@@ -630,6 +630,15 @@
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
         </ol>
         <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
+        <p>
+          {% trans %}
+            If you're using Windows and trying to paste your password or token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
+            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
+          {% endtrans %}
+          {% trans trimmed href='https://bugs.python.org/issue37426', title=gettext('External link') %}
+            This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
+          {% endtrans %}
+        </p>
 
         <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
         <p>

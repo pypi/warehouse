@@ -14,6 +14,7 @@ import os
 import os.path
 import xmlrpc.client
 
+from collections import defaultdict
 from contextlib import contextmanager
 from unittest import mock
 
@@ -75,13 +76,13 @@ def metrics():
 
 class _Services:
     def __init__(self):
-        self._services = {}
+        self._services = defaultdict(lambda: defaultdict(dict))
 
-    def register_service(self, iface, context, service_obj):
-        self._services[(iface, context)] = service_obj
+    def register_service(self, service_obj, iface=None, context=None, name=""):
+        self._services[iface][context][name] = service_obj
 
-    def find_service(self, iface, context):
-        return self._services[(iface, context)]
+    def find_service(self, iface=None, context=None, name=""):
+        return self._services[iface][context][name]
 
 
 @pytest.fixture
@@ -89,7 +90,7 @@ def pyramid_services(metrics):
     services = _Services()
 
     # Register our global services.
-    services.register_service(IMetricsService, None, metrics)
+    services.register_service(metrics, IMetricsService, None, name="")
 
     return services
 
@@ -98,6 +99,7 @@ def pyramid_services(metrics):
 def pyramid_request(pyramid_services):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
+    dummy_request.remote_addr = "1.2.3.4"
 
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)

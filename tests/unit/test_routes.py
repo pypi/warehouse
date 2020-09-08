@@ -148,7 +148,7 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "accounts.reauthenticate", "/accounts/reauthenticate/", domain=warehouse
+            "accounts.reauthenticate", "/account/reauthenticate/", domain=warehouse
         ),
         pretend.call(
             "accounts.recovery-code", "/account/recovery-code/", domain=warehouse

@@ -1060,7 +1060,6 @@ class TestFileUpload:
         user = UserFactory.create()
         EmailFactory.create(user=user)
         db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         db_request.POST = MultiDict(
@@ -1310,7 +1309,6 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.40"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         content = FieldStorage()
@@ -1442,7 +1440,7 @@ class TestFileUpload:
                 release.version,
                 "add source file {}".format(filename),
                 user,
-                "10.10.10.40",
+                db_request.remote_addr,
             )
         ]
 
@@ -2034,7 +2032,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
@@ -2080,21 +2077,21 @@ class TestFileUpload:
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
             for j in journals
         ] == [
-            ("example", None, "create", user, "10.10.10.10"),
+            ("example", None, "create", user, db_request.remote_addr),
             (
                 "example",
                 None,
                 "add Owner {}".format(user.username),
                 user,
-                "10.10.10.10",
+                db_request.remote_addr,
             ),
-            ("example", "1.0", "new release", user, "10.10.10.10"),
+            ("example", "1.0", "new release", user, db_request.remote_addr),
             (
                 "example",
                 "1.0",
                 "add source file example-1.0.tar.gz",
                 user,
-                "10.10.10.10",
+                db_request.remote_addr,
             ),
         ]
 
@@ -2517,6 +2514,13 @@ class TestFileUpload:
             "manylinux2014_ppc64",
             "manylinux2014_ppc64le",
             "manylinux2014_s390x",
+            "manylinux_2_5_i686",
+            "manylinux_2_12_x86_64",
+            "manylinux_2_17_aarch64",
+            "manylinux_2_17_armv7l",
+            "manylinux_2_17_ppc64",
+            "manylinux_2_17_ppc64le",
+            "manylinux_3_0_s390x",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
             # A real tag used by e.g. some numpy wheels
@@ -2542,7 +2546,6 @@ class TestFileUpload:
         filename = "{}-{}-cp34-none-{}.whl".format(project.name, release.version, plat)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2627,7 +2630,7 @@ class TestFileUpload:
                 release.version,
                 "add cp34 file {}".format(filename),
                 user,
-                "10.10.10.30",
+                db_request.remote_addr,
             )
         ]
 
@@ -2657,7 +2660,6 @@ class TestFileUpload:
         filename = "{}-{}-cp34-none-any.whl".format(project.name, release.version)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.30"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2741,7 +2743,7 @@ class TestFileUpload:
                 release.version,
                 "add cp34 file {}".format(filename),
                 user,
-                "10.10.10.30",
+                db_request.remote_addr,
             )
         ]
 
@@ -2802,7 +2804,6 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(new_project_name, "1.1")
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2825,7 +2826,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
@@ -2860,7 +2860,6 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -2936,13 +2935,19 @@ class TestFileUpload:
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
             for j in journals
         ] == [
-            (release.project.name, release.version, "new release", user, "10.10.10.20"),
+            (
+                release.project.name,
+                release.version,
+                "new release",
+                user,
+                db_request.remote_addr,
+            ),
             (
                 release.project.name,
                 release.version,
                 "add source file {}".format(filename),
                 user,
-                "10.10.10.20",
+                db_request.remote_addr,
             ),
         ]
 
@@ -2963,7 +2968,6 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -3046,7 +3050,6 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -3095,7 +3098,6 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         db_request.user = user
-        db_request.remote_addr = "10.10.10.20"
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -3153,7 +3155,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
@@ -3199,21 +3200,21 @@ class TestFileUpload:
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
             for j in journals
         ] == [
-            ("example", None, "create", user, "10.10.10.10"),
+            ("example", None, "create", user, db_request.remote_addr),
             (
                 "example",
                 None,
                 "add Owner {}".format(user.username),
                 user,
-                "10.10.10.10",
+                db_request.remote_addr,
             ),
-            ("example", "1.0", "new release", user, "10.10.10.10"),
+            ("example", "1.0", "new release", user, db_request.remote_addr),
             (
                 "example",
                 "1.0",
                 "add source file example-1.0.tar.gz",
                 user,
-                "10.10.10.10",
+                db_request.remote_addr,
             ),
         ]
 
@@ -3247,7 +3248,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
@@ -3308,7 +3308,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         if expected_success:
@@ -3364,7 +3363,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
-        db_request.remote_addr = "10.10.10.10"
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
