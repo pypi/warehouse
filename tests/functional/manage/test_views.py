@@ -23,9 +23,9 @@ from ...common.db.accounts import EmailFactory, UserFactory
 class TestManageAccount:
     def test_save_account(self, pyramid_services, user_service, db_request):
         breach_service = pretend.stub()
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
         user = UserFactory.create(name="old name")
         EmailFactory.create(primary=True, verified=True, public=True, user=user)
