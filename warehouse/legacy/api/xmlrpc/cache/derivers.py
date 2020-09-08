@@ -22,7 +22,7 @@ def cached_return_view(view, info):
         arg_index = info.options.get("xmlrpc_cache_arg_index")
         slice_obj = info.options.get("xmlrpc_cache_slice_obj", slice(None, None))
         tag_processor = info.options.get(
-            "xmlrpc_cache_tag_processor", lambda x: str(x).lower()
+            "xmlrpc_cache_tag_processor", lambda x: x.lower()
         )
 
         def wrapper_view(context, request):
@@ -34,7 +34,7 @@ def cached_return_view(view, info):
                 key = json.dumps(request.rpc_args[slice_obj])
                 _tag = tag
                 if arg_index is not None:
-                    _tag = tag % (tag_processor(request.rpc_args[arg_index]),)
+                    _tag = tag % (tag_processor(str(request.rpc_args[arg_index])))
                 return service.fetch(view, (context, request), {}, key, _tag, expires)
             except (interfaces.CacheError, IndexError):
                 return view(context, request)

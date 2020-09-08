@@ -1,36 +1,35 @@
-# Fahad Shihab <fahadshihab@gmail.com>, 2020.
-# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020.
+# Kavindu Santhusa <kavindusanthusa@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
-"POT-Creation-Date: 2020-03-17 06:45+0200\n"
-"PO-Revision-Date: 2020-08-23 23:51+0000\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
-"Language-Team: Malayalam <https://hosted.weblate.org/projects/pypa/warehouse/"
-"ml/>\n"
-"Language: ml\n"
+"POT-Creation-Date: 2020-07-18 08:43+0200\n"
+"PO-Revision-Date: 2020-07-19 11:41+0000\n"
+"Last-Translator: Kavindu Santhusa <kavindusanthusa@gmail.com>\n"
+"Language-Team: Sinhala <https://hosted.weblate.org/projects/pypa/warehouse/"
+"si/>\n"
+"Language: si\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.2.1-dev\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.2-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
-msgstr "ഭാഷ അപ്‌ഡേറ്റുചെയ്‌തു"
+msgstr ""
 
 #: warehouse/accounts/forms.py:42
 msgid "No user found with that username"
-msgstr "ആ ഉപയോക്തൃനാമത്തിൽ ഒരു ഉപയോക്താവിനെയും കണ്ടെത്തിയില്ല"
+msgstr "එම පරිශීලක නාමය සමඟ කිසිදු පරිශීලකයෙකු හමු නොවීය"
 
 #: warehouse/accounts/forms.py:53
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP കോഡ് ${totp_length} അക്കങ്ങളായിരിക്കണം."
+msgstr ""
 
 #: warehouse/accounts/forms.py:80
 msgid "Choose a username with 50 characters or less."
-msgstr "50 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക"
+msgstr "අක්ෂර 50 ක් හෝ ඊට අඩු පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/accounts/forms.py:86
 msgid ""
@@ -38,58 +37,57 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ഉപയോക്തൃനാമം അസാധുവാണ്. ഉപയോക്തൃനാമങ്ങൾ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഡോട്ടുകൾ, ഹൈഫനുകൾ, അടിവരകൾ "
-"എന്നിവ ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും "
-"വേണം. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
+"පරිශීලක නාමය අවලංගුය. පරිශීලක නාම අකුරු, අංක, තිත්, යටි ඉර සහ යටි ඉරි වලින් සමන්විත විය යුතුය. "
+"තවද අකුරකින් හෝ අංකයකින් ආරම්භ කර අවසන් කළ යුතුය. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/accounts/forms.py:100
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr ""
-"ഈ ഉപയോക്തൃനാമം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
+msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
 #: warehouse/accounts/forms.py:123
 msgid "The password is invalid. Try again."
-msgstr "പാസ്‌വേഡ് അസാധുവാണ്. വീണ്ടും ശ്രമിക്ക്."
+msgstr "මුරපදය අවලංගුය. නැවත උත්සහා කරන්න."
 
 #: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:68
 msgid "There have been too many unsuccessful login attempts. Try again later."
-msgstr "വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
+msgstr "පුරනය වීමේ උත්සාහයන් අසාර්ථක වී ඇත. පසුව නැවත උත්සාහ කරන්න."
 
 #: warehouse/accounts/forms.py:149
 msgid "Your passwords don't match. Try again."
-msgstr "നിങ്ങളുടെ പാസ്‌വേഡുകൾ പൊരുത്തപ്പെടുന്നില്ല. വീണ്ടും ശ്രമിക്ക്."
+msgstr "ඔබගේ මුරපද නොගැලපේ. නැවත උත්සහා කරන්න."
 
 #: warehouse/accounts/forms.py:180 warehouse/accounts/forms.py:191
 msgid "The email address isn't valid. Try again."
-msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്ക്."
+msgstr "විද්‍යුත් තැපැල් ලිපිනය වලංගු නොවේ. නැවත උත්සහා කරන්න."
 
 #: warehouse/accounts/forms.py:199
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"ഈ ഡൊമെയ്‌നിൽ നിന്ന് നിങ്ങൾക്ക് ഒരു ഇമെയിൽ വിലാസം ഉപയോഗിക്കാൻ കഴിയില്ല. മറ്റൊരു ഇമെയിൽ "
-"ഉപയോഗിക്കുക."
+"ඔබට මෙම වසමෙන් විද්‍යුත් තැපැල් ලිපිනයක් භාවිතා කළ නොහැක. වෙනස් විද්‍යුත් තැපෑලක් භාවිතා කරන්න."
 
 #: warehouse/accounts/forms.py:210
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "ഈ ഇമെയിൽ വിലാസം ഇതിനകം ഈ അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
+msgstr ""
+"මෙම විද්‍යුත් තැපැල් ලිපිනය දැනටමත් මෙම ගිණුම භාවිතා කරයි. වෙනස් විද්‍යුත් තැපෑලක් භාවිතා කරන්න."
 
 #: warehouse/accounts/forms.py:217
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
+"මෙම විද්‍යුත් තැපැල් ලිපිනය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් විද්‍යුත් තැපෑලක් භාවිතා කරන්න."
 
 #: warehouse/accounts/forms.py:239
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr ""
+msgstr "නම දිග වැඩියි. අක්ෂර 100 ක් හෝ ඊට අඩු නමක් තෝරන්න."
 
 #: warehouse/accounts/forms.py:303
 msgid "Invalid TOTP code."
-msgstr ""
+msgstr "TOTP කේතය අවලංගුයි."
 
 #: warehouse/accounts/forms.py:320
 msgid "Invalid WebAuthn assertion: Bad payload"
@@ -97,71 +95,75 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:363
 msgid "Invalid recovery code."
-msgstr ""
+msgstr "ප්‍රතිසාධන කේතය අවලංගුයි."
 
 #: warehouse/accounts/forms.py:381
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "එම පරිශීලක නාමය හෝ විද්‍යුත් තැපෑල සමඟ කිසිදු පරිශීලකයෙකු හමු නොවීය"
 
 #: warehouse/accounts/views.py:85
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
+"සත්‍යාපනය නොකර ඊමේල් විශාල ප්‍රමාණයක් මෙම ගිණුමට එකතු කර ඇත. ඔබගේ එන ලිපි පරීක්ෂා කර සත්‍"
+"යාපන සබැඳි අනුගමනය කරන්න. (IP: $ {ip})"
 
 #: warehouse/accounts/views.py:224 warehouse/accounts/views.py:281
 #: warehouse/accounts/views.py:283 warehouse/accounts/views.py:310
 #: warehouse/accounts/views.py:312 warehouse/accounts/views.py:367
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "අවලංගු හෝ කල් ඉකුත් වූ සාධක දෙකක පිවිසුම."
 
 #: warehouse/accounts/views.py:275
 msgid "Already authenticated"
-msgstr ""
+msgstr "සත්‍යාපනය"
 
 #: warehouse/accounts/views.py:343
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "WebAuthn ප්‍රකාශය සාර්ථකයි"
 
 #: warehouse/accounts/views.py:396
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "ප්‍රතිසාධන කේතය පිළිගෙන ඇත. සැපයූ කේතය නැවත භාවිතා කළ නොහැක."
 
 #: warehouse/accounts/views.py:482
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
+"නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
+"help#admin-intervention බලන්න."
 
 #: warehouse/accounts/views.py:581
 msgid "Expired token: request a new password reset link"
-msgstr ""
+msgstr "කල් ඉකුත් වූ ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
 #: warehouse/accounts/views.py:583
 msgid "Invalid token: request a new password reset link"
-msgstr ""
+msgstr "අවලංගු ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
 #: warehouse/accounts/views.py:585 warehouse/accounts/views.py:668
 msgid "Invalid token: no token supplied"
-msgstr ""
+msgstr "අවලංගු ටෝකනය: ටෝකනයක් සපයා නැත"
 
 #: warehouse/accounts/views.py:589
 msgid "Invalid token: not a password reset token"
-msgstr ""
+msgstr "වලංගු නොවන ටෝකනය: මුරපද යළි පිහිටුවීමේ ටෝකනයක් නොවේ"
 
 #: warehouse/accounts/views.py:594
 msgid "Invalid token: user not found"
-msgstr ""
+msgstr "වලංගු නොවන ටෝකනය: පරිශීලකයා හමු නොවීය"
 
 #: warehouse/accounts/views.py:601
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr ""
+msgstr "වලංගු නොවන ටෝකනය: මෙම ටෝකනය ඉල්ලා සිටි දින සිට පරිශීලකයා පුරනය වී ඇත"
 
 #: warehouse/accounts/views.py:610
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr ""
+msgstr "වලංගු නොවන ටෝකනය: මෙම ටෝකනය ඉල්ලූ දා සිට මුරපදය දැනටමත් වෙනස් කර ඇත"
 
 #: warehouse/accounts/views.py:637
 msgid "You have reset your password"
