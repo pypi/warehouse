@@ -248,9 +248,9 @@ google-cloud-core==1.4.1 \
     --hash=sha256:4c9e457fcfc026fdde2e492228f04417d4c717fb0f29f070122fb0ab89e34ebd \
     --hash=sha256:613e56f164b6bee487dd34f606083a0130f66f42f7b10f99730afdf1630df507 \
     # via google-cloud-bigquery, google-cloud-storage
-google-cloud-storage==1.30.0 \
-    --hash=sha256:02ac63059c798d4b8ba9057921be745707dc2d3316f5f366de91c24cc23cd77e \
-    --hash=sha256:0634addb7576d48861d9963312fc82a0436042b8f282414ed58ca76d73edee54 \
+google-cloud-storage==1.31.0 \
+    --hash=sha256:34fb8f7e8a2a633cbfb09d8dec38b3450c4029af1a328a67bca64f6226a1f4a5 \
+    --hash=sha256:4f51c7700242a9d54c07117f25fec5d110ab85435b3ce60ac28cc553f8ea938b \
     # via -r requirements/main.in
 google-crc32c==1.0.0 \
     --hash=sha256:00b34d4c9ac565b2be553f81f58e5861e51d43af2043ed7cbfe1853ee2f54671 \
@@ -272,9 +272,9 @@ google-crc32c==1.0.0 \
     --hash=sha256:f3b859200c3bc73925b1719ed8b1f6d8d73b6620b42dbc121c4df58423045e34 \
     --hash=sha256:f54c90058e3f56e55fa0f699c6f4ceaaa825ea7f17ef2adbf07b2b06b27455e7 \
     # via google-resumable-media
-google-resumable-media==0.7.0 \
-    --hash=sha256:280ea71f49105ebab8a3ca7a24edd0d17d49a94721b602a64523b1d090c73bd0 \
-    --hash=sha256:85848d9353770e88562e7d61dae4d3b83999de5a19ba6f466da8eb4b7b18772c \
+google-resumable-media==1.0.0 \
+    --hash=sha256:173acc6bade1480a529fa29c6c2717543ae2dc09d42e9461fdb86f39502efcf2 \
+    --hash=sha256:99b5ac33a75ddb25d5e6aad487b37ecb4fa18b1fbf3d1ad726e032c3d6fc9aff \
     # via google-cloud-bigquery, google-cloud-storage
 googleapis-common-protos==1.52.0 \
     --hash=sha256:560716c807117394da12cecb0a54da5a451b5cf9866f1d37e9a5e2329a665351 \
