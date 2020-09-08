@@ -35,9 +35,9 @@ from warehouse.rate_limiting import IRateLimiter, RateLimit
 class TestLogin:
     def test_invalid_route(self, pyramid_request, pyramid_services):
         service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="route_name")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -45,9 +45,9 @@ class TestLogin:
 
     def test_with_no_user(self, pyramid_request, pyramid_services):
         service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -63,9 +63,9 @@ class TestLogin:
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
         )
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -86,9 +86,9 @@ class TestLogin:
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (True, None)),
         )
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, pretend.stub()
+            pretend.stub(), IPasswordBreachedService, None
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
@@ -111,11 +111,11 @@ class TestLogin:
                 lambda user_id: (True, DisableReason.CompromisedPassword)
             ),
         )
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
+            pretend.stub(failure_message_plain="Bad Password!"),
             IPasswordBreachedService,
             None,
-            pretend.stub(failure_message_plain="Bad Password!"),
         )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
@@ -149,9 +149,9 @@ class TestLogin:
             check_password=pretend.call_recorder(lambda pw, tags=None: False)
         )
 
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
@@ -199,9 +199,9 @@ class TestLogin:
             failure_message_plain="Bad Password!",
         )
 
-        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")

@@ -1,0 +1,3 @@
+[tool.curlylint]
+# For jinja's i18n extension:
+jinja_custom_elements_names = [['trans', 'pluralize', 'endtrans']]
