@@ -197,7 +197,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .lower(),
                 )
 
-                request.session.record_auth_timestamp()
             return resp
 
     return {
@@ -257,7 +256,6 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 .hexdigest()
                 .lower(),
             )
-
             return resp
         else:
             form.totp_value.data = ""
@@ -784,7 +782,7 @@ def _login_user(request, userid, two_factor_method=None):
         ip_address=request.remote_addr,
         additional={"two_factor_method": two_factor_method},
     )
-
+    request.session.record_auth_timestamp()
     return headers
 
 
@@ -829,6 +827,9 @@ def profile_public_email(user, request):
     has_translations=True,
 )
 def reauthenticate(request, _form_class=ReAuthenticateForm):
+    if request.user is None:
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
     user_service = request.find_service(IUserService, context=None)
 
     form = _form_class(

@@ -98,9 +98,9 @@ class TestLogin:
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         form_obj = pretend.stub()
@@ -132,9 +132,9 @@ class TestLogin:
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -179,9 +179,9 @@ class TestLogin:
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -272,9 +272,9 @@ class TestLogin:
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -573,6 +573,9 @@ class TestTwoFactor:
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
         )
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -606,6 +609,7 @@ class TestTwoFactor:
                 additional={"two_factor_method": "totp"},
             )
         ]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     def test_totp_auth_already_authed(self):
         request = pretend.stub(
@@ -984,6 +988,9 @@ class TestRecoveryCode:
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
         )
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -1026,6 +1033,7 @@ class TestRecoveryCode:
                 queue="success",
             )
         ]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     def test_recovery_code_form_invalid(self):
         token_data = {"userid": 1}
@@ -1202,6 +1210,9 @@ class TestRegister:
         create_user = pretend.call_recorder(lambda *args, **kwargs: user)
         add_email = pretend.call_recorder(lambda *args, **kwargs: email)
         record_event = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
         db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 csp_policy={},
@@ -1227,6 +1238,7 @@ class TestRegister:
                 "full_name": "full_name",
             }
         )
+
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
 
@@ -1919,7 +1931,7 @@ class TestReAuthentication:
 
         monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
 
         pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
         pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
@@ -1960,3 +1972,13 @@ class TestReAuthentication:
                 ],
             )
         ]
+
+    def test_reauth_no_user(self, monkeypatch, pyramid_request):
+        pyramid_request.user = None
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+
+        result = views.reauthenticate(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
+        assert result.headers["Location"] == "/the-redirect"
