@@ -107,9 +107,7 @@ def test_includeme(monkeypatch):
     es_client = pretend.stub()
     es_client_init = pretend.call_recorder(lambda *a, **kw: es_client)
 
-    monkeypatch.setattr(
-        search.requests_aws4auth, "AWS4Auth", aws4auth,
-    )
+    monkeypatch.setattr(search.requests_aws4auth, "AWS4Auth", aws4auth)
     monkeypatch.setattr(search.elasticsearch, "Elasticsearch", es_client_init)
 
     registry = {}
