@@ -76,7 +76,7 @@ def forbidden_legacy(exc, request):
 @view_config(route_name="legacy.api.pypi.list_classifiers")
 def list_classifiers(request):
     return Response(
-        text="\n".join(sorted(classifiers)), content_type="text/plain; charset=utf-8",
+        text="\n".join(sorted(classifiers)), content_type="text/plain; charset=utf-8"
     )
 
 

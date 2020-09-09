@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/tests.txt requirements/tests.in
 #
-attrs==20.1.0 \
-    --hash=sha256:0ef97238856430dcf9228e07f316aefc17e8939fc8507e18c6501b761ef1a42a \
-    --hash=sha256:2867b7b9f8326499ab5b0e2d12801fa5c98842d2cbd22b35112ae04bf85b4dff \
+attrs==20.2.0 \
+    --hash=sha256:26b54ddbbb9ee1d34d5d3668dd37d6cf74990ab23c828c2888dccdceee395594 \
+    --hash=sha256:fce7fc47dfc976152e82d53ff92fa0407700c21acd20886a13777a0d20e655dc \
     # via pytest
 beautifulsoup4==4.9.1 \
     --hash=sha256:73cc4d115b96f79c7d77c1c7f7a0a8d4c57860d1041df407dd1aae7f07a77fd7 \
@@ -72,9 +72,9 @@ fakeredis==1.4.3 \
     --hash=sha256:7ea0866ba5edb40fe2e9b1722535df0c7e6b91d518aa5f50d96c2fff3ea7f4c2 \
     --hash=sha256:aad8836ffe0319ffbba66dcf872ac6e7e32d1f19790e31296ba58445efb0a5c7 \
     # via -r requirements/tests.in
-freezegun==0.3.15 \
-    --hash=sha256:82c757a05b7c7ca3e176bfebd7d6779fd9139c7cb4ef969c38a28d74deef89b2 \
-    --hash=sha256:e2062f2c7f95cc276a834c22f1a17179467176b624cc6f936e8bc3be5535ad1b \
+freezegun==1.0.0 \
+    --hash=sha256:02b35de52f4699a78f6ac4518e4cd3390dddc43b0aeb978335a8f270a2d9668b \
+    --hash=sha256:1cf08e441f913ff5e59b19cc065a8faa9dd1ddc442eaf0375294f344581a0643 \
     # via -r requirements/tests.in
 idna==2.10 \
     --hash=sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6 \
@@ -163,7 +163,7 @@ selenium==3.141.0 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via bok-choy, fakeredis, freezegun, packaging, python-dateutil, responses, webtest
+    # via bok-choy, fakeredis, packaging, python-dateutil, responses, webtest
 sortedcontainers==2.2.2 \
     --hash=sha256:4e73a757831fc3ca4de2859c422564239a31d8213d09a2a666e375807034d2ba \
     --hash=sha256:c633ebde8580f241f274c1f8994a665c0e54a17724fecd0cae2f079e09c36d3f \

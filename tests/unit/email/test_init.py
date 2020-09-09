@@ -488,7 +488,7 @@ class TestEmailVerificationEmail:
     ):
 
         stub_user = pretend.stub(
-            id="id", username=None, name=None, email="foo@example.com",
+            id="id", username=None, name=None, email="foo@example.com"
         )
         stub_email = pretend.stub(id="id", email="email@example.com", verified=False)
         pyramid_request.method = "POST"
@@ -527,7 +527,7 @@ class TestEmailVerificationEmail:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_email_verification_email(
-            pyramid_request, (stub_user, stub_email,),
+            pyramid_request, (stub_user, stub_email)
         )
 
         assert result == {
@@ -1340,7 +1340,7 @@ class TestAddedAsCollaboratorEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
-            id="id_2", username="submitterusername", email="submiteremail",
+            id="id_2", username="submitterusername", email="submiteremail"
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/subject.txt"
@@ -1432,7 +1432,7 @@ class TestAddedAsCollaboratorEmail:
             primary_email=pretend.stub(email="email@example.com", verified=False),
         )
         stub_submitter_user = pretend.stub(
-            id="id_2", username="submitterusername", email="submiteremail",
+            id="id_2", username="submitterusername", email="submiteremail"
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/subject.txt"
