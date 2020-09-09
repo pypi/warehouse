@@ -222,8 +222,11 @@ def json_release_slash(release, request):
 )
 def json_prohibited_project_names(request):
     return {
-        "names": [p.name for p in request.db.query(ProhibitedProjectName)
+        "names": [
+            p.name
+            for p in request.db.query(ProhibitedProjectName)
             .options(Load(ProhibitedProjectName).load_only("name"))
             .order_by(ProhibitedProjectName.name)
-            .all()]
+            .all()
+        ]
     }

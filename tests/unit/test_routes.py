@@ -324,6 +324,12 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "legacy.api.json.prohibited_project_names",
+            "/pypi/prohibited_project_names/json/",
+            read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
             "legacy.api.json.project",
             "/pypi/{name}/json",
             factory="warehouse.packaging.models:ProjectFactory",
