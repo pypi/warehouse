@@ -196,7 +196,7 @@ class DatabaseUserService:
         # Check to make sure that we haven't hitten the rate limit for this IP
         if not self.ratelimiters["email.add"].test(ip_address):
             self._metrics.increment(
-                "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"],
+                "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
             )
             raise TooManyEmailsAdded(
                 resets_in=self.ratelimiters["email.add"].resets_in(ip_address)

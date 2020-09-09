@@ -440,7 +440,7 @@ class TestReindex:
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.requests_aws4auth, "AWS4Auth", aws4auth,
+            warehouse.search.tasks.requests_aws4auth, "AWS4Auth", aws4auth
         )
         monkeypatch.setattr(
             warehouse.search.tasks.elasticsearch, "Elasticsearch", es_client_init

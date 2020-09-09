@@ -2419,8 +2419,8 @@ class TestManageProjectSettings:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project, db_request.user, db_request,),
-            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
         ]
 
         assert send_removed_project_email.calls == [
@@ -2613,7 +2613,7 @@ class TestManageProjectRelease:
                 "yanked_reason": "Yanky Doodle went to town",
             },
             method="POST",
-            db=pretend.stub(add=pretend.call_recorder(lambda a: None),),
+            db=pretend.stub(add=pretend.call_recorder(lambda a: None)),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -2649,8 +2649,8 @@ class TestManageProjectRelease:
         assert release.yanked_reason == "Yanky Doodle went to town"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(release.project, request.user, request,),
-            pretend.call(release.project, request.user, request,),
+            pretend.call(release.project, request.user, request),
+            pretend.call(release.project, request.user, request),
         ]
 
         assert send_yanked_project_release_email.calls == [
@@ -2782,7 +2782,7 @@ class TestManageProjectRelease:
         request = pretend.stub(
             POST={"confirm_unyank_version": release.version},
             method="POST",
-            db=pretend.stub(add=pretend.call_recorder(lambda a: None),),
+            db=pretend.stub(add=pretend.call_recorder(lambda a: None)),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
@@ -2988,8 +2988,8 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(release.project, request.user, request,),
-            pretend.call(release.project, request.user, request,),
+            pretend.call(release.project, request.user, request),
+            pretend.call(release.project, request.user, request),
         ]
 
         assert send_removed_project_release_email.calls == [
@@ -3202,8 +3202,8 @@ class TestManageProjectRelease:
         ]
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project, db_request.user, db_request,),
-            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
         ]
 
         assert send_removed_project_release_file_email.calls == [
@@ -3751,11 +3751,11 @@ class TestDeleteProjectRoles:
         assert db_request.db.query(Role).all() == []
         assert send_collaborator_removed_email.calls == [
             pretend.call(
-                db_request, set(), user=user, submitter=user_2, project_name="foobar",
+                db_request, set(), user=user, submitter=user_2, project_name="foobar"
             )
         ]
         assert send_removed_as_collaborator_email.calls == [
-            pretend.call(db_request, user, submitter=user_2, project_name="foobar",)
+            pretend.call(db_request, user, submitter=user_2, project_name="foobar")
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed role", queue="success")
