@@ -544,7 +544,7 @@ class TestSessionFactory:
         ]
         assert msgpack_packb.calls == [
             pretend.call(
-                pyramid_request.session, default=object_encode, use_bin_type=True,
+                pyramid_request.session, default=object_encode, use_bin_type=True
             )
         ]
         assert session_factory.redis.setex.calls == [

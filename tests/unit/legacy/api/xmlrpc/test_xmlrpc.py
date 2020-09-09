@@ -864,34 +864,43 @@ def test_browse(db_request):
     assert set(xmlrpc.browse(db_request, ["Environment :: Other Environment"])) == {
         (r.project.name, r.version) for r in releases
     }
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-            ],
+    assert (
+        set(
+            xmlrpc.browse(
+                db_request,
+                [
+                    "Environment :: Other Environment",
+                    "Development Status :: 5 - Production/Stable",
+                ],
+            )
         )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
+        == {(expected_release.project.name, expected_release.version)}
+    )
+    assert (
+        set(
+            xmlrpc.browse(
+                db_request,
+                [
+                    "Environment :: Other Environment",
+                    "Development Status :: 5 - Production/Stable",
+                    "Programming Language :: Python",
+                ],
+            )
         )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
+        == {(expected_release.project.name, expected_release.version)}
+    )
+    assert (
+        set(
+            xmlrpc.browse(
+                db_request,
+                [
+                    "Development Status :: 5 - Production/Stable",
+                    "Programming Language :: Python",
+                ],
+            )
         )
-    ) == {(expected_release.project.name, expected_release.version)}
+        == {(expected_release.project.name, expected_release.version)}
+    )
 
 
 def test_multicall(pyramid_request):

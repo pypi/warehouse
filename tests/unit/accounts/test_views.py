@@ -938,7 +938,7 @@ class TestRecoveryCode:
         ]
         assert result == {"form": form_obj}
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service,)
+            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service)
         ]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
@@ -1247,7 +1247,7 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert create_user.calls == [
-            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd",)
+            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
         ]
         assert add_email.calls == [
             pretend.call(user.id, "foo@bar.com", db_request.remote_addr, primary=True)

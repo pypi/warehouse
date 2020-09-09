@@ -1685,7 +1685,7 @@ def delete_project_role(project, request):
             )
 
             send_removed_as_collaborator_email(
-                request, role.user, submitter=request.user, project_name=project.name,
+                request, role.user, submitter=request.user, project_name=project.name
             )
 
             request.session.flash("Removed role", queue="success")
