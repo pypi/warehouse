@@ -17,7 +17,6 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, literal, or_
-from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -73,36 +72,6 @@ def prohibited_project_names(request):
     )
 
     return {"prohibited_project_names": prohibited_project_names, "query": q}
-
-
-@view_config(
-    route_name="admin.prohibited_project_names.json",
-    renderer="json",
-    request_method="GET",
-    uses_session=False,
-)
-def prohibited_project_names_json(request):
-    q = request.params.get("q")
-
-    prohibited_project_names_query = (request.db.query(ProhibitedProjectName)
-        .options(Load(ProhibitedProjectName).load_only("name"))
-        .order_by(ProhibitedProjectName.name)
-    )
-
-    if q:
-        terms = shlex.split(q)
-
-        filters = []
-        for term in terms:
-            filters.append(
-                ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
-            )
-
-        prohibited_project_names_query = prohibited_project_names_query.filter(
-            or_(*filters)
-        )
-
-    return {"names": [p.name for p in prohibited_project_names_query]}
 
 
 @view_config(

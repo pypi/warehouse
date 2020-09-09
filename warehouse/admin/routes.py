@@ -122,12 +122,6 @@ def includeme(config):
         "/admin/prohibited_project_names/remove/",
         domain=warehouse,
     )
-    # Unauthenticated, read-only JSON list of names
-    config.add_route(
-        "admin.prohibited_project_names.json",
-        "/admin/prohibited_project_names/json/",
-        domain=warehouse,
-    )
 
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)

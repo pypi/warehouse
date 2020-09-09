@@ -326,6 +326,13 @@ def includeme(config):
     )
 
     config.add_route(
+        "legacy.api.json.prohibited_project_names",
+        "/pypi/prohibited_project_names/json/",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
         factory="warehouse.packaging.models:ProjectFactory",
