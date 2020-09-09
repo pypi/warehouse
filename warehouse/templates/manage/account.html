@@ -577,23 +577,23 @@
 
       {% elif event.tag  == "account:email:add" %}
       <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:remove" %}
       <strong>{% trans %}Email removed from account{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:verified" %}
       <strong>{% trans %}Email verified{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:reverify" %}
       <strong>{% trans %}Email reverified{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:primary:change" %}
         {% if event.additional.old_primary %}
         <strong>{% trans %}Primary email changed{% endtrans %}</strong><br>
         <small>
           {% trans %}Old primary email:{% endtrans %} {{ event.additional.old_primary }}<br>
           {% trans %}New primary email:{% endtrans %} {{ event.additional.new_primary }}
-        <small>
+        </small>
         {% else %}
         <strong>{% trans %}Primary email set{% endtrans %}</strong><br>
         <small>
