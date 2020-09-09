@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/tests.txt requirements/tests.in
 #
-attrs==20.1.0 \
-    --hash=sha256:0ef97238856430dcf9228e07f316aefc17e8939fc8507e18c6501b761ef1a42a \
-    --hash=sha256:2867b7b9f8326499ab5b0e2d12801fa5c98842d2cbd22b35112ae04bf85b4dff \
+attrs==20.2.0 \
+    --hash=sha256:26b54ddbbb9ee1d34d5d3668dd37d6cf74990ab23c828c2888dccdceee395594 \
+    --hash=sha256:fce7fc47dfc976152e82d53ff92fa0407700c21acd20886a13777a0d20e655dc \
     # via pytest
 beautifulsoup4==4.9.1 \
     --hash=sha256:73cc4d115b96f79c7d77c1c7f7a0a8d4c57860d1041df407dd1aae7f07a77fd7 \
