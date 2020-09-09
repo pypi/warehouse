@@ -221,6 +221,9 @@ def json_release_slash(release, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_prohibited_project_names(request):
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
+
     return {
         "names": [
             p.name
