@@ -3027,9 +3027,7 @@ class TestFileUpload:
             db_request.db.add(Classifier(classifier=classifier))
         db_request.db.commit()
 
-    @pytest.mark.parametrize(
-        "parent_classifier", ["private", "Private", "PrIvAtE"],
-    )
+    @pytest.mark.parametrize("parent_classifier", ["private", "Private", "PrIvAtE"])
     def test_private_classifiers_cannot_be_created(self, db_request, parent_classifier):
         with pytest.raises(IntegrityError):
             db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))

@@ -21,7 +21,7 @@ from warehouse import sentry
 
 def test_sentry_request_method():
     sentry_sdk = pretend.stub()
-    request = pretend.stub(registry={"sentry": sentry_sdk}, sentry=sentry,)
+    request = pretend.stub(registry={"sentry": sentry_sdk}, sentry=sentry)
 
     assert sentry._sentry(request) is sentry_sdk
 

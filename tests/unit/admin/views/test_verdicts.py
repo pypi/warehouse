@@ -89,9 +89,7 @@ class TestListVerdicts:
             "confidences": set(["low", "medium", "high"]),
         }
 
-    @pytest.mark.parametrize(
-        "check_name", ["check0", "check1", ""],
-    )
+    @pytest.mark.parametrize("check_name", ["check0", "check1", ""])
     def test_check_name_filter(self, db_request, check_name):
         for i in range(3):
             check = MalwareCheckFactory.create(name="check%d" % i)
@@ -121,7 +119,7 @@ class TestListVerdicts:
         assert views.get_verdicts(db_request) == response
 
     @pytest.mark.parametrize(
-        "classification", ["benign", "indeterminate", "threat", ""],
+        "classification", ["benign", "indeterminate", "threat", ""]
     )
     def test_classification_filter(self, db_request, classification):
         check = MalwareCheckFactory.create()
@@ -151,9 +149,7 @@ class TestListVerdicts:
         }
         assert views.get_verdicts(db_request) == response
 
-    @pytest.mark.parametrize(
-        "confidence", ["low", "medium", "high", ""],
-    )
+    @pytest.mark.parametrize("confidence", ["low", "medium", "high", ""])
     def test_confidence_filter(self, db_request, confidence):
         check = MalwareCheckFactory.create()
         for c in VerdictConfidence:
@@ -183,9 +179,7 @@ class TestListVerdicts:
 
         assert views.get_verdicts(db_request) == response
 
-    @pytest.mark.parametrize(
-        "manually_reviewed", [1, 0],
-    )
+    @pytest.mark.parametrize("manually_reviewed", [1, 0])
     def test_manually_reviewed_filter(self, db_request, manually_reviewed):
         check = MalwareCheckFactory.create()
         for _ in range(5):
@@ -268,7 +262,7 @@ class TestReviewVerdict:
     )
     def test_set_classification(self, db_request, manually_reviewed, reviewer_verdict):
         verdict = MalwareVerdictFactory.create(
-            manually_reviewed=manually_reviewed, reviewer_verdict=reviewer_verdict,
+            manually_reviewed=manually_reviewed, reviewer_verdict=reviewer_verdict
         )
 
         db_request.matchdict["verdict_id"] = verdict.id

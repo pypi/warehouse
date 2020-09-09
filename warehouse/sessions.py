@@ -289,7 +289,7 @@ class SessionFactory:
                 self._redis_key(request.session.sid),
                 self.max_age,
                 msgpack.packb(
-                    request.session, default=object_encode, use_bin_type=True,
+                    request.session, default=object_encode, use_bin_type=True
                 ),
             )
 
