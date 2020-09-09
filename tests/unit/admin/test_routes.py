@@ -114,6 +114,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.prohibited_project_names.json",
+            "/admin/prohibited_project_names/json/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.prohibited_project_names.add",
             "/admin/prohibited_project_names/add/",
             domain=warehouse,
