@@ -496,7 +496,7 @@ class TestJSONProhibitedProjectNames:
     def test_get_prohibited_names(self, db_request):
         resp = json.json_prohibited_project_names(db_request)
 
-        _assert_has_cors_headers(resp)
+        _assert_has_cors_headers(db_request.response.headers)
 
-        assert resp.headers["Content-Type"] == "application/json"
-        assert "names" in resp.json()
+        assert db_request.response.headers["Content-Type"] == "application/json"
+        assert "names" in resp
