@@ -349,7 +349,7 @@ class TestSearch:
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert get_es_query.calls == [
-            pretend.call(db_request.es, params.get("q"), "", params.getall("c"),)
+            pretend.call(db_request.es, params.get("q"), "", params.getall("c"))
         ]
         assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
