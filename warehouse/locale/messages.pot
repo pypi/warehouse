@@ -214,7 +214,7 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr ""
 
 #: warehouse/templates/404.html:29
-msgid "And now for something <br><span>completely different"
+msgid "And now for something <br><span>completely different</span>"
 msgstr ""
 
 #: warehouse/templates/404.html:32
@@ -705,7 +705,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/index.html:110
-msgid "Learn about installing packages</a>."
+msgid "Learn about installing packages"
 msgstr ""
 
 #: warehouse/templates/index.html:113
@@ -713,7 +713,7 @@ msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 
 #: warehouse/templates/index.html:114
-msgid "Learn how to package your Python code for PyPI</a>."
+msgid "Learn how to package your Python code for PyPI"
 msgstr ""
 
 #: warehouse/templates/index.html:124
@@ -746,8 +746,8 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
-#: warehouse/templates/accounts/reset-password.html:61
-#: warehouse/templates/accounts/reset-password.html:66
+#: warehouse/templates/accounts/reset-password.html:60
+#: warehouse/templates/accounts/reset-password.html:65
 #: warehouse/templates/manage/account.html:429
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
@@ -775,7 +775,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:137
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
-#: warehouse/templates/accounts/reset-password.html:63
+#: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:294
 #: warehouse/templates/manage/account.html:311
@@ -988,7 +988,7 @@ msgid "Select a username"
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:117
-#: warehouse/templates/accounts/reset-password.html:45
+#: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:398
 msgid "Show passwords"
 msgstr ""
@@ -1046,12 +1046,12 @@ msgstr ""
 msgid "Reset your password"
 msgstr ""
 
-#: warehouse/templates/accounts/reset-password.html:48
+#: warehouse/templates/accounts/reset-password.html:47
 #: warehouse/templates/manage/account.html:415
 msgid "Select a new password"
 msgstr ""
 
-#: warehouse/templates/accounts/reset-password.html:82
+#: warehouse/templates/accounts/reset-password.html:81
 msgid "Reset password"
 msgstr ""
 
