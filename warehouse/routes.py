@@ -358,6 +358,11 @@ def includeme(config):
         read_only=True,
         domain=warehouse,
     )
+    config.add_route(
+        "legacy.api.json.prohibited_project_name",
+        "/pypi_prohibited_project_name/json/",
+        domain=warehouse,
+    )
 
     # Legacy Action URLs
     # TODO: We should probably add Warehouse routes for these that just error

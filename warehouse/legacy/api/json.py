@@ -19,7 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Project, Release
+from warehouse.packaging.models import File, ProhibitedProjectName, Project, Release
 
 # Generate appropriate CORS headers for the JSON endpoint.
 # We want to allow Cross-Origin requests here so that users can interact
@@ -213,3 +213,22 @@ def json_release_slash(release, request):
         ),
         headers=_CORS_HEADERS,
     )
+
+
+@view_config(
+    route_name="legacy.api.json.prohibited_project_name",
+    renderer="json",
+    decorator=_CACHE_DECORATOR,
+)
+def json_prohibited_project_name(request):
+    return {
+        "names": [
+            p.name for p in
+            request.db.query(ProhibitedProjectName)
+                .options(
+                    Load(ProhibitedProjectName).load_only("name")
+                )
+                .order_by(ProhibitedProjectName.name)
+                .all()
+        ]
+    }
