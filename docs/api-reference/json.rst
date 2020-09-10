@@ -1,7 +1,8 @@
 JSON API
 ========
 
-PyPI offers JSON endpoints for accessing metadata from packages and the service itself.
+PyPI offers JSON endpoints for accessing metadata from packages and the
+service itself.
 
 Project
 -------
