@@ -1,7 +1,7 @@
 JSON API
 ========
 
-PyPI offers two JSON endpoints.
+PyPI offers JSON endpoints for accessing metadata from packages and the service itself.
 
 Project
 -------
@@ -258,6 +258,38 @@ Release
                 ]
             },
             "urls": []
+        }
+
+    :statuscode 200: no error
+
+Prohibited Project Names
+------------------------
+
+.. http:get:: /pypi/prohibited_project_names/json
+
+    Returns a list of normalized names that are prohibited from being
+    published. This list is maintained by the PyPI administrators.
+    Do not use this API to check names before publishing, but handle
+    upload errors instead. This API always returns the complete list
+    and updates are infrequent, so where possible, cache the result.
+
+    **Example Request**:
+
+    .. code:: http
+
+        GET /pypi/prohibited_project_names/json HTTP/1.1
+        Host: pypi.org
+        Accept: application/json
+
+    **Example response**:
+
+    .. code:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json; charset="UTF-8"
+
+        {
+            "names": ["requirements_txt", "rrequirements_txt"]
         }
 
     :statuscode 200: no error
