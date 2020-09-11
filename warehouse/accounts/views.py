@@ -51,11 +51,19 @@ from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
+    send_added_as_collaborator_email,
+    send_collaborator_added_email,
     send_email_verification_email,
     send_password_change_email,
     send_password_reset_email,
 )
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import (
+    JournalEntry,
+    Project,
+    Release,
+    Role,
+    RoleInvitation,
+)
 from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.http import is_safe_url
 
@@ -735,6 +743,147 @@ def _get_two_factor_data(request, _redirect_to="/"):
         two_factor_data["redirect_to"] = _redirect_to
 
     return two_factor_data
+
+
+@view_config(
+    route_name="accounts.verify-project-role",
+    renderer="accounts/invite-confirmation.html",
+    require_methods=False,
+    uses_session=True,
+    permission="manage:user",
+    has_translations=True,
+)
+def verify_project_role(request):
+    token_service = request.find_service(ITokenService, name="email")
+    user_service = request.find_service(IUserService, context=None)
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.projects"))
+
+    try:
+        token = request.params.get("token")
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error(request._("Expired token: request a new project role invite"))
+    except TokenInvalid:
+        return _error(request._("Invalid token: request a new project role invite"))
+    except TokenMissing:
+        return _error(request._("Invalid token: no token supplied"))
+
+    # Check whether this token is being used correctly
+    if data.get("action") != "email-project-role-verify":
+        return _error(request._("Invalid token: not a collaboration invitation token"))
+
+    user = user_service.get_user(data.get("user_id"))
+    if user != request.user:
+        return _error(request._("Role invitation is not valid."))
+
+    project = (
+        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+    )
+    desired_role = data.get("desired_role")
+
+    role_invite = (
+        request.db.query(RoleInvitation)
+        .filter(RoleInvitation.project == project)
+        .filter(RoleInvitation.user == user)
+        .one_or_none()
+    )
+
+    if not role_invite:
+        return _error(request._("Role invitation no longer exists."))
+
+    # Use the renderer to bring up a confirmation page
+    # before adding as contributor
+    if request.method == "GET":
+        return {
+            "project_name": project.name,
+            "desired_role": desired_role,
+        }
+    elif request.method == "POST" and "decline" in request.POST:
+        request.db.delete(role_invite)
+        request.session.flash(
+            request._(
+                "Invitation for '${project_name}' is declined.",
+                mapping={"project_name": project.name},
+            ),
+            queue="success",
+        )
+        return HTTPSeeOther(request.route_path("manage.projects"))
+
+    request.db.add(Role(user=user, project=project, role_name=desired_role))
+    request.db.delete(role_invite)
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"accepted {desired_role} {user.username}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+    project.record_event(
+        tag="project:role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "role_name": desired_role,
+            "target_user": user.username,
+        },
+    )
+    user.record_event(
+        tag="account:role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "project_name": project.name,
+            "role_name": desired_role,
+        },
+    )
+
+    owner_roles = (
+        request.db.query(Role)
+        .filter(Role.project == project)
+        .filter(Role.role_name == "Owner")
+        .all()
+    )
+    owner_users = {owner.user for owner in owner_roles}
+
+    # Don't send email to new user if they are now an owner
+    owner_users.discard(user)
+
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    send_collaborator_added_email(
+        request,
+        owner_users,
+        user=user,
+        submitter=submitter_user,
+        project_name=project.name,
+        role=desired_role,
+    )
+
+    send_added_as_collaborator_email(
+        request,
+        user,
+        submitter=submitter_user,
+        project_name=project.name,
+        role=desired_role,
+    )
+
+    request.session.flash(
+        request._(
+            "You are now ${role} of the '${project_name}' project.",
+            mapping={"project_name": project.name, "role": desired_role},
+        ),
+        queue="success",
+    )
+
+    if desired_role == "Owner":
+        return HTTPSeeOther(
+            request.route_path("manage.project.roles", project_name=project.name)
+        )
+    else:
+        return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
 def _login_user(request, userid, two_factor_method=None):
