@@ -19,7 +19,7 @@
 
 {% block main %}
   {% if project_invites %}
-  <h2>{% trans project_count=project_invites|length %}Pending invitations ({{ project_count }}){% endtrans %}</h1>
+  <h1>{% trans project_count=project_invites|length %}Pending invitations ({{ project_count }}){% endtrans %}</h1>
   <div class="package-list">
     {% for project, token in project_invites %}
     {% set release = project.releases[0] if project.releases else None %}

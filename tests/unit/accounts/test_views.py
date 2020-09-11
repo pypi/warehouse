@@ -34,7 +34,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.packaging.models import Role, RoleInvitation, RoleInvitationStatus
+from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -1908,7 +1908,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        role_invitation = RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project)
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
 
@@ -2082,7 +2082,10 @@ class TestVerifyProjectRole:
         views.verify_project_role(db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Role invitation no longer exists.", queue="error",)
+            pretend.call(
+                "Role invitation no longer exists.",
+                queue="error",
+            )
         ]
         assert db_request.route_path.calls == [pretend.call("manage.projects")]
 

@@ -43,7 +43,6 @@ from warehouse.packaging.models import (
     ProjectEvent,
     Role,
     RoleInvitation,
-    RoleInvitationStatus,
     User,
 )
 from warehouse.utils.paginate import paginate_url_factory
@@ -3668,7 +3667,9 @@ class TestManageProjectRoles:
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
         token_service = pretend.stub(
-            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None,
+            dumps=lambda data: "TOKEN",
+            max_age=6 * 60 * 60,
+            loads=lambda data: None,
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context=None, name=None: {
@@ -3791,7 +3792,7 @@ class TestRevokeRoleInvitation:
     def test_revoke_invitation(self, db_request, token_service):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
-        user_invite = RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project)
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
 
@@ -3888,7 +3889,7 @@ class TestRevokeRoleInvitation:
     def test_token_expired(self, db_request, token_service):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
-        user_invite = RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project)
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
 
@@ -4071,9 +4072,6 @@ class TestDeleteProjectRoles:
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
         user_2 = UserFactory.create()
-        invite = RoleInvitationFactory.create(
-            user=user, project=project, invite_status="accepted"
-        )
 
         db_request.method = "POST"
         db_request.user = user_2
@@ -4110,7 +4108,6 @@ class TestDeleteProjectRoles:
         assert send_removed_as_collaborator_email.calls == [
             pretend.call(db_request, user, submitter=user_2, project_name="foobar")
         ]
-        assert invite.invite_status == RoleInvitationStatus.Revoked.value
         assert db_request.session.flash.calls == [
             pretend.call("Removed role", queue="success")
         ]

@@ -63,7 +63,6 @@ from warehouse.packaging.models import (
     Release,
     Role,
     RoleInvitation,
-    RoleInvitationStatus,
 )
 from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.http import is_safe_url

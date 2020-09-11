@@ -14,7 +14,7 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{{ initiator_username }} has invited you ({{ email_address }}) to their PyPI project "{{ project_name }}" ({{{{ request.route_path('packaging.project', name=project_name) }}}})
+{{ initiator_username }} has invited you ({{ email_address }}) to their PyPI project "{{ project_name }}" ({{ request.route_path('packaging.project', name=project_name) }})
 
 To accept or reject this invitation, follow this link:
 

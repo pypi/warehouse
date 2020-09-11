@@ -36,15 +36,13 @@ from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
-    send_added_as_collaborator_email,
-    send_collaborator_added_email,
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
-    send_removed_as_collaborator_email,
     send_project_role_verification_email,
+    send_removed_as_collaborator_email,
     send_removed_project_email,
     send_removed_project_release_email,
     send_removed_project_release_file_email,
@@ -1585,7 +1583,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             request.db.flush()  # in order to get id
             request.session.flash(
                 request._(
-                    "Invitation sent to '${username}'", mapping={"username": username},
+                    "Invitation sent to '${username}'",
+                    mapping={"username": username},
                 ),
                 queue="success",
             )
