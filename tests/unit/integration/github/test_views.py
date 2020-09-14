@@ -55,6 +55,32 @@ class TestGitHubDiscloseToken:
             pretend.call(disclosure_records=[1, 2, 3], origin="github", metrics=metrics)
         ]
 
+    def test_github_disclose_token_no_token(self, pyramid_request, monkeypatch):
+
+        pyramid_request.headers = {
+            "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
+            "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
+        }
+        metrics = pretend.stub()
+
+        pyramid_request.body = "[1, 2, 3]"
+        pyramid_request.json_body = [1, 2, 3]
+        pyramid_request.registry.settings = {}
+        pyramid_request.find_service = lambda *a, **k: metrics
+        pyramid_request.http = pretend.stub()
+
+        verify = pretend.call_recorder(lambda **k: True)
+        verifier = pretend.stub(verify=verify)
+        verifier_cls = pretend.call_recorder(lambda **k: verifier)
+        monkeypatch.setattr(utils, "GitHubTokenScanningPayloadVerifier", verifier_cls)
+
+        analyze_disclosures = pretend.call_recorder(lambda **k: None)
+        monkeypatch.setattr(utils, "analyze_disclosures", analyze_disclosures)
+
+        response = views.github_disclose_token(pyramid_request)
+
+        assert response.status_code == 204
+
     def test_github_disclose_token_verify_fail(self, monkeypatch, pyramid_request):
 
         pyramid_request.headers = {

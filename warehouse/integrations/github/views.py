@@ -47,7 +47,7 @@ def github_disclose_token(request):
     verifier = utils.GitHubTokenScanningPayloadVerifier(
         session=request.http,
         metrics=metrics,
-        api_token=request.registry.settings["github.token"],
+        api_token=request.registry.settings.get("github.token"),
     )
 
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):

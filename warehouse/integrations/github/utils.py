@@ -15,6 +15,8 @@ import json
 import re
 import time
 
+from typing import Optional
+
 import requests
 
 from cryptography.exceptions import InvalidSignature
@@ -149,7 +151,7 @@ class GitHubTokenScanningPayloadVerifier:
     - `cryptography` for signature verification
     """
 
-    def __init__(self, *, session, metrics, api_token):
+    def __init__(self, *, session, metrics, api_token: Optional[str] = None):
         self._metrics = metrics
         self._session = session
         self._api_token = api_token
@@ -202,14 +204,21 @@ class GitHubTokenScanningPayloadVerifier:
 
         return self.public_keys_cache
 
+    def _headers_auth(self):
+        if not self._api_token:
+            return {}
+        return {"Authorization": f"token {self._api_token}"}
+
     def _retrieve_public_key_payload(self):
 
         token_scanning_pubkey_api_url = (
             "https://api.github.com/meta/public_keys/token_scanning"
         )
-        headers = {"Authorization": f"token {self._api_token}"}
+
         try:
-            response = self._session.get(token_scanning_pubkey_api_url, headers=headers)
+            response = self._session.get(
+                token_scanning_pubkey_api_url, headers=self._headers_auth()
+            )
             response.raise_for_status()
             return response.json()
         except requests.HTTPError as exc:
