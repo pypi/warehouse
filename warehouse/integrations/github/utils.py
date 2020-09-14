@@ -338,7 +338,9 @@ def _analyze_disclosure(request, disclosure_record, origin):
 def analyze_disclosure(request, disclosure_record, origin):
     try:
         _analyze_disclosure(
-            request=request, disclosure_record=disclosure_record, origin=origin,
+            request=request,
+            disclosure_record=disclosure_record,
+            origin=origin,
         )
     except Exception:
         metrics = request.find_service(IMetricsService, context=None)

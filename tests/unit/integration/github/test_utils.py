@@ -281,7 +281,9 @@ class TestGitHubTokenScanningPayloadVerifier:
             text="I'm a teapot",
             raise_for_status=pretend.raiser(requests.HTTPError),
         )
-        session = pretend.stub(get=lambda *a, **k: response,)
+        session = pretend.stub(
+            get=lambda *a, **k: response,
+        )
         verifier = utils.GitHubTokenScanningPayloadVerifier(
             session=session, metrics=pretend.stub(), api_token="api-token"
         )
@@ -538,7 +540,9 @@ def test_analyze_disclosure_wrong_record():
     request = pretend.stub(find_service=lambda iface, context: svc[iface])
 
     utils.analyze_disclosure(
-        request=request, disclosure_record={}, origin="github",
+        request=request,
+        disclosure_record={},
+        origin="github",
     )
     assert metrics == {
         "warehouse.token_leak.github.recieved": 1,
@@ -590,7 +594,9 @@ def test_analyze_disclosure_unknown_error(monkeypatch):
 
     with pytest.raises(ValueError):
         utils.analyze_disclosure(
-            request=request, disclosure_record={}, origin="github",
+            request=request,
+            disclosure_record={},
+            origin="github",
         )
     assert metrics == {
         "warehouse.token_leak.github.error.unknown": 1,

@@ -25,11 +25,16 @@ def test_analyze_disclosure_task(monkeypatch):
     origin = pretend.stub()
 
     tasks.analyze_disclosure_task(
-        task=task, request=request, disclosure_record=disclosure_record, origin=origin,
+        task=task,
+        request=request,
+        disclosure_record=disclosure_record,
+        origin=origin,
     )
 
     assert analyze_disclosure.calls == [
         pretend.call(
-            request=request, disclosure_record=disclosure_record, origin=origin,
+            request=request,
+            disclosure_record=disclosure_record,
+            origin=origin,
         )
     ]

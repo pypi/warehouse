@@ -59,14 +59,16 @@ class TestHeadersPredicate:
             HeadersPredicate([], None)
 
     @pytest.mark.parametrize(
-        "value", [["Foo", "Bar"], ["Foo", "Bar:baz"]],
+        "value",
+        [["Foo", "Bar"], ["Foo", "Bar:baz"]],
     )
     def test_valid_value(self, value):
         predicate = HeadersPredicate(value, None)
         assert predicate(None, pretend.stub(headers={"Foo": "a", "Bar": "baz"}))
 
     @pytest.mark.parametrize(
-        "value", [["Foo", "Baz"], ["Foo", "Bar:foo"]],
+        "value",
+        [["Foo", "Baz"], ["Foo", "Bar:foo"]],
     )
     def test_invalid_value(self, value):
         predicate = HeadersPredicate(value, None)

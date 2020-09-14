@@ -18,5 +18,7 @@ from warehouse.integrations.github import utils
 @tasks.task(ignore_result=True, acks_late=True)
 def analyze_disclosure_task(task, request, disclosure_record, origin):
     utils.analyze_disclosure(
-        request=request, disclosure_record=disclosure_record, origin=origin,
+        request=request,
+        disclosure_record=disclosure_record,
+        origin=origin,
     )
