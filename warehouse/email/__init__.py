@@ -192,6 +192,11 @@ def send_password_compromised_email_hibp(request, user):
     return {}
 
 
+@_email("token-compromised-leak", allow_unverified=True)
+def send_token_compromised_email_leak(request, user, *, public_url, origin):
+    return {"username": user.username, "public_url": public_url, "origin": origin}
+
+
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}

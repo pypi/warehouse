@@ -72,13 +72,16 @@ class TestDatabaseMacaroonService:
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None
 
-    def test_find_userid_invalid_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
+    @pytest.fixture
+    def raw_macaroon(self):
+        return pymacaroons.Macaroon(
             location="fake location",
             identifier=str(uuid4()),
             key=b"fake key",
             version=pymacaroons.MACAROON_V2,
         ).serialize()
+
+    def test_find_userid_invalid_macaroon(self, macaroon_service, raw_macaroon):
         raw_macaroon = f"pypi-{raw_macaroon}"
 
         assert macaroon_service.find_userid(raw_macaroon) is None
@@ -102,26 +105,13 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
-    def test_verify_unprefixed_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
-            location="fake location",
-            identifier=str(uuid4()),
-            key=b"fake key",
-            version=pymacaroons.MACAROON_V2,
-        ).serialize()
-
+    def test_verify_unprefixed_macaroon(self, macaroon_service, raw_macaroon):
         with pytest.raises(services.InvalidMacaroon):
             macaroon_service.verify(
                 raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
             )
 
-    def test_verify_no_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
-            location="fake location",
-            identifier=str(uuid4()),
-            key=b"fake key",
-            version=pymacaroons.MACAROON_V2,
-        ).serialize()
+    def test_verify_no_macaroon(self, macaroon_service, raw_macaroon):
         raw_macaroon = f"pypi-{raw_macaroon}"
 
         with pytest.raises(services.InvalidMacaroon):
@@ -238,3 +228,50 @@ class TestDatabaseMacaroonService:
             macaroon_service.get_macaroon_by_description(user.id, macaroon.description)
             == dm
         )
+
+    def test_check_if_macaroon_exists_unprefixed_macaroon(
+        self, macaroon_service, raw_macaroon
+    ):
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.check_if_macaroon_exists(raw_macaroon)
+
+    def test_check_if_macaroon_exists_no_macaroon(self, macaroon_service, raw_macaroon):
+        raw_macaroon = f"pypi-{raw_macaroon}"
+
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.check_if_macaroon_exists(raw_macaroon)
+
+    def test_check_if_macaroon_exists_invalid_macaroon(
+        self, monkeypatch, user_service, macaroon_service
+    ):
+        user = UserFactory.create()
+        raw_macaroon, _ = macaroon_service.create_macaroon(
+            "fake location", user.id, "fake description", {"fake": "caveats"}
+        )
+
+        verifier_obj = pretend.stub(
+            verify_signature=pretend.raiser(services.InvalidMacaroon)
+        )
+        verifier_cls = pretend.call_recorder(lambda *a, **k: verifier_obj)
+        monkeypatch.setattr(services, "Verifier", verifier_cls)
+
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.check_if_macaroon_exists(raw_macaroon)
+
+    def test_check_if_macaroon_exists_malformed_macaroon(self, macaroon_service):
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.check_if_macaroon_exists("pypi-thiswillnotdeserialize")
+
+    def test_check_if_macaroon_exists_valid_macaroon(
+        self, monkeypatch, macaroon_service
+    ):
+        user = UserFactory.create()
+        raw_macaroon, data_macaroon = macaroon_service.create_macaroon(
+            "fake location", user.id, "fake description", {"fake": "caveats"}
+        )
+
+        verifier_obj = pretend.stub(verify_signature=lambda k: None)
+        verifier_cls = pretend.call_recorder(lambda *a, **k: verifier_obj)
+        monkeypatch.setattr(services, "Verifier", verifier_cls)
+
+        assert macaroon_service.check_if_macaroon_exists(raw_macaroon) is data_macaroon
