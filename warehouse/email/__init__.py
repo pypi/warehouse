@@ -192,6 +192,11 @@ def send_password_compromised_email_hibp(request, user):
     return {}
 
 
+@_email("token-compromised-leak", allow_unverified=True)
+def send_token_compromised_email_leak(request, user, *, public_url, origin):
+    return {"username": user.username, "public_url": public_url, "origin": origin}
+
+
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}
@@ -216,6 +221,26 @@ def send_collaborator_added_email(
         "project": project_name,
         "submitter": submitter.username,
         "role": role,
+    }
+
+
+@_email("verify-project-role", allow_unverified=True)
+def send_project_role_verification_email(
+    request,
+    user,
+    desired_role,
+    initiator_username,
+    project_name,
+    email_token,
+    token_age,
+):
+    return {
+        "desired_role": desired_role,
+        "email_address": user.email,
+        "initiator_username": initiator_username,
+        "n_hours": token_age // 60 // 60,
+        "project_name": project_name,
+        "token": email_token,
     }
 
 

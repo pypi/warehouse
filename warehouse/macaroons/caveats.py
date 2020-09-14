@@ -83,7 +83,9 @@ class Verifier:
 
     def verify(self, key):
         self.verifier.satisfy_general(V1Caveat(self))
+        self.verify_signature(key=key)
 
+    def verify_signature(self, key):
         try:
             return self.verifier.verify(self.macaroon, key)
         except (

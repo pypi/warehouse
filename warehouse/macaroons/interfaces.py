@@ -43,6 +43,14 @@ class IMacaroonService(Interface):
         Raises InvalidMacaroon if the macaroon is not valid.
         """
 
+    def check_if_macaroon_exists(raw_macaroon):
+        """
+        Returns the database macaroon if the given raw (serialized) macaroon is
+        an existing valid macaroon, whatever its permissions.
+
+        Raises InvalidMacaroon otherwise.
+        """
+
     def create_macaroon(location, user_id, description, caveats):
         """
         Returns a new raw (serialized) macaroon. The description provided

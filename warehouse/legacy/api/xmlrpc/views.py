@@ -215,7 +215,6 @@ class TypedMapplyViewMapper(MapplyViewMapper):
             memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
             typeguard.check_argument_types(memo)
         except TypeError as exc:
-            print(exc)
             raise XMLRPCInvalidParamTypes(exc)
 
         return super().mapply(fn, args, kwargs)

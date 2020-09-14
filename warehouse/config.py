@@ -162,6 +162,7 @@ def configure(settings=None):
     maybe_set(
         settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE"
     )
+    maybe_set(settings, "github.token", "GITHUB_TOKEN")
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
@@ -317,6 +318,11 @@ def configure(settings=None):
     jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
 
+    # And some enums to reuse in the templates
+    jglobals.setdefault(
+        "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
+    )
+
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
@@ -358,8 +364,8 @@ def configure(settings=None):
     # Register support for our legacy action URLs
     config.include(".legacy.action_routing")
 
-    # Register support for our domain predicates
-    config.include(".domain")
+    # Register support for our custom predicates
+    config.include(".predicates")
 
     # Register support for template views.
     config.add_directive("add_template_view", template_view, action_wrap=False)

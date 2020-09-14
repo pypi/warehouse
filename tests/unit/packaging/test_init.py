@@ -17,6 +17,7 @@ from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
+from warehouse.manage.tasks import update_role_invitation_status
 from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import (
@@ -117,20 +118,24 @@ def test_includeme(monkeypatch, with_trending, with_bq_sync):
     if with_trending and with_bq_sync:
         assert config.add_periodic_task.calls == [
             pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
             pretend.call(crontab(minute=0, hour=3), compute_trending),
             pretend.call(crontab(minute=0), sync_bigquery_release_files),
         ]
     elif with_bq_sync:
         assert config.add_periodic_task.calls == [
             pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
             pretend.call(crontab(minute=0), sync_bigquery_release_files),
         ]
     elif with_trending:
         assert config.add_periodic_task.calls == [
             pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
             pretend.call(crontab(minute=0, hour=3), compute_trending),
         ]
     else:
         assert config.add_periodic_task.calls == [
-            pretend.call(crontab(minute="*/5"), update_description_html)
+            pretend.call(crontab(minute="*/5"), update_description_html),
+            pretend.call(crontab(minute="*/5"), update_role_invitation_status),
         ]

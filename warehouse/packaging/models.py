@@ -77,6 +77,41 @@ class Role(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
+class RoleInvitationStatus(enum.Enum):
+
+    Pending = "pending"
+    Expired = "expired"
+
+
+class RoleInvitation(db.Model):
+
+    __tablename__ = "role_invitations"
+    __table_args__ = (
+        Index("role_invitations_user_id_idx", "user_id"),
+        UniqueConstraint(
+            "user_id", "project_id", name="_role_invitations_user_project_uc"
+        ),
+    )
+
+    __repr__ = make_repr("invite_status", "user", "project")
+
+    invite_status = Column(
+        Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
+    token = Column(Text, nullable=False)
+    user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+    )
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    user = orm.relationship(User, lazy=False)
+    project = orm.relationship("Project", lazy=False)
+
+
 class ProjectFactory:
     def __init__(self, request):
         self.request = request
