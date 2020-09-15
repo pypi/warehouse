@@ -64,9 +64,9 @@ coverage==5.2.1 \
 factory-boy==3.0.1 \
     --hash=sha256:2ce2f665045d9f15145a6310565fcb8255d52fc6fd867f3b783b3ac3de6cf10e \
     # via -r requirements/tests.in
-faker==4.1.2 \
-    --hash=sha256:bc4b8c908dfcd84e4fe5d9fa2e52fbe17546515fb8f126909b98c47badf05658 \
-    --hash=sha256:ff188c416864e3f7d8becd8f9ee683a4b4101a2a2d2bcdcb3e84bb1bdd06eaae \
+faker==4.1.3 \
+    --hash=sha256:075a95ac4c95765370919d787dcd958acfaea635005ad5af4d926cb0973800db \
+    --hash=sha256:80bab8d46035a7393de827210c5d39c17109d3346d131946bde622137120c496 \
     # via factory-boy
 fakeredis==1.4.3 \
     --hash=sha256:7ea0866ba5edb40fe2e9b1722535df0c7e6b91d518aa5f50d96c2fff3ea7f4c2 \
