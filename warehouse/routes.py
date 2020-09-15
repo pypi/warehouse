@@ -163,7 +163,6 @@ def includeme(config):
         "/account/verify-project-role/",
         domain=warehouse,
     )
-
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route(
@@ -323,6 +322,13 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
         read_only=True,
+        domain=warehouse,
+    )
+    # Integration URLs
+
+    config.add_route(
+        "integrations.github.disclose-token",
+        "/_/github/disclose-token",
         domain=warehouse,
     )
 

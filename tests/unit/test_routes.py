@@ -326,6 +326,11 @@ def test_routes(warehouse):
             read_only=True,
             domain=warehouse,
         ),
+        pretend.call(
+            "integrations.github.disclose-token",
+            "/_/github/disclose-token",
+            domain=warehouse,
+        ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
