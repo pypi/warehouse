@@ -325,7 +325,6 @@ def test_includeme(monkeypatch):
         set_authentication_policy=pretend.call_recorder(lambda p: None),
         set_authorization_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
-        add_route_predicate=pretend.call_recorder(lambda name, cls: None),
     )
 
     accounts.includeme(config)
