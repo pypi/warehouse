@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-08-06 17:46+0000\n"
+"PO-Revision-Date: 2020-09-14 23:31+0000\n"
 "Last-Translator: Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "uk/>\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.3-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -65,7 +65,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "Цей пароль недійсний. Спробуйте ще."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:68
+#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Ви здійснили забагато невдалих спроб увійти. Спробуйте знову пізніше."
 
@@ -117,7 +117,7 @@ msgstr "Недійсний код відновлення."
 msgid "No user found with that username or email"
 msgstr "Користувача з таким ім'ям чи електронною адресою не знайдено"
 
-#: warehouse/accounts/views.py:85
+#: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -125,25 +125,25 @@ msgstr ""
 "Ви додали забагато електронних адрес, не підтвердивши їх. Перевірте свою "
 "скриньку та перейдіть за посиланнями підтвердження. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:224 warehouse/accounts/views.py:281
-#: warehouse/accounts/views.py:283 warehouse/accounts/views.py:310
-#: warehouse/accounts/views.py:312 warehouse/accounts/views.py:367
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
+#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
+#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
 msgstr "Двофакторний вхід недійсний або термін його дії збіг."
 
-#: warehouse/accounts/views.py:275
+#: warehouse/accounts/views.py:283
 msgid "Already authenticated"
 msgstr "Уже аутентифіковано"
 
-#: warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:351
 msgid "Successful WebAuthn assertion"
 msgstr "Перевірка WebAuthn успішна"
 
-#: warehouse/accounts/views.py:396
+#: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Код відновлення прийнято. Введений код не можна використати повторно."
 
-#: warehouse/accounts/views.py:482
+#: warehouse/accounts/views.py:490
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -151,102 +151,168 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:589
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "Час дії токена завершився: здійсніть запит нового посилання для скидання "
 "пароля"
 
-#: warehouse/accounts/views.py:583
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: request a new password reset link"
 msgstr "Недійсний токен: здійсніть запит нового посилання для скидання пароля"
 
-#: warehouse/accounts/views.py:585 warehouse/accounts/views.py:668
+#: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
+#: warehouse/accounts/views.py:772
 msgid "Invalid token: no token supplied"
 msgstr "Недійсний токен: токен не вказано"
 
-#: warehouse/accounts/views.py:589
+#: warehouse/accounts/views.py:597
 msgid "Invalid token: not a password reset token"
 msgstr "Недійсний токен: не є токеном для скидання пароля"
 
-#: warehouse/accounts/views.py:594
+#: warehouse/accounts/views.py:602
 msgid "Invalid token: user not found"
 msgstr "Недійсний токен: користувача не знайдено"
 
-#: warehouse/accounts/views.py:601
+#: warehouse/accounts/views.py:609
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Недійсний токен: користувач здійснив вхід з моменту запиту цього токена"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:618
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Недійсний токен: пароль уже було змінено з моменту запиту цього токена"
 
-#: warehouse/accounts/views.py:637
+#: warehouse/accounts/views.py:645
 msgid "You have reset your password"
 msgstr "Ви скинули свій пароль"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:672
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "Час дії токена збіг: здійсніть запит нового посилання для підтвердження "
 "електронної адреси"
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:674
 msgid "Invalid token: request a new email verification link"
 msgstr "Недійсний токен: здійсніть запит нового посилання для скидання пароля"
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:680
 msgid "Invalid token: not an email verification token"
 msgstr "Недійсний токен: не є токеном для підтвердження електронної адреси"
 
-#: warehouse/accounts/views.py:681
+#: warehouse/accounts/views.py:689
 msgid "Email not found"
 msgstr "Електронної адреси не знайдено"
 
-#: warehouse/accounts/views.py:684
+#: warehouse/accounts/views.py:692
 msgid "Email already verified"
 msgstr "Електронну адресу підтверджено"
 
-#: warehouse/accounts/views.py:699
+#: warehouse/accounts/views.py:707
 msgid "You can now set this email as your primary address"
 msgstr "Тепер ви можете встановити цю електронну адресу основною"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:711
 msgid "This is your primary address"
 msgstr "Це ваша основна адреса"
 
-#: warehouse/accounts/views.py:708
+#: warehouse/accounts/views.py:716
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Електронну адресу ${email_address} підтверджено. ${confirm_message}."
 
-#: warehouse/manage/views.py:199
+#: warehouse/accounts/views.py:768
+msgid "Expired token: request a new project role invite"
+msgstr ""
+"Час дії токена завершився: здійсніть запит нового запрошення на роль у "
+"проекті"
+
+#: warehouse/accounts/views.py:770
+msgid "Invalid token: request a new project role invite"
+msgstr "Недійсний токен: здійсніть запит нового запрошення на роль у проекті"
+
+#: warehouse/accounts/views.py:776
+msgid "Invalid token: not a collaboration invitation token"
+msgstr "Недійсний токен: не є токеном запрошення до співпраці"
+
+#: warehouse/accounts/views.py:780
+msgid "Role invitation is not valid."
+msgstr "Запрошення на роль недійсне."
+
+#: warehouse/accounts/views.py:795
+msgid "Role invitation no longer exists."
+msgstr "Запрошення на роль уже не існує."
+
+#: warehouse/accounts/views.py:807
+msgid "Invitation for '${project_name}' is declined."
+msgstr "Запрошення до '${project_name}' відхилене."
+
+#: warehouse/accounts/views.py:874
+msgid "You are now ${role} of the '${project_name}' project."
+msgstr "Ви тепер ${role} проекту '${project_name}'."
+
+#: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Електронну адресу ${email_address} додано — знайдіть посилання-підтвердження "
 "у своїй електронній скриньці"
 
-#: warehouse/manage/views.py:686 warehouse/manage/views.py:722
+#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Ви мусите увімкнути двофакторну авторизацію, щоб коди відновлення можна було "
 "згенерувати"
 
-#: warehouse/manage/views.py:697
+#: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
 msgstr "Коди відновлення вже згенеровані"
 
-#: warehouse/manage/views.py:698
+#: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Генерування нових кодів відновлення зробить ваші існуючі коди недійсними."
 
-#: warehouse/manage/views.py:749
+#: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
 msgstr "Недійсні облікові дані. Спробуйте знову"
+
+#: warehouse/manage/views.py:1503
+msgid "User '${username}' already has ${role_name} role for project"
+msgstr "Користувач(-ка) '${username}' уже має роль ${role_name} у проекті"
+
+#: warehouse/manage/views.py:1514
+msgid ""
+"User '${username}' does not have a verified primary email address and cannot "
+"be added as a ${role_name} for project"
+msgstr ""
+"Основна електронна адреса користувача(-ки) '${username}' непідтверджена, "
+"тому його (її) неможливо додати до проекту в якості ${role_name}"
+
+#: warehouse/manage/views.py:1527
+msgid ""
+"User '${username}' already has an active invite. Please try again later."
+msgstr ""
+"Користувач(-ка) '${username}' уже має активне запрошення. Будь ласка, "
+"спробуйте знову згодом."
+
+#: warehouse/manage/views.py:1585
+msgid "Invitation sent to '${username}'"
+msgstr "Запрошення надіслано до '${username}'"
+
+#: warehouse/manage/views.py:1632
+msgid "Could not find role invitation."
+msgstr "Запрошення на роль знайти не вдалося."
+
+#: warehouse/manage/views.py:1643
+msgid "Invitation already expired."
+msgstr "Термін дії запрошення вже сплив."
+
+#: warehouse/manage/views.py:1667
+msgid "Invitation revoked from '${username}'."
+msgstr "Запрошення '${username}' скасовано."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -265,8 +331,8 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Ми шукали скрізь, та цієї сторінки знайти не вдалося"
 
 #: warehouse/templates/404.html:29
-msgid "And now for something <br><span>completely different"
-msgstr "А зараз щось<br><span>зовсім інше"
+msgid "And now for something <br><span>completely different</span>"
+msgstr "А зараз щось<br><span>зовсім інше</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -712,6 +778,10 @@ msgstr "Мапа сайту"
 msgid "Switch to desktop version"
 msgstr "Перемкнутися на настільну версію"
 
+#: warehouse/templates/confirm-action.html:17
+msgid "Confirm Action"
+msgstr "Підтвердьте дію"
+
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
 msgstr "Код помилки"
@@ -782,8 +852,8 @@ msgstr ""
 "розроблене і поширене спільнотою Python."
 
 #: warehouse/templates/index.html:110
-msgid "Learn about installing packages</a>."
-msgstr "Дізнайтеся про встановлення пакунків</a>."
+msgid "Learn about installing packages"
+msgstr "Дізнайтеся про встановлення пакунків"
 
 #: warehouse/templates/index.html:113
 msgid "Package authors use PyPI to distribute their software."
@@ -792,8 +862,8 @@ msgstr ""
 "забезпечення."
 
 #: warehouse/templates/index.html:114
-msgid "Learn how to package your Python code for PyPI</a>."
-msgstr "Дізнайтеся як запакувати свій код на Python для PyPI</a>."
+msgid "Learn how to package your Python code for PyPI"
+msgstr "Дізнайтеся як запакувати свій код на Python для PyPI"
 
 #: warehouse/templates/index.html:124
 msgid "Trending projects"
@@ -825,8 +895,8 @@ msgstr "Помилка під час обробки форми"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
-#: warehouse/templates/accounts/reset-password.html:61
-#: warehouse/templates/accounts/reset-password.html:66
+#: warehouse/templates/accounts/reset-password.html:60
+#: warehouse/templates/accounts/reset-password.html:65
 #: warehouse/templates/manage/account.html:429
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
@@ -854,7 +924,7 @@ msgstr "Пароль"
 #: warehouse/templates/accounts/register.html:137
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
-#: warehouse/templates/accounts/reset-password.html:63
+#: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:294
 #: warehouse/templates/manage/account.html:311
@@ -864,8 +934,8 @@ msgstr "Пароль"
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:115
-#: warehouse/templates/manage/roles.html:127
+#: warehouse/templates/manage/roles.html:153
+#: warehouse/templates/manage/roles.html:165
 #: warehouse/templates/manage/token.html:134
 #: warehouse/templates/manage/token.html:151
 #: warehouse/templates/re-auth.html:51
@@ -931,6 +1001,33 @@ msgid ""
 msgstr ""
 "Інакше, радимо вам <a href=\"%(href)s\">перейти на домашню сторінку PyPI</a>."
 
+#: warehouse/templates/accounts/invite-confirmation.html:17
+msgid "Confirm Invite"
+msgstr "Підтвердьте запрошення"
+
+#: warehouse/templates/accounts/invite-confirmation.html:26
+#, python-format
+msgid ""
+"\n"
+"      Would you like to accept this invitation to join '<a href="
+"\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
+"      "
+msgstr ""
+"\n"
+"      Бажаєте прийняти запрошення приєднатися до '<a href=\"%(project_link)s"
+"\">%(project_name)s</a>' у якості %(role_name)s проекту?\n"
+"      "
+
+#: warehouse/templates/accounts/invite-confirmation.html:32
+#: warehouse/templates/manage/projects.html:49
+msgid "Accept"
+msgstr "Погодитися"
+
+#: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/manage/projects.html:50
+msgid "Decline"
+msgstr "Відхилити"
+
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
@@ -941,7 +1038,7 @@ msgstr "Увійти до %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:156
 msgid "Username"
 msgstr "Ім'я користувача"
 
@@ -968,6 +1065,7 @@ msgstr "Профіль %(username)s"
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:47
+#: warehouse/templates/manage/roles.html:109
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Аватар для {user} із gravatar.com"
 
@@ -1008,7 +1106,8 @@ msgid "No projects"
 msgstr "Жодних проектів"
 
 #: warehouse/templates/accounts/profile.html:73
-#: warehouse/templates/manage/projects.html:36
+#: warehouse/templates/manage/projects.html:34
+#: warehouse/templates/manage/projects.html:73
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "Востаннє опубліковано %(release_date)s"
@@ -1092,7 +1191,7 @@ msgid "Select a username"
 msgstr "Оберіть ім'я користувача"
 
 #: warehouse/templates/accounts/register.html:117
-#: warehouse/templates/accounts/reset-password.html:45
+#: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:398
 msgid "Show passwords"
 msgstr "Показати паролі"
@@ -1156,12 +1255,12 @@ msgstr ""
 msgid "Reset your password"
 msgstr "Скиньте свій пароль"
 
-#: warehouse/templates/accounts/reset-password.html:48
+#: warehouse/templates/accounts/reset-password.html:47
 #: warehouse/templates/manage/account.html:415
 msgid "Select a new password"
 msgstr "Оберіть новий пароль"
 
-#: warehouse/templates/accounts/reset-password.html:82
+#: warehouse/templates/accounts/reset-password.html:81
 msgid "Reset password"
 msgstr "Скинути пароль"
 
@@ -2128,7 +2227,6 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/account.html:478
-#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "Видалити"
 
@@ -2673,7 +2771,7 @@ msgstr "Дата"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:113
+#: warehouse/templates/manage/roles.html:151
 msgid "User"
 msgstr "Користувач"
 
@@ -2688,7 +2786,7 @@ msgid "from %(ip_address)s"
 msgstr "із %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:57
+#: warehouse/templates/manage/projects.html:94
 #: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr "Керувати"
@@ -2735,7 +2833,7 @@ msgid "Manage '%(project_name)s'"
 msgstr "Керувати «%(project_name)s»"
 
 #: warehouse/templates/manage/manage_project_base.html:32
-#: warehouse/templates/manage/projects.html:21
+#: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
 msgstr "Ваші проекти (%(project_count)s)"
@@ -2744,38 +2842,44 @@ msgstr "Ваші проекти (%(project_count)s)"
 msgid "Back to projects"
 msgstr "Повернутися до проектів"
 
-#: warehouse/templates/manage/projects.html:31
-msgid "Sole owner"
-msgstr "Одноосібний власник"
+#: warehouse/templates/manage/projects.html:22
+#, python-format
+msgid "Pending invitations (%(project_count)s)"
+msgstr "Неприйняті запрошення (%(project_count)s)"
 
-#: warehouse/templates/manage/projects.html:43
+#: warehouse/templates/manage/projects.html:41
+#: warehouse/templates/manage/projects.html:80
 #, python-format
 msgid "Created on %(creation_date)s"
 msgstr "Створено %(creation_date)s"
 
-#: warehouse/templates/manage/projects.html:52
+#: warehouse/templates/manage/projects.html:68
+msgid "Sole owner"
+msgstr "Одноосібний власник"
+
+#: warehouse/templates/manage/projects.html:89
 msgid "Manage this project"
 msgstr "Керувати цим проектом"
 
-#: warehouse/templates/manage/projects.html:55
+#: warehouse/templates/manage/projects.html:92
 msgid "You are not an owner of this project"
 msgstr "Ви не володієте цим проектом"
 
-#: warehouse/templates/manage/projects.html:62
+#: warehouse/templates/manage/projects.html:99
 msgid "View this project's public page"
 msgstr "Переглянути публічну сторінку цього проекту"
 
-#: warehouse/templates/manage/projects.html:65
+#: warehouse/templates/manage/projects.html:102
 msgid "This project has no releases"
 msgstr "Цей проект не має публікацій"
 
-#: warehouse/templates/manage/projects.html:67
+#: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "Дивитися"
 
-#: warehouse/templates/manage/projects.html:74
+#: warehouse/templates/manage/projects.html:111
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -3210,12 +3314,11 @@ msgid "Maintainer"
 msgstr "Доглядач"
 
 #: warehouse/templates/manage/roles.html:28
-#: warehouse/templates/pages/help.html:545
 msgid ""
-"Can upload releases for a package. Cannot add collaborators. Cannot delete "
-"files, releases, or the project."
+"Can upload releases for a package. Cannot invite collaborators. Cannot "
+"delete files, releases, or the project."
 msgstr ""
-"Може завантажувати випуски для пакунку. Не може додавати поплічників. Не "
+"Може завантажувати випуски для пакунку. Не може запрошувати поплічників. Не "
 "може видаляти файли, випуски чи проект."
 
 #: warehouse/templates/manage/roles.html:29
@@ -3225,12 +3328,11 @@ msgid "Owner"
 msgstr "Власник"
 
 #: warehouse/templates/manage/roles.html:30
-#: warehouse/templates/pages/help.html:546
 msgid ""
-"Can upload releases. Can add other collaborators. Can delete files, "
+"Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
-"Може завантажувати випуски для пакунку. Може додавати інших поплічників. "
+"Може завантажувати випуски для пакунку. Може запрошувати інших поплічників. "
 "Може видаляти файли, випуски чи увесь проект."
 
 #: warehouse/templates/manage/roles.html:34
@@ -3240,7 +3342,7 @@ msgstr "Користувачі, які можуть керувати %(project_n
 
 #: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:163
 msgid "Role"
 msgstr "Роль"
 
@@ -3262,10 +3364,30 @@ msgstr "Неможливо видалити себе як власника"
 msgid "Remove %(user)s from this project"
 msgstr "Видалити %(user)s з цього проекта"
 
-#: warehouse/templates/manage/roles.html:108
-#: warehouse/templates/manage/roles.html:136
-msgid "Add collaborator"
-msgstr "Додати поплічника"
+#: warehouse/templates/manage/roles.html:123
+msgid "Invite pending"
+msgstr "Неприйняте запрошення"
+
+#: warehouse/templates/manage/roles.html:125
+msgid "Invite expired"
+msgstr "Термін дії запрошення сплив"
+
+#: warehouse/templates/manage/roles.html:135
+#, python-format
+msgid "Revoke invitation for %(user)s"
+msgstr "Відкликати запрошення %(user)s"
+
+#: warehouse/templates/manage/roles.html:137
+msgid "Revoke invite"
+msgstr "Відкликати запрошення"
+
+#: warehouse/templates/manage/roles.html:146
+msgid "Invite collaborator"
+msgstr "Запросити поплічника"
+
+#: warehouse/templates/manage/roles.html:174
+msgid "Invite"
+msgstr "Запросити"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
@@ -3445,10 +3567,13 @@ msgid "Set your username to <code>%(token)s</code>"
 msgstr "Використайте <code>%(token)s</code> як своє ім'я користувача"
 
 #: warehouse/templates/manage/token.html:76
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Set your password to the token value, including the <code>%(site)s"
+#| "%(prefix)s</code> prefix"
 msgid ""
-"Set your password to the token value, including the <code>%(site)s"
-"%(prefix)s</code> prefix"
+"Set your password to the token value, including the <code>%(prefix)s</code> "
+"prefix"
 msgstr ""
 "Використайте значення токена замість свого пароля, включно з префіксом <code>"
 "%(site)s%(prefix)s</code>"
@@ -5120,9 +5245,25 @@ msgstr ""
 "request a name transfer»)</a> <abbr title=\"Пропозиція покращення Python "
 "(Python enhancement proposal)\">PEP</abbr> 541."
 
+#: warehouse/templates/pages/help.html:545
+msgid ""
+"Can upload releases for a package. Cannot add collaborators. Cannot delete "
+"files, releases, or the project."
+msgstr ""
+"Може завантажувати випуски для пакунку. Не може додавати поплічників. Не "
+"може видаляти файли, випуски чи проект."
+
 #: warehouse/templates/pages/help.html:546
 msgid "Owner:"
 msgstr "Власник:"
+
+#: warehouse/templates/pages/help.html:546
+msgid ""
+"Can upload releases. Can add other collaborators. Can delete files, "
+"releases, or the entire project."
+msgstr ""
+"Може завантажувати випуски для пакунку. Може додавати інших поплічників. "
+"Може видаляти файли, випуски чи увесь проект."
 
 #: warehouse/templates/pages/help.html:549
 msgid ""
@@ -5354,18 +5495,23 @@ msgid ""
 "enable \"Use Ctrl+Shift+C/V as Copy/Paste\" in \"Properties\".\n"
 "          "
 msgstr ""
+"\n"
+"            Якщо ви користуєтеся Windows й намагаєтеся вставити свій пароль "
+"чи токен до Командного Рядка або PowerShell, майте на увазі, що Ctrl-V та "
+"Shift+Insert не спрацюють.\n"
+"            Натомість, ви можете скористатися \"Редагувати > Вставити\" у "
+"меню вікна, або увімкнути \"Використовувати Ctrl+Shift+C/V як Скопіювати/"
+"Вставити\" у \"Властивостях\".\n"
+"          "
 
 #: warehouse/templates/pages/help.html:638
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Hashes</a> for %(filename)s"
+#, python-format
 msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">known issue</a> with Python's <code>getpass</code> module."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Хеші</a> для %(filename)s"
+"Це <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">відома проблема</a> Python-модуля <code>getpass</code>."
 
 #: warehouse/templates/pages/help.html:645
 #, python-format
@@ -6665,6 +6811,15 @@ msgstr[2] ""
 "\n"
 "                  Немає результатів для фільтрів «%(filters)s»\n"
 "                "
+
+#~ msgid "PyPI security policy"
+#~ msgstr "Політика безпеки PyPI"
+
+#~ msgid "About GitHub token scanning"
+#~ msgstr "Про сканування токенів на GitHub"
+
+#~ msgid "Why is PyPI telling me my API token is compromised?"
+#~ msgstr "Чому PyPI каже мені, що мій API-токен скомпрометовано?"
 
 #, fuzzy
 #~| msgid "Authentication"

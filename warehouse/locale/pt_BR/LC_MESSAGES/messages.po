@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-08-04 15:39+0000\n"
+"PO-Revision-Date: 2020-09-15 16:18+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.3-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -58,7 +58,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "A senha é inválida. Tentar novamente."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:68
+#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Houve muitas tentativas de autenticação malsucedidas. Tente novamente mais "
@@ -114,7 +114,7 @@ msgstr "Código de recuperação inválido."
 msgid "No user found with that username or email"
 msgstr "Nenhum usuário encontrado com esse nome de usuário ou e-mail"
 
-#: warehouse/accounts/views.py:85
+#: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -122,27 +122,27 @@ msgstr ""
 "Muitos e-mails foram adicionados a esta conta sem ser verificados. Confira "
 "sua caixa de entrada e siga os links de verificação. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:224 warehouse/accounts/views.py:281
-#: warehouse/accounts/views.py:283 warehouse/accounts/views.py:310
-#: warehouse/accounts/views.py:312 warehouse/accounts/views.py:367
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
+#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
+#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
 msgstr "Autenticação de dois fatores inválida ou expirada."
 
-#: warehouse/accounts/views.py:275
+#: warehouse/accounts/views.py:283
 msgid "Already authenticated"
 msgstr "Já autenticado"
 
-#: warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:351
 msgid "Successful WebAuthn assertion"
 msgstr "Asserção WebAuthn bem-sucedida"
 
-#: warehouse/accounts/views.py:396
+#: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Código de recuperação aceito. O código fornecido não pode ser usado "
 "novamente."
 
-#: warehouse/accounts/views.py:482
+#: warehouse/accounts/views.py:490
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -150,100 +150,165 @@ msgstr ""
 "Novo registro de usuário desativado temporariamente. Consulte https://pypi."
 "org/help#admin-intervention para obter detalhes."
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:589
 msgid "Expired token: request a new password reset link"
 msgstr "Token expirado: solicite um novo link de redefinição de senha"
 
-#: warehouse/accounts/views.py:583
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: request a new password reset link"
 msgstr "Token inválido: solicite um novo link de redefinição de senha"
 
-#: warehouse/accounts/views.py:585 warehouse/accounts/views.py:668
+#: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
+#: warehouse/accounts/views.py:772
 msgid "Invalid token: no token supplied"
 msgstr "Token inválido: nenhum token fornecido"
 
-#: warehouse/accounts/views.py:589
+#: warehouse/accounts/views.py:597
 msgid "Invalid token: not a password reset token"
 msgstr "Token inválido: não é um token de redefinição de senha"
 
-#: warehouse/accounts/views.py:594
+#: warehouse/accounts/views.py:602
 msgid "Invalid token: user not found"
 msgstr "Token inválido: usuário não encontrado"
 
-#: warehouse/accounts/views.py:601
+#: warehouse/accounts/views.py:609
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Token inválido: o usuário já entrou desde que esse token foi solicitado"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:618
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Token inválido: a senha já foi alterada desde que esse token foi solicitado"
 
-#: warehouse/accounts/views.py:637
+#: warehouse/accounts/views.py:645
 msgid "You have reset your password"
 msgstr "Você redefiniu sua senha"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:672
 msgid "Expired token: request a new email verification link"
 msgstr "Token expirado: solicite um novo link de verificação de e-mail"
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:674
 msgid "Invalid token: request a new email verification link"
 msgstr "Token inválido: solicite um novo link de verificação de e-mail"
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:680
 msgid "Invalid token: not an email verification token"
 msgstr "Token inválido: não é um token de verificação de e-mail"
 
-#: warehouse/accounts/views.py:681
+#: warehouse/accounts/views.py:689
 msgid "Email not found"
 msgstr "E-mail não encontrado"
 
-#: warehouse/accounts/views.py:684
+#: warehouse/accounts/views.py:692
 msgid "Email already verified"
 msgstr "E-mail já verificado"
 
-#: warehouse/accounts/views.py:699
+#: warehouse/accounts/views.py:707
 msgid "You can now set this email as your primary address"
 msgstr "Agora você pode definir este e-mail como seu endereço principal"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:711
 msgid "This is your primary address"
 msgstr "Este é o seu endereço principal"
 
-#: warehouse/accounts/views.py:708
+#: warehouse/accounts/views.py:716
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Endereço de e-mail ${email_address} verificado. ${confirm_message}."
 
-#: warehouse/manage/views.py:199
+#: warehouse/accounts/views.py:768
+msgid "Expired token: request a new project role invite"
+msgstr "Token expirado: solicite um novo convite de função no projeto"
+
+#: warehouse/accounts/views.py:770
+msgid "Invalid token: request a new project role invite"
+msgstr "Token inválido: solicite um novo convite de função no projeto"
+
+#: warehouse/accounts/views.py:776
+msgid "Invalid token: not a collaboration invitation token"
+msgstr "Token inválido: não é um token de convite de colaboração"
+
+#: warehouse/accounts/views.py:780
+msgid "Role invitation is not valid."
+msgstr "O convite para função não é válida."
+
+#: warehouse/accounts/views.py:795
+msgid "Role invitation no longer exists."
+msgstr "O convite para função não existe mais."
+
+#: warehouse/accounts/views.py:807
+msgid "Invitation for '${project_name}' is declined."
+msgstr "O convite para \"${project_name}\" foi rejeitado."
+
+#: warehouse/accounts/views.py:874
+msgid "You are now ${role} of the '${project_name}' project."
+msgstr "Você não é um ${role} do projeto \"${project_name}\"."
+
+#: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} adicionado - verifique seu e-mail para um link de "
 "verificação"
 
-#: warehouse/manage/views.py:686 warehouse/manage/views.py:722
+#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "O usuário deve fornecer um método de dois fatores antes que os códigos de "
 "recuperação possam ser gerados"
 
-#: warehouse/manage/views.py:697
+#: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
 msgstr "Códigos de recuperação já gerados"
 
-#: warehouse/manage/views.py:698
+#: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "A geração de novos códigos de recuperação invalidará os seus códigos "
 "existentes."
 
-#: warehouse/manage/views.py:749
+#: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
 msgstr "Credenciais inválidas. Tente novamente"
+
+#: warehouse/manage/views.py:1503
+msgid "User '${username}' already has ${role_name} role for project"
+msgstr ""
+"O usuário \"${username}\" já tem a função de ${role_name} para o projeto"
+
+#: warehouse/manage/views.py:1514
+msgid ""
+"User '${username}' does not have a verified primary email address and cannot "
+"be added as a ${role_name} for project"
+msgstr ""
+"O usuário \"${username}\" não tem um endereço de e-mail principal verificado "
+"e não pode ser adicionado como um ${role_name} para o projeto"
+
+#: warehouse/manage/views.py:1527
+msgid ""
+"User '${username}' already has an active invite. Please try again later."
+msgstr ""
+"O usuário \"${username}\" já tem um convite ativo. Tente novamente mais "
+"tarde."
+
+#: warehouse/manage/views.py:1585
+msgid "Invitation sent to '${username}'"
+msgstr "Convite enviado para \"${username}\""
+
+#: warehouse/manage/views.py:1632
+msgid "Could not find role invitation."
+msgstr "Não foi possível encontrar o convite para função."
+
+#: warehouse/manage/views.py:1643
+msgid "Invitation already expired."
+msgstr "O convite já expirado."
+
+#: warehouse/manage/views.py:1667
+msgid "Invitation revoked from '${username}'."
+msgstr "Convite revogado de \"${username}\"."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -263,8 +328,8 @@ msgstr ""
 "Nós olhamos em todos os lugares, mas não conseguimos encontrar esta página"
 
 #: warehouse/templates/404.html:29
-msgid "And now for something <br><span>completely different"
-msgstr "E agora para algo <br><span>completamente diferente"
+msgid "And now for something <br><span>completely different</span>"
+msgstr "E agora para algo <br><span>completamente diferente</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -711,6 +776,10 @@ msgstr "Mapa do site"
 msgid "Switch to desktop version"
 msgstr "Mudar para versão desktop"
 
+#: warehouse/templates/confirm-action.html:17
+msgid "Confirm Action"
+msgstr "Confirmar ação"
+
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
 msgstr "Código de erro"
@@ -773,16 +842,16 @@ msgstr ""
 "compartilhados pela comunidade do Python."
 
 #: warehouse/templates/index.html:110
-msgid "Learn about installing packages</a>."
-msgstr "Saiba mais sobre a instalação de pacotes</a>."
+msgid "Learn about installing packages"
+msgstr "Saiba mais sobre a instalação de pacotes"
 
 #: warehouse/templates/index.html:113
 msgid "Package authors use PyPI to distribute their software."
 msgstr "Os autores de pacotes usam o PyPI para distribuir seu software."
 
 #: warehouse/templates/index.html:114
-msgid "Learn how to package your Python code for PyPI</a>."
-msgstr "Saiba como empacotar seu código Python para PyPI</a>."
+msgid "Learn how to package your Python code for PyPI"
+msgstr "Saiba como empacotar seu código Python para PyPI"
 
 #: warehouse/templates/index.html:124
 msgid "Trending projects"
@@ -814,8 +883,8 @@ msgstr "Erro ao processar o formulário"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
-#: warehouse/templates/accounts/reset-password.html:61
-#: warehouse/templates/accounts/reset-password.html:66
+#: warehouse/templates/accounts/reset-password.html:60
+#: warehouse/templates/accounts/reset-password.html:65
 #: warehouse/templates/manage/account.html:429
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
@@ -843,7 +912,7 @@ msgstr "Senha"
 #: warehouse/templates/accounts/register.html:137
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
-#: warehouse/templates/accounts/reset-password.html:63
+#: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:294
 #: warehouse/templates/manage/account.html:311
@@ -853,8 +922,8 @@ msgstr "Senha"
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:115
-#: warehouse/templates/manage/roles.html:127
+#: warehouse/templates/manage/roles.html:153
+#: warehouse/templates/manage/roles.html:165
 #: warehouse/templates/manage/token.html:134
 #: warehouse/templates/manage/token.html:151
 #: warehouse/templates/re-auth.html:51
@@ -921,6 +990,34 @@ msgstr ""
 "Caso contrário, sugerimos que você <a href=\"%(href)s\">vá para a página "
 "inicial do PyPI</a>."
 
+#: warehouse/templates/accounts/invite-confirmation.html:17
+msgid "Confirm Invite"
+msgstr "Confirmar convite"
+
+#: warehouse/templates/accounts/invite-confirmation.html:26
+#, python-format
+msgid ""
+"\n"
+"      Would you like to accept this invitation to join '<a href="
+"\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
+"      "
+msgstr ""
+"\n"
+"      Você gostaria de aceitar este convite para participar do \"<a href="
+"\"%(project_link)s\">%(project_name)s</a>\" como um %(role_name)s do "
+"projeto?\n"
+"      "
+
+#: warehouse/templates/accounts/invite-confirmation.html:32
+#: warehouse/templates/manage/projects.html:49
+msgid "Accept"
+msgstr "Aceitar"
+
+#: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/manage/projects.html:50
+msgid "Decline"
+msgstr "Rejeitar"
+
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
@@ -931,7 +1028,7 @@ msgstr "Entrar em %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:156
 msgid "Username"
 msgstr "Nome de usuário"
 
@@ -958,6 +1055,7 @@ msgstr "Perfil de %(username)s"
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:47
+#: warehouse/templates/manage/roles.html:109
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar para {user} do gravatar.com"
 
@@ -994,7 +1092,8 @@ msgid "No projects"
 msgstr "Nenhum projeto"
 
 #: warehouse/templates/accounts/profile.html:73
-#: warehouse/templates/manage/projects.html:36
+#: warehouse/templates/manage/projects.html:34
+#: warehouse/templates/manage/projects.html:73
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "Último lançamento em %(release_date)s"
@@ -1078,7 +1177,7 @@ msgid "Select a username"
 msgstr "Selecione um nome de usuário"
 
 #: warehouse/templates/accounts/register.html:117
-#: warehouse/templates/accounts/reset-password.html:45
+#: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:398
 msgid "Show passwords"
 msgstr "Mostrar senhas"
@@ -1141,12 +1240,12 @@ msgstr ""
 msgid "Reset your password"
 msgstr "Redefinir sua senha"
 
-#: warehouse/templates/accounts/reset-password.html:48
+#: warehouse/templates/accounts/reset-password.html:47
 #: warehouse/templates/manage/account.html:415
 msgid "Select a new password"
 msgstr "Selecione uma nova senha"
 
-#: warehouse/templates/accounts/reset-password.html:82
+#: warehouse/templates/accounts/reset-password.html:81
 msgid "Reset password"
 msgstr "Redefinir senha"
 
@@ -2110,7 +2209,6 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/account.html:478
-#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "Remover"
 
@@ -2647,7 +2745,7 @@ msgstr "Data"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:113
+#: warehouse/templates/manage/roles.html:151
 msgid "User"
 msgstr "Usuário"
 
@@ -2662,7 +2760,7 @@ msgid "from %(ip_address)s"
 msgstr "de %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:57
+#: warehouse/templates/manage/projects.html:94
 #: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr "Gerenciar"
@@ -2709,7 +2807,7 @@ msgid "Manage '%(project_name)s'"
 msgstr "Gerenciar \"%(project_name)s\""
 
 #: warehouse/templates/manage/manage_project_base.html:32
-#: warehouse/templates/manage/projects.html:21
+#: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
 msgstr "Seus projetos (%(project_count)s)"
@@ -2718,38 +2816,44 @@ msgstr "Seus projetos (%(project_count)s)"
 msgid "Back to projects"
 msgstr "Voltar para os projetos"
 
-#: warehouse/templates/manage/projects.html:31
-msgid "Sole owner"
-msgstr "Único proprietário"
+#: warehouse/templates/manage/projects.html:22
+#, python-format
+msgid "Pending invitations (%(project_count)s)"
+msgstr "Convites pendentes (%(project_count)s)"
 
-#: warehouse/templates/manage/projects.html:43
+#: warehouse/templates/manage/projects.html:41
+#: warehouse/templates/manage/projects.html:80
 #, python-format
 msgid "Created on %(creation_date)s"
 msgstr "Criado em %(creation_date)s"
 
-#: warehouse/templates/manage/projects.html:52
+#: warehouse/templates/manage/projects.html:68
+msgid "Sole owner"
+msgstr "Único proprietário"
+
+#: warehouse/templates/manage/projects.html:89
 msgid "Manage this project"
 msgstr "Gerenciar este projeto"
 
-#: warehouse/templates/manage/projects.html:55
+#: warehouse/templates/manage/projects.html:92
 msgid "You are not an owner of this project"
 msgstr "Você não é um proprietário deste projeto"
 
-#: warehouse/templates/manage/projects.html:62
+#: warehouse/templates/manage/projects.html:99
 msgid "View this project's public page"
 msgstr "Veja a página pública deste projeto"
 
-#: warehouse/templates/manage/projects.html:65
+#: warehouse/templates/manage/projects.html:102
 msgid "This project has no releases"
 msgstr "Este projeto não possui lançamentos"
 
-#: warehouse/templates/manage/projects.html:67
+#: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "Ver"
 
-#: warehouse/templates/manage/projects.html:74
+#: warehouse/templates/manage/projects.html:111
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -3169,13 +3273,12 @@ msgid "Maintainer"
 msgstr "Mantenedor"
 
 #: warehouse/templates/manage/roles.html:28
-#: warehouse/templates/pages/help.html:545
 msgid ""
-"Can upload releases for a package. Cannot add collaborators. Cannot delete "
-"files, releases, or the project."
+"Can upload releases for a package. Cannot invite collaborators. Cannot "
+"delete files, releases, or the project."
 msgstr ""
-"Pode enviar lançamentos para um pacote. Não consegue adicionar "
-"colaboradores. Não consegue excluir arquivos, lançamentos ou o projeto."
+"Pode enviar lançamentos para um pacote. Não consegue convidar colaboradores. "
+"Não consegue excluir arquivos, lançamentos ou o projeto."
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:62
@@ -3184,12 +3287,11 @@ msgid "Owner"
 msgstr "Proprietário"
 
 #: warehouse/templates/manage/roles.html:30
-#: warehouse/templates/pages/help.html:546
 msgid ""
-"Can upload releases. Can add other collaborators. Can delete files, "
+"Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
-"Pode enviar lançamentos. Pode adicionar outros colaboradores. Pode excluir "
+"Pode enviar lançamentos. Pode convidar outros colaboradores. Pode excluir "
 "arquivos, lançamentos ou todo o projeto."
 
 #: warehouse/templates/manage/roles.html:34
@@ -3199,7 +3301,7 @@ msgstr "Usuários que podem gerenciar %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:163
 msgid "Role"
 msgstr "Função"
 
@@ -3221,10 +3323,30 @@ msgstr "Não é possível remover a si próprio como proprietário"
 msgid "Remove %(user)s from this project"
 msgstr "Remover %(user)s deste projeto"
 
-#: warehouse/templates/manage/roles.html:108
-#: warehouse/templates/manage/roles.html:136
-msgid "Add collaborator"
-msgstr "Adicionar colaborador"
+#: warehouse/templates/manage/roles.html:123
+msgid "Invite pending"
+msgstr "Convite pendente"
+
+#: warehouse/templates/manage/roles.html:125
+msgid "Invite expired"
+msgstr "Convite expirado"
+
+#: warehouse/templates/manage/roles.html:135
+#, python-format
+msgid "Revoke invitation for %(user)s"
+msgstr "Revogar convite para %(user)s"
+
+#: warehouse/templates/manage/roles.html:137
+msgid "Revoke invite"
+msgstr "Revogar convite"
+
+#: warehouse/templates/manage/roles.html:146
+msgid "Invite collaborator"
+msgstr "Convidar colaborador"
+
+#: warehouse/templates/manage/roles.html:174
+msgid "Invite"
+msgstr "Convidar"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
@@ -3404,11 +3526,11 @@ msgstr "Definir seu nome de usuário para <code>%(token)s</code>"
 #: warehouse/templates/manage/token.html:76
 #, python-format
 msgid ""
-"Set your password to the token value, including the <code>%(site)s"
-"%(prefix)s</code> prefix"
+"Set your password to the token value, including the <code>%(prefix)s</code> "
+"prefix"
 msgstr ""
-"Definir sua senha para o valor do token, incluindo o prefixo <code>%(site)s"
-"%(prefix)s</code>"
+"Definir sua senha para o valor do token, incluindo o prefixo "
+"<code>%(prefix)s</code>"
 
 #: warehouse/templates/manage/token.html:82
 #, python-format
@@ -5087,9 +5209,25 @@ msgstr ""
 "\"noopener\">\"How to request a name transfer\"</a> da <abbr title="
 "\"Proposta de aprimoramento do Python\">PEP</abbr> 541."
 
+#: warehouse/templates/pages/help.html:545
+msgid ""
+"Can upload releases for a package. Cannot add collaborators. Cannot delete "
+"files, releases, or the project."
+msgstr ""
+"Pode enviar lançamentos para um pacote. Não consegue adicionar "
+"colaboradores. Não consegue excluir arquivos, lançamentos ou o projeto."
+
 #: warehouse/templates/pages/help.html:546
 msgid "Owner:"
 msgstr "Proprietário:"
+
+#: warehouse/templates/pages/help.html:546
+msgid ""
+"Can upload releases. Can add other collaborators. Can delete files, "
+"releases, or the entire project."
+msgstr ""
+"Pode enviar lançamentos. Pode adicionar outros colaboradores. Pode excluir "
+"arquivos, lançamentos ou todo o projeto."
 
 #: warehouse/templates/pages/help.html:549
 msgid ""
@@ -5325,18 +5463,24 @@ msgid ""
 "enable \"Use Ctrl+Shift+C/V as Copy/Paste\" in \"Properties\".\n"
 "          "
 msgstr ""
+"\n"
+"            Se você estiver usando o Windows e tentando colar sua senha ou "
+"token no Prompt de comando ou PowerShell, observe que o Ctrl-V e o Shift"
+"+Insert não funcionarão.\n"
+"             Em vez disso, você pode usar \"Editar > Colar\" no menu da "
+"janela ou ativar \"Usar Ctrl+Shift+C/V como Copiar/Colar\" em \"Propriedades"
+"\".\n"
+"          "
 
 #: warehouse/templates/pages/help.html:638
-#, fuzzy, python-format
-#| msgid ""
-#| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-#| "\">Hashes</a> for %(filename)s"
+#, python-format
 msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">known issue</a> with Python's <code>getpass</code> module."
 msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Hashes</a> para %(filename)s"
+"Este é um <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">problema conhecido</a> com o módulo <code>getpass</code> do "
+"Python."
 
 #: warehouse/templates/pages/help.html:645
 #, python-format
@@ -6632,6 +6776,110 @@ msgstr[1] ""
 "\n"
 "                  Nenhuma ocorrência para os filtros \"%(filters)s\"\n"
 "                "
+
+#, fuzzy
+#~| msgid ""
+#~| "<p> PyPI itself has likely not suffered a breach. This is a protective "
+#~| "measure because your privte API token has been found on a public web "
+#~| "page. </p> <p> PyPI has a <a href=\"%(token_scanning_href)s\" title="
+#~| "\"%(token_scanning_title)s\" target=\"_blank\"> token scanning</a> "
+#~| "partnership with GitHub, which will analyze each and every file commited "
+#~| "to any public GitHub repository for things looking like a PyPI token "
+#~| "(mainly a string that starts with \"pypi-\") and will warn us everytime "
+#~| "it finds one. When GitHub gives us a possible leaked token, we check if "
+#~| "it's working, and if it is, we'll deactivate it immediately and warn the "
+#~| "owner. </p> <p> Most of the time, this happens when people accidentally "
+#~| "commit their own private files to GitHub without making sure they don't "
+#~| "hold sensitive information. </p> <p> If you experienced this, here are a "
+#~| "few things you may want to do: </p> <ul> <li>Understand how your token "
+#~| "was published;</li> <li> If this your doing, review your security "
+#~| "practices and review the files you have published, looking for other "
+#~| "sensitive information; </li> <li> Rotate any kind of credentials that "
+#~| "have been published (just redoing the commit won't do the trick, GitHub "
+#~| "never forgets public information); </li> <li> Review the security "
+#~| "history of all of your packages. Once logged in, you'll find a security "
+#~| "history tab in each package management page; </li> <li> Finally, you can "
+#~| "recreate your API token from your account settings. </li> </ul> <p> "
+#~| "Remember: don't be too hard on yourself: it happens, everyone make "
+#~| "mistakes. See it as an opportunity to learn and improve your security "
+#~| "practice! </p> <p> If someone else than you has published your token, "
+#~| "then this is more worrying. Either you failed to secure your token "
+#~| "properly, or PyPI has suffered a breach. If you have reasons to believe "
+#~| "that might be the case, please contact the <a href="
+#~| "\"%(python_security_href)s\" title=\"%(python_security_title)s\" target="
+#~| "\"_blank\"> Python security response team</a>. </p>"
+#~ msgid ""
+#~ "<p> PyPI itself has likely not suffered a breach. This is a protective "
+#~ "measure because your private API token has been found on a public web "
+#~ "page. </p> <p> PyPI has a <a href=\"%(token_scanning_href)s\" title="
+#~ "\"%(token_scanning_title)s\" target=\"_blank\"> token scanning</a> "
+#~ "partnership with GitHub, which will analyze each and every file commited "
+#~ "to any public GitHub repository for things looking like a PyPI token "
+#~ "(mainly a string that starts with \"pypi-\") and will warn us everytime "
+#~ "it finds one. When GitHub gives us a possible leaked token, we check if "
+#~ "it's working, and if it is, we'll deactivate it immediately and warn the "
+#~ "owner. </p> <p> Most of the time, this happens when people accidentally "
+#~ "commit their own private files to GitHub without making sure they don't "
+#~ "hold sensitive information. </p> <p> If you experienced this, here are a "
+#~ "few things you may want to do: </p> <ul> <li>Understand how your token "
+#~ "was published;</li> <li> If this your doing, review your security "
+#~ "practices and review the files you have published, looking for other "
+#~ "sensitive information; </li> <li> Rotate any kind of credentials that "
+#~ "have been published (just redoing the commit won't do the trick, GitHub "
+#~ "never forgets public information); </li> <li> Review the security history "
+#~ "of all of your packages. Once logged in, you'll find a security history "
+#~ "tab in each package management page; </li> <li> Finally, you can recreate "
+#~ "your API token from your account settings. </li> </ul> <p> Remember: "
+#~ "don't be too hard on yourself: it happens, everyone make mistakes. See it "
+#~ "as an opportunity to learn and improve your security practice! </p> <p> "
+#~ "If someone else than you has published your token, then this is more "
+#~ "worrying. Either you failed to secure your token properly, or PyPI has "
+#~ "suffered a breach. If you have reasons to believe that might be the case, "
+#~ "please contact the <a href=\"%(python_security_href)s\" title="
+#~ "\"%(python_security_title)s\" target=\"_blank\"> Python security response "
+#~ "team</a>. </p>"
+#~ msgstr ""
+#~ "<p> O próprio PyPI provavelmente não sofreu uma violação. Esta é uma "
+#~ "medida de proteção porque seu token API privado foi encontrado em uma "
+#~ "página pública da Web. </p> <p> PyPI tem uma parceria de <a href="
+#~ "\"%(token_scanning_href)s\" title=\"%(token_scanning_title)s\" target="
+#~ "\"_blank\"> varredura de token</a> com o GitHub, que analisará cada "
+#~ "arquivo enviado para qualquer repositório público do GitHub para coisas "
+#~ "que pareçam um token PyPI (principalmente uma string que começa com "
+#~ "\"pypi-\") e nos avisará toda vez que encontrar um. Quando o GitHub nos "
+#~ "der um possível token vazado, verificamos se ele está funcionando, e se "
+#~ "estiver, vamos desativá-lo imediatamente e avisar o proprietário. </p> "
+#~ "<p> Na maioria das vezes, isso acontece quando as pessoas acidentalmente "
+#~ "entregam seus próprios arquivos privados ao GitHub sem ter certeza de que "
+#~ "não possuem informações confidenciais. </p> <p> Se você experimentou "
+#~ "isso, aqui estão algumas coisas que você pode querer fazer: </p> <ul> "
+#~ "<li>Entenda como seu token foi publicado; </li> <li> Se isso for feito, "
+#~ "revise suas práticas de segurança e revise os arquivos publicados, "
+#~ "procurando outras informações confidenciais; </li> <li> Troque qualquer "
+#~ "tipo de credencial que tenha sido publicada (apenas de refazer o commit "
+#~ "não fará o truque, o GitHub nunca esquece informações públicas); </li> "
+#~ "<li> Revise o histórico de segurança de todos os seus pacotes. Uma vez "
+#~ "logado, você encontrará uma guia de histórico de segurança em cada página "
+#~ "de gerenciamento de pacotes; </li> <li> Finalmente, você pode recriar seu "
+#~ "token de API a partir das configurações da sua conta. </li> </ul> <p> "
+#~ "Lembre-se: não seja muito duro consigo mesmo: acontece, todo mundo comete "
+#~ "erros. Veja como uma oportunidade para aprender e melhorar sua prática de "
+#~ "segurança! </p> <p> Se alguém do que você publicou seu token, então isso "
+#~ "é mais preocupante. Ou você falhou em proteger seu token corretamente, ou "
+#~ "o PyPI sofreu uma violação. Se você tem razões para acreditar que esse "
+#~ "pode ser o caso, entre em contato com a equipe de resposta de segurança "
+#~ "<a href=\"%(python_security_href)s\" title=\"%(python_security_title)s\" "
+#~ "target=\"_blank\"> equipe de resposta de segurança Python</a>. </p>"
+
+#~ msgid "PyPI security policy"
+#~ msgstr "Política de segurança do PyPI"
+
+#~ msgid "About GitHub token scanning"
+#~ msgstr "Sobre a varredura por token do GitHub"
+
+#~ msgid "Why is PyPI telling me my API token is compromised?"
+#~ msgstr ""
+#~ "Por que o PyPI está me dizendo que meu token de API está comprometida?"
 
 #, fuzzy
 #~| msgid "Authentication"

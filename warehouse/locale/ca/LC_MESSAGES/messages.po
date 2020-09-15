@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-08-24 00:15+0200\n"
-"PO-Revision-Date: 2020-08-30 18:23+0000\n"
+"PO-Revision-Date: 2020-09-11 18:02+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ca/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.2.1-dev\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -51,7 +51,7 @@ msgstr "Un altre compte ja utilitza aquest nom d’usuari. Trieu-ne un altre."
 msgid "The password is invalid. Try again."
 msgstr "La contrasenya no és vàlida. Torneu-ho a provar."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:68
+#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Hi ha hagut massa intents d’inici de sessió fallits. Torneu-ho a provar més "
@@ -107,7 +107,7 @@ msgstr "El codi de recuperació no és vàlid."
 msgid "No user found with that username or email"
 msgstr "No s’ha trobat cap usuari amb aquest nom o adreça"
 
-#: warehouse/accounts/views.py:85
+#: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -115,27 +115,27 @@ msgstr ""
 "S’han afegit massa adreces electròniques al compte sense verificar-les. "
 "Reviseu la vostra bústia i seguiu els enllaços de verificació. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:224 warehouse/accounts/views.py:281
-#: warehouse/accounts/views.py:283 warehouse/accounts/views.py:310
-#: warehouse/accounts/views.py:312 warehouse/accounts/views.py:367
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
+#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
+#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
 msgstr "L’inici de sessió de dues passes no és vàlid o ha caducat."
 
-#: warehouse/accounts/views.py:275
+#: warehouse/accounts/views.py:283
 msgid "Already authenticated"
 msgstr "Ja us heu autenticat"
 
-#: warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:351
 msgid "Successful WebAuthn assertion"
 msgstr "L’asserció del WebAuthn és correcta"
 
-#: warehouse/accounts/views.py:396
+#: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "S’ha acceptat el codi de recuperació. El codi proporcionat no es pot "
 "utilitzar novament."
 
-#: warehouse/accounts/views.py:482
+#: warehouse/accounts/views.py:490
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -143,39 +143,40 @@ msgstr ""
 "El registre d’usuaris nous s’ha inhabilitat temporalment. Vegeu https://pypi."
 "org/help#admin-intervention per a més detalls."
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:589
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "El testimoni ha caducat: sol·liciteu un enllaç de reinicialització de "
 "contrasenya nou"
 
-#: warehouse/accounts/views.py:583
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 "El testimoni no és vàlid: sol·liciteu un enllaç de reinicialització de "
 "contrasenya nou"
 
-#: warehouse/accounts/views.py:585 warehouse/accounts/views.py:668
+#: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
+#: warehouse/accounts/views.py:772
 msgid "Invalid token: no token supplied"
 msgstr "El testimoni no és vàlid: no se n’ha proporcionat cap"
 
-#: warehouse/accounts/views.py:589
+#: warehouse/accounts/views.py:597
 msgid "Invalid token: not a password reset token"
 msgstr ""
 "El testimoni no és vàlid: no és un testimoni de reinicialització de "
 "contrasenya"
 
-#: warehouse/accounts/views.py:594
+#: warehouse/accounts/views.py:602
 msgid "Invalid token: user not found"
 msgstr "El testimoni no és vàlid: no s’ha trobat l’usuari"
 
-#: warehouse/accounts/views.py:601
+#: warehouse/accounts/views.py:609
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "El testimoni no és vàlid: l’usuari ha iniciat una sessió des que aquest "
 "testimoni es va sol·licitar"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:618
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -183,70 +184,141 @@ msgstr ""
 "El testimoni no és vàlid: la contrasenya ja s’ha canviat des que aquest "
 "testimoni va sol·licitar-se"
 
-#: warehouse/accounts/views.py:637
+#: warehouse/accounts/views.py:645
 msgid "You have reset your password"
 msgstr "Heu reinicialitzat la vostra contrasenya"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:672
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "El testimoni ha caducat: sol·liciteu un enllaç de verificació d’adreça nou"
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:674
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 "El testimoni no és vàlid: sol·liciteu un enllaç de verificació d’adreça nou"
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:680
 msgid "Invalid token: not an email verification token"
 msgstr "El testimoni no és vàlid: no és un testimoni de verificació d’adreça"
 
-#: warehouse/accounts/views.py:681
+#: warehouse/accounts/views.py:689
 msgid "Email not found"
 msgstr "No s’ha trobat l’adreça electrònica"
 
-#: warehouse/accounts/views.py:684
+#: warehouse/accounts/views.py:692
 msgid "Email already verified"
 msgstr "Ja s’ha verificat l’adreça electrònica"
 
-#: warehouse/accounts/views.py:699
+#: warehouse/accounts/views.py:707
 msgid "You can now set this email as your primary address"
 msgstr "D’ara endavant podeu definir aquesta adreça com a primària"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:711
 msgid "This is your primary address"
 msgstr "Aquesta és la vostra adreça primària"
 
-#: warehouse/accounts/views.py:708
+#: warehouse/accounts/views.py:716
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "L’adreça electrònica ${email_address} ha estat verificada. "
 "${confirm_message}."
 
-#: warehouse/manage/views.py:199
+#: warehouse/accounts/views.py:768
+#, fuzzy
+#| msgid "Expired token: request a new password reset link"
+msgid "Expired token: request a new project role invite"
+msgstr ""
+"El testimoni ha caducat: sol·liciteu un enllaç de reinicialització de "
+"contrasenya nou"
+
+#: warehouse/accounts/views.py:770
+#, fuzzy
+#| msgid "Invalid token: request a new password reset link"
+msgid "Invalid token: request a new project role invite"
+msgstr ""
+"El testimoni no és vàlid: sol·liciteu un enllaç de reinicialització de "
+"contrasenya nou"
+
+#: warehouse/accounts/views.py:776
+#, fuzzy
+#| msgid "Invalid token: not an email verification token"
+msgid "Invalid token: not a collaboration invitation token"
+msgstr "El testimoni no és vàlid: no és un testimoni de verificació d’adreça"
+
+#: warehouse/accounts/views.py:780
+msgid "Role invitation is not valid."
+msgstr ""
+
+#: warehouse/accounts/views.py:795
+msgid "Role invitation no longer exists."
+msgstr ""
+
+#: warehouse/accounts/views.py:807
+msgid "Invitation for '${project_name}' is declined."
+msgstr ""
+
+#: warehouse/accounts/views.py:874
+msgid "You are now ${role} of the '${project_name}' project."
+msgstr ""
+
+#: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "L’adreça electrònica ${email_address} ha estat afegida. Trobareu a la bústia "
 "l’enllaç de verificació"
 
-#: warehouse/manage/views.py:686 warehouse/manage/views.py:722
+#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Heu de definir un mètode d’autenticació en dues passes per a poder generar "
 "codis de recuperació"
 
-#: warehouse/manage/views.py:697
+#: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
 msgstr "Ja s’han generat els codis de recuperació"
 
-#: warehouse/manage/views.py:698
+#: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "Generar codis de recuperació nous invalidarà els existents."
 
-#: warehouse/manage/views.py:749
+#: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
 msgstr "Les credencials no són vàlides. Torneu-ho a provar"
+
+#: warehouse/manage/views.py:1503
+msgid "User '${username}' already has ${role_name} role for project"
+msgstr ""
+
+#: warehouse/manage/views.py:1514
+msgid ""
+"User '${username}' does not have a verified primary email address and cannot "
+"be added as a ${role_name} for project"
+msgstr ""
+
+#: warehouse/manage/views.py:1527
+msgid ""
+"User '${username}' already has an active invite. Please try again later."
+msgstr ""
+
+#: warehouse/manage/views.py:1585
+msgid "Invitation sent to '${username}'"
+msgstr ""
+
+#: warehouse/manage/views.py:1632
+msgid "Could not find role invitation."
+msgstr ""
+
+#: warehouse/manage/views.py:1643
+#, fuzzy
+#| msgid "Email already verified"
+msgid "Invitation already expired."
+msgstr "Ja s’ha verificat l’adreça electrònica"
+
+#: warehouse/manage/views.py:1667
+msgid "Invitation revoked from '${username}'."
+msgstr ""
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -265,8 +337,8 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Hem mirat a tot arreu però no hem pogut trobar aquesta pàgina"
 
 #: warehouse/templates/404.html:29
-msgid "And now for something <br><span>completely different"
-msgstr "I ara: una cosa<br><span>completament diferent"
+msgid "And now for something <br><span>completely different</span>"
+msgstr "I ara: una cosa<br><span>completament diferent</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -453,12 +525,19 @@ msgid ""
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
+"Considereu <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
+"rel=\"noopener\"> contribuir amb el PyPI </a> o <a href=\"https://psfmember."
+"org/civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel="
+"\"noopener\"> fer-nos un donatiu </a> per a ajudar-nos a crear una "
+"plataforma més estable i segura."
 
 #: warehouse/templates/base.html:24
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
+"Trieu una contrasenya forta que contingui lletres (majúscules i minúscules), "
+"nombres i caràcters especials. Eviteu les paraules habituals i la repetició."
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
@@ -466,12 +545,12 @@ msgstr "Fortalesa de la contrasenya:"
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr ""
+msgstr "El camp de la contrasenya és buit"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr ""
+msgstr "Navegació principal"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
@@ -500,7 +579,7 @@ msgstr "Registrament"
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr ""
+msgstr "Mostra el menú"
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
@@ -509,7 +588,7 @@ msgstr "Menú"
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
-msgstr ""
+msgstr "Menú principal"
 
 #: warehouse/templates/base.html:79 warehouse/templates/index.html:107
 msgid ""
@@ -529,7 +608,7 @@ msgstr "RSS: els 40 paquets més recents"
 
 #: warehouse/templates/base.html:148
 msgid "Skip to main content"
-msgstr ""
+msgstr "Vés al contingut principal"
 
 #: warehouse/templates/base.html:151
 msgid "Switch to mobile version"
@@ -559,6 +638,9 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
+"Esteu utilitzant l’Entorn de proves del PyPI, una instal·lació separada de "
+"l’Índex de paquets per a Python que us permet provar les eines i els "
+"processos de distribució sense afectar l’Índex real."
 
 #: warehouse/templates/base.html:181
 msgid ""
@@ -588,7 +670,7 @@ msgstr "Cerca"
 
 #: warehouse/templates/base.html:259
 msgid "Help navigation"
-msgstr ""
+msgstr "Navegació per l’ajuda"
 
 #: warehouse/templates/base.html:261
 msgid "Installing packages"
@@ -612,7 +694,7 @@ msgstr "Quant al PyPI"
 
 #: warehouse/templates/base.html:271
 msgid "About PyPI navigation"
-msgstr ""
+msgstr "Navegació per Quant al PyPI"
 
 #: warehouse/templates/base.html:273
 msgid "PyPI on Twitter"
@@ -632,11 +714,11 @@ msgstr "Els nostres patrocinadors"
 
 #: warehouse/templates/base.html:282
 msgid "Contributing to PyPI"
-msgstr ""
+msgstr "Col·laboració amb el PyPI"
 
 #: warehouse/templates/base.html:283
 msgid "How to contribute navigation"
-msgstr ""
+msgstr "Navegació per Com col·laborar-hi"
 
 #: warehouse/templates/base.html:285
 msgid "Bugs and feedback"
@@ -644,7 +726,7 @@ msgstr "Errors i comentaris"
 
 #: warehouse/templates/base.html:286
 msgid "Contribute on GitHub"
-msgstr ""
+msgstr "Col·laboració al GitHub"
 
 #: warehouse/templates/base.html:287
 msgid "Translate PyPI"
@@ -660,7 +742,7 @@ msgstr "Ús del PyPI"
 
 #: warehouse/templates/base.html:295
 msgid "Using PyPI navigation"
-msgstr ""
+msgstr "Navegació per Ús del PyPI"
 
 #: warehouse/templates/base.html:297
 msgid "Code of conduct"
@@ -668,7 +750,7 @@ msgstr "Codi de conducta"
 
 #: warehouse/templates/base.html:298
 msgid "Report security issue"
-msgstr ""
+msgstr "Informe de problemes de seguretat"
 
 #: warehouse/templates/base.html:299
 msgid "Privacy policy"
@@ -690,10 +772,12 @@ msgstr "tots els sistemes funcionen"
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
+"Desenvolupat i mantingut per la comunitat de Python, per a la comunitat de "
+"Python."
 
 #: warehouse/templates/base.html:317
 msgid "Donate today!"
-msgstr ""
+msgstr "Feu un donatiu avui."
 
 #: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
@@ -703,13 +787,17 @@ msgstr "Mapa del lloc"
 msgid "Switch to desktop version"
 msgstr "Canvia a la versió per a escriptoris"
 
+#: warehouse/templates/confirm-action.html:17
+msgid "Confirm Action"
+msgstr ""
+
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
 msgstr "Codi d’error"
 
 #: warehouse/templates/error-base.html:33
 msgid "Back to the homepage"
-msgstr ""
+msgstr "Torna a la pàgina principal"
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
@@ -767,8 +855,8 @@ msgstr ""
 "per la comunitat Python."
 
 #: warehouse/templates/index.html:110
-msgid "Learn about installing packages</a>."
-msgstr "Apreneu a instal·lar paquets</a>."
+msgid "Learn about installing packages"
+msgstr "Apreneu a instal·lar paquets"
 
 #: warehouse/templates/index.html:113
 msgid "Package authors use PyPI to distribute their software."
@@ -777,8 +865,8 @@ msgstr ""
 "programaris."
 
 #: warehouse/templates/index.html:114
-msgid "Learn how to package your Python code for PyPI</a>."
-msgstr "Apreneu a fer un paquet amb el vostre codi Python per al PyPI</a>."
+msgid "Learn how to package your Python code for PyPI"
+msgstr "Apreneu a fer un paquet amb el vostre codi Python per al PyPI"
 
 #: warehouse/templates/index.html:124
 msgid "Trending projects"
@@ -806,12 +894,12 @@ msgstr ""
 #: warehouse/templates/manage/account/totp-provision.html:22
 #: warehouse/templates/manage/token.html:22 warehouse/templates/re-auth.html:17
 msgid "Error processing form"
-msgstr ""
+msgstr "S’ha produït un error en processar el formulari"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
-#: warehouse/templates/accounts/reset-password.html:61
-#: warehouse/templates/accounts/reset-password.html:66
+#: warehouse/templates/accounts/reset-password.html:60
+#: warehouse/templates/accounts/reset-password.html:65
 #: warehouse/templates/manage/account.html:429
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
@@ -819,7 +907,7 @@ msgstr ""
 
 #: warehouse/templates/re-auth.html:30
 msgid "Confirm password to continue"
-msgstr ""
+msgstr "Confirmeu la contrasenya per a continuar"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
@@ -839,7 +927,7 @@ msgstr "Contrasenya"
 #: warehouse/templates/accounts/register.html:137
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
-#: warehouse/templates/accounts/reset-password.html:63
+#: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:294
 #: warehouse/templates/manage/account.html:311
@@ -849,8 +937,8 @@ msgstr "Contrasenya"
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:115
-#: warehouse/templates/manage/roles.html:127
+#: warehouse/templates/manage/roles.html:153
+#: warehouse/templates/manage/roles.html:165
 #: warehouse/templates/manage/token.html:134
 #: warehouse/templates/manage/token.html:151
 #: warehouse/templates/re-auth.html:51
@@ -904,6 +992,29 @@ msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr ""
 
+#: warehouse/templates/accounts/invite-confirmation.html:17
+msgid "Confirm Invite"
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:26
+#, python-format
+msgid ""
+"\n"
+"      Would you like to accept this invitation to join '<a href="
+"\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
+"      "
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:32
+#: warehouse/templates/manage/projects.html:49
+msgid "Accept"
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/manage/projects.html:50
+msgid "Decline"
+msgstr ""
+
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
@@ -914,7 +1025,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:156
 msgid "Username"
 msgstr "Nom d’usuari"
 
@@ -941,6 +1052,7 @@ msgstr ""
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:47
+#: warehouse/templates/manage/roles.html:109
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -977,7 +1089,8 @@ msgid "No projects"
 msgstr "Cap projecte"
 
 #: warehouse/templates/accounts/profile.html:73
-#: warehouse/templates/manage/projects.html:36
+#: warehouse/templates/manage/projects.html:34
+#: warehouse/templates/manage/projects.html:73
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr ""
@@ -1057,7 +1170,7 @@ msgid "Select a username"
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:117
-#: warehouse/templates/accounts/reset-password.html:45
+#: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:398
 msgid "Show passwords"
 msgstr "Mostra les contrasenyes"
@@ -1117,12 +1230,12 @@ msgstr ""
 msgid "Reset your password"
 msgstr ""
 
-#: warehouse/templates/accounts/reset-password.html:48
+#: warehouse/templates/accounts/reset-password.html:47
 #: warehouse/templates/manage/account.html:415
 msgid "Select a new password"
 msgstr ""
 
-#: warehouse/templates/accounts/reset-password.html:82
+#: warehouse/templates/accounts/reset-password.html:81
 msgid "Reset password"
 msgstr ""
 
@@ -1250,7 +1363,7 @@ msgstr ""
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
-msgstr ""
+msgstr "Què he de fer?"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -1261,7 +1374,7 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:39
 msgid "How can I contact you?"
-msgstr ""
+msgstr "Com puc contactar-vos?"
 
 #: warehouse/templates/email/password-compromised/body.html:41
 #, python-format
@@ -1301,7 +1414,7 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:40
 msgid "How do you know this?"
-msgstr ""
+msgstr "Com ho sabeu?"
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:42
 #, python-format
@@ -1971,7 +2084,6 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/account.html:478
-#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr ""
 
@@ -2108,7 +2220,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:595
 msgid "New primary email:"
-msgstr ""
+msgstr "Adreça primària nova:"
 
 #: warehouse/templates/manage/account.html:598
 msgid "Primary email set"
@@ -2120,27 +2232,27 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:606
 msgid "From:"
-msgstr ""
+msgstr "De:"
 
 #: warehouse/templates/manage/account.html:607
 msgid "To:"
-msgstr ""
+msgstr "A:"
 
 #: warehouse/templates/manage/account.html:608
 msgid "Subject:"
-msgstr ""
+msgstr "Assumpte:"
 
 #: warehouse/templates/manage/account.html:612
 msgid "Password reset requested"
-msgstr ""
+msgstr "S’ha sol·licitat una reinicialització de la contrasenya"
 
 #: warehouse/templates/manage/account.html:614
 msgid "Password successfully reset"
-msgstr ""
+msgstr "S’ha reinicialitzat la contrasenya correctament"
 
 #: warehouse/templates/manage/account.html:616
 msgid "Password successfully changed"
-msgstr ""
+msgstr "S’ha modificat la contrasenya correctament"
 
 #: warehouse/templates/manage/account.html:619
 msgid "Two factor authentication added"
@@ -2170,11 +2282,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:640
 msgid "Recovery codes generated"
-msgstr ""
+msgstr "S’han generat els codis de recuperació"
 
 #: warehouse/templates/manage/account.html:644
 msgid "Recovery codes regenerated"
-msgstr ""
+msgstr "S’han regenerat els codis de recuperació"
 
 #: warehouse/templates/manage/account.html:648
 msgid "Recovery code used for login"
@@ -2183,13 +2295,13 @@ msgstr ""
 #: warehouse/templates/manage/account.html:654
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
-msgstr ""
+msgstr "S’ha afegit un testimoni d’API"
 
 #: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
-msgstr ""
+msgstr "Nom del testimoni:"
 
 #: warehouse/templates/manage/account.html:658
 msgid "Token scope: entire account"
@@ -2203,7 +2315,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:665
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
-msgstr ""
+msgstr "S’ha suprimit un testimoni d’API"
 
 #: warehouse/templates/manage/account.html:666
 msgid "Unique identifier:"
@@ -2219,26 +2331,26 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:678
 msgid "Recent account activity"
-msgstr ""
+msgstr "Activitat recent del compte"
 
 #: warehouse/templates/manage/account.html:680
 #: warehouse/templates/manage/history.html:88
 msgid "Event"
-msgstr ""
+msgstr "Esdeveniment"
 
 #: warehouse/templates/manage/account.html:681
 #: warehouse/templates/manage/account.html:689
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
 msgid "Date / time"
-msgstr ""
+msgstr "Data i hora"
 
 #: warehouse/templates/manage/account.html:682
 #: warehouse/templates/manage/account.html:693
 #: warehouse/templates/manage/history.html:90
 #: warehouse/templates/manage/history.html:102
 msgid "IP address"
-msgstr ""
+msgstr "Adreça IP"
 
 #: warehouse/templates/manage/account.html:701
 msgid ""
@@ -2247,11 +2359,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:708
 msgid "Delete account"
-msgstr ""
+msgstr "Suprimeix el compte"
 
 #: warehouse/templates/manage/account.html:711
 msgid "Cannot delete account"
-msgstr ""
+msgstr "No s’ha pogut suprimir el compte"
 
 #: warehouse/templates/manage/account.html:713
 #, python-format
@@ -2296,7 +2408,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:740
 msgid "You will not be able to recover your account after you delete it"
-msgstr ""
+msgstr "No podreu recuperar el compte després de suprimir-lo"
 
 #: warehouse/templates/manage/account.html:742
 msgid "Delete your PyPI account"
@@ -2305,7 +2417,7 @@ msgstr ""
 #: warehouse/templates/manage/documentation.html:18
 #, python-format
 msgid "Manage '%(project_name)s' documentation"
-msgstr ""
+msgstr "Gestiona la documentació de: «%(project_name)s»"
 
 #: warehouse/templates/manage/documentation.html:25
 msgid "Destroy documentation"
@@ -2327,11 +2439,11 @@ msgstr ""
 #: warehouse/templates/manage/release.html:104
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
-msgstr ""
+msgstr "Nom del projecte"
 
 #: warehouse/templates/manage/documentation.html:39
 msgid "Project documentation"
-msgstr ""
+msgstr "Documentació del projecte"
 
 #: warehouse/templates/manage/documentation.html:41
 msgid "Uploading new documentation is no longer supported"
@@ -2340,7 +2452,7 @@ msgstr ""
 #: warehouse/templates/manage/history.html:20
 #, python-format
 msgid "'%(project_name)s' project history"
-msgstr ""
+msgstr "Historial del projecte «%(project_name)s»"
 
 #: warehouse/templates/manage/history.html:25
 msgid ""
@@ -2461,7 +2573,7 @@ msgstr ""
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:113
+#: warehouse/templates/manage/roles.html:151
 msgid "User"
 msgstr ""
 
@@ -2476,7 +2588,7 @@ msgid "from %(ip_address)s"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:57
+#: warehouse/templates/manage/projects.html:94
 #: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr ""
@@ -2523,7 +2635,7 @@ msgid "Manage '%(project_name)s'"
 msgstr ""
 
 #: warehouse/templates/manage/manage_project_base.html:32
-#: warehouse/templates/manage/projects.html:21
+#: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
 msgstr ""
@@ -2532,38 +2644,44 @@ msgstr ""
 msgid "Back to projects"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:31
-msgid "Sole owner"
+#: warehouse/templates/manage/projects.html:22
+#, python-format
+msgid "Pending invitations (%(project_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:43
+#: warehouse/templates/manage/projects.html:41
+#: warehouse/templates/manage/projects.html:80
 #, python-format
 msgid "Created on %(creation_date)s"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:52
+#: warehouse/templates/manage/projects.html:68
+msgid "Sole owner"
+msgstr ""
+
+#: warehouse/templates/manage/projects.html:89
 msgid "Manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:55
+#: warehouse/templates/manage/projects.html:92
 msgid "You are not an owner of this project"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:62
+#: warehouse/templates/manage/projects.html:99
 msgid "View this project's public page"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:65
+#: warehouse/templates/manage/projects.html:102
 msgid "This project has no releases"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:67
+#: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:74
+#: warehouse/templates/manage/projects.html:111
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -2921,10 +3039,9 @@ msgid "Maintainer"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:28
-#: warehouse/templates/pages/help.html:545
 msgid ""
-"Can upload releases for a package. Cannot add collaborators. Cannot delete "
-"files, releases, or the project."
+"Can upload releases for a package. Cannot invite collaborators. Cannot "
+"delete files, releases, or the project."
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:29
@@ -2934,9 +3051,8 @@ msgid "Owner"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:30
-#: warehouse/templates/pages/help.html:546
 msgid ""
-"Can upload releases. Can add other collaborators. Can delete files, "
+"Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
 
@@ -2947,7 +3063,7 @@ msgstr ""
 
 #: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:163
 msgid "Role"
 msgstr ""
 
@@ -2969,9 +3085,31 @@ msgstr ""
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:108
-#: warehouse/templates/manage/roles.html:136
-msgid "Add collaborator"
+#: warehouse/templates/manage/roles.html:123
+msgid "Invite pending"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:125
+msgid "Invite expired"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:135
+#, python-format
+msgid "Revoke invitation for %(user)s"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:137
+msgid "Revoke invite"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:146
+#, fuzzy
+#| msgid "Collaborators"
+msgid "Invite collaborator"
+msgstr "Col·laboradors"
+
+#: warehouse/templates/manage/roles.html:174
+msgid "Invite"
 msgstr ""
 
 #: warehouse/templates/manage/settings.html:18
@@ -3125,8 +3263,8 @@ msgstr ""
 #: warehouse/templates/manage/token.html:76
 #, python-format
 msgid ""
-"Set your password to the token value, including the <code>%(site)s"
-"%(prefix)s</code> prefix"
+"Set your password to the token value, including the <code>%(prefix)s</code> "
+"prefix"
 msgstr ""
 
 #: warehouse/templates/manage/token.html:82
@@ -3738,7 +3876,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:97
 msgid "How can I contribute to PyPI?"
-msgstr ""
+msgstr "Com puc col·laborar amb el PyPI?"
 
 #: warehouse/templates/pages/help.html:98
 msgid "How do I keep up with upcoming changes to PyPI?"
@@ -4318,7 +4456,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:503
 msgid "See the API reference."
-msgstr ""
+msgstr "Consulteu la documentació de l’API."
 
 #: warehouse/templates/pages/help.html:506
 #, python-format
@@ -4415,8 +4553,20 @@ msgid ""
 "\"Python enhancement proposal\">PEP</abbr> 541."
 msgstr ""
 
+#: warehouse/templates/pages/help.html:545
+msgid ""
+"Can upload releases for a package. Cannot add collaborators. Cannot delete "
+"files, releases, or the project."
+msgstr ""
+
 #: warehouse/templates/pages/help.html:546
 msgid "Owner:"
+msgstr ""
+
+#: warehouse/templates/pages/help.html:546
+msgid ""
+"Can upload releases. Can add other collaborators. Can delete files, "
+"releases, or the entire project."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:549
@@ -4510,7 +4660,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:590
 msgid "The total size of your project, in gigabytes"
-msgstr ""
+msgstr "La mida total del vostre projecte, en gigabytes"
 
 #: warehouse/templates/pages/help.html:600
 msgid ""
@@ -4556,7 +4706,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:622
 msgid "If you are using a username and password for uploads:"
-msgstr ""
+msgstr "Si utilitzeu nom d’usuari i contrasenya per a les pujades:"
 
 #: warehouse/templates/pages/help.html:624
 msgid "Ensure that your username and password are correct."
@@ -4567,10 +4717,13 @@ msgid ""
 "Ensure that your username and password do not contain any trailing "
 "characters such as newlines."
 msgstr ""
+"Assegureu-vos que ni el vostre nom d’usuari ni la vostra contrasenya "
+"continguin caràcters tals com salts de línia al final."
 
 #: warehouse/templates/pages/help.html:627
 msgid "If you are using an <a href=\"#apitoken\">API Token</a> for uploads:"
 msgstr ""
+"Si empreu un <a href=\"#apitoken\">testimoni de l’API</a> per a les pujades:"
 
 #: warehouse/templates/pages/help.html:629
 msgid "Ensure that your API Token is valid and has not been revoked."
@@ -4587,6 +4740,9 @@ msgid ""
 "In both cases, remember that PyPI and TestPyPI each require you to create an "
 "account, so your credentials may be different."
 msgstr ""
+"En tots dos casos, recordeu que tant el PyPI com l’entorn de proves "
+"requereixen un compte separat; les vostres credencials poden ser diferents "
+"en cada lloc."
 
 #: warehouse/templates/pages/help.html:634
 msgid ""
@@ -4598,6 +4754,14 @@ msgid ""
 "enable \"Use Ctrl+Shift+C/V as Copy/Paste\" in \"Properties\".\n"
 "          "
 msgstr ""
+"\n"
+"            Si utilitzeu el Windows i heu intentat enganxar la vostra "
+"contrasenya o el vostre testimoni a l’Indicador d’ordres o al PowerShell, "
+"haureu notat que prémer Ctrl + V i Mayús + Ins no funciona.\n"
+"            En lloc d'això, podeu seleccionar Edita ▸ Enganxa al menú de la "
+"finestra o activar a les Propietats l’opció «Utilitza Ctrl + Maj + C o V com "
+"a Copia o Enganxa».\n"
+"          "
 
 #: warehouse/templates/pages/help.html:638
 #, python-format
@@ -4605,6 +4769,9 @@ msgid ""
 "This is a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">known issue</a> with Python's <code>getpass</code> module."
 msgstr ""
+"Aquest és un <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">problema conegut</a> amb el mòdul <code>getpass</code> de "
+"Python."
 
 #: warehouse/templates/pages/help.html:645
 #, python-format
@@ -4706,21 +4873,23 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:703
 msgid "Filename has been used and file exists"
-msgstr ""
+msgstr "S’ha utilitzat el nom de fitxer i el fitxer existeix"
 
 #: warehouse/templates/pages/help.html:704
 msgid "Filename has been used but file no longer exists"
-msgstr ""
+msgstr "S’ha utilitzat el nom de fitxer però el fitxer ja no existeix"
 
 #: warehouse/templates/pages/help.html:705
 msgid "A file with the exact same content exists"
-msgstr ""
+msgstr "Hi ha un fitxer amb exactament el mateix nom"
 
 #: warehouse/templates/pages/help.html:707
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
 msgstr ""
+"El PyPI no permet la reutilització de cap nom de fitxer, fins i tot després "
+"de suprimir i recrear el projecte."
 
 #: warehouse/templates/pages/help.html:709
 #, python-format
@@ -4838,7 +5007,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:789
 msgid "Development:"
-msgstr ""
+msgstr "Desenvolupament:"
 
 #: warehouse/templates/pages/help.html:789
 msgid ""
@@ -5217,7 +5386,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:96
 msgid "Sponsorship packages"
-msgstr ""
+msgstr "Paquets de patrocini"
 
 #: warehouse/templates/pages/sponsor.html:97
 msgid "All figures are in USD"
@@ -5258,7 +5427,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:125
 msgid "Diamond"
-msgstr ""
+msgstr "Diamant"
 
 #: warehouse/templates/pages/sponsor.html:126
 msgid "$50,000 per year, or equivalent in donated services"
@@ -5307,7 +5476,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:148
 msgid "Platinum"
-msgstr ""
+msgstr "Platí"
 
 #: warehouse/templates/pages/sponsor.html:149
 msgid "$30,000 per year, or equivalent in donated services"
@@ -5333,7 +5502,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:171
 msgid "Gold"
-msgstr ""
+msgstr "Or"
 
 #: warehouse/templates/pages/sponsor.html:172
 msgid "$20,000 per year, or equivalent in donated services"
@@ -5347,7 +5516,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:194
 msgid "Silver"
-msgstr ""
+msgstr "Plata"
 
 #: warehouse/templates/pages/sponsor.html:195
 msgid "$10,000 per year, or equivalent in donated services"
@@ -5383,7 +5552,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:216
 msgid "Bronze"
-msgstr ""
+msgstr "Bronze"
 
 #: warehouse/templates/pages/sponsor.html:217
 msgid "$5,000 per year, or equivalent in donated services"
@@ -5448,7 +5617,7 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
-msgstr ""
+msgstr "Estadístiques del PyPI"
 
 #: warehouse/templates/pages/stats.html:23
 msgid ""
@@ -5469,7 +5638,7 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:39
 msgid "Statistics by project"
-msgstr ""
+msgstr "Estadístiques per projecte"
 
 #: warehouse/templates/pages/stats.html:43
 msgid "Sum of release files (bytes)"
@@ -5477,18 +5646,18 @@ msgstr ""
 
 #: warehouse/templates/pages/stats.html:48
 msgid "All of PyPI"
-msgstr ""
+msgstr "Tot el PyPI"
 
 #: warehouse/templates/search/results.html:18
 #: warehouse/templates/search/results.html:114
 #: warehouse/templates/search/results.html:212
 msgid "Search results"
-msgstr ""
+msgstr "Resultats de la cerca"
 
 #: warehouse/templates/search/results.html:40
 #, python-format
 msgid "Did you mean '<a class=\"link\" href=\"%(link)s\">%(text)s</a>'?"
-msgstr ""
+msgstr "Volíeu dir «<a class=\"link\" href=\"%(link)s\">%(text)s</a>»?"
 
 #: warehouse/templates/search/results.html:82
 msgid "Close panel"
@@ -5513,11 +5682,11 @@ msgstr ""
 
 #: warehouse/templates/search/results.html:123
 msgid "Python 3 compatible projects"
-msgstr ""
+msgstr "Projectes compatibles amb la versió 3 de Python"
 
 #: warehouse/templates/search/results.html:128
 msgid "Sphinx extensions that have a stable/production status"
-msgstr ""
+msgstr "Extensions de l’Sphinx l’estat de les quals és estable o de producció"
 
 #: warehouse/templates/search/results.html:133
 msgid "Projects related to \"graphics\" with OSI-approved licenses"
@@ -5539,7 +5708,7 @@ msgstr[1] ""
 #: warehouse/templates/search/results.html:157
 #, python-format
 msgid "for \"%(term)s\""
-msgstr ""
+msgstr "per a «%(term)s»"
 
 #: warehouse/templates/search/results.html:161
 msgid ""
@@ -5551,19 +5720,25 @@ msgid_plural ""
 "                  with the selected classifiers\n"
 "                "
 msgstr[0] ""
+"\n"
+"                  amb el classificador seleccionat\n"
+"                "
 msgstr[1] ""
+"\n"
+"                  amb els classificadors seleccionats\n"
+"                "
 
 #: warehouse/templates/search/results.html:177
 msgid "Order by"
-msgstr ""
+msgstr "Ordena per"
 
 #: warehouse/templates/search/results.html:179
 msgid "Relevance"
-msgstr ""
+msgstr "Rellevància"
 
 #: warehouse/templates/search/results.html:180
 msgid "Date last updated"
-msgstr ""
+msgstr "Data de darrera actualització"
 
 #: warehouse/templates/search/results.html:181
 msgid "Trending"
@@ -5571,16 +5746,16 @@ msgstr ""
 
 #: warehouse/templates/search/results.html:194
 msgid "Filter"
-msgstr ""
+msgstr "Filtre"
 
 #: warehouse/templates/search/results.html:205
 msgid "Add filter"
-msgstr ""
+msgstr "Afegeix un filtre"
 
 #: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(term)s'"
-msgstr ""
+msgstr "«%(term)s» no ha donat cap resultat"
 
 #: warehouse/templates/search/results.html:223
 #, python-format
@@ -5593,4 +5768,15 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
+"\n"
+"                  El filtre «%(filters)s» no ha donat cap resultat\n"
+"                "
 msgstr[1] ""
+"\n"
+"                  Els filtres «%(filters)s» no han donat cap resultat\n"
+"                "
+
+#, fuzzy
+#~| msgid "Privacy policy"
+#~ msgid "PyPI security policy"
+#~ msgstr "Política de privadesa"

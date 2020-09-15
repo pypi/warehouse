@@ -8,13 +8,14 @@
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2020.
 # simberaj <simbera.jan@gmail.com>, 2020.
 # Marek Schwarz <massa.kassa.sc3na@gmail.com>, 2020.
+# Vojtěch Šamla <auzkok@seznam.cz>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-10 13:52+0200\n"
-"PO-Revision-Date: 2020-08-15 11:32+0000\n"
-"Last-Translator: Marek Schwarz <massa.kassa.sc3na@gmail.com>\n"
+"PO-Revision-Date: 2020-09-05 02:01+0000\n"
+"Last-Translator: Vojtěch Šamla <auzkok@seznam.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/"
 ">\n"
 "Language: cs\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.2-dev\n"
+"X-Generator: Weblate 4.3-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -62,7 +63,7 @@ msgstr ""
 msgid "The password is invalid. Try again."
 msgstr "Toto heslo je neplatné. Zkuste to prosím znovu."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:68
+#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Přiliš mnoho neúspěšných pokusů o přihlášení. Zkuste to prosím později."
@@ -107,8 +108,6 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Nevalidní aserce WebAuthn: vadný obsah"
 
 #: warehouse/accounts/forms.py:363
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
 msgstr "Nevalidní obnovovací kód."
 
@@ -116,37 +115,34 @@ msgstr "Nevalidní obnovovací kód."
 msgid "No user found with that username or email"
 msgstr "Žádný uživatel s daným uživatelským jménem nebo emailem nebyl nalezen"
 
-#: warehouse/accounts/views.py:85
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links."
+#: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 "U tohoto účtu je již příliš mnoho neověřených e-mailových adres. "
-"Zkontrolujte svou e-mailovou schránku a klikněte na ověřovací odkaz."
+"Zkontrolujte svou e-mailovou schránku a klikněte na ověřovací odkaz. (IP: "
+"${ip})"
 
-#: warehouse/accounts/views.py:224 warehouse/accounts/views.py:281
-#: warehouse/accounts/views.py:283 warehouse/accounts/views.py:310
-#: warehouse/accounts/views.py:312 warehouse/accounts/views.py:367
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
+#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
+#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
 msgstr "Nevalidní či expirované dvoufaktorové přihlášení."
 
-#: warehouse/accounts/views.py:275
+#: warehouse/accounts/views.py:283
 msgid "Already authenticated"
 msgstr "Již autenizován"
 
-#: warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:351
 msgid "Successful WebAuthn assertion"
 msgstr "Úspšená aserce WebAuthn"
 
-#: warehouse/accounts/views.py:396
+#: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód byl již přijat. Poskytnutý kód nelze použít znovu."
 
-#: warehouse/accounts/views.py:482
+#: warehouse/accounts/views.py:490
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -154,97 +150,167 @@ msgstr ""
 "Nový registrace jsou dočasně zakázány. Více informací na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:589
 msgid "Expired token: request a new password reset link"
 msgstr "Expirovaný token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:583
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: request a new password reset link"
 msgstr "Nevalidní token: požádejte o novou adresu pro reset hesla"
 
-#: warehouse/accounts/views.py:585 warehouse/accounts/views.py:668
+#: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
+#: warehouse/accounts/views.py:772
 msgid "Invalid token: no token supplied"
 msgstr "Nevalidní token: token neposkytnut"
 
-#: warehouse/accounts/views.py:589
+#: warehouse/accounts/views.py:597
 msgid "Invalid token: not a password reset token"
 msgstr "Nevalidní token: nejedná se o token pro reset hesla"
 
-#: warehouse/accounts/views.py:594
+#: warehouse/accounts/views.py:602
 msgid "Invalid token: user not found"
 msgstr "Nevalidní token: uživatel nenalezen"
 
-#: warehouse/accounts/views.py:601
+#: warehouse/accounts/views.py:609
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Nevalidní token: uživatel se po vygenerování tokenu již přihlásil"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:618
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Nevalidní token: heslo již bylo po vygenerování tokenu změněno"
 
-#: warehouse/accounts/views.py:637
+#: warehouse/accounts/views.py:645
 msgid "You have reset your password"
 msgstr "Vaše heslo bylo změněno"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:672
 msgid "Expired token: request a new email verification link"
 msgstr "Expirovaný token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:674
 msgid "Invalid token: request a new email verification link"
 msgstr "Nevalidní token: vyžádejte nový odkaz pro reset hesla"
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:680
 msgid "Invalid token: not an email verification token"
 msgstr "Nevalidní token: nejedná se o token pro reset e-mailové adresy"
 
-#: warehouse/accounts/views.py:681
+#: warehouse/accounts/views.py:689
 msgid "Email not found"
 msgstr "E-mail nenalezen"
 
-#: warehouse/accounts/views.py:684
+#: warehouse/accounts/views.py:692
 msgid "Email already verified"
 msgstr "E-mail již byl ověřen"
 
-#: warehouse/accounts/views.py:699
+#: warehouse/accounts/views.py:707
 msgid "You can now set this email as your primary address"
 msgstr "Nyní můžete nastavit tento e-mail jako vaši primární adresu"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:711
 msgid "This is your primary address"
 msgstr "Toto je vaše primární adresa"
 
-#: warehouse/accounts/views.py:708
+#: warehouse/accounts/views.py:716
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} byla oveřena. ${confirm_message}."
 
-#: warehouse/manage/views.py:199
+#: warehouse/accounts/views.py:768
+#, fuzzy
+#| msgid "Expired token: request a new password reset link"
+msgid "Expired token: request a new project role invite"
+msgstr "Expirovaný token: požádejte o novou adresu pro reset hesla"
+
+#: warehouse/accounts/views.py:770
+#, fuzzy
+#| msgid "Invalid token: request a new password reset link"
+msgid "Invalid token: request a new project role invite"
+msgstr "Nevalidní token: požádejte o novou adresu pro reset hesla"
+
+#: warehouse/accounts/views.py:776
+#, fuzzy
+#| msgid "Invalid token: not an email verification token"
+msgid "Invalid token: not a collaboration invitation token"
+msgstr "Nevalidní token: nejedná se o token pro reset e-mailové adresy"
+
+#: warehouse/accounts/views.py:780
+msgid "Role invitation is not valid."
+msgstr ""
+
+#: warehouse/accounts/views.py:795
+msgid "Role invitation no longer exists."
+msgstr ""
+
+#: warehouse/accounts/views.py:807
+msgid "Invitation for '${project_name}' is declined."
+msgstr ""
+
+#: warehouse/accounts/views.py:874
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "You are now ${role} of the '${project_name}' project."
+msgstr "Nejste vlastník tohoto projektu"
+
+#: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mailová adresa ${email_address} byla přidána - odkaz pro ověření naleznete "
 "ve vaší e-mailové schránce"
 
-#: warehouse/manage/views.py:686 warehouse/manage/views.py:722
+#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
 "Před vygenerováním obnovovacích kódů je nutné nastavit dvoufaktorovou metodu "
 "autentizace"
 
-#: warehouse/manage/views.py:697
+#: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
 msgstr "Obnovovací kódy již byly vygenerovány"
 
-#: warehouse/manage/views.py:698
+#: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Vygenerování nových obnovovacích kódu způsobí invalidaci již existujících."
 
-#: warehouse/manage/views.py:749
+#: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
 msgstr "Nevalidní údaje. Zkuste znovu"
+
+#: warehouse/manage/views.py:1503
+msgid "User '${username}' already has ${role_name} role for project"
+msgstr ""
+
+#: warehouse/manage/views.py:1514
+msgid ""
+"User '${username}' does not have a verified primary email address and cannot "
+"be added as a ${role_name} for project"
+msgstr ""
+
+#: warehouse/manage/views.py:1527
+msgid ""
+"User '${username}' already has an active invite. Please try again later."
+msgstr ""
+
+#: warehouse/manage/views.py:1585
+msgid "Invitation sent to '${username}'"
+msgstr ""
+
+#: warehouse/manage/views.py:1632
+msgid "Could not find role invitation."
+msgstr ""
+
+#: warehouse/manage/views.py:1643
+#, fuzzy
+#| msgid "Email already verified"
+msgid "Invitation already expired."
+msgstr "E-mail již byl ověřen"
+
+#: warehouse/manage/views.py:1667
+msgid "Invitation revoked from '${username}'."
+msgstr ""
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -263,7 +329,9 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Hledali jsme všude, ale tuto stránku jsme nenalezli"
 
 #: warehouse/templates/404.html:29
-msgid "And now for something <br><span>completely different"
+#, fuzzy
+#| msgid "And now for something <br><span>completely different"
+msgid "And now for something <br><span>completely different</span>"
 msgstr "A nově něco <br><span>kompletně jiného"
 
 #: warehouse/templates/404.html:32
@@ -706,6 +774,12 @@ msgstr "Mapa stránek"
 msgid "Switch to desktop version"
 msgstr "Přepnout do desktopové verze"
 
+#: warehouse/templates/confirm-action.html:17
+#, fuzzy
+#| msgid "Confirm form"
+msgid "Confirm Action"
+msgstr "Potvrdit formulář"
+
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
 msgstr "Chybový kód"
@@ -771,7 +845,9 @@ msgstr ""
 "PyPI pomáhá hledat a instalovat obsah vyvinutý a sdílený Python komunitou."
 
 #: warehouse/templates/index.html:110
-msgid "Learn about installing packages</a>."
+#, fuzzy
+#| msgid "Learn about installing packages</a>."
+msgid "Learn about installing packages"
 msgstr "Naučit se o instalování balíčků</a>."
 
 #: warehouse/templates/index.html:113
@@ -779,7 +855,9 @@ msgid "Package authors use PyPI to distribute their software."
 msgstr "Autoři balíčků používají PyPI k distribuci jejich softwaru."
 
 #: warehouse/templates/index.html:114
-msgid "Learn how to package your Python code for PyPI</a>."
+#, fuzzy
+#| msgid "Learn how to package your Python code for PyPI</a>."
+msgid "Learn how to package your Python code for PyPI"
 msgstr "Naučit se, jak zabalit Python kód pro PyPI<a/>."
 
 #: warehouse/templates/index.html:124
@@ -812,8 +890,8 @@ msgstr "Chyba při zpracovávání formuláře"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
-#: warehouse/templates/accounts/reset-password.html:61
-#: warehouse/templates/accounts/reset-password.html:66
+#: warehouse/templates/accounts/reset-password.html:60
+#: warehouse/templates/accounts/reset-password.html:65
 #: warehouse/templates/manage/account.html:429
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
@@ -841,7 +919,7 @@ msgstr "Heslo"
 #: warehouse/templates/accounts/register.html:137
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
-#: warehouse/templates/accounts/reset-password.html:63
+#: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:294
 #: warehouse/templates/manage/account.html:311
@@ -851,8 +929,8 @@ msgstr "Heslo"
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:115
-#: warehouse/templates/manage/roles.html:127
+#: warehouse/templates/manage/roles.html:153
+#: warehouse/templates/manage/roles.html:165
 #: warehouse/templates/manage/token.html:134
 #: warehouse/templates/manage/token.html:151
 #: warehouse/templates/re-auth.html:51
@@ -911,6 +989,31 @@ msgstr ""
 "Jinak doporučujeme zavítat na <a href=\"%(href)s\">domovskou stránku PyPI</"
 "a>."
 
+#: warehouse/templates/accounts/invite-confirmation.html:17
+#, fuzzy
+#| msgid "Confirm form"
+msgid "Confirm Invite"
+msgstr "Potvrdit formulář"
+
+#: warehouse/templates/accounts/invite-confirmation.html:26
+#, python-format
+msgid ""
+"\n"
+"      Would you like to accept this invitation to join '<a href="
+"\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
+"      "
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:32
+#: warehouse/templates/manage/projects.html:49
+msgid "Accept"
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/manage/projects.html:50
+msgid "Decline"
+msgstr ""
+
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
@@ -921,7 +1024,7 @@ msgstr "Přihlásit do %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:156
 msgid "Username"
 msgstr "Uživatelské jméno"
 
@@ -948,6 +1051,7 @@ msgstr "Profil %(username)s"
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:47
+#: warehouse/templates/manage/roles.html:109
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Avatar pro {user} z gravatar.com"
 
@@ -988,7 +1092,8 @@ msgid "No projects"
 msgstr "Žádné projekty"
 
 #: warehouse/templates/accounts/profile.html:73
-#: warehouse/templates/manage/projects.html:36
+#: warehouse/templates/manage/projects.html:34
+#: warehouse/templates/manage/projects.html:73
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "Poslední vydání %(release_date)s"
@@ -1000,15 +1105,11 @@ msgstr "%(user)s nenahrál zatím žádné projekty na PyPI"
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-#, fuzzy
-#| msgid "Recovery Codes"
 msgid "Recovery codes"
 msgstr "Obnovovací kódy"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 #: warehouse/templates/accounts/two-factor.html:119
-#, fuzzy
-#| msgid "Login using Recovery Code"
 msgid "Login using recovery codes"
 msgstr "Přihlásit pomocí obnovovacího kódu"
 
@@ -1075,7 +1176,7 @@ msgid "Select a username"
 msgstr "Vyberte uživatelské jméno"
 
 #: warehouse/templates/accounts/register.html:117
-#: warehouse/templates/accounts/reset-password.html:45
+#: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:398
 msgid "Show passwords"
 msgstr "Zobrazit hesla"
@@ -1138,12 +1239,12 @@ msgstr ""
 msgid "Reset your password"
 msgstr "Reset vašeho hesla"
 
-#: warehouse/templates/accounts/reset-password.html:48
+#: warehouse/templates/accounts/reset-password.html:47
 #: warehouse/templates/manage/account.html:415
 msgid "Select a new password"
 msgstr "Vyberte nové heslo"
 
-#: warehouse/templates/accounts/reset-password.html:82
+#: warehouse/templates/accounts/reset-password.html:81
 msgid "Reset password"
 msgstr "Reset hesla"
 
@@ -1867,10 +1968,8 @@ msgstr ""
 "bezpečnostního prvku (např. USB klíč)"
 
 #: warehouse/templates/manage/account.html:143
-#, fuzzy
-#| msgid "Regenerate recovery codes"
 msgid "Generate recovery codes"
-msgstr "Přegenerovat obnovovací kódy"
+msgstr "Generovat obnovovací kódy"
 
 #: warehouse/templates/manage/account.html:148
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -2094,7 +2193,6 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/account.html:478
-#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "Odebrat"
 
@@ -2204,8 +2302,6 @@ msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:574
-#, fuzzy
-#| msgid "Recovery Codes"
 msgid "Recovery code"
 msgstr "Obnovovací kódy"
 
@@ -2300,20 +2396,14 @@ msgid "Two factor authentication removed"
 msgstr "Dvoufaktorová autentizace byla odebrána"
 
 #: warehouse/templates/manage/account.html:640
-#, fuzzy
-#| msgid "Recovery Codes generated"
 msgid "Recovery codes generated"
 msgstr "Obnovovací kódy byly vygenerovány"
 
 #: warehouse/templates/manage/account.html:644
-#, fuzzy
-#| msgid "Recovery Codes regenerated"
 msgid "Recovery codes regenerated"
 msgstr "Obnovovací kódy byly znovu vygenerovány"
 
 #: warehouse/templates/manage/account.html:648
-#, fuzzy
-#| msgid "Recovery Code used for login"
 msgid "Recovery code used for login"
 msgstr "Obnovovací kód použitý pro přihlášení"
 
@@ -2630,7 +2720,7 @@ msgstr "Datum"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:113
+#: warehouse/templates/manage/roles.html:151
 msgid "User"
 msgstr "Uživatel"
 
@@ -2645,7 +2735,7 @@ msgid "from %(ip_address)s"
 msgstr "z %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:57
+#: warehouse/templates/manage/projects.html:94
 #: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr "Spravovat"
@@ -2692,7 +2782,7 @@ msgid "Manage '%(project_name)s'"
 msgstr "Spravovat %(project_name)s"
 
 #: warehouse/templates/manage/manage_project_base.html:32
-#: warehouse/templates/manage/projects.html:21
+#: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
 msgstr "Vaše projekty (%(project_count)s)"
@@ -2701,38 +2791,45 @@ msgstr "Vaše projekty (%(project_count)s)"
 msgid "Back to projects"
 msgstr "Zpátky na projekty"
 
-#: warehouse/templates/manage/projects.html:31
-msgid "Sole owner"
-msgstr "Samostatný vlastník"
+#: warehouse/templates/manage/projects.html:22
+#, fuzzy, python-format
+#| msgid "Your projects (%(project_count)s)"
+msgid "Pending invitations (%(project_count)s)"
+msgstr "Vaše projekty (%(project_count)s)"
 
-#: warehouse/templates/manage/projects.html:43
+#: warehouse/templates/manage/projects.html:41
+#: warehouse/templates/manage/projects.html:80
 #, python-format
 msgid "Created on %(creation_date)s"
 msgstr "Vytořeno %(creation_date)s"
 
-#: warehouse/templates/manage/projects.html:52
+#: warehouse/templates/manage/projects.html:68
+msgid "Sole owner"
+msgstr "Samostatný vlastník"
+
+#: warehouse/templates/manage/projects.html:89
 msgid "Manage this project"
 msgstr "Spravovat tento projekt"
 
-#: warehouse/templates/manage/projects.html:55
+#: warehouse/templates/manage/projects.html:92
 msgid "You are not an owner of this project"
 msgstr "Nejste vlastník tohoto projektu"
 
-#: warehouse/templates/manage/projects.html:62
+#: warehouse/templates/manage/projects.html:99
 msgid "View this project's public page"
 msgstr "Zobrazit veřejnou stránku projektu"
 
-#: warehouse/templates/manage/projects.html:65
+#: warehouse/templates/manage/projects.html:102
 msgid "This project has no releases"
 msgstr "Tento projekt nemá žádná vydání"
 
-#: warehouse/templates/manage/projects.html:67
+#: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "Zobrazit"
 
-#: warehouse/templates/manage/projects.html:74
+#: warehouse/templates/manage/projects.html:111
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -3121,10 +3218,13 @@ msgid "Maintainer"
 msgstr "Správce"
 
 #: warehouse/templates/manage/roles.html:28
-#: warehouse/templates/pages/help.html:545
+#, fuzzy
+#| msgid ""
+#| "Can upload releases for a package. Cannot add collaborators. Cannot "
+#| "delete files, releases, or the project."
 msgid ""
-"Can upload releases for a package. Cannot add collaborators. Cannot delete "
-"files, releases, or the project."
+"Can upload releases for a package. Cannot invite collaborators. Cannot "
+"delete files, releases, or the project."
 msgstr ""
 "Může nahrávat vydání pro balíček. Nemůže přidávat spolupracovníky. Nemůže "
 "mazat soubory, vydání ani celý projekt."
@@ -3136,9 +3236,12 @@ msgid "Owner"
 msgstr "Majitel"
 
 #: warehouse/templates/manage/roles.html:30
-#: warehouse/templates/pages/help.html:546
+#, fuzzy
+#| msgid ""
+#| "Can upload releases. Can add other collaborators. Can delete files, "
+#| "releases, or the entire project."
 msgid ""
-"Can upload releases. Can add other collaborators. Can delete files, "
+"Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
 "Může nahrávat vydání. Může přidávat spolupracovníky. Může mazat soubory, "
@@ -3151,7 +3254,7 @@ msgstr "Uživatelé, kteří mohou spravovat %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:163
 msgid "Role"
 msgstr "Role"
 
@@ -3173,10 +3276,33 @@ msgstr "Nemůžete odebrat sami sebe jakožto vlastníka"
 msgid "Remove %(user)s from this project"
 msgstr "Odebrat %(user)s z tohoto projektu"
 
-#: warehouse/templates/manage/roles.html:108
-#: warehouse/templates/manage/roles.html:136
-msgid "Add collaborator"
+#: warehouse/templates/manage/roles.html:123
+msgid "Invite pending"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:125
+msgid "Invite expired"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:135
+#, fuzzy, python-format
+#| msgid "Navigation for %(project)s"
+msgid "Revoke invitation for %(user)s"
+msgstr "Navigace pro %(project)s"
+
+#: warehouse/templates/manage/roles.html:137
+msgid "Revoke invite"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:146
+#, fuzzy
+#| msgid "Add collaborator"
+msgid "Invite collaborator"
 msgstr "Přidat spolupracovníka"
+
+#: warehouse/templates/manage/roles.html:174
+msgid "Invite"
+msgstr ""
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
@@ -3344,10 +3470,13 @@ msgid "Set your username to <code>%(token)s</code>"
 msgstr "Nastavit uživatelské jméno pro <code>%(token)s</code>"
 
 #: warehouse/templates/manage/token.html:76
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Set your password to the token value, including the <code>%(site)s"
+#| "%(prefix)s</code> prefix"
 msgid ""
-"Set your password to the token value, including the <code>%(site)s"
-"%(prefix)s</code> prefix"
+"Set your password to the token value, including the <code>%(prefix)s</code> "
+"prefix"
 msgstr ""
 "Nastavte si heslo pro hodnotu tokenu, zahrnující prefix <code>%(site)s"
 "%(prefix)s</code>"
@@ -3428,10 +3557,8 @@ msgid "Add token"
 msgstr "Přidat token"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-#, fuzzy
-#| msgid "Account Recovery Codes"
 msgid "Account recovery codes"
-msgstr "Obnovovací kód účtu"
+msgstr "Obnovovací kódy účtu"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3454,10 +3581,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-#, fuzzy
-#| msgid "Enter recovery code"
 msgid "Save your recovery codes"
-msgstr "Vložte obnovací kód"
+msgstr "Vložte vaše obnovací kódy"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 msgid "Download as file"
@@ -4669,9 +4794,25 @@ msgid ""
 "\"Python enhancement proposal\">PEP</abbr> 541."
 msgstr ""
 
+#: warehouse/templates/pages/help.html:545
+msgid ""
+"Can upload releases for a package. Cannot add collaborators. Cannot delete "
+"files, releases, or the project."
+msgstr ""
+"Může nahrávat vydání pro balíček. Nemůže přidávat spolupracovníky. Nemůže "
+"mazat soubory, vydání ani celý projekt."
+
 #: warehouse/templates/pages/help.html:546
 msgid "Owner:"
 msgstr "Majitel:"
+
+#: warehouse/templates/pages/help.html:546
+msgid ""
+"Can upload releases. Can add other collaborators. Can delete files, "
+"releases, or the entire project."
+msgstr ""
+"Může nahrávat vydání. Může přidávat spolupracovníky. Může mazat soubory, "
+"vydání i celý projekt."
 
 #: warehouse/templates/pages/help.html:549
 msgid ""
@@ -5872,6 +6013,11 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+
+#, fuzzy
+#~| msgid "Privacy policy"
+#~ msgid "PyPI security policy"
+#~ msgstr "Zásady ochrany osobních údajů"
 
 #~ msgid ""
 #~ "Events appear here as security-related actions occur on your account."
