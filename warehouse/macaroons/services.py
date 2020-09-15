@@ -117,32 +117,6 @@ class DatabaseMacaroonService:
 
         raise InvalidMacaroon("invalid macaroon")
 
-    def check_if_macaroon_exists(self, raw_macaroon):
-        """
-        Returns the database macaroon if the given raw (serialized) macaroon is
-        an existing valid macaroon, whatever its permissions.
-
-        Raises InvalidMacaroon otherwise.
-        """
-        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
-        if raw_macaroon is None:
-            raise InvalidMacaroon("malformed or nonexistent macaroon")
-
-        try:
-            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
-        except MacaroonDeserializationException:
-            raise InvalidMacaroon("malformed macaroon")
-
-        dm = self.find_macaroon(m.identifier.decode())
-
-        if dm is None:
-            raise InvalidMacaroon("deleted or nonexistent macaroon")
-
-        verifier = Verifier(m, context=None, principals=None, permission=None)
-        verifier.verify_signature(dm.key)
-
-        return dm
-
     def create_macaroon(self, location, user_id, description, caveats):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.

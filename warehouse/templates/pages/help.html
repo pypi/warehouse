@@ -58,7 +58,6 @@
 {% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
 {% macro suspicious_activity() %}{% trans %}What should I do if I notice suspicious activity on my account?{% endtrans %}{% endmacro %}
-{% macro compromised_token() %}{% trans %}Why is PyPI telling me my API token is compromised?{% endtrans %}{% endmacro %}
 {% macro twoFA() %}{% trans %}What is two factor authentication and how does it work on PyPI?{% endtrans %}{% endmacro %}
 {% macro totp() %}{% trans %}How does two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro utfkey() %}{% trans %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
@@ -124,7 +123,6 @@
           <li><a href="#verified-email">{{ verified_email() }}</a></li>
           <li><a href="#compromised-password">{{ compromised_password() }}</a></li>
           <li><a href="#suspicious-activity">{{ suspicious_activity() }}</a></li>
-          <li><a href="#compromised-token">{{ compromised_token() }}</a></li>
           <li><a href="#twofa">{{ twoFA() }}</a></li>
           <li><a href="#totp">{{ totp() }}</a></li>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
