@@ -286,63 +286,6 @@
           </p>
         {% endtrans %}
 
-        <h3 id="compromised-token">{{ compromised_token() }}</h3>
-        {% trans trimmed python_security_href="https://pypi.org/security/", python_security_title=gettext("PyPI security policy"), token_scanning_href="https://help.github.com/en/github/administering-a-repository/about-token-scanning", token_scanning_title=gettext("About GitHub token scanning") %}
-          <p>
-            PyPI itself has likely not suffered a breach.
-            This is a protective measure because your private API token has been found
-            on a public web page.
-          </p>
-          <p>
-            PyPI has a
-            <a href="{{ token_scanning_href }}" title="{{ token_scanning_title }}" target="_blank">
-            token scanning</a> partnership with GitHub, which will analyze each and
-            every file commited to any public GitHub repository for things looking like
-            a PyPI token (mainly a string that starts with "pypi-") and will warn us
-            everytime it finds one.
-            When GitHub gives us a possible leaked token, we check if it's working, and
-            if it is, we'll deactivate it immediately and warn the owner.
-          </p>
-          <p>
-            Most of the time, this happens when people accidentally commit their own
-            private files to GitHub without making sure they don't hold sensitive
-            information.
-          </p>
-          <p>
-            If you experienced this, here are a few things you may want to do:
-          </p>
-          <ul>
-            <li>Understand how your token was published;</li>
-            <li>
-              If this your doing, review your security practices and review the
-              files you have published, looking for other sensitive information;
-            </li>
-            <li>
-              Rotate any kind of credentials that have been published (just redoing
-              the commit won't do the trick, GitHub never forgets public information);
-            </li>
-            <li>
-              Review the security history of all of your packages. Once logged in,
-              you'll find a security history tab in each package management page;
-            </li>
-            <li>
-              Finally, you can recreate your API token from your account settings.
-            </li>
-          </ul>
-          <p>
-            Remember: don't be too hard on yourself: it happens, everyone make mistakes.
-            See it as an opportunity to learn and improve your security practice!
-          </p>
-          <p>
-            If someone else than you has published your token, then this is more worrying.
-            Either you failed to secure your token properly, or PyPI has suffered a
-            breach. If you have reasons to believe that might be the case, please
-            contact the
-            <a href="{{ python_security_href }}" title="{{ python_security_title }}" target="_blank">
-            Python security response team</a>.
-          </p>
-        {% endtrans %}
-
         <h3 id="twofa">{{ twoFA() }}</h3>
         {% trans trimmed href='https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042', title=gettext('External link') %}
           <p>
