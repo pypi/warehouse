@@ -3173,7 +3173,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Set your password to the token value, including the "
-"<code>%(site)s%(prefix)s</code> prefix"
+"<code>%(prefix)s</code> prefix"
 msgstr ""
 
 #: warehouse/templates/manage/token.html:82
