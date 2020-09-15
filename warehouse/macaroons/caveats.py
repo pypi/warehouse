@@ -33,7 +33,7 @@ class Caveat:
 
 
 class V1Caveat(Caveat):
-    def verify_projects(self, projects):
+    def verify_projects(self, projects) -> None:
         # First, ensure that we're actually operating in
         # the context of a package.
         if not isinstance(self.verifier.context, Project):
@@ -43,13 +43,13 @@ class V1Caveat(Caveat):
 
         project = self.verifier.context
         if project.normalized_name in projects:
-            return True
+            return
 
         raise InvalidMacaroon(
             f"project-scoped token is not valid for project '{project.name}'"
         )
 
-    def verify(self, predicate):
+    def verify(self, predicate) -> None:
         try:
             data = json.loads(predicate)
         except ValueError:
@@ -64,13 +64,13 @@ class V1Caveat(Caveat):
 
         if permissions == "user":
             # User-scoped tokens behave exactly like a user's normal credentials.
-            return True
+            return
 
         projects = permissions.get("projects")
         if projects is None:
             raise InvalidMacaroon("invalid projects in predicate")
 
-        return self.verify_projects(projects)
+        self.verify_projects(projects)
 
 
 class Verifier:
@@ -81,13 +81,19 @@ class Verifier:
         self.permission = permission
         self.verifier = pymacaroons.Verifier()
 
-    def verify(self, key):
+    def verify(self, key: str) -> None:
         self.verifier.satisfy_general(V1Caveat(self))
+        self.verify_signature(key=key)
 
+    def verify_signature(self, key: str) -> None:
         try:
-            return self.verifier.verify(self.macaroon, key)
+            result = self.verifier.verify(self.macaroon, key)
         except (
             pymacaroons.exceptions.MacaroonInvalidSignatureException,
             Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ):
             raise InvalidMacaroon("invalid macaroon signature")
+
+        # This is dead code, the only hardcoded thing verify() can return is True
+        if not result:
+            raise InvalidMacaroon("invalid macaroon")
