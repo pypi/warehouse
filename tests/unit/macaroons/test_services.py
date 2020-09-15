@@ -72,13 +72,16 @@ class TestDatabaseMacaroonService:
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None
 
-    def test_find_userid_invalid_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
+    @pytest.fixture
+    def raw_macaroon(self):
+        return pymacaroons.Macaroon(
             location="fake location",
             identifier=str(uuid4()),
             key=b"fake key",
             version=pymacaroons.MACAROON_V2,
         ).serialize()
+
+    def test_find_userid_invalid_macaroon(self, macaroon_service, raw_macaroon):
         raw_macaroon = f"pypi-{raw_macaroon}"
 
         assert macaroon_service.find_userid(raw_macaroon) is None
@@ -102,26 +105,13 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
-    def test_verify_unprefixed_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
-            location="fake location",
-            identifier=str(uuid4()),
-            key=b"fake key",
-            version=pymacaroons.MACAROON_V2,
-        ).serialize()
-
+    def test_verify_unprefixed_macaroon(self, macaroon_service, raw_macaroon):
         with pytest.raises(services.InvalidMacaroon):
             macaroon_service.verify(
                 raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
             )
 
-    def test_verify_no_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
-            location="fake location",
-            identifier=str(uuid4()),
-            key=b"fake key",
-            version=pymacaroons.MACAROON_V2,
-        ).serialize()
+    def test_verify_no_macaroon(self, macaroon_service, raw_macaroon):
         raw_macaroon = f"pypi-{raw_macaroon}"
 
         with pytest.raises(services.InvalidMacaroon):
@@ -135,7 +125,7 @@ class TestDatabaseMacaroonService:
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
-        verifier_obj = pretend.stub(verify=pretend.call_recorder(lambda k: False))
+        verifier_obj = pretend.stub(verify=pretend.raiser(services.InvalidMacaroon))
         verifier_cls = pretend.call_recorder(lambda *a: verifier_obj)
         monkeypatch.setattr(services, "Verifier", verifier_cls)
 
@@ -203,7 +193,7 @@ class TestDatabaseMacaroonService:
         principals = pretend.stub()
         permissions = pretend.stub()
 
-        assert macaroon_service.verify(raw_macaroon, context, principals, permissions)
+        macaroon_service.verify(raw_macaroon, context, principals, permissions)
         assert verifier_cls.calls == [
             pretend.call(mock.ANY, context, principals, permissions)
         ]

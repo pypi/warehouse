@@ -25,42 +25,34 @@ class Caveat:
     def __init__(self, verifier):
         self.verifier = verifier
 
-    def verify(self, predicate):
-        raise InvalidMacaroon
+    def verify(self, predicate) -> bool:
+        return False
 
-    def __call__(self, predicate):
+    def __call__(self, predicate) -> bool:
         return self.verify(predicate)
 
 
 class V1Caveat(Caveat):
-    def verify_projects(self, projects):
+    def verify_projects(self, projects) -> bool:
         # First, ensure that we're actually operating in
         # the context of a package.
         if not isinstance(self.verifier.context, Project):
-            raise InvalidMacaroon(
-                "project-scoped token used outside of a project context"
-            )
+            return False
 
-        project = self.verifier.context
-        if project.normalized_name in projects:
-            return True
+        return self.verifier.context.normalized_name in projects
 
-        raise InvalidMacaroon(
-            f"project-scoped token is not valid for project '{project.name}'"
-        )
-
-    def verify(self, predicate):
+    def verify(self, predicate) -> bool:
         try:
             data = json.loads(predicate)
         except ValueError:
-            raise InvalidMacaroon("malformatted predicate")
+            return False
 
         if data.get("version") != 1:
-            raise InvalidMacaroon("invalidate version in predicate")
+            return False
 
         permissions = data.get("permissions")
         if permissions is None:
-            raise InvalidMacaroon("invalid permissions in predicate")
+            return False
 
         if permissions == "user":
             # User-scoped tokens behave exactly like a user's normal credentials.
@@ -68,7 +60,7 @@ class V1Caveat(Caveat):
 
         projects = permissions.get("projects")
         if projects is None:
-            raise InvalidMacaroon("invalid projects in predicate")
+            return False
 
         return self.verify_projects(projects)
 
@@ -81,13 +73,18 @@ class Verifier:
         self.permission = permission
         self.verifier = pymacaroons.Verifier()
 
-    def verify(self, key):
+    def verify(self, key: str) -> None:
+        # Register callback for checking V1Caveat
         self.verifier.satisfy_general(V1Caveat(self))
 
         try:
-            return self.verifier.verify(self.macaroon, key)
+            result = self.verifier.verify(self.macaroon, key)
         except (
             pymacaroons.exceptions.MacaroonInvalidSignatureException,
             Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ):
             raise InvalidMacaroon("invalid macaroon signature")
+
+        # This is dead code, the only hardcoded thing verify() can return is True
+        if not result:
+            raise InvalidMacaroon("invalid macaroon")

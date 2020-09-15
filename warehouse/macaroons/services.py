@@ -97,10 +97,11 @@ class DatabaseMacaroonService:
 
         return dm.user.id
 
-    def verify(self, raw_macaroon, context, principals, permission):
+    def verify(self, raw_macaroon, context, principals, permission) -> None:
         """
-        Returns True if the given raw (serialized) macaroon is
+        Passes if the given raw (serialized) macaroon is
         valid for the context, principals, and requested permission.
+        Updates the last_used date for the macaroon.
 
         Raises InvalidMacaroon if the macaroon is not valid.
         """
@@ -111,11 +112,8 @@ class DatabaseMacaroonService:
             raise InvalidMacaroon("deleted or nonexistent macaroon")
 
         verifier = Verifier(m, context, principals, permission)
-        if verifier.verify(dm.key):
-            dm.last_used = datetime.datetime.now()
-            return True
-
-        raise InvalidMacaroon("invalid macaroon")
+        verifier.verify(dm.key)
+        dm.last_used = datetime.datetime.now()
 
     def create_macaroon(self, location, user_id, description, caveats):
         """
