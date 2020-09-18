@@ -563,9 +563,9 @@ pycurl==7.43.0.5 \
     --hash=sha256:e1aea68b1d39dbcafc7298214f51f6ebd5f188c06aa418e9c046dfe419fe7ecf \
     --hash=sha256:ec7dd291545842295b7b56c12c90ffad2976cc7070c98d7b1517b7b6cd5994b3 \
     # via -r requirements/main.in, celery
-pygments==2.6.1 \
-    --hash=sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44 \
-    --hash=sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324 \
+pygments==2.7.1 \
+    --hash=sha256:307543fe65c0947b126e83dd5a61bd8acbd84abec11f43caebaf5534cbc17998 \
+    --hash=sha256:926c3f319eda178d1bd90851e4317e6d8cdb5e292a3386aac9bd75eca29cf9c7 \
     # via readme-renderer
 pymacaroons==0.13.0 \
     --hash=sha256:1e6bba42a5f66c245adf38a5a4006a99dcc06a0703786ea636098667d42903b8 \
