@@ -49,6 +49,20 @@ def simple_index(request):
     return {"projects": projects}
 
 
+def _simple_detail(project, request):
+    # Get all of the files for this project.
+    files = sorted(
+        request.db.query(File)
+        .options(joinedload(File.release))
+        .join(Release)
+        .filter(Release.project == project)
+        .all(),
+        key=lambda f: (parse(f.release.version), f.filename),
+    )
+
+    return {"project": project, "files": files}
+
+
 @view_config(
     route_name="legacy.api.simple.detail",
     context=Project,
@@ -74,14 +88,4 @@ def simple_detail(project, request):
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
-    # Get all of the files for this project.
-    files = sorted(
-        request.db.query(File)
-        .options(joinedload(File.release))
-        .join(Release)
-        .filter(Release.project == project)
-        .all(),
-        key=lambda f: (parse(f.release.version), f.filename),
-    )
-
-    return {"project": project, "files": files}
+    return _simple_detail(project, request)
