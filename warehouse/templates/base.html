@@ -62,7 +62,7 @@
 {%- endmacro %}
 
 <!DOCTYPE html>
-<html lang="{{ request.locale }}">
+<html lang="{{ request.locale }}" dir="{{ request.locale.text_direction }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -78,7 +78,7 @@
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
 
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-{}.css'.format(request.locale.text_direction)) }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
@@ -94,6 +94,7 @@
 
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
+    {% block additional_rss %}{% endblock %}
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}
@@ -293,7 +294,7 @@
           <h2>{% trans %}Using PyPI{% endtrans %}</h2>
           <nav aria-label="{% trans %}Using PyPI navigation{% endtrans %}">
             <ul>
-              <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Code of conduct{% endtrans %}</a></li>
+              <li><a href="https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Code of conduct{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a></li>
               <li><a href="https://www.python.org/privacy/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Privacy policy{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('policy.terms-of-use') }}">{% trans %}Terms of use{% endtrans %}</a></li>
@@ -331,9 +332,16 @@
     <div class="language-switcher">
       <form action="{{ request.route_path('locale') }}">
         <ul>
-          {% for locale, language in KNOWN_LOCALES.items() %}
+          {% for identifier, locale in KNOWN_LOCALES.items() %}
           <li>
-            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
+            <button
+              {% if request.locale_name == identifier %}
+              class="language-switcher__selected"
+              {% endif %}
+              name="locale_id" value="{{ identifier }}" type="submit"
+            >
+              {{ locale.display_name }}
+            </button>
           </li>
           {% endfor %}
         </ul>

@@ -26,8 +26,14 @@ from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
-from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.interfaces import (
+    IPasswordBreachedService,
+    ITokenService,
+    IUserService,
+    TokenExpired,
+)
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.packaging.models import (
@@ -36,6 +42,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectEvent,
     Role,
+    RoleInvitation,
     User,
 )
 from warehouse.utils.paginate import paginate_url_factory
@@ -49,6 +56,7 @@ from ...common.db.packaging import (
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
+    RoleInvitationFactory,
     UserFactory,
 )
 
@@ -210,24 +218,23 @@ class TestManageAccount:
         assert request.session.flash.calls == []
         assert update_user.calls == []
 
-    def test_add_email(self, monkeypatch, pyramid_config):
+    def test_add_email(self, monkeypatch, pyramid_request):
         email_address = "test@example.com"
         email = pretend.stub(id=pretend.stub(), email=email_address)
         user_service = pretend.stub(
             add_email=pretend.call_recorder(lambda *a, **kw: email),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
-        request = pretend.stub(
-            POST={"email": email_address},
-            db=pretend.stub(flush=lambda: None),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda a, **kw: user_service,
-            user=pretend.stub(
-                emails=[], username="username", name="Name", id=pretend.stub()
-            ),
-            task=pretend.call_recorder(lambda *args, **kwargs: send_email),
-            remote_addr="0.0.0.0",
+        pyramid_request.POST = {"email": email_address}
+        pyramid_request.db = pretend.stub(flush=lambda: None)
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        pyramid_request.find_service = lambda a, **kw: user_service
+        pyramid_request.user = pretend.stub(
+            emails=[], username="username", name="Name", id=pretend.stub()
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(
             views,
             "AddEmailForm",
@@ -242,25 +249,29 @@ class TestManageAccount:
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageAccountViews(pyramid_request)
 
         assert view.add_email() == view.default_response
         assert user_service.add_email.calls == [
-            pretend.call(request.user.id, email_address)
+            pretend.call(
+                pyramid_request.user.id, email_address, pyramid_request.remote_addr
+            )
         ]
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call(
                 f"Email {email_address} added - check your email for "
                 + "a verification link",
                 queue="success",
             )
         ]
-        assert send_email.calls == [pretend.call(request, (request.user, email))]
+        assert send_email.calls == [
+            pretend.call(pyramid_request, (pyramid_request.user, email))
+        ]
         assert user_service.record_event.calls == [
             pretend.call(
-                request.user.id,
+                pyramid_request.user.id,
                 tag="account:email:add",
-                ip_address=request.remote_addr,
+                ip_address=pyramid_request.remote_addr,
                 additional={"email": email_address},
             )
         ]
@@ -401,7 +412,6 @@ class TestManageAccount:
         )
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
-        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -441,7 +451,6 @@ class TestManageAccount:
         )
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
-        db_request.remote_addr = "0.0.0.0"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -483,7 +492,7 @@ class TestManageAccount:
 
         assert view.change_primary_email() == view.default_response
         assert db_request.session.flash.calls == [
-            pretend.call(f"Email address not found", queue="error")
+            pretend.call("Email address not found", queue="error")
         ]
         assert old_primary.primary
 
@@ -1538,21 +1547,23 @@ class TestProvisionRecoveryCodes:
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
 
-    def test_recovery_codes_generate_no_two_factor(self):
+    def test_recovery_codes_generate_no_two_factor(self, pyramid_request):
         user_service = pretend.stub(has_two_factor=lambda user_id: False)
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=pretend.stub()),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the/route"
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_generate()
 
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
                     "You must provision a two factor method before recovery "
@@ -1561,24 +1572,26 @@ class TestProvisionRecoveryCodes:
                 queue="error",
             )
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
 
         assert isinstance(result, HTTPSeeOther)
 
-    def test_recovery_codes_generate_already_exist(self):
+    def test_recovery_codes_generate_already_exist(self, pyramid_request):
         user_service = pretend.stub(
             has_two_factor=lambda user_id: True, has_recovery_codes=lambda user_id: True
         )
-        request = pretend.stub(
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=pretend.stub()),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the/route"
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_generate()
 
         assert result == {
@@ -1621,7 +1634,9 @@ class TestProvisionRecoveryCodes:
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
 
-    def test_recovery_codes_regenerate_no_two_factor(self, monkeypatch):
+    def test_recovery_codes_regenerate_no_two_factor(
+        self, monkeypatch, pyramid_request
+    ):
         confirm_password_cls = pretend.call_recorder(
             lambda *a, **kw: pretend.stub(validate=lambda: True)
         )
@@ -1632,21 +1647,20 @@ class TestProvisionRecoveryCodes:
             generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
-        request = pretend.stub(
-            POST={"confirm_password": "correct password"},
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=1, username="username"),
-            remote_addr="0.0.0.0",
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
+        pyramid_request.POST = {"confirm_password": "correct password"}
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=1, username="username")
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
         )
+        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_regenerate()
 
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
                     "You must provision a two factor method before recovery "
@@ -1655,34 +1669,38 @@ class TestProvisionRecoveryCodes:
                 queue="error",
             )
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
 
         assert isinstance(result, HTTPSeeOther)
 
-    def test_recovery_codes_regenerate_wrong_confirm(self, monkeypatch):
+    def test_recovery_codes_regenerate_wrong_confirm(
+        self, monkeypatch, pyramid_request
+    ):
         confirm_password_cls = pretend.call_recorder(
             lambda *a, **kw: pretend.stub(validate=lambda: False)
         )
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         user_service = pretend.stub(has_two_factor=lambda user_id: True)
-        request = pretend.stub(
-            POST={"confirm_password": "wrong password"},
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(id=pretend.stub(), username="username"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None),),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the/route"),
+        pyramid_request.POST = {"confirm_password": "wrong password"}
+        pyramid_request.find_service = lambda interface, **kw: {
+            IUserService: user_service
+        }[interface]
+        pyramid_request.user = pretend.stub(id=pretend.stub(), username="username")
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the/route"
         )
 
-        view = views.ProvisionRecoveryCodesViews(request)
+        view = views.ProvisionRecoveryCodesViews(pyramid_request)
         result = view.recovery_codes_regenerate()
 
-        assert request.session.flash.calls == [
+        assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid credentials. Try again", queue="error")
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
 
 
@@ -2265,6 +2283,7 @@ class TestManageProjects:
                 newer_project_with_no_releases.name,
             },
             "projects_sole_owned": {newer_project_with_no_releases.name},
+            "project_invites": [],
         }
 
 
@@ -2273,7 +2292,11 @@ class TestManageProjectSettings:
         request = pretend.stub()
         project = pretend.stub()
 
-        assert views.manage_project_settings(project, request) == {"project": project}
+        assert views.manage_project_settings(project, request) == {
+            "project": project,
+            "MAX_FILESIZE": MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        }
 
     def test_delete_project_no_confirm(self):
         project = pretend.stub(normalized_name="foo")
@@ -2394,8 +2417,6 @@ class TestManageProjectSettings:
             views, "send_removed_project_email", send_removed_project_email
         )
 
-        db_request.remote_addr = "192.168.1.1"
-
         result = views.delete_project(project, db_request)
 
         assert db_request.session.flash.calls == [
@@ -2406,8 +2427,8 @@ class TestManageProjectSettings:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project, db_request.user, db_request,),
-            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
         ]
 
         assert send_removed_project_email.calls == [
@@ -2482,7 +2503,6 @@ class TestManageProjectDocumentation:
         )
         db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
-        db_request.remote_addr = "192.168.1.1"
         db_request.task = task
 
         result = views.destroy_project_docs(project, db_request)
@@ -2527,7 +2547,9 @@ class TestManageProjectRelease:
     def test_manage_project_release(self):
         files = pretend.stub()
         project = pretend.stub()
-        release = pretend.stub(project=project, files=pretend.stub(all=lambda: files))
+        release = pretend.stub(
+            project=project, files=pretend.stub(all=lambda: files), yanked=False
+        )
         request = pretend.stub()
         view = views.ManageProjectRelease(release, request)
 
@@ -2579,6 +2601,350 @@ class TestManageProjectRelease:
             )
         ]
 
+    def test_yank_project_release(self, monkeypatch):
+        user = pretend.stub(username=pretend.stub())
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                users=[user],
+            ),
+            created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            yanked=False,
+            yanked_reason="",
+        )
+        request = pretend.stub(
+            POST={
+                "confirm_yank_version": release.version,
+                "yanked_reason": "Yanky Doodle went to town",
+            },
+            method="POST",
+            db=pretend.stub(add=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=user,
+            remote_addr=pretend.stub(),
+        )
+        journal_obj = pretend.stub()
+        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        monkeypatch.setattr(views, "JournalEntry", journal_cls)
+        send_yanked_project_release_email = pretend.call_recorder(
+            lambda req, contrib, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_yanked_project_release_email",
+            send_yanked_project_release_email,
+        )
+
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.yank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert release.yanked
+        assert release.yanked_reason == "Yanky Doodle went to town"
+
+        assert get_user_role_in_project.calls == [
+            pretend.call(release.project, request.user, request),
+            pretend.call(release.project, request.user, request),
+        ]
+
+        assert send_yanked_project_release_email.calls == [
+            pretend.call(
+                request,
+                request.user,
+                release=release,
+                submitter_name=request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            )
+        ]
+
+        assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert journal_cls.calls == [
+            pretend.call(
+                name=release.project.name,
+                action="yank release",
+                version=release.version,
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(f"Yanked release {release.version!r}", queue="success")
+        ]
+        assert request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=release.project.name)
+        ]
+        assert release.project.record_event.calls == [
+            pretend.call(
+                tag="project:release:yank",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                    "yanked_reason": "Yanky Doodle went to town",
+                },
+            )
+        ]
+
+    def test_yank_project_release_no_confirm(self):
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=False,
+            yanked_reason="",
+        )
+        request = pretend.stub(
+            POST={"confirm_yank_version": ""},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.yank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.yanked
+        assert not release.yanked_reason
+
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_yank_project_release_bad_confirm(self):
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=False,
+            yanked_reason="",
+        )
+        request = pretend.stub(
+            POST={"confirm_yank_version": "invalid"},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.yank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.yanked
+        assert not release.yanked_reason
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not yank release - "
+                + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_unyank_project_release(self, monkeypatch):
+        user = pretend.stub(username=pretend.stub())
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                users=[user],
+            ),
+            created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            yanked=True,
+        )
+        request = pretend.stub(
+            POST={"confirm_unyank_version": release.version},
+            method="POST",
+            db=pretend.stub(add=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=user,
+            remote_addr=pretend.stub(),
+        )
+        journal_obj = pretend.stub()
+        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project_name, username, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        monkeypatch.setattr(views, "JournalEntry", journal_cls)
+        send_unyanked_project_release_email = pretend.call_recorder(
+            lambda req, contrib, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_unyanked_project_release_email",
+            send_unyanked_project_release_email,
+        )
+
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.unyank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.yanked
+        assert not release.yanked_reason
+
+        assert get_user_role_in_project.calls == [
+            pretend.call(release.project, request.user, request),
+            pretend.call(release.project, request.user, request),
+        ]
+
+        assert send_unyanked_project_release_email.calls == [
+            pretend.call(
+                request,
+                request.user,
+                release=release,
+                submitter_name=request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            )
+        ]
+
+        assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert journal_cls.calls == [
+            pretend.call(
+                name=release.project.name,
+                action="unyank release",
+                version=release.version,
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(f"Un-yanked release {release.version!r}", queue="success")
+        ]
+        assert request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=release.project.name)
+        ]
+        assert release.project.record_event.calls == [
+            pretend.call(
+                tag="project:release:unyank",
+                ip_address=request.remote_addr,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+        ]
+
+    def test_unyank_project_release_no_confirm(self):
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=True,
+            yanked_reason="",
+        )
+        request = pretend.stub(
+            POST={
+                "confirm_unyank_version": "",
+                "yanked_reason": "Yanky Doodle went to town",
+            },
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.unyank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert release.yanked
+        assert not release.yanked_reason
+
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_unyank_project_release_bad_confirm(self):
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            yanked=True,
+            yanked_reason="Old reason",
+        )
+        request = pretend.stub(
+            POST={"confirm_unyank_version": "invalid", "yanked_reason": "New reason"},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.unyank_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert release.yanked
+        assert release.yanked_reason == "Old reason"
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not un-yank release - "
+                + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
     def test_delete_project_release(self, monkeypatch):
         user = pretend.stub(username=pretend.stub())
         release = pretend.stub(
@@ -2592,7 +2958,7 @@ class TestManageProjectRelease:
             created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         request = pretend.stub(
-            POST={"confirm_version": release.version},
+            POST={"confirm_delete_version": release.version},
             method="POST",
             db=pretend.stub(
                 delete=pretend.call_recorder(lambda a: None),
@@ -2630,8 +2996,8 @@ class TestManageProjectRelease:
         assert result.headers["Location"] == "/the-redirect"
 
         assert get_user_role_in_project.calls == [
-            pretend.call(release.project, request.user, request,),
-            pretend.call(release.project, request.user, request,),
+            pretend.call(release.project, request.user, request),
+            pretend.call(release.project, request.user, request),
         ]
 
         assert send_removed_project_release_email.calls == [
@@ -2679,7 +3045,7 @@ class TestManageProjectRelease:
     def test_delete_project_release_no_confirm(self):
         release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
         request = pretend.stub(
-            POST={"confirm_version": ""},
+            POST={"confirm_delete_version": ""},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
@@ -2711,7 +3077,7 @@ class TestManageProjectRelease:
     def test_delete_project_release_bad_confirm(self):
         release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
         request = pretend.stub(
-            POST={"confirm_version": "invalid"},
+            POST={"confirm_delete_version": "invalid"},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
@@ -2797,7 +3163,6 @@ class TestManageProjectRelease:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.user = user
-        db_request.remote_addr = "1.2.3.4"
 
         get_user_role_in_project = pretend.call_recorder(
             lambda project, user, req: "Owner"
@@ -2832,7 +3197,7 @@ class TestManageProjectRelease:
                 version=release.version,
                 action=f"remove file {release_file.filename}",
                 submitted_by=user,
-                submitted_from="1.2.3.4",
+                submitted_from=db_request.remote_addr,
             )
             .one()
         )
@@ -2845,8 +3210,8 @@ class TestManageProjectRelease:
         ]
 
         assert get_user_role_in_project.calls == [
-            pretend.call(project, db_request.user, db_request,),
-            pretend.call(project, db_request.user, db_request,),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
         ]
 
         assert send_removed_project_release_file_email.calls == [
@@ -2987,7 +3352,9 @@ class TestManageProjectRoles:
 
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create()
+        user_2 = UserFactory.create()
         role = RoleFactory.create(user=user, project=project)
+        role_invitation = RoleInvitationFactory.create(user=user_2, project=project)
 
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
@@ -3000,13 +3367,16 @@ class TestManageProjectRoles:
         assert result == {
             "project": project,
             "roles": {role},
+            "invitations": {role_invitation},
             "form": form_obj,
         }
 
     def test_post_new_role_validation_fails(self, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
+        user_2 = UserFactory.create(username="newuser")
         role = RoleFactory.create(user=user, project=project)
+        role_invitation = RoleInvitationFactory.create(user=user_2, project=project)
 
         user_service = pretend.stub()
         db_request.find_service = pretend.call_recorder(
@@ -3028,6 +3398,7 @@ class TestManageProjectRoles:
         assert result == {
             "project": project,
             "roles": {role},
+            "invitations": {role_invitation},
             "form": form_obj,
         }
 
@@ -3047,12 +3418,17 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
         )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+        )
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
-        db_request.remote_addr = "10.10.10.10"
         db_request.user = owner_1
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -3064,20 +3440,20 @@ class TestManageProjectRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        send_collaborator_added_email = pretend.call_recorder(lambda r, u, **k: None)
-        monkeypatch.setattr(
-            views, "send_collaborator_added_email", send_collaborator_added_email
+        send_project_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
         )
-
-        send_added_as_collaborator_email = pretend.call_recorder(lambda r, u, **k: None)
         monkeypatch.setattr(
-            views, "send_added_as_collaborator_email", send_added_as_collaborator_email
+            views,
+            "send_project_role_verification_email",
+            send_project_role_verification_email,
         )
 
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
@@ -3085,47 +3461,42 @@ class TestManageProjectRoles:
             pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Added collaborator 'new_user'", queue="success")
+            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
         ]
 
-        assert send_collaborator_added_email.calls == [
-            pretend.call(
-                db_request,
-                {owner_2},
-                user=new_user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=form_obj.role_name.data,
-            )
-        ]
-
-        assert send_added_as_collaborator_email.calls == [
-            pretend.call(
-                db_request,
-                new_user,
-                submitter=db_request.user,
-                project_name=project.name,
-                role=form_obj.role_name.data,
-            )
-        ]
-
-        # Only one role is created
-        role = db_request.db.query(Role).filter(Role.user == new_user).one()
+        # Only one role invitation is created
+        role_invitation = (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == new_user)
+            .filter(RoleInvitation.project == project)
+            .one()
+        )
 
         assert result == {
             "project": project,
-            "roles": {role, owner_1_role, owner_2_role},
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {role_invitation},
             "form": form_obj,
         }
 
-        entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
-        )
-
-        assert entry.name == project.name
-        assert entry.action == "add Owner new_user"
-        assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert send_project_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=form_obj.role_name.data,
+                initiator_username=db_request.user.username,
+                project_name=project.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-project-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "project_id": project.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
 
     def test_post_duplicate_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -3135,8 +3506,14 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+        )
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
@@ -3153,7 +3530,8 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
@@ -3172,8 +3550,111 @@ class TestManageProjectRoles:
         assert result == {
             "project": project,
             "roles": {role},
+            "invitations": set(),
             "form": form_obj,
         }
+
+    def test_reinvite_role_after_expiration(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foobar")
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = RoleFactory.create(
+            user=owner_1, project=project, role_name="Owner"
+        )
+        owner_2_role = RoleFactory.create(
+            user=owner_2, project=project, role_name="Owner"
+        )
+        new_user_role_invitation = RoleInvitationFactory.create(
+            user=new_user, project=project, invite_status="expired"
+        )
+
+        user_service = pretend.stub(
+            find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
+        )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN", max_age=6 * 60 * 60, loads=lambda data: None
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_1
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=new_user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        send_project_role_verification_email = pretend.call_recorder(
+            lambda r, u, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_project_role_verification_email",
+            send_project_role_verification_email,
+        )
+
+        result = views.manage_project_roles(project, db_request, _form_class=form_class)
+
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
+        ]
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(db_request.POST, user_service=user_service),
+            pretend.call(user_service=user_service),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
+        ]
+
+        # Only one role invitation is created
+        role_invitation = (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == new_user)
+            .filter(RoleInvitation.project == project)
+            .one()
+        )
+
+        assert result["invitations"] == {new_user_role_invitation}
+
+        assert result == {
+            "project": project,
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {role_invitation},
+            "form": form_obj,
+        }
+
+        assert send_project_role_verification_email.calls == [
+            pretend.call(
+                db_request,
+                new_user,
+                desired_role=form_obj.role_name.data,
+                initiator_username=db_request.user.username,
+                project_name=project.name,
+                email_token=token_service.dumps(
+                    {
+                        "action": "email-project-role-verify",
+                        "desired_role": form_obj.role_name.data,
+                        "user_id": new_user.id,
+                        "project_id": project.id,
+                    }
+                ),
+                token_age=token_service.max_age,
+            )
+        ]
 
     @pytest.mark.parametrize("with_email", [True, False])
     def test_post_unverified_email(self, db_request, with_email):
@@ -3185,8 +3666,16 @@ class TestManageProjectRoles:
         user_service = pretend.stub(
             find_userid=lambda username: user.id, get_user=lambda userid: user
         )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN",
+            max_age=6 * 60 * 60,
+            loads=lambda data: None,
+        )
         db_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
         )
         db_request.method = "POST"
         db_request.POST = pretend.stub()
@@ -3203,7 +3692,8 @@ class TestManageProjectRoles:
         result = views.manage_project_roles(project, db_request, _form_class=form_class)
 
         assert db_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
         ]
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
@@ -3221,30 +3711,284 @@ class TestManageProjectRoles:
         # No additional roles are created
         assert db_request.db.query(Role).all() == []
 
-        assert result == {"project": project, "roles": set(), "form": form_obj}
+        assert result == {
+            "project": project,
+            "roles": set(),
+            "invitations": set(),
+            "form": form_obj,
+        }
+
+    def test_cannot_reinvite_role(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = RoleFactory.create(
+            user=owner_1, project=project, role_name="Owner"
+        )
+        owner_2_role = RoleFactory.create(
+            user=owner_2, project=project, role_name="Owner"
+        )
+        new_user_invitation = RoleInvitationFactory.create(
+            user=new_user, project=project, invite_status="pending"
+        )
+
+        user_service = pretend.stub(
+            find_userid=lambda username: new_user.id, get_user=lambda userid: new_user
+        )
+        token_service = pretend.stub(
+            dumps=lambda data: "TOKEN",
+            max_age=6 * 60 * 60,
+            loads=lambda data: {"desired_role": "Maintainer"},
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_1
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=new_user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.manage_project_roles(project, db_request, _form_class=form_class)
+
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="email"),
+        ]
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(db_request.POST, user_service=user_service),
+            pretend.call(user_service=user_service),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "User 'new_user' already has an active invite. Please try again later.",
+                queue="error",
+            )
+        ]
+
+        assert result == {
+            "project": project,
+            "roles": {owner_1_role, owner_2_role},
+            "invitations": {new_user_invitation},
+            "form": form_obj,
+        }
+
+
+class TestRevokeRoleInvitation:
+    def test_revoke_invitation(self, db_request, token_service):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        RoleInvitationFactory.create(user=user, project=project)
+        owner_user = UserFactory.create()
+        RoleFactory(user=owner_user, project=project, role_name="Owner")
+
+        user_service = pretend.stub(get_user=lambda userid: user)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/projects"
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.revoke_project_role_invitation(
+            project, db_request, _form_class=form_class
+        )
+        db_request.db.flush()
+
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Invitation revoked from '{user.username}'.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/projects"
+
+    def test_invitation_does_not_exist(self, db_request, token_service):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        owner_user = UserFactory.create()
+        RoleFactory(user=owner_user, project=project, role_name="Owner")
+
+        user_service = pretend.stub(get_user=lambda userid: user)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/projects"
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.revoke_project_role_invitation(
+            project, db_request, _form_class=form_class
+        )
+        db_request.db.flush()
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find role invitation.", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/projects"
+
+    def test_token_expired(self, db_request, token_service):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        RoleInvitationFactory.create(user=user, project=project)
+        owner_user = UserFactory.create()
+        RoleFactory(user=owner_user, project=project, role_name="Owner")
+
+        user_service = pretend.stub(get_user=lambda userid: user)
+        token_service.loads = pretend.call_recorder(pretend.raiser(TokenExpired))
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"user_id": user.id, "token": "TOKEN"})
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner_user
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/projects/roles"
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.revoke_project_role_invitation(
+            project, db_request, _form_class=form_class
+        )
+        db_request.db.flush()
+
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
+        assert db_request.session.flash.calls == [
+            pretend.call("Invitation already expired.", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/projects/roles"
 
 
 class TestChangeProjectRoles:
-    def test_change_role(self, db_request):
+    def test_change_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
         new_role_name = "Maintainer"
 
+        user_2 = UserFactory.create()
+
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.user = user_2
         db_request.POST = MultiDict({"role_id": role.id, "role_name": new_role_name})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
+        send_collaborator_role_changed_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_collaborator_role_changed_email",
+            send_collaborator_role_changed_email,
+        )
+        send_role_changed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_role_changed_as_collaborator_email",
+            send_role_changed_as_collaborator_email,
+        )
+
         result = views.change_project_role(project, db_request)
 
         assert role.role_name == new_role_name
         assert db_request.route_path.calls == [
             pretend.call("manage.project.roles", project_name=project.name)
+        ]
+        assert send_collaborator_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                set(),
+                user=user,
+                submitter=user_2,
+                project_name="foobar",
+                role=new_role_name,
+            )
+        ]
+        assert send_role_changed_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=user_2,
+                project_name="foobar",
+                role=new_role_name,
+            )
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Changed role", queue="success")
@@ -3323,19 +4067,32 @@ class TestChangeProjectRoles:
 
 
 class TestDeleteProjectRoles:
-    def test_delete_role(self, db_request):
+    def test_delete_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(user=user, project=project, role_name="Owner")
+        user_2 = UserFactory.create()
 
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
-        db_request.remote_addr = "10.10.10.10"
+        db_request.user = user_2
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        send_collaborator_removed_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_collaborator_removed_email", send_collaborator_removed_email
+        )
+        send_removed_as_collaborator_email = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_as_collaborator_email",
+            send_removed_as_collaborator_email,
+        )
 
         result = views.delete_project_role(project, db_request)
 
@@ -3343,6 +4100,14 @@ class TestDeleteProjectRoles:
             pretend.call("manage.project.roles", project_name=project.name)
         ]
         assert db_request.db.query(Role).all() == []
+        assert send_collaborator_removed_email.calls == [
+            pretend.call(
+                db_request, set(), user=user, submitter=user_2, project_name="foobar"
+            )
+        ]
+        assert send_removed_as_collaborator_email.calls == [
+            pretend.call(db_request, user, submitter=user_2, project_name="foobar")
+        ]
         assert db_request.session.flash.calls == [
             pretend.call("Removed role", queue="success")
         ]

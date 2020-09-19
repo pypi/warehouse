@@ -77,6 +77,41 @@ class Role(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
+class RoleInvitationStatus(enum.Enum):
+
+    Pending = "pending"
+    Expired = "expired"
+
+
+class RoleInvitation(db.Model):
+
+    __tablename__ = "role_invitations"
+    __table_args__ = (
+        Index("role_invitations_user_id_idx", "user_id"),
+        UniqueConstraint(
+            "user_id", "project_id", name="_role_invitations_user_project_uc"
+        ),
+    )
+
+    __repr__ = make_repr("invite_status", "user", "project")
+
+    invite_status = Column(
+        Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
+    token = Column(Text, nullable=False)
+    user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+    )
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    user = orm.relationship(User, lazy=False)
+    project = orm.relationship("Project", lazy=False)
+
+
 class ProjectFactory:
     def __init__(self, request):
         self.request = request
@@ -114,8 +149,8 @@ class Project(SitemapMixin, db.Model):
     )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
+    total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
-    allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
 
     total_size = Column(BigInteger, server_default=sql.text("0"))
@@ -142,8 +177,8 @@ class Project(SitemapMixin, db.Model):
             return (
                 session.query(Release)
                 .filter(
-                    (Release.project == self)
-                    & (Release.canonical_version == canonical_version)
+                    Release.project == self,
+                    Release.canonical_version == canonical_version,
                 )
                 .one()
             )
@@ -154,7 +189,7 @@ class Project(SitemapMixin, db.Model):
             try:
                 return (
                     session.query(Release)
-                    .filter((Release.project == self) & (Release.version == version))
+                    .filter(Release.project == self, Release.version == version)
                     .one()
                 )
             except NoResultFound:
@@ -212,7 +247,9 @@ class Project(SitemapMixin, db.Model):
     def all_versions(self):
         return (
             orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            .query(
+                Release.version, Release.created, Release.is_prerelease, Release.yanked
+            )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
             .all()
@@ -223,7 +260,7 @@ class Project(SitemapMixin, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self)
+            .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -349,6 +386,10 @@ class Release(db.Model):
             uselist=False,
         ),
     )
+
+    yanked = Column(Boolean, nullable=False, server_default=sql.false())
+
+    yanked_reason = Column(Text, nullable=False, server_default="")
 
     _classifiers = orm.relationship(
         Classifier,
@@ -568,13 +609,13 @@ class JournalEntry(db.ModelBase):
     submitted_from = Column(Text)
 
 
-class BlacklistedProject(db.Model):
+class ProhibitedProjectName(db.Model):
 
-    __tablename__ = "blacklist"
+    __tablename__ = "prohibited_project_names"
     __table_args__ = (
         CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="blacklist_valid_name",
+            name="prohibited_project_valid_name",
         ),
     )
 
@@ -584,8 +625,8 @@ class BlacklistedProject(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     name = Column(Text, unique=True, nullable=False)
-    _blacklisted_by = Column(
-        "blacklisted_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    _prohibited_by = Column(
+        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
     )
-    blacklisted_by = orm.relationship(User)
+    prohibited_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")

@@ -52,16 +52,63 @@
                 <tr>
                   <th>Attribute</th>
                   <th>Value</th>
+                  <th>Set a new value<th>
+                  <th><th>
                 </tr>
                 <tr>
-                  <td>Upload limit</td>
-                  <td>
-                    {% if project.upload_limit %}
-                      {{ project.upload_limit|filesizeformat(binary=True) }}
-                    {% else %}
-                      Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
-                    {% endif %}
-                  </td>
+                  <td>Total size</td>
+                  <td>{{ project.total_size|filesizeformat(binary=True) }}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
+                    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                    <td>Upload limit</td>
+                    <td>
+                      {% if project.upload_limit %}
+                        {{ project.upload_limit|filesizeformat(binary=True) }}
+                      {% else %}
+                        Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if project.upload_limit %}
+                        {% set upload_limit_value = project.upload_limit / ONE_MB %}
+                      {% else %}
+                        {% set upload_limit_value = '' %}
+                      {% endif %}
+                      <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MB }}" value="{{ upload_limit_value }}"> MiB
+                    </td>
+                    <td>
+                      <button type="submit" class="btn btn-primary">Submit</button>
+                    </td>
+
+                  </form>
+                </tr>
+                <tr>
+                  <form method="POST" action="{{ request.route_path('admin.project.set_total_size_limit', project_name=project.normalized_name) }}">
+                    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                    <td>Total size limit</td>
+                    <td>
+                      {% if project.total_size_limit %}
+                        {{ project.total_size_limit|filesizeformat(binary=True) }}
+                      {% else %}
+                        Default ({{(MAX_PROJECT_SIZE)|filesizeformat(binary=True) }})
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if project.total_size_limit %}
+                        {% set total_size_limit_value = project.total_size_limit // ONE_GB %}
+                      {% else %}
+                        {% set total_size_limit_value = '' %}
+                      {% endif %}
+                      <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GB }}" value="{{total_size_limit_value}}"> GiB
+                    </td>
+                    <td>
+                      <button type="submit" class="btn btn-primary">Submit</button>
+                    </td>
+                  </form>
                 </tr>
               </table>
             </div>
@@ -159,121 +206,146 @@
               </table>
               <a href="{{ request.route_path('admin.project.releases', project_name=project.normalized_name) }}">All releases</a>
             </div>
-            <h4>Journals:</h4>
-            <div class="box-body box-journals">
-              <table class="table table-hover">
-                <tr>
-                  <th>name</th>
-                  <th>version</th>
-                  <th>date</th>
-                  <th>submitted_by</th>
-                  <th>submitted_from</th>
-                  <th>action</th>
-                </tr>
-                {% for entry in journal %}
-                <tr>
-                  <td>{{ entry.name }}</td>
-                  <td>{{ entry.version }}</td>
-                  <td>{{ entry.submitted_date }}</td>
-                  <td><a href="{{ request.route_path('admin.user.detail', user_id=entry.submitted_by.id) }}">{{ entry.submitted_by.username }}</a></td>
-                  <td>{{ entry.submitted_from }}</td>
-                  <td>{{ entry.action }}</td>
-                </tr>
-                {% endfor %}
-              </table>
-              <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
-            </div>
-            {% if squatters %}
-            <h4>Projects that might be squatting on this project:</h4>
-            <div class="box-body box-squats">
-              <table class="table table-hover">
-                <tr>
-                  <th>name</th>
-                  <th>created</th>
-                </tr>
-                {% for project in squatters %}
-                <tr>
-                  <td>
-                    <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
-                      {{ project.normalized_name }}
-                    </a>
-                  </td>
-                  <td>{{ project.created }}</td>
-                </tr>
-                {% endfor %}
-              </table>
-            </div>
-            {% endif %}
 
-            {% if squattees %}
-            <h4>Projects that this project might be squatting on:</h4>
-            <div class="box-body box-squats">
-              <table class="table table-hover">
-                <tr>
-                  <th>name</th>
-                  <th>created</th>
-                </tr>
-                {% for project in squattees %}
-                <tr>
-                  <td>
-                    <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
-                      {{ project.normalized_name }}
-                    </a>
-                  </td>
-                  <td>{{ project.created }}</td>
-                </tr>
-                {% endfor %}
-              </table>
-            </div>
-            {% endif %}
-          </div>
-        </div>
-        <div class="box">
-          <div class="box-header with-border">
-            <h3 class="box-title">Project activity</h3>
-          </div>
-          <div class="box-body">
-            <table class="table table-hover">
-              <thead>
-                <th scope="col">Event</th>
-                <th scope="col">Time</th>
-                <th scope="col">IP address</th>
-                <th scope="col">Additional information</th>
-              </thead>
-              <tbody>
-                {% for event in project.events %}
-                <tr>
-                  <td>{{ event.tag }}</td>
-                  <td>{{ event.time }}</td>
-                  <td>{{ event.ip_address }}</td>
-                  <td>{{ event.additional }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+
         </div>
       </div>
+    </div>
   </div>
 
-  <!-- Deletion form -->
-  {% include 'delete.html' %}
-
-  <!-- Blacklist form -->
   <div class="box box-secondary collapsed-box">
     <div class="box-header with-border">
-      <h3 class="box-title">Blacklist project</h3>
+      <h3 class="box-title">Journals</h3>
       <div class="box-tools">
         <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
       </div>
     </div>
 
-    <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
+    <div class="box-body box-journals">
+      <table class="table table-hover">
+        <tr>
+          <th>name</th>
+          <th>version</th>
+          <th>date</th>
+          <th>submitted_by</th>
+          <th>submitted_from</th>
+          <th>action</th>
+        </tr>
+        {% for entry in journal %}
+        <tr>
+          <td>{{ entry.name }}</td>
+          <td>{{ entry.version }}</td>
+          <td>{{ entry.submitted_date }}</td>
+          <td><a href="{{ request.route_path('admin.user.detail', user_id=entry.submitted_by.id) }}">{{ entry.submitted_by.username }}</a></td>
+          <td>{{ entry.submitted_from }}</td>
+          <td>{{ entry.action }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
+    </div>
+  </div>
+
+  <div class="box box-secondary collapsed-box">
+    <div class="box-header with-border">
+      <h3 class="box-title">Project activity</h3>
+      <div class="box-tools">
+        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+    <div class="box-body">
+      <table class="table table-hover">
+        <thead>
+          <th scope="col">Event</th>
+          <th scope="col">Time</th>
+          <th scope="col">IP address</th>
+          <th scope="col">Additional information</th>
+        </thead>
+        <tbody>
+          {% for event in project.events %}
+          <tr>
+            <td>{{ event.tag }}</td>
+            <td>{{ event.time }}</td>
+            <td>{{ event.ip_address }}</td>
+            <td>{{ event.additional }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="box box-secondary collapsed-box">
+    <div class="box-header with-border">
+      <h3 class="box-title">Squatting</h3>
+      <div class="box-tools">
+        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+
+    {% if squatters %}
+    <div class="box-body box-squats">
+      <h4>Projects that might be squatting on this project:</h4>
+      <table class="table table-hover">
+        <tr>
+          <th>name</th>
+          <th>created</th>
+        </tr>
+        {% for project in squatters %}
+        <tr>
+          <td>
+            <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+              {{ project.normalized_name }}
+            </a>
+          </td>
+          <td>{{ project.created }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+
+    {% if squattees %}
+    <div class="box-body box-squats">
+      <h4>Projects that this project might be squatting on:</h4>
+      <table class="table table-hover">
+        <tr>
+          <th>name</th>
+          <th>created</th>
+        </tr>
+        {% for project in squattees %}
+        <tr>
+          <td>
+            <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+              {{ project.normalized_name }}
+            </a>
+          </td>
+          <td>{{ project.created }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Deletion form -->
+  {% include 'delete.html' %}
+
+  <!-- ProhibitedProjectName form -->
+  <div class="box box-secondary collapsed-box">
+    <div class="box-header with-border">
+      <h3 class="box-title">Prohibit Project Name</h3>
+      <div class="box-tools">
+        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+
+    <form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
       <input name="project" type="hidden" value="{{ project.normalized_name }}">
       <div class="box-body">
         <div class="form-group col-sm-12">
-          <label for="blacklistedComment">Comment</label>
-          <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+          <label for="prohibitedComment">Comment</label>
+          <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
         </div>
       </div>
 
@@ -285,34 +357,4 @@
     </form>
   </div>
 
-  <!-- Upload limit form -->
-  <div class="box box-secondary collapsed-box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Set upload limit</h3>
-      <div class="box-tools">
-        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
-      </div>
-    </div>
-
-    <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <div class="box-body">
-        <div class="form-group col-sm-12">
-          <label for="uploadLimit">Upload limit (in megabytes)</label>
-          {% if project.upload_limit %}
-            {% set upload_limit_value = project.upload_limit / ONE_MB %}
-          {% else %}
-            {% set upload_limit_value = '' %}
-          {% endif %}
-          <input type="number" name="upload_limit" class="form-control" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MB }}" value="{{ upload_limit_value }}">
-        </div>
-      </div>
-
-      <div class="box-footer">
-        <div class="pull-right">
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </div>
-    </form>
-  </div>
 {% endblock %}

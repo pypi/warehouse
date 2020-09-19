@@ -78,6 +78,11 @@
     word-wrap: break-word;
   }
 
+  &__metadiv {
+    margin-bottom: $spacing-unit / 2;
+    word-wrap: break-word;
+  }
+
   &__edit-button {
     margin-bottom: $spacing-unit;
     width: 100%;

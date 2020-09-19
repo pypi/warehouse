@@ -12,6 +12,7 @@
 
 import datetime
 import hashlib
+import json
 import uuid
 
 from first import first
@@ -27,6 +28,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
     LoginForm,
+    ReAuthenticateForm,
     RecoveryCodeAuthenticationForm,
     RegistrationForm,
     RequestPasswordResetForm,
@@ -42,18 +44,27 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailsAdded,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
+    send_added_as_collaborator_email,
+    send_collaborator_added_email,
     send_email_verification_email,
     send_password_change_email,
     send_password_reset_email,
 )
-from warehouse.i18n import localize as _
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import (
+    JournalEntry,
+    Project,
+    Release,
+    Role,
+    RoleInvitation,
+)
+from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
@@ -62,7 +73,9 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 @view_config(context=TooManyFailedLogins, has_translations=True)
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
-        _("There have been too many unsuccessful login attempts. Try again later."),
+        request._(
+            "There have been too many unsuccessful login attempts. Try again later."
+        ),
         retry_after=exc.resets_in.total_seconds(),
     )
 
@@ -72,6 +85,18 @@ def failed_logins(exc, request):
     resp.status = "{} {}".format(resp.status_code, "Too Many Failed Login Attempts")
 
     return resp
+
+
+@view_config(context=TooManyEmailsAdded, has_translations=True)
+def unverified_emails(exc, request):
+    return HTTPTooManyRequests(
+        request._(
+            "Too many emails have been added to this account without verifying "
+            "them. Check your inbox and follow the verification links. (IP: ${ip})",
+            mapping={"ip": request.remote_addr},
+        ),
+        retry_after=exc.resets_in.total_seconds(),
+    )
 
 
 @view_config(
@@ -179,6 +204,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                     .hexdigest()
                     .lower(),
                 )
+
             return resp
 
     return {
@@ -202,7 +228,9 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        request.session.flash(
+            request._("Invalid or expired two factor login."), queue="error"
+        )
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
@@ -236,7 +264,6 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                 .hexdigest()
                 .lower(),
             )
-
             return resp
         else:
             form.totp_value.data = ""
@@ -253,13 +280,15 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
 )
 def webauthn_authentication_options(request):
     if request.authenticated_userid is not None:
-        return {"fail": {"errors": [_("Already authenticated")]}}
+        return {"fail": {"errors": [request._("Already authenticated")]}}
 
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(_("Invalid or expired two factor login."), queue="error")
-        return {"fail": {"errors": [_("Invalid or expired two factor login.")]}}
+        request.session.flash(
+            request._("Invalid or expired two factor login."), queue="error"
+        )
+        return {"fail": {"errors": [request._("Invalid or expired two factor login.")]}}
 
     userid = two_factor_data.get("userid")
     user_service = request.find_service(IUserService, context=None)
@@ -285,8 +314,10 @@ def webauthn_authentication_validate(request):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(_("Invalid or expired two factor login."), queue="error")
-        return {"fail": {"errors": [_("Invalid or expired two factor login.")]}}
+        request.session.flash(
+            request._("Invalid or expired two factor login."), queue="error"
+        )
+        return {"fail": {"errors": [request._("Invalid or expired two factor login.")]}}
 
     redirect_to = two_factor_data.get("redirect_to")
     userid = two_factor_data.get("userid")
@@ -317,7 +348,7 @@ def webauthn_authentication_validate(request):
             .lower(),
         )
         return {
-            "success": _("Successful WebAuthn assertion"),
+            "success": request._("Successful WebAuthn assertion"),
             "redirect_to": redirect_to,
         }
 
@@ -340,7 +371,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
     try:
         two_factor_data = _get_two_factor_data(request)
     except TokenException:
-        request.session.flash(_("Invalid or expired two factor login."), queue="error")
+        request.session.flash(
+            request._("Invalid or expired two factor login."), queue="error"
+        )
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
@@ -368,7 +401,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             )
 
             request.session.flash(
-                _("Recovery code accepted. The supplied code cannot be used again."),
+                request._(
+                    "Recovery code accepted. The supplied code cannot be used again."
+                ),
                 queue="success",
             )
 
@@ -452,7 +487,7 @@ def register(request, _form_class=RegistrationForm):
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION):
         request.session.flash(
-            _(
+            request._(
                 "New user registration temporarily disabled. "
                 "See https://pypi.org/help#admin-intervention for details."
             ),
@@ -471,7 +506,9 @@ def register(request, _form_class=RegistrationForm):
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
         )
-        email = user_service.add_email(user.id, form.email.data, primary=True)
+        email = user_service.add_email(
+            user.id, form.email.data, request.remote_addr, primary=True
+        )
         user_service.record_event(
             user.id,
             tag="account:create",
@@ -549,34 +586,36 @@ def reset_password(request, _form_class=ResetPasswordForm):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(_("Expired token: request a new password reset link"))
+        return _error(request._("Expired token: request a new password reset link"))
     except TokenInvalid:
-        return _error(_("Invalid token: request a new password reset link"))
+        return _error(request._("Invalid token: request a new password reset link"))
     except TokenMissing:
-        return _error(_("Invalid token: no token supplied"))
+        return _error(request._("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
     if data.get("action") != "password-reset":
-        return _error(_("Invalid token: not a password reset token"))
+        return _error(request._("Invalid token: not a password reset token"))
 
     # Check whether a user with the given user ID exists
     user = user_service.get_user(uuid.UUID(data.get("user.id")))
     if user is None:
-        return _error(_("Invalid token: user not found"))
+        return _error(request._("Invalid token: user not found"))
 
     # Check whether the user has logged in since the token was created
     last_login = data.get("user.last_login")
     if str(user.last_login) > last_login:
         # TODO: track and audit this, seems alertable
         return _error(
-            _("Invalid token: user has logged in since " "this token was requested")
+            request._(
+                "Invalid token: user has logged in since this token was requested"
+            )
         )
 
     # Check whether the password has been changed since the token was created
     password_date = data.get("user.password_date")
     if str(user.password_date) > password_date:
         return _error(
-            _(
+            request._(
                 "Invalid token: password has already been changed since this "
                 "token was requested"
             )
@@ -602,7 +641,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
         send_password_change_email(request, user)
 
         # Flash a success message
-        request.session.flash(_("You have reset your password"), queue="success")
+        request.session.flash(
+            request._("You have reset your password"), queue="success"
+        )
 
         # Redirect to account login.
         return HTTPSeeOther(request.route_path("accounts.login"))
@@ -618,6 +659,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
+    email_limiter = request.find_service(IRateLimiter, name="email.add")
 
     def _error(message):
         request.session.flash(message, queue="error")
@@ -627,15 +669,15 @@ def verify_email(request):
         token = request.params.get("token")
         data = token_service.loads(token)
     except TokenExpired:
-        return _error(_("Expired token: request a new email verification link"))
+        return _error(request._("Expired token: request a new email verification link"))
     except TokenInvalid:
-        return _error(_("Invalid token: request a new email verification link"))
+        return _error(request._("Invalid token: request a new email verification link"))
     except TokenMissing:
-        return _error(_("Invalid token: no token supplied"))
+        return _error(request._("Invalid token: no token supplied"))
 
     # Check whether this token is being used correctly
     if data.get("action") != "email-verify":
-        return _error(_("Invalid token: not an email verification token"))
+        return _error(request._("Invalid token: not an email verification token"))
 
     try:
         email = (
@@ -644,10 +686,10 @@ def verify_email(request):
             .one()
         )
     except NoResultFound:
-        return _error(_("Email not found"))
+        return _error(request._("Email not found"))
 
     if email.verified:
-        return _error(_("Email already verified"))
+        return _error(request._("Email already verified"))
 
     email.verified = True
     email.unverify_reason = None
@@ -658,15 +700,20 @@ def verify_email(request):
         additional={"email": email.email, "primary": email.primary},
     )
 
+    # Reset the email-adding rate limiter for this IP address
+    email_limiter.clear(request.remote_addr)
+
     if not email.primary:
-        confirm_message = _("You can now set this email as your primary address")
+        confirm_message = request._(
+            "You can now set this email as your primary address"
+        )
     else:
-        confirm_message = _("This is your primary address")
+        confirm_message = request._("This is your primary address")
 
     request.user.is_active = True
 
     request.session.flash(
-        _(
+        request._(
             "Email address ${email_address} verified. ${confirm_message}.",
             mapping={"email_address": email.email, "confirm_message": confirm_message},
         ),
@@ -696,6 +743,147 @@ def _get_two_factor_data(request, _redirect_to="/"):
         two_factor_data["redirect_to"] = _redirect_to
 
     return two_factor_data
+
+
+@view_config(
+    route_name="accounts.verify-project-role",
+    renderer="accounts/invite-confirmation.html",
+    require_methods=False,
+    uses_session=True,
+    permission="manage:user",
+    has_translations=True,
+)
+def verify_project_role(request):
+    token_service = request.find_service(ITokenService, name="email")
+    user_service = request.find_service(IUserService, context=None)
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.projects"))
+
+    try:
+        token = request.params.get("token")
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error(request._("Expired token: request a new project role invite"))
+    except TokenInvalid:
+        return _error(request._("Invalid token: request a new project role invite"))
+    except TokenMissing:
+        return _error(request._("Invalid token: no token supplied"))
+
+    # Check whether this token is being used correctly
+    if data.get("action") != "email-project-role-verify":
+        return _error(request._("Invalid token: not a collaboration invitation token"))
+
+    user = user_service.get_user(data.get("user_id"))
+    if user != request.user:
+        return _error(request._("Role invitation is not valid."))
+
+    project = (
+        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+    )
+    desired_role = data.get("desired_role")
+
+    role_invite = (
+        request.db.query(RoleInvitation)
+        .filter(RoleInvitation.project == project)
+        .filter(RoleInvitation.user == user)
+        .one_or_none()
+    )
+
+    if not role_invite:
+        return _error(request._("Role invitation no longer exists."))
+
+    # Use the renderer to bring up a confirmation page
+    # before adding as contributor
+    if request.method == "GET":
+        return {
+            "project_name": project.name,
+            "desired_role": desired_role,
+        }
+    elif request.method == "POST" and "decline" in request.POST:
+        request.db.delete(role_invite)
+        request.session.flash(
+            request._(
+                "Invitation for '${project_name}' is declined.",
+                mapping={"project_name": project.name},
+            ),
+            queue="success",
+        )
+        return HTTPSeeOther(request.route_path("manage.projects"))
+
+    request.db.add(Role(user=user, project=project, role_name=desired_role))
+    request.db.delete(role_invite)
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"accepted {desired_role} {user.username}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+    project.record_event(
+        tag="project:role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "role_name": desired_role,
+            "target_user": user.username,
+        },
+    )
+    user.record_event(
+        tag="account:role:accepted",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "project_name": project.name,
+            "role_name": desired_role,
+        },
+    )
+
+    owner_roles = (
+        request.db.query(Role)
+        .filter(Role.project == project)
+        .filter(Role.role_name == "Owner")
+        .all()
+    )
+    owner_users = {owner.user for owner in owner_roles}
+
+    # Don't send email to new user if they are now an owner
+    owner_users.discard(user)
+
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    send_collaborator_added_email(
+        request,
+        owner_users,
+        user=user,
+        submitter=submitter_user,
+        project_name=project.name,
+        role=desired_role,
+    )
+
+    send_added_as_collaborator_email(
+        request,
+        user,
+        submitter=submitter_user,
+        project_name=project.name,
+        role=desired_role,
+    )
+
+    request.session.flash(
+        request._(
+            "You are now ${role} of the '${project_name}' project.",
+            mapping={"project_name": project.name, "role": desired_role},
+        ),
+        queue="success",
+    )
+
+    if desired_role == "Owner":
+        return HTTPSeeOther(
+            request.route_path("manage.project.roles", project_name=project.name)
+        )
+    else:
+        return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
 def _login_user(request, userid, two_factor_method=None):
@@ -743,7 +931,7 @@ def _login_user(request, userid, two_factor_method=None):
         ip_address=request.remote_addr,
         additional={"two_factor_method": two_factor_method},
     )
-
+    request.session.record_auth_timestamp()
     return headers
 
 
@@ -778,3 +966,44 @@ def edit_profile_button(user, request):
 )
 def profile_public_email(user, request):
     return {"user": user}
+
+
+@view_config(
+    route_name="accounts.reauthenticate",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    has_translations=True,
+)
+def reauthenticate(request, _form_class=ReAuthenticateForm):
+    if request.user is None:
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    user_service = request.find_service(IUserService, context=None)
+
+    form = _form_class(
+        request.POST,
+        request=request,
+        username=request.user.username,
+        next_route=request.matched_route.name,
+        next_route_matchdict=json.dumps(request.matchdict),
+        user_service=user_service,
+        check_password_metrics_tags=[
+            "method:reauth",
+            "auth_method:reauthenticate_form",
+        ],
+    )
+
+    if form.next_route.data and form.next_route_matchdict.data:
+        redirect_to = request.route_path(
+            form.next_route.data, **json.loads(form.next_route_matchdict.data)
+        )
+    else:
+        redirect_to = request.route_path("manage.projects")
+
+    resp = HTTPSeeOther(redirect_to)
+
+    if request.method == "POST" and form.validate():
+        request.session.record_auth_timestamp()
+
+    return resp

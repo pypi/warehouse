@@ -17,8 +17,8 @@
   <div class="callout-block">
     <p>
       <strong>{% trans %}Note:{% endtrans %}</strong>
-      {% trans trimmed href='https://www.pypa.io/en/latest/code-of-conduct/', title=gettext('External link') %}
-        All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPA Code of Conduct</a>.
+      {% trans trimmed href='https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md', title=gettext('External link') %}
+        All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PSF Code of Conduct</a>.
       {% endtrans %}
     </p>
   </div>
@@ -53,15 +53,18 @@
 {% macro installing() %}{% trans %}How do I install a file (package) from PyPI?{% endtrans %}{% endmacro %}
 {% macro publishing() %}{% trans %}How do I package and publish my code for PyPI?{% endtrans %}{% endmacro %}
 {% macro trove_classifier() %}{% trans %}What's a trove classifier?{% endtrans %}{% endmacro %}
+{% macro yanked() %}{% trans %}What's a "yanked" release?{% endtrans %}{% endmacro %}
 
 {% macro verified_email() %}{% trans %}Why do I need a verified email address?{% endtrans %}{% endmacro %}
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
+{% macro suspicious_activity() %}{% trans %}What should I do if I notice suspicious activity on my account?{% endtrans %}{% endmacro %}
 {% macro twoFA() %}{% trans %}What is two factor authentication and how does it work on PyPI?{% endtrans %}{% endmacro %}
 {% macro totp() %}{% trans %}How does two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro utfkey() %}{% trans %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro utfdevices() %}{% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %}{% endmacro %}
 {% macro recoverycodes() %}{% trans %}How does two factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
+{% macro sensitiveactions() %}{% trans %}Why do certain actions require me to confirm my password?{% endtrans %}{% endmacro %}
 
 {% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
@@ -77,6 +80,7 @@
 {% macro private_indices() %}{% trans %}How can I publish my private packages to PyPI?{% endtrans %}{% endmacro %}
 {% macro admin_intervention() %}{% trans %}Why did my package or user registration get blocked?{% endtrans %}{% endmacro %}
 {% macro file_size_limit() %}{% trans %}How do I get a file size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
+{% macro project_size_limit() %}{% trans %}How do I get a total project size limit exemption or increase for my project?{% endtrans %}{% endmacro %}
 
 {% macro file_name_reuse() %}{% trans %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endtrans %}{% endmacro %}
 {% macro project_name() %}{% trans %}Why isn't my desired project name available?{% endtrans %}{% endmacro %}
@@ -109,6 +113,7 @@
           <li><a href="#installing">{{ installing() }}</a></li>
           <li><a href="#publishing">{{ publishing() }}</a></li>
           <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
+          <li><a href="#yanked">{{ yanked() }}</a></li>
         </ul>
       </section>
 
@@ -117,12 +122,14 @@
         <ul>
           <li><a href="#verified-email">{{ verified_email() }}</a></li>
           <li><a href="#compromised-password">{{ compromised_password() }}</a></li>
+          <li><a href="#suspicious-activity">{{ suspicious_activity() }}</a></li>
           <li><a href="#twofa">{{ twoFA() }}</a></li>
           <li><a href="#totp">{{ totp() }}</a></li>
           <li><a href="#utfkey">{{ utfkey() }}</a></li>
           <li><a href="#utfdevices">{{ utfdevices() }}</a></li>
           <li><a href="#recoverycodes">{{ recoverycodes() }}</a></li>
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
+          <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
         </ul>
       </section>
 
@@ -146,6 +153,7 @@
           <li><a href="#request-ownership">{{ request_ownership() }}</a></li>
           <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
+          <li><a href="#project-size-limit">{{ project_size_limit() }}</a></li>
         </ul>
       </section>
 
@@ -209,6 +217,13 @@
           Classifiers are used to categorize projects on PyPI. See <a href="{{ href }}">the classifiers page</a> for more information, as well as a list of valid classifiers.
           {% endtrans %}
         </p>
+
+        <h3 id="yanked">{{ yanked() }}</h3>
+        <p>
+          {% trans trimmed href='https://www.python.org/dev/peps/pep-0592/', title=gettext('External link') %}
+          A yanked release is a release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either <code>==</code> or <code>===</code>). See <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 592</a> for more information.
+          {% endtrans %}
+        </p>
       </section>
 
       <section class="faq-group" id="my-account">
@@ -256,6 +271,18 @@
             If you have received this error while attempting to log in or upload to PyPI,
             then your password has been reset and you cannot log in to PyPI until you
             <a href="{{ reset_pwd_href }}">reset your password</a>.
+          </p>
+        {% endtrans %}
+
+        <h3 id="suspicious-activity">{{ suspicious_activity() }}</h3>
+        {% trans trimmed reset_pwd_href=request.route_url('accounts.request-password-reset'), admin_email='admin@python.org'%}
+          <p>
+            All PyPI user events are stored under security history in account settings.
+            If there are any events that seem suspicious, take the following steps:
+            <ul>
+              <li><a href="{{ reset_pwd_href }}">Reset your password</a></li>
+              <li>Contact the PyPI admins about the event at <a href="mailto:{{ admin_email }}">{{ admin_email }}</a></li>
+            </ul>
           </p>
         {% endtrans %}
 
@@ -424,7 +451,7 @@
         <p><strong>{% trans %}To sign in with a recovery code:{% endtrans %}</strong></p>
         <ol>
           <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
-          <li>{% trans %}When prompted for Two-Factor Authentication, select "Login using a Recovery Code"{% endtrans %}</li>
+          <li>{% trans %}When prompted for two factor authentication, select "Login using recovery codes"{% endtrans %}</li>
           <li>{% trans %}As each code can be used only once, you might want to mark the code as used{% endtrans %}</li>
           <li>{% trans %}If you have few recovery codes remaining, you may also want to generate a new set using the "Regenerate recovery codes" button in your account settings.{% endtrans %}</li>
         </ol>
@@ -459,6 +486,14 @@
         </p>
         <p>{% trans %}Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.{% endtrans %}</p>
 
+        <h3 id="sensitiveactions">{{ sensitiveactions() }}</h3>
+
+        {% trans %}
+          <p>PyPI asks you to confirm your password before you want to perform a <i>sensitive action</i>. Sensitive actions include things like adding or removing maintainers, deleting distributions, generating API tokens, and setting up two-factor authentication.</p>
+          <p>You'll only have to re-confirm your password if it's been more than an hour since you last confirmed it.</p>
+          <p><strong>We strongly recommend you only perform such actions on your personal, password-protected computer.</strong></p>
+        {% endtrans %}
+
       </section>
 
       <section class="faq-group" id="integrating">
@@ -471,10 +506,10 @@
         <p>{% trans href='https://pypi.org/project/bandersnatch/' %}If you need to run your own mirror of PyPI, the <a href="{{ href }}">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!{% endtrans %}</p>
 
         <h3 id="project-release-notifications">{{ project_release_notifications() }}</h3>
-        <p>{% trans href='https://github.com/marketplace?category=dependency-management&query=python', title=gettext('External link') %}PyPI itself does not offer a way to get notified when a project uploads new releases. However, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities listed as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">GitHub apps</a>.{% endtrans %}</p>
+        <p>{% trans href='https://github.com/marketplace?category=dependency-management&query=python', title=gettext('External link'), rss_href='https://warehouse.readthedocs.io/api-reference/feeds/#project-releases-feed' %}You can subscribe to the <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">project releases RSS feed</a>. Additionally, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities listed as <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">GitHub apps</a>.{% endtrans %}</p>
 
         <h3 id="statistics">{{ statistics() }}</h3>
-        <p>{% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">analyze PyPI download usage statistics via our public dataset on Google BigQuery</a>.{% endtrans %}</p>
+        <p>{% trans href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/', title=gettext('External link') %}You can analyze PyPI project/package metadata and <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">download usage statistics</a> via our public dataset on Google BigQuery.{% endtrans %}</p>
         <p>
           {% trans trimmed libs_io_href='https://libraries.io/pypi', libs_io_example_href='https://libraries.io/pypi/twine/', libs_io_api_href='https://libraries.io/api', in_progress_href='https://github.com/librariesio/bibliothecary/issues/415', other_factors_href='https://docs.libraries.io/overview#sourcerank', title=gettext('External link') %}
           <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io provides statistics for PyPI projects</a>
@@ -526,12 +561,33 @@
             we can sometimes increase your limit. Make sure you've uploaded at least one release
             for the project that's <em>under</em> the limit
             (a <a href="{{ dev_release_href }}" title="{{ title }}" target="_blank" rel="noopener">developmental release version number</a> is fine).
-            Then, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> and tell us:</p>
+            Then, <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue</a> and tell us:
           {% endtrans %}
+        </p>
         <ul>
           <li>{% trans %}A link to your project on PyPI (or Test PyPI){% endtrans %}</li>
           <li>{% trans %}The size of your release, in megabytes{% endtrans %}</li>
           <li>{% trans %}Which index/indexes you need the increase for (PyPI, Test PyPI, or both){% endtrans %}</li>
+          <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
+        </ul>
+        {{ code_of_conduct() }}
+
+        <h3 id="project-size-limit">{{ project_size_limit() }}</h3>
+        <p>
+          {% trans trimmed %}
+            If you can't upload your project's release to PyPI because you're
+            hitting the project size limit, first remove any unnecessary
+            releases or individual files to lower your overall project size.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans trimmed file_issue_href='https://github.com/pypa/pypi-support/issues/new?labels=limit+request&template=limit-request.md', title=gettext('External link') %}
+            If that is not possible, we can sometimes increase your limit. <a href="{{ file_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">File an issue</a> and tell us:
+          {% endtrans %}
+        </p>
+        <ul>
+          <li>{% trans %}A link to your project on PyPI (or Test PyPI){% endtrans %}</li>
+          <li>{% trans %}The total size of your project, in gigabytes{% endtrans %}</li>
           <li>{% trans %}A brief description of your project, including the reason for the additional size.{% endtrans %}</li>
         </ul>
         {{ code_of_conduct() }}
@@ -557,7 +613,7 @@
         </ul>
         <p>
           {% trans trimmed href='https://github.com/pypa/pypi-support/issues/new?labels=account-recovery&template=account-recovery.md&title=Account+recovery+request', title=gettext('External link') %}
-            You can proceed to, <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
+            You can proceed to <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">file an issue on our tracker</a> to request assistance with account recovery.
           {% endtrans %}
         </p>
         {{ code_of_conduct() }}
@@ -565,7 +621,7 @@
         <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
         <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
         <ol>
-          <li>{% trans %}Check to see if your username or password are incorrect.{% endtrans %}</li>
+          <li>{% trans %}Ensure that your username and password are correct.{% endtrans %}</li>
           <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
         </ol>
         <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
@@ -573,6 +629,16 @@
           <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
         </ol>
+        <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
+        <p>
+          {% trans %}
+            If you're using Windows and trying to paste your password or token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
+            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
+          {% endtrans %}
+          {% trans trimmed href='https://bugs.python.org/issue37426', title=gettext('External link') %}
+            This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
+          {% endtrans %}
+        </p>
 
         <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
         <p>
@@ -738,10 +804,10 @@
         </p>
         <p>
           <strong>{% trans %}Stay updated:{% endtrans %}</strong>
-          {% trans trimmed mailing_list_href='https://mail.python.org/mailman/listinfo/distutils-sig', message_group_href='https://groups.google.com/forum/#!forum/pypa-dev', title=gettext('External link') %}
+          {% trans trimmed mailing_list_href='https://mail.python.org/mailman/listinfo/distutils-sig', discourse_forum_href='https://discuss.python.org/c/packaging', title=gettext('External link') %}
             You can also follow the ongoing development of the project on the
             <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">distutils-sig mailing list</a>
-            and the <a href="{{ message_group_href }}" title="{{ title }}" target="_blank" rel="noopener">PyPA Dev message group</a>.
+            and the <a href="{{ discourse_forum_href }}" title="{{ title }}" target="_blank" rel="noopener">Python packaging forum on Discourse</a>.
           {% endtrans %}
         </p>
         {{ code_of_conduct() }}

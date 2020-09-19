@@ -332,9 +332,9 @@ def search(request):
         the filter's children.
         """
         d = {}
-        for l in split_list:
+        for list_ in split_list:
             current_level = d
-            for part in l:
+            for part in list_:
                 if part not in current_level:
                     current_level[part] = {}
                 current_level = current_level[part]
@@ -399,7 +399,7 @@ def stats(request):
     top_100_packages = (
         request.db.query(Project)
         .with_entities(Project.name, Project.total_size)
-        .order_by(Project.total_size.desc())
+        .order_by(Project.total_size.desc().nullslast())
         .limit(100)
         .all()
     )

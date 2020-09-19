@@ -158,6 +158,26 @@ class TestSession:
         session.changed()
         assert session.should_save()
 
+    def test_reauth_record(self, pyramid_request):
+        session = Session()
+        assert not session.should_save()
+        session.record_auth_timestamp()
+        assert session.should_save()
+
+    def test_reauth_unneeded(self):
+        session = Session()
+        session.record_auth_timestamp()
+        assert not session.needs_reauthentication()
+
+    def test_reauth_needed(self):
+        session = Session()
+        session[session._reauth_timestamp_key] = 0
+        assert session.needs_reauthentication()
+
+    def test_reauth_needed_no_value(self):
+        session = Session()
+        assert session.needs_reauthentication()
+
     @pytest.mark.parametrize(
         ("data", "method", "args"),
         [
@@ -524,7 +544,7 @@ class TestSessionFactory:
         ]
         assert msgpack_packb.calls == [
             pretend.call(
-                pyramid_request.session, default=object_encode, use_bin_type=True,
+                pyramid_request.session, default=object_encode, use_bin_type=True
             )
         ]
         assert session_factory.redis.setex.calls == [

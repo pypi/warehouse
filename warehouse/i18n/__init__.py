@@ -19,19 +19,21 @@ from pyramid.threadlocal import get_current_request
 
 from warehouse.cache.http import add_vary
 
-# Taken from:
-# https://github.com/django/django/blob/master/django/conf/locale/__init__.py
 KNOWN_LOCALES = {
-    "en": "English",  # English
-    "es": "español",  # Spanish
-    "fr": "français",  # French
-    "ja": "日本語",  # Japanese
-    "pt_BR": "Português Brasileiro",  # Brazilian Portugeuse
-    "uk": "Українська",  # Ukrainian
-    "el": "Ελληνικά",  # Greek
-    "de": "Deutsch",  # German
-    "zh_Hans": "简体中文",  # Simplified Chinese
-    "ru": "Русский",  # Russian
+    identifier: Locale.parse(identifier, sep="_")
+    for identifier in [
+        "en",  # English
+        "es",  # Spanish
+        "fr",  # French
+        "ja",  # Japanese
+        "pt_BR",  # Brazilian Portugeuse
+        "uk",  # Ukranian
+        "el",  # Greek
+        "de",  # German
+        "zh_Hans",  # Simplified Chinese
+        "ru",  # Russian
+        "he",  # Hebrew
+    ]
 }
 
 LOCALE_ATTR = "_LOCALE_"
@@ -60,9 +62,9 @@ class LazyString:
 
 def _locale(request):
     """
-    Computes a babel.core:Locale() object for this request.
+    Gets a babel.core:Locale() object for this request.
     """
-    return Locale.parse(request.locale_name, sep="_")
+    return KNOWN_LOCALES.get(request.locale_name, KNOWN_LOCALES["en"])
 
 
 def _negotiate_locale(request):
@@ -86,12 +88,24 @@ def _negotiate_locale(request):
     )
 
 
-def localize(message, **kwargs):
-    def _localize(message, **kwargs):
-        request = get_current_request()
-        return request.localizer.translate(_translation_factory(message, **kwargs))
+def _localize(request, message, **kwargs):
+    """
+    To be used on the request directly, e.g. `request._(message)`
+    """
+    return request.localizer.translate(_translation_factory(message, **kwargs))
 
-    return LazyString(_localize, message, **kwargs)
+
+def localize(message, **kwargs):
+    """
+    To be used when we don't have the request context, e.g.
+    `from warehouse.i18n import localize as _`
+    """
+
+    def _lazy_localize(message, **kwargs):
+        request = get_current_request()
+        return _localize(request, message, **kwargs)
+
+    return LazyString(_lazy_localize, message, **kwargs)
 
 
 class InvalidLocalizer:
@@ -160,6 +174,7 @@ translated_view.options = {"has_translations"}
 def includeme(config):
     # Add the request attributes
     config.add_request_method(_locale, name="locale", reify=True)
+    config.add_request_method(_localize, name="_")
 
     # Register our translation directory.
     config.add_translation_dirs("warehouse:locale/")

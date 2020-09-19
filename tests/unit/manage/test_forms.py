@@ -105,7 +105,7 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_blacklisted_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_config):
         form = forms.AddEmailForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(find_userid_by_email=lambda _: None),

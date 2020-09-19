@@ -14,18 +14,11 @@ endif
 
 define DEPCHECKER
 import sys
-
-from pip._internal.req import parse_requirements
+from pip_api import parse_requirements
 
 left, right = sys.argv[1:3]
-left_reqs = {
-    d.name.lower()
-	for d in parse_requirements(left, session=object())
-}
-right_reqs = {
-    d.name.lower()
-	for d in parse_requirements(right, session=object())
-}
+left_reqs = parse_requirements(left).keys()
+right_reqs = parse_requirements(right).keys()
 
 extra_in_left = left_reqs - right_reqs
 extra_in_right = right_reqs - left_reqs
@@ -53,9 +46,9 @@ default:
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.7 virtual environment
+	# Create our Python 3.8 virtual environment
 	rm -rf .state/env
-	python3.7 -m venv .state/env
+	python3.8 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -107,17 +100,16 @@ static_pipeline: .state/docker-build
 								  bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/isort -rc *.py warehouse/ tests/
+	$(BINDIR)/isort *.py warehouse/ tests/
 	$(BINDIR)/black *.py warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
 	$(BINDIR)/black --check *.py warehouse/ tests/
-	$(BINDIR)/isort -rc -c *.py warehouse/ tests/
+	$(BINDIR)/isort --check *.py warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
-	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
-	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation,boolean_attribute `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/curlylint ./warehouse/templates
+
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
@@ -138,12 +130,12 @@ licenses:
 export DEPCHECKER
 deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
-	echo "$$DEPCHECKER" | python - $(TMPDIR)/lint.txt requirements/lint.txt
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(BINDIR)/pip-compile --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/deploy.txt requirements/deploy.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/main.txt requirements/main.txt
+	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/lint.txt requirements/lint.txt
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
@@ -168,8 +160,6 @@ shell:
 	docker-compose run --rm web python -m warehouse shell
 
 clean:
-	rm -rf warehouse/static/components
-	rm -rf warehouse/static/dist
 	rm -rf dev/*.sql
 
 purge: stop clean
@@ -194,7 +184,6 @@ init-po: .state/env/pyvenv.cfg
 
 update-po: .state/env/pyvenv.cfg
 	$(BINDIR)/pybabel update \
-		--omit-header \
 		--input-file="warehouse/locale/messages.pot" \
 		--output-file="warehouse/locale/$(L)/LC_MESSAGES/messages.po" \
 		--locale="$(L)"
@@ -207,9 +196,6 @@ compile-po: .state/env/pyvenv.cfg
 
 build-mos: compile-pot
 	for LOCALE in $(LOCALES) ; do \
-		if [[ -f warehouse/locale/$$LOCALE/LC_MESSAGES/messages.mo ]]; then \
-			L=$$LOCALE $(MAKE) update-po ; \
-		fi ; \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
 

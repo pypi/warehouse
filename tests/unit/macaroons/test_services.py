@@ -10,12 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import binascii
+import struct
+
 from unittest import mock
 from uuid import uuid4
 
 import pretend
 import pymacaroons
 import pytest
+
+from pymacaroons.exceptions import MacaroonDeserializationException
 
 from warehouse.macaroons import services
 from warehouse.macaroons.models import Macaroon
@@ -79,7 +84,7 @@ class TestDatabaseMacaroonService:
         assert macaroon_service.find_userid(raw_macaroon) is None
 
     def test_find_userid_malformed_macaroon(self, macaroon_service):
-        assert macaroon_service.find_userid(f"pypi-thiswillnotdeserialize") is None
+        assert macaroon_service.find_userid("pypi-thiswillnotdeserialize") is None
 
     def test_find_userid_valid_macaroon_trailinglinebreak(self, macaroon_service):
         user = UserFactory.create()
@@ -144,9 +149,45 @@ class TestDatabaseMacaroonService:
             pretend.call(mock.ANY, context, principals, permissions)
         ]
 
+    def test_deserialize_raw_macaroon_when_none(self, macaroon_service):
+        raw_macaroon = pretend.stub()
+        macaroon_service._extract_raw_macaroon = pretend.call_recorder(lambda a: None)
+
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service._deserialize_raw_macaroon(raw_macaroon)
+
+        assert macaroon_service._extract_raw_macaroon.calls == [
+            pretend.call(raw_macaroon),
+        ]
+
+    @pytest.mark.parametrize(
+        "exception",
+        [
+            IndexError,
+            TypeError,
+            UnicodeDecodeError,
+            ValueError,
+            binascii.Error,
+            struct.error,
+            MacaroonDeserializationException,
+            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
+        ],
+    )
+    def test_deserialize_raw_macaroon(self, monkeypatch, macaroon_service, exception):
+        raw_macaroon = pretend.stub()
+        macaroon_service._extract_raw_macaroon = pretend.call_recorder(
+            lambda a: raw_macaroon
+        )
+        monkeypatch.setattr(
+            pymacaroons.Macaroon, "deserialize", pretend.raiser(exception)
+        )
+
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service._deserialize_raw_macaroon(raw_macaroon)
+
     def test_verify_malformed_macaroon(self, macaroon_service):
         with pytest.raises(services.InvalidMacaroon):
-            macaroon_service.verify(f"pypi-thiswillnotdeserialize", None, None, None)
+            macaroon_service.verify("pypi-thiswillnotdeserialize", None, None, None)
 
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()

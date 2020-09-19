@@ -140,7 +140,7 @@
     {% endif %}
     <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
     {% if user.has_two_factor and not user.has_recovery_codes %}
-    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate Recovery Codes{% endtrans %}</a>
+    <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate recovery codes{% endtrans %}</a>
     {% endif %}
   </div>
 
@@ -437,7 +437,7 @@
         </ul>
       </div>
       <div>
-        <input value="Update password" class="button button--primary" type="submit" data-target="password-match.submit">
+        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-target="password-match.submit">
       </div>
     </form>
   </section>
@@ -490,12 +490,12 @@
           {% if user.has_recovery_codes %}
           <tr>
             <th scope="row">
-              {% trans %}Recovery Codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
+              {% trans %}Recovery codes{% endtrans %} - {% trans generated_datetime=humanize(request.user.recovery_codes[0].generated, time="true") %}generated {{ generated_datetime }}{% endtrans %}
             </th>
             <td class="table__align-right">
               <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate{% endtrans %}</a>
-              {% set title=gettext("Regenerate Recovery Codes") %}
-              {% set confirm_button_label=gettext("Regenerate Recovery Codes") %}
+              {% set title=gettext("Regenerate recovery codes") %}
+              {% set confirm_button_label=gettext("Regenerate recovery codes") %}
               {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
               {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
             </td>
@@ -571,35 +571,42 @@
         {% elif event.additional.two_factor_method  == "totp" %}
           {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% elif event.additional.two_factor_method  == "recovery-code" %}
-          {% trans %}Recovery Code{% endtrans %}
+          {% trans %}Recovery code{% endtrans %}
         {% endif %}
       </small>
 
       {% elif event.tag  == "account:email:add" %}
       <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:remove" %}
       <strong>{% trans %}Email removed from account{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:verified" %}
       <strong>{% trans %}Email verified{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:reverify" %}
       <strong>{% trans %}Email reverified{% endtrans %}</strong><br>
-      <small>{{ event.additional.email }}<small>
+      <small>{{ event.additional.email }}</small>
       {% elif event.tag  == "account:email:primary:change" %}
         {% if event.additional.old_primary %}
         <strong>{% trans %}Primary email changed{% endtrans %}</strong><br>
         <small>
           {% trans %}Old primary email:{% endtrans %} {{ event.additional.old_primary }}<br>
           {% trans %}New primary email:{% endtrans %} {{ event.additional.new_primary }}
-        <small>
+        </small>
         {% else %}
         <strong>{% trans %}Primary email set{% endtrans %}</strong><br>
         <small>
           {{ event.additional.new_primary }}
         </small>
         {% endif %}
+      {% elif event.tag == "account:email:sent" %}
+      <strong>{% trans %}Email sent{% endtrans %}</strong><br>
+      <small>
+        {% trans %}From:{% endtrans %} <span class="table__monospace">{{ event.additional.from_ }}</span><br>
+        {% trans %}To:{% endtrans %} <span class="table__monospace">{{ event.additional.to }}</span><br>
+        {% trans %}Subject:{% endtrans %} <span class="table__monospace">{{event.additional.subject}}</span>
+      </small>
 
       {% elif event.tag  == "account:password:reset:request" %}
       <strong>{% trans %}Password reset requested{% endtrans %}</strong>
@@ -630,15 +637,15 @@
       </small>
 
       {% elif event.tag == "account:recovery_codes:generated" %}
-      <strong>{% trans %}Recovery Codes generated{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery codes generated{% endtrans %}</strong><br>
       <small>
       </small>
       {% elif event.tag == "account:recovery_codes:regenerated" %}
-      <strong>{% trans %}Recovery Codes regenerated{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery codes regenerated{% endtrans %}</strong><br>
       <small>
       </small>
       {% elif event.tag == "account:recovery_codes:used" %}
-      <strong>{% trans %}Recovery Code used for login{% endtrans %}</strong><br>
+      <strong>{% trans %}Recovery code used for login{% endtrans %}</strong><br>
       <small>
       </small>
 
@@ -662,7 +669,11 @@
       {% endif %}
     {%- endmacro %}
 
-    <p>{% trans %}Events appear here as security-related actions occur on your account.{% endtrans %}</p>
+    <p>
+      {% trans trimmed faq_url=request.help_url(_anchor='suspicious-activity')%}
+      Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
+      {% endtrans %}
+    </p>
     <table class="table table--security-logs">
       <caption class="sr-only">{% trans %}Recent account activity{% endtrans %}</caption>
       <thead>
@@ -680,7 +691,7 @@
           </td>
           <td>
             <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
-            {{ event.ip_address }}
+            {{ "Redacted" if event.additional.redact_ip else event.ip_address }}
           </td>
         </tr>
         {% endfor %}

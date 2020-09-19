@@ -32,7 +32,12 @@ import stdlib_list
 import wtforms
 import wtforms.validators
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPForbidden,
+    HTTPGone,
+    HTTPPermanentRedirect,
+)
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func, orm
@@ -46,21 +51,26 @@ from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
-    BlacklistedProject,
     Dependency,
     DependencyKind,
     Description,
     File,
     Filename,
     JournalEntry,
+    ProhibitedProjectName,
     Project,
     Release,
     Role,
 )
+from warehouse.packaging.tasks import update_bigquery_release_files
 from warehouse.utils import http, readme
 
-MAX_FILESIZE = 60 * 1024 * 1024  # 60M
-MAX_SIGSIZE = 8 * 1024  # 8K
+ONE_MB = 1 * 1024 * 1024
+ONE_GB = 1 * 1024 * 1024 * 1024
+
+MAX_FILESIZE = 100 * ONE_MB
+MAX_SIGSIZE = 8 * 1024
+MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
 
@@ -127,6 +137,17 @@ _macosx_arches = {
     "fat64",
     "universal",
 }
+# manylinux pep600 is a little more complicated:
+_manylinux_platform_re = re.compile(r"manylinux_(\d+)+_(\d+)+_(?P<arch>.*)")
+_manylinux_arches = {
+    "x86_64",
+    "i686",
+    "aarch64",
+    "armv7l",
+    "ppc64",
+    "ppc64le",
+    "s390x",
+}
 
 
 # Actual checking code;
@@ -136,17 +157,16 @@ def _valid_platform_tag(platform_tag):
     m = _macosx_platform_re.match(platform_tag)
     if m and m.group("arch") in _macosx_arches:
         return True
+    m = _manylinux_platform_re.match(platform_tag)
+    if m and m.group("arch") in _manylinux_arches:
+        return True
     return False
 
 
 _error_message_order = ["metadata_version", "name", "version"]
 
 
-_dist_file_regexes = {
-    # True/False is for legacy or not.
-    True: re.compile(r".+?\.(exe|tar\.gz|bz2|rpm|deb|zip|tgz|egg|dmg|msi|whl)$", re.I),
-    False: re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I),
-}
+_dist_file_re = re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I)
 
 
 _wheel_file_re = re.compile(
@@ -179,10 +199,10 @@ _valid_description_content_types = {"text/plain", "text/x-rst", "text/markdown"}
 _valid_markdown_variants = {"CommonMark", "GFM"}
 
 
-def _exc_with_message(exc, message):
+def _exc_with_message(exc, message, **kwargs):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
-    resp = exc(message)
+    resp = exc(detail=message, **kwargs)
     resp.status = "{} {}".format(resp.status_code, message)
     return resp
 
@@ -500,17 +520,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
-                [
-                    "bdist_dmg",
-                    "bdist_dumb",
-                    "bdist_egg",
-                    "bdist_msi",
-                    "bdist_rpm",
-                    "bdist_wheel",
-                    "bdist_wininst",
-                    "sdist",
-                ],
-                message="Use a known file type.",
+                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
             ),
         ]
     )
@@ -749,14 +759,14 @@ def file_upload(request):
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
-            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled"
+            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
         )
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
         raise _exc_with_message(
             HTTPForbidden,
             "New uploads are temporarily disabled. "
-            "See {projecthelp} for details".format(
+            "See {projecthelp} for more information.".format(
                 projecthelp=request.help_url(_anchor="admin-intervention")
             ),
         )
@@ -771,7 +781,7 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             "Invalid or non-existent authentication information. "
-            "See {projecthelp} for details".format(
+            "See {projecthelp} for more information.".format(
                 projecthelp=request.help_url(_anchor="invalid-auth")
             ),
         )
@@ -789,7 +799,6 @@ def file_upload(request):
                 "User {!r} does not have a verified primary email address. "
                 "Please add a verified primary email before attempting to "
                 "upload to PyPI. See {project_help} for more information."
-                "for more information."
             ).format(
                 request.user.username,
                 project_help=request.help_url(_anchor="verified-email"),
@@ -846,6 +855,7 @@ def file_upload(request):
                     + "Error: {} ".format(form.errors[field_name][0])
                     + "See "
                     "https://packaging.python.org/specifications/core-metadata"
+                    + " for more information."
                 )
             else:
                 error_message = "Invalid value for {field}. Error: {msgs[0]}".format(
@@ -880,24 +890,23 @@ def file_upload(request):
                 HTTPForbidden,
                 (
                     "New project registration temporarily disabled. "
-                    "See {projecthelp} for details"
+                    "See {projecthelp} for more information."
                 ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
             ) from None
 
-        # Before we create the project, we're going to check our blacklist to
+        # Before we create the project, we're going to check our prohibited names to
         # see if this project is even allowed to be registered. If it is not,
         # then we're going to deny the request to create this project.
         if request.db.query(
             exists().where(
-                BlacklistedProject.name == func.normalize_pep426_name(form.name.data)
+                ProhibitedProjectName.name == func.normalize_pep426_name(form.name.data)
             )
         ).scalar():
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
                     "The name {name!r} isn't allowed. "
-                    "See {projecthelp} "
-                    "for more information."
+                    "See {projecthelp} for more information."
                 ).format(
                     name=form.name.data,
                     projecthelp=request.help_url(_anchor="project-name"),
@@ -1153,7 +1162,9 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .options(orm.load_only(Release._pypi_ordering))
+        .options(
+            orm.load_only(Release.project_id, Release.version, Release._pypi_ordering)
+        )
         .all()
     )
     for i, r in enumerate(
@@ -1171,11 +1182,12 @@ def file_upload(request):
         )
 
     # Make sure the filename ends with an allowed extension.
-    if _dist_file_regexes[project.allow_legacy_files].search(filename) is None:
+    if _dist_file_re.search(filename) is None:
         raise _exc_with_message(
             HTTPBadRequest,
             "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (https://www.python.org/dev/peps/pep-0527)",
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information.",
         )
 
     # Make sure that our filename matches the project that it is being uploaded
@@ -1193,21 +1205,13 @@ def file_upload(request):
     ):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
-    # Ensure that the package filetype is allowed.
-    # TODO: Once PEP 527 is completely implemented we should be able to delete
-    #       this and just move it into the form itself.
-    if not project.allow_legacy_files and form.filetype.data not in {
-        "sdist",
-        "bdist_wheel",
-        "bdist_egg",
-    }:
-        raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
-
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
+    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
 
+    file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
         temporary_filename = os.path.join(tmpdir, filename)
 
@@ -1227,10 +1231,21 @@ def file_upload(request):
                         HTTPBadRequest,
                         "File too large. "
                         + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // (1024 * 1024)
+                            name=project.name, limit=file_size_limit // ONE_MB
                         )
                         + "See "
-                        + request.help_url(_anchor="file-size-limit"),
+                        + request.help_url(_anchor="file-size-limit")
+                        + " for more information.",
+                    )
+                if file_size + project.total_size > project_size_limit:
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "Project size too large. Limit for "
+                        + "project {name!r} total size is {limit} GB. ".format(
+                            name=project.name, limit=project_size_limit // ONE_GB
+                        )
+                        + "See "
+                        + request.help_url(_anchor="project-size-limit"),
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1272,7 +1287,8 @@ def file_upload(request):
                 # ref: https://github.com/pypa/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse"),
+                + request.help_url(_anchor="file-name-reuse")
+                + " for more information.",
             )
 
         # Check to see if the file that was uploaded exists in our filename log
@@ -1283,7 +1299,9 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename has already been used, use a "
                 "different version. "
-                "See " + request.help_url(_anchor="file-name-reuse"),
+                "See "
+                + request.help_url(_anchor="file-name-reuse")
+                + " for more information.",
             )
 
         # Check to see if uploading this file would create a duplicate sdist
@@ -1369,6 +1387,7 @@ def file_upload(request):
             ),
             uploaded_via=request.user_agent,
         )
+        file_data = file_
         request.db.add(file_)
 
         # TODO: This should be handled by some sort of database trigger or a
@@ -1413,6 +1432,57 @@ def file_upload(request):
                 },
             )
 
+    # We are flushing the database requests so that we
+    # can access the server default values when initiating celery
+    # tasks.
+    request.db.flush()
+
+    # Push updates to BigQuery
+    dist_metadata = {
+        "metadata_version": form["metadata_version"].data,
+        "name": form["name"].data,
+        "version": form["version"].data,
+        "summary": form["summary"].data,
+        "description": form["description"].data,
+        "author": form["author"].data,
+        "description_content_type": form["description_content_type"].data,
+        "author_email": form["author_email"].data,
+        "maintainer": form["maintainer"].data,
+        "maintainer_email": form["maintainer_email"].data,
+        "license": form["license"].data,
+        "keywords": form["keywords"].data,
+        "classifiers": form["classifiers"].data,
+        "platform": form["platform"].data,
+        "home_page": form["home_page"].data,
+        "download_url": form["download_url"].data,
+        "requires_python": form["requires_python"].data,
+        "pyversion": form["pyversion"].data,
+        "filetype": form["filetype"].data,
+        "comment": form["comment"].data,
+        "requires": form["requires"].data,
+        "provides": form["provides"].data,
+        "obsoletes": form["obsoletes"].data,
+        "requires_dist": form["requires_dist"].data,
+        "provides_dist": form["provides_dist"].data,
+        "obsoletes_dist": form["obsoletes_dist"].data,
+        "requires_external": form["requires_external"].data,
+        "project_urls": form["project_urls"].data,
+        "filename": file_data.filename,
+        "python_version": file_data.python_version,
+        "packagetype": file_data.packagetype,
+        "comment_text": file_data.comment_text,
+        "size": file_data.size,
+        "has_signature": file_data.has_signature,
+        "md5_digest": file_data.md5_digest,
+        "sha256_digest": file_data.sha256_digest,
+        "blake2_256_digest": file_data.blake2_256_digest,
+        "path": file_data.path,
+        "uploaded_via": file_data.uploaded_via,
+        "upload_time": file_data.upload_time,
+    }
+    if not request.registry.settings.get("warehouse.release_files_table") is None:
+        request.task(update_bigquery_release_files).delay(dist_metadata)
+
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
 
@@ -1452,4 +1522,22 @@ def doc_upload(request):
         HTTPGone,
         "Uploading documentation is no longer supported, we recommend using "
         "https://readthedocs.org/.",
+    )
+
+
+@view_config(
+    route_name="forklift.legacy.missing_trailing_slash",
+    require_csrf=False,
+    require_methods=["POST"],
+)
+def missing_trailing_slash_redirect(request):
+    """
+    Redirect requests to /legacy to the correct /legacy/ route with a
+    HTTP-308 Permanent Redirect
+    """
+    return _exc_with_message(
+        HTTPPermanentRedirect,
+        "An upload was attempted to /legacy but the expected upload URL is "
+        "/legacy/ (with a trailing slash)",
+        location=request.route_path("forklift.legacy.file_upload"),
     )
