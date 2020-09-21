@@ -76,7 +76,7 @@ msgstr "此用户名已被其他帐户使用。请重新选择用户名。"
 msgid "The password is invalid. Try again."
 msgstr "密码无效。请再试一次。"
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:68
+#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "登录尝试失败次数过多。请稍后重试。"
 
@@ -125,32 +125,32 @@ msgstr "无效的 TOTP 代码。"
 msgid "No user found with that username or email"
 msgstr "未找到使用该用户名或电子邮件的用户"
 
-#: warehouse/accounts/views.py:85
+#: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 "本账号下添加了多个电子邮箱，但没有进行验证，检查收件箱查看邮件中的校验链接。"
 
-#: warehouse/accounts/views.py:224 warehouse/accounts/views.py:281
-#: warehouse/accounts/views.py:283 warehouse/accounts/views.py:310
-#: warehouse/accounts/views.py:312 warehouse/accounts/views.py:367
+#: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
+#: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
+#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
 msgstr "双因素登录无效或过期。"
 
-#: warehouse/accounts/views.py:275
+#: warehouse/accounts/views.py:283
 msgid "Already authenticated"
 msgstr "已经过身份验证"
 
-#: warehouse/accounts/views.py:343
+#: warehouse/accounts/views.py:351
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 断言"
 
-#: warehouse/accounts/views.py:396
+#: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "接受恢复代码。无法再次使用提供的代码。"
 
-#: warehouse/accounts/views.py:482
+#: warehouse/accounts/views.py:490
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -158,92 +158,162 @@ msgstr ""
 "新用户注册暂时被禁用。有关详细信息，请参见https://pypi.org/help#admin-"
 "intervention。"
 
-#: warehouse/accounts/views.py:581
+#: warehouse/accounts/views.py:589
 msgid "Expired token: request a new password reset link"
 msgstr "令牌已过期：请重新请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:583
+#: warehouse/accounts/views.py:591
 msgid "Invalid token: request a new password reset link"
 msgstr "令牌无效：请再次请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:585 warehouse/accounts/views.py:668
+#: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
+#: warehouse/accounts/views.py:772
 msgid "Invalid token: no token supplied"
 msgstr "令牌无效：未提供令牌"
 
-#: warehouse/accounts/views.py:589
+#: warehouse/accounts/views.py:597
 msgid "Invalid token: not a password reset token"
 msgstr "令牌无效：请再次请求新的密码重置链接"
 
-#: warehouse/accounts/views.py:594
+#: warehouse/accounts/views.py:602
 msgid "Invalid token: user not found"
 msgstr "令牌无效：找不到用户"
 
-#: warehouse/accounts/views.py:601
+#: warehouse/accounts/views.py:609
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "令牌无效：自请求此令牌以来，用户已登录"
 
-#: warehouse/accounts/views.py:610
+#: warehouse/accounts/views.py:618
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "令牌无效：自请求此令牌以来，密码已更改"
 
-#: warehouse/accounts/views.py:637
+#: warehouse/accounts/views.py:645
 msgid "You have reset your password"
 msgstr "您已重置密码"
 
-#: warehouse/accounts/views.py:664
+#: warehouse/accounts/views.py:672
 msgid "Expired token: request a new email verification link"
 msgstr "令牌已过期：请重新请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:666
+#: warehouse/accounts/views.py:674
 msgid "Invalid token: request a new email verification link"
 msgstr "令牌无效：请重新请求新的电子邮件验证链接"
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:680
 msgid "Invalid token: not an email verification token"
 msgstr "无效令牌：不是电子邮件验证令牌"
 
-#: warehouse/accounts/views.py:681
+#: warehouse/accounts/views.py:689
 msgid "Email not found"
 msgstr "未找到电子邮件"
 
-#: warehouse/accounts/views.py:684
+#: warehouse/accounts/views.py:692
 msgid "Email already verified"
 msgstr "电子邮件已验证"
 
-#: warehouse/accounts/views.py:699
+#: warehouse/accounts/views.py:707
 msgid "You can now set this email as your primary address"
 msgstr "您现在可以将此电子邮件设置为您的主邮件地址"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:711
 msgid "This is your primary address"
 msgstr "这是您的主邮件地址"
 
-#: warehouse/accounts/views.py:708
+#: warehouse/accounts/views.py:716
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "电子邮件地址$ {email_address}已验证。 ${confirm_message}。"
 
-#: warehouse/manage/views.py:199
+#: warehouse/accounts/views.py:768
+#, fuzzy
+#| msgid "Expired token: request a new password reset link"
+msgid "Expired token: request a new project role invite"
+msgstr "令牌已过期：请重新请求新的密码重置链接"
+
+#: warehouse/accounts/views.py:770
+#, fuzzy
+#| msgid "Invalid token: request a new password reset link"
+msgid "Invalid token: request a new project role invite"
+msgstr "令牌无效：请再次请求新的密码重置链接"
+
+#: warehouse/accounts/views.py:776
+#, fuzzy
+#| msgid "Invalid token: not an email verification token"
+msgid "Invalid token: not a collaboration invitation token"
+msgstr "无效令牌：不是电子邮件验证令牌"
+
+#: warehouse/accounts/views.py:780
+msgid "Role invitation is not valid."
+msgstr ""
+
+#: warehouse/accounts/views.py:795
+msgid "Role invitation no longer exists."
+msgstr ""
+
+#: warehouse/accounts/views.py:807
+msgid "Invitation for '${project_name}' is declined."
+msgstr ""
+
+#: warehouse/accounts/views.py:874
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "You are now ${role} of the '${project_name}' project."
+msgstr "您不是此项目的所有者"
+
+#: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "电子邮件${email_address}已添加 - 请检查邮箱中的验证链接"
 
-#: warehouse/manage/views.py:686 warehouse/manage/views.py:722
+#: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr "在生成恢复代码之前，必须提供双因素方法"
 
-#: warehouse/manage/views.py:697
+#: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
 msgstr "已生成恢复代码"
 
-#: warehouse/manage/views.py:698
+#: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "生成新的恢复代码将使现有代码失效。"
 
-#: warehouse/manage/views.py:749
+#: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
 msgstr "无效凭据。再试一次"
+
+#: warehouse/manage/views.py:1503
+msgid "User '${username}' already has ${role_name} role for project"
+msgstr ""
+
+#: warehouse/manage/views.py:1514
+msgid ""
+"User '${username}' does not have a verified primary email address and cannot "
+"be added as a ${role_name} for project"
+msgstr ""
+
+#: warehouse/manage/views.py:1527
+msgid ""
+"User '${username}' already has an active invite. Please try again later."
+msgstr ""
+
+#: warehouse/manage/views.py:1585
+msgid "Invitation sent to '${username}'"
+msgstr ""
+
+#: warehouse/manage/views.py:1632
+msgid "Could not find role invitation."
+msgstr ""
+
+#: warehouse/manage/views.py:1643
+#, fuzzy
+#| msgid "Email already verified"
+msgid "Invitation already expired."
+msgstr "电子邮件已验证"
+
+#: warehouse/manage/views.py:1667
+msgid "Invitation revoked from '${username}'."
+msgstr ""
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -262,7 +332,9 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "找不到此页面"
 
 #: warehouse/templates/404.html:29
-msgid "And now for something <br><span>completely different"
+#, fuzzy
+#| msgid "And now for something <br><span>completely different"
+msgid "And now for something <br><span>completely different</span>"
 msgstr "给你来点儿<br><span>完全不一样的东西吧"
 
 #: warehouse/templates/404.html:32
@@ -703,6 +775,12 @@ msgstr "站点地图"
 msgid "Switch to desktop version"
 msgstr "切换到桌面版本"
 
+#: warehouse/templates/confirm-action.html:17
+#, fuzzy
+#| msgid "Confirm form"
+msgid "Confirm Action"
+msgstr "确认表单"
+
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
 msgstr "错误代码"
@@ -759,7 +837,9 @@ msgid ""
 msgstr "PyPI 帮助您查找与安装由 Python 社区开发和共享的软件。"
 
 #: warehouse/templates/index.html:110
-msgid "Learn about installing packages</a>."
+#, fuzzy
+#| msgid "Learn about installing packages</a>."
+msgid "Learn about installing packages"
 msgstr "了解如何安装软件包</a>。"
 
 #: warehouse/templates/index.html:113
@@ -767,7 +847,9 @@ msgid "Package authors use PyPI to distribute their software."
 msgstr "软件包作者使用 PyPI 来分发他们的软件。"
 
 #: warehouse/templates/index.html:114
-msgid "Learn how to package your Python code for PyPI</a>."
+#, fuzzy
+#| msgid "Learn how to package your Python code for PyPI</a>."
+msgid "Learn how to package your Python code for PyPI"
 msgstr "了解如何为 PyPI </a>打包 Python 代码。"
 
 #: warehouse/templates/index.html:124
@@ -800,8 +882,8 @@ msgstr "表单错误"
 
 #: warehouse/templates/accounts/register.html:135
 #: warehouse/templates/accounts/register.html:140
-#: warehouse/templates/accounts/reset-password.html:61
-#: warehouse/templates/accounts/reset-password.html:66
+#: warehouse/templates/accounts/reset-password.html:60
+#: warehouse/templates/accounts/reset-password.html:65
 #: warehouse/templates/manage/account.html:429
 #: warehouse/templates/re-auth.html:18 warehouse/templates/re-auth.html:68
 msgid "Confirm password"
@@ -829,7 +911,7 @@ msgstr "密码"
 #: warehouse/templates/accounts/register.html:137
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
-#: warehouse/templates/accounts/reset-password.html:63
+#: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/two-factor.html:89
 #: warehouse/templates/manage/account.html:294
 #: warehouse/templates/manage/account.html:311
@@ -839,8 +921,8 @@ msgstr "密码"
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:115
-#: warehouse/templates/manage/roles.html:127
+#: warehouse/templates/manage/roles.html:153
+#: warehouse/templates/manage/roles.html:165
 #: warehouse/templates/manage/token.html:134
 #: warehouse/templates/manage/token.html:151
 #: warehouse/templates/re-auth.html:51
@@ -896,6 +978,31 @@ msgid ""
 "Otherwise, we suggest you <a href=\"%(href)s\">go to the PyPI homepage</a>."
 msgstr "否则，建议您 <a href=\"%(href)s\">进入PyPI 主页</a>。"
 
+#: warehouse/templates/accounts/invite-confirmation.html:17
+#, fuzzy
+#| msgid "Confirm form"
+msgid "Confirm Invite"
+msgstr "确认表单"
+
+#: warehouse/templates/accounts/invite-confirmation.html:26
+#, python-format
+msgid ""
+"\n"
+"      Would you like to accept this invitation to join '<a href="
+"\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
+"      "
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:32
+#: warehouse/templates/manage/projects.html:49
+msgid "Accept"
+msgstr ""
+
+#: warehouse/templates/accounts/invite-confirmation.html:33
+#: warehouse/templates/manage/projects.html:50
+msgid "Decline"
+msgstr ""
+
 #: warehouse/templates/accounts/login.html:30
 #, python-format
 msgid "Log in to %(title)s"
@@ -906,7 +1013,7 @@ msgstr "登录到 %(title)s"
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:118
+#: warehouse/templates/manage/roles.html:156
 msgid "Username"
 msgstr "用户名"
 
@@ -933,6 +1040,7 @@ msgstr "%(username)s 的档案"
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
 #: warehouse/templates/manage/roles.html:47
+#: warehouse/templates/manage/roles.html:109
 msgid "Avatar for {user} from gravatar.com"
 msgstr "gravatar.com 上 {user} 的头像"
 
@@ -965,7 +1073,8 @@ msgid "No projects"
 msgstr "没有项目"
 
 #: warehouse/templates/accounts/profile.html:73
-#: warehouse/templates/manage/projects.html:36
+#: warehouse/templates/manage/projects.html:34
+#: warehouse/templates/manage/projects.html:73
 #, python-format
 msgid "Last released on %(release_date)s"
 msgstr "上次发布于 %(release_date)s"
@@ -1050,7 +1159,7 @@ msgid "Select a username"
 msgstr "选择用户名"
 
 #: warehouse/templates/accounts/register.html:117
-#: warehouse/templates/accounts/reset-password.html:45
+#: warehouse/templates/accounts/reset-password.html:44
 #: warehouse/templates/manage/account.html:398
 msgid "Show passwords"
 msgstr "显示密码"
@@ -1110,12 +1219,12 @@ msgstr "电子邮件包含重置密码的链接。此链接将在 %(n_hours)s �
 msgid "Reset your password"
 msgstr "重置密码"
 
-#: warehouse/templates/accounts/reset-password.html:48
+#: warehouse/templates/accounts/reset-password.html:47
 #: warehouse/templates/manage/account.html:415
 msgid "Select a new password"
 msgstr "选择新密码"
 
-#: warehouse/templates/accounts/reset-password.html:82
+#: warehouse/templates/accounts/reset-password.html:81
 msgid "Reset password"
 msgstr "重置密码"
 
@@ -2052,7 +2161,6 @@ msgstr "申请认证(<abbr title=\"time-based one-time password\">TOTP2</abbr>)"
 
 #: warehouse/templates/manage/account.html:464
 #: warehouse/templates/manage/account.html:478
-#: warehouse/templates/manage/roles.html:99
 msgid "Remove"
 msgstr "删除"
 
@@ -2563,7 +2671,7 @@ msgstr "日期"
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
 #: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:113
+#: warehouse/templates/manage/roles.html:151
 msgid "User"
 msgstr "用户"
 
@@ -2578,7 +2686,7 @@ msgid "from %(ip_address)s"
 msgstr "来自 %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/projects.html:57
+#: warehouse/templates/manage/projects.html:94
 #: warehouse/templates/manage/releases.html:92
 msgid "Manage"
 msgstr "管理"
@@ -2625,7 +2733,7 @@ msgid "Manage '%(project_name)s'"
 msgstr "管理 '%(project_name)s'"
 
 #: warehouse/templates/manage/manage_project_base.html:32
-#: warehouse/templates/manage/projects.html:21
+#: warehouse/templates/manage/projects.html:58
 #, python-format
 msgid "Your projects (%(project_count)s)"
 msgstr "您的项目数量 (%(project_count)s)"
@@ -2634,38 +2742,45 @@ msgstr "您的项目数量 (%(project_count)s)"
 msgid "Back to projects"
 msgstr "返回项目"
 
-#: warehouse/templates/manage/projects.html:31
-msgid "Sole owner"
-msgstr "唯一拥有者"
+#: warehouse/templates/manage/projects.html:22
+#, fuzzy, python-format
+#| msgid "Your projects (%(project_count)s)"
+msgid "Pending invitations (%(project_count)s)"
+msgstr "您的项目数量 (%(project_count)s)"
 
-#: warehouse/templates/manage/projects.html:43
+#: warehouse/templates/manage/projects.html:41
+#: warehouse/templates/manage/projects.html:80
 #, python-format
 msgid "Created on %(creation_date)s"
 msgstr "创建于 %(creation_date)s"
 
-#: warehouse/templates/manage/projects.html:52
+#: warehouse/templates/manage/projects.html:68
+msgid "Sole owner"
+msgstr "唯一拥有者"
+
+#: warehouse/templates/manage/projects.html:89
 msgid "Manage this project"
 msgstr "管理此项目"
 
-#: warehouse/templates/manage/projects.html:55
+#: warehouse/templates/manage/projects.html:92
 msgid "You are not an owner of this project"
 msgstr "您不是此项目的所有者"
 
-#: warehouse/templates/manage/projects.html:62
+#: warehouse/templates/manage/projects.html:99
 msgid "View this project's public page"
 msgstr "查看此项目的公共页面"
 
-#: warehouse/templates/manage/projects.html:65
+#: warehouse/templates/manage/projects.html:102
 msgid "This project has no releases"
 msgstr "此项目没有发布过版本"
 
-#: warehouse/templates/manage/projects.html:67
+#: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:98
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "查看"
 
-#: warehouse/templates/manage/projects.html:74
+#: warehouse/templates/manage/projects.html:111
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -3069,10 +3184,13 @@ msgid "Maintainer"
 msgstr "维护者"
 
 #: warehouse/templates/manage/roles.html:28
-#: warehouse/templates/pages/help.html:545
+#, fuzzy
+#| msgid ""
+#| "Can upload releases for a package. Cannot add collaborators. Cannot "
+#| "delete files, releases, or the project."
 msgid ""
-"Can upload releases for a package. Cannot add collaborators. Cannot delete "
-"files, releases, or the project."
+"Can upload releases for a package. Cannot invite collaborators. Cannot "
+"delete files, releases, or the project."
 msgstr "可以上传软件包的发行版。无法添加协作者。无法删除文件，发行版或项目。"
 
 #: warehouse/templates/manage/roles.html:29
@@ -3082,9 +3200,12 @@ msgid "Owner"
 msgstr "所有者"
 
 #: warehouse/templates/manage/roles.html:30
-#: warehouse/templates/pages/help.html:546
+#, fuzzy
+#| msgid ""
+#| "Can upload releases. Can add other collaborators. Can delete files, "
+#| "releases, or the entire project."
 msgid ""
-"Can upload releases. Can add other collaborators. Can delete files, "
+"Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr "可以上传版本。可以添加其他协作者。可以删除文件、版本或整个项目。"
 
@@ -3095,7 +3216,7 @@ msgstr "可以管理 %(project_name)s 项目的用户"
 
 #: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:163
 msgid "Role"
 msgstr "角色"
 
@@ -3117,10 +3238,33 @@ msgstr "无法删除您的所有者身份"
 msgid "Remove %(user)s from this project"
 msgstr "从此项目中删除 %(user)s"
 
-#: warehouse/templates/manage/roles.html:108
-#: warehouse/templates/manage/roles.html:136
-msgid "Add collaborator"
+#: warehouse/templates/manage/roles.html:123
+msgid "Invite pending"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:125
+msgid "Invite expired"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:135
+#, fuzzy, python-format
+#| msgid "Navigation for %(project)s"
+msgid "Revoke invitation for %(user)s"
+msgstr "%(project)s 项目的导航"
+
+#: warehouse/templates/manage/roles.html:137
+msgid "Revoke invite"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:146
+#, fuzzy
+#| msgid "Add collaborator"
+msgid "Invite collaborator"
 msgstr "添加协作者"
+
+#: warehouse/templates/manage/roles.html:174
+msgid "Invite"
+msgstr ""
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
@@ -3285,10 +3429,13 @@ msgid "Set your username to <code>%(token)s</code>"
 msgstr "请将您的用户名设为 <code>%(token)s</code>"
 
 #: warehouse/templates/manage/token.html:76
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Set your password to the token value, including the <code>%(site)s"
+#| "%(prefix)s</code> prefix"
 msgid ""
-"Set your password to the token value, including the <code>%(site)s"
-"%(prefix)s</code> prefix"
+"Set your password to the token value, including the <code>%(prefix)s</code> "
+"prefix"
 msgstr "将密码设置为令牌值，包括<code>%(site)s%(prefix)s</code>前缀"
 
 #: warehouse/templates/manage/token.html:82
@@ -4863,9 +5010,21 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">“如何请求"
 "名称转移”</a>部分进行操作。"
 
+#: warehouse/templates/pages/help.html:545
+msgid ""
+"Can upload releases for a package. Cannot add collaborators. Cannot delete "
+"files, releases, or the project."
+msgstr "可以上传软件包的发行版。无法添加协作者。无法删除文件，发行版或项目。"
+
 #: warehouse/templates/pages/help.html:546
 msgid "Owner:"
 msgstr "所有者："
+
+#: warehouse/templates/pages/help.html:546
+msgid ""
+"Can upload releases. Can add other collaborators. Can delete files, "
+"releases, or the entire project."
+msgstr "可以上传版本。可以添加其他协作者。可以删除文件、版本或整个项目。"
 
 #: warehouse/templates/pages/help.html:549
 msgid ""
@@ -6397,6 +6556,16 @@ msgstr[0] ""
 "\n"
 "                  “%(filters)s”过滤器没有结果\n"
 "                "
+
+#, fuzzy
+#~| msgid "Security policy"
+#~ msgid "PyPI security policy"
+#~ msgstr "安全策略"
+
+#, fuzzy
+#~| msgid "Why is PyPI telling me my password is compromised?"
+#~ msgid "Why is PyPI telling me my API token is compromised?"
+#~ msgstr "为什么 PyPI 会告诉我我的密码被泄露？"
 
 #, fuzzy
 #~| msgid "Authentication"
