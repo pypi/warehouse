@@ -97,10 +97,11 @@ class DatabaseMacaroonService:
 
         return dm.user.id
 
-    def verify(self, raw_macaroon, context, principals, permission):
+    def verify(self, raw_macaroon, context, principals, permission) -> None:
         """
-        Returns True if the given raw (serialized) macaroon is
+        Passes if the given raw (serialized) macaroon is
         valid for the context, principals, and requested permission.
+        Updates the last_used date for the macaroon.
 
         Raises InvalidMacaroon if the macaroon is not valid.
         """
@@ -111,11 +112,35 @@ class DatabaseMacaroonService:
             raise InvalidMacaroon("deleted or nonexistent macaroon")
 
         verifier = Verifier(m, context, principals, permission)
-        if verifier.verify(dm.key):
-            dm.last_used = datetime.datetime.now()
-            return True
+        verifier.verify(dm.key)
+        dm.last_used = datetime.datetime.now()
 
-        raise InvalidMacaroon("invalid macaroon")
+    def check_if_macaroon_exists(self, raw_macaroon):
+        """
+        Returns the database macaroon if the given raw (serialized) macaroon is
+        an existing valid macaroon, whatever its permissions.
+
+        Raises InvalidMacaroon otherwise.
+        """
+        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
+        if raw_macaroon is None:
+            raise InvalidMacaroon("malformed or nonexistent macaroon")
+
+        try:
+            m = pymacaroons.Macaroon.deserialize(raw_macaroon)
+        except MacaroonDeserializationException:
+            raise InvalidMacaroon("malformed macaroon")
+
+        dm = self.find_macaroon(m.identifier.decode())
+
+        if dm is None:
+            raise InvalidMacaroon("deleted or nonexistent macaroon")
+
+        verifier = Verifier(m, context=None, principals=None, permission=None)
+        # Will raise InvalidMacaroon if necessary
+        verifier.verify_signature(dm.key)
+
+        return dm
 
     def create_macaroon(self, location, user_id, description, caveats):
         """

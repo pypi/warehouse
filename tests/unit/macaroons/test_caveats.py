@@ -55,7 +55,7 @@ class TestV1Caveat:
         caveat = V1Caveat(verifier)
         predicate = '{"permissions": "user", "version": 1}'
 
-        assert caveat(predicate) is True
+        caveat(predicate)
 
     def test_verify_project_invalid_context(self):
         verifier = pretend.stub(context=pretend.stub())
@@ -90,9 +90,9 @@ class TestV1Caveat:
         project = ProjectFactory.create(name="foobar")
         verifier = pretend.stub(context=project)
         caveat = V1Caveat(verifier)
-
         predicate = {"version": 1, "permissions": {"projects": ["foobar"]}}
-        assert caveat(json.dumps(predicate)) is True
+
+        caveat(json.dumps(predicate))
 
 
 class TestVerifier:
@@ -108,7 +108,7 @@ class TestVerifier:
         assert verifier.principals is principals
         assert verifier.permission is permission
 
-    def test_verify(self, monkeypatch):
+    def test_verify_raises(self, monkeypatch):
         verify = pretend.call_recorder(
             pretend.raiser(MacaroonInvalidSignatureException)
         )
@@ -123,3 +123,33 @@ class TestVerifier:
         with pytest.raises(InvalidMacaroon):
             verifier.verify(key)
         assert verify.calls == [pretend.call(macaroon, key)]
+
+    def test_verify_works(self, monkeypatch):
+        verify = pretend.call_recorder(lambda x, y: True)
+        macaroon = pretend.stub()
+        context = pretend.stub()
+        principals = pretend.stub()
+        permission = pretend.stub()
+        key = pretend.stub()
+        verifier = Verifier(macaroon, context, principals, permission)
+
+        monkeypatch.setattr(verifier.verifier, "verify", verify)
+
+        verifier.verify(key)
+        assert verify.calls == [pretend.call(macaroon, key)]
+
+    def test_verify_false(self, monkeypatch):
+        # This will not happen in real life, but in case pymacaroon's verify returns
+        # False, we need to raise.
+        verify = pretend.call_recorder(lambda x, y: False)
+        macaroon = pretend.stub()
+        context = pretend.stub()
+        principals = pretend.stub()
+        permission = pretend.stub()
+        key = pretend.stub()
+        verifier = Verifier(macaroon, context, principals, permission)
+
+        monkeypatch.setattr(verifier.verifier, "verify", verify)
+
+        with pytest.raises(InvalidMacaroon):
+            verifier.verify(key)
