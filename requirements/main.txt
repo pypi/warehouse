@@ -681,9 +681,9 @@ s3transfer==0.3.3 \
     --hash=sha256:2482b4259524933a022d59da830f51bd746db62f047d6eb213f2f8855dcb8a13 \
     --hash=sha256:921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db \
     # via boto3
-sentry-sdk==0.17.4 \
-    --hash=sha256:97bff68e57402ad39674e6fe2545df0d5eea41c3d51e280c170761705c8c20ff \
-    --hash=sha256:a16caf9ce892623081cbb9a95f6c1f892778bb123909b0ed7afdfb52ce7a58a1 \
+sentry-sdk==0.17.7 \
+    --hash=sha256:96a0e494b243a81065ec7ab73457d16719fb955ed9e469c8e4577ba737bc836e \
+    --hash=sha256:a698993f3abbe06e88e8a3c8b61c8a79c12f62e503f1a23eda30c3921f0525a9 \
     # via -r requirements/main.in
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
