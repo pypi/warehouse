@@ -22,6 +22,7 @@ const distPath = path.resolve(staticPrefix, "dist");
 
 const fontAwesomePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json"));
 const commonConfig = require("./webpack.common");
+const WebpackRTLPlugin = require("webpack-rtl-plugin");
 
 /* global module, __dirname */
 
@@ -37,7 +38,7 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
     // static URLs in the templates.
     entry: {
       "js/warehouse": "./js/warehouse/index.js",
-      "css/warehouse": "./sass/warehouse.scss",
+      "css/warehouse-ltr": "./sass/warehouse.scss",
       "css/noscript": "./sass/noscript.scss",
       "images": glob
         .sync(path.join(staticPrefix, "images/**/*"))
@@ -53,6 +54,12 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
   }, baseConfig);
 
   config.output.path = distPath;
+  config.plugins.push(
+    new WebpackRTLPlugin({
+      test: /warehouse.+\.css/,
+      filename: [/(.+)-ltr\.(.+)/, "$1-rtl.$2"],
+    })
+  );
 
   return config;
 };

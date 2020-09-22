@@ -38,6 +38,7 @@
     "mutationobserver-shim": "0.3.3",
     "node-sass": "4.13.1",
     "optimize-css-assets-webpack-plugin": "5.0.3",
+    "rtlcss": "^2.6.0",
     "sass-lint": "1.13.1",
     "sass-loader": "8.0.2",
     "stimulus": "1.1.1",
@@ -49,6 +50,7 @@
     "webpack-assets-manifest": "^3.1.1",
     "webpack-cli": "3.3.11",
     "webpack-fix-style-only-entries": "0.4.0",
+    "webpack-rtl-plugin": "^2.0.0",
     "webpack-stream": "5.0.0",
     "whatwg-fetch": "2.0.3"
   },
