@@ -31,6 +31,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const WebpackAssetsManifest = require("webpack-assets-manifest");
 const CompressionPlugin = require("compression-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const WebpackRTLPlugin = require("webpack-rtl-plugin");
 
 const staticPrefix = "warehouse/static/";
 
@@ -116,6 +117,13 @@ module.exports = (_env, args) => { // eslint-disable-line no-unused-vars
       // Extract the CSS in entry points and emits it separately
       new MiniCssExtractPlugin({
         filename: "[name].[contenthash:8].css",
+      }),
+      // TODO: This leaks knowledge from the warehouse configuration into common
+      // but since it must appear before the manifest plugin it's preferable
+      // to dynamically inserting it in the config's plugins array there
+      new WebpackRTLPlugin({
+        test: /warehouse-rtl.+\.css/,
+        filename: [/(.+)-rtl\.(.+)/, "$1-rtl.$2"],
       }),
       // Create a manifest file, this plugin should appear last
       new WebpackAssetsManifest({}),
