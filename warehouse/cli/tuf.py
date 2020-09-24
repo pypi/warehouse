@@ -20,8 +20,6 @@ from warehouse.cli import warehouse
 from warehouse.config import Environment
 from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES, utils
 
-# TUF_REPO = "warehouse/tuf/dist"
-
 
 def _make_backsigned_fileinfo_from_file(file):
     return utils.make_fileinfo(file, custom={"backsigned": True})
@@ -57,6 +55,10 @@ def tuf():
 @click.option("--name", "name_", help="The name of the TUF role for this keypair")
 @click.option("--path", "path_", help="The basename of the Ed25519 keypair to generate")
 def keypair(config, name_, path_):
+    """
+    Generate a new TUF keypair, for development purposes.
+    """
+
     repository_tool.generate_and_write_ed25519_keypair(
         path_, password=config.registry.settings[f"tuf.{name_}.secret"]
     )
@@ -162,11 +164,3 @@ def build_targets(config):
         consistent_snapshot=True, use_existing_fileinfo=True,
     )
 
-
-@tuf.command()
-@click.pass_obj
-def new_root(config):
-    """
-    Create a new
-    """
-    pass

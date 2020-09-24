@@ -38,11 +38,6 @@ class IRepositoryService(Interface):
         created.
         """
 
-    # def create_repository():
-    #     """
-    #     Return a brand new TUF repository, or raise ValueError if one already exists.
-    #     """
-
     def load_repository():
         """
         Return a TUF Repository object for direct manipulation of the underlying
