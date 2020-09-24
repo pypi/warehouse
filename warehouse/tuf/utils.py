@@ -97,19 +97,3 @@ class GCSBackend(StorageBackendInterface):
             self._bucket, prefix=filepath, fields="items(name),nextPageToken"
         )
         return [blob.name for blob in blobs]
-
-
-class RepoLock:
-    """
-    Supplies a blocking lock for TUF repository operations.
-    """
-
-    def __init__(self, redis_client):
-        self.lock = redis_client.lock("tuf-repo")
-
-    def __enter__(self):
-        self.lock.acquire()
-        return self
-
-    def __exit__(self, *_exc):
-        self.lock.release()

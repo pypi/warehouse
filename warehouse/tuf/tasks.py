@@ -21,7 +21,7 @@ from warehouse.tuf.interfaces import IKeyService, IRepositoryService
 def bump_role(task, request, role):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
-    with utils.RepoLock(r):
+    with r.lock("tuf-repo"):
         repo_service = request.find_service(IRepositoryService)
         key_service = request.find_service(IKeyService)
         repository = repo_service.load_repository()
@@ -37,7 +37,7 @@ def bump_role(task, request, role):
 def add_target(task, request, filepath, fileinfo):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
-    with utils.RepoLock(r):
+    with r.lock("tuf-repo"):
         # TODO(ww): How slow is this? Does it make more sense to pass the loaded
         # repository to the task?
         repo_service = request.find_service(IRepositoryService)
