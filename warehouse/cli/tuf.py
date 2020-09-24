@@ -18,7 +18,7 @@ from tuf import repository_tool
 
 from warehouse.cli import warehouse
 from warehouse.config import Environment
-from warehouse.tuf import BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES, utils
+from warehouse.tuf import BIN_N_COUNT, BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES, utils
 
 
 def _make_backsigned_fileinfo_from_file(file):
@@ -99,7 +99,9 @@ def new_repo(config):
             role_obj.load_signing_key(privkey)
 
     repository.mark_dirty(TOPLEVEL_ROLES)
-    repository.writeall(consistent_snapshot=True,)
+    repository.writeall(
+        consistent_snapshot=True,
+    )
 
 
 @tuf.command()
@@ -132,7 +134,7 @@ def build_targets(config):
     repository.targets(BINS_ROLE).delegate_hashed_bins(
         [],
         key_service.pubkeys_for_role(BIN_N_ROLE),
-        config.registry.settings["tuf.bin-n.count"],
+        BIN_N_COUNT,
     )
     for privkey in key_service.privkeys_for_role(BIN_N_ROLE):
         for delegation in repository.targets(BINS_ROLE).delegations:
@@ -155,12 +157,12 @@ def build_targets(config):
         fileinfo = _make_backsigned_fileinfo_from_file(file)
         repository.targets(BINS_ROLE).add_target_to_bin(
             file.path,
-            number_of_bins=config.registry.settings["tuf.bin-n.count"],
+            number_of_bins=BIN_N_COUNT,
             fileinfo=fileinfo,
         )
 
     repository.mark_dirty(dirty_roles)
     repository.writeall(
-        consistent_snapshot=True, use_existing_fileinfo=True,
+        consistent_snapshot=True,
+        use_existing_fileinfo=True,
     )
-

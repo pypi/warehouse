@@ -10,15 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from contextlib import contextmanager
 from io import BytesIO
 
 import tuf.formats
-import tuf.repository_tool
+import tuf.repository_lib
 
 from google.cloud.exceptions import GoogleCloudError, NotFound
 from securesystemslib.exceptions import StorageError
-from securesystemslib.storage import StorageBackendInterface
+from securesystemslib.storage import FilesystemBackend, StorageBackendInterface
+
+from warehouse.tuf.constants import BIN_N_COUNT
 
 
 def make_fileinfo(file, custom=None):
@@ -33,6 +37,60 @@ def make_fileinfo(file, custom=None):
     fileinfo = tuf.formats.make_fileinfo(file.size, hashes, custom=custom)
 
     return fileinfo
+
+
+def find_snapshot(timestamp):
+    """
+    Given a tuf.api.metadata.Timestamp model, return a tuple of
+    the version and filepath for the consistent snapshot that it references.
+    """
+    snapshot_version = timestamp.meta["snapshot.json"]["version"]
+
+    return snapshot_version, f"{snapshot_version}.snapshot.json"
+
+
+def find_delegated_bin(filepath, snapshot):
+    """
+    Given a new target filepath and a tuf.api.metadata.Snapshot model,
+    return a tuple of the version, bin name, and filepath for the consistent
+    delegated targets bin that the target belongs in.
+    """
+    filepath_hash = tuf.repository_lib.get_target_hash(filepath)
+    bin_name = tuf.repository_lib.find_bin_for_target_hash(filepath_hash, BIN_N_COUNT)
+    bin_version = snapshot.meta[f"{bin_name}.json"]["version"]
+
+    return bin_version, bin_name, f"{bin_version}.{bin_name}.json"
+
+
+class LocalBackend(StorageBackendInterface):
+    def __init__(self, request):
+        self._filesystem_backend = FilesystemBackend()
+        self._repo_path = request.registry.settings["tuf.repo.path"]
+
+    @contextmanager
+    def get(self, filepath):
+        yield from self._filesystem_backend.get(os.path.join(self._repo_path, filepath))
+
+    def put(self, fileobj, filepath):
+        return self._filesystem_backend.put(
+            fileobj, os.path.join(self._repo_path, filepath)
+        )
+
+    def remove(self, filepath):
+        return self._filesystem_backend.remove(os.path.join(self._repo_path, filepath))
+
+    def getsize(self, filepath):
+        return self._filesystem_backend.getsize(os.path.join(self._repo_path, filepath))
+
+    def create_folder(self, filepath):
+        return self._filesystem_backend.create_folder(
+            os.path.join(self._repo_path, filepath)
+        )
+
+    def list_folder(self, filepath):
+        return self._filesystem_backend.list_folder(
+            os.path.join(self._repo_path, filepath)
+        )
 
 
 class GCSBackend(StorageBackendInterface):

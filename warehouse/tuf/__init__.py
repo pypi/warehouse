@@ -12,32 +12,40 @@
 
 from celery.schedules import crontab
 
-from warehouse.tuf.interfaces import IKeyService, IRepositoryService
+from warehouse.tuf.constants import (
+    BIN_N_COUNT,
+    BIN_N_ROLE,
+    BINS_ROLE,
+    HASH_ALGORITHM,
+    TOPLEVEL_ROLES,
+)
+from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
 from warehouse.tuf.tasks import bump_role
-
-TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
-BINS_ROLE = "bins"
-BIN_N_ROLE = "bin-n"
 
 
 def includeme(config):
     config.add_settings(
         {
             "tuf.keytype": "ed25519",
-            "tuf.keyid_hash_algorithm": "sha512",
             "tuf.root.threshold": 1,
             "tuf.snapshot.threshold": 1,
             "tuf.targets.threshold": 1,
             "tuf.timestamp.threshold": 1,
             "tuf.bins.threshold": 1,
             "tuf.bin-n.threshold": 1,
-            "tuf.bin-n.count": 16384,
             "tuf.spec_version": "1.0.0",
         }
     )
 
     key_service_class = config.maybe_dotted(config.registry.settings["tuf.key_backend"])
     config.register_service_factory(key_service_class.create_service, IKeyService)
+
+    storage_service_class = config.maybe_dotted(
+        config.registry.settings["tuf.storage_backend"]
+    )
+    config.register_service_factory(
+        storage_service_class.create_service, IStorageService
+    )
 
     repo_service_class = config.maybe_dotted(
         config.registry.settings["tuf.repo_backend"]

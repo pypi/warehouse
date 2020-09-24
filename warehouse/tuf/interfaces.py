@@ -31,6 +31,19 @@ class IKeyService(Interface):
         """
 
 
+class IStorageService(Interface):
+    def create_service(context, request):
+        """
+        Create the service, given the context and request for which it is being
+        created.
+        """
+
+    def get_backend():
+        """
+        Return an implementation of `securesystemslib.storage.StorageBackendInterface`.
+        """
+
+
 class IRepositoryService(Interface):
     def create_service(context, request):
         """

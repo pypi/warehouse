@@ -220,6 +220,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
     maybe_set_compound(settings, "tuf", "key_backend", "TUF_KEY_BACKEND")
+    maybe_set_compound(settings, "tuf", "storage_backend", "TUF_STORAGE_BACKEND")
     maybe_set_compound(settings, "tuf", "repo_backend", "TUF_REPO_BACKEND")
 
     # Add the settings we use when the environment is set to development.

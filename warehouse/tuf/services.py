@@ -17,9 +17,9 @@ import warnings
 from tuf import repository_tool
 from zope.interface import implementer
 
-from warehouse.tuf.interfaces import IKeyService, IRepositoryService
+from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
 from warehouse.tuf.tasks import add_target
-from warehouse.tuf.utils import GCSBackend, make_fileinfo
+from warehouse.tuf.utils import GCSBackend, LocalBackend, make_fileinfo
 
 
 class InsecureKeyWarning(UserWarning):
@@ -56,6 +56,32 @@ class LocalKeyService:
         ]
 
 
+@implementer(IStorageService)
+class LocalStorageService:
+    def __init__(self, request):
+        self._store = LocalBackend(request)
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request)
+
+    def get_backend(self):
+        return self._store
+
+
+@implementer(IStorageService)
+class GCSStorageService:
+    def __init__(self, request):
+        self._store = GCSBackend(request)
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request)
+
+    def get_backend(self):
+        return self._store
+
+
 @implementer(IRepositoryService)
 class LocalRepositoryService:
     def __init__(self, repo_path, executor):
@@ -65,7 +91,8 @@ class LocalRepositoryService:
     @classmethod
     def create_service(cls, context, request):
         return cls(
-            request.registry.settings["tuf.repo.path"], request.task(add_target).delay,
+            request.registry.settings["tuf.repo.path"],
+            request.task(add_target).delay,
         )
 
     def load_repository(self):
