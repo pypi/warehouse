@@ -166,6 +166,11 @@ def test_routes(warehouse):
         pretend.call(
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
+        pretend.call(
+            "accounts.verify-project-role",
+            "/account/verify-project-role/",
+            domain=warehouse,
+        ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
             "manage.account.totp-provision",
@@ -249,6 +254,13 @@ def test_routes(warehouse):
         pretend.call(
             "manage.project.roles",
             "/manage/project/{project_name}/collaboration/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.revoke_invite",
+            "/manage/project/{project_name}/collaboration/revoke_invite/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,

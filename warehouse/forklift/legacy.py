@@ -521,7 +521,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
-                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type.",
+                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
             ),
         ]
     )
@@ -1243,7 +1243,7 @@ def file_upload(request):
                         HTTPBadRequest,
                         "Project size too large. Limit for "
                         + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // ONE_GB,
+                            name=project.name, limit=project_size_limit // ONE_GB
                         )
                         + "See "
                         + request.help_url(_anchor="project-size-limit"),

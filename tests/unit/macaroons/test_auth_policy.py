@@ -171,7 +171,8 @@ class TestMacaroonAuthorizationPolicy:
         policy = auth_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
-        assert result == Denied("There was no active request.")
+        assert result == Denied("")
+        assert result.s == "There was no active request."
 
     def test_permits_no_macaroon(self, monkeypatch):
         request = pretend.stub()
@@ -212,7 +213,8 @@ class TestMacaroonAuthorizationPolicy:
         policy = auth_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
-        assert result == Denied("The supplied token was invalid: foo")
+        assert result == Denied("")
+        assert result.s == "Invalid API Token: InvalidMacaroon('foo')"
 
     def test_permits_valid_macaroon(self, monkeypatch):
         macaroon_service = pretend.stub(
@@ -266,7 +268,8 @@ class TestMacaroonAuthorizationPolicy:
         policy = auth_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
         result = policy.permits(pretend.stub(), pretend.stub(), invalid_permission)
 
-        assert result == Denied(
+        assert result == Denied("")
+        assert result.s == (
             f"API tokens are not valid for permission: {invalid_permission}!"
         )
 

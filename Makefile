@@ -109,9 +109,8 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/black --check *.py warehouse/ tests/
 	$(BINDIR)/isort --check *.py warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
-	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
-	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation,boolean_attribute `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/curlylint ./warehouse/templates
+
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
@@ -208,9 +207,6 @@ compile-po: .state/env/pyvenv.cfg
 
 build-mos: compile-pot
 	for LOCALE in $(LOCALES) ; do \
-		if [[ -f warehouse/locale/$$LOCALE/LC_MESSAGES/messages.mo ]]; then \
-			L=$$LOCALE $(MAKE) update-po ; \
-		fi ; \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
 

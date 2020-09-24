@@ -34,9 +34,11 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.packaging import ProjectFactory, RoleFactory, RoleInvitationFactory
 
 
 class TestFailedLoginView:
@@ -98,9 +100,9 @@ class TestLogin:
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         form_obj = pretend.stub()
@@ -132,9 +134,9 @@ class TestLogin:
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -179,9 +181,9 @@ class TestLogin:
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -272,9 +274,9 @@ class TestLogin:
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
-            IPasswordBreachedService, None, breach_service
+            breach_service, IPasswordBreachedService, None
         )
 
         pyramid_request.method = "POST"
@@ -573,6 +575,9 @@ class TestTwoFactor:
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
         )
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -606,6 +611,7 @@ class TestTwoFactor:
                 additional={"two_factor_method": "totp"},
             )
         ]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     def test_totp_auth_already_authed(self):
         request = pretend.stub(
@@ -934,7 +940,7 @@ class TestRecoveryCode:
         ]
         assert result == {"form": form_obj}
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service,)
+            pretend.call(pyramid_request.POST, user_id=1, user_service=user_service)
         ]
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
@@ -984,6 +990,9 @@ class TestRecoveryCode:
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
         )
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -1026,6 +1035,7 @@ class TestRecoveryCode:
                 queue="success",
             )
         ]
+        assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
 
     def test_recovery_code_form_invalid(self):
         token_data = {"userid": 1}
@@ -1202,6 +1212,9 @@ class TestRegister:
         create_user = pretend.call_recorder(lambda *args, **kwargs: user)
         add_email = pretend.call_recorder(lambda *args, **kwargs: email)
         record_event = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda *args: None
+        )
         db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 csp_policy={},
@@ -1227,6 +1240,7 @@ class TestRegister:
                 "full_name": "full_name",
             }
         )
+
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
 
@@ -1235,7 +1249,7 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert create_user.calls == [
-            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd",)
+            pretend.call("username_value", "full_name", "MyStr0ng!shP455w0rd")
         ]
         assert add_email.calls == [
             pretend.call(user.id, "foo@bar.com", db_request.remote_addr, primary=True)
@@ -1887,6 +1901,310 @@ class TestVerifyEmail:
         ]
 
 
+class TestVerifyProjectRole:
+    @pytest.mark.parametrize("desired_role", ["Maintainer", "Owner"])
+    def test_verify_project_role(
+        self, db_request, user_service, token_service, monkeypatch, desired_role
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        RoleInvitationFactory.create(user=user, project=project)
+        owner_user = UserFactory.create()
+        RoleFactory(user=owner_user, project=project, role_name="Owner")
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        collaborator_added_email = pretend.call_recorder(lambda *args, **kwargs: None)
+        monkeypatch.setattr(
+            views, "send_collaborator_added_email", collaborator_added_email
+        )
+        added_as_collaborator_email = pretend.call_recorder(
+            lambda *args, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views, "send_added_as_collaborator_email", added_as_collaborator_email
+        )
+
+        result = views.verify_project_role(db_request)
+
+        db_request.db.flush()
+
+        assert db_request.find_service.calls == [
+            pretend.call(ITokenService, name="email"),
+            pretend.call(IUserService, context=None),
+        ]
+
+        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
+        assert user_service.get_user.calls == [
+            pretend.call(user.id),
+            pretend.call(db_request.user.id),
+        ]
+
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
+        assert (
+            db_request.db.query(Role)
+            .filter(Role.project == project, Role.user == user)
+            .one()
+        )
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"You are now {desired_role} of the '{project.name}' project.",
+                queue="success",
+            )
+        ]
+
+        assert collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                {owner_user},
+                user=user,
+                submitter=db_request.user,
+                project_name=project.name,
+                role=desired_role,
+            )
+        ]
+        assert added_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                submitter=db_request.user,
+                project_name=project.name,
+                role=desired_role,
+            )
+        ]
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.roles", project_name=project.name)
+            if desired_role == "Owner"
+            else pretend.call("packaging.project", name=project.name)
+        ]
+
+    @pytest.mark.parametrize(
+        ("exception", "message"),
+        [
+            (TokenInvalid, "Invalid token: request a new project role invite"),
+            (TokenExpired, "Expired token: request a new project role invite"),
+            (TokenMissing, "Invalid token: no token supplied"),
+        ],
+    )
+    def test_verify_project_role_loads_failure(
+        self, pyramid_request, exception, message
+    ):
+        def loads(token):
+            raise exception
+
+        pyramid_request.find_service = lambda *a, **kw: pretend.stub(loads=loads)
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        views.verify_project_role(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(message, queue="error")
+        ]
+
+    def test_verify_email_invalid_action(self, pyramid_request):
+        data = {"action": "invalid-action"}
+        pyramid_request.find_service = lambda *a, **kw: pretend.stub(
+            loads=lambda a: data
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        views.verify_project_role(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [pretend.call("manage.projects")]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token: not a collaboration invitation token", queue="error"
+            )
+        ]
+
+    def test_verify_project_role_revoked(self, db_request, user_service, token_service):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        views.verify_project_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Role invitation no longer exists.",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
+    def test_verify_project_role_declined(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        RoleInvitationFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.verify_project_role(db_request)
+
+        assert not (
+            db_request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
+    def test_verify_fails_with_different_user(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        user_2 = UserFactory.create()
+
+        db_request.user = user_2
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        views.verify_project_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Role invitation is not valid.", queue="error")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
+    def test_verify_role_get_confirmation(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        RoleInvitationFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.method = "GET"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        roles = views.verify_project_role(db_request)
+
+        assert roles == {
+            "project_name": project.name,
+            "desired_role": "Maintainer",
+        }
+
+
 class TestProfileCallout:
     def test_profile_callout_returns_user(self):
         user = pretend.stub()
@@ -1919,7 +2237,7 @@ class TestReAuthentication:
 
         monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
 
-        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(user_service, IUserService, None)
 
         pyramid_request.route_path = lambda *args, **kwargs: pretend.stub()
         pyramid_request.session.record_auth_timestamp = pretend.call_recorder(

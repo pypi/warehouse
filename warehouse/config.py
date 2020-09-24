@@ -184,6 +184,12 @@ def configure(settings=None):
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
+    maybe_set(
+        settings,
+        "warehouse.xmlrpc.client.ratelimit_string",
+        "XMLRPC_RATELIMIT_STRING",
+        default="3600 per hour",
+    )
     maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
     maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
     maybe_set(
@@ -323,6 +329,11 @@ def configure(settings=None):
     jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
 
+    # And some enums to reuse in the templates
+    jglobals.setdefault(
+        "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
+    )
+
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
@@ -349,6 +360,9 @@ def configure(settings=None):
         }
     )
     config.include("pyramid_tm")
+
+    # Register our XMLRPC service
+    config.include(".legacy.api.xmlrpc")
 
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")

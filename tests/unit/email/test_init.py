@@ -488,7 +488,7 @@ class TestEmailVerificationEmail:
     ):
 
         stub_user = pretend.stub(
-            id="id", username=None, name=None, email="foo@example.com",
+            id="id", username=None, name=None, email="foo@example.com"
         )
         stub_email = pretend.stub(id="id", email="email@example.com", verified=False)
         pyramid_request.method = "POST"
@@ -527,7 +527,7 @@ class TestEmailVerificationEmail:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_email_verification_email(
-            pyramid_request, (stub_user, stub_email,),
+            pyramid_request, (stub_user, stub_email)
         )
 
         assert result == {
@@ -1327,6 +1327,91 @@ class TestCollaboratorAddedEmail:
         ]
 
 
+class TestProjectRoleVerificationEmail:
+    def test_project_role_verification_email(
+        self, db_request, pyramid_config, token_service, monkeypatch
+    ):
+        stub_user = UserFactory.create()
+        EmailFactory.create(
+            email="email@example.com",
+            primary=True,
+            verified=True,
+            public=True,
+            user=stub_user,
+        )
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/verify-project-role/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/verify-project-role/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/verify-project-role/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        db_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        db_request.user = stub_user
+        db_request.registry.settings = {"mail.sender": "noreply@example.com"}
+        db_request.remote_addr = "0.0.0.0"
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        result = email.send_project_role_verification_email(
+            db_request,
+            stub_user,
+            desired_role="Maintainer",
+            initiator_username="initiating_user",
+            project_name="project_name",
+            email_token="TOKEN",
+            token_age=token_service.max_age,
+        )
+
+        assert result == {
+            "desired_role": "Maintainer",
+            "email_address": stub_user.email,
+            "initiator_username": "initiating_user",
+            "n_hours": token_service.max_age // 60 // 60,
+            "project_name": "project_name",
+            "token": "TOKEN",
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(token="TOKEN", email_address=stub_user.email)
+        html_renderer.assert_(token="TOKEN", email_address=stub_user.email)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user.name} <{stub_user.email}>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
+                    )
+                ),
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "ip_address": "0.0.0.0",
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "email@example.com",
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+
 class TestAddedAsCollaboratorEmail:
     def test_added_as_collaborator_email(
         self, pyramid_request, pyramid_config, monkeypatch
@@ -1340,7 +1425,7 @@ class TestAddedAsCollaboratorEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         stub_submitter_user = pretend.stub(
-            id="id_2", username="submitterusername", email="submiteremail",
+            id="id_2", username="submitterusername", email="submiteremail"
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/subject.txt"
@@ -1432,7 +1517,7 @@ class TestAddedAsCollaboratorEmail:
             primary_email=pretend.stub(email="email@example.com", verified=False),
         )
         stub_submitter_user = pretend.stub(
-            id="id_2", username="submitterusername", email="submiteremail",
+            id="id_2", username="submitterusername", email="submiteremail"
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/subject.txt"

@@ -23,6 +23,7 @@ import typeguard
 
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
+from pyramid.httpexceptions import HTTPTooManyRequests
 from pyramid.view import view_config
 from pyramid_rpc.mapper import MapplyViewMapper
 from pyramid_rpc.xmlrpc import (
@@ -45,6 +46,7 @@ from warehouse.packaging.models import (
     Role,
     release_classifiers,
 )
+from warehouse.rate_limiting import IRateLimiter
 from warehouse.search.queries import SEARCH_BOOSTS
 
 # From https://stackoverflow.com/a/22273639
@@ -108,6 +110,33 @@ def submit_xmlrpc_metrics(method=None):
     return decorator
 
 
+def ratelimit():
+    def decorator(f):
+        def wrapped(context, request):
+            ratelimiter = request.find_service(
+                IRateLimiter, name="xmlrpc.client", context=None
+            )
+            metrics = request.find_service(IMetricsService, context=None)
+            ratelimiter.hit(request.remote_addr)
+            if not ratelimiter.test(request.remote_addr):
+                metrics.increment("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
+                message = (
+                    "The action could not be performed because there were too "
+                    "many requests by the client."
+                )
+                _resets_in = ratelimiter.resets_in(request.remote_addr)
+                if _resets_in is not None:
+                    _resets_in = int(_resets_in.total_seconds())
+                    message += f" Limit may reset in {_resets_in} seconds."
+                raise XMLRPCWrappedError(HTTPTooManyRequests(message))
+            metrics.increment("warehouse.xmlrpc.ratelimiter.hit", tags=[])
+            return f(context, request)
+
+        return wrapped
+
+    return decorator
+
+
 def xmlrpc_method(**kwargs):
     """
     Support multiple endpoints serving the same views by chaining calls to
@@ -117,7 +146,7 @@ def xmlrpc_method(**kwargs):
     kwargs.update(
         require_csrf=False,
         require_methods=["POST"],
-        decorator=(submit_xmlrpc_metrics(method=kwargs["method"]),),
+        decorator=(submit_xmlrpc_metrics(method=kwargs["method"]), ratelimit()),
         mapper=TypedMapplyViewMapper,
     )
 
@@ -186,7 +215,6 @@ class TypedMapplyViewMapper(MapplyViewMapper):
             memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
             typeguard.check_argument_types(memo)
         except TypeError as exc:
-            print(exc)
             raise XMLRPCInvalidParamTypes(exc)
 
         return super().mapply(fn, args, kwargs)

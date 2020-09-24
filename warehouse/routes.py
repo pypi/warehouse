@@ -143,7 +143,7 @@ def includeme(config):
         "accounts.reauthenticate", "/account/reauthenticate/", domain=warehouse
     )
     config.add_route(
-        "accounts.recovery-code", "/account/recovery-code/", domain=warehouse,
+        "accounts.recovery-code", "/account/recovery-code/", domain=warehouse
     )
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route("accounts.register", "/account/register/", domain=warehouse)
@@ -157,6 +157,11 @@ def includeme(config):
     )
     config.add_route(
         "accounts.verify-email", "/account/verify-email/", domain=warehouse
+    )
+    config.add_route(
+        "accounts.verify-project-role",
+        "/account/verify-project-role/",
+        domain=warehouse,
     )
 
     # Management (views for logged-in users)
@@ -241,6 +246,13 @@ def includeme(config):
     config.add_route(
         "manage.project.roles",
         "/manage/project/{project_name}/collaboration/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.revoke_invite",
+        "/manage/project/{project_name}/collaboration/revoke_invite/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

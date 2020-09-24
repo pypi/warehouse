@@ -73,7 +73,7 @@
 
     <ul>
       <li>{% trans token='__token__' %}Set your username to <code>{{ token }}</code>{% endtrans %}</li>
-      <li>{% trans prefix='-' %}Set your password to the token value, including the <code>{{ site }}{{ prefix }}</code> prefix{% endtrans %}</li>
+      <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
     </ul>
 
     {% if macaroon.caveats.permissions == "user" %}
