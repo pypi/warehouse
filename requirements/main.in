@@ -54,7 +54,7 @@ stdlib-list
 structlog
 transaction
 trove-classifiers
-https://github.com/theupdateframework/tuf/archive/5d16f91ca7251d573106307f8269db1f680f77a4.zip
+https://github.com/theupdateframework/tuf/archive/fdccb8dc0bf34e2b016ce20f1570e582dcd459e7.zip
 typeguard
 webauthn
 whitenoise
