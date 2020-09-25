@@ -213,3 +213,20 @@ def json_release_slash(release, request):
         ),
         headers=_CORS_HEADERS,
     )
+
+
+@view_config(
+    route_name="legacy.api.json.latest",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest(project, request):
+    return HTTPMovedPermanently(
+        # Redirect to standard project endpoint
+        request.route_path(
+            "legacy.api.json.project",
+            name=project.name,
+        ),
+        headers=_CORS_HEADERS,
+    )
+

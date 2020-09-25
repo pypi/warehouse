@@ -355,6 +355,15 @@ def includeme(config):
     )
 
     config.add_route(
+        "legacy.api.json.latest",
+        "/pypi/{name}/latest/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -370,6 +379,7 @@ def includeme(config):
         read_only=True,
         domain=warehouse,
     )
+        
 
     # Legacy Action URLs
     # TODO: We should probably add Warehouse routes for these that just error
