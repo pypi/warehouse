@@ -22,6 +22,7 @@
     <tr>
       <th scope="col">{% trans %}Version{% endtrans %}</th>
       <th scope="col">{% trans %}Release date{% endtrans %}</th>
+      <th scope="col">{% trans %}Published date{% endtrans %}</th>
       <th scope="col">{% trans %}Files{% endtrans %}</th>
       {% if show_yanked_reason %}
       <th scope="col">{% trans %}Yanked reason{% endtrans %}</th>
@@ -33,11 +34,12 @@
   {% for release in releases %}
     <tr>
       <th scope="row">
-        <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="{% trans %}Manage version{% endtrans %}">
+        <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version_or_draft) }}" title="{% trans %}Manage version{% endtrans %}">
           {{ release.version }}
         </a>
       </th>
       <td>{{ humanize(release.created) }}</td>
+      <td>{{ "Not Published" if release.is_draft else humanize(release.published)}}</td>
       <td>
         {% set num_files = version_to_file_counts[release.version]['total'] %}
         {% if num_files %}
@@ -83,17 +85,26 @@
             </li>
             {% else %}
             <li>
-              <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
+              <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version_or_draft) }}" class="dropdown__link">
                 <i class="fa fa-pencil-alt" aria-hidden="true"></i>
                 {% trans %}Manage{% endtrans %}
               </a>
             </li>
             <li>
-              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
+              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version_or_draft) }}" class="dropdown__link">
                 <i class="fa fa-eye" aria-hidden="true"></i>
                 {% trans %}View{% endtrans %}
               </a>
             </li>
+            {% if release.is_draft %}
+            <li>
+              {% set slug = 'publish_release-modal-{}'.format(loop.index) %}
+              <a href="#{{ slug }}" class="dropdown__link">
+                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                {% trans %}Publish{% endtrans %}
+              </a>
+            </li>
+            {% else %}
             <li>
               {% set slug = 'yank_release-modal-{}'.format(loop.index) %}
               <a href="#{{ slug }}" class="dropdown__link">
@@ -110,9 +121,23 @@
               </a>
             </li>
             {% endif %}
+            {% endif %}
           </ul>
         </nav>
-        {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
+        {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version_or_draft) %}
+
+        {% if release.is_draft %}
+          {% set slug = 'publish_release-modal-{}'.format(loop.index) %}
+          {% set title = gettext("Publish release") %}
+          {% set extra_description %}
+          <p>
+            {% trans project_name=project.name, version=release.version %}
+              After publishing this release, users will be able to use pip to install <code>{{ project_name }}=={{ version }}</code>.
+            {% endtrans %}
+          </p>
+          {% endset %}
+          {{ confirm_modal(title, gettext('Version'), 'publish_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False, extra_description=extra_description) }}
+        {% endif %}
 
         {% if release.yanked %}
           {% set slug = 'unyank_release-modal-{}'.format(loop.index) %}

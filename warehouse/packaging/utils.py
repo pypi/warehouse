@@ -28,7 +28,7 @@ def _simple_detail(project, request):
         request.db.query(File)
         .options(joinedload(File.release))
         .join(Release)
-        .filter(Release.project == project)
+        .filter(Release.project == project, Release.published.isnot(None))
         .all(),
         key=lambda f: (parse(f.release.version), f.filename),
     )

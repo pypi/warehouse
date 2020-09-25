@@ -1125,6 +1125,7 @@ def file_upload(request):
 
         release = Release(
             project=project,
+            project_name=project.name,
             _classifiers=release_classifiers,
             dependencies=list(
                 _construct_dependencies(
@@ -1171,6 +1172,7 @@ def file_upload(request):
             },
             uploader=request.user,
             uploaded_via=request.user_agent,
+            published=func.now(),
         )
         request.db.add(release)
         # TODO: This should be handled by some sort of database trigger or

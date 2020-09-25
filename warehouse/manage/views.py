@@ -1579,6 +1579,85 @@ class ManageProjectRelease:
 
     @view_config(
         request_method="POST",
+        request_param=["confirm_publish_version"],
+        require_reauth=True,
+    )
+    def publish_project_release(self):
+        version = self.request.POST.get("confirm_publish_version")
+
+        if not self.release.is_draft:
+            self.request.session.flash(
+                "This release is already published", queue="error"
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version_or_draft,
+                )
+            )
+
+        if not version:
+            self.request.session.flash("Confirm the request", queue="error")
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version_or_draft,
+                )
+            )
+
+        if version != self.release.version:
+            self.request.session.flash(
+                "Could not publish release - "
+                + f"{version!r} is not the same as {self.release.version!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version_or_draft,
+                )
+            )
+
+        submitter_role = get_user_role_in_project(
+            self.release.project, self.request.user, self.request
+        )
+
+        self.request.db.add(
+            JournalEntry(
+                name=self.release.project.name,
+                action="publish release",
+                version=self.release.version,
+                submitted_by=self.request.user,
+                submitted_from=self.request.remote_addr,
+            )
+        )
+
+        self.release.project.record_event(
+            tag="project:release:publish",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+            },
+        )
+
+        self.release.published = self.request.db.query(func.current_timestamp()).one()
+
+        self.request.session.flash(
+            f"Published release {self.release.version!r}", queue="success"
+        )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.releases", project_name=self.release.project.name
+            )
+        )
+
+    @view_config(
+        request_method="POST",
         request_param=["confirm_yank_version"],
         require_reauth=True,
     )

@@ -14,6 +14,7 @@ import enum
 
 from collections import OrderedDict
 from urllib.parse import urlparse
+import logging
 
 import packaging.utils
 
@@ -186,16 +187,21 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     def __getitem__(self, version):
         session = orm.object_session(self)
         canonical_version = packaging.utils.canonicalize_version(version)
+        try:
+            canonical_version, something, draft_hash = canonical_version.split("--")
+        except ValueError:
+            draft_hash = None
 
         try:
-            return (
-                session.query(Release)
-                .filter(
-                    Release.project == self,
-                    Release.canonical_version == canonical_version,
-                )
-                .one()
+            query = session.query(Release).filter(
+                Release.project == self, Release.canonical_version == canonical_version,
             )
+            if draft_hash:
+                query = query.filter(Release.draft_hash == draft_hash)
+            else:
+                query = query.filter(Release.published.isnot(None))
+            return query.one()
+
         except MultipleResultsFound:
             # There are multiple releases of this project which have the same
             # canonical version that were uploaded before we checked for
@@ -256,7 +262,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
             .query(
                 Release.version, Release.created, Release.is_prerelease, Release.yanked
             )
-            .filter(Release.project == self)
+            .filter(Release.project == self, Release.published.isnot(None))
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
@@ -266,7 +272,11 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.published.isnot(None),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -344,9 +354,11 @@ class Release(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
+    project_name = Column(Text)
     version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
+    draft_hash = orm.column_property(func.make_draft_hash(project_name, version))
     author = Column(Text)
     author_email = Column(Text)
     maintainer = Column(Text)
@@ -362,6 +374,7 @@ class Release(db.Model):
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
+    published = Column(DateTime(timezone=False), nullable=True)
 
     description_id = Column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -500,6 +513,18 @@ class Release(db.Model):
                 self.maintainer_email,
                 self.requires_python,
             ]
+        )
+
+    @property
+    def is_draft(self):
+        return self.published is None
+
+    @property
+    def version_or_draft(self):
+        return (
+            f"{self.version}--draft--{self.draft_hash}"
+            if self.is_draft
+            else self.version
         )
 
 
