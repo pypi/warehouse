@@ -364,6 +364,15 @@ def includeme(config):
     )
 
     config.add_route(
+        "legacy.api.json.latest_slash",
+        "/pypi/{name}/latest/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
         factory="warehouse.packaging.models:ProjectFactory",

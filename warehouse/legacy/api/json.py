@@ -230,3 +230,18 @@ def json_latest(project, request):
         ),
         headers=_CORS_HEADERS,
     )
+
+@view_config(
+    route_name="legacy.api.json.latest_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_slash(project, request):
+    # Respond with redirect to url without trailing slash
+    return HTTPMovedPermanently(
+        request.route_path(
+            "legacy.api.json.latest",
+            name=project.name,
+        ),
+        headers=_CORS_HEADERS,
+    )

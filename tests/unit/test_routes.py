@@ -352,6 +352,22 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "legacy.api.json.latest",
+            "/pypi/{name}/latest/json",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
+            "legacy.api.json.latest_slash",
+            "/pypi/{name}/latest/json/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            read_only=True,
+            domain=warehouse,
+        ),
+        pretend.call(
             "legacy.api.json.release",
             "/pypi/{name}/{version}/json",
             factory="warehouse.packaging.models:ProjectFactory",
