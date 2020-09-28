@@ -26,8 +26,10 @@
 {% block main %}
   {% if testPyPI %}
     {% set site = "testpypi" %}
+    {% set site_url = "https://test.pypi.org/legacy/" %}
   {% else %}
     {% set site = "pypi" %}
+    {% set site_url = "https://upload.pypi.org/legacy/" %}
   {% endif %}
   <h1 class="page-title">{{ title }}</h1>
 
@@ -104,7 +106,7 @@
   password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
-  repository = https://upload.{{ site }}.org/legacy/
+  repository = {{ site_url }}
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>
