@@ -28,11 +28,23 @@ def includeme(config):
         {
             "tuf.keytype": "ed25519",
             "tuf.root.threshold": 1,
+            "tuf.root.expiry": 31536000,
             "tuf.snapshot.threshold": 1,
+            "tuf.snapshot.expiry": 86400,
             "tuf.targets.threshold": 1,
+            "tuf.targets.expiry": 31536000,
             "tuf.timestamp.threshold": 1,
+            "tuf.timestamp.expiry": 86400,
             "tuf.bins.threshold": 1,
+            "tuf.bins.expiry": 31536000,
             "tuf.bin-n.threshold": 1,
+            # NOTE: This is a deviation from PEP 458, as published: the PEP
+            # stipulates that bin-n metadata expires every 24 hours, which is
+            # both burdensome for mirrors and requires a large number of redundant
+            # signing operations even when the targets themselves do not change.
+            # An amended version of the PEP should be published, at which point
+            # this note can be removed.
+            "tuf.bin-n.expiry": 604800,
             "tuf.spec_version": "1.0.0",
         }
     )

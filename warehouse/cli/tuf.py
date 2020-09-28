@@ -37,17 +37,25 @@ def _repository_service(config):
     return repo_service_class.create_service(None, config)
 
 
+def _set_expiration_for_role(config, role_obj, role_name):
+    # If we're initializing TUF for development purposes, give
+    # every role a long expiration time so that developers don't have to
+    # continually re-initialize it.
+    if config.registry.settings["warehouse.env"] == Environment.development:
+        role_obj.expiration = datetime.datetime.now() + datetime.timedelta(
+            seconds=config.registry.settings["tuf.development_metadata_expiry"]
+        )
+    else:
+        role_obj.expiration = datetime.datetime.now() + datetime.timedelta(
+            seconds=config.registry.settings[f"tuf.{role_name}.expiry"]
+        )
+
+
 @warehouse.group()  # pragma: no-branch
 def tuf():
     """
     Manage Warehouse's TUF state.
     """
-
-
-# TODO: Need subcommands for:
-# 1. creating the world (totally new TUF repo, including root)
-# 2. updating the root metadata (including revocations?)
-# 3. removing stale metadata
 
 
 @tuf.command()
@@ -79,11 +87,7 @@ def new_repo(config):
     for role in TOPLEVEL_ROLES:
         role_obj = getattr(repository, role)
         role_obj.threshold = config.registry.settings[f"tuf.{role}.threshold"]
-
-        if config.registry.settings["warehouse.env"] == Environment.development:
-            role_obj.expiration = datetime.datetime.now() + datetime.timedelta(
-                seconds=config.registry.settings["tuf.development_metadata_expiry"]
-            )
+        _set_expiration_for_role(config, role_obj, role)
 
         pubkeys = key_service.pubkeys_for_role(role)
         privkeys = key_service.privkeys_for_role(role)
@@ -128,23 +132,26 @@ def build_targets(config):
     repository.targets.delegate(
         BINS_ROLE, key_service.pubkeys_for_role(BINS_ROLE), ["*"]
     )
-    for privkey in key_service.privkeys_for_role(BINS_ROLE):
-        repository.targets(BINS_ROLE).load_signing_key(privkey)
+    bins_role = repository.targets(BINS_ROLE)
+    _set_expiration_for_role(config, bins_role, BINS_ROLE)
 
-    repository.targets(BINS_ROLE).delegate_hashed_bins(
+    for privkey in key_service.privkeys_for_role(BINS_ROLE):
+        bins_role.load_signing_key(privkey)
+
+    bins_role.delegate_hashed_bins(
         [],
         key_service.pubkeys_for_role(BIN_N_ROLE),
         BIN_N_COUNT,
     )
-    for privkey in key_service.privkeys_for_role(BIN_N_ROLE):
-        for delegation in repository.targets(BINS_ROLE).delegations:
-            delegation.load_signing_key(privkey)
 
     dirty_roles = ["snapshot", "targets", "timestamp", BINS_ROLE]
-    for idx in range(1, 2 ** 16, 4):
-        low = f"{idx - 1:04x}"
-        high = f"{idx + 2:04x}"
-        dirty_roles.append(f"{low}-{high}")
+    for bin_n_role in bins_role.delegations:
+        _set_expiration_for_role(config, bin_n_role, BIN_N_ROLE)
+        dirty_roles.append(bin_n_role.rolename)
+
+    for privkey in key_service.privkeys_for_role(BIN_N_ROLE):
+        for bin_n_role in bins_role.delegations:
+            bin_n_role.load_signing_key(privkey)
 
     # Collect the "paths" for every PyPI package. These are packages already in
     # existence, so we'll add some additional data to their targets to
@@ -155,7 +162,7 @@ def build_targets(config):
     db = Session(bind=config.registry["sqlalchemy.engine"])
     for file in db.query(File).all():
         fileinfo = _make_backsigned_fileinfo_from_file(file)
-        repository.targets(BINS_ROLE).add_target_to_bin(
+        bins_role.add_target_to_bin(
             file.path,
             number_of_bins=BIN_N_COUNT,
             fileinfo=fileinfo,
