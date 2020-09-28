@@ -12,7 +12,7 @@
 
 from collections import OrderedDict
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound, HTTPTemporaryRedirect
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound
@@ -221,12 +221,12 @@ def json_release_slash(release, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest(project, request):
-    return HTTPMovedPermanently(
-        # Redirect to standard project endpoint
+    # Redirect to standard project endpoint this time,
+    # but do not instruct to *always* redirect this way
+    return HTTPTemporaryRedirect(
         request.route_path(
             "legacy.api.json.project",
             name=project.name,
         ),
         headers=_CORS_HEADERS,
     )
-
