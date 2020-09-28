@@ -388,7 +388,6 @@ def includeme(config):
         read_only=True,
         domain=warehouse,
     )
-        
 
     # Legacy Action URLs
     # TODO: We should probably add Warehouse routes for these that just error

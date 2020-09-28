@@ -12,7 +12,11 @@
 
 from collections import OrderedDict
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound, HTTPTemporaryRedirect
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPTemporaryRedirect,
+)
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound
@@ -230,6 +234,7 @@ def json_latest(project, request):
         ),
         headers=_CORS_HEADERS,
     )
+
 
 @view_config(
     route_name="legacy.api.json.latest_slash",
