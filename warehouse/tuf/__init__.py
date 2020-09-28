@@ -66,12 +66,13 @@ def includeme(config):
         repo_service_class.create_service, IRepositoryService
     )
 
-    # Per PEP458: The timestamp, snapshot, and bins metadata expire every 24 hours.
-    # We conservatively bump every 6 hours.
-    config.add_periodic_task(
-        crontab(minute=0, hour="*/6"), bump_role, args=("timestamp",)
-    )
-    config.add_periodic_task(
-        crontab(minute=0, hour="*/6"), bump_role, args=("snapshot",)
-    )
-    config.add_periodic_task(crontab(minute=0, hour="*/6"), bump_role, args=("bins",))
+    # Per PEP 458: The snapshot and timestamp metadata expire every 24 hours.
+    # We conservatively bump them every 6 hours.
+    # Note that bumping the snapshot causes us to bump the timestamp, so we
+    # only need to explicitly bump the former.
+    # NOTE: PEP 458 currently specifies that each bin-n role expires every 24 hours,
+    # but Warehouse sets them to expire every 7 days instead. See the corresponding
+    # note in tuf/__init__.py.
+    # We conservatively bump all delegated bins at least once daily.
+    config.add_periodic_task(crontab(minute=0, hour="*/6"), bump_snapshot)
+    config.add_periodic_task(crontab(minute=0, hour=0), bump_bin_ns)

@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import timedelta
+
 import redis
 
 from securesystemslib.util import get_file_hashes
@@ -22,19 +24,93 @@ from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageSe
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
-def bump_role(task, request, role):
+def bump_snapshot(task, request):
+    """
+    Re-signs the TUF snapshot role, incrementing its version and renewing its
+    expiration period.
+
+    Bumping the snapshot transitively bumps the timestamp role.
+    """
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
     with r.lock("tuf-repo"):
-        repo_service = request.find_service(IRepositoryService)
-        key_service = request.find_service(IKeyService)
-        repository = repo_service.load_repository()
+        # Bumping the snapshot role involves the following steps:
+        # 1. First, we grab our key and storage services. We'll use the former
+        #    for signing operations, and the latter to read and write individual
+        #    metadata files to and from the repository without loading the entire
+        #    repo.
+        # 2. Using our storage service, we fetch the timestamp metadata, which
+        #    is always at `timestamp.json`. We load it using the `Timestamp` model
+        #    provided by the TUF API.
+        # 3. Using the snapshot version stored in the current `Timestamp`, we fetch
+        #    `{VERSION}.snapshot.json` and load it using the `Snapshot` model
+        #    provided by the TUF API.
+        # 4. We call `Snapshot.bump_version()` and `Snapshot.sign()` to bump
+        #    and re-sign the current snapshot.
+        # 5. We call `Snapshot.to_json_file()` with `{VERSION + 1}.snapshot.json`,
+        #    where `{VERSION + 1}` is the incremented snapshot version.
+        # 6. We call `Timestamp.update()` on the loaded timestamp, giving it the
+        #    incremented snapshot version as well as the serialized length and
+        #    BLAKE2B hash of the serialized form.
+        # 7. We call `Timestamp.bump_version()` and `Timestamp.sign()` to bump
+        #    and re-sign the current timestamp.
+        # 8. We call `Timestamp.to_json_file()`, writing to `timestamp.json`.
+        #
+        # Each of the steps is labeled below for clarity.0
 
-        for key in key_service.privkeys_for_role(role):
-            role_obj = getattr(repository, role)
-            role_obj.load_signing_key(key)
-        repository.mark_dirty([role])
-        repository.writeall(consistent_snapshot=True, use_existing_fileinfo=True)
+        # 1. Service retrieval.
+        storage_service = request.find_service(IStorageService)
+        key_service = request.find_service(IKeyService)
+
+        storage_backend = storage_service.get_backend()
+
+        # 2. Timestamp retrieval and loading.
+        timestamp = metadata.Timestamp.from_json_file("timestamp.json", storage_backend)
+
+        # 3. Snapshot retrieval and loading.
+        snapshot_version, snapshot_filename = utils.find_snapshot(timestamp)
+        snapshot = metadata.Snapshot.from_json_file(snapshot_filename, storage_backend)
+
+        # 4. Snapshot bumping and versioning.
+        snapshot_version += 1
+        snapshot.bump_version()
+        snapshot.bump_expiration(
+            delta=timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"])
+        )
+        for key in key_service.privkeys_for_role("snapshot"):
+            snapshot.sign(key)
+
+        # 5. Writing the updated snapshot back to the repository.
+        snapshot_filename = f"{snapshot_version}.snapshot.json"
+        snapshot.to_json_file(snapshot_filename, storage_backend)
+
+        # 6. Timestamp updating.
+        timestamp.update(
+            snapshot_version,
+            len(snapshot.to_json().encode()),
+            get_file_hashes(
+                snapshot_filename,
+                hash_algorithms=[HASH_ALGORITHM],
+                storage_backend=storage_backend,
+            ),
+        )
+
+        # 7. Timestamp bumping.
+        timestamp.bump_version()
+        timestamp.bump_expiration(
+            delta=timedelta(seconds=request.registry.settings["tuf.timestamp.expiry"])
+        )
+
+        # 8. Writing the updated timestamp back to the repository.
+        timestamp.to_json_file("timestamp.json", storage_backend)
+
+
+@task(bind=True, ignore_result=True, acks_late=True)
+def bump_bin_ns(task, request):
+    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+
+    with r.lock("tuf-repo"):
+        pass
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
