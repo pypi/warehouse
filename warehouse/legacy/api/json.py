@@ -190,7 +190,7 @@ def json_release(release, request):
             "home_page": release.home_page,
             "download_url": release.download_url,
             "yanked": release.yanked,
-            "yanked_reason": r.yanked_reason or None,
+            "yanked_reason": release.yanked_reason or None,
         },
         "urls": releases[release.version],
         "releases": releases,

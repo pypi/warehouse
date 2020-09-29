@@ -33,13 +33,9 @@
   {% for release in releases %}
     <tr>
       <th scope="row">
-        {% if not release.yanked %}
         <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="{% trans %}Manage version{% endtrans %}">
           {{ release.version }}
         </a>
-        {% else %}
-          {{ release.version }}
-        {% endif %}
       </th>
       <td>{{ humanize(release.created) }}</td>
       <td>

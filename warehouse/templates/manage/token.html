@@ -26,8 +26,10 @@
 {% block main %}
   {% if testPyPI %}
     {% set site = "testpypi" %}
+    {% set upload_url = "https://test.pypi.org/legacy/" %}
   {% else %}
     {% set site = "pypi" %}
+    {% set upload_url = "https://upload.pypi.org/legacy/" %}
   {% endif %}
   <h1 class="page-title">{{ title }}</h1>
 
@@ -73,7 +75,7 @@
 
     <ul>
       <li>{% trans token='__token__' %}Set your username to <code>{{ token }}</code>{% endtrans %}</li>
-      <li>{% trans prefix='-' %}Set your password to the token value, including the <code>{{ site }}{{ prefix }}</code> prefix{% endtrans %}</li>
+      <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
     </ul>
 
     {% if macaroon.caveats.permissions == "user" %}
@@ -104,7 +106,7 @@
   password = # {% trans %}either a user-scoped token or a project-scoped token you want to set as the default{% endtrans %}
 
 [PROJECT_NAME]
-  repository = https://upload.{{ site }}.org/legacy/
+  repository = {{ upload_url }}
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>

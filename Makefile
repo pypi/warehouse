@@ -196,9 +196,6 @@ compile-po: .state/env/pyvenv.cfg
 
 build-mos: compile-pot
 	for LOCALE in $(LOCALES) ; do \
-		if [[ -f warehouse/locale/$$LOCALE/LC_MESSAGES/messages.mo ]]; then \
-			L=$$LOCALE $(MAKE) update-po ; \
-		fi ; \
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
 

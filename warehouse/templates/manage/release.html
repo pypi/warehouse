@@ -121,39 +121,41 @@
 
   <h3>{% trans %}Release settings{% endtrans %}</h3>
 
-  <div class="callout-block callout-block">
-    <h3>{% trans %}Yank release{% endtrans %}</h3>
-    <p>
-    {% if files %}
-      {% trans count=files|length %}
-        Yanking will mark this release (and {{ count }} file within it) to be ignored when installing in most common scenarios.
-      {% pluralize %}
-        Yanking will mark this release (and {{ count }} files within it) to be ignored when installing in most common scenarios.
-      {% endtrans %}
-    {% else %}
-      {% trans %}
-        Yanking will mark this release to be ignored when installing in most common scenarios.
-      {% endtrans %}
-    {% endif %}
-    {% trans project_name=project.name, version=release.version %}
-      This release will still be installable for users pinning to this exact version, e.g. when using <code>{{ project_name }}=={{ version }}</code>.
-    {% endtrans %}
-    {% trans href="https://www.python.org/dev/peps/pep-0592/" %}
-      For more information, see <a href="{{ href }}">PEP 592</a>.
-    {% endtrans %}
-    </p>
-
-    {% set extra_description %}
+  {% if not release.yanked %}
+    <div class="callout-block callout-block">
+      <h3>{% trans %}Yank release{% endtrans %}</h3>
       <p>
-        {% trans project_name=project.name, version=release.version %}
-          You may provide a reason for yanking this release, which will be displayed by pip to users who install <code>{{ project_name }}=={{ version }}</code>.
+      {% if files %}
+        {% trans count=files|length %}
+          Yanking will mark this release (and {{ count }} file within it) to be ignored when installing in most common scenarios.
+        {% pluralize %}
+          Yanking will mark this release (and {{ count }} files within it) to be ignored when installing in most common scenarios.
         {% endtrans %}
+      {% else %}
+        {% trans %}
+          Yanking will mark this release to be ignored when installing in most common scenarios.
+        {% endtrans %}
+      {% endif %}
+      {% trans project_name=project.name, version=release.version %}
+        This release will still be installable for users pinning to this exact version, e.g. when using <code>{{ project_name }}=={{ version }}</code>.
+      {% endtrans %}
+      {% trans href="https://www.python.org/dev/peps/pep-0592/" %}
+        For more information, see <a href="{{ href }}">PEP 592</a>.
+      {% endtrans %}
       </p>
-      <label for="yanked_reason">{% trans %}Reason (optional){% endtrans %}</label>
-      <input name="yanked_reason" id="yanked_reason" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
-    {% endset %}
-    {{ confirm_button(gettext("Yank release"), gettext("Version"), "yank_version", release.version, modifier="--primary", warning=False, extra_description=extra_description) }}
-  </div>
+
+      {% set extra_description %}
+        <p>
+          {% trans project_name=project.name, version=release.version %}
+            You may provide a reason for yanking this release, which will be displayed by pip to users who install <code>{{ project_name }}=={{ version }}</code>.
+          {% endtrans %}
+        </p>
+        <label for="yanked_reason">{% trans %}Reason (optional){% endtrans %}</label>
+        <input name="yanked_reason" id="yanked_reason" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+      {% endset %}
+      {{ confirm_button(gettext("Yank release"), gettext("Version"), "yank_version", release.version, modifier="--primary", warning=False, extra_description=extra_description) }}
+    </div>
+  {% endif %}
 
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Delete release{% endtrans %}</h3>
