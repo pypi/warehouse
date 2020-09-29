@@ -1199,6 +1199,7 @@ def file_upload(request):
             additional={
                 "submitted_by": request.user.username,
                 "canonical_version": release.canonical_version,
+                "version_or_draft": release.version_or_draft,
             },
         )
 
@@ -1319,36 +1320,39 @@ def file_upload(request):
                 "The digest supplied does not match a digest calculated "
                 "from the uploaded file.",
             )
+        # Skip duplicate check for files when it's a draft release
+        if not release.is_draft:
+            # Check to see if the file that was uploaded exists already or not.
+            is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
+            if is_duplicate:
+                return Response()
+            elif is_duplicate is not None:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    # Note: Changing this error message to something that doesn't
+                    # start with "File already exists" will break the
+                    # --skip-existing functionality in twine
+                    # ref: https://github.com/pypa/warehouse/issues/3482
+                    # ref: https://github.com/pypa/twine/issues/332
+                    "File already exists. See "
+                    + request.help_url(_anchor="file-name-reuse")
+                    + " for more information.",
+                )
 
-        # Check to see if the file that was uploaded exists already or not.
-        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
-        if is_duplicate:
-            return Response()
-        elif is_duplicate is not None:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                # Note: Changing this error message to something that doesn't
-                # start with "File already exists" will break the
-                # --skip-existing functionality in twine
-                # ref: https://github.com/pypa/warehouse/issues/3482
-                # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
-
-        # Check to see if the file that was uploaded exists in our filename log
-        if request.db.query(
-            request.db.query(Filename).filter(Filename.filename == filename).exists()
-        ).scalar():
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "This filename has already been used, use a "
-                "different version. "
-                "See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
+            # Check to see if the file that was uploaded exists in our filename log
+            if request.db.query(
+                request.db.query(Filename)
+                .filter(Filename.filename == filename)
+                .exists()
+            ).scalar():
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "This filename has already been used, use a "
+                    "different version. "
+                    "See "
+                    + request.help_url(_anchor="file-name-reuse")
+                    + " for more information.",
+                )
 
         # Check to see if uploading this file would create a duplicate sdist
         # for the current release.
