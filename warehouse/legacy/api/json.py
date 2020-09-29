@@ -225,12 +225,22 @@ def json_release_slash(release, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest(project, request):
-    # Redirect to standard project endpoint this time,
-    # but do not instruct to *always* redirect this way
+    try:
+        release = (
+            request.db.query(Release)
+            .filter(Release.project == project, Release.yanked.is_(False))
+            .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
+            .limit(1)
+            .one()
+        )
+    except NoResultFound:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
     return HTTPTemporaryRedirect(
         request.route_path(
-            "legacy.api.json.project",
+            "legacy.api.json.release",
             name=project.name,
+            version=release.version,
         ),
         headers=_CORS_HEADERS,
     )
@@ -246,6 +256,100 @@ def json_latest_slash(project, request):
     return HTTPMovedPermanently(
         request.route_path(
             "legacy.api.json.latest",
+            name=project.name,
+        ),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
+    route_name="legacy.api.json.latest_stable",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_stable(project, request):
+    try:
+        release = (
+            request.db.query(Release)
+            .filter(
+                Release.project == project,
+                Release.yanked.is_(False),
+                Release.is_prerelease.is_(False),
+            )
+            .order_by(Release._pypi_ordering.desc())
+            .limit(1)
+            .one()
+        )
+    except NoResultFound:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    return HTTPTemporaryRedirect(
+        request.route_path(
+            "legacy.api.json.release",
+            name=project.name,
+            version=release.version,
+        ),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
+    route_name="legacy.api.json.latest_stable_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_stable_slash(project, request):
+    # Respond with redirect to url without trailing slash
+    return HTTPMovedPermanently(
+        request.route_path(
+            "legacy.api.json.latest_stable",
+            name=project.name,
+        ),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
+    route_name="legacy.api.json.latest_unstable",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_unstable(project, request):
+    try:
+        release = (
+            request.db.query(Release)
+            .filter(
+                Release.project == project,
+                Release.yanked.is_(False),
+                Release.is_prerelease != None,
+            )
+            .order_by(Release._pypi_ordering.desc())
+            .limit(1)
+            .one()
+        )
+    except NoResultFound:
+        return HTTPNotFound(headers=_CORS_HEADERS)
+
+    return HTTPTemporaryRedirect(
+        request.route_path(
+            "legacy.api.json.release",
+            name=project.name,
+            version=release.version,
+        ),
+        headers=_CORS_HEADERS,
+    )
+
+
+@view_config(
+    route_name="legacy.api.json.latest_unstable_slash",
+    context=Project,
+    decorator=_CACHE_DECORATOR,
+)
+def json_latest_unstable_slash(project, request):
+    # Respond with redirect to url without trailing slash
+    return HTTPMovedPermanently(
+        request.route_path(
+            "legacy.api.json.latest_unstable",
             name=project.name,
         ),
         headers=_CORS_HEADERS,

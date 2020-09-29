@@ -373,6 +373,42 @@ def includeme(config):
     )
 
     config.add_route(
+        "legacy.api.json.latest_stable",
+        "/pypi/{name}/latest-stable/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_stable_slash",
+        "/pypi/{name}/latest-stable/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_unstable",
+        "/pypi/{name}/latest-unstable/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "legacy.api.json.latest_unstable_slash",
+        "/pypi/{name}/latest-unstable/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
         factory="warehouse.packaging.models:ProjectFactory",
