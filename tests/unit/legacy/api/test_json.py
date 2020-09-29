@@ -10,9 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
@@ -27,6 +28,46 @@ from ....common.db.packaging import (
     ProjectFactory,
     ReleaseFactory,
 )
+
+ProjectData = namedtuple("ProjectData", ["project", "latest_stable", "latest_pre"])
+
+
+@pytest.fixture(scope="function")
+def project_no_pre():
+    project = ProjectFactory.create()
+
+    ReleaseFactory.create(project=project, version="1.0")
+    ReleaseFactory.create(project=project, version="2.0")
+    latest_stable = ReleaseFactory.create(project=project, version="3.0")
+
+    return ProjectData(project=project, latest_stable=latest_stable, latest_pre=None)
+
+
+@pytest.fixture(scope="function")
+def project_with_pre():
+    project = ProjectFactory.create()
+
+    ReleaseFactory.create(project=project, version="1.0")
+    ReleaseFactory.create(project=project, version="2.0")
+    latest_pre = ReleaseFactory.create(project=project, version="4.0.dev0")
+
+    latest_stable = ReleaseFactory.create(project=project, version="3.0")
+
+    return ProjectData(
+        project=project, latest_stable=latest_stable, latest_pre=latest_pre
+    )
+
+
+@pytest.fixture(scope="function")
+def project_only_pre():
+    project = ProjectFactory.create()
+
+    ReleaseFactory.create(project=project, version="1.0.dev0")
+    ReleaseFactory.create(project=project, version="2.0.dev0")
+
+    latest_pre = ReleaseFactory.create(project=project, version="3.0.dev0")
+
+    return ProjectData(project=project, latest_stable=None, latest_pre=latest_pre)
 
 
 def _assert_has_cors_headers(headers):
@@ -66,57 +107,41 @@ class TestJSONProject:
         assert isinstance(resp, HTTPNotFound)
         _assert_has_cors_headers(resp.headers)
 
-    def test_calls_release_detail(self, monkeypatch, db_request):
-        project = ProjectFactory.create()
-
-        ReleaseFactory.create(project=project, version="1.0")
-        ReleaseFactory.create(project=project, version="2.0")
-
-        release = ReleaseFactory.create(project=project, version="3.0")
-
+    def test_calls_release_detail(self, monkeypatch, db_request, project_no_pre):
         response = pretend.stub()
         json_release = pretend.call_recorder(lambda ctx, request: response)
         monkeypatch.setattr(json, "json_release", json_release)
 
-        resp = json.json_project(project, db_request)
+        resp = json.json_project(project_no_pre.project, db_request)
 
         assert resp is response
-        assert json_release.calls == [pretend.call(release, db_request)]
+        assert json_release.calls == [
+            pretend.call(project_no_pre.latest_stable, db_request)
+        ]
 
-    def test_with_prereleases(self, monkeypatch, db_request):
-        project = ProjectFactory.create()
-
-        ReleaseFactory.create(project=project, version="1.0")
-        ReleaseFactory.create(project=project, version="2.0")
-        ReleaseFactory.create(project=project, version="4.0.dev0")
-
-        release = ReleaseFactory.create(project=project, version="3.0")
-
+    def test_with_prereleases(self, monkeypatch, db_request, project_with_pre):
         response = pretend.stub()
         json_release = pretend.call_recorder(lambda ctx, request: response)
         monkeypatch.setattr(json, "json_release", json_release)
 
-        resp = json.json_project(project, db_request)
+        resp = json.json_project(project_with_pre.project, db_request)
 
         assert resp is response
-        assert json_release.calls == [pretend.call(release, db_request)]
+        assert json_release.calls == [
+            pretend.call(project_with_pre.latest_stable, db_request)
+        ]
 
-    def test_only_prereleases(self, monkeypatch, db_request):
-        project = ProjectFactory.create()
-
-        ReleaseFactory.create(project=project, version="1.0.dev0")
-        ReleaseFactory.create(project=project, version="2.0.dev0")
-
-        release = ReleaseFactory.create(project=project, version="3.0.dev0")
-
+    def test_only_prereleases(self, monkeypatch, db_request, project_only_pre):
         response = pretend.stub()
         json_release = pretend.call_recorder(lambda ctx, request: response)
         monkeypatch.setattr(json, "json_release", json_release)
 
-        resp = json.json_project(project, db_request)
+        resp = json.json_project(project_only_pre.project, db_request)
 
         assert resp is response
-        assert json_release.calls == [pretend.call(release, db_request)]
+        assert json_release.calls == [
+            pretend.call(project_only_pre.latest_pre, db_request)
+        ]
 
 
 class TestJSONProjectSlash:
