@@ -24,7 +24,7 @@
     <nav aria-label="{% trans %}Breadcrumb{% endtrans %}" class="breadcrumbs">
       <ul class="heading-wsubtitle__subtitle">
         <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">{% trans project_name=project.name %}All {{ project_name }} releases{% endtrans %}</a></li>
-        <li class="breadcrumbs__breadcrumb">{% trans version=release.version %}Release version {{ version }}{% endtrans %} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">{% trans %}view release{% endtrans %}</a></li>
+        <li class="breadcrumbs__breadcrumb">{% trans version=release.version %}Release version {{ version }}{% endtrans %} – <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version_or_draft) }}">{% trans %}view release{% endtrans %}</a></li>
       </ul>
     </nav>
   </div>
@@ -120,8 +120,33 @@
   </div>
 
   <h3>{% trans %}Release settings{% endtrans %}</h3>
+  {% if release.is_draft %}
+    <div class="callout-block callout-block">
+      <h3>{% trans %}Publish release{% endtrans %}</h3>
+      <p>
+      {% if files %}
+        {% trans count=files|length %}
+          Publishing will make this release (and {{ count }} file within it) available when installing or updating this project.
+        {% pluralize %}
+          Publishing will make this release (and {{ count }} files within it) available when installing or updating this project.
+        {% endtrans %}
+      {% else %}
+        {% trans %}
+          Publishing will make this release available when installing or updating this project.
+        {% endtrans %}
+      {% endif %}
+      </p>
 
-  {% if not release.yanked %}
+      {% set extra_description %}
+        <p>
+          {% trans project_name=project.name, version=release.version %}
+            After publishing this release, users will be able to use pip to install <code>{{ project_name }}=={{ version }}</code>.
+          {% endtrans %}
+        </p>
+      {% endset %}
+      {{ confirm_button(gettext("Publish release"), gettext("Version"), "publish_version", release.version, modifier="--primary", warning=False, extra_description=extra_description) }}
+    </div>
+  {% elif not release.yanked %}
     <div class="callout-block callout-block">
       <h3>{% trans %}Yank release{% endtrans %}</h3>
       <p>

@@ -16,6 +16,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
@@ -34,29 +35,17 @@ from warehouse.packaging.models import File, JournalEntry, Project, Release
         ),
     ],
 )
-def draft_index(request):
+def draft_index(draft_project_dict, request):
     # Get the latest serial number
     serial = request.db.query(func.max(JournalEntry.id)).scalar() or 0
     request.response.headers["X-PyPI-Last-Serial"] = str(serial)
 
-    draft_hash = request.matchdict.get("hash")
-
-    # Fetch the name and normalized name for all of our projects
-    projects = (
-        request.db.query(Project.name, Project.normalized_name)
-        .join(Release)
-        .filter(Release.draft_hash == draft_hash)
-        .filter(Release.published.is_(None))
-        .order_by(Project.normalized_name)
-        .all()
-    )
-
-    return {"projects": projects, "draft_hash": draft_hash}
+    return {"draft_project_dict": draft_project_dict}
 
 
 @view_config(
     route_name="legacy.api.draft.detail",
-    context=Project,
+    context=Release,
     renderer="legacy/api/simple/detail.html",
     decorator=[
         cache_control(10 * 60),  # 10 minutes
@@ -67,32 +56,16 @@ def draft_index(request):
         ),
     ],
 )
-def draft_detail(project, request):
+def draft_detail(release, request):
     # Make sure that we're using the normalized version of the URL.
-    if project.normalized_name != request.matchdict.get(
-        "name", project.normalized_name
+    if release.project.normalized_name != request.matchdict.get(
+        "name", release.project.normalized_name
     ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.normalized_name)
+            request.current_route_path(name=release.project.normalized_name)
         )
-
-    draft_hash = request.matchdict.get("hash")
 
     # Get the latest serial number for this project.
-    request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
+    request.response.headers["X-PyPI-Last-Serial"] = str(release.project.last_serial)
 
-    # Get all of the files for this project.
-    files = sorted(
-        request.db.query(File)
-        .options(joinedload(File.release))
-        .join(Release)
-        .filter(
-            Release.project == project,
-            Release.published.is_(None),
-            Release.draft_hash == draft_hash,
-        )
-        .all(),
-        key=lambda f: (parse(f.release.version), f.filename),
-    )
-
-    return {"project": project, "files": files}
+    return {"project": release.project, "files": release.files}

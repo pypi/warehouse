@@ -120,6 +120,24 @@ class RoleInvitation(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
+class DraftFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, draft_hash):
+        try:
+            release = (
+                self.request.db.query(Release)
+                .filter(Release.draft_hash == draft_hash, Release.published.is_(None))
+                .one()
+            )
+            return {
+                release.project.name: release,
+            }
+        except NoResultFound:
+            raise KeyError from None
+
+
 class ProjectFactory:
     def __init__(self, request):
         self.request = request

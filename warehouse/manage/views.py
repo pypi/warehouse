@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import base64
+from datetime import datetime, timezone
 import io
 
 import pyqrcode
@@ -1644,7 +1645,7 @@ class ManageProjectRelease:
             },
         )
 
-        self.release.published = self.request.db.query(func.current_timestamp()).one()
+        self.release.published = datetime.now(tz=timezone.utc)
 
         self.request.session.flash(
             f"Published release {self.release.version!r}", queue="success"

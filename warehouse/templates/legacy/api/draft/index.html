@@ -17,8 +17,8 @@
     <title>Simple index</title>
   </head>
   <body>
-    {% for project in projects -%}
-    <a href="{{ request.route_path('legacy.api.draft.detail', hash=draft_hash, name=project.normalized_name) }}">{{ project.name }}</a>
+    {% for project_name, release in draft_project_dict.items() -%}
+    <a href="{{ request.route_path('legacy.api.draft.detail', hash=release.draft_hash, name=project_name) }}">{{ project_name }}</a>
     {% endfor -%}
   </body>
 </html>
