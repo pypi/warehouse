@@ -10,14 +10,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
+
+@enum.unique
+class Role(enum.Enum):
+    ROOT: str = "root"
+    SNAPSHOT: str = "snapshot"
+    TARGETS: str = "targets"
+    TIMESTAMP: str = "timestamp"
+    BINS: str = "bins"
+    BIN_N: str = "bin-n"
+
+
+TOPLEVEL_ROLES = [
+    Role.ROOT.value,
+    Role.SNAPSHOT.value,
+    Role.TARGETS.value,
+    Role.TIMESTAMP.value,
+]
+
 HASH_ALGORITHM = "blake2b"
 
 TUF_REPO_LOCK = "tuf-repo"
-
-TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
-
-BINS_ROLE = "bins"
-
-BIN_N_ROLE = "bin-n"
 
 BIN_N_COUNT = 16384

@@ -12,15 +12,8 @@
 
 from celery.schedules import crontab
 
-from warehouse.tuf.constants import (
-    BIN_N_COUNT,
-    BIN_N_ROLE,
-    BINS_ROLE,
-    HASH_ALGORITHM,
-    TOPLEVEL_ROLES,
-)
 from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
-from warehouse.tuf.tasks import bump_role
+from warehouse.tuf.tasks import bump_bin_ns, bump_snapshot
 
 
 def includeme(config):

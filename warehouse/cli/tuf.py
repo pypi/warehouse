@@ -18,7 +18,7 @@ from tuf import repository_tool
 
 from warehouse.cli import warehouse
 from warehouse.config import Environment
-from warehouse.tuf import BIN_N_COUNT, BIN_N_ROLE, BINS_ROLE, TOPLEVEL_ROLES, utils
+from warehouse.tuf.constants import BIN_N_COUNT, TOPLEVEL_ROLES, Role, utils
 
 
 def _make_backsigned_fileinfo_from_file(file):
@@ -130,26 +130,26 @@ def build_targets(config):
     # doesn't store its uploads on the same logical host as the TUF repository.
     # The last parameter to `delegate` is a special sentinel for this.
     repository.targets.delegate(
-        BINS_ROLE, key_service.pubkeys_for_role(BINS_ROLE), ["*"]
+        Role.BINS.value, key_service.pubkeys_for_role(Role.BINS.value), ["*"]
     )
-    bins_role = repository.targets(BINS_ROLE)
-    _set_expiration_for_role(config, bins_role, BINS_ROLE)
+    bins_role = repository.targets(Role.BINS.value)
+    _set_expiration_for_role(config, bins_role, Role.BINS.value)
 
-    for privkey in key_service.privkeys_for_role(BINS_ROLE):
+    for privkey in key_service.privkeys_for_role(Role.BINS.value):
         bins_role.load_signing_key(privkey)
 
     bins_role.delegate_hashed_bins(
         [],
-        key_service.pubkeys_for_role(BIN_N_ROLE),
+        key_service.pubkeys_for_role(Role.BIN_N.value),
         BIN_N_COUNT,
     )
 
-    dirty_roles = ["snapshot", "targets", "timestamp", BINS_ROLE]
+    dirty_roles = ["snapshot", "targets", "timestamp", Role.BINS.value]
     for bin_n_role in bins_role.delegations:
-        _set_expiration_for_role(config, bin_n_role, BIN_N_ROLE)
+        _set_expiration_for_role(config, bin_n_role, Role.BIN_N.value)
         dirty_roles.append(bin_n_role.rolename)
 
-    for privkey in key_service.privkeys_for_role(BIN_N_ROLE):
+    for privkey in key_service.privkeys_for_role(Role.BIN_N.value):
         for bin_n_role in bins_role.delegations:
             bin_n_role.load_signing_key(privkey)
 
