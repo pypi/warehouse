@@ -189,6 +189,46 @@ class TestJSONLatest:
             "json_latest",
         )
 
+    def test_latest_with_pre(self, db_request, project_with_pre):
+        self.check_release(
+            db_request,
+            project_with_pre.project,
+            project_with_pre.latest_stable,
+            "json_latest",
+        )
+
+    def test_latest_only_pre(self, db_request, project_only_pre):
+        self.check_release(
+            db_request,
+            project_only_pre.project,
+            project_only_pre.latest_pre,
+            "json_latest",
+        )
+
+    def test_latest_unstable_no_pre(self, db_request, project_no_pre):
+        self.check_release(
+            db_request,
+            project_no_pre.project,
+            project_no_pre.latest_stable,
+            "json_latest_unstable",
+        )
+
+    def test_latest_unstable_with_pre(self, db_request, project_with_pre):
+        self.check_release(
+            db_request,
+            project_with_pre.project,
+            project_with_pre.latest_pre,
+            "json_latest_unstable",
+        )
+
+    def test_latest_unstable_only_pre(self, db_request, project_only_pre):
+        self.check_release(
+            db_request,
+            project_only_pre.project,
+            project_only_pre.latest_pre,
+            "json_latest_unstable",
+        )
+
 
 class TestJSONLatestSlash:
     pass
