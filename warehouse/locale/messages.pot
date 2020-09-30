@@ -850,8 +850,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:153
 #: warehouse/templates/manage/roles.html:165
-#: warehouse/templates/manage/token.html:134
-#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/manage/token.html:136
+#: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr ""
@@ -1800,7 +1800,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:167
 #: warehouse/templates/manage/account.html:530
-#: warehouse/templates/manage/token.html:149
+#: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr ""
 
@@ -1827,7 +1827,7 @@ msgid "View token options"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:196
-#: warehouse/templates/manage/token.html:55
+#: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr ""
 
@@ -1837,13 +1837,13 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:210
 #: warehouse/templates/manage/account.html:212
-#: warehouse/templates/manage/token.html:58
-#: warehouse/templates/manage/token.html:59
+#: warehouse/templates/manage/token.html:60
+#: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:217
-#: warehouse/templates/manage/token.html:64
+#: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to "
 "PyPI."
@@ -2310,7 +2310,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:737
-#: warehouse/templates/manage/token.html:167
+#: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr ""
 
@@ -3113,70 +3113,70 @@ msgstr ""
 msgid "Project Name"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:36
+#: warehouse/templates/manage/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
 msgstr ""
 
-#: warehouse/templates/manage/token.html:38
+#: warehouse/templates/manage/token.html:40
 msgid "Permissions:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:38
-#: warehouse/templates/manage/token.html:145
+#: warehouse/templates/manage/token.html:40
+#: warehouse/templates/manage/token.html:147
 msgid "Upload packages"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:40
 #: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 msgid "Scope:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:40
-#: warehouse/templates/manage/token.html:156
+#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:158
 msgid "Entire account (all projects)"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 #, python-format
 msgid "Project \"%(project)s\""
 msgstr ""
 
-#: warehouse/templates/manage/token.html:49
+#: warehouse/templates/manage/token.html:51
 msgid ""
 "For security reasons this token will only appear once. <strong>Copy it "
 "now.</strong>"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:51
+#: warehouse/templates/manage/token.html:53
 msgid "Copy token to clipboard"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:52
+#: warehouse/templates/manage/token.html:54
 msgid "Copy token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:70
+#: warehouse/templates/manage/token.html:72
 msgid "Using this token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:72
+#: warehouse/templates/manage/token.html:74
 msgid "To use this API token:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:75
+#: warehouse/templates/manage/token.html:77
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:76
+#: warehouse/templates/manage/token.html:78
 #, python-format
 msgid ""
 "Set your password to the token value, including the "
 "<code>%(prefix)s</code> prefix"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:82
+#: warehouse/templates/manage/token.html:84
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload "
@@ -3184,7 +3184,7 @@ msgid ""
 "this:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:92
+#: warehouse/templates/manage/token.html:94
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload "
@@ -3192,61 +3192,61 @@ msgid ""
 "file like this:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:104
+#: warehouse/templates/manage/token.html:106
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as "
 "the default"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:109
+#: warehouse/templates/manage/token.html:111
 msgid "a project token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:111
+#: warehouse/templates/manage/token.html:113
 #, python-format
 msgid ""
 "You can then use <code>%(command)s</code> to switch to the correct token "
 "when uploading to PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:117
+#: warehouse/templates/manage/token.html:119
 #, python-format
 msgid ""
 "For further instructions on how to use this token, <a "
 "href=\"%(href)s\">visit the PyPI help page</a>."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:125
+#: warehouse/templates/manage/token.html:127
 msgid "Add another token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:132
+#: warehouse/templates/manage/token.html:134
 msgid "Token name"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:141
+#: warehouse/templates/manage/token.html:143
 msgid "What is this token for?"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:144
+#: warehouse/templates/manage/token.html:146
 msgid "Permissions"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:155
+#: warehouse/templates/manage/token.html:157
 msgid "Select scope..."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:159
+#: warehouse/templates/manage/token.html:161
 msgid "Project:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:168
+#: warehouse/templates/manage/token.html:170
 msgid ""
 "An API token scoped to your entire account will have upload permissions "
 "for all of your current and future projects."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:171
+#: warehouse/templates/manage/token.html:173
 msgid "Add token"
 msgstr ""
 

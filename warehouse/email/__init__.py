@@ -14,8 +14,6 @@ import functools
 
 from email.headerregistry import Address
 
-import attr
-
 from celery.schedules import crontab
 from first import first
 
@@ -69,7 +67,11 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
 
     request.task(send_email).delay(
         _compute_recipient(user, email.email),
-        attr.asdict(msg),
+        {
+            "subject": msg.subject,
+            "body_text": msg.body_text,
+            "body_html": msg.body_html,
+        },
         {
             "tag": "account:email:sent",
             "user_id": user.id,
