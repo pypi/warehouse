@@ -267,14 +267,14 @@ class TestJSONLatest:
 
 class TestJSONLatestSlash:
     @pytest.mark.parametrize(
-        ("route", "endpoint"),
+        ("endpoint", "route"),
         [
-            ("legacy.api.json.latest", "json_latest_slash"),
-            ("legacy.api.json.latest_stable", "json_latest_stable_slash"),
-            ("legacy.api.json.latest_unstable", "json_latest_unstable_slash"),
+            ("json_latest_slash", "legacy.api.json.latest"),
+            ("json_latest_stable_slash", "legacy.api.json.latest_stable"),
+            ("json_latest_unstable_slash", "legacy.api.json.latest_unstable"),
         ],
     )
-    def test_normalizing_redirects(self, db_request, route, endpoint):
+    def test_normalizing_redirects(self, db_request, endpoint, route):
         project = ProjectFactory.create()
 
         db_request.route_path = pretend.call_recorder(
