@@ -228,7 +228,7 @@ class TestJSONLatest:
 
         resp = json.json_latest_stable(project_only_pre.project, db_request)
 
-        assert isinstance(HTTPNotFound, resp)
+        assert isinstance(resp, HTTPNotFound)
 
     def test_latest_unstable_no_pre(self, db_request, project_no_pre):
         self.check_release(
@@ -254,9 +254,38 @@ class TestJSONLatest:
             "json_latest_unstable",
         )
 
+    @pytest.mark.parametrize(
+        "endpoint",
+        ["json_latest", "json_latest_stable", "json_latest_unstable"],
+    )
+    def test_missing_release(self, db_request, endpoint):
+        project = ProjectFactory.create()
+        resp = getattr(json, endpoint)(project, db_request)
+        assert isinstance(resp, HTTPNotFound)
+        _assert_has_cors_headers(resp.headers)
+
 
 class TestJSONLatestSlash:
-    pass
+    @pytest.mark.parametrize(
+        ("route", "endpoint"),
+        [
+            ("legacy.api.json.latest", "json_latest_slash"),
+            ("legacy.api.json.latest_stable", "json_latest_stable_slash"),
+            ("legacy.api.json.latest_unstable", "json_latest_unstable_slash"),
+        ],
+    )
+    def test_normalizing_redirects(self, db_request, route, endpoint):
+        project = ProjectFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
+
+        resp = getattr(json, endpoint)(project, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [pretend.call(route, name=project.name)]
+        assert resp.headers["Location"] == "/project/the-redirect"
 
 
 class TestJSONRelease:
