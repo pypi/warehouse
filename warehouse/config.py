@@ -433,6 +433,7 @@ def configure(settings=None):
     config.include(".tuf")
 
     # Serve the TUF metadata files.
+    # TODO: This should be routed to the TUF GCS bucket.
     config.add_static_view("tuf", "warehouse:tuf/dist/metadata.staged/")
 
     # Configure redirection support

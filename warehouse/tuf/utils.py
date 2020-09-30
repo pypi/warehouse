@@ -21,6 +21,7 @@ import tuf.repository_lib
 from google.cloud.exceptions import GoogleCloudError, NotFound
 from securesystemslib.exceptions import StorageError
 from securesystemslib.storage import FilesystemBackend, StorageBackendInterface
+from tuf.api import metadata
 
 from warehouse.tuf.constants import BIN_N_COUNT
 
@@ -39,27 +40,42 @@ def make_fileinfo(file, custom=None):
     return fileinfo
 
 
-def find_snapshot(timestamp):
+def bump_metadata(metadata, delta):
     """
-    Given a tuf.api.metadata.Timestamp model, return a tuple of
-    the version and filepath for the consistent snapshot that it references.
+    Given a tuf.api.metadata.Signed, bump its version and expiration (with the given
+    timedelta).
+    """
+    metadata.bump_version()
+    metadata.bump_expiration(delta=delta)
+
+
+def find_snapshot(timestamp, storage_backend):
+    """
+    Given a tuf.api.metadata.Timestamp model, return the Snapshot model
+    for the consistent snapshot that it references.
     """
     snapshot_version = timestamp.meta["snapshot.json"]["version"]
 
-    return snapshot_version, f"{snapshot_version}.snapshot.json"
+    return metadata.Snapshot.from_json_file(
+        f"{snapshot_version}.snapshot.json", storage_backend
+    )
 
 
-def find_delegated_bin(filepath, snapshot):
+def find_delegated_bin(filepath, snapshot, storage_backend):
     """
     Given a new target filepath and a tuf.api.metadata.Snapshot model,
-    return a tuple of the version, bin name, and filepath for the consistent
+    return a tuple of the bin name and tup.api.metadata.Targets for the consistent
     delegated targets bin that the target belongs in.
     """
+
+    # TODO: This probably isn't using the right hash function.
     filepath_hash = tuf.repository_lib.get_target_hash(filepath)
-    bin_name = tuf.repository_lib.find_bin_for_target_hash(filepath_hash, BIN_N_COUNT)
+    bin_name = tuf.repository_lib(filepath_hash, BIN_N_COUNT)
     bin_version = snapshot.meta[f"{bin_name}.json"]["version"]
 
-    return bin_version, bin_name, f"{bin_version}.{bin_name}.json"
+    return bin_name, metadata.Targets.from_json_file(
+        f"{bin_version}.{bin_name}.json", storage_backend
+    )
 
 
 class LocalBackend(StorageBackendInterface):

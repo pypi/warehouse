@@ -12,6 +12,8 @@
 
 HASH_ALGORITHM = "blake2b"
 
+TUF_REPO_LOCK = "tuf-repo"
+
 TOPLEVEL_ROLES = ["root", "snapshot", "targets", "timestamp"]
 
 BINS_ROLE = "bins"

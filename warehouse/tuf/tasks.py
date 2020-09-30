@@ -19,8 +19,8 @@ from tuf.api import metadata
 
 from warehouse.tasks import task
 from warehouse.tuf import utils
-from warehouse.tuf.constants import HASH_ALGORITHM
-from warehouse.tuf.interfaces import IKeyService, IRepositoryService, IStorageService
+from warehouse.tuf.constants import HASH_ALGORITHM, TUF_REPO_LOCK
+from warehouse.tuf.interfaces import IKeyService, IStorageService
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
@@ -33,7 +33,7 @@ def bump_snapshot(task, request):
     """
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
-    with r.lock("tuf-repo"):
+    with r.lock(TUF_REPO_LOCK):
         # Bumping the snapshot role involves the following steps:
         # 1. First, we grab our key and storage services. We'll use the former
         #    for signing operations, and the latter to read and write individual
@@ -45,18 +45,18 @@ def bump_snapshot(task, request):
         # 3. Using the snapshot version stored in the current `Timestamp`, we fetch
         #    `{VERSION}.snapshot.json` and load it using the `Snapshot` model
         #    provided by the TUF API.
-        # 4. We call `Snapshot.bump_version()` and `Snapshot.sign()` to bump
+        # 4. We call `utils.bump_metadata()` and `Snapshot.sign()` to bump
         #    and re-sign the current snapshot.
         # 5. We call `Snapshot.to_json_file()` with `{VERSION + 1}.snapshot.json`,
         #    where `{VERSION + 1}` is the incremented snapshot version.
         # 6. We call `Timestamp.update()` on the loaded timestamp, giving it the
         #    incremented snapshot version as well as the serialized length and
         #    BLAKE2B hash of the serialized form.
-        # 7. We call `Timestamp.bump_version()` and `Timestamp.sign()` to bump
+        # 7. We call `utils.bump_metadata()` and `Timestamp.sign()` to bump
         #    and re-sign the current timestamp.
         # 8. We call `Timestamp.to_json_file()`, writing to `timestamp.json`.
         #
-        # Each of the steps is labeled below for clarity.0
+        # Each of the steps is labeled below for clarity.
 
         # 1. Service retrieval.
         storage_service = request.find_service(IStorageService)
@@ -68,25 +68,23 @@ def bump_snapshot(task, request):
         timestamp = metadata.Timestamp.from_json_file("timestamp.json", storage_backend)
 
         # 3. Snapshot retrieval and loading.
-        snapshot_version, snapshot_filename = utils.find_snapshot(timestamp)
-        snapshot = metadata.Snapshot.from_json_file(snapshot_filename, storage_backend)
+        snapshot = utils.find_snapshot(timestamp, storage_backend)
 
         # 4. Snapshot bumping and versioning.
-        snapshot_version += 1
-        snapshot.bump_version()
-        snapshot.bump_expiration(
-            delta=timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"])
+        utils.bump_metadata(
+            snapshot,
+            timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"]),
         )
         for key in key_service.privkeys_for_role("snapshot"):
             snapshot.sign(key)
 
         # 5. Writing the updated snapshot back to the repository.
-        snapshot_filename = f"{snapshot_version}.snapshot.json"
+        snapshot_filename = f"{snapshot.version}.snapshot.json"
         snapshot.to_json_file(snapshot_filename, storage_backend)
 
         # 6. Timestamp updating.
         timestamp.update(
-            snapshot_version,
+            snapshot.version,
             len(snapshot.to_json().encode()),
             get_file_hashes(
                 snapshot_filename,
@@ -96,9 +94,9 @@ def bump_snapshot(task, request):
         )
 
         # 7. Timestamp bumping.
-        timestamp.bump_version()
-        timestamp.bump_expiration(
-            delta=timedelta(seconds=request.registry.settings["tuf.timestamp.expiry"])
+        utils.bump_metadata(
+            timestamp,
+            timedelta(seconds=request.registry.settings["tuf.timestamp.expiry"]),
         )
 
         # 8. Writing the updated timestamp back to the repository.
@@ -109,15 +107,89 @@ def bump_snapshot(task, request):
 def bump_bin_ns(task, request):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
-    with r.lock("tuf-repo"):
-        pass
+    with r.lock(TUF_REPO_LOCK):
+        # Bumping all of the delegated bin roles in the TUF repository involves
+        # the following steps:
+        # 1. Grab key and storage services.
+        # 2. Fetch timestamp.
+        # 3. Fetch snapshot using timestamp.
+        # 4. For each delegated target in the snapshot, fetch its current version,
+        #    bump, re-sign, and write back to the repo. Update the snapshot to
+        #    match the bumped version.
+        # 5. Bump and re-sign the snapshot.
+        # 6. Write the snapshot back.
+        # 7. Bump and re-sign the timestamp.
+        # 8. Write the timestamp back.
+
+
+        # 1. Service retrieval.
+        storage_service = request.find_service(IStorageService)
+        key_service = request.find_service(IKeyService)
+
+        storage_backend = storage_service.get_backend()
+
+        # 2. Timestamp retrieval and loading.
+        timestamp = metadata.Timestamp.from_json_file("timestamp.json", storage_backend)
+
+        # 3. Snapshot retrieval and loading.
+        snapshot = utils.find_snapshot(timestamp, storage_backend)
+
+        # Target iteration: skip the top-level targets role.
+        for role_name, role_info in snapshot.meta.items():
+            if role_name == "targets.json":
+                continue
+
+            role_version = role_info["version"]
+            delegated_bin_filename = f"{role_version}.{role_name}"
+
+            # Load the delegated bin.
+            delegated_bin = metadata.Targets.from_json_file(
+                delegated_bin_filename, storage_backend
+            )
+
+            # Bump and sign the delegated bin.
+            utils.bump_metadata(
+                delegated_bin,
+                timedelta(seconds=request.registry.settings["tuf.bin-n.expiry"]),
+            )
+
+            for key in key_service.privkeys_for_role("bin-n"):
+                delegated_bin.sign(key)
+
+            # Write-back.
+            delegated_bin.to_json_file(
+                delegated_bin_filename,
+                storage_backend
+            )
+
+            # Update the snapshot with this updated target's version.
+            # TODO: Ideally we'd use snapshot.update here, but that takes
+            # the role name without .json on the end. But role_name here
+            # has that suffix. Annoying.
+            snapshot.meta[role_name]["version"] = delegated_bin.version
+
+        # Bump and sign the snapshot.
+        utils.bump_metadata(
+            snapshot,
+            timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"]),
+        )
+
+        for key in key_service.privkeys_for_role("snapshot"):
+            snapshot.sign(key)
+
+        # Write-back.
+        snapshot_filename = f"{snapshot.version}.snapshot.json"
+        snapshot.to_json_file(
+            snapshot_filename,
+            storage_backend
+        )
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
 def add_target(task, request, filepath, fileinfo):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
 
-    with r.lock("tuf-repo"):
+    with r.lock(TUF_REPO_LOCK):
         # Adding a target to the TUF repository involves the following steps:
         # 1.  First, we grab our key and storage services. We'll use the former
         #     for signing operations, and the latter to read and write individual
@@ -132,29 +204,27 @@ def add_target(task, request, filepath, fileinfo):
         # 4.  Using the target's name (`filepath`), we determine the name of the
         #     delegated bin that it'll end up in. We use that delegated bin name to
         #     index into the `Snapshot` model and get the current version for that bin.
-        # 5.  Using the delegated bin name and version determined in #4, we fetch
-        #     `{VERSION}.{BIN}.json` and load it using the `Targets` model provided
-        #     by the TUF API.
-        # 6.  We call `Targets.update()` on the loaded bin, passing it the
-        #     `filename` and `fileinfo` for the target that we're adding.
-        # 7.  We call `Targets.sign()` on the loaded bin, giving it the bin-n
+        #     Then, we fetch `{VERSION}.{BIN}.json` and load it using the `Targets`
+        #     model provided by the TUF API.
+        # 5.  We update the delegated bin, bumping its version, expiration, and
+        #     adding our new target to it.
+        # 6.  We call `Targets.sign()` on the loaded bin, giving it the bin-n
         #     signing key from our key service.
-        # 8.  We call `Targets.to_json_file()` with `{VERSION + 1}.{BIN}.json`
+        # 7.  We call `Targets.to_json_file()` with `{VERSION + 1}.{BIN}.json`
         #     as the filepath, where `{VERSION + 1}` is the incremented version
         #     of the previous delegated bin version.
-        # 9.  We call `Snapshot.update()` on the loaded snapshot, passing it
-        #     the name of the delegated bin and its new version (`{VERSION + 1}`).
-        # 10. We call `Snapshot.sign()` on the loaded snapshot, giving it the
+        # 8.  We update the snapshot, bumping its version, expiration, and giving
+        #     it our new delegated bin version.
+        # 9.  We call `Snapshot.sign()` on the loaded snapshot, giving it the
         #     snapshot signing key from our key service.
-        # 11. We call `Snapshot.to_json_file()` with `{VERSION + 1}.snapshot.json`,
+        # 10. We call `Snapshot.to_json_file()` with `{VERSION + 1}.snapshot.json`,
         #     where `{VERSION + 1}` is the incremented version of the previous
         #     snapshot version.
-        # 12. We call `Timestamp.update()` on the loaded timestamp, passing it
-        #     the new snapshot version (`{VERSION + 1}`) as well as the serialized
-        #     length and BLAKE2B hash of the serialized form.
-        # 13. We call `Timestamp.sign()` on the loaded timestamp, giving it the
+        # 11. We update the timestamp, bumping its version, expiration, and giving
+        #     it our new snapshot version and integrity information.
+        # 12. We call `Timestamp.sign()` on the loaded timestamp, giving it the
         #     timestamp signing key from our key service.
-        # 14. We call `Timestamp.to_json_file()`, writing to `timestamp.json`.
+        # 13. We call `Timestamp.to_json_file()`, writing to `timestamp.json`.
         #
         # Each of the steps is labeled below for clarity.
 
@@ -168,60 +238,59 @@ def add_target(task, request, filepath, fileinfo):
         timestamp = metadata.Timestamp.from_json_file("timestamp.json", storage_backend)
 
         # 3. Snapshot retrieval and loading.
-        snapshot_version, snapshot_filename = utils.find_snapshot(timestamp)
-        snapshot = metadata.Snapshot.from_json_file(snapshot_filename, storage_backend)
+        snapshot = utils.find_snapshot(timestamp, storage_backend)
 
-        # 4. Delegated bin determination.
-        (
-            delegated_bin_version,
-            delegated_bin_name,
-            delegated_bin_filename,
-        ) = utils.find_delegated_bin(filepath, snapshot)
-
-        # 5. Delegated bin retrieval and loading.
-        delegated_bin = metadata.Targets.from_json_file(
-            delegated_bin_filename, storage_backend
+        # 4. Delegated bin retrieval and loading.
+        delegated_bin_name, delegated_bin = utils.find_delegated_bin(
+            filepath, snapshot, storage_backend
         )
 
-        # 6. Adding the target to the delegated bin.
-        # XXX(ww): This doesn't bump the metadata envelope's version or expiration.
+        # 5. Updating the delegated bin.
+        utils.bump_metadata(
+            delegated_bin,
+            timedelta(seconds=request.registry.settings["tuf.bin-n.expiry"]),
+        )
         delegated_bin.update(filepath, fileinfo)
 
-        # 7. Signing the updated delegated bin metadata.
+        # 6. Signing the updated delegated bin metadata.
         for key in key_service.privkeys_for_role("bin-n"):
             delegated_bin.sign(key)
 
-        # 8. Writing the updated delegated bin back to the TUF repository.
-        delegated_bin_version += 1
+        # 7. Writing the updated delegated bin back to the TUF repository.
         delegated_bin.to_json_file(
-            f"{delegated_bin_version}.{delegated_bin_name}.json", storage_backend
+            f"{delegated_bin.version}.{delegated_bin_name}.json", storage_backend
         )
 
-        # 9. Updating the snapshot to reference our new delegated bin version.
+        # 8. Updating the snapshot.
         # TODO(ww): Fill in length and hashes?
-        # XXX(ww): This doesn't bump the metadata envelope's version or expiration.
-        snapshot.update(f"{delegated_bin_name}.json", delegated_bin_version)
+        utils.bump_metadata(
+            snapshot,
+            timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"]),
+        )
+        snapshot.update(f"{delegated_bin_name}.json", delegated_bin.version)
 
-        # 10. Signing the updated snapshot metadata.
+        # 9. Signing the updated snapshot metadata.
         for key in key_service.privkeys_for_role("snapshot"):
             snapshot.sign(key)
 
-        # 11. Writing the updated snapshot back to the TUF repository.
-        snapshot_version += 1
-        snapshot_filename = f"{snapshot_version}.snapshot.json"
+        # 10. Writing the updated snapshot back to the TUF repository.
+        snapshot_filename = f"{snapshot.version}.snapshot.json"
         snapshot.to_json_file(
             snapshot_filename,
             storage_backend,
         )
 
-        # 12. Updating the timestamp to reference our new snapshot version.
+        # 11. Updating the timestamp.
         # NOTE(ww): Calling get_file_hashes here causes us to round-trip
         # through the object store just to compute our snapshot's hash.
         # Maybe add a function to securesystemslib that does the digest
         # calculation on a string/bytes.
-        # XXX(ww): This doesn't bump the metadata envelope's version or expiration.
+        utils.bump_metadata(
+            timestamp,
+            timedelta(seconds=request.registry.settings["tuf.timestamp.expiry"]),
+        )
         timestamp.update(
-            snapshot_version,
+            snapshot.version,
             len(snapshot.to_json().encode()),
             get_file_hashes(
                 snapshot_filename,
@@ -230,9 +299,9 @@ def add_target(task, request, filepath, fileinfo):
             ),
         )
 
-        # 13. Signing the updated timestamp metadata.
+        # 12. Signing the updated timestamp metadata.
         for key in key_service.privkeys_for_role("timestamp"):
-            snapshot.sign(key)
+            timestamp.sign(key)
 
-        # 14. Writing the updated timestamp back to the TUF repository.
+        # 13. Writing the updated timestamp back to the TUF repository.
         timestamp.to_json_file("timestamp.json", storage_backend)
