@@ -15,7 +15,11 @@ from collections import OrderedDict, namedtuple
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound, HTTPTemporaryRedirect
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPTemporaryRedirect,
+)
 
 from warehouse.legacy.api import json
 from warehouse.packaging.models import Dependency, DependencyKind
@@ -162,22 +166,33 @@ class TestJSONProjectSlash:
 
 
 class TestJSONLatest:
-    def test_latest_no_pre(self, db_request, project_no_pre):
-        project = project_no_pre.project
-        release = project_no_pre.latest_stable
+    def check_release(self, db_request, project, release, endpoint):
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/project/the-redirect"
+        )
 
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/project/the-redirect")
-
-        resp = json.json_latest(project, db_request)
+        resp = getattr(json, endpoint)(project, db_request)
 
         assert isinstance(resp, HTTPTemporaryRedirect)
-        assert db_request.route_path.calls == [ pretend.call("legacy.api.json.release",
-                 name=project.name, version=release.version)]
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "legacy.api.json.release", name=project.name, version=release.version
+            )
+        ]
         assert resp.headers["Location"] == "/project/the-redirect"
+
+    def test_latest_no_pre(self, db_request, project_no_pre):
+        self.check_release(
+            db_request,
+            project_no_pre.project,
+            project_no_pre.latest_stable,
+            "json_latest",
+        )
 
 
 class TestJSONLatestSlash:
     pass
+
 
 class TestJSONRelease:
     def test_normalizing_redirects(self, db_request):

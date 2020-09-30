@@ -321,7 +321,7 @@ def json_latest_unstable(project, request):
             .filter(
                 Release.project == project,
                 Release.yanked.is_(False),
-                Release.is_prerelease != None,
+                Release.is_prerelease is not None,
             )
             .order_by(Release._pypi_ordering.desc())
             .limit(1)
