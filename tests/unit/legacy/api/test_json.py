@@ -15,7 +15,7 @@ from collections import OrderedDict, namedtuple
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound, HTTPTemporaryRedirect
 
 from warehouse.legacy.api import json
 from warehouse.packaging.models import Dependency, DependencyKind
@@ -160,6 +160,24 @@ class TestJSONProjectSlash:
         ]
         assert resp.headers["Location"] == "/project/the-redirect"
 
+
+class TestJSONLatest:
+    def test_latest_no_pre(self, db_request, project_no_pre):
+        project = project_no_pre.project
+        release = project_no_pre.latest_stable
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/project/the-redirect")
+
+        resp = json.json_latest(project, db_request)
+
+        assert isinstance(resp, HTTPTemporaryRedirect)
+        assert db_request.route_path.calls == [ pretend.call("legacy.api.json.release",
+                 name=project.name, version=release.version)]
+        assert resp.headers["Location"] == "/project/the-redirect"
+
+
+class TestJSONLatestSlash:
+    pass
 
 class TestJSONRelease:
     def test_normalizing_redirects(self, db_request):
