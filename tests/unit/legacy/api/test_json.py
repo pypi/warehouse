@@ -53,9 +53,9 @@ def project_with_pre():
 
     ReleaseFactory.create(project=project, version="1.0")
     ReleaseFactory.create(project=project, version="2.0")
-    latest_pre = ReleaseFactory.create(project=project, version="4.0.dev0")
 
     latest_stable = ReleaseFactory.create(project=project, version="3.0")
+    latest_pre = ReleaseFactory.create(project=project, version="4.0.dev0")
 
     return ProjectData(
         project=project, latest_stable=latest_stable, latest_pre=latest_pre
