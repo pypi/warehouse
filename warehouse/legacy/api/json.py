@@ -225,15 +225,9 @@ def json_release_slash(release, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest(project, request):
-    try:
-        release = (
-            request.db.query(Release)
-            .filter(Release.project == project, Release.yanked.is_(False))
-            .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
-            .limit(1)
-            .one()
-        )
-    except NoResultFound:
+    release = project.latest_version
+
+    if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
     return HTTPTemporaryRedirect(
@@ -268,19 +262,9 @@ def json_latest_slash(project, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest_stable(project, request):
-    try:
-        release = (
-            request.db.query(Release)
-            .filter(
-                Release.project == project,
-                Release.yanked.is_(False),
-                Release.is_prerelease.is_(False),
-            )
-            .order_by(Release._pypi_ordering.desc())
-            .limit(1)
-            .one()
-        )
-    except NoResultFound:
+    release = project.latest_stable_version
+
+    if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
     return HTTPTemporaryRedirect(
@@ -315,19 +299,9 @@ def json_latest_stable_slash(project, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest_unstable(project, request):
-    try:
-        release = (
-            request.db.query(Release)
-            .filter(
-                Release.project == project,
-                Release.yanked.is_(False),
-                Release.is_prerelease is not None,
-            )
-            .order_by(Release._pypi_ordering.desc())
-            .limit(1)
-            .one()
-        )
-    except NoResultFound:
+    release = project.latest_unstable_version
+
+    if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
     return HTTPTemporaryRedirect(

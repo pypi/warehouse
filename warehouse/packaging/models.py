@@ -258,11 +258,44 @@ class Project(SitemapMixin, db.Model):
 
     @property
     def latest_version(self):
+        # Supply the latest stable version, if any stable releases exist.
+        # If only pre-releases exist, supply the latest pre-release version.
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
+            .first()
+        )
+
+    @property
+    def latest_stable_version(self):
+        # Supply the latest stable version. If no stable versions are
+        # available, return None.
+        return (
+            orm.object_session(self)
+            .query(Release.version, Release.created, Release.is_prerelease)
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.is_prerelease.is_(False),
+            )
+            .order_by(Release._pypi_ordering.desc())
+            .first()
+        )
+
+    @property
+    def latest_unstable_version(self):
+        # Supply the latest available version, regardless of pre-release status.
+        return (
+            orm.object_session(self)
+            .query(Release.version, Release.created, Release.is_prerelease)
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.is_prerelease is not None,
+            )
+            .order_by(Release._pypi_ordering.desc())
             .first()
         )
 
