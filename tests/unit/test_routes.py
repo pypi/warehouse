@@ -308,6 +308,27 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "packaging.project_latest",
+            "/project/{name}/latest/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "packaging.project_latest_stable",
+            "/project/{name}/latest-stable/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "packaging.project_latest_unstable",
+            "/project/{name}/latest-unstable/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",
