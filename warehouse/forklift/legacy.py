@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timezone
 import email
 import hashlib
 import hmac
@@ -21,6 +20,7 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage, parse_header
+from datetime import datetime, timezone
 from itertools import chain
 
 import packaging.requirements
@@ -1130,7 +1130,7 @@ def file_upload(request):
     }
 
     # Determine if this is a draft release or a published one
-    release_is_draft = bool(request.headers.get("Is-Draft", default=False))
+    release_is_draft = bool(request.headers.get("Is-Draft", False))
 
     try:
         release = (

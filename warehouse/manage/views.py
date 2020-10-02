@@ -11,8 +11,9 @@
 # limitations under the License.
 
 import base64
-from datetime import datetime, timezone
 import io
+
+from datetime import datetime, timezone
 
 import pyqrcode
 
@@ -1621,10 +1622,6 @@ class ManageProjectRelease:
                     version=self.release.version_or_draft,
                 )
             )
-
-        submitter_role = get_user_role_in_project(
-            self.release.project, self.request.user, self.request
-        )
 
         self.request.db.add(
             JournalEntry(

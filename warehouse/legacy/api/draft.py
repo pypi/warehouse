@@ -11,16 +11,13 @@
 # limitations under the License.
 
 
-from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
-from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, JournalEntry, Project, Release
+from warehouse.packaging.models import JournalEntry, Release
 
 
 @view_config(
@@ -68,4 +65,4 @@ def draft_detail(release, request):
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(release.project.last_serial)
 
-    return {"project": release.project, "files": release.files}
+    return {"project": release.project, "files": release.files.all()}

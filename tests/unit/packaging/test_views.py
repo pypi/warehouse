@@ -128,7 +128,7 @@ class TestProjectDetail:
     def test_only_draft_release(self, monkeypatch, db_request):
         project = ProjectFactory.create()
 
-        release = ReleaseFactory.create(project=project, version="1.0", published=None)
+        ReleaseFactory.create(project=project, version="1.0", published=None)
 
         with pytest.raises(HTTPNotFound):
             views.project_detail(project, db_request)

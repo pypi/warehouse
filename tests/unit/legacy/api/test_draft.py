@@ -42,26 +42,13 @@ class TestDraftIndex:
         user = UserFactory.create()
         je = JournalEntryFactory.create(submitted_by=user)
 
-        assert draft.draft_index(draft_project_dict, db_request) == draft_project_dict
+        assert draft.draft_index(draft_project_dict, db_request) == {
+            "draft_project_dict": draft_project_dict
+        }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
 
 class TestDraftDetail:
-    def test_redirects(self, pyramid_request):
-        project = pretend.stub(normalized_name="foo")
-        release = ReleaseFactory.create(project=project, version="1.0", published=None)
-
-        pyramid_request.matchdict["name"] = "Foo"
-        pyramid_request.current_route_path = pretend.call_recorder(
-            lambda name: "/foobar/"
-        )
-
-        resp = draft.draft_detail(release, pyramid_request)
-
-        assert isinstance(resp, HTTPMovedPermanently)
-        assert resp.headers["Location"] == "/foobar/"
-        assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
-
     def test_no_files_no_serial(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0", published=None)
@@ -91,12 +78,12 @@ class TestDraftDetail:
     def test_with_files_no_serial(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0", published=None)
-        files = FileFactory.create(
-            release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
-        )
-        # let's assert the result is ordered by string comparison of filename
-        files = sorted(files, key=lambda key: key.filename)
+        files = [
+            FileFactory.create(
+                release=release,
+                filename="{}-{}.tar.gz".format(project.name, release.version),
+            )
+        ]
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
@@ -110,17 +97,17 @@ class TestDraftDetail:
     def test_with_files_with_serial(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0", published=None)
-        files = FileFactory.create(
-            release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
-        )
-        # let's assert the result is ordered by string comparison of filename
-        files = sorted(files, key=lambda key: key.filename)
+        files = [
+            FileFactory.create(
+                release=release,
+                filename="{}-{}.tar.gz".format(project.name, release.version),
+            )
+        ]
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        assert draft.draft_detail(project, db_request) == {
+        assert draft.draft_detail(release, db_request) == {
             "project": project,
             "files": files,
         }
@@ -166,9 +153,10 @@ class TestDraftDetail:
             for r in releases
         ]
 
-        files = []
-        for files_release in zip(egg_files, tar_files, wheel_files):
-            files += files_release
+        files = [
+            list(files_release)
+            for files_release in zip(egg_files, tar_files, wheel_files)
+        ]
 
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
@@ -177,7 +165,7 @@ class TestDraftDetail:
         for release, files_release in zip(releases, files):
             assert draft.draft_detail(release, db_request) == {
                 "project": project,
-                "files": files,
+                "files": files_release,
             }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
