@@ -76,13 +76,18 @@ def project_latest(project, request):
     context=Project,
 )
 def project_latest_stable(project, request):
-    return HTTPTemporaryRedirect(
-        request.route_path(
-            "packaging.release",
-            name=project.name,
-            version=project.latest_stable_version.version,
+    release = project.latest_stable_version
+
+    if release:
+        return HTTPTemporaryRedirect(
+            request.route_path(
+                "packaging.release",
+                name=project.name,
+                version=project.latest_stable_version.version,
+            )
         )
-    )
+    else:
+        return HTTPNotFound()
 
 
 @view_config(
