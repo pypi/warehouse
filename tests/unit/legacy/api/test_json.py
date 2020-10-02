@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 
 import pretend
 import pytest
@@ -32,46 +32,6 @@ from ....common.db.packaging import (
     ProjectFactory,
     ReleaseFactory,
 )
-
-ProjectData = namedtuple("ProjectData", ["project", "latest_stable", "latest_pre"])
-
-
-@pytest.fixture(scope="function")
-def project_no_pre():
-    project = ProjectFactory.create()
-
-    ReleaseFactory.create(project=project, version="1.0")
-    ReleaseFactory.create(project=project, version="2.0")
-    latest_stable = ReleaseFactory.create(project=project, version="3.0")
-
-    return ProjectData(project=project, latest_stable=latest_stable, latest_pre=None)
-
-
-@pytest.fixture(scope="function")
-def project_with_pre():
-    project = ProjectFactory.create()
-
-    ReleaseFactory.create(project=project, version="1.0")
-    ReleaseFactory.create(project=project, version="2.0")
-
-    latest_stable = ReleaseFactory.create(project=project, version="3.0")
-    latest_pre = ReleaseFactory.create(project=project, version="4.0.dev0")
-
-    return ProjectData(
-        project=project, latest_stable=latest_stable, latest_pre=latest_pre
-    )
-
-
-@pytest.fixture(scope="function")
-def project_only_pre():
-    project = ProjectFactory.create()
-
-    ReleaseFactory.create(project=project, version="1.0.dev0")
-    ReleaseFactory.create(project=project, version="2.0.dev0")
-
-    latest_pre = ReleaseFactory.create(project=project, version="3.0.dev0")
-
-    return ProjectData(project=project, latest_stable=None, latest_pre=latest_pre)
 
 
 def _assert_has_cors_headers(headers):
