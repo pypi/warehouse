@@ -2027,7 +2027,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:68
+#: warehouse/templates/manage/releases.html:74
 msgid "Options"
 msgstr ""
 
@@ -2625,57 +2625,66 @@ msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgstr ""
 
 #: warehouse/templates/manage/history.html:36
-#: warehouse/templates/manage/history.html:52
+#: warehouse/templates/manage/history.html:57
 msgid "Added by:"
 msgstr ""
 
 #: warehouse/templates/manage/history.html:39
 #, python-format
-msgid "Release version %(version)s removed"
+msgid "<a href=\"%(href)s\">Release version %(version)s</a> published"
 msgstr ""
 
 #: warehouse/templates/manage/history.html:41
-#: warehouse/templates/manage/history.html:47
-#: warehouse/templates/manage/history.html:57
-msgid "Removed by:"
+msgid "Published by:"
 msgstr ""
 
 #: warehouse/templates/manage/history.html:44
 #, python-format
+msgid "Release version %(version)s removed"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:46
+#: warehouse/templates/manage/history.html:52
+#: warehouse/templates/manage/history.html:62
+msgid "Removed by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:49
+#, python-format
 msgid "File removed from release version %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:45
+#: warehouse/templates/manage/history.html:50
 #: warehouse/templates/manage/release.html:99
 msgid "Filename:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:50
+#: warehouse/templates/manage/history.html:55
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:55
+#: warehouse/templates/manage/history.html:60
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:60
+#: warehouse/templates/manage/history.html:65
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:62
+#: warehouse/templates/manage/history.html:67
 msgid "Changed by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:67
-#: warehouse/templates/manage/history.html:74
+#: warehouse/templates/manage/history.html:72
+#: warehouse/templates/manage/history.html:79
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:68
-#: warehouse/templates/manage/history.html:75
+#: warehouse/templates/manage/history.html:73
+#: warehouse/templates/manage/history.html:80
 msgid "Controlled by:"
 msgstr ""
 
@@ -3097,6 +3106,9 @@ msgstr ""
 
 #: warehouse/templates/manage/projects.html:94
 msgid "Sole owner"
+
+#: warehouse/templates/manage/releases.html:94
+msgid "Manage"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:142
@@ -3197,6 +3209,11 @@ msgstr ""
 #: warehouse/templates/manage/publishing.html:126
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
+
+#: warehouse/templates/manage/projects.html:104
+#: warehouse/templates/manage/releases.html:100
+#: warehouse/templates/packaging/detail.html:364
+msgid "View"
 msgstr ""
 
 #: warehouse/templates/manage/publishing.html:130
@@ -3242,6 +3259,8 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
+#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:339
 msgid "Filename, size"
 msgstr ""
 
@@ -3252,11 +3271,15 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
+#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:350
 msgid "Python version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
+#: warehouse/templates/packaging/detail.html:331
+#: warehouse/templates/packaging/detail.html:358
 msgid "Upload date"
 msgstr ""
 
@@ -3285,7 +3308,7 @@ msgid "Delete file"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:109
+#: warehouse/templates/manage/releases.html:125
 msgid "Delete"
 msgstr ""
 
@@ -3315,13 +3338,62 @@ msgstr ""
 msgid "Release settings"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:126
-#: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/release.html:125
+#: warehouse/templates/manage/release.html:147
+#: warehouse/templates/manage/releases.html:135
+msgid "Publish release"
+msgstr ""
+
+#: warehouse/templates/manage/release.html:128
+#, python-format
+msgid ""
+"\n"
+"          Publishing will make this release (and %(count)s file within "
+"it) available when installing or updating this project.\n"
+"        "
+msgid_plural ""
+"\n"
+"          Publishing will make this release (and %(count)s files within "
+"it) available when installing or updating this project.\n"
+"        "
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/release.html:134
+msgid ""
+"\n"
+"          Publishing will make this release available when installing or "
+"updating this project.\n"
+"        "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:142
+#, python-format
+msgid ""
+"\n"
+"            After publishing this release, users will be able to use pip "
+"to install <code>%(project_name)s==%(version)s</code>.\n"
+"          "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:147
+#: warehouse/templates/manage/release.html:181
+#: warehouse/templates/manage/release.html:203
+#: warehouse/templates/manage/releases.html:23
+#: warehouse/templates/manage/releases.html:143
+#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:162
+#: warehouse/templates/manage/releases.html:169
+msgid "Version"
+msgstr ""
+
+#: warehouse/templates/manage/release.html:151
+#: warehouse/templates/manage/release.html:181
+#: warehouse/templates/manage/releases.html:152
 msgid "Yank release"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:129
+#: warehouse/templates/manage/release.html:154
 #, python-format
 msgid ""
 "\n"
@@ -3336,7 +3408,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/release.html:135
+#: warehouse/templates/manage/release.html:160
 msgid ""
 "\n"
 "          Yanking will mark this release to be ignored when installing in"
@@ -3344,7 +3416,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:139
+#: warehouse/templates/manage/release.html:164
 #, python-format
 msgid ""
 "\n"
@@ -3354,7 +3426,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:142
+#: warehouse/templates/manage/release.html:167
 #, python-format
 msgid ""
 "\n"
@@ -3362,7 +3434,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:149
+#: warehouse/templates/manage/release.html:174
 #, python-format
 msgid ""
 "\n"
@@ -3392,7 +3464,7 @@ msgstr ""
 msgid "Delete release"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:165
+#: warehouse/templates/manage/release.html:190
 #, python-format
 msgid ""
 "\n"
@@ -3407,7 +3479,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/release.html:196
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
@@ -3444,19 +3516,23 @@ msgstr ""
 msgid "Release date"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:25
+#: warehouse/templates/manage/releases.html:26
+msgid "Published date"
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:28
 msgid "Files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:27
+#: warehouse/templates/manage/releases.html:30
 msgid "Yanked reason"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:36
+#: warehouse/templates/manage/releases.html:39
 msgid "Manage version"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:44
+#: warehouse/templates/manage/releases.html:50
 #, python-format
 msgid ""
 "\n"
@@ -3469,36 +3545,49 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/releases.html:57
+#: warehouse/templates/manage/releases.html:63
 msgid "No files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:67
+#: warehouse/templates/manage/releases.html:73
 msgid "View release options"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:73
+#: warehouse/templates/manage/releases.html:79
 #, python-format
 msgid "Options for %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:76
+#: warehouse/templates/manage/releases.html:82
 msgid "Un-yank Release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:81
+#: warehouse/templates/manage/releases.html:87
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:101
+#: warehouse/templates/manage/releases.html:108
+msgid "Publish"
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:116
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:119
+#: warehouse/templates/manage/releases.html:138
+#, python-format
+msgid ""
+"\n"
+"              After publishing this release, users will be able to use "
+"pip to install <code>%(project_name)s==%(version)s</code>.\n"
+"            "
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:148
 msgid "Un-yank release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:126
+#: warehouse/templates/manage/releases.html:155
 #, python-format
 msgid ""
 "\n"

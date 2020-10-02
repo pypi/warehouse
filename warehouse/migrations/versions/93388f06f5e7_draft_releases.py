@@ -59,7 +59,8 @@ def upgrade():
     # Create the hashing database function for our draft identifiers
     op.execute(
         """
-        CREATE FUNCTION make_draft_hash(project_name text, version text) returns text as $$
+        CREATE FUNCTION make_draft_hash(project_name text, version text)
+        returns text as $$
                 SELECT  md5(project_name || version)
             $$
             LANGUAGE SQL

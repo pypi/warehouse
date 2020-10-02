@@ -3223,7 +3223,7 @@ class TestManageProjectRelease:
                 tag="project:release:publish",
                 ip_address=request.remote_addr,
                 additional={
-                    "submitted_by": request.user.username,
+                    "published_by": request.user.username,
                     "canonical_version": release.canonical_version,
                 },
             )
