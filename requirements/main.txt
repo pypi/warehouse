@@ -251,9 +251,9 @@ first==2.0.2 \
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d \
     # via webauthn
-google-api-core==1.22.2 \
-    --hash=sha256:67e33a852dcca7cb7eff49abc35c8cc2c0bb8ab11397dc8306d911505cae2990 \
-    --hash=sha256:779107f17e0fef8169c5239d56a8fbff03f9f72a3893c0c9e5842ec29dfedd54 \
+google-api-core==1.22.3 \
+    --hash=sha256:1166371f6b1164a30cfed26092e3679450bb837a2b425779c8d1dd140c0732f4 \
+    --hash=sha256:6a95bfcf6f661ec0dffd96013b47100765f4f88ce54412562176bfcb11a997c1 \
     # via google-cloud-bigquery, google-cloud-core
 google-auth==1.22.0 \
     --hash=sha256:a73e6fb6d232ed1293ef9a5301e6f8aada7880d19c65d7f63e130dc50ec05593 \
