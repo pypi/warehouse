@@ -852,11 +852,11 @@
 
       <h3>{% trans %}Contact{% endtrans %}</h3>
       <p>
-        {% trans trimmed pypa_href='https://pypa.io', irc_href='https://webchat.freenode.net/?channels=%23pypa', mailing_list_href='https://mail.python.org/mailman/listinfo/distutils-sig', title=gettext('External link') %}
+        {% trans trimmed pypa_href='https://pypa.io', irc_href='https://webchat.freenode.net/?channels=%23pypa', discuss_href='https://discuss.python.org/c/packaging/14', title=gettext('External link') %}
           The <a href="{{ pypa_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Authority (PyPA)</a>
           is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer,
           use <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">#pypa on IRC (freenode)</a>,
-          or <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">join the distutils-sig mailing list</a>.
+          or <a href="{{ discuss_href }}" title="{{ title }}" target="_blank" rel="noopener">browse the online board</a>.
         {% endtrans %}
       </p>
 
