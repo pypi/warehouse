@@ -35,7 +35,7 @@ def make_fileinfo(file, custom=None):
     metadata (e.g., metadata for indicating backsigning).
     """
     hashes = {"blake2b": file.blake2_256_digest}
-    fileinfo = tuf.formats.make_fileinfo(file.size, hashes, custom=custom)
+    fileinfo = tuf.formats.make_targets_fileinfo(file.size, hashes, custom=custom)
 
     return fileinfo
 

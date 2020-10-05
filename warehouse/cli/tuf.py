@@ -18,7 +18,8 @@ from tuf import repository_tool
 
 from warehouse.cli import warehouse
 from warehouse.config import Environment
-from warehouse.tuf.constants import BIN_N_COUNT, TOPLEVEL_ROLES, Role, utils
+from warehouse.tuf import utils
+from warehouse.tuf.constants import BIN_N_COUNT, TOPLEVEL_ROLES, Role
 
 
 def _make_backsigned_fileinfo_from_file(file):
