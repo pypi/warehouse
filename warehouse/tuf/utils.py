@@ -51,12 +51,12 @@ def bump_metadata(metadata, delta):
 
 def find_snapshot(timestamp, storage_backend):
     """
-    Given a tuf.api.metadata.Timestamp model, return the Snapshot model
+    Given a tuf.api.metadata.Timestamp model, return the Metadata container
     for the consistent snapshot that it references.
     """
     snapshot_version = timestamp.meta["snapshot.json"]["version"]
 
-    return metadata.Snapshot.from_json_file(
+    return metadata.Metadata.from_json_file(
         f"{snapshot_version}.snapshot.json", storage_backend
     )
 
@@ -64,16 +64,16 @@ def find_snapshot(timestamp, storage_backend):
 def find_delegated_bin(filepath, snapshot, storage_backend):
     """
     Given a new target filepath and a tuf.api.metadata.Snapshot model,
-    return a tuple of the bin name and tup.api.metadata.Targets for the consistent
-    delegated targets bin that the target belongs in.
+    return a tuple of the bin name and tup.api.metadata.Metadata container for
+    the consistent delegated targets bin that the target belongs in.
     """
 
     # TODO: This probably isn't using the right hash function.
     filepath_hash = tuf.repository_lib.get_target_hash(filepath)
-    bin_name = tuf.repository_lib(filepath_hash, BIN_N_COUNT)
+    bin_name = tuf.repository_lib.find_bin_for_target_hash(filepath_hash, BIN_N_COUNT)
     bin_version = snapshot.meta[f"{bin_name}.json"]["version"]
 
-    return bin_name, metadata.Targets.from_json_file(
+    return bin_name, metadata.Metadata.from_json_file(
         f"{bin_version}.{bin_name}.json", storage_backend
     )
 
@@ -81,11 +81,12 @@ def find_delegated_bin(filepath, snapshot, storage_backend):
 class LocalBackend(StorageBackendInterface):
     def __init__(self, request):
         self._filesystem_backend = FilesystemBackend()
-        self._repo_path = request.registry.settings["tuf.repo.path"]
+        self._repo_path = os.path.join(
+            request.registry.settings["tuf.repo.path"], "metadata.staged"
+        )
 
-    @contextmanager
     def get(self, filepath):
-        yield from self._filesystem_backend.get(os.path.join(self._repo_path, filepath))
+        return self._filesystem_backend.get(os.path.join(self._repo_path, filepath))
 
     def put(self, fileobj, filepath):
         return self._filesystem_backend.put(

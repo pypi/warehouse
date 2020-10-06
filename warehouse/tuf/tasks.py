@@ -65,26 +65,26 @@ def bump_snapshot(task, request):
         storage_backend = storage_service.get_backend()
 
         # 2. Timestamp retrieval and loading.
-        timestamp = metadata.Timestamp.from_json_file("timestamp.json", storage_backend)
+        timestamp = metadata.Metadata.from_json_file("timestamp.json", storage_backend)
 
         # 3. Snapshot retrieval and loading.
-        snapshot = utils.find_snapshot(timestamp, storage_backend)
+        snapshot = utils.find_snapshot(timestamp.signed, storage_backend)
 
         # 4. Snapshot bumping and versioning.
         utils.bump_metadata(
-            snapshot,
+            snapshot.signed,
             timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"]),
         )
         for key in key_service.privkeys_for_role(Role.SNAPSHOT.value):
             snapshot.sign(key)
 
         # 5. Writing the updated snapshot back to the repository.
-        snapshot_filename = f"{snapshot.version}.snapshot.json"
+        snapshot_filename = f"{snapshot.signed.version}.snapshot.json"
         snapshot.to_json_file(snapshot_filename, storage_backend)
 
         # 6. Timestamp updating.
-        timestamp.update(
-            snapshot.version,
+        timestamp.signed.update(
+            snapshot.signed.version,
             len(snapshot.to_json().encode()),
             get_file_hashes(
                 snapshot_filename,
@@ -95,7 +95,7 @@ def bump_snapshot(task, request):
 
         # 7. Timestamp bumping.
         utils.bump_metadata(
-            timestamp,
+            timestamp.signed,
             timedelta(seconds=request.registry.settings["tuf.timestamp.expiry"]),
         )
         for key in key_service.privkeys_for_role(Role.TIMESTAMP.value):
@@ -130,13 +130,13 @@ def bump_bin_ns(task, request):
         storage_backend = storage_service.get_backend()
 
         # 2. Timestamp retrieval and loading.
-        timestamp = metadata.Timestamp.from_json_file("timestamp.json", storage_backend)
+        timestamp = metadata.Metadata.from_json_file("timestamp.json", storage_backend)
 
         # 3. Snapshot retrieval and loading.
-        snapshot = utils.find_snapshot(timestamp, storage_backend)
+        snapshot = utils.find_snapshot(timestamp.signed, storage_backend)
 
         # Target iteration: skip the top-level targets role.
-        for role_name, role_info in snapshot.meta.items():
+        for role_name, role_info in snapshot.signed.meta.items():
             if role_name == "targets.json":
                 continue
 
@@ -144,13 +144,13 @@ def bump_bin_ns(task, request):
             delegated_bin_filename = f"{role_version}.{role_name}"
 
             # Load the delegated bin.
-            delegated_bin = metadata.Targets.from_json_file(
+            delegated_bin = metadata.Metadata.from_json_file(
                 delegated_bin_filename, storage_backend
             )
 
             # Bump and sign the delegated bin.
             utils.bump_metadata(
-                delegated_bin,
+                delegated_bin.signed,
                 timedelta(seconds=request.registry.settings["tuf.bin-n.expiry"]),
             )
 
@@ -164,11 +164,11 @@ def bump_bin_ns(task, request):
             # TODO: Ideally we'd use snapshot.update here, but that takes
             # the role name without .json on the end. But role_name here
             # has that suffix. Annoying.
-            snapshot.meta[role_name]["version"] = delegated_bin.version
+            snapshot.meta[role_name]["version"] = delegated_bin.signed.version
 
         # Bump and sign the snapshot.
         utils.bump_metadata(
-            snapshot,
+            snapshot.signed,
             timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"]),
         )
 
@@ -176,8 +176,29 @@ def bump_bin_ns(task, request):
             snapshot.sign(key)
 
         # Write-back.
-        snapshot_filename = f"{snapshot.version}.snapshot.json"
+        snapshot_filename = f"{snapshot.signed.version}.snapshot.json"
         snapshot.to_json_file(snapshot_filename, storage_backend)
+
+        # Bump and sign the timestamp.
+        utils.bump_metadata(
+            timestamp.signed,
+            timedelta(seconds=request.registry.settings["tuf.timestamp.expiry"]),
+        )
+        timestamp.signed.update(
+            snapshot.signed.version,
+            len(snapshot.to_json().encode()),
+            get_file_hashes(
+                snapshot_filename,
+                hash_algorithms=[HASH_ALGORITHM],
+                storage_backend=storage_backend,
+            ),
+        )
+
+        for key in key_service.privkeys_for_role(Role.TIMESTAMP.value):
+            timestamp.sign(key)
+
+        # Write-back.
+        timestamp.to_json_file("timestamp.json", storage_backend)
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
@@ -230,22 +251,22 @@ def add_target(task, request, filepath, fileinfo):
         storage_backend = storage_service.get_backend()
 
         # 2. Timestamp retrieval and loading.
-        timestamp = metadata.Timestamp.from_json_file("timestamp.json", storage_backend)
+        timestamp = metadata.Metadata.from_json_file("timestamp.json", storage_backend)
 
         # 3. Snapshot retrieval and loading.
-        snapshot = utils.find_snapshot(timestamp, storage_backend)
+        snapshot = utils.find_snapshot(timestamp.signed, storage_backend)
 
         # 4. Delegated bin retrieval and loading.
         delegated_bin_name, delegated_bin = utils.find_delegated_bin(
-            filepath, snapshot, storage_backend
+            filepath, snapshot.signed, storage_backend
         )
 
         # 5. Updating the delegated bin.
         utils.bump_metadata(
-            delegated_bin,
+            delegated_bin.signed,
             timedelta(seconds=request.registry.settings["tuf.bin-n.expiry"]),
         )
-        delegated_bin.update(filepath, fileinfo)
+        delegated_bin.signed.update(filepath, fileinfo)
 
         # 6. Signing the updated delegated bin metadata.
         for key in key_service.privkeys_for_role(Role.BIN_N.value):
@@ -253,23 +274,23 @@ def add_target(task, request, filepath, fileinfo):
 
         # 7. Writing the updated delegated bin back to the TUF repository.
         delegated_bin.to_json_file(
-            f"{delegated_bin.version}.{delegated_bin_name}.json", storage_backend
+            f"{delegated_bin.signed.version}.{delegated_bin_name}.json", storage_backend
         )
 
         # 8. Updating the snapshot.
         # TODO(ww): Fill in length and hashes?
         utils.bump_metadata(
-            snapshot,
+            snapshot.signed,
             timedelta(seconds=request.registry.settings["tuf.snapshot.expiry"]),
         )
-        snapshot.update(f"{delegated_bin_name}.json", delegated_bin.version)
+        snapshot.signed.update(f"{delegated_bin_name}.json", delegated_bin.signed.version)
 
         # 9. Signing the updated snapshot metadata.
         for key in key_service.privkeys_for_role(Role.SNAPSHOT.value):
             snapshot.sign(key)
 
         # 10. Writing the updated snapshot back to the TUF repository.
-        snapshot_filename = f"{snapshot.version}.snapshot.json"
+        snapshot_filename = f"{snapshot.signed.version}.snapshot.json"
         snapshot.to_json_file(
             snapshot_filename,
             storage_backend,
@@ -281,11 +302,11 @@ def add_target(task, request, filepath, fileinfo):
         # Maybe add a function to securesystemslib that does the digest
         # calculation on a string/bytes.
         utils.bump_metadata(
-            timestamp,
+            timestamp.signed,
             timedelta(seconds=request.registry.settings["tuf.timestamp.expiry"]),
         )
-        timestamp.update(
-            snapshot.version,
+        timestamp.signed.update(
+            snapshot.signed.version,
             len(snapshot.to_json().encode()),
             get_file_hashes(
                 snapshot_filename,
