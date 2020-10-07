@@ -505,9 +505,9 @@ paginate-sqlalchemy==0.3.1 \
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d \
     # via -r requirements/main.in, paginate-sqlalchemy
-passlib==1.7.2 \
-    --hash=sha256:68c35c98a7968850e17f1b6892720764cc7eed0ef2b7cb3116a89a28e43fe177 \
-    --hash=sha256:8d666cef936198bc2ab47ee9b0410c94adf2ba798e5a84bf220be079ae7ab6a8 \
+passlib==1.7.3 \
+    --hash=sha256:0fe8b86a900b2885fed00cf5e96f040c7abd61496d65dec4c814e462f8499d8a \
+    --hash=sha256:a203263a2dbb97f3103603c780dce7a7253722951c717b424ed8cd7c72587ae1 \
     # via -r requirements/main.in
 pastedeploy==2.1.0 \
     --hash=sha256:bc6578735a32c77435a3e0769426983d3df6dc53a7229290c495ec10aefb81a5 \
