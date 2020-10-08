@@ -9,3 +9,9 @@ version: 2
 python:
   install:
     - requirements: requirements/docs.txt
+
+# Sphinx configuration
+sphinx:
+  builder: dirhtml
+  configuration: conf.py
+  fail_on_warning: true
