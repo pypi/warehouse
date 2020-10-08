@@ -5052,9 +5052,8 @@ msgid ""
 " who work together to improve Python packaging. If you'd like to get in "
 "touch with a core packaging developer, use <a href=\"%(irc_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC "
-"(freenode)</a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">join the distutils-sig mailing "
-"list</a>."
+"(freenode)</a>, or <a href=\"%(discuss_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">browse the online board</a>."
 msgstr ""
 
 #: warehouse/templates/pages/security.html:15
