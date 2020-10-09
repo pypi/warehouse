@@ -4,7 +4,7 @@ argon2-cffi
 Babel
 bcrypt
 boto3
-celery[sqs]>=4,<5
+celery[sqs]>=4,<6
 celery-redbeat
 certifi
 click
