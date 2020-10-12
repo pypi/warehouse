@@ -3,8 +3,10 @@ coverage
 factory_boy
 fakeredis
 freezegun
+MechanicalSoup
 pretend
 pytest>=3.0.0
+pytest-bdd
 pytest-postgresql
 responses>=0.5.1
 webtest
