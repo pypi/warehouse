@@ -59,6 +59,31 @@ def test_compute_recipient(user, address, expected):
     assert email._compute_recipient(user, email_) == expected
 
 
+@pytest.mark.parametrize(
+    ("unauthenticated_userid", "user", "expected"),
+    [
+        ("the_users_id", None, False),
+        ("some_other_id", None, True),
+        (None, pretend.stub(id="the_users_id"), False),
+        (None, pretend.stub(id="some_other_id"), True),
+        (None, None, False),
+    ],
+)
+def test_redact_ip(unauthenticated_userid, user, expected):
+    user_email = pretend.stub(user_id="the_users_id")
+
+    request = pretend.stub(
+        unauthenticated_userid=unauthenticated_userid,
+        user=user,
+        db=pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda a: pretend.stub(one=lambda: user_email)
+            )
+        ),
+    )
+    assert email._redact_ip(request, user_email) == expected
+
+
 class TestSendEmailToUser:
     @pytest.mark.parametrize(
         ("name", "username", "primary_email", "address", "expected"),

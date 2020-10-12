@@ -31,6 +31,20 @@ def _compute_recipient(user, email):
     return str(Address(first([user.name, user.username], default=""), addr_spec=email))
 
 
+def _redact_ip(request, email):
+    # We should only store/display IP address of an 'email sent' event if the user
+    # who triggered the email event is the one who receives the email. Else display
+    # 'Redacted' to prevent user privacy concerns. If we don't know the user who
+    # triggered the action, default to showing the IP of the source.
+    user_email = request.db.query(Email).filter(Email.email == email).one()
+
+    if request.unauthenticated_userid:
+        return user_email.user_id != request.unauthenticated_userid
+    if request.user:
+        return user_email.user_id != request.user.id
+    return False
+
+
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def send_email(task, request, recipient, msg, success_event):
     msg = EmailMessage(**msg)
@@ -58,13 +72,6 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     if email is None or not (email.verified or allow_unverified):
         return
 
-    # We should only store/display IP address of an 'email sent' event if the user
-    # who triggered the email event is the one who receives the email. Else display
-    # 'Redacted' to prevent user privacy concerns. If we don't know the user who
-    # triggered the action, default to showing the IP of the source.
-    user_email = request.db.query(Email).filter(Email.email == email.email).one()
-    redact_ip = user_email.user_id != request.user.id if request.user else False
-
     request.task(send_email).delay(
         _compute_recipient(user, email.email),
         {
@@ -80,7 +87,7 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
                 "from_": request.registry.settings.get("mail.sender"),
                 "to": email.email,
                 "subject": msg.subject,
-                "redact_ip": redact_ip,
+                "redact_ip": _redact_ip(request, email.email),
             },
         },
     )
