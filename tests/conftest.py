@@ -48,7 +48,9 @@ def pytest_collection_modifyitems(items):
         )
 
         module_root_dir = module_path.split(os.pathsep)[0]
-        if module_root_dir.startswith("functional"):
+        if module_root_dir.startswith("behaviour"):
+            item.add_marker(pytest.mark.behaviour)
+        elif module_root_dir.startswith("functional"):
             item.add_marker(pytest.mark.functional)
         elif module_root_dir.startswith("unit"):
             item.add_marker(pytest.mark.unit)
@@ -163,7 +165,15 @@ def mock_manifest_cache_buster():
 
 
 @pytest.fixture(scope="session")
-def app_config(database):
+def redis():
+    return {
+        "sessions.url": "redis://redis:0/",
+        "warehouse.xmlrpc.cache.url": "redis://redis:0/",
+    }
+
+
+@pytest.fixture(scope="session")
+def app_config(database, redis):
     settings = {
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
@@ -184,9 +194,10 @@ def app_config(database):
         ),
         "files.url": "http://localhost:7000/",
         "sessions.secret": "123456",
-        "sessions.url": "redis://localhost:0/",
+        "sessions.url": "redis://redis:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
-        "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
+        "warehouse.xmlrpc.cache.url": "redis://redis:0/",
+        **redis,
     }
     with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
         with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
