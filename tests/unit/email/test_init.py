@@ -16,6 +16,8 @@ import celery.exceptions
 import pretend
 import pytest
 
+from sqlalchemy.orm.exc import NoResultFound
+
 from warehouse import email
 from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.email.interfaces import IEmailSender
@@ -82,6 +84,17 @@ def test_redact_ip(unauthenticated_userid, user, expected):
         ),
     )
     assert email._redact_ip(request, user_email) == expected
+
+
+def test_redact_ip_email_not_found():
+    request = pretend.stub(
+        db=pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda a: pretend.stub(one=pretend.raiser(NoResultFound))
+            )
+        )
+    )
+    assert email._redact_ip(request, "doesn't matter") is False
 
 
 class TestSendEmailToUser:

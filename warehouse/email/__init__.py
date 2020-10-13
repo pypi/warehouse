@@ -16,6 +16,7 @@ from email.headerregistry import Address
 
 from celery.schedules import crontab
 from first import first
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, IUserService
@@ -36,7 +37,12 @@ def _redact_ip(request, email):
     # who triggered the email event is the one who receives the email. Else display
     # 'Redacted' to prevent user privacy concerns. If we don't know the user who
     # triggered the action, default to showing the IP of the source.
-    user_email = request.db.query(Email).filter(Email.email == email).one()
+
+    try:
+        user_email = request.db.query(Email).filter(Email.email == email).one()
+    except NoResultFound:
+        # The email might have been deleted if this is an account deletion event
+        return False
 
     if request.unauthenticated_userid:
         return user_email.user_id != request.unauthenticated_userid
