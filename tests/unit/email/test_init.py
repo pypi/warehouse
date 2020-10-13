@@ -15,6 +15,7 @@ import datetime
 import celery.exceptions
 import pretend
 import pytest
+
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import email
