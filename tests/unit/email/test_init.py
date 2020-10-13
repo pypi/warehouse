@@ -59,6 +59,31 @@ def test_compute_recipient(user, address, expected):
     assert email._compute_recipient(user, email_) == expected
 
 
+@pytest.mark.parametrize(
+    ("unauthenticated_userid", "user", "expected"),
+    [
+        ("the_users_id", None, False),
+        ("some_other_id", None, True),
+        (None, pretend.stub(id="the_users_id"), False),
+        (None, pretend.stub(id="some_other_id"), True),
+        (None, None, False),
+    ],
+)
+def test_redact_ip(unauthenticated_userid, user, expected):
+    user_email = pretend.stub(user_id="the_users_id")
+
+    request = pretend.stub(
+        unauthenticated_userid=unauthenticated_userid,
+        user=user,
+        db=pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda a: pretend.stub(one=lambda: user_email)
+            )
+        ),
+    )
+    assert email._redact_ip(request, user_email) == expected
+
+
 class TestSendEmailToUser:
     @pytest.mark.parametrize(
         ("name", "username", "primary_email", "address", "expected"),
@@ -81,7 +106,7 @@ class TestSendEmailToUser:
         ],
     )
     def test_sends_to_user_with_verified(
-        self, name, username, primary_email, address, expected
+        self, name, username, primary_email, address, expected, pyramid_request
     ):
         user = pretend.stub(
             name=name,
@@ -91,28 +116,25 @@ class TestSendEmailToUser:
         )
 
         task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
-        request = pretend.stub(
-            task=pretend.call_recorder(lambda x: task),
-            db=pretend.stub(
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(
-                        one=lambda: pretend.stub(user_id=user.id)
-                    )
-                ),
+        pyramid_request.task = pretend.call_recorder(lambda x: task)
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=user.id)
+                )
             ),
-            remote_addr="0.0.0.0",
-            user=user,
-            registry=pretend.stub(settings={"mail.sender": "noreply@example.com"}),
         )
+        pyramid_request.user = user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         if address is not None:
             address = pretend.stub(email=address, verified=True)
 
         msg = EmailMessage(subject="My Subject", body_text="My Body")
 
-        email._send_email_to_user(request, user, msg, email=address)
+        email._send_email_to_user(pyramid_request, user, msg, email=address)
 
-        assert request.task.calls == [pretend.call(email.send_email)]
+        assert pyramid_request.task.calls == [pretend.call(email.send_email)]
         assert task.delay.calls == [
             pretend.call(
                 expected,
@@ -120,7 +142,7 @@ class TestSendEmailToUser:
                 {
                     "tag": "account:email:sent",
                     "user_id": user.id,
-                    "ip_address": request.remote_addr,
+                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": address.email if address else primary_email,
@@ -171,7 +193,7 @@ class TestSendEmailToUser:
         ],
     )
     def test_sends_unverified_with_override(
-        self, username, primary_email, address, expected
+        self, username, primary_email, address, expected, pyramid_request
     ):
         user = pretend.stub(
             username=username,
@@ -183,19 +205,16 @@ class TestSendEmailToUser:
         )
 
         task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
-        request = pretend.stub(
-            task=pretend.call_recorder(lambda x: task),
-            db=pretend.stub(
-                query=lambda a: pretend.stub(
-                    filter=lambda *a: pretend.stub(
-                        one=lambda: pretend.stub(user_id=user.id)
-                    )
-                ),
+        pyramid_request.task = pretend.call_recorder(lambda x: task)
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=user.id)
+                )
             ),
-            remote_addr="0.0.0.0",
-            user=user,
-            registry=pretend.stub(settings={"mail.sender": "noreply@example.com"}),
         )
+        pyramid_request.user = user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         if address is not None:
             address = pretend.stub(email=address, verified=False)
@@ -203,10 +222,10 @@ class TestSendEmailToUser:
         msg = EmailMessage(subject="My Subject", body_text="My Body")
 
         email._send_email_to_user(
-            request, user, msg, email=address, allow_unverified=True
+            pyramid_request, user, msg, email=address, allow_unverified=True
         )
 
-        assert request.task.calls == [pretend.call(email.send_email)]
+        assert pyramid_request.task.calls == [pretend.call(email.send_email)]
         assert task.delay.calls == [
             pretend.call(
                 expected,
@@ -214,7 +233,7 @@ class TestSendEmailToUser:
                 {
                     "tag": "account:email:sent",
                     "user_id": user.id,
-                    "ip_address": request.remote_addr,
+                    "ip_address": pyramid_request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",
                         "to": address.email if address else primary_email,
