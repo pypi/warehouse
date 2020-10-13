@@ -13,6 +13,7 @@
 import json
 
 from email.headerregistry import Address
+from email.errors import HeaderParseError
 
 import disposable_email_domains
 import jinja2
@@ -186,7 +187,7 @@ class NewEmailMixin:
         # Additional checks for the validity of the address
         try:
             Address(addr_spec=field.data)
-        except ValueError:
+        except (ValueError, HeaderParseError):
             raise wtforms.validators.ValidationError(
                 _("The email address isn't valid. Try again.")
             )
