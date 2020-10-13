@@ -12,8 +12,8 @@
 
 import json
 
-from email.headerregistry import Address
 from email.errors import HeaderParseError
+from email.headerregistry import Address
 
 import disposable_email_domains
 import jinja2
