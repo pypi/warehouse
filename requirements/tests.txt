@@ -61,7 +61,7 @@ coverage==5.3 \
     --hash=sha256:cedb2f9e1f990918ea061f28a0f0077a07702e3819602d3507e2ff98c8d20636 \
     --hash=sha256:e8caf961e1b1a945db76f1b5fa9c91498d15f545ac0ababbe575cfab185d3bd8 \
     # via -r requirements/tests.in
-factory_boy==3.1.0 \
+factory-boy==3.1.0 \
     --hash=sha256:d8626622550c8ba31392f9e19fdbcef9f139cf1ad643c5923f20490a7b3e2e3d \
     --hash=sha256:ded73e49135c24bd4d3f45bf1eb168f8d290090f5cf4566b8df3698317dc9c08 \
     # via -r requirements/tests.in
@@ -69,9 +69,9 @@ faker==4.9.0 \
     --hash=sha256:5ca203eb9adaf6a9d1517a4d4a35a4d587f373639ed31da82b0f2e31abc2397a \
     --hash=sha256:934660336924f4453733baebc74ad9c9b237155a17781990808c00801e63d557 \
     # via factory-boy
-fakeredis==1.4.3 \
-    --hash=sha256:7ea0866ba5edb40fe2e9b1722535df0c7e6b91d518aa5f50d96c2fff3ea7f4c2 \
-    --hash=sha256:aad8836ffe0319ffbba66dcf872ac6e7e32d1f19790e31296ba58445efb0a5c7 \
+fakeredis==1.4.4 \
+    --hash=sha256:8070b7fce16f828beaef2c757a4354af91698685d5232404f1aeeb233529c7a5 \
+    --hash=sha256:f8c8ea764d7b6fd801e7f5486e3edd32ca991d506186f1923a01fc072e33c271 \
     # via -r requirements/tests.in
 freezegun==1.0.0 \
     --hash=sha256:02b35de52f4699a78f6ac4518e4cd3390dddc43b0aeb978335a8f270a2d9668b \
