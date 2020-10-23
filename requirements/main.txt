@@ -380,12 +380,7 @@ hupper==1.10.2 \
 idna==2.10 \
     --hash=sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6 \
     --hash=sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0 \
-    # via email-validator, requests, yarl
-iso8601==0.1.12 \
-    --hash=sha256:210e0134677cc0d02f6028087fee1df1e1d76d372ee1db0bf30bf66c5c1c89a3 \
-    --hash=sha256:49c4b20e1f38aa5cf109ddcd39647ac419f928512c869dc01d5c7098eddede82 \
-    --hash=sha256:bbbae5fb4a7abfe71d4688fd64bff70b91bbd74ef6a99d964bab18f7fdf286dd \
-    # via tuf
+    # via email-validator, requests
 itsdangerous==1.1.0 \
     --hash=sha256:321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19 \
     --hash=sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749 \
@@ -754,7 +749,7 @@ sentry-sdk==0.18.0 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, securesystemslib, structlog, tenacity, tuf, webauthn
+    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, grpcio, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, securesystemslib, structlog, tenacity, tuf, webauthn
 sqlalchemy-citext==1.7.0 \
     --hash=sha256:69ba00f5505f92a1455a94eefc6d3fcf72dda3691ab5398a0b4d0d8d85bd6aab \
     # via -r requirements/main.in
@@ -816,8 +811,9 @@ trove-classifiers==2020.10.7 \
     --hash=sha256:4c7d0c2c4c41890b9c628956b543e48fec12d58e9bd8b5df2e8718f1679358d3 \
     --hash=sha256:9fee2ffe8f2709f102677f0d7745db3b8125cb1e11fcfef9e2324fab545f11d9 \
     # via -r requirements/main.in
-https://github.com/trailofbits/tuf/archive/6ed1517db861d8fc2933873dcfdbe811933c6e40.zip \
-    --hash=sha256:3c6ddc3592072f13c7281a38056528aec94aa8fc73ec4c785d8316e751bf81ab \
+tuf==0.15.0 \
+    --hash=sha256:a3bb7a86cecf9d5356666ce14378d6f39151720547fb9cf2cc4e1497b340c567 \
+    --hash=sha256:e0653e1339031d018212d593879f96152af212aaf07a205ebcfc65d62f76679c \
     # via -r requirements/main.in
 typeguard==2.9.1 \
     --hash=sha256:529ef3d88189cc457f4340388028412f71be8091c2c943465146d4170fb67288 \
