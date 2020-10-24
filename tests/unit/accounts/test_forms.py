@@ -299,7 +299,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.email.errors.pop() == "This field is required."
 
-    @pytest.mark.parametrize("email", ["bad", "foo]bar@example.com"])
+    @pytest.mark.parametrize("email", ["bad", "foo]bar@example.com", "</body></html>"])
     def test_invalid_email_error(self, pyramid_config, email):
         form = forms.RegistrationForm(
             data={"email": email},
