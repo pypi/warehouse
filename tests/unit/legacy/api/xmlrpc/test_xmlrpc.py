@@ -75,8 +75,15 @@ class TestRateLimiting:
             pretend.call("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
         ]
 
+    @pytest.mark.parametrize(
+        "resets_in_delta, expected",
+        [
+            (datetime.timedelta(minutes=11, seconds=6.9), 666),
+            (datetime.timedelta(seconds=0), 1),
+        ],
+    )
     def test_ratelimiting_block_with_hint(
-        self, pyramid_services, pyramid_request, metrics
+        self, pyramid_services, pyramid_request, metrics, resets_in_delta, expected
     ):
         def view(context, request):
             return None
@@ -87,7 +94,7 @@ class TestRateLimiting:
         fake_rate_limiter = pretend.stub(
             test=lambda *a: False,
             hit=lambda *a: True,
-            resets_in=lambda *a: datetime.timedelta(minutes=11, seconds=6.9),
+            resets_in=lambda *a: resets_in_delta,
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
@@ -97,7 +104,8 @@ class TestRateLimiting:
 
         assert exc.value.faultString == (
             "HTTPTooManyRequests: The action could not be performed because there "
-            "were too many requests by the client. Limit may reset in 666 seconds."
+            "were too many requests by the client. Limit may reset in "
+            f"{expected} seconds."
         )
 
         assert metrics.increment.calls == [
