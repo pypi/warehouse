@@ -124,9 +124,9 @@ stevedore==3.2.2 \
     --hash=sha256:5e1ab03eaae06ef6ce23859402de785f08d97780ed774948ef16c4652c41bc62 \
     --hash=sha256:f845868b3a3a77a2489d226568abe7328b5c2d4f6a011cc759dfa99144a521f0 \
     # via doc8
-toml==0.10.1 \
-    --hash=sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f \
-    --hash=sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88 \
+toml==0.10.2 \
+    --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
+    --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f \
     # via black, curlylint
 typed-ast==1.4.1 \
     --hash=sha256:0666aa36131496aed8f7be0410ff974562ab7eeac11ef351def9ea6fa28f6355 \
