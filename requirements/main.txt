@@ -232,17 +232,17 @@ first==2.0.2 \
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d \
     # via webauthn
-google-api-core[grpc]==1.22.2 \
-    --hash=sha256:67e33a852dcca7cb7eff49abc35c8cc2c0bb8ab11397dc8306d911505cae2990 \
-    --hash=sha256:779107f17e0fef8169c5239d56a8fbff03f9f72a3893c0c9e5842ec29dfedd54 \
+google-api-core[grpc]==1.23.0 \
+    --hash=sha256:1bb3c485c38eacded8d685b1759968f6cf47dd9432922d34edb90359eaa391e2 \
+    --hash=sha256:94d8c707d358d8d9e8b0045c42be20efb58433d308bd92cf748511c7825569c8 \
     # via google-cloud-bigquery, google-cloud-core
 google-auth==1.22.1 \
     --hash=sha256:712dd7d140a9a1ea218e5688c7fcb04af71b431a29ec9ce433e384c60e387b98 \
     --hash=sha256:9c0f71789438d703f77b94aad4ea545afaec9a65f10e6cc1bc8b89ce242244bb \
     # via google-api-core, google-cloud-storage
-google-cloud-bigquery==2.2.0 \
-    --hash=sha256:94bcdce4bcf67974445e2c46224dcdab211d91c1dab720fb1dd68884a720a5f1 \
-    --hash=sha256:ede55082d0f2343f197f48f51a8c44ba1031383dc6f23aff070ea1b0c45a258a \
+google-cloud-bigquery==2.3.1 \
+    --hash=sha256:5abc63a9371ae3c333b6e9070e4d6c2b30e9f95f353f9d0be5a5ce290a6741ac \
+    --hash=sha256:62e8df5a845d5e31ea9f7bd2e11bc04dc8019d36d5a6b71499ed9046a981200c \
     # via -r requirements/main.in
 google-cloud-core==1.4.3 \
     --hash=sha256:21afb70c1b0bce8eeb8abb5dca63c5fd37fc8aea18f4b6d60e803bd3d27e6b80 \
