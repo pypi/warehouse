@@ -41,11 +41,17 @@
   @media only screen and (max-width: $desktop) and (min-width: $mobile) {
     padding: 0 0 ($spacing-unit * 1.5) 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 
     img {
       height: 175px;
       margin-right: $spacing-unit;
+    }
+  }
+
+  @media only screen and (max-width: $tablet) and (min-width: $mobile) {
+    &__info {
+      padding-top: 0 !important;
     }
   }
 
