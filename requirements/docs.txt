@@ -8,9 +8,9 @@ alabaster==0.7.12 \
     --hash=sha256:446438bdcca0e05bd45ea2de1668c1d9b032e1a9154c2c259092d77031ddd359 \
     --hash=sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02 \
     # via sphinx
-babel==2.8.0 \
-    --hash=sha256:1aac2ae2d0d8ea368fa90906567f5c08463d98ade155c0c4bfedd6a0f7160e38 \
-    --hash=sha256:d670ea0b10f8b723672d3a6abeb87b565b244da220d76b4dba1b66269ec152d4 \
+babel==2.8.1 \
+    --hash=sha256:820c195271534e8a86f564ba9ef2c207f356cfeb7e94d2bdc6b57897c4233837 \
+    --hash=sha256:be432f50d6c38c705ea45a0c05a4bbb22a70742a93888fbae5e7948da1635d23 \
     # via sphinx
 certifi==2020.6.20 \
     --hash=sha256:5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3 \
