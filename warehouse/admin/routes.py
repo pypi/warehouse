@@ -134,10 +134,6 @@ def includeme(config):
     config.add_route("admin.flags", "/admin/flags/", domain=warehouse)
     config.add_route("admin.flags.edit", "/admin/flags/edit/", domain=warehouse)
 
-    # Squats
-    config.add_route("admin.squats", "/admin/squats/", domain=warehouse)
-    config.add_route("admin.squats.review", "/admin/squats/review/", domain=warehouse)
-
     # Malware checks
     config.add_route("admin.checks.list", "/admin/checks/", domain=warehouse)
     config.add_route(

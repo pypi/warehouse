@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import uuid
 
 import pretend
@@ -90,15 +89,6 @@ class TestProjectDetail:
             [RoleFactory(project=project) for _ in range(5)],
             key=lambda x: (x.role_name, x.user.username),
         )
-        delta = datetime.timedelta(days=1)
-        squatter = ProjectFactory(
-            name=project.name[:-1], created=project.created + delta
-        )
-        squattee = ProjectFactory(
-            name=project.name[1:], created=project.created - delta
-        )
-        db_request.db.add(squatter)
-        db_request.db.add(squattee)
         db_request.matchdict["project_name"] = str(project.normalized_name)
         result = views.project_detail(project, db_request)
 
@@ -107,8 +97,6 @@ class TestProjectDetail:
             "releases": [],
             "maintainers": roles,
             "journal": journals[:30],
-            "squatters": [squatter],
-            "squattees": [squattee],
             "ONE_MB": views.ONE_MB,
             "MAX_FILESIZE": views.MAX_FILESIZE,
             "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,
