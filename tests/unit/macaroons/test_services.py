@@ -69,6 +69,20 @@ class TestDatabaseMacaroonService:
         assert isinstance(dm, Macaroon)
         assert macaroon.id == dm.id
 
+    def test_find_from_raw(self, user_service, macaroon_service):
+        user = UserFactory.create()
+        serialized, macaroon = macaroon_service.create_macaroon(
+            "fake location", user.id, "fake description", {"fake": "caveats"}
+        )
+
+        dm = macaroon_service.find_from_raw(serialized)
+
+        assert isinstance(dm, Macaroon)
+        assert macaroon.id == dm.id
+
+    def test_find_from_raw_not_found_or_invalid(self, macaroon_service):
+        assert macaroon_service.find_from_raw("pypi-aaa") is None
+
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None
 

@@ -499,12 +499,12 @@ def test_analyze_disclosure(monkeypatch):
     user = pretend.stub()
     database_macaroon = pretend.stub(user=user, id=12)
 
-    check = pretend.call_recorder(lambda *a, **kw: database_macaroon)
+    find = pretend.call_recorder(lambda *a, **kw: database_macaroon)
     delete = pretend.call_recorder(lambda *a, **kw: None)
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
         utils.IMacaroonService: pretend.stub(
-            check_if_macaroon_exists=check, delete_macaroon=delete
+            find_from_raw=find, delete_macaroon=delete
         ),
     }
 
@@ -530,7 +530,7 @@ def test_analyze_disclosure(monkeypatch):
     assert send_email.calls == [
         pretend.call(request, user, public_url="http://example.com", origin="github")
     ]
-    assert check.calls == [pretend.call(raw_macaroon="pypi-1234")]
+    assert find.calls == [pretend.call(raw_macaroon="pypi-1234")]
     assert delete.calls == [pretend.call(macaroon_id="12")]
 
 
@@ -566,10 +566,10 @@ def test_analyze_disclosure_invalid_macaroon():
     def metrics_increment(key):
         metrics.update([key])
 
-    check = pretend.raiser(utils.InvalidMacaroon("Bla", "bla"))
+    find = pretend.raiser(utils.InvalidMacaroon("Bla", "bla"))
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
-        utils.IMacaroonService: pretend.stub(check_if_macaroon_exists=check),
+        utils.IMacaroonService: pretend.stub(find_from_raw=find),
     }
 
     request = pretend.stub(find_service=lambda iface, context: svc[iface])

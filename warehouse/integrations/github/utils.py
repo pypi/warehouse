@@ -324,7 +324,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
 
     macaroon_service = request.find_service(IMacaroonService, context=None)
     try:
-        database_macaroon = macaroon_service.check_if_macaroon_exists(
+        database_macaroon = macaroon_service.find_from_raw(
             raw_macaroon=disclosure.token
         )
     except InvalidMacaroon:
