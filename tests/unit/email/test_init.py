@@ -848,16 +848,14 @@ class TestTokenCompromisedLeakEmail:
         assert send_email.delay.calls == [
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
-                attr.asdict(
-                    EmailMessage(
-                        subject="Email Subject",
-                        body_text="Email Body",
-                        body_html=(
-                            "<html>\n<head></head>\n"
-                            "<body><p>Email HTML Body</p></body>\n</html>\n"
-                        ),
-                    )
-                ),
+                {
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
                 {
                     "tag": "account:email:sent",
                     "user_id": 3,
