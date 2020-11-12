@@ -320,7 +320,7 @@
       <form method="GET" action="{{ request.route_path('admin.project.reindex', project_name=project.normalized_name) }}">
         <div class="box-footer">
           <div class="pull-right">
-            <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Reindex</button>
+            <button type="submit" class="btn btn-primary">Reindex</button>
           </div>
         </div>
       </form>

@@ -470,7 +470,7 @@ def delete_project(project, request):
 
 @view_config(
     route_name="admin.project.reindex",
-    permission="admin",
+    permission="moderator",
     request_method="GET",
     uses_session=True,
     require_methods=False,
