@@ -296,7 +296,7 @@
             <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
           </div>
         </div>
-      
+
         <div class="box-footer">
           <div class="pull-right">
             <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
