@@ -287,21 +287,23 @@
       </div>
     </div>
 
-    <form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
-      <input name="project" type="hidden" value="{{ project.normalized_name }}">
-      <div class="box-body">
-        <div class="form-group col-sm-12">
-          <label for="prohibitedComment">Comment</label>
-          <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
-        </div>
-      </div>
+    <div class="box-body">
+        <form method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
+          <input name="project" type="hidden" value="{{ project.normalized_name }}">
+          <div class="box-body">
+            <div class="form-group col-sm-12">
+              <label for="prohibitedComment">Comment</label>
+              <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+            </div>
+          </div>
 
-      <div class="box-footer">
-        <div class="pull-right">
-          <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
-        </div>
-      </div>
-    </form>
+          <div class="box-footer">
+            <div class="pull-right">
+              <button type="submit" class="btn btn-primary" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+            </div>
+          </div>
+        </form>
+    </div>
   </div>
 
 {% endblock %}
