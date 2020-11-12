@@ -647,7 +647,7 @@ def _is_valid_dist_file(filename, filetype):
                     member = tar.next()
                 if bad_tar:
                     return False
-        except tarfile.ReadError:
+        except (tarfile.ReadError, EOFError):
             return False
     elif filename.endswith(".exe"):
         # The only valid filetype for a .exe file is "bdist_wininst".
