@@ -275,59 +275,6 @@
     </div>
   </div>
 
-  <div class="box box-secondary collapsed-box">
-    <div class="box-header with-border">
-      <h3 class="box-title">Squatting</h3>
-      <div class="box-tools">
-        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
-      </div>
-    </div>
-
-    {% if squatters %}
-    <div class="box-body box-squats">
-      <h4>Projects that might be squatting on this project:</h4>
-      <table class="table table-hover">
-        <tr>
-          <th>name</th>
-          <th>created</th>
-        </tr>
-        {% for project in squatters %}
-        <tr>
-          <td>
-            <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
-              {{ project.normalized_name }}
-            </a>
-          </td>
-          <td>{{ project.created }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
-    {% endif %}
-
-    {% if squattees %}
-    <div class="box-body box-squats">
-      <h4>Projects that this project might be squatting on:</h4>
-      <table class="table table-hover">
-        <tr>
-          <th>name</th>
-          <th>created</th>
-        </tr>
-        {% for project in squattees %}
-        <tr>
-          <td>
-            <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
-              {{ project.normalized_name }}
-            </a>
-          </td>
-          <td>{{ project.created }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
-    {% endif %}
-  </div>
-
   <!-- Deletion form -->
   {% include 'delete.html' %}
 

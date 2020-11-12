@@ -34,7 +34,6 @@ from wtforms.form import Form
 from wtforms.validators import ValidationError
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
@@ -3259,52 +3258,6 @@ class TestFileUpload:
                 db_request.remote_addr,
             ),
         ]
-
-    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request, metrics):
-        pyramid_config.testing_securitypolicy(userid=1)
-
-        squattee = ProjectFactory(name="example")
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-
-        filename = "{}-{}.tar.gz".format("exmaple", "1.0")
-
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "exmaple",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-        db_request.user_agent = "warehouse-tests/6.6.6"
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-        # Ensure that a Project object has been created.
-        squatter = db_request.db.query(Project).filter(Project.name == "exmaple").one()
-
-        # Ensure that a Squat object has been created.
-        squat = db_request.db.query(Squat).one()
-
-        assert squat.squattee == squattee
-        assert squat.squatter == squatter
-        assert squat.reviewed is False
 
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),
