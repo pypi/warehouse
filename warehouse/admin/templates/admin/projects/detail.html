@@ -306,4 +306,25 @@
     </div>
   </div>
 
+  <!-- ReindexProject form -->
+  <div class="box box-secondary collapsed-box">
+    <div class="box-header with-border">
+      <h3 class="box-title">Reindex Project</h3>
+      <div class="box-tools">
+        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+
+    <div class="box-body">
+      <p>Trigger reindex for this project</p>
+      <form method="GET" action="{{ request.route_path('admin.project.reindex', project_name=project.normalized_name) }}">
+        <div class="box-footer">
+          <div class="pull-right">
+            <button type="submit" class="btn btn-primary">Reindex</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
 {% endblock %}

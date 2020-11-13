@@ -12,6 +12,8 @@
 
 import uuid
 
+from unittest import mock
+
 import pretend
 import pytest
 
@@ -19,6 +21,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSee
 
 from warehouse.admin.views import projects as views
 from warehouse.packaging.models import Project, Role
+from warehouse.search.tasks import reindex_project
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
@@ -655,4 +658,30 @@ class TestDeleteRole:
 
         assert db_request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
+        ]
+
+
+class TestReindexProject:
+    def test_reindexes_project(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        # Mock request task handler
+        request_task_mock = mock.Mock()
+        db_request.task = request_task_mock
+
+        views.reindex_project(project, db_request)
+
+        # Make sure reindex_project task was called
+        request_task_mock.assert_called_with(reindex_project)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Task sent to reindex the project 'foo'", queue="success")
         ]

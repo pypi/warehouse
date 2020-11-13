@@ -107,6 +107,13 @@ def test_includeme():
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.project.reindex",
+            "/admin/projects/{project_name}/reindex/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
         pretend.call(
             "admin.prohibited_project_names.list",
