@@ -15,13 +15,14 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
 
@@ -121,27 +122,11 @@ def project_detail(project, request):
         )
     ]
 
-    squattees = (
-        request.db.query(Project)
-        .filter(Project.created < project.created)
-        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
-        .all()
-    )
-
-    squatters = (
-        request.db.query(Project)
-        .filter(Project.created > project.created)
-        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
-        .all()
-    )
-
     return {
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
-        "squatters": squatters,
-        "squattees": squattees,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GB": ONE_GB,
@@ -481,3 +466,20 @@ def delete_project(project, request):
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path("admin.project.list"))
+
+
+@view_config(
+    route_name="admin.project.reindex",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_methods=False,
+)
+def reindex_project(project, request):
+    request.task(_reindex_project).delay(project.normalized_name)
+    request.session.flash(
+        f"Task sent to reindex the project {project.name!r}", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )

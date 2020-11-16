@@ -126,7 +126,7 @@ def ratelimit():
                 )
                 _resets_in = ratelimiter.resets_in(request.remote_addr)
                 if _resets_in is not None:
-                    _resets_in = int(_resets_in.total_seconds())
+                    _resets_in = max(1, int(_resets_in.total_seconds()))
                     message += f" Limit may reset in {_resets_in} seconds."
                 raise XMLRPCWrappedError(HTTPTooManyRequests(message))
             metrics.increment("warehouse.xmlrpc.ratelimiter.hit", tags=[])

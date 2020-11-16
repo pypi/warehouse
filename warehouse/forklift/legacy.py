@@ -46,7 +46,6 @@ from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
@@ -649,7 +648,7 @@ def _is_valid_dist_file(filename, filetype):
                     member = tar.next()
                 if bad_tar:
                     return False
-        except tarfile.ReadError:
+        except (tarfile.ReadError, EOFError):
             return False
     elif filename.endswith(".exe"):
         # The only valid filetype for a .exe file is "bdist_wininst".
@@ -928,26 +927,9 @@ def file_upload(request):
                 ),
             ) from None
 
-        # The project doesn't exist in our database, so first we'll check for
-        # projects with a similar name
-        squattees = (
-            request.db.query(Project)
-            .filter(
-                func.levenshtein(
-                    Project.normalized_name, func.normalize_pep426_name(form.name.data)
-                )
-                <= 2
-            )
-            .all()
-        )
-
         # Next we'll create the project
         project = Project(name=form.name.data)
         request.db.add(project)
-
-        # Now that the project exists, add any squats which it is the squatter for
-        for squattee in squattees:
-            request.db.add(Squat(squatter=project, squattee=squattee))
 
         # Then we'll add a role setting the current user as the "Owner" of the
         # project.
