@@ -288,6 +288,16 @@
           </p>
         {% endtrans %}
 
+        <h3 id="compromised-token">{{ compromised_token() }}</h3>
+        {% trans trimmed reset_pwd_href=request.route_url('accounts.request-password-reset'), admin_email='admin@pypi.org'%}
+          <p>
+            A PyPI admin token linked to your account was posted on a public website (e.g GitHub).
+            It was automatically revoked, but before regenerating a new one, please check the email
+            you received and see if you can understand what happened.
+            The <a href="#suspicious-activity">suspicious activity</a> section applies too.
+          </p>
+        {% endtrans %}
+
         <h3 id="twofa">{{ twoFA() }}</h3>
         {% trans trimmed href='https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042', title=gettext('External link') %}
           <p>
