@@ -1230,14 +1230,14 @@ msgstr ""
 #, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-"%(project)s by %(submitter)s."
+"%(project_name)s by %(initiator_username)s."
 msgstr ""
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
 msgid ""
-"You are receiving this because you have been added by %(submitter)s to a "
-"project on %(site)s."
+"You are receiving this because you have been added by "
+"%(initiator_username)s to a project on %(site)s."
 msgstr ""
 
 #: warehouse/templates/email/password-change/body.html:18
