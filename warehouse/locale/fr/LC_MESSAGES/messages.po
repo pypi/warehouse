@@ -16,12 +16,13 @@
 # anonymous <noreply@weblate.org>, 2020.
 # J. Lavoie <j.lavoie@net-c.ca>, 2020.
 # Julien Humbert <julroy67@gmail.com>, 2020.
+# Oscar Egenschwiller <oegenschwiller@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-09-15 16:18+0000\n"
+"PO-Revision-Date: 2020-11-20 15:05+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -30,26 +31,26 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
 msgstr "Langue mise à jour"
 
-#: warehouse/accounts/forms.py:42
+#: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
 msgstr "Aucun utilisateur trouvé pour ce nom d’utilisateur"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Le code TOTP doit comporter ${totp_length} chiffres."
 
-#: warehouse/accounts/forms.py:80
+#: warehouse/accounts/forms.py:81
 msgid "Choose a username with 50 characters or less."
 msgstr "Choisissez un nom d’utilisateur de 50 caractères ou moins."
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:87
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -60,7 +61,7 @@ msgstr ""
 "se terminer par une lettre ou un nombre. Choisissez un nom d’utilisateur "
 "différent."
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:101
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -68,31 +69,31 @@ msgstr ""
 "Ce nom d’utilisateur est déjà utilisé par un autre compte. Choisissez un nom "
 "d’utilisateur différent."
 
-#: warehouse/accounts/forms.py:123
+#: warehouse/accounts/forms.py:124
 msgid "The password is invalid. Try again."
 msgstr "Le mot de passe est invalide. Veuillez réessayer."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Il y a eu trop de tentative de connexions infructueuses. Veuillez réessayer "
 "plus tard."
 
-#: warehouse/accounts/forms.py:149
+#: warehouse/accounts/forms.py:150
 msgid "Your passwords don't match. Try again."
 msgstr "Votre mot de passe est incorrect. Veuillez réessayer."
 
-#: warehouse/accounts/forms.py:180 warehouse/accounts/forms.py:191
+#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
 msgid "The email address isn't valid. Try again."
 msgstr "L’adresse e-mail est invalide. Veuillez réessayer."
 
-#: warehouse/accounts/forms.py:199
+#: warehouse/accounts/forms.py:200
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Vous ne pouvez pas utiliser une adresse e-mail de ce domaine. Veuillez "
 "utiliser une adresse e-mail différente."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:211
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -100,7 +101,7 @@ msgstr ""
 "Cette adresse e-mail est déjà utilisée par ce compte. Veuillez utiliser une "
 "adresse e-mail différente."
 
-#: warehouse/accounts/forms.py:217
+#: warehouse/accounts/forms.py:218
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -108,23 +109,23 @@ msgstr ""
 "Cette adresse e-mail est déjà utilisée par un autre compte. Veuillez "
 "utiliser une adresse e-mail différente."
 
-#: warehouse/accounts/forms.py:239
+#: warehouse/accounts/forms.py:240
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Le nom est trop long. Choisissez un nom d’au plus 100 caractères."
 
-#: warehouse/accounts/forms.py:303
+#: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
 msgstr "Code TOTP invalide."
 
-#: warehouse/accounts/forms.py:320
+#: warehouse/accounts/forms.py:321
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Assertion WebAuthn non valide : requête malformée"
 
-#: warehouse/accounts/forms.py:363
+#: warehouse/accounts/forms.py:364
 msgid "Invalid recovery code."
 msgstr "Code de récupération invalide."
 
-#: warehouse/accounts/forms.py:381
+#: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
 msgstr "Aucun utilisateur trouvé pour ce nom d’utilisateur ou e-mail"
 
@@ -382,9 +383,9 @@ msgstr "Monty Python, le sketch de la fromagerie"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:171
-#: warehouse/templates/manage/releases.html:142
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:171
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -635,7 +636,7 @@ msgstr "Passer à la version mobile"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
 msgstr "Avertissement"
@@ -955,8 +956,8 @@ msgstr "Mot de passe"
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:153
 #: warehouse/templates/manage/roles.html:165
-#: warehouse/templates/manage/token.html:134
-#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/manage/token.html:136
+#: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr "(obligatoire)"
@@ -1387,19 +1388,19 @@ msgstr ""
 #, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-"%(project)s by %(submitter)s."
+"%(project_name)s by %(initiator_username)s."
 msgstr ""
 "Vous avez été ajouté en tant que <strong>%(role)s</strong> au projet "
-"%(project)s de %(site)s par %(submitter)s."
+"%(project_name)s de %(site)s par %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
 msgid ""
-"You are receiving this because you have been added by %(submitter)s to a "
-"project on %(site)s."
+"You are receiving this because you have been added by %(initiator_username)s "
+"to a project on %(site)s."
 msgstr ""
-"Vous recevez ceci car vous avez été ajouté à un projet sur %(site)s par "
-"%(submitter)s."
+"Vous recevez ceci car vous avez été ajouté par %(initiator_username)s à un "
+"projet sur %(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1670,7 +1671,7 @@ msgstr "Masquer cette notification"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -1975,7 +1976,7 @@ msgstr "Voir les options d'e-mail"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:72
+#: warehouse/templates/manage/releases.html:68
 msgid "Options"
 msgstr "Options"
 
@@ -2048,7 +2049,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:167
 #: warehouse/templates/manage/account.html:530
-#: warehouse/templates/manage/token.html:149
+#: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr "Portée"
 
@@ -2075,7 +2076,7 @@ msgid "View token options"
 msgstr "Afficher les options de jeton"
 
 #: warehouse/templates/manage/account.html:196
-#: warehouse/templates/manage/token.html:55
+#: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr "Supprimer le jeton"
 
@@ -2085,13 +2086,13 @@ msgstr "Afficher l'identifiant unique"
 
 #: warehouse/templates/manage/account.html:210
 #: warehouse/templates/manage/account.html:212
-#: warehouse/templates/manage/token.html:58
-#: warehouse/templates/manage/token.html:59
+#: warehouse/templates/manage/token.html:60
+#: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr "Supprimer le jeton d'API"
 
 #: warehouse/templates/manage/account.html:217
-#: warehouse/templates/manage/token.html:64
+#: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr ""
@@ -2609,7 +2610,7 @@ msgstr ""
 "\"%(delete_href)s\">supprimer le projet</a>"
 
 #: warehouse/templates/manage/account.html:737
-#: warehouse/templates/manage/token.html:167
+#: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Procédez avec précaution !"
 
@@ -2811,7 +2812,7 @@ msgstr "de %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:94
-#: warehouse/templates/manage/releases.html:92
+#: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "Gérer"
 
@@ -2898,7 +2899,7 @@ msgid "This project has no releases"
 msgstr "Ce projet n'a pas de version"
 
 #: warehouse/templates/manage/projects.html:104
-#: warehouse/templates/manage/releases.html:98
+#: warehouse/templates/manage/releases.html:94
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "Voir"
@@ -2994,7 +2995,7 @@ msgid "Delete file"
 msgstr "Supprimer le fichier"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:109
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -3007,7 +3008,7 @@ msgid "No files found"
 msgstr "Aucun fichier trouvé"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3027,110 +3028,110 @@ msgstr ""
 msgid "Release settings"
 msgstr "Paramètres de version"
 
-#: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/releases.html:127
+#: warehouse/templates/manage/release.html:126
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/releases.html:123
 msgid "Yank release"
 msgstr "Version remisée"
 
-#: warehouse/templates/manage/release.html:128
+#: warehouse/templates/manage/release.html:129
 #, python-format
 msgid ""
 "\n"
-"        Yanking will mark this release (and %(count)s file within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s file within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgid_plural ""
 "\n"
-"        Yanking will mark this release (and %(count)s files within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s files within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgstr[0] ""
 "\n"
-"        Le fait de remiser cette version (et le fichier qu'elle contient) "
+"          Le fait de remiser cette version (et le fichier qu'elle contient) "
 "fera qu'elle sera ignorée lors de l'installation dans la plupart des cas.\n"
-"      "
+"        "
 msgstr[1] ""
 "\n"
-"        Le fait de remiser cette version (et les %(count)s fichiers qu'elle "
-"contient) fera qu'elle sera ignorée lors de l'installation dans la plupart "
-"des cas.\n"
-"      "
+"          Le fait de remiser cette version (et les %(count)s fichiers "
+"qu'elle contient) fera qu'elle sera ignorée lors de l'installation dans la "
+"plupart des cas.\n"
+"        "
 
-#: warehouse/templates/manage/release.html:134
+#: warehouse/templates/manage/release.html:135
 msgid ""
 "\n"
-"        Yanking will mark this release to be ignored when installing in most "
-"common scenarios.\n"
-"      "
+"          Yanking will mark this release to be ignored when installing in "
+"most common scenarios.\n"
+"        "
 msgstr ""
 "\n"
-"        Le fait de remiser cette version fera qu'elle sera ignorée lors de "
+"          Le fait de remiser cette version fera qu'elle sera ignorée lors de "
 "l'installation dans la plupart des cas.\n"
-"      "
+"        "
 
-#: warehouse/templates/manage/release.html:138
+#: warehouse/templates/manage/release.html:139
 #, python-format
 msgid ""
 "\n"
-"      This release will still be installable for users pinning to this exact "
-"version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
-"    "
+"        This release will still be installable for users pinning to this "
+"exact version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
+"      "
 msgstr ""
 "\n"
-"      Cette version sera toujours installable pour les utilisateurs qui "
+"        Cette version sera toujours installable pour les utilisateurs qui "
 "pointerons vers cette version précise, par ex. en utilisant <code>"
 "%(project_name)s==%(version)s</code>.\n"
-"    "
+"      "
 
-#: warehouse/templates/manage/release.html:141
+#: warehouse/templates/manage/release.html:142
 #, python-format
 msgid ""
 "\n"
-"      For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
-"    "
+"        For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
+"      "
 msgstr ""
 "\n"
-"      Pour plus d'informations, consultez le <a href=\"%(href)s\">PEP 592</"
+"        Pour plus d'informations, consultez le <a href=\"%(href)s\">PEP 592</"
 "a>.\n"
-"    "
+"      "
 
-#: warehouse/templates/manage/release.html:148
+#: warehouse/templates/manage/release.html:149
 #, python-format
 msgid ""
 "\n"
-"          You may provide a reason for yanking this release, which will be "
+"            You may provide a reason for yanking this release, which will be "
 "displayed by pip to users who install <code>%(project_name)s==%(version)s</"
 "code>.\n"
-"        "
+"          "
 msgstr ""
 "\n"
-"          Vous pouvez indiquer une raison pour le remisage de cette version, "
-"qui sera affichée via pip aux utilisateurs qui installent <code>"
+"            Vous pouvez fournir une raison pour le remisage de cette "
+"version, qui sera affichée via pip aux utilisateurs qui installent <code>"
 "%(project_name)s==%(version)s</code>.\n"
-"        "
+"          "
 
-#: warehouse/templates/manage/release.html:152
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/releases.html:130
 msgid "Reason (optional)"
 msgstr "Raison (facultatif)"
 
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/release.html:178
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:124
-#: warehouse/templates/manage/releases.html:137
-#: warehouse/templates/manage/releases.html:144
+#: warehouse/templates/manage/releases.html:120
+#: warehouse/templates/manage/releases.html:133
+#: warehouse/templates/manage/releases.html:140
 msgid "Version"
 msgstr "Version"
 
-#: warehouse/templates/manage/release.html:159
-#: warehouse/templates/manage/release.html:176
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Supprimer la version"
 
-#: warehouse/templates/manage/release.html:163
+#: warehouse/templates/manage/release.html:165
 #, python-format
 msgid ""
 "\n"
@@ -3153,12 +3154,12 @@ msgstr[1] ""
 "fichiers.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:169
+#: warehouse/templates/manage/release.html:171
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 "La suppression entraînera la suppression irréversible de cette version."
 
-#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/release.html:173
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -3187,11 +3188,11 @@ msgstr "Fichiers"
 msgid "Yanked reason"
 msgstr "Raison de remise"
 
-#: warehouse/templates/manage/releases.html:37
+#: warehouse/templates/manage/releases.html:36
 msgid "Manage version"
 msgstr "Gérer la version"
 
-#: warehouse/templates/manage/releases.html:48
+#: warehouse/templates/manage/releases.html:44
 #, python-format
 msgid ""
 "\n"
@@ -3210,36 +3211,36 @@ msgstr[1] ""
 "          %(count)s fichiers\n"
 "        "
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:57
 msgid "No files"
 msgstr "Aucun fichier"
 
-#: warehouse/templates/manage/releases.html:71
+#: warehouse/templates/manage/releases.html:67
 msgid "View release options"
 msgstr "Afficher les options de version"
 
-#: warehouse/templates/manage/releases.html:77
+#: warehouse/templates/manage/releases.html:73
 #, python-format
 msgid "Options for %(version)s"
 msgstr "Options pour %(version)s"
 
-#: warehouse/templates/manage/releases.html:80
+#: warehouse/templates/manage/releases.html:76
 msgid "Un-yank Release"
 msgstr "Ne plus remiser cette version"
 
-#: warehouse/templates/manage/releases.html:85
+#: warehouse/templates/manage/releases.html:81
 msgid "Un-yank"
 msgstr "Ne plus remiser"
 
-#: warehouse/templates/manage/releases.html:105
+#: warehouse/templates/manage/releases.html:101
 msgid "Yank"
 msgstr "Remiser"
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:119
 msgid "Un-yank release"
 msgstr "Ne plus remiser la version"
 
-#: warehouse/templates/manage/releases.html:130
+#: warehouse/templates/manage/releases.html:126
 #, python-format
 msgid ""
 "\n"
@@ -3254,7 +3255,7 @@ msgstr ""
 "%(project_name)s==%(version)s</code>.\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:138
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -3267,30 +3268,30 @@ msgstr ""
 "créer une nouvelle ou plutôt une <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">post-version</a>."
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:149
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Gérer les versions de « %(project_name)s »"
 
-#: warehouse/templates/manage/releases.html:158
+#: warehouse/templates/manage/releases.html:154
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Versions (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:164
+#: warehouse/templates/manage/releases.html:160
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Versions remisées (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:166
 msgid "Creating a new release"
 msgstr "Création d'une nouvelle version"
 
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:168
 msgid "No releases found"
 msgstr "Aucune version trouvée"
 
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/releases.html:171
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3520,36 +3521,36 @@ msgstr ""
 msgid "Project Name"
 msgstr "Nom du projet"
 
-#: warehouse/templates/manage/token.html:36
+#: warehouse/templates/manage/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
 msgstr "Jeton pour « %(macaroon_description)s »"
 
-#: warehouse/templates/manage/token.html:38
+#: warehouse/templates/manage/token.html:40
 msgid "Permissions:"
 msgstr "Permissions :"
 
-#: warehouse/templates/manage/token.html:38
-#: warehouse/templates/manage/token.html:145
+#: warehouse/templates/manage/token.html:40
+#: warehouse/templates/manage/token.html:147
 msgid "Upload packages"
 msgstr "Téléverser des paquets"
 
-#: warehouse/templates/manage/token.html:40
 #: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 msgid "Scope:"
 msgstr "Portée :"
 
-#: warehouse/templates/manage/token.html:40
-#: warehouse/templates/manage/token.html:156
+#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:158
 msgid "Entire account (all projects)"
 msgstr "Ensemble du compte (tous les projets)"
 
-#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 #, python-format
 msgid "Project \"%(project)s\""
 msgstr "Projet « %(project)s »"
 
-#: warehouse/templates/manage/token.html:49
+#: warehouse/templates/manage/token.html:51
 msgid ""
 "For security reasons this token will only appear once. <strong>Copy it now.</"
 "strong>"
@@ -3557,28 +3558,28 @@ msgstr ""
 "Pour des raisons de sécurité, ce jeton n'apparaîtra qu\"une seule fois. "
 "<strong>Copiez-le maintenant.</strong>"
 
-#: warehouse/templates/manage/token.html:51
+#: warehouse/templates/manage/token.html:53
 msgid "Copy token to clipboard"
 msgstr "Copier le jeton dans le presse-papiers"
 
-#: warehouse/templates/manage/token.html:52
+#: warehouse/templates/manage/token.html:54
 msgid "Copy token"
 msgstr "Copier le jeton"
 
-#: warehouse/templates/manage/token.html:70
+#: warehouse/templates/manage/token.html:72
 msgid "Using this token"
 msgstr "Utiliser ce jeton"
 
-#: warehouse/templates/manage/token.html:72
+#: warehouse/templates/manage/token.html:74
 msgid "To use this API token:"
 msgstr "Pour utiliser ce jeton d'API :"
 
-#: warehouse/templates/manage/token.html:75
+#: warehouse/templates/manage/token.html:77
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
 msgstr "Définissez votre nom d'utilisateur à <code>%(token)s</code>"
 
-#: warehouse/templates/manage/token.html:76
+#: warehouse/templates/manage/token.html:78
 #, python-format
 msgid ""
 "Set your password to the token value, including the <code>%(prefix)s</code> "
@@ -3587,7 +3588,7 @@ msgstr ""
 "Définissez votre mot de passer à la valeur du jeton, en incluant le préfixe "
 "<code>%(prefix)s-</code>"
 
-#: warehouse/templates/manage/token.html:82
+#: warehouse/templates/manage/token.html:84
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload your "
@@ -3597,7 +3598,7 @@ msgstr ""
 "vos projets sur PyPI, définissez votre fichier <code>%(filename)s</code> "
 "comme ceci :"
 
-#: warehouse/templates/manage/token.html:92
+#: warehouse/templates/manage/token.html:94
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload "
@@ -3608,7 +3609,7 @@ msgstr ""
 "multiples projets sur PyPI, vous pouvez définir votre fichier <code>"
 "%(filename)s</code> comme ceci :"
 
-#: warehouse/templates/manage/token.html:104
+#: warehouse/templates/manage/token.html:106
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as the "
 "default"
@@ -3616,11 +3617,11 @@ msgstr ""
 "soit un jeton à portée d'un utilisateur soit un jeton à portée d'un projet "
 "que vous souhaitez définir comme par défaut"
 
-#: warehouse/templates/manage/token.html:109
+#: warehouse/templates/manage/token.html:111
 msgid "a project token"
 msgstr "un jeton de projet"
 
-#: warehouse/templates/manage/token.html:111
+#: warehouse/templates/manage/token.html:113
 #, python-format
 msgid ""
 "You can then use <code>%(command)s</code> to switch to the correct token "
@@ -3629,7 +3630,7 @@ msgstr ""
 "Vous pouvez utiliser <code>%(command)s</code> pour basculer vers le bon "
 "jeton lors de la publication sur PyPI."
 
-#: warehouse/templates/manage/token.html:117
+#: warehouse/templates/manage/token.html:119
 #, python-format
 msgid ""
 "For further instructions on how to use this token, <a href=\"%(href)s"
@@ -3638,31 +3639,31 @@ msgstr ""
 "Pour plus d'instructions sur la façon d'utiliser ce token, <a href=\"%(href)s"
 "\">consultez la page d'aide de PyPI</a>."
 
-#: warehouse/templates/manage/token.html:125
+#: warehouse/templates/manage/token.html:127
 msgid "Add another token"
 msgstr "Ajouter un autre jeton"
 
-#: warehouse/templates/manage/token.html:132
+#: warehouse/templates/manage/token.html:134
 msgid "Token name"
 msgstr "Nom du jeton"
 
-#: warehouse/templates/manage/token.html:141
+#: warehouse/templates/manage/token.html:143
 msgid "What is this token for?"
 msgstr "À quoi servira ce jeton ?"
 
-#: warehouse/templates/manage/token.html:144
+#: warehouse/templates/manage/token.html:146
 msgid "Permissions"
 msgstr "Permissions"
 
-#: warehouse/templates/manage/token.html:155
+#: warehouse/templates/manage/token.html:157
 msgid "Select scope..."
 msgstr "Sélectionner la portée…"
 
-#: warehouse/templates/manage/token.html:159
+#: warehouse/templates/manage/token.html:161
 msgid "Project:"
 msgstr "Projet :"
 
-#: warehouse/templates/manage/token.html:168
+#: warehouse/templates/manage/token.html:170
 msgid ""
 "An API token scoped to your entire account will have upload permissions for "
 "all of your current and future projects."
@@ -3670,7 +3671,7 @@ msgstr ""
 "Un jeton d'API avec une portée sur l'ensemble de votre compte aura la "
 "permission de publier pour l'ensemble de vos projets actuels et futurs."
 
-#: warehouse/templates/manage/token.html:171
+#: warehouse/templates/manage/token.html:173
 msgid "Add token"
 msgstr "Ajouter un jeton"
 
@@ -5975,11 +5976,12 @@ msgid ""
 "interested in working on a particular issue, leave a comment and we can "
 "guide you through the contribution process."
 msgstr ""
-"Les tickets sont groupés en <a href=\"%(href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">jalons</a> ; Travailler sur les tickets du jalon "
-"courant est une bonne façon d'aider à faire avancer le projet. Si vous êtes "
-"intéressé pour travailler sur un ticket particulier, laissez un commentaire "
-"et nous pouvons vous aider à travers le processus de contribution."
+"Les problèmes sont groupés en <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">jalons</a> ; Travailler sur les problèmes "
+"du jalon actuel est une bonne façon d'aider à faire avancer le projet. Si "
+"vous êtes intéressé pour travailler sur un probléme particulier, laissez un "
+"commentaire et nous pourrons vous aider à travers le processus de "
+"contribution."
 
 #: warehouse/templates/pages/help.html:806
 msgid "Stay updated:"
@@ -5996,9 +5998,9 @@ msgid ""
 msgstr ""
 "Vous pouvez aussi suivre le développement en cours du projet via la <a href="
 "\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">liste de diffusion distutils-sig</a> et le <a href="
-"\"%(discourse_forum_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">forum sur les paquets Python sur Discourse</a>."
+"\"noopener\">liste de diffusion</a> et le <a href=\"%(discourse_forum_href)s"
+"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">forum sur les "
+"paquets Python sur Discourse</a>."
 
 #: warehouse/templates/pages/help.html:817
 #, python-format
@@ -6035,7 +6037,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:828
 msgid "Currently, no features are in beta."
-msgstr "Actuellement, aucune fonctionnalité n'est en version bêta."
+msgstr "Actuellement, aucune fonctionnalitées ne sont en version bêta."
 
 #: warehouse/templates/pages/help.html:832
 #, python-format
@@ -6093,17 +6095,17 @@ msgid ""
 "work together to improve Python packaging. If you'd like to get in touch "
 "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
-"a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">join the distutils-sig mailing list</a>."
+"a>, or <a href=\"%(discuss_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">browse the online board</a>."
 msgstr ""
 "L'<a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Autorité des Paquets Python (PyPA)</a> est un groupe de travail "
-"qui travaille à l'amélioration de l'empaquetage Python. Si vous souhaitez "
-"entrer en contact avec un développeur de paquets noyaux, utilisez <a href="
-"\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">le "
-"canal IRC #pypa (freenode)</a>, ou <a href=\"%(mailing_list_href)s\" title="
+"\"noopener\">Autorité des Paquets Python (PyPA)</a> est un groupe de "
+"travail, qui contribue à l'amélioration des paquets Python. Si vous "
+"souhaitez entrer en contact avec un développeur de paquets noyaux, utilisez "
+"<a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">le canal IRC #pypa (freenode)</a>, ou <a href=\"%(discuss_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">rejoignez la liste de "
-"diffusion distutils-sig</a>."
+"diffusion.</a>."
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
@@ -6137,7 +6139,7 @@ msgstr ""
 
 #: warehouse/templates/pages/security.html:27
 msgid "Our GitHub issue tracker"
-msgstr "Notre gestionnaire de tickets sur GitHub"
+msgstr "Notre gestionnaire d'erreurs sur GitHub"
 
 #: warehouse/templates/pages/security.html:28
 msgid "Official or unofficial chat channels"
@@ -6894,6 +6896,19 @@ msgstr[1] ""
 "\n"
 "                  Aucun résultat pour les filtres '%(filters)s'\n"
 "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "          You may provide a reason for yanking this release, which will "
+#~ "be displayed by pip to users who install <code>%(project_name)s=="
+#~ "%(version)s</code>.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "          Vous pouvez indiquer une raison pour le remisage de cette "
+#~ "version, qui sera affichée via pip aux utilisateurs qui installent <code>"
+#~ "%(project_name)s==%(version)s</code>.\n"
+#~ "        "
 
 #, fuzzy
 #~| msgid "Security policy"
