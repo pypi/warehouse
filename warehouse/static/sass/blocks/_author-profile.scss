@@ -49,7 +49,7 @@
     }
   }
 
-  @media only screen and (max-width: $tablet) and (min-width: $mobile) {
+  @media only screen and (max-width: $desktop) {
     &__info {
       padding-top: 0 !important;
     }
