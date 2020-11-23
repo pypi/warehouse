@@ -65,9 +65,9 @@ factory-boy==3.1.0 \
     --hash=sha256:d8626622550c8ba31392f9e19fdbcef9f139cf1ad643c5923f20490a7b3e2e3d \
     --hash=sha256:ded73e49135c24bd4d3f45bf1eb168f8d290090f5cf4566b8df3698317dc9c08 \
     # via -r requirements/tests.in
-faker==4.17.0 \
-    --hash=sha256:3f5d379e4b5ce92a8afe3c2ce59d7c43886370dd3bf9495a936b91888debfc81 \
-    --hash=sha256:8c0e8a06acef4b9312902e2ce18becabe62badd3a6632180bd0680c6ee111473 \
+faker==4.17.1 \
+    --hash=sha256:5398268e1d751ffdb3ed36b8a790ed98659200599b368eec38a02eed15bce997 \
+    --hash=sha256:d4183b8f57316de3be27cd6c3b40e9f9343d27c95c96179f027316c58c2c239e \
     # via factory-boy
 fakeredis==1.4.4 \
     --hash=sha256:8070b7fce16f828beaef2c757a4354af91698685d5232404f1aeeb233529c7a5 \
@@ -176,9 +176,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f \
     # via pytest
-urllib3==1.25.11 \
-    --hash=sha256:8d7eaa5a82a1cac232164990f04874c594c9453ec55eef02eab885aa02fc17a2 \
-    --hash=sha256:f5321fbe4bf3fefa0efd0bfe7fb14e90909eb62a48ccda331726b4319897dd5e \
+urllib3==1.26.2 \
+    --hash=sha256:19188f96923873c92ccb987120ec4acaa12f0461fa9ce5d3d0772bc965a39e08 \
+    --hash=sha256:d8ff90d979214d7b4f8ce956e80f4028fc6860e4431f731ea4a8c08f23f99473 \
     # via requests, responses, selenium
 waitress==1.4.4 \
     --hash=sha256:1bb436508a7487ac6cb097ae7a7fe5413aefca610550baf58f0940e51ecfb261 \
