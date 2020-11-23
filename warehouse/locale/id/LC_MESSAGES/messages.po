@@ -8,13 +8,14 @@
 # Azharuddin <azhargiri@gmail.com>, 2020.
 # Habib R <revolusi147id@gmail.com>, 2020.
 # Bayu Satiyo <bayusatiyo33617@gmail.com>, 2020.
+# Habib Rohman <revolusi147id@gmail.com>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-06-14 07:32+0000\n"
-"Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
+"PO-Revision-Date: 2020-11-12 17:37+0000\n"
+"Last-Translator: Habib Rohman <revolusi147id@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -22,27 +23,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.1-dev\n"
+"X-Generator: Weblate 4.4-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
 msgstr "Lokal diperbarui"
 
-#: warehouse/accounts/forms.py:42
+#: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
 msgstr "Pengguna dengan nama tersebut tidak ditemukan"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 "Kode TOTP (Time-based One-time Password) harus berupa $ {totp_length} digit."
 
-#: warehouse/accounts/forms.py:80
+#: warehouse/accounts/forms.py:81
 msgid "Choose a username with 50 characters or less."
 msgstr "Pilih nama pengguna kurang dari 50 huruf."
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:87
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -52,7 +53,7 @@ msgstr ""
 "titik, tanda hubung, dan garis bawah. Dan juga harus mulai dan selesai "
 "dengan huruf atau angka. Pilih nama pengguna yang berbeda."
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:101
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -60,73 +61,67 @@ msgstr ""
 "Nama pengguna ini sudah digunakan oleh akun lain. Pilih nama pengguna yang "
 "berbeda."
 
-#: warehouse/accounts/forms.py:123
+#: warehouse/accounts/forms.py:124
 msgid "The password is invalid. Try again."
 msgstr "Kata sandi salah. Coba lagi."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Terlalu banyak upaya masuk yang gagal. Coba lagi nanti."
 
-#: warehouse/accounts/forms.py:149
+#: warehouse/accounts/forms.py:150
 msgid "Your passwords don't match. Try again."
 msgstr "Kata sandi tidak cocok. Coba lagi."
 
-#: warehouse/accounts/forms.py:180 warehouse/accounts/forms.py:191
+#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
 msgid "The email address isn't valid. Try again."
 msgstr "Alamat email tidak valid. Coba lagi."
 
-#: warehouse/accounts/forms.py:199
+#: warehouse/accounts/forms.py:200
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Anda tidak dapat menggunakan alamat email dari domain ini. Gunakan email "
 "lain."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:211
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "Alamat email ini sudah digunakan oleh akun ini. Gunakan email lain."
 
-#: warehouse/accounts/forms.py:217
+#: warehouse/accounts/forms.py:218
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "Alamat email ini sudah digunakan oleh akun lain. Gunakan email lain."
 
-#: warehouse/accounts/forms.py:239
+#: warehouse/accounts/forms.py:240
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
-#: warehouse/accounts/forms.py:303
+#: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
 msgstr "Kode TOTP tidak valid."
 
-#: warehouse/accounts/forms.py:320
+#: warehouse/accounts/forms.py:321
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Pernyataan WebAuthn tidak valid: Muatan buruk"
 
-#: warehouse/accounts/forms.py:363
-#, fuzzy
-#| msgid "Invalid TOTP code."
+#: warehouse/accounts/forms.py:364
 msgid "Invalid recovery code."
-msgstr "Kode TOTP tidak valid."
+msgstr "Kode pemulihan tidak valid."
 
-#: warehouse/accounts/forms.py:381
+#: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
 msgstr "Tidak ada pengguna yang ditemukan dengan nama pengguna atau email itu"
 
 #: warehouse/accounts/views.py:93
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links."
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 "Terlalu banyak email telah ditambahkan ke akun ini tanpa dilakukan "
-"verifikasi. Periksa kotak masuk Anda dan ikuti tautan verifikasi."
+"verifikasi. Periksa kotak masuk Anda dan ikuti tautan verifikasi. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
 #: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
@@ -145,6 +140,7 @@ msgstr "Pernyataan WebAuthn yang berhasil"
 #: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
+"Kode pemulihan diterima. Kode yang diberikan tidak dapat digunakan lagi."
 
 #: warehouse/accounts/views.py:490
 msgid ""
@@ -222,40 +218,32 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Alamat email ${email_address} terverifikasi. ${confirm_message}."
 
 #: warehouse/accounts/views.py:768
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
-msgstr "Token Kadaluarsa: minta tautan setel ulang kata sandi baru"
+msgstr "Token kedaluwarsa: minta undangan peran proyek baru"
 
 #: warehouse/accounts/views.py:770
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
-msgstr "Token tidak valid: minta tautan setel ulang kata sandi baru"
+msgstr "Token tidak valid: minta undangan peran proyek baru"
 
 #: warehouse/accounts/views.py:776
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Token tidak valid: bukan token verifikasi email"
+msgstr "Token tidak valid: bukan token undangan kolaborasi"
 
 #: warehouse/accounts/views.py:780
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Undangan peran tidak valid."
 
 #: warehouse/accounts/views.py:795
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Undangan peran sudah tidak ada."
 
 #: warehouse/accounts/views.py:807
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "Undangan untuk '${project_name}' ditolak."
 
 #: warehouse/accounts/views.py:874
-#, fuzzy
-#| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr "Anda bukan pemilik proyek ini"
+msgstr "Anda sekarang menjadi ${role} dari proyek '${project_name}'."
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -267,51 +255,55 @@ msgstr ""
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
 msgstr ""
+"Anda harus menyediakan metode dua faktor sebelum kode pemulihan dapat dibuat"
 
 #: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "Kode pemulihan sudah dibuat"
 
 #: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
+"Membuat kode pemulihan baru akan membuat kode yang sudah ada tidak valid."
 
 #: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "Kredensial tidak valid. Coba lagi"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "Pengguna '${username}' sudah memiliki peran ${role_name} di proyek"
 
 #: warehouse/manage/views.py:1514
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"Pengguna '${username}' tidak memiliki alamat email primer yang diverifikasi "
+"dan tidak dapat ditambahkan sebagai ${role_name} di proyek"
 
 #: warehouse/manage/views.py:1527
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"Pengguna '${username}' sudah memiliki undangan aktif. Silakan coba lagi "
+"nanti."
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "Undangan dikirim ke '${username}'"
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "Tidak dapat menemukan undangan peran."
 
 #: warehouse/manage/views.py:1643
-#, fuzzy
-#| msgid "Email already verified"
 msgid "Invitation already expired."
-msgstr "Email sudah diverifikasi"
+msgstr "Undangan sudah kedaluwarsa."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "Undangan dibatalkan dari '${username}'."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -330,10 +322,8 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Kami mencari di mana-mana tetapi tidak dapat menemukan halaman ini"
 
 #: warehouse/templates/404.html:29
-#, fuzzy
-#| msgid "And now for something <br><span>completely different"
 msgid "And now for something <br><span>completely different</span>"
-msgstr "Dan sekarang untuk sesuatu <br><span> benar-benar berbeda"
+msgstr "Dan sekarang untuk sesuatu <br><span>sangat berbeda</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
@@ -364,9 +354,9 @@ msgstr "Monty Python - Sketsa Toko Keju"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:171
-#: warehouse/templates/manage/releases.html:142
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:171
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -557,10 +547,8 @@ msgstr "Tolong"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
-#, fuzzy
-#| msgid "Our sponsors"
 msgid "Sponsor"
-msgstr "Sponsor kami"
+msgstr "Sponsor"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
@@ -618,7 +606,7 @@ msgstr "Beralih ke versi seluler"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
 msgstr "Peringatan"
@@ -784,10 +772,8 @@ msgid "Switch to desktop version"
 msgstr "Beralih ke versi desktop"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Konfirmasikan formulir"
+msgstr "Konfirmasi Aksi"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -816,32 +802,28 @@ msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "Atau <a href=\"%(href)s\"> jelajahi proyek </a>"
 
 #: warehouse/templates/index.html:71
-#, fuzzy, python-format
-#| msgid "%(num_projects)s projects"
+#, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
-msgstr[0] "%(num_projects)s proyek"
+msgstr[0] "%(num_projects_formatted)s proyek"
 
 #: warehouse/templates/index.html:78
-#, fuzzy, python-format
-#| msgid "%(num_releases)s releases"
+#, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
-msgstr[0] "%(num_releases)s rilis"
+msgstr[0] "%(num_releases_formatted)s rilis"
 
 #: warehouse/templates/index.html:85
-#, fuzzy, python-format
-#| msgid "%(num_files)s files"
+#, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
-msgstr[0] "%(num_files)s berkas"
+msgstr[0] "%(num_files_formatted)s berkas"
 
 #: warehouse/templates/index.html:92
-#, fuzzy, python-format
-#| msgid "%(num_users)s users"
+#, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
-msgstr[0] "%(num_users)s pengguna"
+msgstr[0] "%(num_users_formatted)s pengguna"
 
 #: warehouse/templates/index.html:109
 msgid ""
@@ -852,10 +834,8 @@ msgstr ""
 "dikembangkan dan dibagikan oleh komunitas Python."
 
 #: warehouse/templates/index.html:110
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Learn about installing packages"
-msgstr "Pelajari tentang cara menginstal paket</a>."
+msgstr "Pelajari tentang menginstal paket"
 
 #: warehouse/templates/index.html:113
 msgid "Package authors use PyPI to distribute their software."
@@ -863,10 +843,8 @@ msgstr ""
 "Penulis paket menggunakan PyPI untuk mendistribusikan perangkat lunak mereka."
 
 #: warehouse/templates/index.html:114
-#, fuzzy
-#| msgid "Learn how to package your Python code for PyPI</a>."
 msgid "Learn how to package your Python code for PyPI"
-msgstr "Pelajari cara mengemas kode Python Anda untuk PyPI</a>."
+msgstr "Pelajari cara mengemas kode Python Anda untuk PyPI"
 
 #: warehouse/templates/index.html:124
 msgid "Trending projects"
@@ -906,10 +884,8 @@ msgid "Confirm password"
 msgstr "Konfirmasi kata sandi"
 
 #: warehouse/templates/re-auth.html:30
-#, fuzzy
-#| msgid "Enter your password to continue."
 msgid "Confirm password to continue"
-msgstr "Masukkan kata sandi Anda untuk melanjutkan."
+msgstr "Konfirmasi kata sandi untuk melanjutkan"
 
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:110
@@ -941,8 +917,8 @@ msgstr "Kata sandi"
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:153
 #: warehouse/templates/manage/roles.html:165
-#: warehouse/templates/manage/token.html:134
-#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/manage/token.html:136
+#: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr "(wajib)"
@@ -975,6 +951,14 @@ msgid ""
 "hour.\n"
 "              "
 msgstr ""
+"\n"
+"              <b>Tip:</b> Anda akan melakukan sebuah <a href=\"%(href)s"
+"\">tindakan sensitif</a>.\n"
+"              Jika Anda tidak menggunakan komputer pribadi, pastikan untuk "
+"keluar setelah Anda selesai dengan sesi Anda.\n"
+"              Kami tidak akan meminta Anda untuk mengkonfirmasi kata sandi "
+"Anda lagi untuk satu jam berikutnya.\n"
+"              "
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1000,10 +984,8 @@ msgstr ""
 "PyPI</a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Invite"
-msgstr "Konfirmasikan formulir"
+msgstr "Konfirmasi Undangan"
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
@@ -1013,16 +995,21 @@ msgid ""
 "\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
 "      "
 msgstr ""
+"\n"
+"      Apakah Anda ingin menerima undangan ini untuk bergabung dengan '<a "
+"href=\"%(project_link)s\">%(project_name)s</a>' sebagai proyek "
+"%(role_name)s?\n"
+"      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr ""
+msgstr "Terima"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
-msgstr ""
+msgstr "Tolak"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -1107,23 +1094,17 @@ msgstr "%(user)s belum mengunggah proyek apa pun ke PyPI"
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/account.html:493
-#, fuzzy
-#| msgid "Error code"
 msgid "Recovery codes"
-msgstr "Kode kesalahan"
+msgstr "Kode pemulihan"
 
 #: warehouse/templates/accounts/recovery-code.html:24
 #: warehouse/templates/accounts/two-factor.html:119
-#, fuzzy
-#| msgid "Error code"
 msgid "Login using recovery codes"
-msgstr "Kode kesalahan"
+msgstr "Masuk menggunakan kode pemulihan"
 
 #: warehouse/templates/accounts/recovery-code.html:40
-#, fuzzy
-#| msgid "Error code"
 msgid "Enter recovery code"
-msgstr "Kode kesalahan"
+msgstr "Masukkan kode pemulihan"
 
 #: warehouse/templates/accounts/recovery-code.html:55
 #: warehouse/templates/accounts/two-factor.html:102
@@ -1137,14 +1118,15 @@ msgid ""
 "in the form to verify your identity. Once used, the recovery code will no "
 "longer be valid."
 msgstr ""
+"PyPI mengizinkan untuk membuat kode pemulihan untuk disimpan dengan aman "
+"secara offline jika perangkat atau aplikasi Anda hilang. Masukkan salah satu "
+"kode ini dalam formulir untuk memverifikasi identitas Anda. Setelah "
+"digunakan, kode pemulihan tidak akan lagi valid."
 
 #: warehouse/templates/accounts/recovery-code.html:59
-#, fuzzy, python-format
-#| msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
+#, python-format
 msgid "<p>Not working? <a href=\"%(href)s\">Get help</a>.</p>"
-msgstr ""
-"Kehilangan perangkatmu? Tidak berfungsi? <a href=\"%(href)s\">Dapatkan "
-"bantuan</a>."
+msgstr "<p>Tidak bekerja? <a href=\"%(href)s\">Dapatkan bantuan</a>.</p>"
 
 #: warehouse/templates/accounts/register.html:18
 msgid "Create an account"
@@ -1322,7 +1304,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr ""
+msgstr "Kehilangan kunci keamanan atau aplikasi Anda?"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1331,6 +1313,9 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
+"<p><strong>Anda belum membuat kode pemulihan akun.</strong></p><p>Jika Anda "
+"kehilangan akses ke metode dua faktor, Anda dapat kehilangan akses ke akun "
+"Anda. <a href=\"%(href)s\">Dapatkan bantuan dengan kode pemulihan.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -1351,19 +1336,25 @@ msgstr ""
 "%(email_address)s</a> untuk berkomunikasi dengan administrator PyPi."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
+#| "%(project)s by %(submitter)s."
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-"%(project)s by %(submitter)s."
+"%(project_name)s by %(initiator_username)s."
 msgstr ""
 "Anda telah ditambahkan sebagai <strong>%(role)s</strong> ke %(site)s proyek "
 "%(project)s oleh %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You are receiving this because you have been added by %(submitter)s to a "
+#| "project on %(site)s."
 msgid ""
-"You are receiving this because you have been added by %(submitter)s to a "
-"project on %(site)s."
+"You are receiving this because you have been added by %(initiator_username)s "
+"to a project on %(site)s."
 msgstr ""
 "Anda menerima ini karena telah ditambahkan oleh %(submitter)s ke proyek di "
 "%(site)s."
@@ -1551,16 +1542,13 @@ msgstr ""
 "dirubah dari <code>%(old_email)s</code> menjadi <code>%(new_email)s</code>"
 
 #: warehouse/templates/email/two-factor-added/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has added a %(method)s two-factor authentication "
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Seseorang, mungkin Anda, telah merubah kata sandi untuk akun PyPI Anda "
-"<strong>%(username)s</strong>."
+"Seseorang, mungkin Anda, telah menambahkan metode otentikasi dua faktor "
+"%(method)s ke akun PyPI Anda <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, fuzzy, python-format
@@ -1571,8 +1559,8 @@ msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
 msgstr ""
-"Seseorang, mungkin Anda, telah merubah kata sandi untuk akun PyPI Anda "
-"<strong>%(username)s</strong>."
+"Seseorang, mungkin Anda, telah menghapus metode otentikasi dua faktor "
+"%(method)s dari akun PyPI Anda <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/verify-email/body.html:18
 #, python-format
@@ -1584,16 +1572,13 @@ msgstr ""
 "%(email_address)s</code>) ke akun PyPI mereka."
 
 #: warehouse/templates/email/verify-email/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
-#| "link to verify your email address</a>"
+#, python-format
 msgid ""
 "If you wish to proceed with this request, <a href=\"%(href)s\">click this "
 "link to verify your email address</a>."
 msgstr ""
-"Jika anda berharap untuk melanjutkan dengan permintaan ini, <a href="
-"\"%(href)s\">klik link ini untuk memverivikasi alamat email anda</a>"
+"Jika Anda ingin melanjutkan permintaan ini, <a href=\"%(href)s\">klik tautan "
+"ini untuk memverifikasi alamat email Anda</a>."
 
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
@@ -1640,7 +1625,7 @@ msgstr "Abaikan pemberitahuan ini"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -1786,7 +1771,7 @@ msgstr "%(username)s belum pernah mengunggah proyek apapun ke PyPI."
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:17
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:14
 #, python-format
@@ -1878,9 +1863,8 @@ msgid "Tags"
 msgstr "Tag"
 
 #: warehouse/templates/includes/packaging/project-data.html:101
-#, fuzzy
 msgid "Requires:"
-msgstr "Memerlukan:"
+msgstr "Membutuhkan:"
 
 #: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Maintainers"
@@ -1944,7 +1928,7 @@ msgstr "Lihat opsi email"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:72
+#: warehouse/templates/manage/releases.html:68
 msgid "Options"
 msgstr "Pilihan"
 
@@ -1991,10 +1975,8 @@ msgstr ""
 "perangkat keamanan (mis. kunci USB)"
 
 #: warehouse/templates/manage/account.html:143
-#, fuzzy
-#| msgid "Error code"
 msgid "Generate recovery codes"
-msgstr "Kode kesalahan"
+msgstr "Buat kode pemulihan"
 
 #: warehouse/templates/manage/account.html:148
 #: warehouse/templates/manage/account/webauthn-provision.html:37
@@ -2019,7 +2001,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:167
 #: warehouse/templates/manage/account.html:530
-#: warehouse/templates/manage/token.html:149
+#: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr "Cakupan"
 
@@ -2046,7 +2028,7 @@ msgid "View token options"
 msgstr "Lihat opsi token"
 
 #: warehouse/templates/manage/account.html:196
-#: warehouse/templates/manage/token.html:55
+#: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr "Hapus token"
 
@@ -2056,13 +2038,13 @@ msgstr "Lihat pengidentifikasi unik"
 
 #: warehouse/templates/manage/account.html:210
 #: warehouse/templates/manage/account.html:212
-#: warehouse/templates/manage/token.html:58
-#: warehouse/templates/manage/token.html:59
+#: warehouse/templates/manage/token.html:60
+#: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr "Hapus token API"
 
 #: warehouse/templates/manage/account.html:217
-#: warehouse/templates/manage/token.html:64
+#: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr ""
@@ -2123,22 +2105,17 @@ msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr "Ditampilkan pada Anda <a href=\"%(href)s\">profil publik</a> anda"
 
 #: warehouse/templates/manage/account.html:309
-#, fuzzy
-#| msgid "Public profile"
 msgid "️Public email"
-msgstr "Profil publik"
+msgstr "️Email publik"
 
 #: warehouse/templates/manage/account.html:321
-#, fuzzy, python-format
-#| msgid ""
-#| "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
-#| "changed."
+#, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a href=\"%(href)s"
 "\">public profile</a> to logged-in users."
 msgstr ""
-"Ditampilkan pada <a href=\"%(href)s\">profil publik</a> anda. Tidak bisa "
-"diubah."
+"Salah satu email terverifikasi Anda dapat ditampilkan di <a href=\"%(href)s"
+"\">profil publik</a> Anda untuk pengguna yang sudah masuk."
 
 #: warehouse/templates/manage/account.html:326
 msgid "Update account"
@@ -2195,10 +2172,8 @@ msgid "Confirm new password"
 msgstr "Konfirmasi kata sandi baru"
 
 #: warehouse/templates/manage/account.html:440
-#, fuzzy
-#| msgid "Old password"
 msgid "Update password"
-msgstr "Kata sandi lama"
+msgstr "Perbarui kata sandi"
 
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
@@ -2264,14 +2239,14 @@ msgid "Device name"
 msgstr "Nama perangkat"
 
 #: warehouse/templates/manage/account.html:493
-#, fuzzy, python-format
-#| msgid "Last released on %(release_date)s"
+#, python-format
 msgid "generated %(generated_datetime)s"
-msgstr "Terakhir dirilis pada %(release_date)s"
+msgstr "dihasilkan %(generated_datetime)s"
 
 #: warehouse/templates/manage/account.html:496
+#, fuzzy
 msgid "Regenerate"
-msgstr ""
+msgstr "Buat ulang"
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
@@ -2279,7 +2254,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate recovery codes"
-msgstr ""
+msgstr "Buat kembali kode pemulihan"
 
 #: warehouse/templates/manage/account.html:509
 msgid "You have not enabled two factor authentication on your account."
@@ -2349,10 +2324,8 @@ msgid "None"
 msgstr "Tidak ada"
 
 #: warehouse/templates/manage/account.html:574
-#, fuzzy
-#| msgid "Error code"
 msgid "Recovery code"
-msgstr "Kode kesalahan"
+msgstr "Kode pemulihan"
 
 #: warehouse/templates/manage/account.html:579
 msgid "Email added to account"
@@ -2387,22 +2360,20 @@ msgid "Primary email set"
 msgstr "Kumpulan email utama"
 
 #: warehouse/templates/manage/account.html:604
-#, fuzzy
-#| msgid "Reset email sent"
 msgid "Email sent"
-msgstr "Email pengaturan ulang terkirim"
+msgstr "Email terkirim"
 
 #: warehouse/templates/manage/account.html:606
 msgid "From:"
-msgstr ""
+msgstr "Dari:"
 
 #: warehouse/templates/manage/account.html:607
 msgid "To:"
-msgstr ""
+msgstr "Untuk:"
 
 #: warehouse/templates/manage/account.html:608
 msgid "Subject:"
-msgstr ""
+msgstr "Subjek:"
 
 #: warehouse/templates/manage/account.html:612
 msgid "Password reset requested"
@@ -2447,16 +2418,17 @@ msgid "Two factor authentication removed"
 msgstr "Autentikasi dua faktor dihapus"
 
 #: warehouse/templates/manage/account.html:640
+#, fuzzy
 msgid "Recovery codes generated"
-msgstr ""
+msgstr "Kode pemulihan dibuat"
 
 #: warehouse/templates/manage/account.html:644
 msgid "Recovery codes regenerated"
-msgstr ""
+msgstr "Kode pemulihan dibuat ulang"
 
 #: warehouse/templates/manage/account.html:648
 msgid "Recovery code used for login"
-msgstr ""
+msgstr "Kode pemulihan digunakan untuk login"
 
 #: warehouse/templates/manage/account.html:654
 #: warehouse/templates/manage/history.html:65
@@ -2578,7 +2550,7 @@ msgstr ""
 "\"%(delete_href) s\" > hapus proyek </a>"
 
 #: warehouse/templates/manage/account.html:737
-#: warehouse/templates/manage/token.html:167
+#: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "Lanjutkan dengan hati hati!"
 
@@ -2778,7 +2750,7 @@ msgstr "dari %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:94
-#: warehouse/templates/manage/releases.html:92
+#: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "Mengelola"
 
@@ -2866,7 +2838,7 @@ msgid "This project has no releases"
 msgstr "Proyek ini tidak memiliki rilis"
 
 #: warehouse/templates/manage/projects.html:104
-#: warehouse/templates/manage/releases.html:98
+#: warehouse/templates/manage/releases.html:94
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "Lihat"
@@ -2962,7 +2934,7 @@ msgid "Delete file"
 msgstr "Hapus berkas"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:109
 msgid "Delete"
 msgstr "Hapus"
 
@@ -2975,7 +2947,7 @@ msgid "No files found"
 msgstr "Tidak ada berkas ditemukan"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -2994,84 +2966,84 @@ msgstr ""
 msgid "Release settings"
 msgstr "Pengaturan rilis"
 
-#: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/releases.html:127
+#: warehouse/templates/manage/release.html:126
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/releases.html:123
 #, fuzzy
 #| msgid "New releases"
 msgid "Yank release"
 msgstr "Rilis baru"
 
-#: warehouse/templates/manage/release.html:128
+#: warehouse/templates/manage/release.html:129
 #, python-format
 msgid ""
 "\n"
-"        Yanking will mark this release (and %(count)s file within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s file within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgid_plural ""
 "\n"
-"        Yanking will mark this release (and %(count)s files within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s files within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgstr[0] ""
 
-#: warehouse/templates/manage/release.html:134
+#: warehouse/templates/manage/release.html:135
 msgid ""
 "\n"
-"        Yanking will mark this release to be ignored when installing in most "
-"common scenarios.\n"
-"      "
-msgstr ""
-
-#: warehouse/templates/manage/release.html:138
-#, python-format
-msgid ""
-"\n"
-"      This release will still be installable for users pinning to this exact "
-"version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
-"    "
-msgstr ""
-
-#: warehouse/templates/manage/release.html:141
-#, python-format
-msgid ""
-"\n"
-"      For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
-"    "
-msgstr ""
-
-#: warehouse/templates/manage/release.html:148
-#, python-format
-msgid ""
-"\n"
-"          You may provide a reason for yanking this release, which will be "
-"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
-"code>.\n"
+"          Yanking will mark this release to be ignored when installing in "
+"most common scenarios.\n"
 "        "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:152
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/release.html:139
+#, python-format
+msgid ""
+"\n"
+"        This release will still be installable for users pinning to this "
+"exact version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
+"      "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:142
+#, python-format
+msgid ""
+"\n"
+"        For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
+"      "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:149
+#, python-format
+msgid ""
+"\n"
+"            You may provide a reason for yanking this release, which will be "
+"displayed by pip to users who install <code>%(project_name)s==%(version)s</"
+"code>.\n"
+"          "
+msgstr ""
+
+#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/releases.html:130
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/release.html:178
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:124
-#: warehouse/templates/manage/releases.html:137
-#: warehouse/templates/manage/releases.html:144
+#: warehouse/templates/manage/releases.html:120
+#: warehouse/templates/manage/releases.html:133
+#: warehouse/templates/manage/releases.html:140
 msgid "Version"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:159
-#: warehouse/templates/manage/release.html:176
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Hapus rilisan"
 
-#: warehouse/templates/manage/release.html:163
+#: warehouse/templates/manage/release.html:165
 #, python-format
 msgid ""
 "\n"
@@ -3089,11 +3061,11 @@ msgstr[0] ""
 "%(count)s.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:169
+#: warehouse/templates/manage/release.html:171
 msgid "Deleting will irreversibly delete this release."
 msgstr "Penghapusan akan menghapus rilisan ini."
 
-#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/release.html:173
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -3120,11 +3092,11 @@ msgstr ""
 msgid "Yanked reason"
 msgstr "Rilis baru"
 
-#: warehouse/templates/manage/releases.html:37
+#: warehouse/templates/manage/releases.html:36
 msgid "Manage version"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:48
+#: warehouse/templates/manage/releases.html:44
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -3147,40 +3119,40 @@ msgstr[0] ""
 "            %(count)s proyek\n"
 "          "
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:57
 msgid "No files"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:71
+#: warehouse/templates/manage/releases.html:67
 msgid "View release options"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:77
+#: warehouse/templates/manage/releases.html:73
 #, python-format
 msgid "Options for %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:80
+#: warehouse/templates/manage/releases.html:76
 #, fuzzy
 #| msgid "Releases"
 msgid "Un-yank Release"
 msgstr "Rilis"
 
-#: warehouse/templates/manage/releases.html:85
+#: warehouse/templates/manage/releases.html:81
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:105
+#: warehouse/templates/manage/releases.html:101
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:119
 #, fuzzy
 #| msgid "pre-release"
 msgid "Un-yank release"
 msgstr "Pra-rilis"
 
-#: warehouse/templates/manage/releases.html:130
+#: warehouse/templates/manage/releases.html:126
 #, python-format
 msgid ""
 "\n"
@@ -3190,7 +3162,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:138
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -3199,31 +3171,31 @@ msgid ""
 "\"noopener\">post release</a> instead."
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:149
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:158
+#: warehouse/templates/manage/releases.html:154
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:164
+#: warehouse/templates/manage/releases.html:160
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Terakhir dirilis pada %(release_date)s"
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:166
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:168
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/releases.html:171
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3421,77 +3393,77 @@ msgstr ""
 msgid "Project Name"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:36
+#: warehouse/templates/manage/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
 msgstr ""
 
-#: warehouse/templates/manage/token.html:38
+#: warehouse/templates/manage/token.html:40
 msgid "Permissions:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:38
-#: warehouse/templates/manage/token.html:145
+#: warehouse/templates/manage/token.html:40
+#: warehouse/templates/manage/token.html:147
 msgid "Upload packages"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:40
 #: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 msgid "Scope:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:40
-#: warehouse/templates/manage/token.html:156
+#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:158
 msgid "Entire account (all projects)"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 #, python-format
 msgid "Project \"%(project)s\""
 msgstr ""
 
-#: warehouse/templates/manage/token.html:49
+#: warehouse/templates/manage/token.html:51
 msgid ""
 "For security reasons this token will only appear once. <strong>Copy it now.</"
 "strong>"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:51
+#: warehouse/templates/manage/token.html:53
 msgid "Copy token to clipboard"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:52
+#: warehouse/templates/manage/token.html:54
 msgid "Copy token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:70
+#: warehouse/templates/manage/token.html:72
 msgid "Using this token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:72
+#: warehouse/templates/manage/token.html:74
 msgid "To use this API token:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:75
+#: warehouse/templates/manage/token.html:77
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:76
+#: warehouse/templates/manage/token.html:78
 #, python-format
 msgid ""
 "Set your password to the token value, including the <code>%(prefix)s</code> "
 "prefix"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:82
+#: warehouse/templates/manage/token.html:84
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload your "
 "projects to PyPI, set up your <code>%(filename)s</code> file like this:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:92
+#: warehouse/templates/manage/token.html:94
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload "
@@ -3499,61 +3471,61 @@ msgid ""
 "file like this:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:104
+#: warehouse/templates/manage/token.html:106
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as the "
 "default"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:109
+#: warehouse/templates/manage/token.html:111
 msgid "a project token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:111
+#: warehouse/templates/manage/token.html:113
 #, python-format
 msgid ""
 "You can then use <code>%(command)s</code> to switch to the correct token "
 "when uploading to PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:117
+#: warehouse/templates/manage/token.html:119
 #, python-format
 msgid ""
 "For further instructions on how to use this token, <a href=\"%(href)s"
 "\">visit the PyPI help page</a>."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:125
+#: warehouse/templates/manage/token.html:127
 msgid "Add another token"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:132
+#: warehouse/templates/manage/token.html:134
 msgid "Token name"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:141
+#: warehouse/templates/manage/token.html:143
 msgid "What is this token for?"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:144
+#: warehouse/templates/manage/token.html:146
 msgid "Permissions"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:155
+#: warehouse/templates/manage/token.html:157
 msgid "Select scope..."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:159
+#: warehouse/templates/manage/token.html:161
 msgid "Project:"
 msgstr ""
 
-#: warehouse/templates/manage/token.html:168
+#: warehouse/templates/manage/token.html:170
 msgid ""
 "An API token scoped to your entire account will have upload permissions for "
 "all of your current and future projects."
 msgstr ""
 
-#: warehouse/templates/manage/token.html:171
+#: warehouse/templates/manage/token.html:173
 msgid "Add token"
 msgstr ""
 
@@ -3779,7 +3751,7 @@ msgstr ""
 #: warehouse/templates/packaging/detail.html:205
 #: warehouse/templates/packaging/detail.html:233
 msgid "Project description"
-msgstr ""
+msgstr "Deskripsi proyek"
 
 #: warehouse/templates/packaging/detail.html:179
 #: warehouse/templates/packaging/detail.html:215
@@ -5379,8 +5351,8 @@ msgid ""
 "work together to improve Python packaging. If you'd like to get in touch "
 "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
-"a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">join the distutils-sig mailing list</a>."
+"a>, or <a href=\"%(discuss_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">browse the online board</a>."
 msgstr ""
 
 #: warehouse/templates/pages/security.html:15
@@ -6078,29 +6050,32 @@ msgid "Order by"
 msgstr ""
 
 #: warehouse/templates/search/results.html:179
+#, fuzzy
 msgid "Relevance"
-msgstr ""
+msgstr "Relevan"
 
 #: warehouse/templates/search/results.html:180
 msgid "Date last updated"
-msgstr ""
+msgstr "Tanggal terakhir diperbarui"
 
 #: warehouse/templates/search/results.html:181
+#, fuzzy
 msgid "Trending"
-msgstr ""
+msgstr "Trending"
 
 #: warehouse/templates/search/results.html:194
 msgid "Filter"
-msgstr ""
+msgstr "Saring"
 
 #: warehouse/templates/search/results.html:205
+#, fuzzy
 msgid "Add filter"
-msgstr ""
+msgstr "Tambah saringan"
 
 #: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(term)s'"
-msgstr ""
+msgstr "Tidak ada hasil untuk '%(term)s'"
 
 #: warehouse/templates/search/results.html:223
 #, python-format
@@ -6113,6 +6088,9 @@ msgid_plural ""
 "                  There were no results for '%(filters)s' filters\n"
 "                "
 msgstr[0] ""
+"\n"
+"                  Tidak ada hasil untuk filter '%(filters)s'\n"
+"                "
 
 #, fuzzy
 #~| msgid "Privacy policy"

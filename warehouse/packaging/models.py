@@ -59,6 +59,7 @@ class Role(db.Model):
     __tablename__ = "roles"
     __table_args__ = (
         Index("roles_user_id_idx", "user_id"),
+        Index("roles_project_id_idx", "project_id"),
         UniqueConstraint("user_id", "project_id", name="_roles_user_project_uc"),
     )
 

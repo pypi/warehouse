@@ -170,10 +170,9 @@
     {% else %}
       {% trans %}Deleting will irreversibly delete this release.{% endtrans %}
     {% endif %}
-      {% trans trimmed href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}
-        You will not be able to re-upload a new distribution of the same type with the same version number.
-        Consider yanking this release, making a new release, or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases">post release</a> instead.
-      {% endtrans %}
+      <p>{% trans %}You will not be able to re-upload a new distribution of the same type with the same version number.{% endtrans %}</p>
+      <p>{% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}</p>
+      <p>{% trans yank_href=request.help_url(_anchor='yanked'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}" title="{{ title }}" target="_blank" rel="noopener">yanking</a> this release, making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
     </p>
     {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version) }}
   </div>
