@@ -481,9 +481,9 @@ msgpack==1.0.0 \
     --hash=sha256:e7bbdd8e2b277b77782f3ce34734b0dfde6cbe94ddb74de8d733d603c7f9e2b1 \
     --hash=sha256:ea41c9219c597f1d2bf6b374d951d310d58684b5de9dc4bd2976db9e1e22c140 \
     # via -r requirements/main.in
-packaging==20.4 \
-    --hash=sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8 \
-    --hash=sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181 \
+packaging==20.7 \
+    --hash=sha256:05af3bb85d320377db281cf254ab050e1a7ebcbf5410685a9a407e18a1f81236 \
+    --hash=sha256:eb41423378682dadb7166144a4926e443093863024de508ca5c9737d6bc08376 \
     # via -r requirements/main.in, bleach
 paginate-sqlalchemy==0.3.1 \
     --hash=sha256:9ee349b74a5f2f52455cb1280d0ca24222c8137e638363df5877e6e76c369b5b \
@@ -729,7 +729,7 @@ sentry-sdk==0.19.4 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, grpcio, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
+    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, grpcio, html5lib, limits, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
 sqlalchemy-citext==1.7.0 \
     --hash=sha256:69ba00f5505f92a1455a94eefc6d3fcf72dda3691ab5398a0b4d0d8d85bd6aab \
     # via -r requirements/main.in

@@ -92,9 +92,9 @@ mirakuru==2.3.0 \
     --hash=sha256:1f89b9e5f23cec4181aa0225622b1996786848d830f51a12aa9c863bbfc2acc6 \
     --hash=sha256:cb90f587ebd2ca5b8c9c61ce025be86ec123522a8b100b2a419bc7e8d28259f0 \
     # via pytest-postgresql
-packaging==20.4 \
-    --hash=sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8 \
-    --hash=sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181 \
+packaging==20.7 \
+    --hash=sha256:05af3bb85d320377db281cf254ab050e1a7ebcbf5410685a9a407e18a1f81236 \
+    --hash=sha256:eb41423378682dadb7166144a4926e443093863024de508ca5c9737d6bc08376 \
     # via pytest
 pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
@@ -159,7 +159,7 @@ selenium==3.141.0 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via bok-choy, fakeredis, packaging, python-dateutil, responses, webtest
+    # via bok-choy, fakeredis, python-dateutil, responses, webtest
 sortedcontainers==2.3.0 \
     --hash=sha256:37257a32add0a3ee490bb170b599e93095eed89a55da91fa9f48753ea12fd73f \
     --hash=sha256:59cc937650cf60d677c16775597c89a960658a09cf7c1a668f86e1e4464b10a1 \
