@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-09-11 18:02+0000\n"
+"PO-Revision-Date: 2020-10-25 16:37+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -21,26 +21,26 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.3.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
 msgstr "Se actualizó la configuración de idioma"
 
-#: warehouse/accounts/forms.py:42
+#: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
 msgstr "No se encontró ninguna cuenta con ese nombre de usuario"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "El código TOTP debe tener ${totp_length} dígitos."
 
-#: warehouse/accounts/forms.py:80
+#: warehouse/accounts/forms.py:81
 msgid "Choose a username with 50 characters or less."
 msgstr "Elija un nombre de usuario de 50 caracteres o menos."
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:87
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -50,7 +50,7 @@ msgstr ""
 "de letras, números, puntos, guiones y guiones bajos; además, deben comenzar "
 "y finalizar por una letra o un número. Elíjase otro nombre de usuario."
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:101
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -58,31 +58,31 @@ msgstr ""
 "Otra cuenta ya utiliza este nombre de usuario. Elija un nombre de usuario "
 "distinto."
 
-#: warehouse/accounts/forms.py:123
+#: warehouse/accounts/forms.py:124
 msgid "The password is invalid. Try again."
 msgstr "La contraseña no es válida. Inténtelo de nuevo."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Hubo demasiados intentos infructuosos de acceso. Inténtelo de nuevo más "
 "tarde."
 
-#: warehouse/accounts/forms.py:149
+#: warehouse/accounts/forms.py:150
 msgid "Your passwords don't match. Try again."
 msgstr "Las contraseñas no coinciden. Inténtelo de nuevo."
 
-#: warehouse/accounts/forms.py:180 warehouse/accounts/forms.py:191
+#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
 msgid "The email address isn't valid. Try again."
 msgstr "La dirección de correo no es válida. Inténtelo de nuevo."
 
-#: warehouse/accounts/forms.py:199
+#: warehouse/accounts/forms.py:200
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "No puede utilizar una dirección de correo de este dominio. Utilice una "
 "dirección distinta."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:211
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -90,7 +90,7 @@ msgstr ""
 "Otra cuenta ya utiliza esta dirección de correo. Utilice una dirección "
 "distinta."
 
-#: warehouse/accounts/forms.py:217
+#: warehouse/accounts/forms.py:218
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -98,24 +98,24 @@ msgstr ""
 "Otra cuenta ya utiliza esta dirección de correo. Utilice una dirección "
 "distinta."
 
-#: warehouse/accounts/forms.py:239
+#: warehouse/accounts/forms.py:240
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "El nombre es demasiado extenso. Elija un nombre con 100 caracteres o menos."
 
-#: warehouse/accounts/forms.py:303
+#: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
 msgstr "El código TOTP no es válido."
 
-#: warehouse/accounts/forms.py:320
+#: warehouse/accounts/forms.py:321
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "La aserción de WebAuthn no es válida: carga incorrecta"
 
-#: warehouse/accounts/forms.py:363
+#: warehouse/accounts/forms.py:364
 msgid "Invalid recovery code."
 msgstr "El código de recuperación no es válido."
 
-#: warehouse/accounts/forms.py:381
+#: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
 msgstr "No se encontró ninguna cuenta con ese nombre o esa dirección"
 
@@ -230,42 +230,36 @@ msgstr ""
 "${confirm_message}."
 
 #: warehouse/accounts/views.py:768
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
-msgstr ""
-"Ficha caducada: solicite un enlace de restablecimiento de contraseña nuevo"
+msgstr "Ficha caducada: solicite una invitación nueva para asumir un puesto"
 
 #: warehouse/accounts/views.py:770
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
 msgstr ""
-"Ficha no válida: solicite un enlace de restablecimiento de contraseña nuevo"
+"Ficha no válida: solicite una invitación nueva para asumir un puesto en el "
+"proyecto"
 
 #: warehouse/accounts/views.py:776
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Ficha no válida: no es una ficha de verificación de dirección"
+msgstr ""
+"Ficha caducada: solicite una invitación nueva para asumir un puesto en el "
+"proyecto"
 
 #: warehouse/accounts/views.py:780
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "La invitación al puesto no es válida."
 
 #: warehouse/accounts/views.py:795
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "La invitación al puesto ya no existe."
 
 #: warehouse/accounts/views.py:807
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "Se declinó la invitación a «${project_name}»."
 
 #: warehouse/accounts/views.py:874
-#, fuzzy
-#| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr "No eres el dueño de este proyecto"
+msgstr "Ahora es ${role} del proyecto «${project_name}»."
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -295,36 +289,38 @@ msgstr "Datos de acceso no válidos. Inténtelo de nuevo"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "«${username}» ya funge como ${role_name} en el proyecto"
 
 #: warehouse/manage/views.py:1514
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"No se puede añadir a «${username}» como ${role_name} del proyecto porque no "
+"tiene verificada ninguna dirección de correo principal"
 
 #: warehouse/manage/views.py:1527
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"«${username}» ya tiene una invitación activa. Inténtelo de nuevo más "
+"adelante."
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "Se envió la invitación a «${username}»"
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "No se encontró la invitación al puesto."
 
 #: warehouse/manage/views.py:1643
-#, fuzzy
-#| msgid "Email already verified"
 msgid "Invitation already expired."
-msgstr "Ya se verificó la dirección de correo"
+msgstr "Ya caducó la invitación."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "Se revocó la invitación para «${username}»."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -375,9 +371,9 @@ msgstr "Monty Python, escena «La quesería»"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:171
-#: warehouse/templates/manage/releases.html:142
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:171
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -627,7 +623,7 @@ msgstr "Cambiar a la versión para móviles"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
 msgstr "Aviso"
@@ -794,10 +790,8 @@ msgid "Switch to desktop version"
 msgstr "Cambiar a la versión de escritorio"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Formulario de confirmación"
+msgstr "Confirme la acción"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -947,8 +941,8 @@ msgstr "Contraseña"
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:153
 #: warehouse/templates/manage/roles.html:165
-#: warehouse/templates/manage/token.html:134
-#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/manage/token.html:136
+#: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr "(obligatorio)"
@@ -1015,10 +1009,8 @@ msgstr ""
 "de PyPI</a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Invite"
-msgstr "Formulario de confirmación"
+msgstr "Confirme la invitación"
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
@@ -1028,16 +1020,20 @@ msgid ""
 "\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
 "      "
 msgstr ""
+"\n"
+"      ¿Quiere aceptar esta invitación a incorporarse a «<a href="
+"\"%(project_link)s\">%(project_name)s</a>» como %(role_name)s del proyecto?\n"
+"      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr ""
+msgstr "Aceptar"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
-msgstr ""
+msgstr "Declinar"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -1370,19 +1366,25 @@ msgstr ""
 "%(email_address)s</a> para comunicarse con los administradores de PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
+#| "%(project)s by %(submitter)s."
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-"%(project)s by %(submitter)s."
+"%(project_name)s by %(initiator_username)s."
 msgstr ""
 "Ha sido añadido como <strong>%(role)s</strong> al %(site)s proyecto "
 "%(project)s por %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You are receiving this because you have been added by %(submitter)s to a "
+#| "project on %(site)s."
 msgid ""
-"You are receiving this because you have been added by %(submitter)s to a "
-"project on %(site)s."
+"You are receiving this because you have been added by %(initiator_username)s "
+"to a project on %(site)s."
 msgstr ""
 "Ha recibido esto porque %(submitter)s lo ha añadido a un proyecto en "
 "%(site)s."
@@ -1657,7 +1659,7 @@ msgstr "Descartar esta notificación"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -1961,7 +1963,7 @@ msgstr "Ver opciones de correo electrónico"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:72
+#: warehouse/templates/manage/releases.html:68
 msgid "Options"
 msgstr "Opciones"
 
@@ -2034,7 +2036,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:167
 #: warehouse/templates/manage/account.html:530
-#: warehouse/templates/manage/token.html:149
+#: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr "Ámbito"
 
@@ -2061,7 +2063,7 @@ msgid "View token options"
 msgstr "Ver opciones de ficha"
 
 #: warehouse/templates/manage/account.html:196
-#: warehouse/templates/manage/token.html:55
+#: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr "Quitar ficha"
 
@@ -2071,13 +2073,13 @@ msgstr "Ver identificador único"
 
 #: warehouse/templates/manage/account.html:210
 #: warehouse/templates/manage/account.html:212
-#: warehouse/templates/manage/token.html:58
-#: warehouse/templates/manage/token.html:59
+#: warehouse/templates/manage/token.html:60
+#: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr "Quitar ficha de API"
 
 #: warehouse/templates/manage/account.html:217
-#: warehouse/templates/manage/token.html:64
+#: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr ""
@@ -2595,7 +2597,7 @@ msgstr ""
 "\"%(delete_href)s\">eliminar proyecto</a>"
 
 #: warehouse/templates/manage/account.html:737
-#: warehouse/templates/manage/token.html:167
+#: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "¡Prosiga con cautela!"
 
@@ -2798,7 +2800,7 @@ msgstr "desde %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:94
-#: warehouse/templates/manage/releases.html:92
+#: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "Gestionar"
 
@@ -2854,10 +2856,9 @@ msgid "Back to projects"
 msgstr "Volver a los proyectos"
 
 #: warehouse/templates/manage/projects.html:22
-#, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
+#, python-format
 msgid "Pending invitations (%(project_count)s)"
-msgstr "Sus proyectos (%(project_count)s)"
+msgstr "Invitaciones pendientes (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
@@ -2875,7 +2876,7 @@ msgstr "Gestionar este proyecto"
 
 #: warehouse/templates/manage/projects.html:92
 msgid "You are not an owner of this project"
-msgstr "No eres el dueño de este proyecto"
+msgstr "No es propietario de este proyecto"
 
 #: warehouse/templates/manage/projects.html:99
 msgid "View this project's public page"
@@ -2886,7 +2887,7 @@ msgid "This project has no releases"
 msgstr "Este proyecto no tiene versiones"
 
 #: warehouse/templates/manage/projects.html:104
-#: warehouse/templates/manage/releases.html:98
+#: warehouse/templates/manage/releases.html:94
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "Ver"
@@ -2982,7 +2983,7 @@ msgid "Delete file"
 msgstr "Eliminar archivo"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:109
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -2995,7 +2996,7 @@ msgid "No files found"
 msgstr "No se encontró ningún archivo"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3015,108 +3016,108 @@ msgstr ""
 msgid "Release settings"
 msgstr "Configuración de versión"
 
-#: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/releases.html:127
+#: warehouse/templates/manage/release.html:126
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/releases.html:123
 msgid "Yank release"
 msgstr "Retirar versión"
 
-#: warehouse/templates/manage/release.html:128
+#: warehouse/templates/manage/release.html:129
 #, python-format
 msgid ""
 "\n"
-"        Yanking will mark this release (and %(count)s file within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s file within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgid_plural ""
 "\n"
-"        Yanking will mark this release (and %(count)s files within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s files within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgstr[0] ""
 "\n"
-"        La retirada hará que esta versión (y el archivo que contiene) se "
+"          La retirada hará que esta versión (y el archivo que contiene) se "
 "ignore durante la instalación en la mayoría de los casos.\n"
-"      "
+"        "
 msgstr[1] ""
 "\n"
-"        La retirada hará que esta versión (y los %(count)s archivos que "
+"          La retirada hará que esta versión (y los %(count)s archivos que "
 "contiene) se ignore durante la instalación en la mayoría de los casos.\n"
-"      "
+"        "
 
-#: warehouse/templates/manage/release.html:134
+#: warehouse/templates/manage/release.html:135
 msgid ""
 "\n"
-"        Yanking will mark this release to be ignored when installing in most "
-"common scenarios.\n"
-"      "
+"          Yanking will mark this release to be ignored when installing in "
+"most common scenarios.\n"
+"        "
 msgstr ""
 "\n"
-"        La retirada hará que esta versión se ignore durante la instalación "
+"          La retirada hará que esta versión se ignore durante la instalación "
 "en la mayoría de los casos.\n"
-"      "
+"        "
 
-#: warehouse/templates/manage/release.html:138
+#: warehouse/templates/manage/release.html:139
 #, python-format
 msgid ""
 "\n"
-"      This release will still be installable for users pinning to this exact "
-"version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
-"    "
+"        This release will still be installable for users pinning to this "
+"exact version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
+"      "
 msgstr ""
 "\n"
-"      Aquellos usuarios que se anclen exactamente a esta versión podrán "
+"        Aquellos usuarios que se anclen exactamente a esta versión podrán "
 "instalarla de todos modos, p. ej., al utilizar <code>%(project_name)s=="
 "%(version)s</code>.\n"
-"    "
+"      "
 
-#: warehouse/templates/manage/release.html:141
+#: warehouse/templates/manage/release.html:142
 #, python-format
 msgid ""
 "\n"
-"      For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
-"    "
+"        For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
+"      "
 msgstr ""
 "\n"
-"      Para mayor información, consulte <a href=\"%(href)s\">PEP 592</a>.\n"
-"    "
+"        Para mayor información, consulte <a href=\"%(href)s\">PEP 592</a>.\n"
+"      "
 
-#: warehouse/templates/manage/release.html:148
+#: warehouse/templates/manage/release.html:149
 #, python-format
 msgid ""
 "\n"
-"          You may provide a reason for yanking this release, which will be "
+"            You may provide a reason for yanking this release, which will be "
 "displayed by pip to users who install <code>%(project_name)s==%(version)s</"
 "code>.\n"
-"        "
+"          "
 msgstr ""
 "\n"
-"          Puede proporcionar una razón para retirar esta versión, la cual "
+"            Puede proporcionar una razón para retirar esta versión, la cual "
 "pip mostrará a los usuarios que instalen <code>%(project_name)s=="
 "%(version)s</code>.\n"
-"        "
+"          "
 
-#: warehouse/templates/manage/release.html:152
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/releases.html:130
 msgid "Reason (optional)"
 msgstr "Motivo (opcional)"
 
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/release.html:178
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:124
-#: warehouse/templates/manage/releases.html:137
-#: warehouse/templates/manage/releases.html:144
+#: warehouse/templates/manage/releases.html:120
+#: warehouse/templates/manage/releases.html:133
+#: warehouse/templates/manage/releases.html:140
 msgid "Version"
 msgstr "Versión"
 
-#: warehouse/templates/manage/release.html:159
-#: warehouse/templates/manage/release.html:176
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Eliminar versión"
 
-#: warehouse/templates/manage/release.html:163
+#: warehouse/templates/manage/release.html:165
 #, python-format
 msgid ""
 "\n"
@@ -3139,11 +3140,11 @@ msgstr[1] ""
 "archivos.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:169
+#: warehouse/templates/manage/release.html:171
 msgid "Deleting will irreversibly delete this release."
 msgstr "La eliminación suprimirá irreversiblemente esta versión."
 
-#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/release.html:173
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -3172,11 +3173,11 @@ msgstr "Archivos"
 msgid "Yanked reason"
 msgstr "Motivo para el retiro"
 
-#: warehouse/templates/manage/releases.html:37
+#: warehouse/templates/manage/releases.html:36
 msgid "Manage version"
 msgstr "Gestionar versión"
 
-#: warehouse/templates/manage/releases.html:48
+#: warehouse/templates/manage/releases.html:44
 #, python-format
 msgid ""
 "\n"
@@ -3195,36 +3196,36 @@ msgstr[1] ""
 "          %(count)s archivos\n"
 "        "
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:57
 msgid "No files"
 msgstr "No hay ningún archivo"
 
-#: warehouse/templates/manage/releases.html:71
+#: warehouse/templates/manage/releases.html:67
 msgid "View release options"
 msgstr "Ver opciones de versión"
 
-#: warehouse/templates/manage/releases.html:77
+#: warehouse/templates/manage/releases.html:73
 #, python-format
 msgid "Options for %(version)s"
 msgstr "Opciones de %(version)s"
 
-#: warehouse/templates/manage/releases.html:80
+#: warehouse/templates/manage/releases.html:76
 msgid "Un-yank Release"
 msgstr "Anular retirada de versión"
 
-#: warehouse/templates/manage/releases.html:85
+#: warehouse/templates/manage/releases.html:81
 msgid "Un-yank"
 msgstr "Anular retirada"
 
-#: warehouse/templates/manage/releases.html:105
+#: warehouse/templates/manage/releases.html:101
 msgid "Yank"
 msgstr "Retirar"
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:119
 msgid "Un-yank release"
 msgstr "Anular retirada de versión"
 
-#: warehouse/templates/manage/releases.html:130
+#: warehouse/templates/manage/releases.html:126
 #, python-format
 msgid ""
 "\n"
@@ -3239,7 +3240,7 @@ msgstr ""
 "%(version)s</code>.\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:138
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -3252,30 +3253,30 @@ msgstr ""
 "versión nueva, o bien, emitir una <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">posversión</a>."
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:149
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Gestionar versiones de «%(project_name)s»"
 
-#: warehouse/templates/manage/releases.html:158
+#: warehouse/templates/manage/releases.html:154
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Versiones (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:164
+#: warehouse/templates/manage/releases.html:160
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Versiones retiradas (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:166
 msgid "Creating a new release"
 msgstr "Creando un nuevo lanzamiento"
 
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:168
 msgid "No releases found"
 msgstr "No se encontró ninguna versión"
 
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/releases.html:171
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3312,15 +3313,11 @@ msgid "Maintainer"
 msgstr "Responsable"
 
 #: warehouse/templates/manage/roles.html:28
-#, fuzzy
-#| msgid ""
-#| "Can upload releases for a package. Cannot add collaborators. Cannot "
-#| "delete files, releases, or the project."
 msgid ""
 "Can upload releases for a package. Cannot invite collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
-"Puede cargar versiones de paquetes. No puede añadir colaboradores. No puede "
+"Puede cargar versiones de paquetes. No puede invitar colaboradores. No puede "
 "eliminar archivos, versiones o el proyecto mismo."
 
 #: warehouse/templates/manage/roles.html:29
@@ -3330,15 +3327,11 @@ msgid "Owner"
 msgstr "Propietario"
 
 #: warehouse/templates/manage/roles.html:30
-#, fuzzy
-#| msgid ""
-#| "Can upload releases. Can add other collaborators. Can delete files, "
-#| "releases, or the entire project."
 msgid ""
 "Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
-"Puede cargar versiones. Puede añadir otros colaboradores. Puede eliminar "
+"Puede cargar versiones. Puede invitar a otros colaboradores. Puede eliminar "
 "archivos, versiones o todo el proyecto."
 
 #: warehouse/templates/manage/roles.html:34
@@ -3372,31 +3365,28 @@ msgstr "Eliminar %(user)s de este proyecto"
 
 #: warehouse/templates/manage/roles.html:123
 msgid "Invite pending"
-msgstr ""
+msgstr "Invitación pendiente"
 
 #: warehouse/templates/manage/roles.html:125
 msgid "Invite expired"
-msgstr ""
+msgstr "Invitación caducada"
 
 #: warehouse/templates/manage/roles.html:135
-#, fuzzy, python-format
-#| msgid "Navigation for %(project)s"
+#, python-format
 msgid "Revoke invitation for %(user)s"
-msgstr "Navegación de %(project)s"
+msgstr "Revocar invitación de %(user)s"
 
 #: warehouse/templates/manage/roles.html:137
 msgid "Revoke invite"
-msgstr ""
+msgstr "Revocar invitación"
 
 #: warehouse/templates/manage/roles.html:146
-#, fuzzy
-#| msgid "Add collaborator"
 msgid "Invite collaborator"
-msgstr "Añadir colaborador"
+msgstr "Invitar colaborador"
 
 #: warehouse/templates/manage/roles.html:174
 msgid "Invite"
-msgstr ""
+msgstr "Invitar"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
@@ -3516,36 +3506,36 @@ msgstr ""
 msgid "Project Name"
 msgstr "Nombre del proyecto"
 
-#: warehouse/templates/manage/token.html:36
+#: warehouse/templates/manage/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
 msgstr "Ficha para «%(macaroon_description)s»"
 
-#: warehouse/templates/manage/token.html:38
+#: warehouse/templates/manage/token.html:40
 msgid "Permissions:"
 msgstr "Permisos:"
 
-#: warehouse/templates/manage/token.html:38
-#: warehouse/templates/manage/token.html:145
+#: warehouse/templates/manage/token.html:40
+#: warehouse/templates/manage/token.html:147
 msgid "Upload packages"
 msgstr "Cargar paquetes"
 
-#: warehouse/templates/manage/token.html:40
 #: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 msgid "Scope:"
 msgstr "Ámbito:"
 
-#: warehouse/templates/manage/token.html:40
-#: warehouse/templates/manage/token.html:156
+#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:158
 msgid "Entire account (all projects)"
 msgstr "La cuenta completa (todos los proyectos)"
 
-#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 #, python-format
 msgid "Project \"%(project)s\""
 msgstr "Proyecto «%(project)s»"
 
-#: warehouse/templates/manage/token.html:49
+#: warehouse/templates/manage/token.html:51
 msgid ""
 "For security reasons this token will only appear once. <strong>Copy it now.</"
 "strong>"
@@ -3553,40 +3543,37 @@ msgstr ""
 "Por motivos de seguridad, esta ficha aparecerá solo una vez. <strong>Cópiela "
 "ahora.</strong>"
 
-#: warehouse/templates/manage/token.html:51
+#: warehouse/templates/manage/token.html:53
 msgid "Copy token to clipboard"
 msgstr "Copiar ficha en el portapapeles"
 
-#: warehouse/templates/manage/token.html:52
+#: warehouse/templates/manage/token.html:54
 msgid "Copy token"
 msgstr "Copiar ficha"
 
-#: warehouse/templates/manage/token.html:70
+#: warehouse/templates/manage/token.html:72
 msgid "Using this token"
 msgstr "Uso de esta ficha"
 
-#: warehouse/templates/manage/token.html:72
+#: warehouse/templates/manage/token.html:74
 msgid "To use this API token:"
 msgstr "Para utilizar esta ficha de API:"
 
-#: warehouse/templates/manage/token.html:75
+#: warehouse/templates/manage/token.html:77
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
 msgstr "Establezca su nombre de usuario a <code>%(token)s</code>"
 
-#: warehouse/templates/manage/token.html:76
-#, fuzzy, python-format
-#| msgid ""
-#| "Set your password to the token value, including the <code>%(site)s"
-#| "%(prefix)s</code> prefix"
+#: warehouse/templates/manage/token.html:78
+#, python-format
 msgid ""
 "Set your password to the token value, including the <code>%(prefix)s</code> "
 "prefix"
 msgstr ""
 "Establezca su contraseña al valor de la ficha, incluido el prefijo <code>"
-"%(site)s%(prefix)s</code>"
+"%(prefix)s</code>"
 
-#: warehouse/templates/manage/token.html:82
+#: warehouse/templates/manage/token.html:84
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload your "
@@ -3596,7 +3583,7 @@ msgstr ""
 "proyectos en PyPI, monte su archivo <code>%(filename)s</code> como se "
 "muestra a continuación:"
 
-#: warehouse/templates/manage/token.html:92
+#: warehouse/templates/manage/token.html:94
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload "
@@ -3607,7 +3594,7 @@ msgstr ""
 "proyectos en PyPI, monte su archivo <code>%(filename)s</code> como se "
 "muestra a continuación:"
 
-#: warehouse/templates/manage/token.html:104
+#: warehouse/templates/manage/token.html:106
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as the "
 "default"
@@ -3615,11 +3602,11 @@ msgstr ""
 "una ficha con ámbito de usuario o de proyecto que quiera establecer como la "
 "predeterminada"
 
-#: warehouse/templates/manage/token.html:109
+#: warehouse/templates/manage/token.html:111
 msgid "a project token"
 msgstr "una ficha de proyecto"
 
-#: warehouse/templates/manage/token.html:111
+#: warehouse/templates/manage/token.html:113
 #, python-format
 msgid ""
 "You can then use <code>%(command)s</code> to switch to the correct token "
@@ -3628,7 +3615,7 @@ msgstr ""
 "Ahora podrá utilizar <code>%(command)s</code> para cambiar a la ficha "
 "correcta al realizar cargas en PyPI."
 
-#: warehouse/templates/manage/token.html:117
+#: warehouse/templates/manage/token.html:119
 #, python-format
 msgid ""
 "For further instructions on how to use this token, <a href=\"%(href)s"
@@ -3637,31 +3624,31 @@ msgstr ""
 "Para más instrucciones sobre el uso de esta ficha, <a href=\"%(href)s"
 "\">visite la página de ayuda de PyPI</a>."
 
-#: warehouse/templates/manage/token.html:125
+#: warehouse/templates/manage/token.html:127
 msgid "Add another token"
 msgstr "Añadir otra ficha"
 
-#: warehouse/templates/manage/token.html:132
+#: warehouse/templates/manage/token.html:134
 msgid "Token name"
 msgstr "Nombre de ficha"
 
-#: warehouse/templates/manage/token.html:141
+#: warehouse/templates/manage/token.html:143
 msgid "What is this token for?"
 msgstr "¿Para qué es esta ficha?"
 
-#: warehouse/templates/manage/token.html:144
+#: warehouse/templates/manage/token.html:146
 msgid "Permissions"
 msgstr "Permisos"
 
-#: warehouse/templates/manage/token.html:155
+#: warehouse/templates/manage/token.html:157
 msgid "Select scope..."
 msgstr "Seleccionar ámbito…"
 
-#: warehouse/templates/manage/token.html:159
+#: warehouse/templates/manage/token.html:161
 msgid "Project:"
 msgstr "Proyecto:"
 
-#: warehouse/templates/manage/token.html:168
+#: warehouse/templates/manage/token.html:170
 msgid ""
 "An API token scoped to your entire account will have upload permissions for "
 "all of your current and future projects."
@@ -3669,7 +3656,7 @@ msgstr ""
 "Una ficha de API cuyo alcance abarque toda la cuenta tendrá permisos de "
 "carga en todos sus proyectos actuales y futuros."
 
-#: warehouse/templates/manage/token.html:171
+#: warehouse/templates/manage/token.html:173
 msgid "Add token"
 msgstr "Añadir ficha"
 
@@ -6068,17 +6055,17 @@ msgid ""
 "work together to improve Python packaging. If you'd like to get in touch "
 "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
-"a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">join the distutils-sig mailing list</a>."
+"a>, or <a href=\"%(discuss_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">browse the online board</a>."
 msgstr ""
-"<a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">Python Packaging Authority (PyPA)</a> es un grupo de trabajo "
-"que trabaja en conjunto para mejorar el empaque de Python. Para ponerse en "
-"contacto con un desarrollador principal de empaques, conéctese a <a href="
-"\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">#pypa en IRC (freenode)</a> o <a href=\"%(mailing_list_href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">únase a la lista de correos "
-"distutils-sig</a>."
+"La <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">autoridad de empaquetamiento de Python (PyPA)</a> es un grupo "
+"de trabajo cuya finalidad es mejorar el empaquetamiento en Python. Para "
+"ponerse en contacto con un desarrollador de empaquetamiento, utilice el "
+"canal <a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">#pypa en IRC (freenode)</a> o <a href=\"%(discuss_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">explore el tablón en "
+"línea</a>."
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
@@ -6903,6 +6890,19 @@ msgstr[1] ""
 "\n"
 "                  Los filtros «%(filters)s» no produjeron ningún resultado\n"
 "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "          You may provide a reason for yanking this release, which will "
+#~ "be displayed by pip to users who install <code>%(project_name)s=="
+#~ "%(version)s</code>.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "          Puede proporcionar una razón para retirar esta versión, la cual "
+#~ "pip mostrará a los usuarios que instalen <code>%(project_name)s=="
+#~ "%(version)s</code>.\n"
+#~ "        "
 
 #, fuzzy
 #~| msgid "Security policy"

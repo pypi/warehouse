@@ -373,7 +373,7 @@ def includeme(config):
 
     # Legacy Action URLs
     # TODO: We should probably add Warehouse routes for these that just error
-    #       and direct people to use upload.pypi.io
+    #       and direct people to use upload.pypi.org
     config.add_pypi_action_route(
         "legacy.api.pypi.file_upload", "file_upload", domain=warehouse
     )
