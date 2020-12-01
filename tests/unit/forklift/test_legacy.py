@@ -2566,6 +2566,7 @@ class TestFileUpload:
             "manylinux_3_0_s390x",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
+            "macosx_11_0_x86_64",
             # A real tag used by e.g. some numpy wheels
             (
                 "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
@@ -2790,7 +2791,16 @@ class TestFileUpload:
             )
         ]
 
-    @pytest.mark.parametrize("plat", ["linux_x86_64", "linux_x86_64.win32"])
+    @pytest.mark.parametrize(
+        "plat",
+        [
+            "linux_x86_64",
+            "linux_x86_64.win32",
+            "macosx_9_2_x86_64",
+            "macosx_12_2_x86_64",
+            "macosx_10_15_amd64",
+        ],
+    )
     def test_upload_fails_with_unsupported_wheel_plat(
         self, monkeypatch, pyramid_config, db_request, plat
     ):

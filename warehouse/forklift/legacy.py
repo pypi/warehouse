@@ -124,7 +124,7 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_10_(\d+)_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_(10|11)_(\d+)_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
