@@ -240,9 +240,9 @@ google-auth==1.23.0 \
     --hash=sha256:5176db85f1e7e837a646cd9cede72c3c404ccf2e3373d9ee14b2db88febad440 \
     --hash=sha256:b728625ff5dfce8f9e56a499c8a4eb51443a67f20f6d28b67d5774c310ec4b6b \
     # via google-api-core, google-cloud-storage
-google-cloud-bigquery==2.4.0 \
-    --hash=sha256:26950eb22a328d4124b44f1b98bf75bcafb61abe211444cd2609d745c36e5598 \
-    --hash=sha256:2d53d6fed1c25c9c0ce361dad1c64203c96b2344f7156357a501630d1cb08445 \
+google-cloud-bigquery==2.5.0 \
+    --hash=sha256:1e47e8b17a2f06f968a85933bd6665d699dbe7e5204cb8cd82605ce0d2e84102 \
+    --hash=sha256:67b298a3aaf50a6a50a3c308d336fc5a7213b8de70153bacab19c3998aca1451 \
     # via -r requirements/main.in
 google-cloud-core==1.4.3 \
     --hash=sha256:21afb70c1b0bce8eeb8abb5dca63c5fd37fc8aea18f4b6d60e803bd3d27e6b80 \
