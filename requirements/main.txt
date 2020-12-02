@@ -244,9 +244,9 @@ google-cloud-bigquery==2.4.0 \
     --hash=sha256:26950eb22a328d4124b44f1b98bf75bcafb61abe211444cd2609d745c36e5598 \
     --hash=sha256:2d53d6fed1c25c9c0ce361dad1c64203c96b2344f7156357a501630d1cb08445 \
     # via -r requirements/main.in
-google-cloud-core==1.4.3 \
-    --hash=sha256:21afb70c1b0bce8eeb8abb5dca63c5fd37fc8aea18f4b6d60e803bd3d27e6b80 \
-    --hash=sha256:75abff9056977809937127418323faa3917f32df68490704d39a4f0d492ebc2b \
+google-cloud-core==1.4.4 \
+    --hash=sha256:1445266e70e3ea068915259bfa9db2736076d01ac4c60b919c11ef75ba831adf \
+    --hash=sha256:5bf32a3476412bbbf37660d73c46a7217a0db7913d4f4db6490b56d7a93f1d86 \
     # via google-cloud-bigquery, google-cloud-storage
 google-cloud-storage==1.33.0 \
     --hash=sha256:900ba027bdee6b97f21cd22d1db3d1a6233ede5de2db4754db860438bdad72d2 \
@@ -755,7 +755,7 @@ sentry-sdk==0.19.4 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, grpcio, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
+    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-cloud-core, google-resumable-media, grpcio, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
 sqlalchemy-citext==1.7.0 \
     --hash=sha256:69ba00f5505f92a1455a94eefc6d3fcf72dda3691ab5398a0b4d0d8d85bd6aab \
     # via -r requirements/main.in
