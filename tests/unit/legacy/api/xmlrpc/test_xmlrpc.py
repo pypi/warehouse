@@ -124,8 +124,9 @@ class TestSearch:
             xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
 
         assert exc.value.faultString == (
-            "RuntimeError: This API has been deprecated due to unmanageable load. "
-            "Please use the Simple or JSON API instead."
+            "RuntimeError: This API has been temporarily disabled due to unmanageable "
+            "load and will be deprecated in near future. Please use the Simple or "
+            "JSON API instead."
         )
         assert metrics.increment.calls == [
             pretend.call("warehouse.xmlrpc.search.deprecated")
