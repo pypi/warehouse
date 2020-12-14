@@ -32,19 +32,19 @@ msgstr ""
 msgid "Locale updated"
 msgstr "אזור מעודכן"
 
-#: warehouse/accounts/forms.py:42
+#: warehouse/accounts/forms.py:43
 msgid "No user found with that username"
 msgstr "לא נמצא משתמש בעל שם המשתמש הזה"
 
-#: warehouse/accounts/forms.py:53
+#: warehouse/accounts/forms.py:54
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "קוד TOTP חייב להכיל ${totp_length} ספרות."
 
-#: warehouse/accounts/forms.py:80
+#: warehouse/accounts/forms.py:81
 msgid "Choose a username with 50 characters or less."
 msgstr "בחר שם משתמש בעל 50 תווים או פחות."
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:87
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -54,33 +54,33 @@ msgstr ""
 "נקודות, מקפים וקווים תחתונים. כמו כן, הם חייבים להתחיל ולהסתיים באות או "
 "בספרה. בחר/י שם משתמש אחר."
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:101
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "שם המשתמש נמצא בשימוש חשבון אחר. בחר/י שם משתמש אחר."
 
-#: warehouse/accounts/forms.py:123
+#: warehouse/accounts/forms.py:124
 msgid "The password is invalid. Try again."
 msgstr "הסיסמה אינה חוקית. אנא נסה/י שוב."
 
-#: warehouse/accounts/forms.py:127 warehouse/accounts/views.py:76
+#: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
 
-#: warehouse/accounts/forms.py:149
+#: warehouse/accounts/forms.py:150
 msgid "Your passwords don't match. Try again."
 msgstr "הסיסמאות אינן תואמות. יש לנסות שוב."
 
-#: warehouse/accounts/forms.py:180 warehouse/accounts/forms.py:191
+#: warehouse/accounts/forms.py:181 warehouse/accounts/forms.py:192
 msgid "The email address isn't valid. Try again."
 msgstr "כתובת האי-מייל אינה תקינה. יש לנסות שוב."
 
-#: warehouse/accounts/forms.py:199
+#: warehouse/accounts/forms.py:200
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "לא ניתן להשתמש בכתובת אי-מייל מהדומיין הזה. יש להשתמש באי-מייל אחר."
 
-#: warehouse/accounts/forms.py:210
+#: warehouse/accounts/forms.py:211
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -88,7 +88,7 @@ msgstr ""
 "כתובת האי-מייל הזו כבר נמצאת בשימוש ע״י החשבון הזה. יש להשתמש בכתובת אי-מייל "
 "אחרת."
 
-#: warehouse/accounts/forms.py:217
+#: warehouse/accounts/forms.py:218
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -96,23 +96,23 @@ msgstr ""
 "כתובת האי-מייל הזו כבר נמצאת בשימוש ע״י חשבון אחר. יש להשתמש בכתובת אי-מייל "
 "אחרת."
 
-#: warehouse/accounts/forms.py:239
+#: warehouse/accounts/forms.py:240
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "השם ארוך מדי. יש לבחור שם בעל 100 תווים או פחות."
 
-#: warehouse/accounts/forms.py:303
+#: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
 msgstr "קוד TOTP לא תקין."
 
-#: warehouse/accounts/forms.py:320
+#: warehouse/accounts/forms.py:321
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "בדיקת WebAuthn כושלת: מטען לא תקין"
 
-#: warehouse/accounts/forms.py:363
+#: warehouse/accounts/forms.py:364
 msgid "Invalid recovery code."
 msgstr "קוד שחזור לא תקין."
 
-#: warehouse/accounts/forms.py:381
+#: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
 msgstr "לא נמצא משתמש בעל שם המשתמש או האי-מייל הזה"
 
@@ -360,9 +360,9 @@ msgstr "מונטי פייתון - מערכון חנות הגבינות"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:171
-#: warehouse/templates/manage/releases.html:142
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:171
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -609,7 +609,7 @@ msgstr "מעבר לגרסת המובייל"
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
-#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:163
 #: warehouse/templates/manage/settings.html:76
 msgid "Warning"
 msgstr "אזהרה"
@@ -930,8 +930,8 @@ msgstr "סיסמה"
 #: warehouse/templates/manage/account/webauthn-provision.html:44
 #: warehouse/templates/manage/roles.html:153
 #: warehouse/templates/manage/roles.html:165
-#: warehouse/templates/manage/token.html:134
-#: warehouse/templates/manage/token.html:151
+#: warehouse/templates/manage/token.html:136
+#: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr "(חובה)"
@@ -1344,19 +1344,25 @@ msgstr ""
 "%(email_address)s</a> כדי לתקשר עם מנהלי PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
+#| "%(project)s by %(submitter)s."
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-"%(project)s by %(submitter)s."
+"%(project_name)s by %(initiator_username)s."
 msgstr ""
 "נוספת כ-<strong>%(role)s</strong> על ידי %(submitter)s לפרויקט %(project)s ב-"
 "%(site)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You are receiving this because you have been added by %(submitter)s to a "
+#| "project on %(site)s."
 msgid ""
-"You are receiving this because you have been added by %(submitter)s to a "
-"project on %(site)s."
+"You are receiving this because you have been added by %(initiator_username)s "
+"to a project on %(site)s."
 msgstr "הנך מקבל/ת הודעה זו כי נוספת על ידי %(submitter)s לפרויקט ב-%(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
@@ -1612,7 +1618,7 @@ msgstr "סלק הודעה זו"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -1912,7 +1918,7 @@ msgstr "צפייה באפשרויות אי-מייל"
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:187
 #: warehouse/templates/manage/release.html:67
-#: warehouse/templates/manage/releases.html:72
+#: warehouse/templates/manage/releases.html:68
 msgid "Options"
 msgstr "אפשרויות"
 
@@ -1985,7 +1991,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:167
 #: warehouse/templates/manage/account.html:530
-#: warehouse/templates/manage/token.html:149
+#: warehouse/templates/manage/token.html:151
 msgid "Scope"
 msgstr "תחום"
 
@@ -2012,7 +2018,7 @@ msgid "View token options"
 msgstr "צפייה באפשרויות אסימון"
 
 #: warehouse/templates/manage/account.html:196
-#: warehouse/templates/manage/token.html:55
+#: warehouse/templates/manage/token.html:57
 msgid "Remove token"
 msgstr "הסרת אסימון"
 
@@ -2022,13 +2028,13 @@ msgstr "צפייה במזהה ייחודי"
 
 #: warehouse/templates/manage/account.html:210
 #: warehouse/templates/manage/account.html:212
-#: warehouse/templates/manage/token.html:58
-#: warehouse/templates/manage/token.html:59
+#: warehouse/templates/manage/token.html:60
+#: warehouse/templates/manage/token.html:61
 msgid "Remove API token"
 msgstr "הסרת אסימון API"
 
 #: warehouse/templates/manage/account.html:217
-#: warehouse/templates/manage/token.html:64
+#: warehouse/templates/manage/token.html:66
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr "אפליקציות או סקריפטים המשתמשים באסימון זה יאבדו גישה אל PyPI."
@@ -2550,7 +2556,7 @@ msgstr ""
 "\">מחיקת הפרויקט</a>"
 
 #: warehouse/templates/manage/account.html:737
-#: warehouse/templates/manage/token.html:167
+#: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr "יש להמשיך בזהירות!"
 
@@ -2744,7 +2750,7 @@ msgstr "מאת %(ip_address)s"
 
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/projects.html:94
-#: warehouse/templates/manage/releases.html:92
+#: warehouse/templates/manage/releases.html:88
 msgid "Manage"
 msgstr "ניהול"
 
@@ -2832,7 +2838,7 @@ msgid "This project has no releases"
 msgstr "לפרויקט זה אין גרסאות"
 
 #: warehouse/templates/manage/projects.html:104
-#: warehouse/templates/manage/releases.html:98
+#: warehouse/templates/manage/releases.html:94
 #: warehouse/templates/packaging/detail.html:354
 msgid "View"
 msgstr "צפייה"
@@ -2928,7 +2934,7 @@ msgid "Delete file"
 msgstr "מחיקת קובץ"
 
 #: warehouse/templates/manage/release.html:93
-#: warehouse/templates/manage/releases.html:113
+#: warehouse/templates/manage/releases.html:109
 msgid "Delete"
 msgstr "מחיקה"
 
@@ -2941,7 +2947,7 @@ msgid "No files found"
 msgstr "לא נמצאו קבצים"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:174
+#: warehouse/templates/manage/releases.html:170
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -2960,24 +2966,34 @@ msgstr ""
 msgid "Release settings"
 msgstr "הגדרות גרסה"
 
-#: warehouse/templates/manage/release.html:125
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/releases.html:127
+#: warehouse/templates/manage/release.html:126
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/releases.html:123
 msgid "Yank release"
 msgstr "גריעת גרסה"
 
-#: warehouse/templates/manage/release.html:128
-#, python-format
+#: warehouse/templates/manage/release.html:129
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "        Yanking will mark this release (and %(count)s file within it) to "
+#| "be ignored when installing in most common scenarios.\n"
+#| "      "
+#| msgid_plural ""
+#| "\n"
+#| "        Yanking will mark this release (and %(count)s files within it) to "
+#| "be ignored when installing in most common scenarios.\n"
+#| "      "
 msgid ""
 "\n"
-"        Yanking will mark this release (and %(count)s file within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s file within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgid_plural ""
 "\n"
-"        Yanking will mark this release (and %(count)s files within it) to be "
-"ignored when installing in most common scenarios.\n"
-"      "
+"          Yanking will mark this release (and %(count)s files within it) to "
+"be ignored when installing in most common scenarios.\n"
+"        "
 msgstr[0] ""
 "\n"
 "        גריעה תסמן את הגרסה הזו (וכן קובץ אחד שלה) כך שיתעלמו מהם בעת התקנה "
@@ -2999,77 +3015,99 @@ msgstr[3] ""
 "התקנה ברוב התרחישים הנפוצים.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:134
+#: warehouse/templates/manage/release.html:135
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        Yanking will mark this release to be ignored when installing in "
+#| "most common scenarios.\n"
+#| "      "
 msgid ""
 "\n"
-"        Yanking will mark this release to be ignored when installing in most "
-"common scenarios.\n"
-"      "
+"          Yanking will mark this release to be ignored when installing in "
+"most common scenarios.\n"
+"        "
 msgstr ""
 "\n"
 "        גריעה תסמן את הגרסה הזו כך שיתעלמו ממנה בעת התקנה ברוב התרחישים "
 "הנפוצים.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:138
-#, python-format
+#: warehouse/templates/manage/release.html:139
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "      This release will still be installable for users pinning to this "
+#| "exact version, e.g. when using <code>%(project_name)s==%(version)s</"
+#| "code>.\n"
+#| "    "
 msgid ""
 "\n"
-"      This release will still be installable for users pinning to this exact "
-"version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
-"    "
+"        This release will still be installable for users pinning to this "
+"exact version, e.g. when using <code>%(project_name)s==%(version)s</code>.\n"
+"      "
 msgstr ""
 "\n"
 "      גרסה זו עדיין תהיה ניתנת להתקנה עבור משתמשים עם נעילה לגרסה המסוימת "
 "הזו, לדוגמא בעת שימוש ב-<code>%(project_name)s==%(version)s</code>.\n"
 "    "
 
-#: warehouse/templates/manage/release.html:141
-#, python-format
+#: warehouse/templates/manage/release.html:142
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "      For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
+#| "    "
 msgid ""
 "\n"
-"      For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
-"    "
+"        For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
+"      "
 msgstr ""
 "\n"
 "      למידע נוסף, ראה/י את <a href=\"%(href)s\">PEP 592</a>.\n"
 "    "
 
-#: warehouse/templates/manage/release.html:148
-#, python-format
+#: warehouse/templates/manage/release.html:149
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "              You may provide a reason for yanking this release, which "
+#| "will be displayed by pip to users who install <code>%(project_name)s=="
+#| "%(version)s</code>.\n"
+#| "            "
 msgid ""
 "\n"
-"          You may provide a reason for yanking this release, which will be "
+"            You may provide a reason for yanking this release, which will be "
 "displayed by pip to users who install <code>%(project_name)s==%(version)s</"
 "code>.\n"
-"        "
+"          "
 msgstr ""
 "\n"
-"          תוכל/י לספק סיבה לגריעת גרסה זו, אשר תוצג למשתמשי pip אשר יתקינו "
-"את <code>%(project_name)s==%(version)s</code>.\n"
-"        "
+"              תוכל/י לספק סיבה לגריעת גרסה זו, אשר תוצג למשתמשי pip אשר "
+"יתקינו את <code>%(project_name)s==%(version)s</code>.\n"
+"            "
 
-#: warehouse/templates/manage/release.html:152
-#: warehouse/templates/manage/releases.html:134
+#: warehouse/templates/manage/release.html:153
+#: warehouse/templates/manage/releases.html:130
 msgid "Reason (optional)"
 msgstr "סיבה (לא חובה)"
 
-#: warehouse/templates/manage/release.html:155
-#: warehouse/templates/manage/release.html:176
+#: warehouse/templates/manage/release.html:156
+#: warehouse/templates/manage/release.html:178
 #: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:124
-#: warehouse/templates/manage/releases.html:137
-#: warehouse/templates/manage/releases.html:144
+#: warehouse/templates/manage/releases.html:120
+#: warehouse/templates/manage/releases.html:133
+#: warehouse/templates/manage/releases.html:140
 msgid "Version"
 msgstr "גרסה"
 
-#: warehouse/templates/manage/release.html:159
-#: warehouse/templates/manage/release.html:176
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/release.html:161
+#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "מחיקת גרסה"
 
-#: warehouse/templates/manage/release.html:163
+#: warehouse/templates/manage/release.html:165
 #, python-format
 msgid ""
 "\n"
@@ -3098,11 +3136,11 @@ msgstr[3] ""
 "        מחיקה תסיר גרסה זו באופן בלתי הפיך, יחד עם %(count)s קבצים.\n"
 "      "
 
-#: warehouse/templates/manage/release.html:169
+#: warehouse/templates/manage/release.html:171
 msgid "Deleting will irreversibly delete this release."
 msgstr "מחיקה תסיר גרסה זו באופן בלתי הפיך."
 
-#: warehouse/templates/manage/release.html:171
+#: warehouse/templates/manage/release.html:173
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number. Consider yanking this release, making a new "
@@ -3130,11 +3168,11 @@ msgstr "קבצים"
 msgid "Yanked reason"
 msgstr "סיבה לגריעה"
 
-#: warehouse/templates/manage/releases.html:37
+#: warehouse/templates/manage/releases.html:36
 msgid "Manage version"
 msgstr "ניהול גרסה"
 
-#: warehouse/templates/manage/releases.html:48
+#: warehouse/templates/manage/releases.html:44
 #, python-format
 msgid ""
 "\n"
@@ -3161,36 +3199,36 @@ msgstr[3] ""
 "          %(count)s קבצים\n"
 "        "
 
-#: warehouse/templates/manage/releases.html:61
+#: warehouse/templates/manage/releases.html:57
 msgid "No files"
 msgstr "אין קבצים"
 
-#: warehouse/templates/manage/releases.html:71
+#: warehouse/templates/manage/releases.html:67
 msgid "View release options"
 msgstr "צפייה באפשרויות גרסה"
 
-#: warehouse/templates/manage/releases.html:77
+#: warehouse/templates/manage/releases.html:73
 #, python-format
 msgid "Options for %(version)s"
 msgstr "אפשרויות עבור %(version)s"
 
-#: warehouse/templates/manage/releases.html:80
+#: warehouse/templates/manage/releases.html:76
 msgid "Un-yank Release"
 msgstr "ביטול גריעת גרסה"
 
-#: warehouse/templates/manage/releases.html:85
+#: warehouse/templates/manage/releases.html:81
 msgid "Un-yank"
 msgstr "ביטול גריעה"
 
-#: warehouse/templates/manage/releases.html:105
+#: warehouse/templates/manage/releases.html:101
 msgid "Yank"
 msgstr "גריעה"
 
-#: warehouse/templates/manage/releases.html:123
+#: warehouse/templates/manage/releases.html:119
 msgid "Un-yank release"
 msgstr "ביטול גריעת גרסה"
 
-#: warehouse/templates/manage/releases.html:130
+#: warehouse/templates/manage/releases.html:126
 #, python-format
 msgid ""
 "\n"
@@ -3204,7 +3242,7 @@ msgstr ""
 "יתקינו את <code>%(project_name)s==%(version)s</code>.\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:142
+#: warehouse/templates/manage/releases.html:138
 #, python-format
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -3216,30 +3254,30 @@ msgstr ""
 "לגרוע גרסה זו, ליצור גרסה חדשה או <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">גרסת post</a> במקום."
 
-#: warehouse/templates/manage/releases.html:153
+#: warehouse/templates/manage/releases.html:149
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "ניהול גרסאות '%(project_name)s'"
 
-#: warehouse/templates/manage/releases.html:158
+#: warehouse/templates/manage/releases.html:154
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "גרסאות (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:164
+#: warehouse/templates/manage/releases.html:160
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "גרסאות שנגרעו (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:166
 msgid "Creating a new release"
 msgstr "יצירת גרסה חדשה"
 
-#: warehouse/templates/manage/releases.html:172
+#: warehouse/templates/manage/releases.html:168
 msgid "No releases found"
 msgstr "לא נמצאו גרסאות"
 
-#: warehouse/templates/manage/releases.html:175
+#: warehouse/templates/manage/releases.html:171
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3477,64 +3515,64 @@ msgstr ""
 msgid "Project Name"
 msgstr "שם הפרויקט"
 
-#: warehouse/templates/manage/token.html:36
+#: warehouse/templates/manage/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
 msgstr "אסימון עבור \"%(macaroon_description)s\""
 
-#: warehouse/templates/manage/token.html:38
+#: warehouse/templates/manage/token.html:40
 msgid "Permissions:"
 msgstr "הרשאות:"
 
-#: warehouse/templates/manage/token.html:38
-#: warehouse/templates/manage/token.html:145
+#: warehouse/templates/manage/token.html:40
+#: warehouse/templates/manage/token.html:147
 msgid "Upload packages"
 msgstr "העלאת חבילות"
 
-#: warehouse/templates/manage/token.html:40
 #: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 msgid "Scope:"
 msgstr "תחום תוקף:"
 
-#: warehouse/templates/manage/token.html:40
-#: warehouse/templates/manage/token.html:156
+#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:158
 msgid "Entire account (all projects)"
 msgstr "כל החשבון (כלל הפרויקטים)"
 
-#: warehouse/templates/manage/token.html:42
+#: warehouse/templates/manage/token.html:44
 #, python-format
 msgid "Project \"%(project)s\""
 msgstr "הפרויקט \"%(project)s\""
 
-#: warehouse/templates/manage/token.html:49
+#: warehouse/templates/manage/token.html:51
 msgid ""
 "For security reasons this token will only appear once. <strong>Copy it now.</"
 "strong>"
 msgstr ""
 "משיקולי אבטחה אסימון זה יופיע רק פעם אחת. <strong>העתק/י אותו עכשיו.</strong>"
 
-#: warehouse/templates/manage/token.html:51
+#: warehouse/templates/manage/token.html:53
 msgid "Copy token to clipboard"
 msgstr "העתקת האסימון ללוח הגזירים"
 
-#: warehouse/templates/manage/token.html:52
+#: warehouse/templates/manage/token.html:54
 msgid "Copy token"
 msgstr "העתקת האסימון"
 
-#: warehouse/templates/manage/token.html:70
+#: warehouse/templates/manage/token.html:72
 msgid "Using this token"
 msgstr "אופן השימוש באסימון זה"
 
-#: warehouse/templates/manage/token.html:72
+#: warehouse/templates/manage/token.html:74
 msgid "To use this API token:"
 msgstr "כדי להשתמש באסימון ה-API הזה:"
 
-#: warehouse/templates/manage/token.html:75
+#: warehouse/templates/manage/token.html:77
 #, python-format
 msgid "Set your username to <code>%(token)s</code>"
 msgstr "קבע את שם המשתמש שלך ל- <code>%(token)s</code>"
 
-#: warehouse/templates/manage/token.html:76
+#: warehouse/templates/manage/token.html:78
 #, fuzzy, python-format
 #| msgid ""
 #| "Set your password to the token value, including the <code>%(site)s"
@@ -3545,7 +3583,7 @@ msgid ""
 msgstr ""
 "קבע את הסיסמה שלך לערך האסימון, כולל התחילית <code>%(site)s%(prefix)s</code>"
 
-#: warehouse/templates/manage/token.html:82
+#: warehouse/templates/manage/token.html:84
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload your "
@@ -3554,7 +3592,7 @@ msgstr ""
 "לדוגמה, הם הינך משתמש/ת ב-<a href=\"%(href)s\">Twine</a> כדי להעלות את "
 "הפרויקטים שלך אל PyPI, סדר את הקובץ <code>%(filename)s</code> אצלך כך:"
 
-#: warehouse/templates/manage/token.html:92
+#: warehouse/templates/manage/token.html:94
 #, python-format
 msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload "
@@ -3564,18 +3602,18 @@ msgstr ""
 "לדוגמה, הם הינך משתמש/ת ב-<a href=\"%(href)s\">Twine</a> כדי להעלות מספר "
 "פרויקטים אל PyPI, תוכל/י לסדר את הקובץ <code>%(filename)s</code> אצלך כך:"
 
-#: warehouse/templates/manage/token.html:104
+#: warehouse/templates/manage/token.html:106
 msgid ""
 "either a user-scoped token or a project-scoped token you want to set as the "
 "default"
 msgstr ""
 "אסימון בעל תחום תוקף של משתמש או של פרויקט אותו ברצונך לקבוע כברירת המחדל"
 
-#: warehouse/templates/manage/token.html:109
+#: warehouse/templates/manage/token.html:111
 msgid "a project token"
 msgstr "אסימון פרויקט"
 
-#: warehouse/templates/manage/token.html:111
+#: warehouse/templates/manage/token.html:113
 #, python-format
 msgid ""
 "You can then use <code>%(command)s</code> to switch to the correct token "
@@ -3584,7 +3622,7 @@ msgstr ""
 "לאחר מכן תוכל/י להשתמש בפקודה <code>%(command)s</code> כדי לעבור על האסימון "
 "המתאים בעת העלאה אל PyPI."
 
-#: warehouse/templates/manage/token.html:117
+#: warehouse/templates/manage/token.html:119
 #, python-format
 msgid ""
 "For further instructions on how to use this token, <a href=\"%(href)s"
@@ -3593,31 +3631,31 @@ msgstr ""
 "להוראות נוספות אודות השימוש באסימון זה, <a href=\"%(href)s\">בקר/י בדף העזרה "
 "של PyPI</a>."
 
-#: warehouse/templates/manage/token.html:125
+#: warehouse/templates/manage/token.html:127
 msgid "Add another token"
 msgstr "הוספת אסימון נוסף"
 
-#: warehouse/templates/manage/token.html:132
+#: warehouse/templates/manage/token.html:134
 msgid "Token name"
 msgstr "שם האסימון"
 
-#: warehouse/templates/manage/token.html:141
+#: warehouse/templates/manage/token.html:143
 msgid "What is this token for?"
 msgstr "למה נועד האסימון?"
 
-#: warehouse/templates/manage/token.html:144
+#: warehouse/templates/manage/token.html:146
 msgid "Permissions"
 msgstr "הרשאות"
 
-#: warehouse/templates/manage/token.html:155
+#: warehouse/templates/manage/token.html:157
 msgid "Select scope..."
 msgstr "בחירת תחום תוקף..."
 
-#: warehouse/templates/manage/token.html:159
+#: warehouse/templates/manage/token.html:161
 msgid "Project:"
 msgstr "פרויקט:"
 
-#: warehouse/templates/manage/token.html:168
+#: warehouse/templates/manage/token.html:170
 msgid ""
 "An API token scoped to your entire account will have upload permissions for "
 "all of your current and future projects."
@@ -3625,7 +3663,7 @@ msgstr ""
 "אסימון API בעל תחום תוקף של כל החשבון שלך יהיה בעל הרשאות העלאה לכל "
 "הפרויקטים הקיימים והעתידיים שלך."
 
-#: warehouse/templates/manage/token.html:171
+#: warehouse/templates/manage/token.html:173
 msgid "Add token"
 msgstr "הוספת אסימון"
 
@@ -5850,15 +5888,23 @@ msgid "Contact"
 msgstr "יצירת קשר"
 
 #: warehouse/templates/pages/help.html:855
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#| "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
+#| "work together to improve Python packaging. If you'd like to get in touch "
+#| "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
+#| "a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">join the distutils-sig mailing list</a>."
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
 "work together to improve Python packaging. If you'd like to get in touch "
 "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
-"a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">join the distutils-sig mailing list</a>."
+"a>, or <a href=\"%(discuss_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">browse the online board</a>."
 msgstr ""
 "ה-<a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python Packaging Authority (PyPA)</a> הוא קבוצת עבודה הפועלת "
@@ -6618,6 +6664,18 @@ msgstr[3] ""
 "\n"
 "                  לא היו תוצאות עבור המסננים '%(filters)s'\n"
 "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "          You may provide a reason for yanking this release, which will "
+#~ "be displayed by pip to users who install <code>%(project_name)s=="
+#~ "%(version)s</code>.\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "          תוכל/י לספק סיבה לגריעת גרסה זו, אשר תוצג למשתמשי pip אשר "
+#~ "יתקינו את <code>%(project_name)s==%(version)s</code>.\n"
+#~ "        "
 
 #, fuzzy
 #~| msgid "Security policy"
