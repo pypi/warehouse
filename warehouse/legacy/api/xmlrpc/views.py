@@ -239,8 +239,8 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
             RuntimeError(
                 (
                     "This API has been temporarily disabled due to unmanageable load "
-                    "and will be deprecated in near future. Please use the Simple or "
-                    "JSON API instead."
+                    "and will be deprecated in the near future. Please use the Simple "
+                    "or JSON API instead."
                 )
             )
         )
