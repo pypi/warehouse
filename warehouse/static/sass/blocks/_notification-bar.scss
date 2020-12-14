@@ -99,6 +99,7 @@
 
   &__icon {
     font-size: $small-font-size;
+    margin-right: 3px;
   }
 
   &__message {
@@ -145,5 +146,19 @@
 
   &--success {
     background-color: $success-color;
+  }
+
+  &--fundraiser {
+    background-color: $warning-background-color;
+    color: $warning-color;
+    border-color: darken($primary-color, 10);
+
+    a {
+      color: $warning-color;
+    }
+
+    .button {
+      color: $white;
+    }
   }
 }

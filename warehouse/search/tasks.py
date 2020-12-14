@@ -17,6 +17,7 @@ import urllib
 import certifi
 import elasticsearch
 import redis
+import requests_aws4auth
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
@@ -40,6 +41,7 @@ def _project_docs(db, project_name=None):
 
     releases_list = (
         db.query(Release.id)
+        .filter(Release.yanked.is_(False), Release.files)
         .order_by(
             Release.project_id,
             Release.is_prerelease.nullslast(),
@@ -133,14 +135,26 @@ def reindex(self, request):
     try:
         with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
             p = urllib.parse.urlparse(request.registry.settings["elasticsearch.url"])
-            client = elasticsearch.Elasticsearch(
-                [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
-                verify_certs=True,
-                ca_certs=certifi.where(),
-                timeout=30,
-                retry_on_timeout=True,
-                serializer=serializer.serializer,
-            )
+            qs = urllib.parse.parse_qs(p.query)
+            kwargs = {
+                "hosts": [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
+                "verify_certs": True,
+                "ca_certs": certifi.where(),
+                "timeout": 30,
+                "retry_on_timeout": True,
+                "serializer": serializer.serializer,
+            }
+            aws_auth = bool(qs.get("aws_auth", False))
+            if aws_auth:
+                aws_region = qs.get("region", ["us-east-1"])[0]
+                kwargs["connection_class"] = elasticsearch.RequestsHttpConnection
+                kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
+                    request.registry.settings["aws.key_id"],
+                    request.registry.settings["aws.secret_key"],
+                    aws_region,
+                    "es",
+                )
+            client = elasticsearch.Elasticsearch(**kwargs)
             number_of_replicas = request.registry.get("elasticsearch.replicas", 0)
             refresh_interval = request.registry.get("elasticsearch.interval", "1s")
 

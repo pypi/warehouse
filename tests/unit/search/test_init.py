@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import elasticsearch
 import pretend
 
 from warehouse import search
@@ -98,3 +99,51 @@ def test_es(monkeypatch):
         pretend.call(number_of_shards=1, number_of_replicas=0, refresh_interval="1s")
     ]
     assert index_obj.search.calls == [pretend.call()]
+
+
+def test_includeme(monkeypatch):
+    aws4auth_stub = pretend.stub()
+    aws4auth = pretend.call_recorder(lambda *a, **kw: aws4auth_stub)
+    es_client = pretend.stub()
+    es_client_init = pretend.call_recorder(lambda *a, **kw: es_client)
+
+    monkeypatch.setattr(search.requests_aws4auth, "AWS4Auth", aws4auth)
+    monkeypatch.setattr(search.elasticsearch, "Elasticsearch", es_client_init)
+
+    registry = {}
+    es_url = "https://some.url/some-index?aws_auth=1&region=us-east-2"
+    config = pretend.stub(
+        registry=pretend.stub(
+            settings={
+                "aws.key_id": "AAAAAAAAAAAA",
+                "aws.secret_key": "deadbeefdeadbeefdeadbeef",
+                "elasticsearch.url": es_url,
+            },
+            __setitem__=registry.__setitem__,
+        ),
+        add_request_method=pretend.call_recorder(lambda *a, **kw: None),
+        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+    )
+
+    search.includeme(config)
+
+    assert aws4auth.calls == [
+        pretend.call("AAAAAAAAAAAA", "deadbeefdeadbeefdeadbeef", "us-east-2", "es")
+    ]
+    assert len(es_client_init.calls) == 1
+    assert es_client_init.calls[0].kwargs["hosts"] == ["https://some.url"]
+    assert es_client_init.calls[0].kwargs["timeout"] == 2
+    assert es_client_init.calls[0].kwargs["retry_on_timeout"] is False
+    assert (
+        es_client_init.calls[0].kwargs["connection_class"]
+        == elasticsearch.connection.http_requests.RequestsHttpConnection
+    )
+    assert es_client_init.calls[0].kwargs["http_auth"] == aws4auth_stub
+
+    assert registry["elasticsearch.client"] == es_client
+    assert registry["elasticsearch.index"] == "some-index"
+    assert registry["elasticsearch.shards"] == 1
+    assert registry["elasticsearch.replicas"] == 0
+    assert config.add_request_method.calls == [
+        pretend.call(search.es, name="es", reify=True)
+    ]

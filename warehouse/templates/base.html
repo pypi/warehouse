@@ -39,7 +39,7 @@
   <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet" aria-label="{% trans %}Main navigation{% endtrans %}">
     <ul>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a></li>
-      <li class="horizontal-menu__item"><a href="https://donate.pypi.org" class="horizontal-menu__link">{% trans %}Donate{% endtrans %}</a></li>
+      <li class="horizontal-menu__item"><a href="{{ request.route_path('sponsor') }}" class="horizontal-menu__link">{% trans %}Sponsor{% endtrans %}</a></li>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.login') }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a></li>
       <li class="horizontal-menu__item"><a href="{{ request.route_path('accounts.register') }}" class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a></li>
     </ul>
@@ -53,7 +53,7 @@
     </button>
     <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
       <li><a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a></li>
-      <li><a class="dropdown__link" href="https://donate.pypi.org">{% trans %}Donate{% endtrans %}</a></li>
+      <li><a class="dropdown__link" href="{{ request.route_path('sponsor') }}">{% trans %}Sponsor{% endtrans %}</a></li>
       <li><a class="dropdown__link" href="{{ request.route_path('accounts.login') }}">{% trans %}Log in{% endtrans %}</a></li>
       <li><a class="dropdown__link" href="{{ request.route_path('accounts.register') }}">{% trans %}Register{% endtrans %}</a></li>
     </ul>
@@ -62,7 +62,7 @@
 {%- endmacro %}
 
 <!DOCTYPE html>
-<html lang="{{ request.locale }}">
+<html lang="{{ request.locale }}" dir="{{ request.locale.text_direction }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -78,7 +78,7 @@
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}{% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}{% endblock %}">
 
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse-{}.css'.format(request.locale.text_direction)) }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
@@ -94,6 +94,7 @@
 
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 latest updates{% endtrans %}" href="{{ request.route_path('rss.updates') }}">
     <link rel="alternate" type="application/rss+xml" title="{% trans %}RSS: 40 newest packages{% endtrans %}" href="{{ request.route_path('rss.packages') }}">
+    {% block additional_rss %}{% endblock %}
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}
@@ -168,6 +169,15 @@
           <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
         </span>
         <span class="notification-bar__message">{% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}</span>
+      </div>
+      {% else %}
+      <div class="notification-bar notification-bar--fundraiser">
+        <span class="notification-bar__icon">
+          <i class="fa fa-chart-line" aria-hidden="true"></i>
+        </span>
+        <span class="notification-bar__message">Help the Python Software Foundation raise $60,000 USD by December 31st!&nbsp;
+          <a href="https://www.python.org/psf/donations/2020-q42020-drive/" class="button button--dark button--small button--primary" target="_blank" rel="noopener">Building the PSF Q4 Fundraiser</a>
+        </span>
       </div>
       {% endif %}
       <noscript>
@@ -293,7 +303,7 @@
           <h2>{% trans %}Using PyPI{% endtrans %}</h2>
           <nav aria-label="{% trans %}Using PyPI navigation{% endtrans %}">
             <ul>
-              <li><a href="https://www.pypa.io/en/latest/code-of-conduct/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Code of conduct{% endtrans %}</a></li>
+              <li><a href="https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Code of conduct{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('security') }}">{% trans %}Report security issue{% endtrans %}</a></li>
               <li><a href="https://www.python.org/privacy/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Privacy policy{% endtrans %}</a></li>
               <li><a href="{{ request.route_path('policy.terms-of-use') }}">{% trans %}Terms of use{% endtrans %}</a></li>
@@ -331,9 +341,16 @@
     <div class="language-switcher">
       <form action="{{ request.route_path('locale') }}">
         <ul>
-          {% for locale, language in KNOWN_LOCALES.items() %}
+          {% for identifier, locale in KNOWN_LOCALES.items() %}
           <li>
-            <button class="{{ 'language-switcher__selected' if request.locale_name == locale else '' }}" name="locale_id" value="{{ locale }}" type="submit">{{ language }}</button>
+            <button
+              {% if request.locale_name == identifier %}
+              class="language-switcher__selected"
+              {% endif %}
+              name="locale_id" value="{{ identifier }}" type="submit"
+            >
+              {{ locale.display_name }}
+            </button>
           </li>
           {% endfor %}
         </ul>

@@ -176,16 +176,6 @@
       @include mobile-friendly-table;
       margin-bottom: ($spacing-unit / 2);
     }
-
-    @media only screen and (max-width: $mobile) {
-      .table__mobile-label--hashes {
-        display: none;
-      }
-
-      td .button span {
-        display: inline;
-      }
-    }
   }
 
   &--releases {
@@ -331,6 +321,13 @@
 
   &--security-logs {
     margin-top: 0;
+
+    .table__monospace {
+      word-wrap: break-word;
+      word-break: break-all;
+      font-family: $code-font;
+      font-size: 95%;
+    }
 
     @media only screen and (max-width: $small-tablet) {
       @include mobile-friendly-table;

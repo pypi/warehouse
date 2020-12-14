@@ -15,90 +15,152 @@
 
 {% set active_tab = 'releases' %}
 
+{% macro release_table(releases, show_yanked_reason=False) %}
+<table class="table table--releases">
+  <caption class="sr-only">{% trans project_name=project.name %}Releases for {{ project_name }}{% endtrans %}</caption>
+  <thead>
+    <tr>
+      <th scope="col">{% trans %}Version{% endtrans %}</th>
+      <th scope="col">{% trans %}Release date{% endtrans %}</th>
+      <th scope="col">{% trans %}Files{% endtrans %}</th>
+      {% if show_yanked_reason %}
+      <th scope="col">{% trans %}Yanked reason{% endtrans %}</th>
+      {% endif %}
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for release in releases %}
+    <tr>
+      <th scope="row">
+        <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="{% trans %}Manage version{% endtrans %}">
+          {{ release.version }}
+        </a>
+      </th>
+      <td>{{ humanize(release.created) }}</td>
+      <td>
+        {% set num_files = version_to_file_counts[release.version]['total'] %}
+        {% if num_files %}
+        {% trans count=num_files %}
+          {{ count }} file
+        {% pluralize %}
+          {{ count }} files
+        {% endtrans %}
+        (<span dir="ltr">
+        {%- for packagetype, packagetype_count in version_to_file_counts[release.version].items() -%}
+          {%- if packagetype != 'total' -%}
+          {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
+          {%- endif -%}
+        {%- endfor -%}
+        </span>)
+        {% else %}
+        {% trans %}No files{% endtrans %}
+        {% endif %}
+      </td>
+      {% if show_yanked_reason %}
+      <td>
+          {{ release.yanked_reason }}
+      </td>
+      {% endif %}
+      <td class="table__align-right">
+        <nav class="dropdown dropdown--with-icons">
+          <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View release options{% endtrans %}">
+            {% trans %}Options{% endtrans %}
+            <span class="dropdown__trigger-caret">
+              <i class="fa fa-caret-down" aria-hidden="true"></i>
+            </span>
+          </button>
+          <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans version=release.version %}Options for {{ version }}{% endtrans %}">
+            {% if release.yanked %}
+            <li>
+              {% set title = gettext("Un-yank Release") %}
+              {% set confirm_name = "unyank_release" %}
+              {% set slug = confirm_name + '-modal-{}'.format(loop.index) %}
+              <a href="#{{ slug }}" class="dropdown__link">
+                <i class="fa fa-long-arrow-alt-right" aria-hidden="true"></i>
+                {% trans %}Un-yank{% endtrans %}
+              </a>
+            </li>
+            {% else %}
+            <li>
+              <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
+                <i class="fa fa-pencil-alt" aria-hidden="true"></i>
+                {% trans %}Manage{% endtrans %}
+              </a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
+                <i class="fa fa-eye" aria-hidden="true"></i>
+                {% trans %}View{% endtrans %}
+              </a>
+            </li>
+            <li>
+              {% set slug = 'yank_release-modal-{}'.format(loop.index) %}
+              <a href="#{{ slug }}" class="dropdown__link">
+                <i class="fa fa-long-arrow-alt-left" aria-hidden="true"></i>
+                {% trans %}Yank{% endtrans %}
+              </a>
+            </li>
+            <li>
+              {% set confirm_name = "delete_release" %}
+              {% set slug = confirm_name + '-modal-{}'.format(loop.index) %}
+              <a href="#{{ slug }}" class="dropdown__link">
+                <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                {% trans %}Delete{% endtrans %}
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
+
+        {% if release.yanked %}
+          {% set slug = 'unyank_release-modal-{}'.format(loop.index) %}
+          {% set title = gettext("Un-yank release") %}
+          {{ confirm_modal(title, gettext('Version'), 'unyank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False) }}
+        {% else %}
+          {% set slug = 'yank_release-modal-{}'.format(loop.index) %}
+          {% set title = gettext("Yank release") %}
+          {% set extra_description %}
+          <p>
+            {% trans project_name=project.name, version=release.version %}
+              You may provide a reason for yanking this release, which will be displayed by pip to users who install <code>{{ project_name }}=={{ version }}</code>.
+            {% endtrans %}
+          </p>
+          <label for="yanked_reason">{% trans %}Reason (optional){% endtrans %}</label>
+          <input name="yanked_reason" id="yanked_reason" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+          {% endset %}
+          {{ confirm_modal(title, gettext('Version'), 'yank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False, extra_description=extra_description) }}
+
+          {% set slug = 'delete_release-modal-{}'.format(loop.index) %}
+          {% set title = gettext("Delete release") %}
+          {% set custom_warning_text %}
+          <p>{% trans %}You will not be able to re-upload a new distribution of the same type with the same version number.{% endtrans %}</p>
+          <p>{% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}</p>
+          <p>{% trans yank_href=request.help_url(_anchor='yanked'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}" title="{{ title }}" target="_blank" rel="noopener">yanking</a> this release, making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
+          {% endset %}
+          {{ confirm_modal(title, gettext('Version'), 'delete_version', release.version, slug, custom_warning_text=custom_warning_text, action=action) }}
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endmacro %}
+
 {% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' releases{% endtrans %}{% endblock %}
 
 {% block main %}
-  <h2>{% trans release_count=project.releases|length %}Releases ({{ release_count }}){% endtrans %}</h2>
-  {% if project.releases %}
-    <table class="table table--releases">
-      <caption class="sr-only">{% trans project_name=project.name %}Releases for {{ project_name }}{% endtrans %}</caption>
-      <thead>
-        <tr>
-          <th scope="col">{% trans %}Version{% endtrans %}</th>
-          <th scope="col">{% trans %}Release date{% endtrans %}</th>
-          <th scope="col">{% trans %}Files{% endtrans %}</th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for release in project.releases %}
-        <tr>
-          <th scope="row">
-            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="{% trans %}Manage version{% endtrans %}">
-              {{ release.version }}
-            </a>
-          </th>
-          <td>{{ humanize(release.created) }}</td>
-          <td>
-            {% set num_files = version_to_file_counts[release.version]['total'] %}
-            {% if num_files %}
-            {% trans count=num_files %}
-              {{ count }} file
-            {% pluralize %}
-              {{ count }} files
-            {% endtrans %}
-              ({% for packagetype, packagetype_count in version_to_file_counts[release.version].items() %}
-              {%- if packagetype != 'total' -%}
-              {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
-              {%- endif -%}
-              {% endfor %})
-            {% else %}
-            {% trans %}No files{% endtrans %}
-            {% endif %}
-          </td>
-          <td class="table__align-right">
-            <nav class="dropdown dropdown--with-icons">
-              <button type="button" class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}View release options{% endtrans %}">
-                {% trans %}Options{% endtrans %}
-                <span class="dropdown__trigger-caret">
-                  <i class="fa fa-caret-down" aria-hidden="true"></i>
-                </span>
-              </button>
-              <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans version=release.version %}Options for {{ version }}{% endtrans %}">
-                <li>
-                  <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
-                    <i class="fa fa-pencil-alt" aria-hidden="true"></i>
-                    {% trans %}Manage{% endtrans %}
-                  </a>
-                </li>
-                <li>
-                  <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
-                    <i class="fa fa-eye" aria-hidden="true"></i>
-                    {% trans %}View{% endtrans %}
-                  </a>
-                </li>
-                <li>
-                  {% set title = gettext("Delete Release") %}
-                  {% set confirm_name = "delete_release" %}
-                  {% set slug = confirm_name + '-modal-{}'.format(loop.index) %}
-                  <a href="#{{ slug }}" class="dropdown__link">
-                    <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                    {% trans %}Delete{% endtrans %}
-                  </a>
-                </li>
-              </ul>
-            </nav>
-            {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
-            {% set version_warning_text %}
-            <p>{% trans href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}You will not be able to re-upload a new distribution of the same type with the same version number. Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
-            {% endset %}
+{% set releases = project.releases|rejectattr("yanked")|list %}
+  {% if releases %}
+  <h2>{% trans release_count=releases|length %}Releases ({{ release_count }}){% endtrans %}</h2>
+  {{ release_table(releases) }}
+  {% endif %}
 
-            {{ confirm_modal(title, gettext('Version'), 'version', release.version, slug, custom_warning_text=version_warning_text, action=action) }}
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+  {% set yanked_releases = project.releases|selectattr("yanked")|list %}
+  {% if yanked_releases %}
+  <h2>{% trans release_count=yanked_releases|length %}Yanked Releases ({{ release_count }}){% endtrans %}</h2>
+  {{ release_table(yanked_releases, show_yanked_reason=True) }}
   {% endif %}
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">

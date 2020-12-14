@@ -121,6 +121,42 @@
 
   <h3>{% trans %}Release settings{% endtrans %}</h3>
 
+  {% if not release.yanked %}
+    <div class="callout-block callout-block">
+      <h3>{% trans %}Yank release{% endtrans %}</h3>
+      <p>
+      {% if files %}
+        {% trans count=files|length %}
+          Yanking will mark this release (and {{ count }} file within it) to be ignored when installing in most common scenarios.
+        {% pluralize %}
+          Yanking will mark this release (and {{ count }} files within it) to be ignored when installing in most common scenarios.
+        {% endtrans %}
+      {% else %}
+        {% trans %}
+          Yanking will mark this release to be ignored when installing in most common scenarios.
+        {% endtrans %}
+      {% endif %}
+      {% trans project_name=project.name, version=release.version %}
+        This release will still be installable for users pinning to this exact version, e.g. when using <code>{{ project_name }}=={{ version }}</code>.
+      {% endtrans %}
+      {% trans href="https://www.python.org/dev/peps/pep-0592/" %}
+        For more information, see <a href="{{ href }}">PEP 592</a>.
+      {% endtrans %}
+      </p>
+
+      {% set extra_description %}
+        <p>
+          {% trans project_name=project.name, version=release.version %}
+            You may provide a reason for yanking this release, which will be displayed by pip to users who install <code>{{ project_name }}=={{ version }}</code>.
+          {% endtrans %}
+        </p>
+        <label for="yanked_reason">{% trans %}Reason (optional){% endtrans %}</label>
+        <input name="yanked_reason" id="yanked_reason" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+      {% endset %}
+      {{ confirm_button(gettext("Yank release"), gettext("Version"), "yank_version", release.version, modifier="--primary", warning=False, extra_description=extra_description) }}
+    </div>
+  {% endif %}
+
   <div class="callout-block callout-block--danger">
     <h3>{% trans %}Delete release{% endtrans %}</h3>
     <p>
@@ -134,12 +170,11 @@
     {% else %}
       {% trans %}Deleting will irreversibly delete this release.{% endtrans %}
     {% endif %}
-      {% trans trimmed href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}
-        You will not be able to re-upload a new distribution of the same type with the same version number.
-        Consider making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.
-      {% endtrans %}
+      <p>{% trans %}You will not be able to re-upload a new distribution of the same type with the same version number.{% endtrans %}</p>
+      <p>{% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}</p>
+      <p>{% trans yank_href=request.help_url(_anchor='yanked'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}" title="{{ title }}" target="_blank" rel="noopener">yanking</a> this release, making a new release or a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
     </p>
-    {{ confirm_button(gettext("Delete release"), gettext("Version"), "version", release.version) }}
+    {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version) }}
   </div>
 
   {% if files %}

@@ -89,7 +89,7 @@
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ totp_form.totp_value(autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", autocomplete="one-time-code", **{"aria-describedby":"totp-errors"}) }}
+            {{ totp_form.totp_value(autocapitalize="off", autocomplete="off", inputmode="numeric", pattern="[0-9]*", required="required", spellcheck="false", class_="form-group__field", **{"aria-describedby":"totp-errors"}) }}
             {% if totp_form.totp_value.errors %}
             <ul id="totp-errors" class="form-errors" role="alert">
               {% for error in totp_form.totp_value.errors %}
@@ -108,6 +108,21 @@
           {% endtrans %}
         </form>
       </div>
+      {% endif %}
+    </div>
+
+    <hr>
+    <div class="twofa-recovery">
+      {% if has_recovery_codes %}
+      <p>{% trans %}Lost your security key or application?{% endtrans %}</p>
+      <a href="{{ request.route_path('accounts.recovery-code') }}?{{request.query_string}}" class="button button--secondary">
+          {% trans %}Login using recovery codes{% endtrans %}
+      </a>
+      {% else %}
+      {% trans trimmed href='/help/#recoverycodes' %}
+      <p><strong>You have not generated account recovery codes.</strong></p>
+      <p>If you lose access to your two factor methods, you may lose access to your account. <a href="{{ href }}">Get help with recovery codes.</a></p>
+      {% endtrans %}
       {% endif %}
     </div>
   </div>

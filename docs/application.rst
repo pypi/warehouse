@@ -57,7 +57,7 @@ Warehouse serves four main classes of users:
    routine administration tasks such as adding new trove classifiers,
    adjusting upload limits for distribution packages, and reviewing
    malware verdicts.
-4. *PyPI application administrators*, e.g., Ernest W. Durbin III,
+4. *PyPI application administrators*, e.g., Ee W. Durbin III,
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
    on. There are under ten such admins.
@@ -134,8 +134,8 @@ may be used to from the legacy site, such as:
 - uploading to pythonhosted.com documentation hosting (`discussion and
   plans <https://github.com/pypa/warehouse/issues/582>`_)
 
-- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_:
-  instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
+- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_
+  (instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
 
 - key management: PyPI no longer has a UI for users to manage GPG or
   SSH public keys

@@ -18,6 +18,7 @@ import pytest
 
 from warehouse.legacy.api.xmlrpc import views as xmlrpc
 from warehouse.packaging.models import Classifier
+from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
@@ -29,7 +30,108 @@ from .....common.db.packaging import (
 )
 
 
+class TestRateLimiting:
+    def test_ratelimiting_pass(self, pyramid_services, pyramid_request, metrics):
+        def view(context, request):
+            return None
+
+        ratelimited_view = xmlrpc.ratelimit()(view)
+        context = pretend.stub()
+        pyramid_request.remote_addr = "127.0.0.1"
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
+        )
+        ratelimited_view(context, pyramid_request)
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.xmlrpc.ratelimiter.hit", tags=[])
+        ]
+
+    def test_ratelimiting_block(self, pyramid_services, pyramid_request, metrics):
+        def view(context, request):
+            return None
+
+        ratelimited_view = xmlrpc.ratelimit()(view)
+        context = pretend.stub()
+        pyramid_request.remote_addr = "127.0.0.1"
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: False, hit=lambda *a: True, resets_in=lambda *a: None
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
+        )
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+            ratelimited_view(context, pyramid_request)
+
+        assert exc.value.faultString == (
+            "HTTPTooManyRequests: The action could not be performed because there "
+            "were too many requests by the client."
+        )
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
+        ]
+
+    @pytest.mark.parametrize(
+        "resets_in_delta, expected",
+        [
+            (datetime.timedelta(minutes=11, seconds=6.9), 666),
+            (datetime.timedelta(seconds=0), 1),
+        ],
+    )
+    def test_ratelimiting_block_with_hint(
+        self, pyramid_services, pyramid_request, metrics, resets_in_delta, expected
+    ):
+        def view(context, request):
+            return None
+
+        ratelimited_view = xmlrpc.ratelimit()(view)
+        context = pretend.stub()
+        pyramid_request.remote_addr = "127.0.0.1"
+        fake_rate_limiter = pretend.stub(
+            test=lambda *a: False,
+            hit=lambda *a: True,
+            resets_in=lambda *a: resets_in_delta,
+        )
+        pyramid_services.register_service(
+            fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
+        )
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+            ratelimited_view(context, pyramid_request)
+
+        assert exc.value.faultString == (
+            "HTTPTooManyRequests: The action could not be performed because there "
+            "were too many requests by the client. Limit may reset in "
+            f"{expected} seconds."
+        )
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
+        ]
+
+
 class TestSearch:
+    def test_error_when_disabled(self, pyramid_request, metrics, monkeypatch):
+        monkeypatch.setattr(
+            pyramid_request.registry,
+            "settings",
+            {"warehouse.xmlrpc.search.enabled": False},
+        )
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+            xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
+
+        assert exc.value.faultString == (
+            "RuntimeError: This API has been temporarily disabled due to unmanageable "
+            "load and will be deprecated in the near future. Please use the Simple or "
+            "JSON API instead."
+        )
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.xmlrpc.search.deprecated")
+        ]
+
     def test_fails_with_invalid_operator(self, pyramid_request, metrics):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pyramid_request, {}, "lol nope")
@@ -788,34 +890,43 @@ def test_browse(db_request):
     assert set(xmlrpc.browse(db_request, ["Environment :: Other Environment"])) == {
         (r.project.name, r.version) for r in releases
     }
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-            ],
+    assert (
+        set(
+            xmlrpc.browse(
+                db_request,
+                [
+                    "Environment :: Other Environment",
+                    "Development Status :: 5 - Production/Stable",
+                ],
+            )
         )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Environment :: Other Environment",
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
+        == {(expected_release.project.name, expected_release.version)}
+    )
+    assert (
+        set(
+            xmlrpc.browse(
+                db_request,
+                [
+                    "Environment :: Other Environment",
+                    "Development Status :: 5 - Production/Stable",
+                    "Programming Language :: Python",
+                ],
+            )
         )
-    ) == {(expected_release.project.name, expected_release.version)}
-    assert set(
-        xmlrpc.browse(
-            db_request,
-            [
-                "Development Status :: 5 - Production/Stable",
-                "Programming Language :: Python",
-            ],
+        == {(expected_release.project.name, expected_release.version)}
+    )
+    assert (
+        set(
+            xmlrpc.browse(
+                db_request,
+                [
+                    "Development Status :: 5 - Production/Stable",
+                    "Programming Language :: Python",
+                ],
+            )
         )
-    ) == {(expected_release.project.name, expected_release.version)}
+        == {(expected_release.project.name, expected_release.version)}
+    )
 
 
 def test_multicall(pyramid_request):

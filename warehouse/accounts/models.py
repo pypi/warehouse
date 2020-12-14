@@ -88,6 +88,9 @@ class User(SitemapMixin, db.Model):
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
     )
+    recovery_codes = orm.relationship(
+        "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy=True
+    )
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
@@ -117,6 +120,12 @@ class User(SitemapMixin, db.Model):
         if primaries:
             return primaries[0]
 
+    @property
+    def public_email(self):
+        publics = [x for x in self.emails if x.public]
+        if publics:
+            return publics[0]
+
     @hybrid_property
     def email(self):
         primary_email = self.primary_email
@@ -133,6 +142,10 @@ class User(SitemapMixin, db.Model):
     @property
     def has_two_factor(self):
         return self.totp_secret is not None or len(self.webauthn) > 0
+
+    @property
+    def has_recovery_codes(self):
+        return len(self.recovery_codes) > 0
 
     @property
     def has_primary_verified_email(self):
@@ -165,6 +178,18 @@ class WebAuthn(db.Model):
     credential_id = Column(String, unique=True, nullable=False)
     public_key = Column(String, unique=True, nullable=True)
     sign_count = Column(Integer, default=0)
+
+
+class RecoveryCode(db.Model):
+    __tablename__ = "user_recovery_codes"
+
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    code = Column(String(length=128), nullable=False)
+    generated = Column(DateTime, nullable=False, server_default=sql.func.now())
 
 
 class UserEvent(db.Model):
@@ -205,6 +230,7 @@ class Email(db.ModelBase):
     email = Column(String(length=254), nullable=False)
     primary = Column(Boolean, nullable=False)
     verified = Column(Boolean, nullable=False)
+    public = Column(Boolean, nullable=False, server_default=sql.false())
 
     # Deliverability information
     unverify_reason = Column(

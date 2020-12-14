@@ -1,0 +1,90 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage/manage_base.html" %}
+
+{% set user = request.user %}
+{% set title = gettext("Account recovery codes") %}
+
+{% set active_tab = 'account' %}
+
+{% block title %}
+  {{ title }}
+{% endblock %}
+
+{# Hide mobile search on manager pages #}
+{% block mobile_search %}{% endblock %}
+
+{% block content %}
+<div class="horizontal-section">
+  <div class="site-container">
+    {% if recovery_codes is none %}
+    <div>
+      <div class="callout-block callout-block--warning">
+        <p><strong>{{ _error }}</strong></p>
+        <p>{{ _message }}</p>
+        <a href="#regenerate-recovery-codes" class="button button--secondary">{% trans %}Regenerate recovery codes{% endtrans %}</a>
+        {% set title=gettext("Regenerate recovery codes") %}
+        {% set confirm_button_label=gettext("Regenerate recovery codes") %}
+        {% set action=request.route_path('manage.account.recovery-codes.regenerate') %}
+        {{ confirm_password_modal(title=title, action=action, slug="regenerate-recovery-codes", warning=False, confirm_button_label=confirm_button_label) }}
+      </div>
+    </div>
+    {% else %}
+    <div class="col-half">
+      <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>
+      <p>{% trans %}If you lose access to your authentication application or security key(s), you’ll need to use one of these recovery codes to log into your PyPI account. Each code can only be used <strong>once</strong>.{% endtrans %}</p>
+      <p>{% trans %}These codes should <strong>only</strong> be used for account recovery, not for typical logins.{% endtrans %}</p>
+      <p>{% trans %}<strong>Keep these somewhere safe</strong>. If you lose your authentication application or security key(s) and do not have access to these recovery codes, you may permanently lose access to your PyPI account!{% endtrans %}</p>
+    </div>
+    <div class="col-half">
+      <div>
+        <h2>{% trans %}Save your recovery codes{% endtrans %}</h2>
+        <div class="recovery-codes">
+          <div>
+            <div class="recovery-codes__-codes">
+              <ul>
+                {% for recovery_code in recovery_codes %}
+                <li><code>{{ recovery_code }}</code></li>
+                {% endfor %}
+              </ul>
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ 'PyPI recovery codes\n' + recovery_codes|join('\n') }}">
+                {% trans %}Copy{% endtrans %}
+              </button>
+              <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="PyPI-Recovery-Codes.txt" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
+                {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
+              </a>
+              {% set title = gettext("Continue") %}
+              {% set confirm_name = "username" %}
+              {% set confirm_button_label = gettext("Continue") %}
+              {% set slug = "complete" %}
+              {% set action = request.route_path('manage.account') %}
+              <a href="#complete" class="button button--small button--primary">
+                {% trans %}Continue{% endtrans %}
+              </a>
+              {% set custom_warning_text %}
+                <p><strong>{% trans %}These codes will not be visible again.{% endtrans %}</strong></p>
+              {% endset %}
+              {% set extra_description %}
+                <p>{% trans %}Ensure that you have securely stored them before continuing.{% endtrans %}</p>
+              {% endset %}
+              {{ confirm_modal(title, gettext("Username"), "username", request.user.username, slug, confirm_button_label=confirm_button_label, extra_description=extra_description, confirm_string_in_title=False, custom_warning_text=custom_warning_text, action=action, method="GET") }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

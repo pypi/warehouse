@@ -57,7 +57,7 @@ def column_windows(session, column, windowsize):
 
 
 def windowed_query(q, column, windowsize):
-    """"
+    """
     Break a Query into windows on a given column.
     """
 

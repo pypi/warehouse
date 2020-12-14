@@ -13,8 +13,6 @@
 import base64
 import io
 
-from collections import defaultdict
-
 import pyqrcode
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
@@ -27,21 +25,34 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import warehouse.utils.otp as otp
 
-from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.interfaces import (
+    IPasswordBreachedService,
+    ITokenService,
+    IUserService,
+    TokenExpired,
+)
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_account_deletion_email,
-    send_added_as_collaborator_email,
-    send_collaborator_added_email,
+    send_collaborator_removed_email,
+    send_collaborator_role_changed_email,
     send_email_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
+    send_project_role_verification_email,
+    send_removed_as_collaborator_email,
+    send_removed_project_email,
+    send_removed_project_release_email,
+    send_removed_project_release_file_email,
+    send_role_changed_as_collaborator_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
+    send_unyanked_project_release_email,
+    send_yanked_project_release_email,
 )
-from warehouse.i18n import localize as _
+from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -64,6 +75,8 @@ from warehouse.packaging.models import (
     ProjectEvent,
     Release,
     Role,
+    RoleInvitation,
+    RoleInvitationStatus,
 )
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
@@ -109,6 +122,7 @@ def user_projects(request):
     require_methods=False,
     permission="manage:user",
     has_translations=True,
+    require_reauth=True,
 )
 class ManageAccountViews:
     def __init__(self, request):
@@ -125,7 +139,12 @@ class ManageAccountViews:
     @property
     def default_response(self):
         return {
-            "save_account_form": SaveAccountForm(name=self.request.user.name),
+            "save_account_form": SaveAccountForm(
+                name=self.request.user.name,
+                public_email=getattr(self.request.user.public_email, "email", ""),
+                user_service=self.user_service,
+                user_id=self.request.user.id,
+            ),
             "add_email_form": AddEmailForm(
                 user_service=self.user_service, user_id=self.request.user.id
             ),
@@ -139,17 +158,29 @@ class ManageAccountViews:
     def manage_account(self):
         return self.default_response
 
-    @view_config(request_method="POST", request_param=SaveAccountForm.__params__)
+    @view_config(request_method="POST", request_param=["name"])
     def save_account(self):
-        form = SaveAccountForm(self.request.POST)
+        form = SaveAccountForm(
+            self.request.POST,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
 
         if form.validate():
-            self.user_service.update_user(self.request.user.id, **form.data)
+            data = form.data
+            public_email = data.pop("public_email", "")
+            self.user_service.update_user(self.request.user.id, **data)
+            for email in self.request.user.emails:
+                email.public = email.email == public_email
             self.request.session.flash("Account details updated", queue="success")
 
         return {**self.default_response, "save_account_form": form}
 
-    @view_config(request_method="POST", request_param=AddEmailForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=AddEmailForm.__params__,
+        require_reauth=True,
+    )
     def add_email(self):
         form = AddEmailForm(
             self.request.POST,
@@ -158,7 +189,9 @@ class ManageAccountViews:
         )
 
         if form.validate():
-            email = self.user_service.add_email(self.request.user.id, form.email.data)
+            email = self.user_service.add_email(
+                self.request.user.id, form.email.data, self.request.remote_addr
+            )
             self.user_service.record_event(
                 self.request.user.id,
                 tag="account:email:add",
@@ -169,7 +202,7 @@ class ManageAccountViews:
             send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
-                _(
+                self.request._(
                     "Email ${email_address} added - check your email for "
                     "a verification link",
                     mapping={"email_address": email.email},
@@ -180,7 +213,9 @@ class ManageAccountViews:
 
         return {**self.default_response, "add_email_form": form}
 
-    @view_config(request_method="POST", request_param=["delete_email_id"])
+    @view_config(
+        request_method="POST", request_param=["delete_email_id"], require_reauth=True
+    )
     def delete_email(self):
         try:
             email = (
@@ -212,7 +247,9 @@ class ManageAccountViews:
             )
         return self.default_response
 
-    @view_config(request_method="POST", request_param=["primary_email_id"])
+    @view_config(
+        request_method="POST", request_param=["primary_email_id"], require_reauth=True
+    )
     def change_primary_email(self):
         previous_primary_email = self.request.user.primary_email
         try:
@@ -313,7 +350,9 @@ class ManageAccountViews:
 
         return {**self.default_response, "change_password_form": form}
 
-    @view_config(request_method="POST", request_param=DeleteTOTPForm.__params__)
+    @view_config(
+        request_method="POST", request_param=DeleteTOTPForm.__params__
+    )  # TODO: gate_action instead of confirm pass form
     def delete_account(self):
         confirm_password = self.request.params.get("confirm_password")
         if not confirm_password:
@@ -328,7 +367,7 @@ class ManageAccountViews:
 
         if not form.validate():
             self.request.session.flash(
-                f"Could not delete account - Invalid credentials. Please try again.",
+                "Could not delete account - Invalid credentials. Please try again.",
                 queue="error",
             )
             return self.default_response
@@ -634,9 +673,99 @@ class ProvisionWebAuthnViews:
     require_csrf=True,
     require_methods=False,
     permission="manage:user",
+    http_cache=0,
+    has_translations=True,
+)
+class ProvisionRecoveryCodesViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+
+    @view_config(
+        request_method="GET",
+        route_name="manage.account.recovery-codes.generate",
+        renderer="manage/account/recovery_codes-provision.html",
+    )
+    def recovery_codes_generate(self):
+        if not self.user_service.has_two_factor(self.request.user.id):
+            self.request.session.flash(
+                self.request._(
+                    "You must provision a two factor method before recovery "
+                    "codes can be generated"
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        if self.user_service.has_recovery_codes(self.request.user.id):
+            return {
+                "recovery_codes": None,
+                "_error": self.request._("Recovery codes already generated"),
+                "_message": self.request._(
+                    "Generating new recovery codes will invalidate your existing codes."
+                ),
+            }
+
+        self.user_service.record_event(
+            self.request.user.id,
+            tag="account:recovery_codes:generated",
+            ip_address=self.request.remote_addr,
+        )
+        return {
+            "recovery_codes": self.user_service.generate_recovery_codes(
+                self.request.user.id
+            )
+        }
+
+    @view_config(
+        request_method="POST",
+        route_name="manage.account.recovery-codes.regenerate",
+        renderer="manage/account/recovery_codes-provision.html",
+    )
+    def recovery_codes_regenerate(self):
+        if not self.user_service.has_two_factor(self.request.user.id):
+            self.request.session.flash(
+                self.request._(
+                    "You must provision a two factor method before recovery "
+                    "codes can be generated"
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        form = ConfirmPasswordForm(
+            password=self.request.POST["confirm_password"],
+            username=self.request.user.username,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            self.user_service.record_event(
+                self.request.user.id,
+                tag="account:recovery_codes:regenerated",
+                ip_address=self.request.remote_addr,
+            )
+            return {
+                "recovery_codes": self.user_service.generate_recovery_codes(
+                    self.request.user.id
+                )
+            }
+
+        self.request.session.flash(
+            self.request._("Invalid credentials. Try again"), queue="error"
+        )
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
     renderer="manage/token.html",
     route_name="manage.account.token",
     has_translations=True,
+    require_reauth=True,
 )
 class ProvisionMacaroonViews:
     def __init__(self, request):
@@ -668,7 +797,7 @@ class ProvisionMacaroonViews:
     def manage_macaroons(self):
         return self.default_response
 
-    @view_config(request_method="POST")
+    @view_config(request_method="POST", require_reauth=True)
     def create_macaroon(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
@@ -725,7 +854,11 @@ class ProvisionMacaroonViews:
 
         return {**response, "create_macaroon_form": form}
 
-    @view_config(request_method="POST", request_param=DeleteMacaroonForm.__params__)
+    @view_config(
+        request_method="POST",
+        request_param=DeleteMacaroonForm.__params__,
+        require_reauth=True,
+    )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
             password=self.request.POST["confirm_password"],
@@ -792,11 +925,20 @@ def manage_projects(request):
     projects_sole_owned = set(
         project.name for project in all_user_projects["projects_sole_owned"]
     )
-
+    project_invites = (
+        request.db.query(RoleInvitation)
+        .filter(RoleInvitation.invite_status == RoleInvitationStatus.Pending)
+        .filter(RoleInvitation.user == request.user)
+        .all()
+    )
+    project_invites = [
+        (role_invite.project, role_invite.token) for role_invite in project_invites
+    ]
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
+        "project_invites": project_invites,
     }
 
 
@@ -807,9 +949,23 @@ def manage_projects(request):
     uses_session=True,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def manage_project_settings(project, request):
-    return {"project": project}
+    return {
+        "project": project,
+        "MAX_FILESIZE": MAX_FILESIZE,
+        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+    }
+
+
+def get_user_role_in_project(project, user, request):
+    return (
+        request.db.query(Role)
+        .filter(Role.user == user, Role.project == project)
+        .one()
+        .role_name
+    )
 
 
 @view_config(
@@ -819,6 +975,7 @@ def manage_project_settings(project, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
@@ -834,6 +991,21 @@ def delete_project(project, request):
         )
 
     confirm_project(project, request, fail_route="manage.project.settings")
+
+    submitter_role = get_user_role_in_project(project, request.user, request)
+
+    for contributor in project.users:
+        contributor_role = get_user_role_in_project(project, contributor, request)
+
+        send_removed_project_email(
+            request,
+            contributor,
+            project_name=project.name,
+            submitter_name=request.user.username,
+            submitter_role=submitter_role,
+            recipient_role=contributor_role,
+        )
+
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path("manage.projects"))
@@ -846,6 +1018,7 @@ def delete_project(project, request):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -865,6 +1038,7 @@ def destroy_project_docs(project, request):
     uses_session=True,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def manage_project_releases(project, request):
     # Get the counts for all the files for this project, grouped by the
@@ -909,6 +1083,7 @@ def manage_project_releases(project, request):
     require_methods=False,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -923,7 +1098,176 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
-    @view_config(request_method="POST", request_param=["confirm_version"])
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_yank_version"],
+        require_reauth=True,
+    )
+    def yank_project_release(self):
+        version = self.request.POST.get("confirm_yank_version")
+        yanked_reason = self.request.POST.get("yanked_reason", "")
+
+        if not version:
+            self.request.session.flash("Confirm the request", queue="error")
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        if version != self.release.version:
+            self.request.session.flash(
+                "Could not yank release - "
+                + f"{version!r} is not the same as {self.release.version!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        submitter_role = get_user_role_in_project(
+            self.release.project, self.request.user, self.request
+        )
+
+        self.request.db.add(
+            JournalEntry(
+                name=self.release.project.name,
+                action="yank release",
+                version=self.release.version,
+                submitted_by=self.request.user,
+                submitted_from=self.request.remote_addr,
+            )
+        )
+
+        self.release.project.record_event(
+            tag="project:release:yank",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+                "yanked_reason": yanked_reason,
+            },
+        )
+
+        self.release.yanked = True
+        self.release.yanked_reason = yanked_reason
+
+        self.request.session.flash(
+            f"Yanked release {self.release.version!r}", queue="success"
+        )
+
+        for contributor in self.release.project.users:
+            contributor_role = get_user_role_in_project(
+                self.release.project, contributor, self.request
+            )
+
+            send_yanked_project_release_email(
+                self.request,
+                contributor,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.releases", project_name=self.release.project.name
+            )
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_unyank_version"],
+        require_reauth=True,
+    )
+    def unyank_project_release(self):
+        version = self.request.POST.get("confirm_unyank_version")
+        if not version:
+            self.request.session.flash("Confirm the request", queue="error")
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        if version != self.release.version:
+            self.request.session.flash(
+                "Could not un-yank release - "
+                + f"{version!r} is not the same as {self.release.version!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        submitter_role = get_user_role_in_project(
+            self.release.project, self.request.user, self.request
+        )
+
+        self.request.db.add(
+            JournalEntry(
+                name=self.release.project.name,
+                action="unyank release",
+                version=self.release.version,
+                submitted_by=self.request.user,
+                submitted_from=self.request.remote_addr,
+            )
+        )
+
+        self.release.project.record_event(
+            tag="project:release:unyank",
+            ip_address=self.request.remote_addr,
+            additional={
+                "submitted_by": self.request.user.username,
+                "canonical_version": self.release.canonical_version,
+            },
+        )
+
+        self.release.yanked = False
+        self.release.yanked_reason = ""
+
+        self.request.session.flash(
+            f"Un-yanked release {self.release.version!r}", queue="success"
+        )
+
+        for contributor in self.release.project.users:
+            contributor_role = get_user_role_in_project(
+                self.release.project, contributor, self.request
+            )
+
+            send_unyanked_project_release_email(
+                self.request,
+                contributor,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.releases", project_name=self.release.project.name
+            )
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_delete_version"],
+        require_reauth=True,
+    )
     def delete_project_release(self):
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
@@ -941,7 +1285,7 @@ class ManageProjectRelease:
                 )
             )
 
-        version = self.request.POST.get("confirm_version")
+        version = self.request.POST.get("confirm_delete_version")
         if not version:
             self.request.session.flash("Confirm the request", queue="error")
             return HTTPSeeOther(
@@ -965,6 +1309,10 @@ class ManageProjectRelease:
                     version=self.release.version,
                 )
             )
+
+        submitter_role = get_user_role_in_project(
+            self.release.project, self.request.user, self.request
+        )
 
         self.request.db.add(
             JournalEntry(
@@ -991,6 +1339,20 @@ class ManageProjectRelease:
             f"Deleted release {self.release.version!r}", queue="success"
         )
 
+        for contributor in self.release.project.users:
+            contributor_role = get_user_role_in_project(
+                self.release.project, contributor, self.request
+            )
+
+            send_removed_project_release_email(
+                self.request,
+                contributor,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
+
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.releases", project_name=self.release.project.name
@@ -998,7 +1360,9 @@ class ManageProjectRelease:
         )
 
     @view_config(
-        request_method="POST", request_param=["confirm_project_name", "file_id"]
+        request_method="POST",
+        request_param=["confirm_project_name", "file_id"],
+        require_reauth=True,
     )
     def delete_project_release_file(self):
         def _error(message):
@@ -1061,6 +1425,25 @@ class ManageProjectRelease:
             },
         )
 
+        submitter_role = get_user_role_in_project(
+            self.release.project, self.request.user, self.request
+        )
+
+        for contributor in self.release.project.users:
+            contributor_role = get_user_role_in_project(
+                self.release.project, contributor, self.request
+            )
+
+            send_removed_project_release_file_email(
+                self.request,
+                contributor,
+                file=release_file.filename,
+                release=self.release,
+                submitter_name=self.request.user.username,
+                submitter_role=submitter_role,
+                recipient_role=contributor_role,
+            )
+
         self.request.db.delete(release_file)
 
         self.request.session.flash(
@@ -1084,6 +1467,7 @@ class ManageProjectRelease:
     require_methods=False,
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -1094,38 +1478,101 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         role_name = form.role_name.data
         userid = user_service.find_userid(username)
         user = user_service.get_user(userid)
+        token_service = request.find_service(ITokenService, name="email")
 
-        if request.db.query(
+        existing_role = (
             request.db.query(Role)
-            .filter(
-                Role.user == user, Role.project == project, Role.role_name == role_name
-            )
-            .exists()
-        ).scalar():
+            .filter(Role.user == user, Role.project == project)
+            .first()
+        )
+        user_invite = (
+            request.db.query(RoleInvitation)
+            .filter(RoleInvitation.user == user)
+            .filter(RoleInvitation.project == project)
+            .one_or_none()
+        )
+        # Cover edge case where invite is invalid but task
+        # has not updated invite status
+        try:
+            invite_token = token_service.loads(user_invite.token)
+        except (TokenExpired, AttributeError):
+            invite_token = None
+
+        if existing_role:
             request.session.flash(
-                f"User '{username}' already has {role_name} role for project",
+                request._(
+                    "User '${username}' already has ${role_name} role for project",
+                    mapping={
+                        "username": username,
+                        "role_name": existing_role.role_name,
+                    },
+                ),
                 queue="error",
             )
         elif user.primary_email is None or not user.primary_email.verified:
             request.session.flash(
-                f"User '{username}' does not have a verified primary email "
-                f"address and cannot be added as a {role_name} for project",
+                request._(
+                    "User '${username}' does not have a verified primary email "
+                    "address and cannot be added as a ${role_name} for project",
+                    mapping={"username": username, "role_name": role_name},
+                ),
+                queue="error",
+            )
+        elif (
+            user_invite
+            and user_invite.invite_status == RoleInvitationStatus.Pending
+            and invite_token
+        ):
+            request.session.flash(
+                request._(
+                    "User '${username}' already has an active invite. "
+                    "Please try again later.",
+                    mapping={"username": username},
+                ),
                 queue="error",
             )
         else:
-            request.db.add(
-                Role(user=user, project=project, role_name=form.role_name.data)
+            invite_token = token_service.dumps(
+                {
+                    "action": "email-project-role-verify",
+                    "desired_role": role_name,
+                    "user_id": user.id,
+                    "project_id": project.id,
+                    "submitter_id": request.user.id,
+                }
             )
+            if user_invite:
+                user_invite.invite_status = RoleInvitationStatus.Pending
+                user_invite.token = invite_token
+            else:
+                request.db.add(
+                    RoleInvitation(
+                        user=user,
+                        project=project,
+                        invite_status=RoleInvitationStatus.Pending,
+                        token=invite_token,
+                    )
+                )
+
             request.db.add(
                 JournalEntry(
                     name=project.name,
-                    action=f"add {role_name} {username}",
+                    action=f"invite {role_name} {username}",
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
             )
+            send_project_role_verification_email(
+                request,
+                user,
+                desired_role=role_name,
+                initiator_username=request.user.username,
+                project_name=project.name,
+                email_token=invite_token,
+                token_age=token_service.max_age,
+            )
             project.record_event(
-                tag="project:role:add",
+                tag="project:role:invite",
                 ip_address=request.remote_addr,
                 additional={
                     "submitted_by": request.user.username,
@@ -1133,51 +1580,100 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     "target_user": username,
                 },
             )
-
-            owner_roles = (
-                request.db.query(Role)
-                .join(Role.user)
-                .filter(Role.role_name == "Owner", Role.project == project)
-            )
-            owner_users = {owner.user for owner in owner_roles}
-
-            # Don't send to the owner that added the new role
-            owner_users.discard(request.user)
-
-            # Don't send owners email to new user if they are now an owner
-            owner_users.discard(user)
-
-            send_collaborator_added_email(
-                request,
-                owner_users,
-                user=user,
-                submitter=request.user,
-                project_name=project.name,
-                role=form.role_name.data,
-            )
-
-            send_added_as_collaborator_email(
-                request,
-                user,
-                submitter=request.user,
-                project_name=project.name,
-                role=form.role_name.data,
-            )
-
+            request.db.flush()  # in order to get id
             request.session.flash(
-                f"Added collaborator '{form.username.data}'", queue="success"
+                request._(
+                    "Invitation sent to '${username}'",
+                    mapping={"username": username},
+                ),
+                queue="success",
             )
+
         form = _form_class(user_service=user_service)
 
-    roles = request.db.query(Role).join(User).filter(Role.project == project).all()
+    roles = set(request.db.query(Role).join(User).filter(Role.project == project).all())
+    invitations = set(
+        request.db.query(RoleInvitation)
+        .join(User)
+        .filter(RoleInvitation.project == project)
+        .all()
+    )
 
-    # TODO: The following lines are a hack to handle multiple roles for a
-    # single user and should be removed when fixing GH-2745
-    roles_by_user = defaultdict(list)
-    for role in roles:
-        roles_by_user[role.user.username].append(role)
+    return {
+        "project": project,
+        "roles": roles,
+        "invitations": invitations,
+        "form": form,
+    }
 
-    return {"project": project, "roles_by_user": roles_by_user, "form": form}
+
+@view_config(
+    route_name="manage.project.revoke_invite",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage:project",
+    has_translations=True,
+)
+def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="email")
+    user = user_service.get_user(request.POST["user_id"])
+
+    try:
+        user_invite = (
+            request.db.query(RoleInvitation)
+            .filter(RoleInvitation.project == project)
+            .filter(RoleInvitation.user == user)
+            .one()
+        )
+    except NoResultFound:
+        request.session.flash(
+            request._("Could not find role invitation."), queue="error"
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.roles", project_name=project.name)
+        )
+
+    request.db.delete(user_invite)
+
+    try:
+        token_data = token_service.loads(user_invite.token)
+    except TokenExpired:
+        request.session.flash(request._("Invitation already expired."), queue="success")
+        return HTTPSeeOther(
+            request.route_path("manage.project.roles", project_name=project.name)
+        )
+    role_name = token_data.get("desired_role")
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"revoke_invite {role_name} {user.username}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+    project.record_event(
+        tag="project:role:revoke_invite",
+        ip_address=request.remote_addr,
+        additional={
+            "submitted_by": request.user.username,
+            "role_name": role_name,
+            "target_user": user.username,
+        },
+    )
+    request.session.flash(
+        request._(
+            "Invitation revoked from '${username}'.",
+            mapping={"username": user.username},
+        ),
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.roles", project_name=project.name)
+    )
 
 
 @view_config(
@@ -1187,97 +1683,74 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
-    # TODO: This view was modified to handle deleting multiple roles for a
-    # single user and should be updated when fixing GH-2745
-
     form = _form_class(request.POST)
 
     if form.validate():
-        role_ids = request.POST.getall("role_id")
-
-        if len(role_ids) > 1:
-            # This user has more than one role, so just delete all the ones
-            # that aren't what we want.
-            #
-            # TODO: This branch should be removed when fixing GH-2745.
-            roles = (
+        role_id = request.POST["role_id"]
+        try:
+            role = (
                 request.db.query(Role)
                 .join(User)
-                .filter(
-                    Role.id.in_(role_ids),
-                    Role.project == project,
-                    Role.role_name != form.role_name.data,
-                )
-                .all()
+                .filter(Role.id == role_id, Role.project == project)
+                .one()
             )
-            removing_self = any(
-                role.role_name == "Owner" and role.user == request.user
-                for role in roles
-            )
-            if removing_self:
+            if role.role_name == "Owner" and role.user == request.user:
                 request.session.flash("Cannot remove yourself as Owner", queue="error")
             else:
-                for role in roles:
-                    request.db.delete(role)
-                    request.db.add(
-                        JournalEntry(
-                            name=project.name,
-                            action=f"remove {role.role_name} {role.user.username}",
-                            submitted_by=request.user,
-                            submitted_from=request.remote_addr,
-                        )
+                request.db.add(
+                    JournalEntry(
+                        name=project.name,
+                        action="change {} {} to {}".format(
+                            role.role_name, role.user.username, form.role_name.data
+                        ),
+                        submitted_by=request.user,
+                        submitted_from=request.remote_addr,
                     )
-                    project.record_event(
-                        tag="project:role:delete",
-                        ip_address=request.remote_addr,
-                        additional={
-                            "submitted_by": request.user.username,
-                            "role_name": role.role_name,
-                            "target_user": role.user.username,
-                        },
-                    )
-                request.session.flash("Changed role", queue="success")
-        else:
-            # This user only has one role, so get it and change the type.
-            try:
-                role = (
-                    request.db.query(Role)
-                    .join(User)
-                    .filter(
-                        Role.id == request.POST.get("role_id"), Role.project == project
-                    )
-                    .one()
                 )
-                if role.role_name == "Owner" and role.user == request.user:
-                    request.session.flash(
-                        "Cannot remove yourself as Owner", queue="error"
-                    )
-                else:
-                    request.db.add(
-                        JournalEntry(
-                            name=project.name,
-                            action="change {} {} to {}".format(
-                                role.role_name, role.user.username, form.role_name.data
-                            ),
-                            submitted_by=request.user,
-                            submitted_from=request.remote_addr,
-                        )
-                    )
-                    role.role_name = form.role_name.data
-                    project.record_event(
-                        tag="project:role:change",
-                        ip_address=request.remote_addr,
-                        additional={
-                            "submitted_by": request.user.username,
-                            "role_name": form.role_name.data,
-                            "target_user": role.user.username,
-                        },
-                    )
-                    request.session.flash("Changed role", queue="success")
-            except NoResultFound:
-                request.session.flash("Could not find role", queue="error")
+                role.role_name = form.role_name.data
+                project.record_event(
+                    tag="project:role:change",
+                    ip_address=request.remote_addr,
+                    additional={
+                        "submitted_by": request.user.username,
+                        "role_name": form.role_name.data,
+                        "target_user": role.user.username,
+                    },
+                )
+
+                owner_roles = (
+                    request.db.query(Role)
+                    .filter(Role.project == project)
+                    .filter(Role.role_name == "Owner")
+                    .all()
+                )
+                owner_users = {owner.user for owner in owner_roles}
+                # Don't send owner notification email to new user
+                # if they are now an owner
+                owner_users.discard(role.user)
+                send_collaborator_role_changed_email(
+                    request,
+                    owner_users,
+                    user=role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
+                send_role_changed_as_collaborator_email(
+                    request,
+                    role.user,
+                    submitter=request.user,
+                    project_name=project.name,
+                    role=role.role_name,
+                )
+
+                request.session.flash("Changed role", queue="success")
+        except NoResultFound:
+            request.session.flash("Could not find role", queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
@@ -1291,27 +1764,20 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     require_methods=["POST"],
     permission="manage:project",
     has_translations=True,
+    require_reauth=True,
 )
 def delete_project_role(project, request):
-    # TODO: This view was modified to handle deleting multiple roles for a
-    # single user and should be updated when fixing GH-2745
-
-    roles = (
-        request.db.query(Role)
-        .join(User)
-        .filter(Role.id.in_(request.POST.getall("role_id")), Role.project == project)
-        .all()
-    )
-    removing_self = any(
-        role.role_name == "Owner" and role.user == request.user for role in roles
-    )
-
-    if not roles:
-        request.session.flash("Could not find role", queue="error")
-    elif removing_self:
-        request.session.flash("Cannot remove yourself as Owner", queue="error")
-    else:
-        for role in roles:
+    try:
+        role = (
+            request.db.query(Role)
+            .join(User)
+            .filter(Role.id == request.POST["role_id"])
+            .one()
+        )
+        removing_self = role.role_name == "Owner" and role.user == request.user
+        if removing_self:
+            request.session.flash("Cannot remove yourself as Owner", queue="error")
+        else:
             request.db.delete(role)
             request.db.add(
                 JournalEntry(
@@ -1330,7 +1796,32 @@ def delete_project_role(project, request):
                     "target_user": role.user.username,
                 },
             )
-        request.session.flash("Removed role", queue="success")
+
+            owner_roles = (
+                request.db.query(Role)
+                .filter(Role.project == project)
+                .filter(Role.role_name == "Owner")
+                .all()
+            )
+            owner_users = {owner.user for owner in owner_roles}
+            # Don't send owner notification email to new user
+            # if they are now an owner
+            owner_users.discard(role.user)
+            send_collaborator_removed_email(
+                request,
+                owner_users,
+                user=role.user,
+                submitter=request.user,
+                project_name=project.name,
+            )
+
+            send_removed_as_collaborator_email(
+                request, role.user, submitter=request.user, project_name=project.name
+            )
+
+            request.session.flash("Removed role", queue="success")
+    except NoResultFound:
+        request.session.flash("Could not find role", queue="error")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)

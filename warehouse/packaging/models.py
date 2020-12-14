@@ -57,11 +57,15 @@ from warehouse.utils.attrs import make_repr
 class Role(db.Model):
 
     __tablename__ = "roles"
-    __table_args__ = (Index("roles_user_id_idx", "user_id"),)
+    __table_args__ = (
+        Index("roles_user_id_idx", "user_id"),
+        Index("roles_project_id_idx", "project_id"),
+        UniqueConstraint("user_id", "project_id", name="_roles_user_project_uc"),
+    )
 
-    __repr__ = make_repr("role_name", "user_name", "package_name")
+    __repr__ = make_repr("role_name")
 
-    role_name = Column(Text)
+    role_name = Column(Text, nullable=False)
     user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
@@ -73,15 +77,40 @@ class Role(db.Model):
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
 
-    def __gt__(self, other):
-        """
-        Temporary hack to allow us to only display the 'highest' role when
-        there are multiple for a given user
 
-        TODO: This should be removed when fixing GH-2745.
-        """
-        order = ["Maintainer", "Owner"]  # from lowest to highest
-        return order.index(self.role_name) > order.index(other.role_name)
+class RoleInvitationStatus(enum.Enum):
+
+    Pending = "pending"
+    Expired = "expired"
+
+
+class RoleInvitation(db.Model):
+
+    __tablename__ = "role_invitations"
+    __table_args__ = (
+        Index("role_invitations_user_id_idx", "user_id"),
+        UniqueConstraint(
+            "user_id", "project_id", name="_role_invitations_user_project_uc"
+        ),
+    )
+
+    __repr__ = make_repr("invite_status", "user", "project")
+
+    invite_status = Column(
+        Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+    )
+    token = Column(Text, nullable=False)
+    user_id = Column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+    )
+    project_id = Column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    user = orm.relationship(User, lazy=False)
+    project = orm.relationship("Project", lazy=False)
 
 
 class ProjectFactory:
@@ -121,8 +150,8 @@ class Project(SitemapMixin, db.Model):
     )
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
+    total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
-    allow_legacy_files = Column(Boolean, nullable=False, server_default=sql.false())
     zscore = Column(Float, nullable=True)
 
     total_size = Column(BigInteger, server_default=sql.text("0"))
@@ -149,8 +178,8 @@ class Project(SitemapMixin, db.Model):
             return (
                 session.query(Release)
                 .filter(
-                    (Release.project == self)
-                    & (Release.canonical_version == canonical_version)
+                    Release.project == self,
+                    Release.canonical_version == canonical_version,
                 )
                 .one()
             )
@@ -161,7 +190,7 @@ class Project(SitemapMixin, db.Model):
             try:
                 return (
                     session.query(Release)
-                    .filter((Release.project == self) & (Release.version == version))
+                    .filter(Release.project == self, Release.version == version)
                     .one()
                 )
             except NoResultFound:
@@ -219,7 +248,9 @@ class Project(SitemapMixin, db.Model):
     def all_versions(self):
         return (
             orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            .query(
+                Release.version, Release.created, Release.is_prerelease, Release.yanked
+            )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
             .all()
@@ -230,7 +261,7 @@ class Project(SitemapMixin, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self)
+            .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -357,6 +388,10 @@ class Release(db.Model):
         ),
     )
 
+    yanked = Column(Boolean, nullable=False, server_default=sql.false())
+
+    yanked_reason = Column(Text, nullable=False, server_default="")
+
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
@@ -420,23 +455,24 @@ class Release(db.Model):
 
         if self.home_page:
             _urls["Homepage"] = self.home_page
+        if self.download_url:
+            _urls["Download"] = self.download_url
 
         for urlspec in self.project_urls:
-            name, url = [x.strip() for x in urlspec.split(",", 1)]
-            _urls[name] = url
-
-        if self.download_url and "Download" not in _urls:
-            _urls["Download"] = self.download_url
+            name, _, url = urlspec.partition(",")
+            name = name.strip()
+            url = url.strip()
+            if name and url:
+                _urls[name] = url
 
         return _urls
 
     @property
     def github_repo_info_url(self):
-        for parsed in [urlparse(url) for url in self.urls.values()]:
-            segments = parsed.path.strip("/").rstrip("/").split("/")
-            if (
-                parsed.netloc == "github.com" or parsed.netloc == "www.github.com"
-            ) and len(segments) >= 2:
+        for url in self.urls.values():
+            parsed = urlparse(url)
+            segments = parsed.path.strip("/").split("/")
+            if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
@@ -574,13 +610,13 @@ class JournalEntry(db.ModelBase):
     submitted_from = Column(Text)
 
 
-class BlacklistedProject(db.Model):
+class ProhibitedProjectName(db.Model):
 
-    __tablename__ = "blacklist"
+    __tablename__ = "prohibited_project_names"
     __table_args__ = (
         CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="blacklist_valid_name",
+            name="prohibited_project_valid_name",
         ),
     )
 
@@ -590,8 +626,8 @@ class BlacklistedProject(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     name = Column(Text, unique=True, nullable=False)
-    _blacklisted_by = Column(
-        "blacklisted_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    _prohibited_by = Column(
+        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
     )
-    blacklisted_by = orm.relationship(User)
+    prohibited_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")

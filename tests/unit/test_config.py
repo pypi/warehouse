@@ -183,6 +183,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
                 "dirs.packages": "/srv/data/pypi/packages/",
+                "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
             }
 
     configurator_settings = other_settings.copy()
@@ -228,6 +229,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "token.default.max_age": 21600,
+        "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
+        "warehouse.xmlrpc.search.enabled": True,
     }
 
     if environment == config.Environment.development:
@@ -298,6 +301,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
+            pretend.call(".legacy.api.xmlrpc"),
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
@@ -324,7 +328,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".routes"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
-            pretend.call(".raven"),
+            pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
             pretend.call(".http"),
@@ -365,7 +369,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             over=[
                 "warehouse.cache.http.conditional_http_tween_factory",
                 "pyramid_debugtoolbar.toolbar_tween_factory",
-                "warehouse.raven.raven_tween_factory",
                 EXCVIEW,
             ],
         ),

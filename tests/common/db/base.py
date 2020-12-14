@@ -33,6 +33,7 @@ class WarehouseFactory(SQLAlchemyModelFactory):
         r = super()._create(*args, **kwargs)
         session = cls._meta.sqlalchemy_session
         session.flush()
+        session.expire_all()
         return r
 
 

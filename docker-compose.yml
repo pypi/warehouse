@@ -44,9 +44,13 @@ services:
       - "4576:4576"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
     environment:
       - xpack.security.enabled=false
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
   camo:
     image: pypa/warehouse-camo:latest
@@ -65,7 +69,7 @@ services:
         # working on pypi-theme, this is a private repository due to the fact
         # that other people's IP is contained in it.
         #THEME_REPO:
-    command: hupper -w 'warehouse/locale/**/*.mo' -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn.conf.py warehouse.wsgi:application
+    command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify all of these directories instead of just . because we want to
@@ -85,12 +89,6 @@ services:
       - packages:/var/opt/warehouse/packages
     ports:
       - "80:8000"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - notdatadog
 
   files:
     build:
@@ -114,13 +112,6 @@ services:
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - smtp
-      - notdatadog
 
   static:
     build:

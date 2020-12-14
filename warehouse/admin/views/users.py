@@ -77,6 +77,7 @@ class EmailForm(forms.Form):
     )
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
+    public = wtforms.fields.BooleanField()
 
 
 class UserForm(forms.Form):
@@ -152,6 +153,7 @@ def user_add_email(request):
             user=user,
             primary=form.primary.data,
             verified=form.verified.data,
+            public=form.public.data,
         )
         request.db.add(email)
         request.session.flash(
@@ -172,7 +174,7 @@ def user_delete(request):
     user = request.db.query(User).get(request.matchdict["user_id"])
 
     if user.username != request.params.get("username"):
-        request.session.flash(f"Wrong confirmation input", queue="error")
+        request.session.flash("Wrong confirmation input", queue="error")
         return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
     # Delete all the user's projects
@@ -213,7 +215,7 @@ def user_delete(request):
     request.db.add(
         JournalEntry(
             name=f"user:{user.username}",
-            action=f"nuke user",
+            action="nuke user",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
@@ -234,7 +236,7 @@ def user_reset_password(request):
     user = request.db.query(User).get(request.matchdict["user_id"])
 
     if user.username != request.params.get("username"):
-        request.session.flash(f"Wrong confirmation input", queue="error")
+        request.session.flash("Wrong confirmation input", queue="error")
         return HTTPSeeOther(request.route_path("admin.user.detail", user_id=user.id))
 
     login_service = request.find_service(IUserService, context=None)

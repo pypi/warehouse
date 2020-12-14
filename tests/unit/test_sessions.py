@@ -158,6 +158,26 @@ class TestSession:
         session.changed()
         assert session.should_save()
 
+    def test_reauth_record(self, pyramid_request):
+        session = Session()
+        assert not session.should_save()
+        session.record_auth_timestamp()
+        assert session.should_save()
+
+    def test_reauth_unneeded(self):
+        session = Session()
+        session.record_auth_timestamp()
+        assert not session.needs_reauthentication()
+
+    def test_reauth_needed(self):
+        session = Session()
+        session[session._reauth_timestamp_key] = 0
+        assert session.needs_reauthentication()
+
+    def test_reauth_needed_no_value(self):
+        session = Session()
+        assert session.needs_reauthentication()
+
     @pytest.mark.parametrize(
         ("data", "method", "args"),
         [
@@ -421,7 +441,7 @@ class TestSessionFactory:
 
     def test_valid_session_id_valid_data(self, monkeypatch, pyramid_request):
         msgpack_unpackb = pretend.call_recorder(
-            lambda bdata, encoding, use_list: {"foo": "bar"}
+            lambda bdata, raw, use_list: {"foo": "bar"}
         )
         monkeypatch.setattr(msgpack, "unpackb", msgpack_unpackb)
 
@@ -451,7 +471,7 @@ class TestSessionFactory:
         ]
 
         assert msgpack_unpackb.calls == [
-            pretend.call(b"valid data", encoding="utf8", use_list=True)
+            pretend.call(b"valid data", raw=False, use_list=True)
         ]
 
         assert isinstance(session, Session)
@@ -524,10 +544,7 @@ class TestSessionFactory:
         ]
         assert msgpack_packb.calls == [
             pretend.call(
-                pyramid_request.session,
-                encoding="utf8",
-                default=object_encode,
-                use_bin_type=True,
+                pyramid_request.session, default=object_encode, use_bin_type=True
             )
         ]
         assert session_factory.redis.setex.calls == [

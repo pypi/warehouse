@@ -39,7 +39,7 @@
                 </a>
               </li>
             </ul>
-          <nav>
+          </nav>
         </div>
       </div>
       <div class="vertical-tabs__panel">
@@ -83,9 +83,11 @@
   extra_fields=None,
   extra_description=None,
   action=None,
+  method="POST",
   warning=True,
   custom_warning_text="",
-  confirm_string_in_title="True")
+  confirm_string_in_title="True",
+  modifier="--danger")
 %}
   <div id="{{ slug }}" class="modal" data-controller="confirm modal-close">
     <div class="modal__content" role="dialog">
@@ -93,7 +95,7 @@
         <i class="fa fa-times" aria-hidden="true"></i>
         <span class="sr-only">{% trans %}Close{% endtrans %}</span>
       </a>
-      <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
+      <form method="{{ method }}" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         {{ extra_fields if extra_fields else '' }}
         <div class="modal__body">
@@ -121,7 +123,7 @@
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
-          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm.button modal-close.button" data-expected="{{ confirm_string }}">
+          <button type="submit" class="button button{{ modifier }} modal__action js-confirm" data-target="confirm.button modal-close.button" data-expected="{{ confirm_string }}">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>
@@ -162,7 +164,7 @@
           <p>{% trans %}Enter your password to continue.{% endtrans %}</p>
           <div class="form-group">
             <div class="split-layout">
-              <label for="confirm_password">Password</label>
+              <label for="confirm_password">{% trans %}Password{% endtrans %}</label>
               <label for="show-confirm-password-{{ slug }}" class="show-password">
                 <input data-action="change->confirm-password#setPasswordVisibility" data-target="confirm-password.showPassword" id="show-confirm-password-{{ slug }}" type="checkbox">
                 {% trans %}Show password{% endtrans %}
@@ -173,7 +175,7 @@
         </div>
         <div class="modal__footer">
           <button type="reset" class="button modal__action js-cancel" data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
-          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm-password.button modal-close.button"">{{ confirm_button_label }}</button>
+          <button type="submit" class="button button--danger modal__action js-confirm" data-target="confirm-password.button modal-close.button">{{ confirm_button_label }}</button>
         </div>
       </form>
     </div>
@@ -186,13 +188,16 @@
   confirm_name,
   confirm_string,
   extra_fields=None,
-  action=None)
+  extra_description=None,
+  action=None,
+  warning=True,
+  modifier="--danger")
 %}
   {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
-  <a href="#{{ slug }}" class="button button--danger">
+  <a href="#{{ slug }}" class="button button{{ modifier }}">
     {{ title }}
   </a>
-  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, action=action) }}
+  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, extra_fields=extra_fields, extra_description=extra_description, action=action, warning=warning, modifier=modifier) }}
 {% endmacro %}
 
 {% macro confirm_password_button(

@@ -15,17 +15,19 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.forklift.legacy import MAX_FILESIZE
+from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
 
 ONE_MB = 1024 * 1024  # bytes
+ONE_GB = 1024 * 1024 * 1024  # bytes
 
 
 @view_config(
@@ -120,29 +122,15 @@ def project_detail(project, request):
         )
     ]
 
-    squattees = (
-        request.db.query(Project)
-        .filter(Project.created < project.created)
-        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
-        .all()
-    )
-
-    squatters = (
-        request.db.query(Project)
-        .filter(Project.created > project.created)
-        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
-        .all()
-    )
-
     return {
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
-        "squatters": squatters,
-        "squattees": squattees,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
+        "ONE_GB": ONE_GB,
+        "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
     }
 
 
@@ -307,6 +295,47 @@ def set_upload_limit(project, request):
 
 
 @view_config(
+    route_name="admin.project.set_total_size_limit",
+    permission="moderator",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def set_total_size_limit(project, request):
+    total_size_limit = request.POST.get("total_size_limit", "")
+
+    if not total_size_limit:
+        total_size_limit = None
+    else:
+        try:
+            total_size_limit = int(total_size_limit)
+        except ValueError:
+            raise HTTPBadRequest(
+                f"Invalid value for total size limit: {total_size_limit}, "
+                f"must be integer or empty string."
+            )
+
+        # The form is in GB, but the database field is in bytes.
+        total_size_limit *= ONE_GB
+
+        if total_size_limit < MAX_PROJECT_SIZE:
+            raise HTTPBadRequest(
+                f"Total project size can not be less than the default limit of "
+                f"{MAX_PROJECT_SIZE / ONE_GB}GB."
+            )
+
+    project.total_size_limit = total_size_limit
+
+    request.session.flash(
+        f"Set the total size limit on {project.name!r}", queue="success"
+    )
+
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
     route_name="admin.project.add_role",
     permission="admin",
     request_method="POST",
@@ -390,7 +419,7 @@ def delete_role(project, request):
 
     role = request.db.query(Role).get(role_id)
     if not role:
-        request.session.flash(f"This role no longer exists", queue="error")
+        request.session.flash("This role no longer exists", queue="error")
         raise HTTPSeeOther(
             request.route_path(
                 "admin.project.detail", project_name=project.normalized_name
@@ -437,3 +466,20 @@ def delete_project(project, request):
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path("admin.project.list"))
+
+
+@view_config(
+    route_name="admin.project.reindex",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_methods=False,
+)
+def reindex_project(project, request):
+    request.task(_reindex_project).delay(project.normalized_name)
+    request.session.flash(
+        f"Task sent to reindex the project {project.name!r}", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )

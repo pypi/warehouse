@@ -74,7 +74,9 @@
 @import "blocks/callout-block";
 @import "blocks/centered-heading";
 @import "blocks/checkbox-tree";
+/*rtl:begin:ignore*/
 @import "blocks/code-block";
+/*rtl:end:ignore*/
 @import "blocks/copy-tooltip";
 @import "blocks/dark-overlay";
 @import "blocks/dropdown";
@@ -87,6 +89,7 @@
 @import "blocks/gravatar-form";
 @import "blocks/heading-wsubtitle";
 @import "blocks/homepage-banner";
+@import "blocks/hooray-list";
 @import "blocks/horizontal-menu";
 @import "blocks/horizontal-section";
 @import "blocks/language-switcher";
@@ -95,11 +98,15 @@
 @import "blocks/mobile-search-bar";
 @import "blocks/modal";
 @import "blocks/notification-bar";
+/*rtl:begin:ignore*/
 @import "blocks/package-description";
 @import "blocks/package-header";
 @import "blocks/package-snippet";
+/*rtl:end:ignore*/
 @import "blocks/password-strength";
+/*rtl:begin:ignore*/
 @import "blocks/project-description";
+/*rtl:end:ignore*/
 @import "blocks/release";
 @import "blocks/release-timeline";
 @import "blocks/search-form";
@@ -107,8 +114,13 @@
 @import "blocks/site-header";
 @import "blocks/skip-to-content";
 @import "blocks/sponsor-grid";
+@import "blocks/sponsor-packages";
 @import "blocks/sponsors";
+@import "blocks/sponsorship-benefits";
+@import "blocks/sponsorship-intro";
+/*rtl:begin:ignore*/
 @import "blocks/status-badge";
+/*rtl:end:ignore*/
 @import "blocks/statistics-bar";
 @import "blocks/table";
 @import "blocks/totp-form";
@@ -135,6 +147,17 @@
 // TYPE
 .break {
   word-break: break-all;
+}
+
+.public-email {
+  @include ellipsis;
+  max-width: 85%;
+  position: relative;
+  top: 3px;
+
+  &::after {
+    content: none !important;
+  }
 }
 
 // COLORS
@@ -267,6 +290,34 @@
     display: block;
   }
 }
+
+// RTL SUPPORT. See https://rtlcss.com/
+/*rtl:begin:ignore*/
+// fix padding on split layouts
+html[dir="rtl"] .package-snippet .split-layout>:first-child,
+html[dir="rtl"] .package-description.split-layout>:first-child {
+  padding-left: 0;
+  padding-right: $spacing-unit;
+}
+
+// Force humanized time to display ltr
+// Remove when/if this is marked for translation
+time {
+  direction: ltr;
+}
+
+// force email select to display ltr
+// Remove when/if this is marked for translation
+#public_email {  // sass-lint:disable-line id-name-format
+  direction: ltr;
+}
+
+// force form errors to display ltr
+// Remove when/if these are marked for translation
+.form-errors {
+  text-align: left;
+}
+/*rtl:end:ignore*/
 
 // ACCESSIBILITY
 /*

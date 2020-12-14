@@ -1,6 +1,6 @@
 doc8
 flake8
-html-linter
+curlylint
 pep8-naming
-black==19.10b0
-isort
+black==20.8b1
+isort>=5

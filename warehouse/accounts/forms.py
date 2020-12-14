@@ -12,11 +12,13 @@
 
 import json
 
+from email.errors import HeaderParseError
 from email.headerregistry import Address
 
 import disposable_email_domains
 import jinja2
 import wtforms
+import wtforms.fields
 import wtforms.fields.html5
 
 import warehouse.utils.webauthn as webauthn
@@ -48,7 +50,7 @@ class TOTPValueMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                rf"^[0-9]{{{TOTP_LENGTH}}}$",
+                rf"^ *([0-9] *){{{TOTP_LENGTH}}}$",
                 message=_(
                     "TOTP code must be ${totp_length} digits.",
                     mapping={"totp_length": TOTP_LENGTH},
@@ -61,6 +63,13 @@ class TOTPValueMixin:
 class WebAuthnCredentialMixin:
 
     credential = wtforms.StringField(wtforms.validators.DataRequired())
+
+
+class RecoveryCodeValueMixin:
+
+    recovery_code_value = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired()]
+    )
 
 
 class NewUsernameMixin:
@@ -178,7 +187,7 @@ class NewEmailMixin:
         # Additional checks for the validity of the address
         try:
             Address(addr_spec=field.data)
-        except ValueError:
+        except (ValueError, HeaderParseError):
             raise wtforms.validators.ValidationError(
                 _("The email address isn't valid. Try again.")
             )
@@ -289,7 +298,7 @@ class _TwoFactorAuthenticationForm(forms.Form):
 
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
-        totp_value = field.data.encode("utf8")
+        totp_value = field.data.replace(" ", "").encode("utf8")
 
         if not self.user_service.check_totp_value(self.user_id, totp_value):
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -325,6 +334,34 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential
+
+
+class ReAuthenticateForm(PasswordMixin, forms.Form):
+    __params__ = ["username", "password", "next_route", "next_route_matchdict"]
+
+    username = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+    next_route = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+    next_route_matchdict = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.DataRequired()]
+    )
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+
+
+class RecoveryCodeAuthenticationForm(
+    RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
+):
+    def validate_recovery_code_value(self, field):
+        recovery_code_value = field.data.encode("utf-8")
+
+        if not self.user_service.check_recovery_code(self.user_id, recovery_code_value):
+            raise wtforms.validators.ValidationError(_("Invalid recovery code."))
 
 
 class RequestPasswordResetForm(forms.Form):

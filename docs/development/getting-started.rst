@@ -23,7 +23,7 @@ improve the process:
 - For bug reports or general problems, file an issue on `GitHub`_;
 - For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
   Freenode`_;
-- For longer-form questions or discussion, message the `pypa-dev mailing
+- For longer-form questions or discussion, message the `distutils-sig mailing
   list`_.
 
 .. _dev-env-install:
@@ -57,6 +57,11 @@ you stay up-to-date with our repository:
 
 Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+   In case you are used to using a venv/virtualenv or virtual environment for Python development:
+   don't use one for warehouse development. Our Makefile scripts and Docker container development flow
+   creates and removes virtualenvs as needed while you are building and testing your work locally.
 
 Why Docker?
 ~~~~~~~~~~~
@@ -164,7 +169,7 @@ application.
 
    If you are using Linux, you may need to configure the maximum map count to get
    the `elasticsearch` up and running. According to the
-   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
+   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/vm-max-map-count.html>`_
    this can be set temporarily:
 
    .. code-block:: console
@@ -177,7 +182,7 @@ application.
    Also check that you have more than 5% disk space free, otherwise
    elasticsearch will become read only. See ``flood_stage`` in the
    `elasticsearch disk allocation docs
-   <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/disk-allocator.html>`_.
+   <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/disk-allocator.html>`_.
 
 
 Once ``make build`` has finished,  run the command:
@@ -418,6 +423,31 @@ If there's a specific use case you think requires development outside
 Docker please raise an issue in
 `Warehouse's issue tracker <https://github.com/pypa/warehouse/issues>`_.
 
+
+Disabling services locally
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some services, such as Elasticsearch, consume a lot of resources when running
+locally, but might not always be necessary when doing local development.
+
+To disable these locally, you can create a ``docker-compose.override.yaml``
+file to override any settings in the ``docker-compose.yaml`` file. To
+individually disable services, modify their entrypoint to do something else:
+
+.. code-block:: yaml
+
+    version: "3"
+
+    services:
+      elasticsearch:
+        entrypoint: ["echo", "Elasticsearch disabled"]
+
+Note that disabling services might cause things to fail in unexpected ways.
+
+This file is ignored in Warehouse's ``.gitignore`` file, so it's safe to keep
+in the root of your local repo.
+
+
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
 
@@ -556,14 +586,36 @@ Use :command:`make` to build the documentation. For example:
 The HTML documentation index can now be found at
 :file:`docs/_build/html/index.html`.
 
-Building the docs requires Python 3.7. If it is not installed, the
+Building the docs requires Python 3.8. If it is not installed, the
 :command:`make` command will give the following error message:
 
 .. code-block:: console
 
-  make: python3.7: Command not found
+  make: python3.8: Command not found
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
+
+
+Building translations
+---------------------
+
+Warehouse is translated into a number of different locales, which are stored in
+the :file:`warehouse/locale/` directory.
+
+These translation files contain references to untranslated text in source code
+and HTML templates, as well as the translations which have been submitted by
+our volunteer translators.
+
+When making changes to files with strings marked for translation, it's
+necessary to update these references any time source strings are change, or the
+line numbers of the source strings in the source files.
+
+Use :command:`make` to build the translations. For example:
+
+.. code-block:: console
+
+    make translations
+
 
 What next?
 ----------
@@ -576,7 +628,7 @@ Talk with us
 ^^^^^^^^^^^^
 
 You can find us via a `GitHub`_ issue, ``#pypa`` or ``#pypa-dev`` `on
-Freenode`_, or the `pypa-dev mailing list`_, to ask questions or get
+Freenode`_, or the `distutils-sig mailing list`_, to ask questions or get
 involved. And you can meet us in person at `packaging sprints`_.
 
 Learn about Warehouse and packaging
@@ -600,6 +652,6 @@ Resources to help you learn Warehouse's context:
 .. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
+.. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
 .. _`Test PyPI`: https://test.pypi.org/
 .. _`packaging sprints`: https://wiki.python.org/psf/PackagingSprints

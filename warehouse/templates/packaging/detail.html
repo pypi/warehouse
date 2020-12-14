@@ -21,6 +21,8 @@
    {% set icon = "fas fa-cloud-download-alt" %}
 {% elif name|lower in ["home", "homepage", "home page"] %}
   {% set icon = "fas fa-home" %}
+{% elif name|lower in ["changelog", "change log", "changes", "release notes", "news", "what's new", "history"] %}
+  {% set icon = "fas fa-gift" %}
 {% elif name.lower().startswith(("docs", "documentation")) or parsed.netloc in ["readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org"] or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")) or parsed.netloc.startswith(("docs.", "documentation.")) %}
   {% set icon = "fas fa-book" %}
 {% elif name.lower().startswith(("bug", "issue", "tracker", "report")) %}
@@ -33,6 +35,8 @@
   {% set icon = "fab fa-gitlab" %}
 {% elif parsed.netloc == "gitter.im" or parsed.netloc.endswith(".gitter.im") %}
   {% set icon = "fab fa-gitter" %}
+{% elif parsed.netloc in ["discord.com", "discordapp.com", "discord.gg"] or parsed.netloc.endswith(("discord.com", "discordapp.com", "discord.gg")) %}
+  {% set icon = "fab fa-discord" %}
 {% elif parsed.netloc == "google.com" or parsed.netloc.endswith(".google.com") %}
   {% set icon = "fab fa-google" %}
 {% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
@@ -78,12 +82,20 @@
     {% set project_version = "==" + release.version %}
   {%- endif -%}
 
-  pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+  {%- if release.version.epoch -%}
+    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
+  {%- else -%}
+    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+  {%- endif -%}
 {%- endmacro -%}
 
 {% block title %}{{ release.project.name }}{% endblock %}
 
 {% block description %}{{ release.summary }}{% endblock %}
+
+{% block additional_rss -%}
+<link rel="alternate" type="application/rss+xml" title="{% trans project_name=release.project.name %}RSS: latest releases for {{ project_name }}{% endtrans %}" href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">
+{%- endblock %}
 
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
@@ -107,6 +119,13 @@
     </div>
 
     <div class="package-header__right">
+    {% if release.yanked %}
+      <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+        <span>
+          {% trans %}This release has been yanked{% endtrans %}<br>
+        </span>
+      </a>
+    {% else %}
       {% if release.version|parse_version > latest_version.version|parse_version %}
       <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
         <span>{% trans version=latest_version.version %}Stable version available ({{ version }}){% endtrans %}</span>
@@ -120,6 +139,7 @@
         <span>{% trans %}Latest version{% endtrans %}</span>
       </a>
       {% endif %}
+    {% endif %}
       <p class="package-header__date">
         {% trans release_date=humanize(release.created) %}Released: {{ release_date }}{% endtrans %}
       </p>
@@ -233,7 +253,10 @@
         <div id="history" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
           <h2 class="page-title split-layout">
             <span>{% trans %}Release history{% endtrans %}</span>
-            <a class="reset-text margin-top" href="{{ request.route_path('help')}}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a>
+            <span class="reset-text margin-top">
+              <a href="{{ request.route_path('help')}}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a> |
+              <a href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">{% trans %}RSS feed{% endtrans %} <i class="fa fa-rss" aria-hidden="true"></i></a>
+            </span>
           </h2>
 
           <div class="release-timeline">
@@ -261,7 +284,17 @@
 
               <a class="card release__card" href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">
                 <p class="release__version">
-                  {{ hversion.version }} {% if hversion.is_prerelease %}<span class="badge badge--warning release__version-badge">{% trans %}pre-release{% endtrans %}</span>{% endif %}
+                  {{ hversion.version }}
+                  {% if hversion.is_prerelease %}
+                  <span class="badge badge--warning release__version-badge">
+                    {% trans %}pre-release{% endtrans %}
+                  </span>
+                  {% endif %}
+                  {% if hversion.yanked %}
+                  <span class="badge badge--danger release__version-badge">
+                    {% trans %}yanked{% endtrans %}
+                  </span>
+                  {% endif %}
                 </p>
                 <p class="release__version-date">
                   {{ humanize(hversion.created) }}
@@ -318,7 +351,7 @@
                   <td class="table__align-right">
                     <span class="table__mobile-label table__mobile-label--hashes">{% trans %}Hashes{% endtrans %}</span>
                     <a href="#copy-hash-modal-{{ file.id }}" class="button button--small button--primary">
-                      {% trans %}View <span>hashes</span>{% endtrans %}
+                      {% trans %}View{% endtrans %}
                     </a>
                   </td>
                 </tr>

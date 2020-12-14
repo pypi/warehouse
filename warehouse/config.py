@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import distutils.util
 import enum
 import os
 import shlex
@@ -159,6 +160,9 @@ def configure(settings=None):
     maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
+    maybe_set(
+        settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE"
+    )
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
@@ -180,7 +184,20 @@ def configure(settings=None):
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
+    maybe_set(
+        settings,
+        "warehouse.xmlrpc.search.enabled",
+        "WAREHOUSE_XMLRPC_SEARCH",
+        coercer=distutils.util.strtobool,
+        default=True,
+    )
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
+    maybe_set(
+        settings,
+        "warehouse.xmlrpc.client.ratelimit_string",
+        "XMLRPC_RATELIMIT_STRING",
+        default="3600 per hour",
+    )
     maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
     maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
     maybe_set(
@@ -308,6 +325,11 @@ def configure(settings=None):
     jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
 
+    # And some enums to reuse in the templates
+    jglobals.setdefault(
+        "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
+    )
+
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
@@ -334,6 +356,9 @@ def configure(settings=None):
         }
     )
     config.include("pyramid_tm")
+
+    # Register our XMLRPC service
+    config.include(".legacy.api.xmlrpc")
 
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")
@@ -421,7 +446,6 @@ def configure(settings=None):
         over=[
             "warehouse.cache.http.conditional_http_tween_factory",
             "pyramid_debugtoolbar.toolbar_tween_factory",
-            "warehouse.raven.raven_tween_factory",
             EXCVIEW,
         ],
     )
@@ -467,9 +491,9 @@ def configure(settings=None):
     # TODO: Remove this, this is at the wrong layer.
     config.add_wsgi_middleware(HostRewrite)
 
-    # We want Raven to be the last things we add here so that it's the outer
+    # We want Sentry to be the last things we add here so that it's the outer
     # most WSGI middleware.
-    config.include(".raven")
+    config.include(".sentry")
 
     # Register Content-Security-Policy service
     config.include(".csp")
