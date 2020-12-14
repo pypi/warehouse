@@ -119,6 +119,8 @@ services:
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
+    links:
+      - vault
 
   static:
     build:
