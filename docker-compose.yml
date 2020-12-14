@@ -89,6 +89,13 @@ services:
       - packages:/var/opt/warehouse/packages
     ports:
       - "80:8000"
+    links:
+      - vault
+      - db
+      - redis
+      - localstack
+      - elasticsearch
+      - notdatadog
 
   files:
     build:
