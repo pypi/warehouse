@@ -2,8 +2,28 @@ version: '3'
 
 volumes:
   packages:
+  vault:
 
 services:
+  vault:
+    # NOTE: intentionally an older version, for consistency with cabotage
+    image: vault:1.3.4
+    restart: on-failure
+    entrypoint: /bin/sh
+    command: ["/etc/vault/entry.sh"]
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: "an insecure vault access token"
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault:/vault/file
+      - ./dev/vault:/etc/vault
+    links:
+      - db
+
   db:
     image: postgres:10.1
     ports:
