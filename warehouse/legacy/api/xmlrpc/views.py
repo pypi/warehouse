@@ -238,7 +238,7 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
         raise XMLRPCWrappedError(
             RuntimeError(
                 (
-                    "This API has been deprecated due to unmanageable load. Please Use "
+                    "This API has been deprecated due to unmanageable load. Please use "
                     "the Simple or JSON API instead."
                 )
             )
