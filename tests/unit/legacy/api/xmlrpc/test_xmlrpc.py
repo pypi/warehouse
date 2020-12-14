@@ -114,6 +114,23 @@ class TestRateLimiting:
 
 
 class TestSearch:
+    def test_error_when_disabled(self, pyramid_request, metrics, monkeypatch):
+        monkeypatch.setattr(
+            pyramid_request.registry,
+            "settings",
+            {"warehouse.xmlrpc.search.enabled": False},
+        )
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+            xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
+
+        assert exc.value.faultString == (
+            "RuntimeError: This API has been deprecated due to unmanageable load. "
+            "Please Use the Simple or JSON API instead."
+        )
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.xmlrpc.search.deprecated")
+        ]
+
     def test_fails_with_invalid_operator(self, pyramid_request, metrics):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pyramid_request, {}, "lol nope")
