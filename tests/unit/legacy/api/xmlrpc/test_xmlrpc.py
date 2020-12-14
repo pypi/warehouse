@@ -125,7 +125,7 @@ class TestSearch:
 
         assert exc.value.faultString == (
             "RuntimeError: This API has been deprecated due to unmanageable load. "
-            "Please Use the Simple or JSON API instead."
+            "Please use the Simple or JSON API instead."
         )
         assert metrics.increment.calls == [
             pretend.call("warehouse.xmlrpc.search.deprecated")
