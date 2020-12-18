@@ -238,9 +238,10 @@ def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "
         raise XMLRPCWrappedError(
             RuntimeError(
                 (
-                    "PyPI's XMLRPC API has been temporarily disabled due to unmanageable "
-                    "load and will be deprecated in the near future. See "
-                    "https://status.python.org/ for more information."
+                    "PyPI's XMLRPC API has been temporarily disabled due to "
+                    "unmanageable load and will be deprecated in the near "
+                    "future. See https://status.python.org/ for more "
+                    "information."
                 )
             )
         )
