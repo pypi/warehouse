@@ -126,7 +126,7 @@ class TestSearch:
         assert exc.value.faultString == (
             "RuntimeError: PyPI's XMLRPC API has been temporarily disabled due to "
             "unmanageable load and will be deprecated in the near future. See "
-            "https://status.python.org/incidents/ for more information."
+            "https://status.python.org/ for more information."
         )
         assert metrics.increment.calls == [
             pretend.call("warehouse.xmlrpc.search.deprecated")
