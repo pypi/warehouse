@@ -3378,12 +3378,12 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:147
 #: warehouse/templates/manage/release.html:181
-#: warehouse/templates/manage/release.html:203
+#: warehouse/templates/manage/release.html:202
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:143
 #: warehouse/templates/manage/releases.html:149
 #: warehouse/templates/manage/releases.html:162
-#: warehouse/templates/manage/releases.html:169
+#: warehouse/templates/manage/releases.html:171
 msgid "Version"
 msgstr ""
 
@@ -3444,23 +3444,14 @@ msgid ""
 "          "
 msgstr ""
 
-#: warehouse/templates/manage/release.html:153
-#: warehouse/templates/manage/releases.html:130
+#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/releases.html:159
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:177
-#: warehouse/templates/manage/releases.html:23
-#: warehouse/templates/manage/releases.html:120
-#: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:142
-msgid "Version"
-msgstr ""
-
-#: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:177
-#: warehouse/templates/manage/releases.html:136
+#: warehouse/templates/manage/release.html:186
+#: warehouse/templates/manage/release.html:202
+#: warehouse/templates/manage/releases.html:165
 msgid "Delete release"
 msgstr ""
 
@@ -3483,15 +3474,15 @@ msgstr[1] ""
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/release.html:198
+#: warehouse/templates/manage/releases.html:167
 msgid ""
 "You will not be able to re-upload a new distribution of the same type "
 "with the same version number."
 msgstr ""
 
-#: warehouse/templates/manage/release.html:174
-#: warehouse/templates/manage/releases.html:139
+#: warehouse/templates/manage/release.html:199
+#: warehouse/templates/manage/releases.html:168
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version "
 "of this package. It is intended as a last resort to address legal issues "
@@ -3611,25 +3602,30 @@ msgstr ""
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:156
+#: warehouse/templates/manage/releases.html:185
+#, python-format
+msgid "Draft Releases (%(release_count)s)"
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:190
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:162
+#: warehouse/templates/manage/releases.html:196
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:202
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:204
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/manage/releases.html:207
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" "
