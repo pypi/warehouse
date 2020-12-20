@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from itertools import product
-
 import pretend
 import pytest
 
@@ -413,17 +411,19 @@ class TestSyncBigQueryMetadata:
         load_config = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr("warehouse.packaging.tasks.LoadJobConfig", load_config)
 
-        query = pretend.stub(
-            result=pretend.call_recorder(
-                lambda *a, **kw: [{"md5_digest": release_file2.md5_digest}]
-            )
-        )
+        query = pretend.stub(result=lambda *a, **kw: None, destination="DEST_TABLE")
         get_table = pretend.stub(schema=bq_schema)
         get_result = pretend.stub(result=lambda: None)
         bigquery = pretend.stub(
             get_table=pretend.call_recorder(lambda t: get_table),
             load_table_from_json=pretend.call_recorder(lambda *a, **kw: get_result),
             query=pretend.call_recorder(lambda q: query),
+            list_rows=pretend.call_recorder(
+                lambda *a, **kw: [
+                    {"md5_digest": release_file2.md5_digest},
+                    {"md5_digest": "abcdef0123456789"},
+                ]
+            ),
         )
 
         @pretend.call_recorder
@@ -440,17 +440,14 @@ class TestSyncBigQueryMetadata:
         sync_bigquery_release_files(db_request)
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.get_table.calls == [
+            pretend.call("example.pypi.distributions"),
+            pretend.call("DEST_TABLE"),
+        ]
         assert bigquery.query.calls == [
             pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE 'ff%'"
-            ),
-            pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE 'fe%'"
+                "SELECT DISTINCT md5_digest "
+                "FROM example.pypi.distributions ORDER BY md5_digest ASC"
             ),
         ]
         assert bigquery.load_table_from_json.calls == [
@@ -509,15 +506,14 @@ class TestSyncBigQueryMetadata:
             release=release, filename=f"foobar-{release.version}.tar.gz"
         )
 
-        query = pretend.stub(
-            result=pretend.call_recorder(
-                lambda *a, **kw: [{"md5_digest": release_file.md5_digest}]
-            )
-        )
+        query = pretend.stub(result=lambda *a, **kw: None, destination="DEST_TABLE")
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
             get_table=pretend.call_recorder(lambda t: get_table),
             query=pretend.call_recorder(lambda q: query),
+            list_rows=pretend.call_recorder(
+                lambda *a, **kw: [{"md5_digest": release_file.md5_digest}]
+            ),
         )
 
         @pretend.call_recorder
@@ -534,12 +530,13 @@ class TestSyncBigQueryMetadata:
         sync_bigquery_release_files(db_request)
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.get_table.calls == [
+            pretend.call("example.pypi.distributions"),
+            pretend.call("DEST_TABLE"),
+        ]
         assert bigquery.query.calls == [
             pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                f"WHERE md5_digest LIKE '{first}{second}%'",
+                "SELECT DISTINCT md5_digest "
+                "FROM example.pypi.distributions ORDER BY md5_digest ASC"
             )
-            for first, second in product("fedcba9876543210", repeat=2)
         ]
