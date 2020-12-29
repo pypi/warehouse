@@ -124,9 +124,9 @@ class TestSearch:
             xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
 
         assert exc.value.faultString == (
-            "RuntimeError: This API has been temporarily disabled due to unmanageable "
-            "load and will be deprecated in the near future. Please use the Simple or "
-            "JSON API instead."
+            "RuntimeError: PyPI's XMLRPC API has been temporarily disabled due to "
+            "unmanageable load and will be deprecated in the near future. See "
+            "https://status.python.org/ for more information."
         )
         assert metrics.increment.calls == [
             pretend.call("warehouse.xmlrpc.search.deprecated")
