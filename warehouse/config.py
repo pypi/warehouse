@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import distutils.util
 import enum
 import os
 import shlex
@@ -183,6 +184,13 @@ def configure(settings=None):
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
+    maybe_set(
+        settings,
+        "warehouse.xmlrpc.search.enabled",
+        "WAREHOUSE_XMLRPC_SEARCH",
+        coercer=distutils.util.strtobool,
+        default=True,
+    )
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
     maybe_set(
         settings,

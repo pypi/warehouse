@@ -41,6 +41,9 @@ TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
 
+VAULT_URL="http://vault:8200"
+VAULT_TOKEN="an insecure vault access token"
+
 TUF_KEY_BACKEND=warehouse.tuf.services.LocalKeyService key.path=/opt/warehouse/src/dev
 TUF_STORAGE_BACKEND=warehouse.tuf.services.LocalStorageService
 TUF_REPO_BACKEND=warehouse.tuf.services.LocalRepositoryService repo.path=/opt/warehouse/src/warehouse/tuf/dist
