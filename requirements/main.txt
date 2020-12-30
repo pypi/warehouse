@@ -374,6 +374,10 @@ hupper==1.10.2 \
     --hash=sha256:3818f53dabc24da66f65cf4878c1c7a9b5df0c46b813e014abdd7c569eb9a02a \
     --hash=sha256:5de835f3b58324af2a8a16f52270c4d1a3d1734c45eed94b77fd622aea737f29 \
     # via pyramid
+hvac==0.10.6 \
+    --hash=sha256:6e4bea65235bc38b85162a141194d07c857c6722ecd3edb6aeda316e8f4950f5 \
+    --hash=sha256:b0561dbdfecc6a6d7b0cc226d75a800ae9bbc93313a6ad526a1adc97be51eada \
+    # via -r requirements/main.in
 idna==2.10 \
     --hash=sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6 \
     --hash=sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0 \
@@ -727,7 +731,7 @@ requests-aws4auth==1.0.1 \
 requests==2.25.0 \
     --hash=sha256:7f1a0b932f4a60a1a65caa4263921bb7d9ee911957e0ae4a23a6dd08185ad5f8 \
     --hash=sha256:e786fa28d8c9154e6a4de5d46a1d921b8749f8b74e28bde23768e5e16eece998 \
-    # via -r requirements/main.in, datadog, google-api-core, google-cloud-storage, premailer, requests-aws4auth
+    # via -r requirements/main.in, datadog, google-api-core, google-cloud-storage, hvac, premailer, requests-aws4auth
 rfc3986==1.4.0 \
     --hash=sha256:112398da31a3344dc25dbf477d8df6cb34f9278a94fee2625d89e4514be8bb9d \
     --hash=sha256:af9147e9aceda37c91a05f4deb128d4b4b49d6b199775fd2d2927768abdc8f50 \
@@ -747,7 +751,7 @@ sentry-sdk==0.19.4 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, grpcio, html5lib, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
+    # via argon2-cffi, automat, bcrypt, bleach, cryptography, elasticsearch-dsl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, grpcio, html5lib, hvac, limits, packaging, protobuf, pymacaroons, pynacl, pyopenssl, python-dateutil, readme-renderer, structlog, tenacity, webauthn
 sqlalchemy-citext==1.7.0 \
     --hash=sha256:69ba00f5505f92a1455a94eefc6d3fcf72dda3691ab5398a0b4d0d8d85bd6aab \
     # via -r requirements/main.in

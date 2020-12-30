@@ -5,6 +5,7 @@ BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
 LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
+WAREHOUSE_CLI := docker-compose run --rm web python -m warehouse
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -152,6 +153,14 @@ initdb:
 	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
 	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
+
+inittuf:
+	$(WAREHOUSE_CLI) tuf keypair --name root
+	$(WAREHOUSE_CLI) tuf keypair --name snapshot
+	$(WAREHOUSE_CLI) tuf keypair --name targets
+	$(WAREHOUSE_CLI) tuf keypair --name timestamp
+	$(WAREHOUSE_CLI) tuf keypair --name bins
+	$(WAREHOUSE_CLI) tuf keypair --name bin-n
 
 reindex:
 	docker-compose run --rm web python -m warehouse search reindex

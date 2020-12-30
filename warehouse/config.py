@@ -214,6 +214,8 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set(settings, "vault.url", "VAULT_URL")
+    maybe_set(settings, "vault.token", "VAULT_TOKEN")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")

@@ -18,6 +18,7 @@ google-cloud-bigquery
 google-cloud-storage
 hiredis
 html5lib
+hvac>=0.10.6
 itsdangerous
 Jinja2>=2.8
 limits
