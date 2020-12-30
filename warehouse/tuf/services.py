@@ -14,7 +14,6 @@ import hvac
 from zope.interface import implementer
 
 from warehouse.tuf.interfaces import IKeyService
-from warehouse.utils.tuf import vault_ed25519_pubkey_for_tuf
 
 
 @implementer(IKeyService)
@@ -31,10 +30,5 @@ class VaultKeyService:
     def create_service(cls, _context, request):
         return cls(request)
 
-    def pubkeys_for_role(self, rolename):
-        key_info = self._vault.secrets.transit.read_key(name=rolename)
-        pubkey = key_info["data"]["keys"]["1"]["public_key"]
-        return vault_ed25519_pubkey_for_tuf(pubkey)
-
-    def privkeys_for_role(self, rolename):
-        pass
+    def keys_for_role(self, rolename):
+        raise NotImplementedError

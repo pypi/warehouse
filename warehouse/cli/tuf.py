@@ -39,6 +39,7 @@ def keypair(config, name_):
     Generate a new TUF keypair.
     """
     vault = _vault(config)
-    vault.secrets.transit.create_key(name=name_, exportable=True, key_type="ed25519")
+    resp = vault.secrets.transit.create_key(name=name_, exportable=True, key_type="ed25519")
+    resp.raise_for_status()
     info = vault.secrets.transit.read_key(name=name_)
     print(info)
