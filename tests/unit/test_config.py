@@ -231,6 +231,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "token.default.max_age": 21600,
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
         "warehouse.xmlrpc.search.enabled": True,
+        "vault.verify": environment == config.Environment.production,
+        "vault.cert": None,
     }
 
     if environment == config.Environment.development:
