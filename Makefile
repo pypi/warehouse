@@ -155,12 +155,12 @@ initdb:
 	$(MAKE) reindex
 
 inittuf:
-	$(WAREHOUSE_CLI) tuf keypair --name root
-	$(WAREHOUSE_CLI) tuf keypair --name snapshot
-	$(WAREHOUSE_CLI) tuf keypair --name targets
-	$(WAREHOUSE_CLI) tuf keypair --name timestamp
-	$(WAREHOUSE_CLI) tuf keypair --name bins
-	$(WAREHOUSE_CLI) tuf keypair --name bin-n
+	$(WAREHOUSE_CLI) tuf keypair --rolename root
+	$(WAREHOUSE_CLI) tuf keypair --rolename snapshot
+	$(WAREHOUSE_CLI) tuf keypair --rolename targets
+	$(WAREHOUSE_CLI) tuf keypair --rolename timestamp
+	$(WAREHOUSE_CLI) tuf keypair --rolename bins
+	$(WAREHOUSE_CLI) tuf keypair --rolename bin-n
 
 reindex:
 	docker-compose run --rm web python -m warehouse search reindex

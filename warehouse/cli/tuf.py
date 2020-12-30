@@ -25,7 +25,7 @@ def _vault(config):
 
 
 @warehouse.group()
-def tuf():
+def tuf():  # pragma: no branch
     """
     Manage Warehouse's TUF state.
     """
@@ -33,15 +33,17 @@ def tuf():
 
 @tuf.command()
 @click.pass_obj
-@click.option("--name", "name_", help="The name of the TUF role for this keypair")
-def keypair(config, name_):
+@click.option(
+    "--rolename", required=True, help="The name of the TUF role for this keypair"
+)
+def keypair(config, rolename):
     """
     Generate a new TUF keypair.
     """
     vault = _vault(config)
     resp = vault.secrets.transit.create_key(
-        name=name_, exportable=True, key_type="ed25519"
+        name=rolename, exportable=False, key_type="ed25519"
     )
     resp.raise_for_status()
-    info = vault.secrets.transit.read_key(name=name_)
+    info = vault.secrets.transit.read_key(name=rolename)
     print(info)
