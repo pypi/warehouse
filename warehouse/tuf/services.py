@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import hvac
+
 from zope.interface import implementer
 
 from warehouse.tuf.interfaces import IKeyService
