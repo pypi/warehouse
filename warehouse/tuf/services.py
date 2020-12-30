@@ -22,10 +22,10 @@ class VaultKeyService:
     def __init__(self, request):
         self._vault = hvac.Client(
             url=request.registry.settings["vault.url"],
-            token=request.registry.settings["vault.token"]
-            # TODO: cert, verify
+            token=request.registry.settings["vault.token"],
+            cert=request.registry.settings["vault.cert"],
+            verify=request.registry.settings["vault.verify"],
         )
-        self._request = request
 
     @classmethod
     def create_service(cls, _context, request):

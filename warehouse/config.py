@@ -216,6 +216,8 @@ def configure(settings=None):
     )
     maybe_set(settings, "vault.url", "VAULT_URL")
     maybe_set(settings, "vault.token", "VAULT_TOKEN")
+    maybe_set(settings, "vault.verify", "VAULT_VERIFY")
+    maybe_set(settings, "vault.cert", "VAULT_VERIFY")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
@@ -223,6 +225,13 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
+
+    # Require an encrypted connection to Vault in production.
+    settings.setdefault(
+        "vault.verify", settings["warehouse.env"] == Environment.production
+    )
+    settings.setdefault("vault.cert", None)
+    maybe_set(settings, "vault.vert", "VAULT_CERT")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:

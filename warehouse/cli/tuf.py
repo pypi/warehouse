@@ -16,11 +16,12 @@ import hvac
 from warehouse.cli import warehouse
 
 
-def _vault(config):
+def _vault(config):  # pragma: no branch
     return hvac.Client(
         url=config.registry.settings["vault.url"],
         token=config.registry.settings["vault.token"],
-        # TODO: cert, verify
+        cert=config.registry.settings["vault.cert"],
+        verify=config.registry.settings["vault.verify"],
     )
 
 
