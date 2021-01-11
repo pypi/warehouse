@@ -16,7 +16,8 @@ import hvac
 from warehouse.cli import warehouse
 
 
-def _vault(config):  # pragma: no branch
+# pragma: no branch
+def _vault(config):
     return hvac.Client(
         url=config.registry.settings["vault.url"],
         token=config.registry.settings["vault.token"],
@@ -26,7 +27,7 @@ def _vault(config):  # pragma: no branch
 
 
 @warehouse.group()
-def tuf():  # pragma: no branch
+def tuf():
     """
     Manage Warehouse's TUF state.
     """
