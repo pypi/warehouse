@@ -247,8 +247,31 @@ class TestUpdateBigQueryMetadata:
         )
     ]
 
+    @pytest.mark.parametrize(
+        ("release_files_table", "expected_get_table_calls"),
+        [
+            (
+                "example.pypi.distributions",
+                [pretend.call("example.pypi.distributions")],
+            ),
+            (
+                "example.pypi.distributions some.other.table",
+                [
+                    pretend.call("example.pypi.distributions"),
+                    pretend.call("some.other.table"),
+                ],
+            ),
+        ],
+    )
     @pytest.mark.parametrize(("form_factory", "bq_schema"), input_parameters)
-    def test_insert_new_row(self, db_request, form_factory, bq_schema):
+    def test_insert_new_row(
+        self,
+        db_request,
+        release_files_table,
+        expected_get_table_calls,
+        form_factory,
+        bq_schema,
+    ):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         release_file = FileFactory.create(
@@ -260,16 +283,10 @@ class TestUpdateBigQueryMetadata:
             if isinstance(value, StringField) or isinstance(value, self.ListField):
                 value.process(None)
 
-        @pretend.call_recorder
-        def insert_rows(table, json_rows):
-            if table != "example.pypi.distributions":
-                raise Exception("Incorrect table name")
-            return []
-
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
             get_table=pretend.call_recorder(lambda t: get_table),
-            insert_rows_json=insert_rows,
+            insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
         )
 
         @pretend.call_recorder
@@ -280,7 +297,7 @@ class TestUpdateBigQueryMetadata:
 
         db_request.find_service = find_service
         db_request.registry.settings = {
-            "warehouse.release_files_table": "example.pypi.distributions"
+            "warehouse.release_files_table": release_files_table
         }
 
         dist_metadata = {
@@ -330,10 +347,10 @@ class TestUpdateBigQueryMetadata:
         update_bigquery_release_files(task, db_request, dist_metadata)
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.get_table.calls == expected_get_table_calls
         assert bigquery.insert_rows_json.calls == [
             pretend.call(
-                table="example.pypi.distributions",
+                table=table,
                 json_rows=[
                     {
                         "metadata_version": form_factory["metadata_version"].data,
@@ -382,12 +399,36 @@ class TestUpdateBigQueryMetadata:
                     },
                 ],
             )
+            for table in release_files_table.split()
         ]
 
 
 class TestSyncBigQueryMetadata:
+    @pytest.mark.parametrize(
+        ("release_files_table", "expected_get_table_calls"),
+        [
+            (
+                "example.pypi.distributions",
+                [pretend.call("example.pypi.distributions")],
+            ),
+            (
+                "example.pypi.distributions some.other.table",
+                [
+                    pretend.call("example.pypi.distributions"),
+                    pretend.call("some.other.table"),
+                ],
+            ),
+        ],
+    )
     @pytest.mark.parametrize("bq_schema", [bq_schema])
-    def test_sync_rows(self, db_request, monkeypatch, bq_schema):
+    def test_sync_rows(
+        self,
+        db_request,
+        monkeypatch,
+        release_files_table,
+        expected_get_table_calls,
+        bq_schema,
+    ):
         project = ProjectFactory.create()
         description = DescriptionFactory.create()
         release = ReleaseFactory.create(project=project, description=description)
@@ -434,24 +475,20 @@ class TestSyncBigQueryMetadata:
 
         db_request.find_service = find_service
         db_request.registry.settings = {
-            "warehouse.release_files_table": "example.pypi.distributions"
+            "warehouse.release_files_table": release_files_table
         }
 
         sync_bigquery_release_files(db_request)
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.get_table.calls == expected_get_table_calls
         assert bigquery.query.calls == [
-            pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE 'ff%'"
-            ),
-            pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE 'fe%'"
-            ),
+            pretend.call(query.format(table))
+            for table in release_files_table.split()
+            for query in [
+                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'ff%'",
+                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'fe%'",
+            ]
         ]
         assert bigquery.load_table_from_json.calls == [
             pretend.call(
@@ -496,9 +533,10 @@ class TestSyncBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
-                "example.pypi.distributions",
+                table,
                 job_config=None,
             )
+            for table in release_files_table.split()
         ]
 
     @pytest.mark.parametrize("bq_schema", [bq_schema])
