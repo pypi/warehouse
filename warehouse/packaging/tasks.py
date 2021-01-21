@@ -133,74 +133,18 @@ def update_bigquery_release_files(task, request, dist_metadata):
     Adds release file metadata to public BigQuery database
     """
     bq = request.find_service(name="gcloud.bigquery")
+    # Multiple table names can be specified by separating them with whitespace
+    table_names = request.registry.settings["warehouse.release_files_table"].split()
 
-    table_name = request.registry.settings["warehouse.release_files_table"]
-    table_schema = bq.get_table(table_name).schema
+    for table_name in table_names:
+        table_schema = bq.get_table(table_name).schema
 
-    # Using the schema to populate the data allows us to automatically
-    # set the values to their respective fields rather than assigning
-    # values individually
-    json_rows = dict()
-    for sch in table_schema:
-        field_data = dist_metadata[sch.name]
-
-        if isinstance(field_data, datetime.datetime):
-            field_data = field_data.isoformat()
-
-        # Replace all empty objects to None will ensure
-        # proper checks if a field is nullable or not
-        if not isinstance(field_data, bool) and not field_data:
-            field_data = None
-
-        if field_data is None and sch.mode == "REPEATED":
-            json_rows[sch.name] = []
-        elif field_data and sch.mode == "REPEATED":
-            # Currently, some of the metadata fields such as
-            # the 'platform' tag are incorrectly classified as a
-            # str instead of a list, hence, this workaround to comply
-            # with PEP 345 and the Core Metadata specifications.
-            # This extra check can be removed once
-            # https://github.com/pypa/warehouse/issues/8257 is fixed
-            if isinstance(field_data, str):
-                json_rows[sch.name] = [field_data]
-            else:
-                json_rows[sch.name] = list(field_data)
-        else:
-            json_rows[sch.name] = field_data
-    json_rows = [json_rows]
-
-    bq.insert_rows_json(table=table_name, json_rows=json_rows)
-
-
-@tasks.task(ignore_result=True, acks_late=True)
-def sync_bigquery_release_files(request):
-    bq = request.find_service(name="gcloud.bigquery")
-    table_name = request.registry.settings["warehouse.release_files_table"]
-    table_schema = bq.get_table(table_name).schema
-
-    # Using the schema to populate the data allows us to automatically
-    # set the values to their respective fields rather than assigning
-    # values individually
-    def populate_data_using_schema(file):
-        release = file.release
-        project = release.project
-
-        row_data = dict()
+        # Using the schema to populate the data allows us to automatically
+        # set the values to their respective fields rather than assigning
+        # values individually
+        json_rows = dict()
         for sch in table_schema:
-            # The order of data extraction below is determined based on the
-            # classes that are most recently updated
-            if hasattr(file, sch.name):
-                field_data = getattr(file, sch.name)
-            elif hasattr(release, sch.name) and sch.name == "description":
-                field_data = getattr(release, sch.name).raw
-            elif sch.name == "description_content_type":
-                field_data = getattr(release, "description").content_type
-            elif hasattr(release, sch.name):
-                field_data = getattr(release, sch.name)
-            elif hasattr(project, sch.name):
-                field_data = getattr(project, sch.name)
-            else:
-                field_data = None
+            field_data = dist_metadata[sch.name]
 
             if isinstance(field_data, datetime.datetime):
                 field_data = field_data.isoformat()
@@ -211,7 +155,7 @@ def sync_bigquery_release_files(request):
                 field_data = None
 
             if field_data is None and sch.mode == "REPEATED":
-                row_data[sch.name] = []
+                json_rows[sch.name] = []
             elif field_data and sch.mode == "REPEATED":
                 # Currently, some of the metadata fields such as
                 # the 'platform' tag are incorrectly classified as a
@@ -220,44 +164,105 @@ def sync_bigquery_release_files(request):
                 # This extra check can be removed once
                 # https://github.com/pypa/warehouse/issues/8257 is fixed
                 if isinstance(field_data, str):
-                    row_data[sch.name] = [field_data]
+                    json_rows[sch.name] = [field_data]
                 else:
-                    row_data[sch.name] = list(field_data)
+                    json_rows[sch.name] = list(field_data)
             else:
-                row_data[sch.name] = field_data
-        return row_data
+                json_rows[sch.name] = field_data
+        json_rows = [json_rows]
 
-    for first, second in product("fedcba9876543210", repeat=2):
-        db_release_files = (
-            request.db.query(File.md5_digest)
-            .filter(File.md5_digest.like(f"{first}{second}%"))
-            .yield_per(1000)
-            .all()
-        )
-        db_file_digests = [file.md5_digest for file in db_release_files]
+        bq.insert_rows_json(table=table_name, json_rows=json_rows)
 
-        bq_file_digests = bq.query(
-            "SELECT md5_digest "
-            f"FROM {table_name} "
-            f"WHERE md5_digest LIKE '{first}{second}%'"
-        ).result()
-        bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
 
-        md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
-        if not md5_diff_list:
-            # There are no files that need synced to BigQuery
-            continue
+@tasks.task(ignore_result=True, acks_late=True)
+def sync_bigquery_release_files(request):
+    bq = request.find_service(name="gcloud.bigquery")
+    # Multiple table names can be specified by separating them with whitespace
+    table_names = request.registry.settings["warehouse.release_files_table"].split()
 
-        release_files = (
-            request.db.query(File)
-            .join(Release, Release.id == File.release_id)
-            .filter(File.md5_digest.in_(md5_diff_list))
-            .all()
-        )
+    for table_name in table_names:
+        table_schema = bq.get_table(table_name).schema
 
-        json_rows = [populate_data_using_schema(file) for file in release_files]
+        # Using the schema to populate the data allows us to automatically
+        # set the values to their respective fields rather than assigning
+        # values individually
+        def populate_data_using_schema(file):
+            release = file.release
+            project = release.project
 
-        bq.load_table_from_json(
-            json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
-        ).result()
-        break
+            row_data = dict()
+            for sch in table_schema:
+                # The order of data extraction below is determined based on the
+                # classes that are most recently updated
+                if hasattr(file, sch.name):
+                    field_data = getattr(file, sch.name)
+                elif hasattr(release, sch.name) and sch.name == "description":
+                    field_data = getattr(release, sch.name).raw
+                elif sch.name == "description_content_type":
+                    field_data = getattr(release, "description").content_type
+                elif hasattr(release, sch.name):
+                    field_data = getattr(release, sch.name)
+                elif hasattr(project, sch.name):
+                    field_data = getattr(project, sch.name)
+                else:
+                    field_data = None
+
+                if isinstance(field_data, datetime.datetime):
+                    field_data = field_data.isoformat()
+
+                # Replace all empty objects to None will ensure
+                # proper checks if a field is nullable or not
+                if not isinstance(field_data, bool) and not field_data:
+                    field_data = None
+
+                if field_data is None and sch.mode == "REPEATED":
+                    row_data[sch.name] = []
+                elif field_data and sch.mode == "REPEATED":
+                    # Currently, some of the metadata fields such as
+                    # the 'platform' tag are incorrectly classified as a
+                    # str instead of a list, hence, this workaround to comply
+                    # with PEP 345 and the Core Metadata specifications.
+                    # This extra check can be removed once
+                    # https://github.com/pypa/warehouse/issues/8257 is fixed
+                    if isinstance(field_data, str):
+                        row_data[sch.name] = [field_data]
+                    else:
+                        row_data[sch.name] = list(field_data)
+                else:
+                    row_data[sch.name] = field_data
+            return row_data
+
+        for first, second in product("fedcba9876543210", repeat=2):
+            db_release_files = (
+                request.db.query(File.md5_digest)
+                .filter(File.md5_digest.like(f"{first}{second}%"))
+                .yield_per(1000)
+                .all()
+            )
+            db_file_digests = [file.md5_digest for file in db_release_files]
+
+            bq_file_digests = bq.query(
+                "SELECT md5_digest "
+                f"FROM {table_name} "
+                f"WHERE md5_digest LIKE '{first}{second}%'"
+            ).result()
+            bq_file_digests = [row.get("md5_digest") for row in bq_file_digests]
+
+            md5_diff_list = list(set(db_file_digests) - set(bq_file_digests))[:1000]
+            if not md5_diff_list:
+                # There are no files that need synced to BigQuery
+                continue
+
+            release_files = (
+                request.db.query(File)
+                .join(Release, Release.id == File.release_id)
+                .filter(File.md5_digest.in_(md5_diff_list))
+                .all()
+            )
+
+            json_rows = [populate_data_using_schema(file) for file in release_files]
+
+            bq.load_table_from_json(
+                json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
+            ).result()
+            break

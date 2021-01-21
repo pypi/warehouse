@@ -256,7 +256,11 @@ def send_project_role_verification_email(
 
 @_email("added-as-collaborator")
 def send_added_as_collaborator_email(request, user, *, submitter, project_name, role):
-    return {"project": project_name, "submitter": submitter.username, "role": role}
+    return {
+        "project_name": project_name,
+        "initiator_username": submitter.username,
+        "role": role,
+    }
 
 
 @_email("collaborator-removed")

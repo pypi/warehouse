@@ -1482,16 +1482,16 @@ class TestAddedAsCollaboratorEmail:
         )
 
         assert result == {
-            "project": "test_project",
+            "project_name": "test_project",
             "role": "Owner",
-            "submitter": stub_submitter_user.username,
+            "initiator_username": stub_submitter_user.username,
         }
         subject_renderer.assert_()
-        body_renderer.assert_(submitter=stub_submitter_user.username)
-        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(initiator_username=stub_submitter_user.username)
+        body_renderer.assert_(project_name="test_project")
         body_renderer.assert_(role="Owner")
-        html_renderer.assert_(submitter=stub_submitter_user.username)
-        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(initiator_username=stub_submitter_user.username)
+        html_renderer.assert_(project_name="test_project")
         html_renderer.assert_(role="Owner")
 
         assert pyramid_request.task.calls == [pretend.call(send_email)]
@@ -1572,16 +1572,16 @@ class TestAddedAsCollaboratorEmail:
         )
 
         assert result == {
-            "project": "test_project",
+            "project_name": "test_project",
             "role": "Owner",
-            "submitter": stub_submitter_user.username,
+            "initiator_username": stub_submitter_user.username,
         }
         subject_renderer.assert_()
-        body_renderer.assert_(submitter=stub_submitter_user.username)
-        body_renderer.assert_(project="test_project")
+        body_renderer.assert_(initiator_username=stub_submitter_user.username)
+        body_renderer.assert_(project_name="test_project")
         body_renderer.assert_(role="Owner")
-        html_renderer.assert_(submitter=stub_submitter_user.username)
-        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(initiator_username=stub_submitter_user.username)
+        html_renderer.assert_(project_name="test_project")
         html_renderer.assert_(role="Owner")
 
         assert pyramid_request.task.calls == []

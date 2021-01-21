@@ -124,18 +124,25 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_10_(\d+)_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
     "i386",
     "x86_64",
+    "arm64",
     "intel",
     "fat",
     "fat32",
     "fat64",
     "universal",
+    "universal2",
 }
+_macosx_major_versions = {
+    "10",
+    "11",
+}
+
 # manylinux pep600 is a little more complicated:
 _manylinux_platform_re = re.compile(r"manylinux_(\d+)_(\d+)_(?P<arch>.*)")
 _manylinux_arches = {
@@ -154,7 +161,11 @@ def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
         return True
     m = _macosx_platform_re.match(platform_tag)
-    if m and m.group("arch") in _macosx_arches:
+    if (
+        m
+        and m.group("major") in _macosx_major_versions
+        and m.group("arch") in _macosx_arches
+    ):
         return True
     m = _manylinux_platform_re.match(platform_tag)
     if m and m.group("arch") in _manylinux_arches:
