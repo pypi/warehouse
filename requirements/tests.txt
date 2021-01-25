@@ -108,7 +108,6 @@ pretend==1.0.9 \
     --hash=sha256:c90eb810cde8ebb06dafcb8796f9a95228ce796531bc806e794c2f4649aa1b10 \
     --hash=sha256:e389b12b7073604be67845dbe32bf8297360ad9a609b24846fe15d86e0b7dc01
     # via -r requirements/tests.in
-<<<<<<< HEAD
 psutil==5.8.0 \
     --hash=sha256:0066a82f7b1b37d334e68697faba68e5ad5e858279fd6351c8ca6024e8d6ba64 \
     --hash=sha256:02b8292609b1f7fcb34173b25e48d0da8667bc85f81d7476584d889c6e0f2131 \
@@ -142,24 +141,6 @@ psutil==5.8.0 \
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
     --hash=sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a
-=======
-psutil==5.7.3 \
-    --hash=sha256:01bc82813fbc3ea304914581954979e637bcc7084e59ac904d870d6eb8bb2bc7 \
-    --hash=sha256:1cd6a0c9fb35ece2ccf2d1dd733c1e165b342604c67454fd56a4c12e0a106787 \
-    --hash=sha256:2cb55ef9591b03ef0104bedf67cc4edb38a3edf015cf8cf24007b99cb8497542 \
-    --hash=sha256:56c85120fa173a5d2ad1d15a0c6e0ae62b388bfb956bb036ac231fbdaf9e4c22 \
-    --hash=sha256:5d9106ff5ec2712e2f659ebbd112967f44e7d33f40ba40530c485cc5904360b8 \
-    --hash=sha256:6a3e1fd2800ca45083d976b5478a2402dd62afdfb719b30ca46cd28bb25a2eb4 \
-    --hash=sha256:ade6af32eb80a536eff162d799e31b7ef92ddcda707c27bbd077238065018df4 \
-    --hash=sha256:af73f7bcebdc538eda9cc81d19db1db7bf26f103f91081d780bbacfcb620dee2 \
-    --hash=sha256:e02c31b2990dcd2431f4524b93491941df39f99619b0d312dfe1d4d530b08b4b \
-    --hash=sha256:fa38ac15dbf161ab1e941ff4ce39abd64b53fec5ddf60c23290daed2bc7d1157 \
-    --hash=sha256:fbcac492cb082fa38d88587d75feb90785d05d7e12d4565cbf1ecc727aff71b7
-    # via mirakuru
-py==1.9.0 \
-    --hash=sha256:366389d1db726cd2fcfc79732e75410e5fe4d31db13692115529d34069a043c2 \
-    --hash=sha256:9ca6883ce56b4e8da7e79ac18787889fa5206c79dcc67fb065376cd2fe03f342
->>>>>>> fe7b0194 (Bump freezegun from 1.0.0 to 1.1.0)
     # via pytest
 pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
@@ -168,9 +149,9 @@ pyparsing==2.4.7 \
 pytest-postgresql==2.5.2 \
     --hash=sha256:3677dfd5d9380dd81a3a34d5406a4934bba7c008b5c0b5aa45b7711f024dfb4d
     # via -r requirements/tests.in
-pytest==6.1.2 \
-    --hash=sha256:4288fed0d9153d9646bfcdf0c0428197dba1ecb27a33bb6e031d002fa88653fe \
-    --hash=sha256:c0a7e94a8cdbc5422a51ccdad8e6f1024795939cc89159a0ae7f0b316ad3823e
+pytest==6.2.2 \
+    --hash=sha256:9d1edf9e7d0b84d72ea3dbcdfd22b35fb543a5e8f2a60092dd578936bf63d7f9 \
+    --hash=sha256:b574b57423e818210672e07ca1fa90aaf194a4f63f3ab909a2c67ebb22913839
     # via
     #   -r requirements/tests.in
     #   pytest-postgresql
@@ -184,15 +165,9 @@ redis==3.5.3 \
     --hash=sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2 \
     --hash=sha256:432b788c4530cfe16d8d943a09d40ca6c16149727e4afe8c2c9d5580c59d9f24
     # via fakeredis
-<<<<<<< HEAD
 requests==2.25.1 \
     --hash=sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804 \
     --hash=sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e
-=======
-requests==2.25.0 \
-    --hash=sha256:7f1a0b932f4a60a1a65caa4263921bb7d9ee911957e0ae4a23a6dd08185ad5f8 \
-    --hash=sha256:e786fa28d8c9154e6a4de5d46a1d921b8749f8b74e28bde23768e5e16eece998
->>>>>>> fe7b0194 (Bump freezegun from 1.0.0 to 1.1.0)
     # via responses
 responses==0.12.1 \
     --hash=sha256:2e5764325c6b624e42b428688f2111fea166af46623cb0127c05f6afb14d3457 \
