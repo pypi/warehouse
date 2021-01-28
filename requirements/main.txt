@@ -77,7 +77,7 @@ cbor2==5.2.0 \
 celery-redbeat==2.0.0 \
     --hash=sha256:cb8d6941be5df2666dd3188c3029c74e0fa33d50de6eaf7da88e0a5b591a190c \
     # via -r requirements/main.in
-celery[sqs]==4.4.7 \
+celery==4.4.7 \
     --hash=sha256:a92e1d56e650781fb747032a3997d16236d037c8199eacd5217d1a72893bca45 \
     --hash=sha256:d220b13a8ed57c78149acf82c006785356071844afe0b27012a4991d44026f9f \
     # via -r requirements/main.in, celery-redbeat
