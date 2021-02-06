@@ -1,4 +1,5 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
+
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -149,7 +150,7 @@ class Project(SitemapMixin, db.Model):
         index=True,
     )
     has_docs = Column(Boolean)
-    upload_limit = Column(Integer, nullable=True)
+    upload_limit = Column(BigInteger, nullable=True)
     total_size_limit = Column(BigInteger, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
     zscore = Column(Float, nullable=True)
