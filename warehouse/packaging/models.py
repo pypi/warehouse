@@ -273,7 +273,9 @@ class ProjectEvent(db.Model):
 
     project_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("projects.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey(
+            "projects.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
+        ),
         nullable=False,
     )
     tag = Column(String, nullable=False)
