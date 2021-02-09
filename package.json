@@ -29,6 +29,7 @@
     "gulp": "^4.0.2",
     "gulp-brotli": "^3.0.0",
     "gulp-concat": "2.6.1",
+    "gulp-dart-sass": "^1.0.2",
     "gulp-gzip": "1.4.2",
     "gulp-image": "^6.1.0",
     "gulp-postcss": "8.0.0",
