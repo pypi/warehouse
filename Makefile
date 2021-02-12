@@ -3,7 +3,7 @@ TRAVIS := $(shell echo "$${TRAVIS:-false}")
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
-GITHUB_HEAD_REF := $(shell echo "$${GITHUB_HEAD_REF:-false}")
+GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
 IPYTHON := no
 LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
@@ -142,9 +142,9 @@ deps: .state/env/pyvenv.cfg
 	$(BINDIR)/pip check
 
 github-actions-deps:
-ifneq ($(GITHUB_HEAD_REF), false)
-	git fetch origin $(GITHUB_HEAD_REF):refs/remotes/origin/$(GITHUB_HEAD_REF)
-	git diff --name-only $(GITHUB_HEAD_REF) | grep '^requirements/' || exit 0 && $(MAKE) deps
+ifneq ($(GITHUB_BASE_REF), false)
+	git fetch origin $(GITHUB_BASE_REF):refs/remotes/origin/$(GITHUB_BASE_REF)
+	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
 travis-deps:
