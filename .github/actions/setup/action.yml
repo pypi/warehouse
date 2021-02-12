@@ -1,0 +1,60 @@
+name: 'Setup'
+description: 'Set up CI environment'
+runs:
+  using: "composite"
+  steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8.2
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: warehouse-cache-pip
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-
+          ${{ runner.os }}-${{ github.job }}-
+          ${{ runner.os }}-
+
+    - name: Install Python dependencies
+      run: |
+        pip install -U pip setuptools wheel
+        pip install -r requirements.txt
+        pip install -r requirements/dev.txt
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: 14.4.0
+
+    - name: Cache Node dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: warehouse-cache-npm-modules-static
+      with:
+        path: |
+          ~/.npm
+          **/node_modules
+        key: ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-
+          ${{ runner.os }}-build-${{ github.job }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install Node dependencies
+      run: npm ci
+
+    - name: Check versions
+      run: |
+        node -v
+        npm -v
+        python --version
+
+    - run: echo "Setup success!"
+      shell: bash
