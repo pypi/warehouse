@@ -2,6 +2,8 @@ BINDIR = $(PWD)/.state/env/bin
 TRAVIS := $(shell echo "$${TRAVIS:-false}")
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
+GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
+GITHUB_HEAD_REF := $(shell echo "$${GITHUB_HEAD_REF:-false}")
 DB := example
 IPYTHON := no
 LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
@@ -110,12 +112,12 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	$(BINDIR)/curlylint ./warehouse/templates
 
-ifneq ($(TRAVIS), false)
-	# We're on Travis, so we can lint static files locally
+ifneq ($(filter false,$(TRAVIS) $(GITHUB_ACTIONS)),)
+	# We're either on Travis or GitHub Actions, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
 	./node_modules/.bin/sass-lint --verbose
 else
-	# We're not on Travis, so we should lint static files inside the static container
+	# We're not on Travis or GitHub Actions, so we should lint static files inside the static container
 	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
 	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
 endif
@@ -138,6 +140,12 @@ deps: .state/env/pyvenv.cfg
 	echo "$$DEPCHECKER" | $(BINDIR)/python - $(TMPDIR)/lint.txt requirements/lint.txt
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
+
+github-actions-deps:
+ifneq ($(GITHUB_HEAD_REF), false)
+	git fetch origin $(GITHUB_HEAD_REF):refs/remotes/origin/$(GITHUB_HEAD_REF)
+	git diff --name-only $(GITHUB_HEAD_REF) | grep '^requirements/' || exit 0 && $(MAKE) deps
+endif
 
 travis-deps:
 ifneq ($(PR), false)
