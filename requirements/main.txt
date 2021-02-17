@@ -907,9 +907,9 @@ tenacity==6.2.0 \
     --hash=sha256:29ae90e7faf488a8628432154bb34ace1cca58244c6ea399fd33f066ac71339a \
     --hash=sha256:5a5d3dcd46381abe8b4f82b5736b8726fd3160c6c7161f53f8af7f1eb9b82173
     # via celery-redbeat
-transaction==3.0.0 \
-    --hash=sha256:3b0ad400cb7fa25f95d1516756c4c4557bb78890510f69393ad0bd15869eaa2d \
-    --hash=sha256:e0397e7733124e23a670cd3eee4096c197b48f1e14730d7cc7da868389f016b7
+transaction==3.0.1 \
+    --hash=sha256:0c15ef0b7ff3518357ceea75722a30d974c3f85e11aa5cec5d5a2b6a40cfcf68 \
+    --hash=sha256:2329a6e6b82d1d8d4de9267ea6ee790532c375e5911d3c7633a234e94a4a0a9e
     # via
     #   -r requirements/main.in
     #   pyramid-mailer
