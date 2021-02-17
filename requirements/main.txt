@@ -555,9 +555,9 @@ msgpack==1.0.2 \
     --hash=sha256:fae04496f5bc150eefad4e9571d1a76c55d021325dcd484ce45065ebbdd00984 \
     --hash=sha256:fe07bc6735d08e492a327f496b7850e98cb4d112c56df69b0c844dbebcbb47f6
     # via -r requirements/main.in
-packaging==20.4 \
-    --hash=sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8 \
-    --hash=sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181
+packaging==20.9 \
+    --hash=sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5 \
+    --hash=sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a
     # via
     #   -r requirements/main.in
     #   bleach
@@ -835,7 +835,6 @@ six==1.15.0 \
     #   grpcio
     #   html5lib
     #   limits
-    #   packaging
     #   protobuf
     #   pymacaroons
     #   pynacl
