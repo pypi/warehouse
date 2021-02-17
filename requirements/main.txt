@@ -256,9 +256,9 @@ google-auth==1.23.0 \
     # via
     #   google-api-core
     #   google-cloud-storage
-google-cloud-bigquery==2.4.0 \
-    --hash=sha256:26950eb22a328d4124b44f1b98bf75bcafb61abe211444cd2609d745c36e5598 \
-    --hash=sha256:2d53d6fed1c25c9c0ce361dad1c64203c96b2344f7156357a501630d1cb08445
+google-cloud-bigquery==2.8.0 \
+    --hash=sha256:ba0827a75a0f524a69cc1a6d4d788fae23c39ee01bd2ce8d4e14d9585ce2fb6e \
+    --hash=sha256:c4c43f7f440d6e5bb2895d21122af5de65b487ea2c69cea466a516bb826ab921
     # via -r requirements/main.in
 google-cloud-core==1.4.3 \
     --hash=sha256:21afb70c1b0bce8eeb8abb5dca63c5fd37fc8aea18f4b6d60e803bd3d27e6b80 \
@@ -832,7 +832,6 @@ six==1.15.0 \
     #   elasticsearch-dsl
     #   google-api-core
     #   google-auth
-    #   google-cloud-bigquery
     #   google-resumable-media
     #   grpcio
     #   html5lib
