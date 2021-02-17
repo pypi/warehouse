@@ -577,8 +577,8 @@ premailer==3.7.0 \
     --hash=sha256:5eec9603e84cee583a390de69c75192e50d76e38ef0292b027bd64923766aca7 \
     --hash=sha256:c7ac48986984a810afea5147bc8410a8fe0659bf52f357e78b28a1b949209b91
     # via -r requirements/main.in
-proto-plus==1.11.0 \
-    --hash=sha256:416a0f13987789333cd8760a0ee998f8eccd6d7165ee9f283d64ca2de3e8774d
+proto-plus==1.13.0 \
+    --hash=sha256:61b57c5257ca583af2ea1ad40e2b8f251988806eea9f01d119088976b995b2c4
     # via google-cloud-bigquery
 protobuf==3.14.0 \
     --hash=sha256:0e247612fadda953047f53301a7b0407cb0c3cb4ae25a6fde661597a04039b3c \
