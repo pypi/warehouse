@@ -958,9 +958,9 @@ whitenoise==5.2.0 \
     --hash=sha256:05ce0be39ad85740a78750c86a93485c40f08ad8c62a6006de0233765996e5c7 \
     --hash=sha256:05d00198c777028d72d8b0bbd234db605ef6d60e9410125124002518a48e515d
     # via -r requirements/main.in
-wired==0.2.2 \
-    --hash=sha256:46a251507fc120c715483e8220bf73039863626e89022a8e848a6691379cbc53 \
-    --hash=sha256:bcee73f6642ec74fb3543511d9d29c84e764246029711044cb21e48e36a0bf31
+wired==0.3 \
+    --hash=sha256:08dcb4ccfe8c0ee5d7a65e73520b4cd838420491a640b5c8d12d39e26aee8e84 \
+    --hash=sha256:1122ff2df20aed18e8fe318daba13afc80640bc81f4bb0c2499c73c6a1dc4df0
     # via pyramid-services
 wtforms[email]==2.3.3 \
     --hash=sha256:7b504fc724d0d1d4d5d5c114e778ec88c37ea53144683e084215eed5155ada4c \
