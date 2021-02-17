@@ -846,7 +846,6 @@ six==1.15.0 \
     #   pyopenssl
     #   python-dateutil
     #   readme-renderer
-    #   structlog
     #   tenacity
     #   webauthn
 sqlalchemy-citext==1.7.0 \
@@ -901,9 +900,9 @@ stdlib-list==0.8.0 \
     --hash=sha256:2ae0712a55b68f3fbbc9e58d6fa1b646a062188f49745b495f94d3310a9fdd3e \
     --hash=sha256:a1e503719720d71e2ed70ed809b385c60cd3fb555ba7ec046b96360d30b16d9f
     # via -r requirements/main.in
-structlog==20.1.0 \
-    --hash=sha256:7a48375db6274ed1d0ae6123c486472aa1d0890b08d314d2b016f3aa7f35990b \
-    --hash=sha256:8a672be150547a93d90a7d74229a29e765be05bd156a35cdcc527ebf68e9af92
+structlog==20.2.0 \
+    --hash=sha256:33dd6bd5f49355e52c1c61bb6a4f20d0b48ce0328cc4a45fe872d38b97a05ccd \
+    --hash=sha256:af79dfa547d104af8d60f86eac12fb54825f54a46bc998e4504ef66177103174
     # via -r requirements/main.in
 tenacity==6.3.1 \
     --hash=sha256:baed357d9f35ec64264d8a4bbf004c35058fad8795c5b0d8a7dc77ecdcbb8f39 \
