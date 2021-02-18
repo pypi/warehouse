@@ -2,7 +2,7 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# oon arfiandwi <oon.arfiandwi@gmail.com>, 2019, 2020.
+# oon arfiandwi <oon.arfiandwi@gmail.com>, 2019, 2020, 2021.
 # yafiabiyyu <luckyveri3@gmail.com>, 2019.
 # Teofilus Hendry Harianto <teofilushendry5@gmail.com>, 2019.
 # Azharuddin <azhargiri@gmail.com>, 2020.
@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-11-12 17:37+0000\n"
-"Last-Translator: Habib Rohman <revolusi147id@gmail.com>\n"
+"PO-Revision-Date: 2021-01-01 08:12+0000\n"
+"Last-Translator: oon arfiandwi <oon.arfiandwi@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.4-dev\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -354,9 +354,9 @@ msgstr "Monty Python - Sketsa Toko Keju"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -1057,8 +1057,9 @@ msgid "Date joined"
 msgstr "Tanggal bergabung"
 
 #: warehouse/templates/accounts/profile.html:44
-#, python-format
-msgid "Joined on %(start_date)s"
+#, fuzzy, python-format
+#| msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "Bergabung pada %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1336,28 +1337,22 @@ msgstr ""
 "%(email_address)s</a> untuk berkomunikasi dengan administrator PyPi."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
 "Anda telah ditambahkan sebagai <strong>%(role)s</strong> ke %(site)s proyek "
-"%(project)s oleh %(submitter)s."
+"%(project_name)s oleh %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Anda menerima ini karena telah ditambahkan oleh %(submitter)s ke proyek di "
-"%(site)s."
+"Anda menerima ini karena telah ditambahkan oleh %(initiator_username)s ke "
+"proyek di %(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1551,10 +1546,7 @@ msgstr ""
 "%(method)s ke akun PyPI Anda <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has changed the password for your PyPI account "
-#| "<strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has removed a %(method)s two-factor authentication "
 "method from your PyPI account <strong>%(username)s</strong>."
@@ -1625,7 +1617,7 @@ msgstr "Abaikan pemberitahuan ini"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2200,7 +2192,6 @@ msgstr "Metode dua faktor"
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:572
-#, fuzzy
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
@@ -2244,7 +2235,6 @@ msgid "generated %(generated_datetime)s"
 msgstr "dihasilkan %(generated_datetime)s"
 
 #: warehouse/templates/manage/account.html:496
-#, fuzzy
 msgid "Regenerate"
 msgstr "Buat ulang"
 
@@ -2418,7 +2408,6 @@ msgid "Two factor authentication removed"
 msgstr "Autentikasi dua faktor dihapus"
 
 #: warehouse/templates/manage/account.html:640
-#, fuzzy
 msgid "Recovery codes generated"
 msgstr "Kode pemulihan dibuat"
 
@@ -2806,10 +2795,9 @@ msgid "Back to projects"
 msgstr "Kembali ke proyek"
 
 #: warehouse/templates/manage/projects.html:22
-#, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
+#, python-format
 msgid "Pending invitations (%(project_count)s)"
-msgstr "Proyek Anda (%(project_count)s)"
+msgstr "Undangan tertunda (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
@@ -2855,9 +2843,9 @@ msgstr ""
 "\">Panduan Pengguna Python Packaging</a>"
 
 #: warehouse/templates/manage/release.html:18
-#, fuzzy, python-format
+#, python-format
 msgid "Manage '%(project_name)s' – release version %(version)s"
-msgstr "Kelola '%(project_name)s '-versi rilis %(version)s"
+msgstr "Kelola '%(project_name)s '– versi rilis %(version)s"
 
 #: warehouse/templates/manage/release.html:22
 #: warehouse/templates/manage/release.html:27
@@ -2947,7 +2935,7 @@ msgid "No files found"
 msgstr "Tidak ada berkas ditemukan"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -2969,8 +2957,6 @@ msgstr "Pengaturan rilis"
 #: warehouse/templates/manage/release.html:126
 #: warehouse/templates/manage/release.html:156
 #: warehouse/templates/manage/releases.html:123
-#, fuzzy
-#| msgid "New releases"
 msgid "Yank release"
 msgstr "Rilis baru"
 
@@ -3029,16 +3015,16 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Hapus rilisan"
@@ -3066,12 +3052,33 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "Penghapusan akan menghapus rilisan ini."
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"Pertimbangkan <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank"
+"\" rel=\"noopener\">buat baru</a> rilis ini, membuat rilis baru atau <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">kirim "
+"rilis</a> sebagai gantinya."
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3087,25 +3094,15 @@ msgid "Files"
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:27
-#, fuzzy
-#| msgid "New releases"
 msgid "Yanked reason"
-msgstr "Rilis baru"
+msgstr "Alasan menarik"
 
 #: warehouse/templates/manage/releases.html:36
 msgid "Manage version"
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:44
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            %(count)s project\n"
-#| "          "
-#| msgid_plural ""
-#| "\n"
-#| "            %(count)s projects\n"
-#| "          "
+#, python-format
 msgid ""
 "\n"
 "          %(count)s file\n"
@@ -3116,8 +3113,8 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"            %(count)s proyek\n"
-"          "
+"          %(count)s berkas\n"
+"        "
 
 #: warehouse/templates/manage/releases.html:57
 msgid "No files"
@@ -3133,10 +3130,8 @@ msgid "Options for %(version)s"
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:76
-#, fuzzy
-#| msgid "Releases"
 msgid "Un-yank Release"
-msgstr "Rilis"
+msgstr "Kembalikan Rilis"
 
 #: warehouse/templates/manage/releases.html:81
 msgid "Un-yank"
@@ -3147,10 +3142,8 @@ msgid "Yank"
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:119
-#, fuzzy
-#| msgid "pre-release"
 msgid "Un-yank release"
-msgstr "Pra-rilis"
+msgstr "Kembalikan rilis"
 
 #: warehouse/templates/manage/releases.html:126
 #, python-format
@@ -3162,40 +3155,31 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Last released on %(release_date)s"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Terakhir dirilis pada %(release_date)s"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="

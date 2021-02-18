@@ -9,7 +9,7 @@
 # Древ Брагкин <rokree@yahoo.com>, 2019.
 # Aleksei Kozharin <1alekseik1@gmail.com>, 2019.
 # Alexandr Artemyev <mogost@gmail.com>, 2019.
-# Mingun <Alexander_Sergey@mail.ru>, 2020.
+# Mingun <Alexander_Sergey@mail.ru>, 2020, 2021.
 # anonymous <noreply@weblate.org>, 2020.
 # Artem <KovalevArtem.ru@gmail.com>, 2020.
 msgid ""
@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-11-19 23:58+0000\n"
+"PO-Revision-Date: 2021-02-18 09:39+0000\n"
 "Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
@@ -27,7 +27,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.4-dev\n"
+"X-Generator: Weblate 4.5\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -377,9 +377,9 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -1089,7 +1089,7 @@ msgstr "Дата регистрации"
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "Зарегистрировался %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1378,28 +1378,22 @@ msgstr ""
 "\"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
-"Пользователь %(submitter)s добавил вас в проект %(project)s сайта %(site)s с "
-"ролью <strong>%(role)s</strong> ."
+"Пользователь %(initiator_username)s добавил вас в проект %(project_name)s "
+"сайта %(site)s с ролью <strong>%(role)s</strong> ."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Вы получили это сообщение, потому что %(submitter)s добавил вас в проект на "
-"сайте %(site)s."
+"Вы получили это сообщение, потому что %(initiator_username)s добавил вас в "
+"проект на сайте %(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1667,7 +1661,7 @@ msgstr "Скрыть это уведомление"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -3012,7 +3006,7 @@ msgid "No files found"
 msgstr "Файлы не найдены"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3125,16 +3119,16 @@ msgid "Reason (optional)"
 msgstr "Причина (необязательно)"
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Версия"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Удалить выпуск"
@@ -3172,16 +3166,38 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "Удаление приведёт к необратимому удалению этого выпуска."
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
 "Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
-"номером версии. Вместо этого подумайте об изъятии данного выпуска, создании "
-"нового выпуска или <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">пост-выпуска</a>."
+"номером версии."
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+"Удаление сломает все зависимые проекты, полагающиеся на закреплённую версию "
+"данного пакета. Оно нужно лишь в качестве крайней меры для решения правовых "
+"вопросов или удаления вредоносных выпусков."
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"Лучше подумайте об <a href=\"%(yank_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">изъятии</a> этого выпуска, публикации нового "
+"выпуска или <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">пост-выпуска</a>."
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3271,43 +3287,30 @@ msgstr ""
 "<code>%(project_name)s==%(version)s</code>.\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-"Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
-"номером версии. Вместо этого подумайте об изъятии данного выпуска, создании "
-"нового выпуска или <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">пост-выпуска</a>."
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Управление выпусками проекта «%(project_name)s»"
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Выпуски (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Изъятые выпуски (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Создание нового выпуска"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Выпусков не найдено"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -6909,6 +6912,28 @@ msgstr[2] ""
 "\n"
 "                  По фильтрам «%(filters)s» результатов не найдено\n"
 "                "
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
+#~ "releases\">post release</a> instead."
+#~ msgstr ""
+#~ "Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
+#~ "номером версии. Вместо этого подумайте об изъятии данного выпуска, "
+#~ "создании нового выпуска или <a href=\"https://www.python.org/dev/peps/"
+#~ "pep-0440/#post-releases\">пост-выпуска</a>."
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">post release</a> instead."
+#~ msgstr ""
+#~ "Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
+#~ "номером версии. Вместо этого подумайте об изъятии данного выпуска, "
+#~ "создании нового выпуска или <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">пост-выпуска</a>."
 
 #~ msgid ""
 #~ "\n"

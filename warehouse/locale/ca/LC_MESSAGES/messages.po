@@ -1,10 +1,10 @@
-# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-08-24 00:15+0200\n"
-"PO-Revision-Date: 2020-11-03 17:42+0000\n"
+"PO-Revision-Date: 2021-02-16 20:32+0000\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ca/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.3.2-dev\n"
+"X-Generator: Weblate 4.5\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -310,7 +310,7 @@ msgstr "Ja ha caducat la invitació."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "S’ha revocat la invitació de «${username}»."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -361,9 +361,9 @@ msgstr "Monty Python, L’esquetx de la formatgeria"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -1054,7 +1054,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1284,7 +1284,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/two-factor.html:117
 msgid "Lost your security key or application?"
-msgstr ""
+msgstr "Heu perdut la vostra clau o aplicació de seguretat?"
 
 #: warehouse/templates/accounts/two-factor.html:122
 #, python-format
@@ -1297,7 +1297,7 @@ msgstr ""
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr ""
+msgstr "S’ha suprimit el vostre compte al PyPI, <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/account-deleted/body.html:20
 #: warehouse/templates/email/password-change/body.html:20
@@ -1309,6 +1309,9 @@ msgid ""
 "If you did not make this change, you can email <a href=\"%(href)s\">"
 "%(email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
+"Si no heu fet aquesta modificació, podeu enviar un missatge a <a href="
+"\"%(href)s\">%(email_address)s</a> per a comunicar-vos amb els "
+"administradors del PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
 #, python-format
@@ -1316,6 +1319,8 @@ msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
+"%(initiator_username)s us ha afegit com a <strong>%(role)s</strong> al "
+"projecte %(project_name)s a %(site)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
 #, python-format
@@ -1323,6 +1328,8 @@ msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
+"Heu rebut això perquè %(initiator_username)s us ha afegit a un projecte a "
+"%(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1330,11 +1337,13 @@ msgid ""
 "Someone, perhaps you, has changed the password for your PyPI account <strong>"
 "%(username)s</strong>."
 msgstr ""
+"Algú, possiblement vós, ha canviat la contrasenya del vostre compte del "
+"PyPI, <strong>%(username)s</strong>."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
 msgid "What?"
-msgstr ""
+msgstr "Perdó?"
 
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
@@ -1539,7 +1548,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -1898,16 +1907,16 @@ msgstr "Tots els projectes"
 #: warehouse/templates/manage/account.html:177
 #: warehouse/templates/manage/account.html:531
 msgid "Created"
-msgstr ""
+msgstr "Creació"
 
 #: warehouse/templates/manage/account.html:181
 #: warehouse/templates/manage/account.html:532
 msgid "Last used"
-msgstr ""
+msgstr "Darrera utilització"
 
 #: warehouse/templates/manage/account.html:182
 msgid "Never"
-msgstr ""
+msgstr "Mai"
 
 #: warehouse/templates/manage/account.html:186
 msgid "View token options"
@@ -1920,7 +1929,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:202
 msgid "View unique identifier"
-msgstr ""
+msgstr "Mostra l’identificador únic"
 
 #: warehouse/templates/manage/account.html:210
 #: warehouse/templates/manage/account.html:212
@@ -1942,7 +1951,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:246
 msgid "Profile picture"
-msgstr ""
+msgstr "Imatge del perfil"
 
 #: warehouse/templates/manage/account.html:252
 #, python-format
@@ -1954,11 +1963,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:259
 msgid "Change image on gravatar.com"
-msgstr ""
+msgstr "Es pot modificar la imatge a gravatar.com"
 
 #: warehouse/templates/manage/account.html:269
 msgid "Account details"
-msgstr ""
+msgstr "Detalls del compte"
 
 #: warehouse/templates/manage/account.html:275
 msgid "Date Joined"
@@ -1972,7 +1981,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:292
 msgid "Full name"
-msgstr ""
+msgstr "Nom complet"
 
 #: warehouse/templates/manage/account.html:297
 msgid "No name set"
@@ -1985,7 +1994,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:309
 msgid "️Public email"
-msgstr ""
+msgstr "Adreça electrònica pública"
 
 #: warehouse/templates/manage/account.html:321
 #, python-format
@@ -1996,11 +2005,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:326
 msgid "Update account"
-msgstr ""
+msgstr "Actualitza el compte"
 
 #: warehouse/templates/manage/account.html:334
 msgid "Account emails"
-msgstr ""
+msgstr "Adreces electròniques del compte"
 
 #: warehouse/templates/manage/account.html:336
 msgid ""
@@ -2016,7 +2025,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:351
 msgid "Status"
-msgstr ""
+msgstr "Estat"
 
 #: warehouse/templates/manage/account.html:366
 #: warehouse/templates/manage/account.html:376
@@ -2025,27 +2034,27 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:383
 msgid "Change password"
-msgstr ""
+msgstr "Canvia la contrasenya"
 
 #: warehouse/templates/manage/account.html:391
 msgid "Old password"
-msgstr ""
+msgstr "Contrasenya antiga"
 
 #: warehouse/templates/manage/account.html:401
 msgid "Your current password"
-msgstr ""
+msgstr "La vostra contrasenya actual"
 
 #: warehouse/templates/manage/account.html:408
 msgid "New password"
-msgstr ""
+msgstr "Contrasenya nova"
 
 #: warehouse/templates/manage/account.html:424
 msgid "Confirm new password"
-msgstr ""
+msgstr "Confirmeu la contrasenya nova"
 
 #: warehouse/templates/manage/account.html:440
 msgid "Update password"
-msgstr ""
+msgstr "Actualitza la contrasenya"
 
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
@@ -2111,7 +2120,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:496
 msgid "Regenerate"
-msgstr ""
+msgstr "Torna a generar"
 
 #: warehouse/templates/manage/account.html:497
 #: warehouse/templates/manage/account.html:498
@@ -2119,7 +2128,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:37
 #: warehouse/templates/manage/account/recovery_codes-provision.html:38
 msgid "Regenerate recovery codes"
-msgstr ""
+msgstr "Torna a generar els codis de recuperació"
 
 #: warehouse/templates/manage/account.html:509
 msgid "You have not enabled two factor authentication on your account."
@@ -2774,7 +2783,7 @@ msgid "No files found"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -2853,16 +2862,16 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr ""
@@ -2887,11 +2896,28 @@ msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:20
@@ -2967,39 +2993,30 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3462,11 +3479,11 @@ msgstr ""
 
 #: warehouse/templates/manage/account/webauthn-provision.html:43
 msgid "Name your device to begin"
-msgstr ""
+msgstr "Doneu un nom al dispositiu per a començar"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:48
 msgid "PyPI supports adding multiple security devices."
-msgstr ""
+msgstr "El PyPI permet l’addició de múltiples dispositius de seguretat."
 
 #: warehouse/templates/manage/account/webauthn-provision.html:49
 msgid ""
@@ -5742,7 +5759,7 @@ msgstr "Data de darrera actualització"
 
 #: warehouse/templates/search/results.html:181
 msgid "Trending"
-msgstr ""
+msgstr "En tendència"
 
 #: warehouse/templates/search/results.html:194
 msgid "Filter"

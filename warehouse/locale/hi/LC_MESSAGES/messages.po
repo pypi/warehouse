@@ -6,21 +6,22 @@
 # Michal Čihař <michal@cihar.com>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # Prachi Joshi <josprachi@yahoo.com>, 2020.
+# Abin Isaac <abinisaac111@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-10-16 23:21+0000\n"
-"Last-Translator: bkaskar <roypbc@yahoo.com>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
-">\n"
+"PO-Revision-Date: 2021-02-18 09:39+0000\n"
+"Last-Translator: Abin Isaac <abinisaac111@gmail.com>\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
+"\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.3.1-dev\n"
+"X-Generator: Weblate 4.5\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -113,13 +114,15 @@ msgstr "पुनर्प्राप्ति कुंजी अमान्�
 
 #: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
-msgstr "उस username या ईमेल से सम्बद्ध कोई user नहीं मिला"
+msgstr "उस username या ईमेल से सम्बद्धित कोई user नहीं मिला"
 
 #: warehouse/accounts/views.py:93
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
+"इस अकाउटं के साथ काफी सारे ईमेल जोडे गए है जो कि सत्यापित नहीं है। अपने "
+"इनबोक्स कि जाँच करें और सत्यापन लिंकों का अनुसरण करें। (IP: ${ip})"
 
 #: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
 #: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
@@ -137,7 +140,7 @@ msgstr "सफल WebAuthn दावा"
 
 #: warehouse/accounts/views.py:404
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "पुनर्प्राप्ति कुंजी स्वीकार्य. अपूर्तित कुंजी पुनः उपयोग वर्जित।"
+msgstr "पुनर्प्राप्ति कुंजी स्वीकृत। प्रदत्त कुंजी का पुनः उपयोग वर्जित।"
 
 #: warehouse/accounts/views.py:490
 msgid ""
@@ -350,9 +353,9 @@ msgstr "मोंटी पाइथन - चीज़ शॉप स्केच
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -1046,8 +1049,9 @@ msgid "Date joined"
 msgstr "शामिल होने की तिथि"
 
 #: warehouse/templates/accounts/profile.html:44
-#, python-format
-msgid "Joined on %(start_date)s"
+#, fuzzy, python-format
+#| msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "%(start_date)s पर शामिल हुए"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1605,7 +1609,7 @@ msgstr "इस अधिसूचना को खारिज करें"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2924,7 +2928,7 @@ msgid "No files found"
 msgstr "कोई फाइल नहीं मिली"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3029,16 +3033,16 @@ msgid "Reason (optional)"
 msgstr "कारण (वैकल्पिक)"
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "संस्करण"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "विज्ञप्ति मिटाएँ"
@@ -3071,15 +3075,38 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "मिटाने पर विज्ञप्ति भी अपरिवर्तनीय रूप से मिटा दी जाएगी।"
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
-"आप एक ही प्रकार के संस्करण संख्या के साथ नए वितरण को फिर से अपलोड नहीं कर पाएंगे। इसके "
-"बजाय इस विज्ञप्ति को निकाल फेंकने, एक नया संस्करण या एक <a href=\"https://www."
-"python.org/dev/peps/pep-0440/#post-releases\">अवतरण</a> बनाने पर विचार करें।"
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
+#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
+#| "public dataset on Google BigQuery</a>"
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Librarys.io</a>, या <a href=\"%(gbq_href)s\" target=\"_blank\" "
+"rel=\"noopener\">गूगल BigQuery पर हमारे सार्वजनिक डेटासेट</a> का उपयोग करके इस "
+"परियोजना के आंकड़े देखें"
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3160,48 +3187,31 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, fuzzy, python-format
-#| msgid ""
-#| "You will not be able to re-upload a new distribution of the same type "
-#| "with the same version number. Consider making a new release or a <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-#| "release</a> instead."
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-"आप एक ही प्रकार के संस्करण संख्या के साथ नए वितरण को फिर से अपलोड नहीं कर पाएंगे। इसके "
-"बजाय एक नया संस्करण या एक <a href=\"%(href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">अवतरण</a> बनाने पर विचार करें।"
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "'%(project_name)s' विज्ञप्तियां प्रबंधित करें"
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "विज्ञप्तियां (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "विज्ञप्तियां (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "एक नई विज्ञप्ति बनाना"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "कोई विज्ञप्तियां नहीं मिली"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -6173,6 +6183,33 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
+#~ "releases\">post release</a> instead."
+#~ msgstr ""
+#~ "आप एक ही प्रकार के संस्करण संख्या के साथ नए वितरण को फिर से अपलोड नहीं कर पाएंगे। "
+#~ "इसके बजाय इस विज्ञप्ति को निकाल फेंकने, एक नया संस्करण या एक <a href=\"https://"
+#~ "www.python.org/dev/peps/pep-0440/#post-releases\">अवतरण</a> बनाने पर विचार "
+#~ "करें।"
+
+#, fuzzy
+#~| msgid ""
+#~| "You will not be able to re-upload a new distribution of the same type "
+#~| "with the same version number. Consider making a new release or a <a href="
+#~| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+#~| "release</a> instead."
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">post release</a> instead."
+#~ msgstr ""
+#~ "आप एक ही प्रकार के संस्करण संख्या के साथ नए वितरण को फिर से अपलोड नहीं कर पाएंगे। "
+#~ "इसके बजाय एक नया संस्करण या एक <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">अवतरण</a> बनाने पर विचार करें।"
 
 #, fuzzy
 #~| msgid "Privacy policy"

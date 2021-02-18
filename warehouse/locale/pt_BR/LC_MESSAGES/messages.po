@@ -2,13 +2,13 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Rafael Fontenelle <rafaelff@gnome.org>, 2019, 2020.
+# Rafael Fontenelle <rafaelff@gnome.org>, 2019, 2020, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-09-21 19:55+0000\n"
+"PO-Revision-Date: 2021-01-11 05:58+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -360,9 +360,9 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -1065,7 +1065,7 @@ msgstr "Data de entrada"
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "Entrou em %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1348,28 +1348,22 @@ msgstr ""
 "\">%(email_address)s</a> para se comunicar com os administradores do PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
-"Você foi adicionado como <strong>%(role)s</strong> para o projeto "
-"%(project)s do %(site)s por %(submitter)s."
+"Você foi adicionado como <strong>%(role)s</strong> ao projeto "
+"%(project_name)s do %(site)s por %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Você está recebendo isso porque você foi adicionado por %(submitter)s a um "
-"projeto em %(site)s."
+"Você está recebendo isso porque você foi adicionado por "
+"%(initiator_username)s a um projeto em %(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1633,7 +1627,7 @@ msgstr "Descartar esta notificação"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2963,7 +2957,7 @@ msgid "No files found"
 msgstr "Nenhum arquivo encontrado"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3070,16 +3064,16 @@ msgid "Reason (optional)"
 msgstr "Motivo (opcional)"
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Versão"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Excluir lançamento"
@@ -3112,16 +3106,38 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "A exclusão vai excluir irreversivelmente este lançamento."
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
-"Você não será capaz de enviar novamente uma nova distribuição do mesmo tipo "
-"com o mesmo número de versão. Em vez disso, considere retirar este "
-"lançamento, fazer um novo lançamento ou um <a href=\"https://www.python.org/"
-"dev/peps/pep-0440/#post-releases\">pós-lançamento</a>."
+"Você não poderá reenviar uma nova distribuição do mesmo tipo com o mesmo "
+"número de versão."
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+"A exclusão quebrará quaisquer projetos downstream que dependem de uma versão "
+"fixa deste pacote. Destina-se a ser um último recurso para tratar de "
+"questões legais ou remover lançamentos prejudiciais."
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"Considere <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">retirar</a> este lançamento, fazer um novo lançamento ou um "
+"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">pós-lançamento</a>."
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3207,43 +3223,30 @@ msgstr ""
 "%(project_name)s==%(version)s</code>.\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-"Você não será capaz de enviar novamente uma nova distribuição do mesmo tipo "
-"com o mesmo número de versão. Em vez disso, considere retirar este "
-"lançamento, fazer um novo lançamento ou um <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">pós-lançamento</a>."
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Gerenciar lançamentos de \"%(project_name)s\""
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Lançamentos (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Lançamentos retirados (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Criando um novo lançamento"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Nenhum lançamento encontrado"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -5987,15 +5990,7 @@ msgid "Contact"
 msgstr "Contato"
 
 #: warehouse/templates/pages/help.html:855
-#, fuzzy, python-format
-#| msgid ""
-#| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
-#| "work together to improve Python packaging. If you'd like to get in touch "
-#| "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
-#| "a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target="
-#| "\"_blank\" rel=\"noopener\">join the distutils-sig mailing list</a>."
+#, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
@@ -6010,9 +6005,9 @@ msgstr ""
 "que trabalha em conjunto para melhorar o empacotamento de Python. Se você "
 "quiser entrar em contato com um desenvolvedor de empacotamento principal, "
 "use<a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">#pypa no IRC (freenode)</a> ou <a href=\"%(mailing_list_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">junte-se à lista "
-"de discussão distutils-sig</a>."
+"\"noopener\">#pypa no IRC (freenode)</a> ou <a href=\"%(discuss_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">navegue pelas "
+"mensagens online</a>."
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
@@ -6791,6 +6786,28 @@ msgstr[1] ""
 "\n"
 "                  Nenhuma ocorrência para os filtros \"%(filters)s\"\n"
 "                "
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
+#~ "releases\">post release</a> instead."
+#~ msgstr ""
+#~ "Você não será capaz de enviar novamente uma nova distribuição do mesmo "
+#~ "tipo com o mesmo número de versão. Em vez disso, considere retirar este "
+#~ "lançamento, fazer um novo lançamento ou um <a href=\"https://www.python."
+#~ "org/dev/peps/pep-0440/#post-releases\">pós-lançamento</a>."
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">post release</a> instead."
+#~ msgstr ""
+#~ "Você não será capaz de enviar novamente uma nova distribuição do mesmo "
+#~ "tipo com o mesmo número de versão. Em vez disso, considere retirar este "
+#~ "lançamento, fazer um novo lançamento ou um <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">pós-lançamento</a>."
 
 #~ msgid ""
 #~ "\n"

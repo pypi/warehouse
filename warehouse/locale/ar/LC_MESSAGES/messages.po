@@ -9,13 +9,14 @@
 # Ahmed ALKHAIRO <eng.ak@outlook.com>, 2020.
 # Anas Koara <anaskoara@gmail.com>, 2020.
 # Murtaja Ziad <murtaja.ziad2014@gmail.com>, 2020.
+# mfezzat <muhammedezzat@yahoo.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-10-04 00:47+0000\n"
-"Last-Translator: Murtaja Ziad <murtaja.ziad2014@gmail.com>\n"
+"PO-Revision-Date: 2021-01-07 09:39+0000\n"
+"Last-Translator: mfezzat <muhammedezzat@yahoo.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -123,7 +124,7 @@ msgid ""
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 "تمت إضافة عدد كبير جدًا من رسائل البريد الإلكتروني إلى هذا الحساب دون التحقق "
-"منها. تحقق من بريدك الوارد واتبع روابط التحقق."
+"منها. تحقق من بريدك الوارد واتبع روابط التحقق. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:232 warehouse/accounts/views.py:289
 #: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
@@ -244,7 +245,7 @@ msgstr "دعوة '${project_name}' تم رفضها."
 
 #: warehouse/accounts/views.py:874
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr ""
+msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -255,23 +256,23 @@ msgstr ""
 #: warehouse/manage/views.py:692 warehouse/manage/views.py:728
 msgid ""
 "You must provision a two factor method before recovery codes can be generated"
-msgstr ""
+msgstr "يجب التقدم باليه العاملين قبل الحصول على رمز الأستعاده"
 
 #: warehouse/manage/views.py:703
 msgid "Recovery codes already generated"
-msgstr ""
+msgstr "تم اصدار رمز الأصلاح"
 
 #: warehouse/manage/views.py:704
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr ""
+msgstr "اصدار رمز اصلاح جديد سوف يوقف رمز الأصلاح الحالى."
 
 #: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
-msgstr ""
+msgstr "خطاء فى الأعتمادات (كلمه السر او الأسم او رمز الأصلاح). جرب مره اخرى"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
 #: warehouse/manage/views.py:1514
 msgid ""
@@ -293,10 +294,8 @@ msgid "Could not find role invitation."
 msgstr ""
 
 #: warehouse/manage/views.py:1643
-#, fuzzy
-#| msgid "Email already verified"
 msgid "Invitation already expired."
-msgstr "تم تأكيد البريد الاليكتروني بالفعل"
+msgstr "الدعوه لم تعد صالحه."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
@@ -353,9 +352,9 @@ msgstr "مونتي بايثون - مشهد متجر الجبنة"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -522,10 +521,8 @@ msgstr ""
 "الشائعه و المتكرره."
 
 #: warehouse/templates/base.html:27
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password strength:"
-msgstr "تغيير كلمة السر"
+msgstr "قوه و متانه كلمه السر:"
 
 #: warehouse/templates/base.html:30
 #, fuzzy
@@ -535,9 +532,8 @@ msgstr "تغيير كلمة السر"
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
-#, fuzzy
 msgid "Main navigation"
-msgstr "التنقل الرئيسي"
+msgstr "الابحار الرئسى"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:258
@@ -799,28 +795,26 @@ msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr "أو <a href=\"%(href)s\">تصفح المشاريع</a>"
 
 #: warehouse/templates/index.html:71
-#, fuzzy, python-format
-#| msgid "%(num_projects)s projects"
+#, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
-msgstr[0] "%(num_projects)s مشروعـ(ات)"
-msgstr[1] "%(num_projects)s مشروعـ(ات)"
-msgstr[2] "%(num_projects)s مشروعـ(ات)"
-msgstr[3] "%(num_projects)s مشروعـ(ات)"
-msgstr[4] "%(num_projects)s مشروعـ(ات)"
-msgstr[5] "%(num_projects)s مشروعـ(ات)"
+msgstr[0] "مشروعات %(num_projects_formatted)s"
+msgstr[1] "المشروع %(num_projects_formatted)s"
+msgstr[2] "مشروعات %(num_projects_formatted)s"
+msgstr[3] "مشروعات %(num_projects_formatted)s"
+msgstr[4] "مشروعات %(num_projects_formatted)s"
+msgstr[5] "مشاريع %(num_projects_formatted)s"
 
 #: warehouse/templates/index.html:78
-#, fuzzy, python-format
-#| msgid "%(num_releases)s releases"
+#, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
-msgstr[0] "%(num_releases)s إصدار(ات)"
-msgstr[1] "%(num_releases)s إصدار(ات)"
-msgstr[2] "%(num_releases)s إصدار(ات)"
-msgstr[3] "%(num_releases)s إصدار(ات)"
-msgstr[4] "%(num_releases)s إصدار(ات)"
-msgstr[5] "%(num_releases)s إصدار(ات)"
+msgstr[0] "اصدارات %(num_releases_formatted)s"
+msgstr[1] "اصدار %(num_releases_formatted)s"
+msgstr[2] "اصدارات %(num_releases_formatted)s"
+msgstr[3] "اصدارات %(num_releases_formatted)s"
+msgstr[4] "اصدارات %(num_releases_formatted)s"
+msgstr[5] "اصدارات %(num_releases_formatted)s"
 
 #: warehouse/templates/index.html:85
 #, fuzzy, python-format
@@ -1071,7 +1065,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1635,7 +1629,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2884,7 +2878,7 @@ msgid "No files found"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -2969,16 +2963,16 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr ""
@@ -3007,11 +3001,28 @@ msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:20
@@ -3095,39 +3106,30 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
