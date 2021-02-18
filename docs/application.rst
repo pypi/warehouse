@@ -57,7 +57,7 @@ Warehouse serves four main classes of users:
    routine administration tasks such as adding new trove classifiers,
    adjusting upload limits for distribution packages, and reviewing
    malware verdicts.
-4. *PyPI application administrators*, e.g., Ernest W. Durbin III,
+4. *PyPI application administrators*, e.g., Ee W. Durbin III,
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
    on. There are under ten such admins.
