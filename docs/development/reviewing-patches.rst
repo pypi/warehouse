@@ -73,7 +73,7 @@ Pull down the PR branch by running these commands:
 
 .. code-block:: console
 
-   git checkout master
+   git checkout main
    git fetch upstream pull/<id>/head:<branchname>
 
 In this example, ``upstream`` refers to the Warehouse repository on GitHub.
@@ -90,8 +90,8 @@ it that you have pulled down:
    git checkout <branchname>
 
 Once you are on the PR branch, it's probably best to rebase the changes
-against the current master branch. The older the PR is, the more important
-it is to do this, since differences between master and the PR branch will
+against the current main branch. The older the PR is, the more important
+it is to do this, since differences between main and the PR branch will
 have accumulated over time. These differences may lead to difficulty
 in testing the changes in the PR branch.
 
@@ -99,9 +99,9 @@ in testing the changes in the PR branch.
 
    git checkout <branchname>
    git fetch upstream
-   git rebase upstream/master
+   git rebase upstream/main
 
-These commands replay the changes in the PR against the master branch.
+These commands replay the changes in the PR against the main branch.
 Once you have completed these steps, you are ready to test the PR branch.
 
 If you have found any bugs in the course of your testing, you can leave a
@@ -139,12 +139,12 @@ In the command above,
 Merge requirements
 ------------------
 
-* Patches must *never* be pushed directly to ``master``, all changes (even the
+* Patches must *never* be pushed directly to ``main``, all changes (even the
   most trivial typo fixes!) must be submitted as a pull request.
 * A patch that breaks tests, or introduces regressions by changing or removing
   existing tests should not be merged. Tests must always be passing on
-  ``master``.
-* If somehow the tests get into a failing state on ``master`` (such as by a
+  ``main``.
+* If somehow the tests get into a failing state on ``main`` (such as by a
   backwards incompatible release of a dependency) no pull requests may be
   merged until this is rectified.
 * All merged patches must have 100% test coverage.
