@@ -24,7 +24,7 @@ import gulpImage from "gulp-image";
 import postcss from "gulp-postcss";
 import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
-import gulpSass from "gulp-sass";
+import sass from "gulp-dart-sass";
 import sourcemaps from "gulp-sourcemaps";
 import composer from "gulp-uglify/composer";
 import path from "path";
@@ -138,8 +138,8 @@ gulp.task("dist:noscript", () => {
   return gulp.src(path.join(sassPath, "noscript.scss"))
     .pipe(sourcemaps.init())
     .pipe(
-      gulpSass({ includePaths: [sassPath] })
-        .on("error", gulpSass.logError))
+      sass({ includePaths: [sassPath] })
+        .on("error", sass.logError))
     .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
@@ -291,8 +291,8 @@ gulp.task("dist:css-ltr", () => {
   return gulp.src(path.join(sassPath, "warehouse.scss"))
     .pipe(sourcemaps.init())
     .pipe(
-      gulpSass({ includePaths: [sassPath] })
-        .on("error", gulpSass.logError))
+      sass({ includePaths: [sassPath] })
+        .on("error", sass.logError))
     .pipe(rename({ suffix: "-ltr" }))
     .pipe(postcss(postCSSPlugins))
     .pipe(sourcemaps.write("."))
@@ -305,8 +305,8 @@ gulp.task("dist:css-rtl", () => {
   return gulp.src(path.join(sassPath, "warehouse.scss"))
     .pipe(sourcemaps.init())
     .pipe(
-      gulpSass({ includePaths: [sassPath] })
-        .on("error", gulpSass.logError))
+      sass({ includePaths: [sassPath] })
+        .on("error", sass.logError))
     .pipe(rtlcss()) // Convert to RTL.
     .pipe(rename({ suffix: "-rtl" }))
     .pipe(postcss(postCSSPlugins))

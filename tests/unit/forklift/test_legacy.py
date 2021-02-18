@@ -82,11 +82,20 @@ _TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(
 ).hexdigest()
 
 
-def test_exc_with_message():
-    exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
-    assert isinstance(exc, HTTPBadRequest)
-    assert exc.status_code == 400
-    assert exc.status == "400 My Test Message."
+class TestExcWithMessage:
+    def test_exc_with_message(self):
+        exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
+        assert isinstance(exc, HTTPBadRequest)
+        assert exc.status_code == 400
+        assert exc.status == "400 My Test Message."
+
+    def test_exc_with_exotic_message(self):
+        exc = legacy._exc_with_message(
+            HTTPBadRequest, "look at these wild chars: аÃ¤â€—"
+        )
+        assert isinstance(exc, HTTPBadRequest)
+        assert exc.status_code == 400
+        assert exc.status == "400 look at these wild chars: ?Ã¤â??"
 
 
 class TestValidation:
@@ -2566,6 +2575,9 @@ class TestFileUpload:
             "manylinux_3_0_s390x",
             "macosx_10_6_intel",
             "macosx_10_13_x86_64",
+            "macosx_11_0_x86_64",
+            "macosx_10_15_arm64",
+            "macosx_11_10_universal2",
             # A real tag used by e.g. some numpy wheels
             (
                 "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
@@ -2790,7 +2802,16 @@ class TestFileUpload:
             )
         ]
 
-    @pytest.mark.parametrize("plat", ["linux_x86_64", "linux_x86_64.win32"])
+    @pytest.mark.parametrize(
+        "plat",
+        [
+            "linux_x86_64",
+            "linux_x86_64.win32",
+            "macosx_9_2_x86_64",
+            "macosx_12_2_arm64",
+            "macosx_10_15_amd64",
+        ],
+    )
     def test_upload_fails_with_unsupported_wheel_plat(
         self, monkeypatch, pyramid_config, db_request, plat
     ):

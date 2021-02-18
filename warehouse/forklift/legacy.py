@@ -124,18 +124,25 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_10_(\d+)_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
     "i386",
     "x86_64",
+    "arm64",
     "intel",
     "fat",
     "fat32",
     "fat64",
     "universal",
+    "universal2",
 }
+_macosx_major_versions = {
+    "10",
+    "11",
+}
+
 # manylinux pep600 is a little more complicated:
 _manylinux_platform_re = re.compile(r"manylinux_(\d+)_(\d+)_(?P<arch>.*)")
 _manylinux_arches = {
@@ -154,7 +161,11 @@ def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
         return True
     m = _macosx_platform_re.match(platform_tag)
-    if m and m.group("arch") in _macosx_arches:
+    if (
+        m
+        and m.group("major") in _macosx_major_versions
+        and m.group("arch") in _macosx_arches
+    ):
         return True
     m = _manylinux_platform_re.match(platform_tag)
     if m and m.group("arch") in _manylinux_arches:
@@ -202,7 +213,11 @@ def _exc_with_message(exc, message, **kwargs):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
     resp = exc(detail=message, **kwargs)
-    resp.status = "{} {}".format(resp.status_code, message)
+    # We need to guard against characters outside of iso-8859-1 per RFC.
+    # Specifically here, where user-supplied text may appear in the message,
+    # which our WSGI server may not appropriately handle (indeed gunicorn does not).
+    status_message = message.encode("iso-8859-1", "replace").decode("iso-8859-1")
+    resp.status = "{} {}".format(resp.status_code, status_message)
     return resp
 
 

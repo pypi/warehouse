@@ -227,12 +227,29 @@ def exception_view(exc, request):
 
 @xmlrpc_method(method="search")
 def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "and"):
+    metrics = request.find_service(IMetricsService, context=None)
+
+    # This uses a setting instead of an admin flag to avoid hitting the DB/Elasticsearch
+    # at all since the broad purpose of this flag is to enable us to control the load to
+    # our backend servers. This does mean that turning search on or off requires a
+    # deploy, but it should be infrequent enough to not matter.
+    if not request.registry.settings.get("warehouse.xmlrpc.search.enabled", True):
+        metrics.increment("warehouse.xmlrpc.search.deprecated")
+        raise XMLRPCWrappedError(
+            RuntimeError(
+                (
+                    "PyPI's XMLRPC API is currently disabled due to "
+                    "unmanageable load and will be deprecated in the near "
+                    "future. See https://status.python.org/ for more "
+                    "information."
+                )
+            )
+        )
+
     if operator not in {"and", "or"}:
         raise XMLRPCWrappedError(
             ValueError("Invalid operator, must be one of 'and' or 'or'.")
         )
-
-    metrics = request.find_service(IMetricsService, context=None)
 
     # Remove any invalid spec fields
     spec = {
