@@ -21,9 +21,9 @@ certifi==2020.12.5 \
     --hash=sha256:1a4995114262bffbc2413b159f2a1a480c969de6e6eb13ee966d470af86af59c \
     --hash=sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830
     # via requests
-chardet==3.0.4 \
-    --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae \
-    --hash=sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691
+chardet==4.0.0 \
+    --hash=sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa \
+    --hash=sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5
     # via requests
 coverage==5.4 \
     --hash=sha256:03ed2a641e412e42cc35c244508cf186015c217f0e4d496bf6d7078ebe837ae7 \
@@ -76,9 +76,9 @@ coverage==5.4 \
     --hash=sha256:fbb17c0d0822684b7d6c09915677a32319f16ff1115df5ec05bdcaaee40b35f3 \
     --hash=sha256:fff1f3a586246110f34dc762098b5afd2de88de507559e63553d7da643053786
     # via -r requirements/tests.in
-factory_boy==3.2.0 \
+factory-boy==3.2.0 \
     --hash=sha256:1d3db4b44b8c8c54cdd8b83ae4bdb9aeb121e464400035f1f03ae0e1eade56a4 \
-    --hash=sha256:401cc00ff339a022f84d64a4339503d1689e8263a4478d876e58a3295b155c5b \
+    --hash=sha256:401cc00ff339a022f84d64a4339503d1689e8263a4478d876e58a3295b155c5b
     # via -r requirements/tests.in
 faker==6.3.0 \
     --hash=sha256:3971803f32728314c54ba051139cd433fc93fde371e18d07a2cec960a7a2222a \
@@ -86,7 +86,7 @@ faker==6.3.0 \
     # via factory-boy
 fakeredis==1.4.5 \
     --hash=sha256:01cb47d2286825a171fb49c0e445b1fa9307087e07cbb3d027ea10dbff108b6a \
-    --hash=sha256:2c6041cf0225889bc403f3949838b2c53470a95a9e2d4272422937786f5f8f73 \
+    --hash=sha256:2c6041cf0225889bc403f3949838b2c53470a95a9e2d4272422937786f5f8f73
     # via -r requirements/tests.in
 freezegun==1.1.0 \
     --hash=sha256:177f9dd59861d871e27a484c3332f35a6e3f5d14626f2bf91be37891f18927f3 \
@@ -151,7 +151,7 @@ psutil==5.8.0 \
     --hash=sha256:ea313bb02e5e25224e518e4352af4bf5e062755160f77e4b1767dd5ccb65f876 \
     --hash=sha256:ea372bcc129394485824ae3e3ddabe67dc0b118d262c568b4d2602a7070afdb0 \
     --hash=sha256:f4634b033faf0d968bb9220dd1c793b897ab7f1189956e1aa9eae752527127d3 \
-    --hash=sha256:fcc01e900c1d7bee2a37e5d6e4f9194760a93597c97fee89c4ae51701de03563 \
+    --hash=sha256:fcc01e900c1d7bee2a37e5d6e4f9194760a93597c97fee89c4ae51701de03563
     # via mirakuru
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
@@ -198,7 +198,6 @@ six==1.15.0 \
     # via
     #   bok-choy
     #   fakeredis
-    #   packaging
     #   python-dateutil
     #   responses
     #   webtest
