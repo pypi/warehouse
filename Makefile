@@ -105,22 +105,10 @@ reformat: .state/env/pyvenv.cfg
 	$(BINDIR)/isort *.py warehouse/ tests/
 	$(BINDIR)/black *.py warehouse/ tests/
 
-lint: .state/env/pyvenv.cfg
-	$(BINDIR)/flake8 .
-	$(BINDIR)/black --check *.py warehouse/ tests/
-	$(BINDIR)/isort --check *.py warehouse/ tests/
-	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
-	$(BINDIR)/curlylint ./warehouse/templates
-
-ifneq ($(filter false,$(TRAVIS) $(GITHUB_ACTIONS)),)
-	# We're either on Travis or GitHub Actions, so we can lint static files locally
-	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
-	./node_modules/.bin/sass-lint --verbose
-else
-	# We're not on Travis or GitHub Actions, so we should lint static files inside the static container
-	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
-	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
-endif
+lint: .state/docker-build
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/lint && bin/static_lint
 
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"

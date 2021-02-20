@@ -111,7 +111,7 @@ RUN set -x \
             install --no-binary hiredis \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
                     $(if [ "$THEME_REPO" != "" ]; then echo '-r /tmp/requirements/theme.txt'; fi) \
     && find /opt/warehouse -name '*.pyc' -delete
 

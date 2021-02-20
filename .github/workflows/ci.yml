@@ -10,9 +10,9 @@ jobs:
             needs-python: ${{ true }}
             needs-node: ${{ false }}
           - name: Lint
-            command: make lint BINDIR="$(dirname $(which python))"
+            command: bin/lint
             needs-python: ${{ true }}
-            needs-node: ${{ true }}
+            needs-node: ${{ false }}
           - name: Documentation
             command: make docs BINDIR="$(dirname $(which python))"
             needs-python: ${{ true }}
@@ -31,6 +31,10 @@ jobs:
             needs-node: ${{ false }}
           - name: Static Tests
             command: bin/static_tests
+            needs-python: ${{ false }}
+            needs-node: ${{ true }}
+          - name: Static Lint
+            command: bin/static_lint
             needs-python: ${{ false }}
             needs-node: ${{ true }}
           - name: Static Pipeline
