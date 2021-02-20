@@ -132,12 +132,18 @@ deps: .state/env/pyvenv.cfg
 github-actions-deps:
 ifneq ($(GITHUB_BASE_REF), false)
 	git fetch origin $(GITHUB_BASE_REF):refs/remotes/origin/$(GITHUB_BASE_REF)
+	# Check that the following diff will exit with 0 or 1
+	git diff --name-only FETCH_HEAD || test $? -le 1 || exit 1
+	# Make the dependencies if any changed files are requirements files, otherwise exit
 	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
 travis-deps:
 ifneq ($(PR), false)
 	git fetch origin $(BRANCH):refs/remotes/origin/$(BRANCH)
+	# Check that the following diff will exit with 0 or 1
+	git diff --name-only $(BRANCH) || test $? -le 1 || exit 1
+	# Make the dependencies if any changed files are requirements files, otherwise exit
 	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
