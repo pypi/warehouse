@@ -101,9 +101,10 @@ static_pipeline: .state/docker-build
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/static_pipeline $(T) $(TESTARGS)
 
-reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/isort *.py warehouse/ tests/
-	$(BINDIR)/black *.py warehouse/ tests/
+reformat: .state/docker-build
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/reformat
 
 lint: .state/docker-build
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
