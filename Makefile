@@ -208,7 +208,7 @@ build-mos: compile-pot
 		done
 
 translations: compile-pot
-ifneq ($(TRAVIS), false)
+ifneq ($(filter false,$(TRAVIS) $(GITHUB_ACTIONS)),)
 	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
 else
 endif
