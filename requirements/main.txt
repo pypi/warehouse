@@ -175,7 +175,9 @@ cmarkgfm==0.4.2 \
     --hash=sha256:e25f53c37e319241b9a412382140dffac98ca756ba8f360ac7ab5e30cad9670a \
     --hash=sha256:e8932bddf159064f04e946fbb64693753488de21586f20e840b3be51745c8c09 \
     --hash=sha256:f20900f16377f2109783ae9348d34bc80530808439591c3d3df73d5c7ef1a00c
-    # via readme-renderer
+    # via
+    #   -r requirements/main.in
+    #   readme-renderer
 cryptography==3.4.6 \
     --hash=sha256:2d32223e5b0ee02943f32b19245b61a62db83a882f0e76cc564e1cec60d48f87 \
     --hash=sha256:57ad77d32917bc55299b16d3b996ffa42a1c73c6cfa829b14043c561288d2799 \
