@@ -76,17 +76,17 @@ coverage==5.4 \
     --hash=sha256:fbb17c0d0822684b7d6c09915677a32319f16ff1115df5ec05bdcaaee40b35f3 \
     --hash=sha256:fff1f3a586246110f34dc762098b5afd2de88de507559e63553d7da643053786
     # via -r requirements/tests.in
-factory_boy==3.2.0 \
+factory-boy==3.2.0 \
     --hash=sha256:1d3db4b44b8c8c54cdd8b83ae4bdb9aeb121e464400035f1f03ae0e1eade56a4 \
-    --hash=sha256:401cc00ff339a022f84d64a4339503d1689e8263a4478d876e58a3295b155c5b \
+    --hash=sha256:401cc00ff339a022f84d64a4339503d1689e8263a4478d876e58a3295b155c5b
     # via -r requirements/tests.in
-faker==6.3.0 \
-    --hash=sha256:3971803f32728314c54ba051139cd433fc93fde371e18d07a2cec960a7a2222a \
-    --hash=sha256:b27f9bc97490a11f14c1501cc25f1109cf68c75f11c6ef97714757a4298c33e5
+faker==6.5.0 \
+    --hash=sha256:90b69e9e05d622edb2fa5ebfda7bef41c88675cace85e72689fde5b8723d00a3 \
+    --hash=sha256:da395fe545f40d4366b82b1a02448847a4586bd2b28af393b3edbd1e45d1e0fc
     # via factory-boy
 fakeredis==1.4.5 \
     --hash=sha256:01cb47d2286825a171fb49c0e445b1fa9307087e07cbb3d027ea10dbff108b6a \
-    --hash=sha256:2c6041cf0225889bc403f3949838b2c53470a95a9e2d4272422937786f5f8f73 \
+    --hash=sha256:2c6041cf0225889bc403f3949838b2c53470a95a9e2d4272422937786f5f8f73
     # via -r requirements/tests.in
 freezegun==1.1.0 \
     --hash=sha256:177f9dd59861d871e27a484c3332f35a6e3f5d14626f2bf91be37891f18927f3 \
@@ -151,7 +151,7 @@ psutil==5.8.0 \
     --hash=sha256:ea313bb02e5e25224e518e4352af4bf5e062755160f77e4b1767dd5ccb65f876 \
     --hash=sha256:ea372bcc129394485824ae3e3ddabe67dc0b118d262c568b4d2602a7070afdb0 \
     --hash=sha256:f4634b033faf0d968bb9220dd1c793b897ab7f1189956e1aa9eae752527127d3 \
-    --hash=sha256:fcc01e900c1d7bee2a37e5d6e4f9194760a93597c97fee89c4ae51701de03563 \
+    --hash=sha256:fcc01e900c1d7bee2a37e5d6e4f9194760a93597c97fee89c4ae51701de03563
     # via mirakuru
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
@@ -198,7 +198,6 @@ six==1.15.0 \
     # via
     #   bok-choy
     #   fakeredis
-    #   packaging
     #   python-dateutil
     #   responses
     #   webtest
