@@ -11,15 +11,14 @@
 # limitations under the License.
 
 
-from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
-from sqlalchemy.orm import joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, JournalEntry, Project, Release
+from warehouse.packaging.models import JournalEntry, Project
+from warehouse.packaging.utils import _simple_detail, render_simple_detail
 
 
 @view_config(
@@ -49,20 +48,6 @@ def simple_index(request):
     return {"projects": projects}
 
 
-def _simple_detail(project, request):
-    # Get all of the files for this project.
-    files = sorted(
-        request.db.query(File)
-        .options(joinedload(File.release))
-        .join(Release)
-        .filter(Release.project == project)
-        .all(),
-        key=lambda f: (parse(f.release.version), f.filename),
-    )
-
-    return {"project": project, "files": files}
-
-
 @view_config(
     route_name="legacy.api.simple.detail",
     context=Project,
@@ -87,5 +72,7 @@ def simple_detail(project, request):
 
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
+
+    render_simple_detail(project, request, store=True)
 
     return _simple_detail(project, request)
