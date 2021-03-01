@@ -744,9 +744,9 @@ pyramid-tm==2.4 \
     --hash=sha256:4a4e212cd239f06c496d074f5d294e88478b94059541448bc151d505f653be59 \
     --hash=sha256:5fd6d4ac9181a65ec54e5b280229ed6d8b3ed6a8f5a0bcff05c572751f086533
     # via -r requirements/main.in
-pyramid==1.10.5 \
-    --hash=sha256:4d7f557b19932b4f719b6e1a81c96aebd49b990124e10175ea2b866e976e6a66 \
-    --hash=sha256:fe1bd1140e6b79fe07f0053981d49be2dc66656cc8b481dd7ffcaa872fc25467
+pyramid==1.10.8 \
+    --hash=sha256:06e99d3174586921490203288e2cc9cd43d12992306f924ca32a2c59233386a9 \
+    --hash=sha256:b7cd66595bef92f81764b976ddde2b2fa8e4f5f325e02f65f6ec7f3708b29cf6
     # via
     #   -r requirements/main.in
     #   pyramid-jinja2
