@@ -46,6 +46,13 @@ def test_rss_updates(db_request):
     }
     assert db_request.response.content_type == "text/xml"
 
+    db_request.params["before"] = release3.created.timestamp()
+    assert rss.rss_updates(db_request) == {
+        "latest_releases": tuple(
+            zip((release2, release1), ("noreply@pypi.org", None))
+        )
+    }
+    assert db_request.response.content_type == "text/xml"
 
 def test_rss_packages(db_request):
     db_request.find_service = pretend.call_recorder(
