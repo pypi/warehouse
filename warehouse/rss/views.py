@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
+
 from email.utils import getaddresses
 
 from pyramid.view import view_config
@@ -59,6 +61,12 @@ def _format_author(release):
     ],
 )
 def rss_updates(request):
+    try:
+        before_cursor_timestamp = int(request.params.get("before", datetime.now().timestamp()))
+    except ValueError:
+        raise HTTPBadRequest("'before' must be a UTC timestamp integer in milliseconds.") from None
+    before_cursor = datetime.utcfromtimestamp(before_cursor_timestamp)
+
     request.response.content_type = "text/xml"
 
     request.find_service(name="csp").merge(XML_CSP)
@@ -66,6 +74,7 @@ def rss_updates(request):
     latest_releases = (
         request.db.query(Release)
         .options(joinedload(Release.project))
+        .filter(Release.created < before_cursor)
         .order_by(Release.created.desc())
         .limit(40)
         .all()
