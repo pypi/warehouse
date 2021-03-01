@@ -45,6 +45,8 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.sql import expression
+from trove_classifiers import sorted_classifiers
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -398,7 +400,10 @@ class Release(db.Model):
         Classifier,
         backref="project_releases",
         secondary=lambda: release_classifiers,
-        order_by=Classifier.classifier,
+        order_by=expression.case(
+            {c: i for i, c in enumerate(sorted_classifiers)},
+            value=Classifier.classifier,
+        ),
         passive_deletes=True,
     )
     classifiers = association_proxy("_classifiers", "classifier")
