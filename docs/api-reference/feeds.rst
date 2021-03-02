@@ -21,9 +21,10 @@ Available at https://pypi.org/rss/updates.xml, this feed provides the latest
 newly created releases for individual projects on PyPI, including the project
 name and description, release version, and a link to the release page.
 
-Accepts an optional ``before`` cursor, which limits results to the latest
-releases before the given UTC integer seconds since the epoch (e.g., the
-``timestamp`` method to a ``datetime.datetime`` object).
+Accepts an optional ``after`` integer cursor, which limits results to the
+releases after the given seconds since the UTC epoch (e.g., the
+``timestamp`` method to a ``datetime.datetime`` object). Note that this changes
+the ordering of the results from newest->oldest to oldest->newest.
 
 
 Project Releases Feed

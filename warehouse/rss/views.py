@@ -61,25 +61,27 @@ def _format_author(release):
     ],
 )
 def rss_updates(request):
-    try:
-        now = datetime.now().timestamp()
-        before_cursor_timestamp = int(request.params.get("before", now))
-    except ValueError:
-        raise HTTPBadRequest("'before' must be an integer") from None
-    before_cursor = datetime.utcfromtimestamp(before_cursor_timestamp)
+    query = request.db.query(Release).options(joinedload(Release.project))
+
+    after_timestamp = request.params.get("after")
+    if after_timestamp:
+        try:
+            after_timestamp = datetime.utcfromtimestamp(int(after_timestamp))
+        except ValueError:
+            raise HTTPBadRequest("'after' must be an integer") from None
+        query = (
+            query
+                .filter(Release.created > after_timestamp)
+                .order_by(Release.created.asc())
+        )
+    else:
+        query = query.order_by(Release.created.desc())
 
     request.response.content_type = "text/xml"
 
     request.find_service(name="csp").merge(XML_CSP)
 
-    latest_releases = (
-        request.db.query(Release)
-        .options(joinedload(Release.project))
-        .filter(Release.created < before_cursor)
-        .order_by(Release.created.desc())
-        .limit(100)
-        .all()
-    )
+    latest_releases = query.limit(100).all()
     release_authors = [_format_author(release) for release in latest_releases]
 
     return {"latest_releases": tuple(zip(latest_releases, release_authors))}
