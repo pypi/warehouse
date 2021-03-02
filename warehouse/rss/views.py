@@ -11,9 +11,9 @@
 # limitations under the License.
 
 from datetime import datetime
-
 from email.utils import getaddresses
 
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
@@ -62,9 +62,10 @@ def _format_author(release):
 )
 def rss_updates(request):
     try:
-        before_cursor_timestamp = int(request.params.get("before", datetime.now().timestamp()))
+        now = datetime.now().timestamp()
+        before_cursor_timestamp = int(request.params.get("before", now))
     except ValueError:
-        raise HTTPBadRequest("'before' must be a UTC timestamp integer in milliseconds.") from None
+        raise HTTPBadRequest("'before' must be an integer") from None
     before_cursor = datetime.utcfromtimestamp(before_cursor_timestamp)
 
     request.response.content_type = "text/xml"

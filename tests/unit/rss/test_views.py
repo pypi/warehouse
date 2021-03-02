@@ -46,14 +46,15 @@ def test_rss_updates(db_request):
     }
     assert db_request.response.content_type == "text/xml"
 
-    before_cursor = datetime.datetime(release3.created.year, release3.created.month, release3.created.day)
+    before_cursor = datetime.datetime(
+        release3.created.year, release3.created.month, release3.created.day
+    )
     db_request.params["before"] = before_cursor.timestamp()
     assert rss.rss_updates(db_request) == {
-        "latest_releases": tuple(
-            zip((release2, release1), ("noreply@pypi.org", None))
-        )
+        "latest_releases": tuple(zip((release2, release1), ("noreply@pypi.org", None)))
     }
     assert db_request.response.content_type == "text/xml"
+
 
 def test_rss_packages(db_request):
     db_request.find_service = pretend.call_recorder(
