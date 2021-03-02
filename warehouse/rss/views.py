@@ -69,10 +69,8 @@ def rss_updates(request):
             after_timestamp = datetime.utcfromtimestamp(int(after_timestamp))
         except ValueError:
             raise HTTPBadRequest("'after' must be an integer") from None
-        query = (
-            query
-                .filter(Release.created > after_timestamp)
-                .order_by(Release.created.asc())
+        query = query.filter(Release.created > after_timestamp).order_by(
+            Release.created.asc()
         )
     else:
         query = query.order_by(Release.created.desc())
