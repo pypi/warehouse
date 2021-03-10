@@ -209,9 +209,9 @@ cssselect==1.1.0 \
     --hash=sha256:f612ee47b749c877ebae5bb77035d8f4202c6ad0f0fc1271b3c18ad6c4468ecf \
     --hash=sha256:f95f8dedd925fd8f54edb3d2dfb44c190d9d18512377d3c1e2388d16126879bc
     # via premailer
-cssutils==1.0.2 \
-    --hash=sha256:a2fcf06467553038e98fea9cfe36af2bf14063eb147a70958cfcaa8f5786acaf \
-    --hash=sha256:c74dbe19c92f5052774eadb15136263548dd013250f1ed1027988e7fef125c8d
+cssutils==2.1.0 \
+    --hash=sha256:9ddd09f18961fd98affc0c05331572235326577056b8cf72f341dfe38f2e1218 \
+    --hash=sha256:cf22d2d475ae5d25c8683ea0afd88b9150865f99d62439c411a32404fae97e69
     # via premailer
 datadog==0.40.0 \
     --hash=sha256:4bbd66a02bbcf9cd03ba05194d605a64c9efb7aed90d5e69c6ec42655c3c01a4 \
