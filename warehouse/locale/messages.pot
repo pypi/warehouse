@@ -996,6 +996,8 @@ msgid "No projects"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:73
+msgid "Last released %(release_date)s"
+msgstr ""
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:73
 #, python-format
