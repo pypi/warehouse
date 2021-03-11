@@ -318,7 +318,6 @@ def search(request):
             )
         )
     )
-    print(sorted_classifiers)
 
     for cls in classifiers_q:
         first, *_ = cls.classifier.split(" :: ")
