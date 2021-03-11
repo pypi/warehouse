@@ -996,12 +996,10 @@ msgid "No projects"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:73
-msgid "Last released %(release_date)s"
-msgstr ""
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:73
 #, python-format
-msgid "Last released on %(release_date)s"
+msgid "Last released %(release_date)s"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:81
@@ -2562,7 +2560,7 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
 #, python-format
-msgid "Created on %(creation_date)s"
+msgid "Created %(creation_date)s"
 msgstr ""
 
 #: warehouse/templates/manage/projects.html:68
