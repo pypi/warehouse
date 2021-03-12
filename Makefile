@@ -2,6 +2,8 @@ BINDIR = $(PWD)/.state/env/bin
 TRAVIS := $(shell echo "$${TRAVIS:-false}")
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
+GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
+GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
 IPYTHON := no
 LOCALES := $(shell .state/env/bin/python -c "from warehouse.i18n import KNOWN_LOCALES; print(' '.join(set(KNOWN_LOCALES)-{'en'}))")
@@ -99,26 +101,15 @@ static_pipeline: .state/docker-build
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/static_pipeline $(T) $(TESTARGS)
 
-reformat: .state/env/pyvenv.cfg
-	$(BINDIR)/isort *.py warehouse/ tests/
-	$(BINDIR)/black *.py warehouse/ tests/
+reformat: .state/docker-build
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/reformat
 
-lint: .state/env/pyvenv.cfg
-	$(BINDIR)/flake8 .
-	$(BINDIR)/black --check *.py warehouse/ tests/
-	$(BINDIR)/isort --check *.py warehouse/ tests/
-	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
-	$(BINDIR)/curlylint ./warehouse/templates
-
-ifneq ($(TRAVIS), false)
-	# We're on Travis, so we can lint static files locally
-	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
-	./node_modules/.bin/sass-lint --verbose
-else
-	# We're not on Travis, so we should lint static files inside the static container
-	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'
-	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
-endif
+lint: .state/docker-build
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  bin/lint && bin/static_lint
 
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
@@ -139,9 +130,21 @@ deps: .state/env/pyvenv.cfg
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
+github-actions-deps:
+ifneq ($(GITHUB_BASE_REF), false)
+	git fetch origin $(GITHUB_BASE_REF):refs/remotes/origin/$(GITHUB_BASE_REF)
+	# Check that the following diff will exit with 0 or 1
+	git diff --name-only FETCH_HEAD || test $? -le 1 || exit 1
+	# Make the dependencies if any changed files are requirements files, otherwise exit
+	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && $(MAKE) deps
+endif
+
 travis-deps:
 ifneq ($(PR), false)
 	git fetch origin $(BRANCH):refs/remotes/origin/$(BRANCH)
+	# Check that the following diff will exit with 0 or 1
+	git diff --name-only $(BRANCH) || test $? -le 1 || exit 1
+	# Make the dependencies if any changed files are requirements files, otherwise exit
 	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
@@ -200,7 +203,7 @@ build-mos: compile-pot
 		done
 
 translations: compile-pot
-ifneq ($(TRAVIS), false)
+ifneq ($(filter false,$(TRAVIS) $(GITHUB_ACTIONS)),)
 	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
 else
 endif

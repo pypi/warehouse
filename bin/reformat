@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+# Print all the followng commands
+set -x
+
+python -m isort *.py warehouse/ tests/
+python -m black *.py warehouse/ tests/

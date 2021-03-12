@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+COMMAND_ARGS=$@
+
+# Print all the followng commands
+set -x
+
+# Actually run our tests.
+python -m flake8 .
+python -m black --check *.py warehouse/ tests/
+python -m isort --check *.py warehouse/ tests/
+python -m doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
+python -m curlylint ./warehouse/templates
