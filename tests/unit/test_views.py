@@ -22,7 +22,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
 )
-from trove_classifiers import classifiers
+from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
@@ -425,7 +425,7 @@ class TestSearch:
 
 
 def test_classifiers(db_request):
-    assert list_classifiers(db_request) == {"classifiers": sorted(classifiers)}
+    assert list_classifiers(db_request) == {"classifiers": sorted_classifiers}
 
 
 def test_stats(db_request):

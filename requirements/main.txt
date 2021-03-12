@@ -793,9 +793,9 @@ pytz==2021.1 \
     #   babel
     #   celery
     #   google-api-core
-readme-renderer[md]==28.0 \
-    --hash=sha256:267854ac3b1530633c2394ead828afcd060fc273217c42ac36b6be9c42cd9a9d \
-    --hash=sha256:6b7e5aa59210a40de72eb79931491eaf46fefca2952b9181268bd7c7c65c260a
+readme-renderer[md]==29.0 \
+    --hash=sha256:63b4075c6698fcfa78e584930f07f39e05d46f3ec97f65006e430b595ca6348c \
+    --hash=sha256:92fd5ac2bf8677f310f3303aa4bce5b9d5f9f2094ab98c29f13791d7b805a3db
     # via -r requirements/main.in
 redis==3.5.3 \
     --hash=sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2 \
@@ -934,9 +934,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2021.1.14 \
-    --hash=sha256:443afcf51ceaadbb34970dc9859204eee49c5042a3eff7aeea7d68e9037b84bf \
-    --hash=sha256:c33727ad75fbcee42b0b9eff3ac4704461d17bd230a29e1f24c94b3e6f666d72
+trove-classifiers==2021.2.28 \
+    --hash=sha256:044c03a22191f1b99a6d516e542d5fc428476a4a3797e14bad46630f1ab61fd2 \
+    --hash=sha256:6078eaf42ef6a0b528c850c829fa11d42d704ea9e68c2b39614209caca1ef1c0
     # via -r requirements/main.in
 typeguard==2.11.1 \
     --hash=sha256:33243c1cbfcb9736a06c6db22dd08876b5f297e6344aa272a2862c0f8e669f64 \
