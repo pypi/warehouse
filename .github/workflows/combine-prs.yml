@@ -114,7 +114,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prString = `${{ steps.fetch-branch-names.outputs.prs-string }}`;
-            const body = 'This PR was created by the Combine PRs action by combining the following PRs:\n' + prString;
+            const body = 'This PR was created by the Combine PRs action by combining the following PRs:\n\n' + prString;
             await github.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
