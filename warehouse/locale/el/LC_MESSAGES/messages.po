@@ -6,21 +6,22 @@
 # Giorgos K. <kavalieratos.giwrgos@gmail.com>, 2020.
 # Dustin Ingram <dustin.ingram@gmail.com>, 2020.
 # Christos Ploutarchou <cploutarchou@gmail.com>, 2020.
+# Michalis <michalisntovas@yahoo.gr>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-05-20 13:41+0000\n"
-"Last-Translator: Christos Ploutarchou <cploutarchou@gmail.com>\n"
-"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
-">\n"
+"PO-Revision-Date: 2021-02-07 17:21+0000\n"
+"Last-Translator: Michalis <michalisntovas@yahoo.gr>\n"
+"Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/>"
+"\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.1-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 # | msgid "Stay updated:"
@@ -375,9 +376,9 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -933,7 +934,7 @@ msgstr "Εισάγετε τον κωδικό χρήστη σας για να σ�
 #: warehouse/templates/manage/manage_base.html:167
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
-msgstr "Κωδικός χρήστη"
+msgstr "Κωδικός πρόσβασης"
 
 #: warehouse/templates/accounts/login.html:51
 #: warehouse/templates/accounts/login.html:71
@@ -1086,8 +1087,9 @@ msgid "Date joined"
 msgstr "Ημερομηνία συμμετοχής"
 
 #: warehouse/templates/accounts/profile.html:44
-#, python-format
-msgid "Joined on %(start_date)s"
+#, fuzzy, python-format
+#| msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "Συμμετείχε την ημερομηνία %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1672,7 +1674,7 @@ msgstr "Απαλοιφή αυτής της ειδοποίησης"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2071,7 +2073,7 @@ msgstr "Πεδίο εφαρμογής"
 
 #: warehouse/templates/manage/account.html:169
 msgid "All projects"
-msgstr "Όλα τα projects"
+msgstr "Όλα τα έργα"
 
 #: warehouse/templates/manage/account.html:177
 #: warehouse/templates/manage/account.html:531
@@ -2219,33 +2221,31 @@ msgstr "Κατάσταση"
 #: warehouse/templates/manage/account.html:366
 #: warehouse/templates/manage/account.html:376
 msgid "Add email"
-msgstr "Προσθήκη email"
+msgstr "Προσθήκη ηλεκτρονικού ταχυδρομείου"
 
 #: warehouse/templates/manage/account.html:383
 msgid "Change password"
-msgstr "Αλλαγή κωδικού"
+msgstr "Αλλαγή κωδικού πρόσβασης"
 
 #: warehouse/templates/manage/account.html:391
 msgid "Old password"
-msgstr "Παλιός κωδικός"
+msgstr "Παλιός κωδικός πρόσβασης"
 
 #: warehouse/templates/manage/account.html:401
 msgid "Your current password"
-msgstr "Τρέχον κωδικός"
+msgstr "Τρέχον κωδικός πρόσβασης"
 
 #: warehouse/templates/manage/account.html:408
 msgid "New password"
-msgstr "Νέος κωδικός"
+msgstr "Νέος κωδικός πρόσβασης"
 
 #: warehouse/templates/manage/account.html:424
 msgid "Confirm new password"
-msgstr "Επιβεβαίωση νέου κωδικού"
+msgstr "Επιβεβαίωση νέου κωδικού πρόσβασης"
 
 #: warehouse/templates/manage/account.html:440
-#, fuzzy
-#| msgid "Old password"
 msgid "Update password"
-msgstr "Παλιός κωδικός"
+msgstr "Ενημέρωση κωδικού πρόσβασης"
 
 #: warehouse/templates/manage/account.html:447
 msgid "Two factor authentication (2FA)"
@@ -3014,7 +3014,7 @@ msgstr "Επιλογές αρχείων"
 
 #: warehouse/templates/manage/release.html:76
 msgid "Download"
-msgstr "Download"
+msgstr "Λήψη"
 
 #: warehouse/templates/manage/release.html:82
 msgid "View Hashes"
@@ -3042,11 +3042,11 @@ msgid "No files found"
 msgstr "Δεν βρέθηκαν αρχεία"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
-msgstr "Απαλοιφή"
+msgstr "Κλείσιμο"
 
 #: warehouse/templates/manage/release.html:119
 #, python-format
@@ -3125,16 +3125,16 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Έκδοση"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Διαγραφή κυκλοφορίας"
@@ -3167,22 +3167,36 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "Διαγράφοντας αυτό θα διαγραφεί χωρίς επιστροφή αυτή η κυκλοφορία."
 
 #: warehouse/templates/manage/release.html:173
-#, fuzzy
-#| msgid ""
-#| "You will not be able to re-upload a new distribution of the same type "
-#| "with the same version number. Consider making a new release or a <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-#| "release</a> instead."
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
-"Δεν θα έχετε τη δυνατότητα να ξανά-ανεβάσετε μια νέα διανομή ίδιου τύπου με "
-"τον ίδιο αριθμό έκδοσης. Σκεφτείτε να δημιουργήσετε μια νέα έκδοση ή μια <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">post έκδοση</a>."
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, fuzzy, python-format
+#| msgid ""
+#| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"Η εφαρμογή Duo Mobile για <a href=\"%(android_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Android</a> ή για <a href=\"%(ios_href)s"
+"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3277,49 +3291,31 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, fuzzy, python-format
-#| msgid ""
-#| "You will not be able to re-upload a new distribution of the same type "
-#| "with the same version number. Consider making a new release or a <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-#| "release</a> instead."
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-"Δεν θα έχετε τη δυνατότητα να ξανά-ανεβάσετε μια νέα διανομή ίδιου τύπου με "
-"τον ίδιο αριθμό έκδοσης. Σκεφτείτε να δημιουργήσετε μια νέα έκδοση ή μια <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">post έκδοση</a>."
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Διαχείριση εκδόσεων του '%(project_name)s'"
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Εκδόσεις (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Εκδόσεις (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Δημιουργία μια νέας έκδοσης"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Δεν βρέθηκαν εκδόσεις"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -7013,6 +7009,40 @@ msgstr[1] ""
 "\n"
 "                  Δεν βρέθηκαν αποτελέσματα για τα φίλτρα '%(filters)s'\n"
 "                "
+
+#, fuzzy
+#~| msgid ""
+#~| "You will not be able to re-upload a new distribution of the same type "
+#~| "with the same version number. Consider making a new release or a <a href="
+#~| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+#~| "release</a> instead."
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
+#~ "releases\">post release</a> instead."
+#~ msgstr ""
+#~ "Δεν θα έχετε τη δυνατότητα να ξανά-ανεβάσετε μια νέα διανομή ίδιου τύπου "
+#~ "με τον ίδιο αριθμό έκδοσης. Σκεφτείτε να δημιουργήσετε μια νέα έκδοση ή "
+#~ "μια <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#~ "\"noopener\">post έκδοση</a>."
+
+#, fuzzy
+#~| msgid ""
+#~| "You will not be able to re-upload a new distribution of the same type "
+#~| "with the same version number. Consider making a new release or a <a href="
+#~| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+#~| "release</a> instead."
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">post release</a> instead."
+#~ msgstr ""
+#~ "Δεν θα έχετε τη δυνατότητα να ξανά-ανεβάσετε μια νέα διανομή ίδιου τύπου "
+#~ "με τον ίδιο αριθμό έκδοσης. Σκεφτείτε να δημιουργήσετε μια νέα έκδοση ή "
+#~ "μια <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#~ "\"noopener\">post έκδοση</a>."
 
 #, fuzzy
 #~| msgid "Security policy"

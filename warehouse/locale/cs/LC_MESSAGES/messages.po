@@ -8,22 +8,22 @@
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2020.
 # simberaj <simbera.jan@gmail.com>, 2020.
 # Marek Schwarz <massa.kassa.sc3na@gmail.com>, 2020.
-# Vojtěch Šamla <auzkok@seznam.cz>, 2020.
+# Vojtěch Šamla <auzkok@seznam.cz>, 2020, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-10 13:52+0200\n"
-"PO-Revision-Date: 2020-09-05 02:01+0000\n"
+"PO-Revision-Date: 2021-01-14 14:01+0000\n"
 "Last-Translator: Vojtěch Šamla <auzkok@seznam.cz>\n"
-"Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/"
-">\n"
+"Language-Team: Czech <https://hosted.weblate.org/projects/pypa/warehouse/cs/>"
+"\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -101,15 +101,15 @@ msgstr "Jméno je příliš dlouhé. Maximální délka je 100 znaků."
 
 #: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
-msgstr "Nevalidní TOTP kód."
+msgstr "Neplatný TOTP kód."
 
 #: warehouse/accounts/forms.py:321
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr "Nevalidní aserce WebAuthn: vadný obsah"
+msgstr "Neplatná aserce WebAuthn: vadný obsah"
 
 #: warehouse/accounts/forms.py:364
 msgid "Invalid recovery code."
-msgstr "Nevalidní obnovovací kód."
+msgstr "Neplatný obnovovací kód."
 
 #: warehouse/accounts/forms.py:382
 msgid "No user found with that username or email"
@@ -128,7 +128,7 @@ msgstr ""
 #: warehouse/accounts/views.py:291 warehouse/accounts/views.py:318
 #: warehouse/accounts/views.py:320 warehouse/accounts/views.py:375
 msgid "Invalid or expired two factor login."
-msgstr "Nevalidní či expirované dvoufaktorové přihlášení."
+msgstr "Neplatné či expirované dvoufaktorové přihlášení."
 
 #: warehouse/accounts/views.py:283
 msgid "Already authenticated"
@@ -156,30 +156,30 @@ msgstr "Expirovaný token: požádejte o novou adresu pro reset hesla"
 
 #: warehouse/accounts/views.py:591
 msgid "Invalid token: request a new password reset link"
-msgstr "Nevalidní token: požádejte o novou adresu pro reset hesla"
+msgstr "Neplatný token: požádejte o novou adresu pro reset hesla"
 
 #: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
 #: warehouse/accounts/views.py:772
 msgid "Invalid token: no token supplied"
-msgstr "Nevalidní token: token neposkytnut"
+msgstr "Neplatný token: token neposkytnut"
 
 #: warehouse/accounts/views.py:597
 msgid "Invalid token: not a password reset token"
-msgstr "Nevalidní token: nejedná se o token pro reset hesla"
+msgstr "Neplatný token: nejedná se o token pro reset hesla"
 
 #: warehouse/accounts/views.py:602
 msgid "Invalid token: user not found"
-msgstr "Nevalidní token: uživatel nenalezen"
+msgstr "Neplatný token: uživatel nenalezen"
 
 #: warehouse/accounts/views.py:609
 msgid "Invalid token: user has logged in since this token was requested"
-msgstr "Nevalidní token: uživatel se po vygenerování tokenu již přihlásil"
+msgstr "Neplatný token: uživatel se po vygenerování tokenu již přihlásil"
 
 #: warehouse/accounts/views.py:618
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
-msgstr "Nevalidní token: heslo již bylo po vygenerování tokenu změněno"
+msgstr "Neplatný token: heslo již bylo po vygenerování tokenu změněno"
 
 #: warehouse/accounts/views.py:645
 msgid "You have reset your password"
@@ -191,11 +191,11 @@ msgstr "Expirovaný token: vyžádejte nový odkaz pro reset hesla"
 
 #: warehouse/accounts/views.py:674
 msgid "Invalid token: request a new email verification link"
-msgstr "Nevalidní token: vyžádejte nový odkaz pro reset hesla"
+msgstr "Neplatný token: vyžádejte nový odkaz pro reset hesla"
 
 #: warehouse/accounts/views.py:680
 msgid "Invalid token: not an email verification token"
-msgstr "Nevalidní token: nejedná se o token pro reset e-mailové adresy"
+msgstr "Neplatný token: nejedná se o token pro reset e-mailové adresy"
 
 #: warehouse/accounts/views.py:689
 msgid "Email not found"
@@ -218,40 +218,32 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} byla oveřena. ${confirm_message}."
 
 #: warehouse/accounts/views.py:768
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invite"
-msgstr "Expirovaný token: požádejte o novou adresu pro reset hesla"
+msgstr "Expirovaný token: požádejte o novou pozvánku pro roli v projektu"
 
 #: warehouse/accounts/views.py:770
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invite"
-msgstr "Nevalidní token: požádejte o novou adresu pro reset hesla"
+msgstr "Neplatný token: požádejte o novou pozvánku pro roli v projektu"
 
 #: warehouse/accounts/views.py:776
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Nevalidní token: nejedná se o token pro reset e-mailové adresy"
+msgstr "Neplatný token: nejedná se o token pozvánky ke spolupráci"
 
 #: warehouse/accounts/views.py:780
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Pozvánka pro roli je neplatná."
 
 #: warehouse/accounts/views.py:795
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Pozvánka pro roli již neexistuje."
 
 #: warehouse/accounts/views.py:807
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "Pozvánka pro '${project_name}' byla odmítnuta."
 
 #: warehouse/accounts/views.py:874
-#, fuzzy
-#| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr "Nejste vlastník tohoto projektu"
+msgstr "Nyní jste ${role} projektu '${project_name}'."
 
 #: warehouse/manage/views.py:205
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -277,36 +269,37 @@ msgstr ""
 
 #: warehouse/manage/views.py:755
 msgid "Invalid credentials. Try again"
-msgstr "Nevalidní údaje. Zkuste znovu"
+msgstr "Neplatné údaje. Zkuste znovu"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "Uživatel '${username}' již má v projektu roli ${role_name}"
 
 #: warehouse/manage/views.py:1514
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"Uživatel '${username}' nemá ověřenou primární e-mailovou adresu a proto "
+"nemůže být přidán do projektu jako ${role_name}"
 
 #: warehouse/manage/views.py:1527
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"Uživatel '${username}' již má aktivní pozvánku. Prosím, zkuste to později."
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "Pozvánka poslána uživateli '${username}'"
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "Nelze najít pozvánka do role."
 
 #: warehouse/manage/views.py:1643
-#, fuzzy
-#| msgid "Email already verified"
 msgid "Invitation already expired."
-msgstr "E-mail již byl ověřen"
+msgstr "Pozvánka již vypršela."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
@@ -329,14 +322,12 @@ msgid "We looked everywhere but couldn't find this page"
 msgstr "Hledali jsme všude, ale tuto stránku jsme nenalezli"
 
 #: warehouse/templates/404.html:29
-#, fuzzy
-#| msgid "And now for something <br><span>completely different"
 msgid "And now for something <br><span>completely different</span>"
-msgstr "A nově něco <br><span>kompletně jiného"
+msgstr "A teď něco <br><span>úplně jiného</span>"
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "Monty Python - The Cheese Shop Sketch"
+msgstr "Monty Python - Skeč s obchodem se sýrem"
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -363,9 +354,9 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -775,10 +766,8 @@ msgid "Switch to desktop version"
 msgstr "Přepnout do desktopové verze"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Potvrdit formulář"
+msgstr "Potvrdit akci"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -845,20 +834,16 @@ msgstr ""
 "PyPI pomáhá hledat a instalovat obsah vyvinutý a sdílený Python komunitou."
 
 #: warehouse/templates/index.html:110
-#, fuzzy
-#| msgid "Learn about installing packages</a>."
 msgid "Learn about installing packages"
-msgstr "Naučit se o instalování balíčků</a>."
+msgstr "Naučit se o instalování balíčků"
 
 #: warehouse/templates/index.html:113
 msgid "Package authors use PyPI to distribute their software."
 msgstr "Autoři balíčků používají PyPI k distribuci jejich softwaru."
 
 #: warehouse/templates/index.html:114
-#, fuzzy
-#| msgid "Learn how to package your Python code for PyPI</a>."
 msgid "Learn how to package your Python code for PyPI"
-msgstr "Naučit se, jak zabalit Python kód pro PyPI<a/>."
+msgstr "Naučit se, jak zabalit Python kód pro PyPI"
 
 #: warehouse/templates/index.html:124
 msgid "Trending projects"
@@ -990,10 +975,8 @@ msgstr ""
 "a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Invite"
-msgstr "Potvrdit formulář"
+msgstr "Potvrdit pozvánku"
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
@@ -1007,12 +990,12 @@ msgstr ""
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr ""
+msgstr "Přijmout"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
-msgstr ""
+msgstr "Odmítnout"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -1061,7 +1044,7 @@ msgstr "Datum registrace"
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "Registrován %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1357,16 +1340,13 @@ msgstr ""
 "stránky %(site)s uživatelem %(submitter)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Dostáváte toto upozornění protože jste byl přidán uživatelem %(submitter)s k "
-"projektu na stránce %(site)s."
+"Dostáváte toto upozornění protože jste byl přidán uživatelem "
+"%(initiator_username)s k projektu na stránce %(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1491,7 +1471,7 @@ msgstr ""
 "\">HaveIBeenPwned</a>. Když se registrujete, ověřujete, nebo aktualizujete "
 "své heslo, generujeme SHA1 hash Vašeho hesla a použijeme prvních 5 znaků z "
 "hash k rozhodnutí, zda je heslo kompromitováno. PyPI nikdy neukládá hesla v "
-"čitelné formě ani je neodesílá službě  HaveIBeenPwned."
+"čitelné formě ani je neodesílá službě HaveIBeenPwned."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:47
 #, python-format
@@ -1626,7 +1606,7 @@ msgstr "Skrýt notifikaci"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2188,7 +2168,7 @@ msgstr "Aktivní metody dvoufaktorové autentizace"
 
 #: warehouse/templates/manage/account.html:456
 msgid "Two factor method"
-msgstr ""
+msgstr "Dvoufaktorová metoda"
 
 #: warehouse/templates/manage/account.html:462
 #: warehouse/templates/manage/account.html:572
@@ -2246,7 +2226,7 @@ msgstr "Přegenerovat obnovovací kódy"
 
 #: warehouse/templates/manage/account.html:509
 msgid "You have not enabled two factor authentication on your account."
-msgstr ""
+msgstr "Neaktivovali jste dvoufaktorovou autentizaci pro svůj účet."
 
 #: warehouse/templates/manage/account.html:514
 #, python-format
@@ -2254,6 +2234,8 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add two factor "
 "authentication to your account."
 msgstr ""
+"<a href=\"%(href)s\">Ověřte svou primární e-mailovou adresu</a> pro přidání "
+"dvoufaktorové autentizace pro váš účet."
 
 #: warehouse/templates/manage/account.html:521
 #: warehouse/templates/manage/settings.html:43
@@ -2266,6 +2248,8 @@ msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
 msgstr ""
+"API tokeny poskytují alternativní způsob autentizace při nahrávání balíčků "
+"do PyPI."
 
 #: warehouse/templates/manage/account.html:522
 msgid "Learn more about API tokens"
@@ -2344,10 +2328,8 @@ msgid "Primary email set"
 msgstr "Primární e-mail nastaven"
 
 #: warehouse/templates/manage/account.html:604
-#, fuzzy
-#| msgid "Reset email sent"
 msgid "Email sent"
-msgstr "E-mail pro reset hesla odeslán"
+msgstr "E-mail odeslán"
 
 #: warehouse/templates/manage/account.html:606
 msgid "From:"
@@ -2358,10 +2340,8 @@ msgid "To:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:608
-#, fuzzy
-#| msgid "Project:"
 msgid "Subject:"
-msgstr "Projekt:"
+msgstr "Předmět:"
 
 #: warehouse/templates/manage/account.html:612
 msgid "Password reset requested"
@@ -2798,10 +2778,9 @@ msgid "Back to projects"
 msgstr "Zpátky na projekty"
 
 #: warehouse/templates/manage/projects.html:22
-#, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
+#, python-format
 msgid "Pending invitations (%(project_count)s)"
-msgstr "Vaše projekty (%(project_count)s)"
+msgstr "Nevyřízené pozvánky (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
@@ -2936,7 +2915,7 @@ msgid "No files found"
 msgstr "Nenalezeny žádné soubory"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3020,16 +2999,16 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Verze"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Smazat vydání"
@@ -3055,12 +3034,38 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "Smazání nezvratně smaže toto vydání."
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
+#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
+#| "public dataset on Google BigQuery</a>"
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"Zobrazte si statistiky pro tento projekt na <a href=\"%(libs_io_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> nebo "
+"použitím <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">našeho "
+"veřejného datasetu na Google BigQuery</a>"
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3086,15 +3091,7 @@ msgid "Manage version"
 msgstr "Spravovat verzi"
 
 #: warehouse/templates/manage/releases.html:44
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              %(count)s file\n"
-#| "            "
-#| msgid_plural ""
-#| "\n"
-#| "              %(count)s files\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "          %(count)s file\n"
@@ -3105,16 +3102,16 @@ msgid_plural ""
 "        "
 msgstr[0] ""
 "\n"
-"              %(count)s soubory\n"
-"            "
+"          %(count)s soubory\n"
+"        "
 msgstr[1] ""
 "\n"
-"              %(count)s soubory\n"
-"            "
+"          %(count)s soubory\n"
+"        "
 msgstr[2] ""
 "\n"
-"              %(count)s souborů\n"
-"            "
+"          %(count)s souborů\n"
+"        "
 
 #: warehouse/templates/manage/releases.html:57
 msgid "No files"
@@ -3157,40 +3154,31 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Spravovat vydání %(project_name)s"
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Vydání (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Vydání (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Vytvořit nové vydání"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Žádná vydání nenalazena"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3224,16 +3212,12 @@ msgid "Maintainer"
 msgstr "Správce"
 
 #: warehouse/templates/manage/roles.html:28
-#, fuzzy
-#| msgid ""
-#| "Can upload releases for a package. Cannot add collaborators. Cannot "
-#| "delete files, releases, or the project."
 msgid ""
 "Can upload releases for a package. Cannot invite collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
-"Může nahrávat vydání pro balíček. Nemůže přidávat spolupracovníky. Nemůže "
-"mazat soubory, vydání ani celý projekt."
+"Může nahrávat vydání pro balíček. Nemůže zvát spolupracovníky. Nemůže mazat "
+"soubory, vydání ani celý projekt."
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:62
@@ -3242,16 +3226,12 @@ msgid "Owner"
 msgstr "Majitel"
 
 #: warehouse/templates/manage/roles.html:30
-#, fuzzy
-#| msgid ""
-#| "Can upload releases. Can add other collaborators. Can delete files, "
-#| "releases, or the entire project."
 msgid ""
 "Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
-"Může nahrávat vydání. Může přidávat spolupracovníky. Může mazat soubory, "
-"vydání i celý projekt."
+"Může nahrávat vydání. Může zvát spolupracovníky. Může mazat soubory, vydání "
+"i celý projekt."
 
 #: warehouse/templates/manage/roles.html:34
 #, python-format
@@ -3291,20 +3271,17 @@ msgid "Invite expired"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:135
-#, fuzzy, python-format
-#| msgid "Navigation for %(project)s"
+#, python-format
 msgid "Revoke invitation for %(user)s"
-msgstr "Navigace pro %(project)s"
+msgstr "Zrušit pozvánku pro %(user)s"
 
 #: warehouse/templates/manage/roles.html:137
 msgid "Revoke invite"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:146
-#, fuzzy
-#| msgid "Add collaborator"
 msgid "Invite collaborator"
-msgstr "Přidat spolupracovníka"
+msgstr "Pozvat spolupracovníka"
 
 #: warehouse/templates/manage/roles.html:174
 msgid "Invite"
@@ -3320,10 +3297,8 @@ msgid "Project settings"
 msgstr "Nastavení projektu"
 
 #: warehouse/templates/manage/settings.html:23
-#, fuzzy
-#| msgid "Project:"
 msgid "Project size :"
-msgstr "Projekt:"
+msgstr "Velikost projektu:"
 
 #: warehouse/templates/manage/settings.html:31
 #: warehouse/templates/manage/settings.html:39
@@ -3476,16 +3451,13 @@ msgid "Set your username to <code>%(token)s</code>"
 msgstr "Nastavit uživatelské jméno pro <code>%(token)s</code>"
 
 #: warehouse/templates/manage/token.html:78
-#, fuzzy, python-format
-#| msgid ""
-#| "Set your password to the token value, including the <code>%(site)s"
-#| "%(prefix)s</code> prefix"
+#, python-format
 msgid ""
 "Set your password to the token value, including the <code>%(prefix)s</code> "
 "prefix"
 msgstr ""
-"Nastavte si heslo pro hodnotu tokenu, zahrnující prefix <code>%(site)s"
-"%(prefix)s</code>"
+"Nastavte si heslo pro hodnotu tokenu, zahrnující prefix "
+"<code>%(prefix)s</code>"
 
 #: warehouse/templates/manage/token.html:84
 #, python-format
@@ -3725,10 +3697,9 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:97
-#, fuzzy, python-format
-#| msgid "Releases for %(project_name)s"
+#, python-format
 msgid "RSS: latest releases for %(project_name)s"
-msgstr "Vydání pro %(project_name)s"
+msgstr "RSS: nejnovější vydání pro %(project_name)s"
 
 #: warehouse/templates/packaging/detail.html:115
 msgid "Copy PIP instructions"
@@ -4965,10 +4936,8 @@ msgid "If you are using a username and password for uploads:"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:624
-#, fuzzy
-#| msgid "Ensure that you have securely stored them before continuing."
 msgid "Ensure that your username and password are correct."
-msgstr "Ujistěte se před pokračováním, že je máte bezpečně uloženy."
+msgstr "Ujistěte se, že vaše přihlašovací jméno a heslo jsou správné."
 
 #: warehouse/templates/pages/help.html:625
 msgid ""
@@ -5979,32 +5948,32 @@ msgstr[2] ""
 
 #: warehouse/templates/search/results.html:177
 msgid "Order by"
-msgstr ""
+msgstr "Řadit podle"
 
 #: warehouse/templates/search/results.html:179
 msgid "Relevance"
-msgstr ""
+msgstr "Relevance"
 
 #: warehouse/templates/search/results.html:180
 msgid "Date last updated"
-msgstr ""
+msgstr "Datum poslední úpravy"
 
 #: warehouse/templates/search/results.html:181
 msgid "Trending"
-msgstr ""
+msgstr "Trendy"
 
 #: warehouse/templates/search/results.html:194
 msgid "Filter"
-msgstr ""
+msgstr "Filtr"
 
 #: warehouse/templates/search/results.html:205
 msgid "Add filter"
-msgstr ""
+msgstr "Přidat filtr"
 
 #: warehouse/templates/search/results.html:221
 #, python-format
 msgid "There were no results for '%(term)s'"
-msgstr ""
+msgstr "Nejsou žádné výsledky pro '%(term)s'"
 
 #: warehouse/templates/search/results.html:223
 #, python-format
