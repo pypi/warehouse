@@ -64,7 +64,7 @@ jobs:
                 if (statusOK) {
                   console.log('Adding branch to array: ' + branch);
                   branches.push(branch);
-                  prs.push('#' + pull['number'] + ' ' + pull['title']);
+                  prs.push('Closes #' + pull['number'] + ' ' + pull['title']);
                   base_branch = pull['base']['ref'];
                 }
               }
