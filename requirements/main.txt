@@ -861,8 +861,8 @@ six==1.15.0 \
     #   readme-renderer
     #   tenacity
     #   webauthn
-sqlalchemy-citext==1.7.0 \
-    --hash=sha256:69ba00f5505f92a1455a94eefc6d3fcf72dda3691ab5398a0b4d0d8d85bd6aab
+sqlalchemy-citext==1.8.0 \
+    --hash=sha256:a1740e693a9a334e7c8f60ae731083fe75ce6c1605bb9ca6644a6f1f63b15b77
     # via -r requirements/main.in
 sqlalchemy==1.3.23 \
     --hash=sha256:040bdfc1d76a9074717a3f43455685f781c581f94472b010cd6c4754754e1862 \
