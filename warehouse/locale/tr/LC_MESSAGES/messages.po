@@ -9,13 +9,14 @@
 # Çağıl <cagilulusahin@gmail.com>, 2019.
 # Çağatay Onur Şengör <cagataysengor@gmail.com>, 2020.
 # Oğuz Ersen <oguzersen@protonmail.com>, 2020.
+# birhat s <birhat@gmail.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2020-09-21 19:55+0000\n"
-"Last-Translator: Oğuz Ersen <oguzersen@protonmail.com>\n"
+"PO-Revision-Date: 2021-03-03 08:29+0000\n"
+"Last-Translator: birhat s <birhat@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "tr/>\n"
 "Language: tr\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.5.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -229,22 +230,20 @@ msgid "Invalid token: request a new project role invite"
 msgstr "Geçersiz belirteç: yeni bir proje rolü daveti isteyin"
 
 #: warehouse/accounts/views.py:776
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Geçersiz belirteç: e-posta doğrulama belirteci değil"
+msgstr "Geçersiz belirteç: iş birliği daveti belirteci değil"
 
 #: warehouse/accounts/views.py:780
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "Rol daveti geçerli değil."
 
 #: warehouse/accounts/views.py:795
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "Görev daveti artık mevcut değil."
 
 #: warehouse/accounts/views.py:807
 msgid "Invitation for '${project_name}' is declined."
-msgstr ""
+msgstr "'${project_name}' proje davetiyesi reddedildi."
 
 #: warehouse/accounts/views.py:874
 msgid "You are now ${role} of the '${project_name}' project."
@@ -279,34 +278,38 @@ msgstr "Geçersiz kimlik bilgileri. Tekrar deneyin"
 
 #: warehouse/manage/views.py:1503
 msgid "User '${username}' already has ${role_name} role for project"
-msgstr ""
+msgstr "Kullanıcı '${username}' projede zaten ${role_name} rolüne sahip"
 
 #: warehouse/manage/views.py:1514
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
+"'${username}' adlı kullanıcıya ait doğrulanmış birincil e-posta adresi "
+"mevcut değil ve bu yüzden projeye ${role_name} rolünde atanamıyor"
 
 #: warehouse/manage/views.py:1527
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
+"'${username}' adlı kullanıcıda zaten aktif bir davetiye bulunmaktadır. "
+"Lütfen daha sonra tekrar deneyiniz."
 
 #: warehouse/manage/views.py:1585
 msgid "Invitation sent to '${username}'"
-msgstr ""
+msgstr "'${username}' adlı kullanıcıya davetiye gönderildi"
 
 #: warehouse/manage/views.py:1632
 msgid "Could not find role invitation."
-msgstr ""
+msgstr "Rol davetiyesi bulunamadı."
 
 #: warehouse/manage/views.py:1643
 msgid "Invitation already expired."
-msgstr "Davetin süresi zaten doldu."
+msgstr "Davetin süresi zaten dolmuş."
 
 #: warehouse/manage/views.py:1667
 msgid "Invitation revoked from '${username}'."
-msgstr ""
+msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
@@ -357,9 +360,9 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -771,10 +774,8 @@ msgid "Switch to desktop version"
 msgstr "Masaüstü sürümüne geç"
 
 #: warehouse/templates/confirm-action.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Action"
-msgstr "Formu onayla"
+msgstr "Eylemi onayla"
 
 #: warehouse/templates/error-base.html:31
 msgid "Error code"
@@ -956,6 +957,14 @@ msgid ""
 "hour.\n"
 "              "
 msgstr ""
+"\n"
+"              <b>İpucu:</b> Şu anda <a href=\"%(href)s\">hassas bir "
+"değişiklik</a> yapmak üzeresiniz.\n"
+"              Eğer kişisel bilgisayarınızda değilseniz, oturumunuz "
+"bittiğinde çıkış yaptığınızdan emin olunuz.\n"
+"              Önümüzdeki saat için sizden doğrulama için şifre istemeyeceğiz."
+"\n"
+"              "
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -981,10 +990,8 @@ msgstr ""
 "tavsiye ediyoruz</a>."
 
 #: warehouse/templates/accounts/invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm form"
 msgid "Confirm Invite"
-msgstr "Formu onayla"
+msgstr "Daveti onayla"
 
 #: warehouse/templates/accounts/invite-confirmation.html:26
 #, python-format
@@ -994,16 +1001,20 @@ msgid ""
 "\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?\n"
 "      "
 msgstr ""
+"\n"
+"      '<a href=\"%(project_link)s\">%(project_name)s</a>' projesinden gelen "
+"%(role_name)s rolü davetini kabul etmek ister misiniz?\n"
+"      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/manage/projects.html:49
 msgid "Accept"
-msgstr ""
+msgstr "Kabul Et"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/manage/projects.html:50
 msgid "Decline"
-msgstr ""
+msgstr "Reddet"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -1051,8 +1062,9 @@ msgid "Date joined"
 msgstr "Katılma Tarihi"
 
 #: warehouse/templates/accounts/profile.html:44
-#, python-format
-msgid "Joined on %(start_date)s"
+#, fuzzy, python-format
+#| msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "%(start_date)s tarihinde oluşturuldu"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1332,28 +1344,22 @@ msgstr ""
 "için <a href=\"%(href)s\">%(email_address)s</a> e-posta gönderebilirsiniz."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
-"Siz %(submitter)s tarafından %(site)s 'ın %(project)s 'ine <strong>%(role)s</"
-"strong> olarak eklendiniz."
+"%(site)s konumundaki %(project_name)s projesine %(initiator_username)s "
+"tarafından <strong>%(role)s</strong> rolüne eklendiniz."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Bunu alıyorsunuz çünkü %(submitter)s tarafından %(site)s üzerindeki bir "
-"projeye eklendiniz."
+"Bunu alıyorsunuz çünkü %(initiator_username)s tarafından %(site)s üzerindeki "
+"bir projeye eklendiniz."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1615,7 +1621,7 @@ msgstr "Bu bildirimi kapat"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2345,24 +2351,20 @@ msgid "Primary email set"
 msgstr "Birincil e-posta ayarlandı"
 
 #: warehouse/templates/manage/account.html:604
-#, fuzzy
-#| msgid "Reset email sent"
 msgid "Email sent"
-msgstr "Sıfırlama e-postası gönderildi"
+msgstr "E-posta gönderildi"
 
 #: warehouse/templates/manage/account.html:606
 msgid "From:"
-msgstr ""
+msgstr "Kimden:"
 
 #: warehouse/templates/manage/account.html:607
 msgid "To:"
-msgstr ""
+msgstr "Kime:"
 
 #: warehouse/templates/manage/account.html:608
-#, fuzzy
-#| msgid "Project:"
 msgid "Subject:"
-msgstr "Proje:"
+msgstr "Konu:"
 
 #: warehouse/templates/manage/account.html:612
 msgid "Password reset requested"
@@ -2406,22 +2408,16 @@ msgid "Two factor authentication removed"
 msgstr "Çift faktör kimlik doğrulama kaldırıldı"
 
 #: warehouse/templates/manage/account.html:640
-#, fuzzy
-#| msgid "Recovery Codes generated"
 msgid "Recovery codes generated"
-msgstr "Kurtarma Kodları oluşturuldu"
+msgstr "Kurtarma kodları oluşturuldu"
 
 #: warehouse/templates/manage/account.html:644
-#, fuzzy
-#| msgid "Recovery Codes regenerated"
 msgid "Recovery codes regenerated"
-msgstr "Kurtarma Kodları yeniden oluşturuldu"
+msgstr "Kurtarma kodları yeniden oluşturuldu"
 
 #: warehouse/templates/manage/account.html:648
-#, fuzzy
-#| msgid "Recovery Code used for login"
 msgid "Recovery code used for login"
-msgstr "Oturum açma için kullanılan Kurtarma Kodu"
+msgstr "Oturum açma için kullanılan kurtarma kodu"
 
 #: warehouse/templates/manage/account.html:654
 #: warehouse/templates/manage/history.html:65
@@ -2459,6 +2455,9 @@ msgid ""
 "notice anything suspicious, please <a href=\"%(faq_url)s\">secure your "
 "account</a> as soon as possible."
 msgstr ""
+"Bu eylem hesabınızda güvenlik ile ilgili değişiklik yapmak üzeredir. Eğer "
+"şüpheli bir durum olduğunu düşünüyorsanız, lütfen en kısa sürede hesabınızı "
+"<a href=\"%(faq_url)s\">güvene alın</a>."
 
 #: warehouse/templates/manage/account.html:678
 msgid "Recent account activity"
@@ -2809,10 +2808,9 @@ msgid "Back to projects"
 msgstr "Projelere Geri Dön"
 
 #: warehouse/templates/manage/projects.html:22
-#, fuzzy, python-format
-#| msgid "Your projects (%(project_count)s)"
+#, python-format
 msgid "Pending invitations (%(project_count)s)"
-msgstr "Sizin Projeleriniz (%(project_count)s)"
+msgstr "Davetiye bekleyenler (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
@@ -2950,7 +2948,7 @@ msgid "No files found"
 msgstr "Hiçbir dosya bulunamadı"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3017,6 +3015,10 @@ msgid ""
 "        For more information, see <a href=\"%(href)s\">PEP 592</a>.\n"
 "      "
 msgstr ""
+"\n"
+"        Daha fazla bilgi için, <a href=\"%(href)s\">PEP 592</a> 'yi "
+"inceleyiniz.\n"
+"      "
 
 #: warehouse/templates/manage/release.html:149
 #, python-format
@@ -3031,19 +3033,19 @@ msgstr ""
 #: warehouse/templates/manage/release.html:153
 #: warehouse/templates/manage/releases.html:130
 msgid "Reason (optional)"
-msgstr ""
+msgstr "Açıklama (opsiyonel)"
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Sürüm"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Sürümü Kaldır"
@@ -3076,22 +3078,41 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "Silme işlemi bu sürümü geri dönülemez şekilde kaldıracaktır."
 
 #: warehouse/templates/manage/release.html:173
-#, fuzzy
-#| msgid ""
-#| "You will not be able to re-upload a new distribution of the same type "
-#| "with the same version number. Consider making a new release or a <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-#| "release</a> instead."
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
-"Aynı sürüm numarasıyla aynı türdeki yeni bir dağıtımı yeniden "
-"yükleyemeyeceksiniz. Yeni bir sürüm veya <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">post-relase</a> yapmayı "
-"düşünün."
+"Aynı sürüm numarasına sahip aynı türden, yeni bir dağıtımı yeniden "
+"yükleyemezsiniz."
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+"Silme işlemi, bu paketin sabitlenmiş bir sürümüne dayanan tüm aşağı akış "
+"projelerini bozacaktır. Yasal sorunları ele almak veya zararlı sürümleri "
+"kaldırmak için son çare olarak düşünülmüştür."
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, fuzzy, python-format
+#| msgid ""
+#| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3178,49 +3199,31 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, fuzzy, python-format
-#| msgid ""
-#| "You will not be able to re-upload a new distribution of the same type "
-#| "with the same version number. Consider making a new release or a <a href="
-#| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-#| "release</a> instead."
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-"Aynı sürüm numarasıyla aynı türdeki yeni bir dağıtımı yeniden "
-"yükleyemeyeceksiniz. Yeni bir sürüm veya <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">post-relase</a> yapmayı "
-"düşünün."
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "'%(project_name)s' Sürümlerini Yönet"
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Sürümler (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, fuzzy, python-format
 #| msgid "Releases (%(release_count)s)"
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Sürümler (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Yeni Sürüm Oluştur"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Hiçbir sürüm bulunamadı"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3257,16 +3260,12 @@ msgid "Maintainer"
 msgstr "Geliştirici"
 
 #: warehouse/templates/manage/roles.html:28
-#, fuzzy
-#| msgid ""
-#| "Can upload releases for a package. Cannot add collaborators. Cannot "
-#| "delete files, releases, or the project."
 msgid ""
 "Can upload releases for a package. Cannot invite collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
-"Bir pakete yeni sürümler yükleyebilir. Yeni geliştiriciler ekleyemez. Dosya, "
-"sürüm veya projeyi kaldıramaz."
+"Bir pakete yeni sürümler yükleyebilir. Yeni geliştiricileri davet edemez. "
+"Dosya, sürüm veya projeyi kaldıramaz."
 
 #: warehouse/templates/manage/roles.html:29
 #: warehouse/templates/manage/roles.html:62
@@ -3275,16 +3274,12 @@ msgid "Owner"
 msgstr "Sahip"
 
 #: warehouse/templates/manage/roles.html:30
-#, fuzzy
-#| msgid ""
-#| "Can upload releases. Can add other collaborators. Can delete files, "
-#| "releases, or the entire project."
 msgid ""
 "Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
-"Sürüm ekleyebilir. Başka ilgililer de ekleyebilir. Dosyaları, sürümleri ve "
-"tüm projeyi kaldırabilir."
+"Sürüm ekleyebilir. Başka geliştiricileri davet edebilir. Dosyaları, "
+"sürümleri ve tüm projeyi kaldırabilir."
 
 #: warehouse/templates/manage/roles.html:34
 #, python-format
@@ -3317,11 +3312,11 @@ msgstr "Projeden %(user)s adlı kullanıcıyı kaldırın"
 
 #: warehouse/templates/manage/roles.html:123
 msgid "Invite pending"
-msgstr ""
+msgstr "Davetiye bekliyor"
 
 #: warehouse/templates/manage/roles.html:125
 msgid "Invite expired"
-msgstr ""
+msgstr "Davetiye süresi dolmuş"
 
 #: warehouse/templates/manage/roles.html:135
 #, python-format
@@ -3330,17 +3325,15 @@ msgstr "%(user)s için daveti iptal et"
 
 #: warehouse/templates/manage/roles.html:137
 msgid "Revoke invite"
-msgstr ""
+msgstr "Davetiyeyi iptal et"
 
 #: warehouse/templates/manage/roles.html:146
-#, fuzzy
-#| msgid "Add collaborator"
 msgid "Invite collaborator"
-msgstr "İlgili Ekle"
+msgstr "İlgili davet et"
 
 #: warehouse/templates/manage/roles.html:174
 msgid "Invite"
-msgstr ""
+msgstr "Davet et"
 
 #: warehouse/templates/manage/settings.html:18
 #, python-format
@@ -3352,10 +3345,8 @@ msgid "Project settings"
 msgstr "Proje Ayarları"
 
 #: warehouse/templates/manage/settings.html:23
-#, fuzzy
-#| msgid "Project:"
 msgid "Project size :"
-msgstr "Proje:"
+msgstr "Proje büyüklüğü:"
 
 #: warehouse/templates/manage/settings.html:31
 #: warehouse/templates/manage/settings.html:39
@@ -3520,10 +3511,7 @@ msgid "Set your username to <code>%(token)s</code>"
 msgstr "Kullanıcı adınızı <code>%(token)s</code> olarak belirtin"
 
 #: warehouse/templates/manage/token.html:78
-#, fuzzy, python-format
-#| msgid ""
-#| "Set your password to the token value, including the <code>%(prefix)s</"
-#| "code> prefix"
+#, python-format
 msgid ""
 "Set your password to the token value, including the <code>%(prefix)s</code> "
 "prefix"
@@ -3618,10 +3606,8 @@ msgid "Add token"
 msgstr "Belirteç ekle"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:17
-#, fuzzy
-#| msgid "Account Recovery Codes"
 msgid "Account recovery codes"
-msgstr "Hesap Kurtarma Kodları"
+msgstr "Hesap kurtarma kodları"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:46
 msgid ""
@@ -3654,10 +3640,8 @@ msgstr ""
 "olarak kaybedebilirsiniz!"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:52
-#, fuzzy
-#| msgid "Save your Recovery Codes"
 msgid "Save your recovery codes"
-msgstr "Kurtarma Kodlarınızı Kaydedin"
+msgstr "Kurtarma kodlarınızı kaydedin"
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
 msgid "Download as file"
@@ -3818,10 +3802,9 @@ msgstr ""
 "çalışmamaktadır."
 
 #: warehouse/templates/packaging/detail.html:97
-#, fuzzy, python-format
-#| msgid "Releases for %(project_name)s"
+#, python-format
 msgid "RSS: latest releases for %(project_name)s"
-msgstr "%(project_name)s Sürümleri"
+msgstr "RSS: Son %(project_name)s sürümleri"
 
 #: warehouse/templates/packaging/detail.html:115
 msgid "Copy PIP instructions"
@@ -3916,7 +3899,7 @@ msgstr "Yayın bildirimleri"
 
 #: warehouse/templates/packaging/detail.html:258
 msgid "RSS feed"
-msgstr ""
+msgstr "RSS kaynağı"
 
 #: warehouse/templates/packaging/detail.html:270
 msgid "This version"
@@ -4001,19 +3984,15 @@ msgid "Note:"
 msgstr "Not:"
 
 #: warehouse/templates/pages/help.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "All users submitting feedback, reporting issues or contributing to "
-#| "Warehouse are expected to follow the <a href=\"%(href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPA Code of Conduct</a>."
+#, python-format
 msgid ""
 "All users submitting feedback, reporting issues or contributing to Warehouse "
 "are expected to follow the <a href=\"%(href)s\" title=\"%(title)s\" target="
 "\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
 "Geri bildirim gönderen, sorunları bildiren veya Warehouse'a katkıda bulunan "
-"tüm kullanıcıların <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">PyPA Davranış Kurallarını</a> izlemesi beklenmektedir."
+"tüm kullanıcıların <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
+" rel=\"noopener\">PSF Davranış Kurallarını</a> izlemesi beklenmektedir."
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -4081,7 +4060,7 @@ msgstr "PyPI neden bana parolamın ele geçirildiğini söylüyor?"
 
 #: warehouse/templates/pages/help.html:60
 msgid "What should I do if I notice suspicious activity on my account?"
-msgstr ""
+msgstr "Hesabımda şüpheli bir hareket fark ettiğimde ne yapmalıyım?"
 
 #: warehouse/templates/pages/help.html:61
 msgid "What is two factor authentication and how does it work on PyPI?"
@@ -4126,7 +4105,7 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:67
 msgid "Why do certain actions require me to confirm my password?"
-msgstr ""
+msgstr "Neden bazı eylemler parolamı onaylamamı gerektiriyor?"
 
 #: warehouse/templates/pages/help.html:69
 msgid "How can I run a mirror of PyPI?"
@@ -4198,12 +4177,10 @@ msgstr ""
 "kaldırabilirim?"
 
 #: warehouse/templates/pages/help.html:83
-#, fuzzy
-#| msgid "How do I get a file size limit exemption or increase for my project?"
 msgid ""
 "How do I get a total project size limit exemption or increase for my project?"
 msgstr ""
-"Projem için dosya boyutu limitini nasıl yükseltebilirim veya tamamen "
+"Projem için toplam proje boyutu limitini nasıl yükseltebilirim veya tamamen "
 "kaldırabilirim?"
 
 #: warehouse/templates/pages/help.html:85
@@ -4931,16 +4908,12 @@ msgid "To sign in with a recovery code:"
 msgstr "Bir kurtarma koduyla oturum açmak için:"
 
 #: warehouse/templates/pages/help.html:454
-#, fuzzy
-#| msgid ""
-#| "When prompted for Two-Factor Authentication, select \"Login using a "
-#| "Recovery Code\""
 msgid ""
 "When prompted for two factor authentication, select \"Login using recovery "
 "codes\""
 msgstr ""
-"İki Faktörlü Kimlik Doğrulaması istendiğinde \"Kurtarma Kodu Kullanarak "
-"Oturum Aç\" ı seçin"
+"İki faktörlü kimlik doğrulaması istendiğinde \"Kurtarma kodu kullanarak "
+"oturum aç\" ı seçin"
 
 #: warehouse/templates/pages/help.html:455
 msgid ""
@@ -5363,10 +5336,8 @@ msgstr ""
 "\">Sorun bildir</a> ile bize şunları bildirin:"
 
 #: warehouse/templates/pages/help.html:590
-#, fuzzy
-#| msgid "The size of your release, in megabytes"
 msgid "The total size of your project, in gigabytes"
-msgstr "Paket sürümünün megabyte cinsinden büyüklüğü"
+msgstr "Tüm projenizin megabyte cinsinden büyüklüğü"
 
 #: warehouse/templates/pages/help.html:600
 msgid ""
@@ -5426,11 +5397,8 @@ msgid "If you are using a username and password for uploads:"
 msgstr "Yüklemeler için bir kullanıcı adı ve parola kullanıyorsanız:"
 
 #: warehouse/templates/pages/help.html:624
-#, fuzzy
-#| msgid "Check to see if your username or password are incorrect."
 msgid "Ensure that your username and password are correct."
-msgstr ""
-"Kullanıcı adınızın veya parolanızın yanlış olup olmadığını kontrol edin."
+msgstr "Kullanıcı adınızın veya parolanızın yanlış olup olmadığından emin olun."
 
 #: warehouse/templates/pages/help.html:625
 msgid ""
@@ -6077,10 +6045,8 @@ msgid "Sponsor the Packaging Working Group"
 msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:23
-#, fuzzy
-#| msgid "Search and filter projects"
 msgid "Sponsor PyPI and related projects"
-msgstr "Proje arama ve filtreleme"
+msgstr "PyPI ve ilişkili sürümlere sponsor ol"
 
 #: warehouse/templates/pages/sponsor.html:24
 msgid "Donate to the Packaging Working Group"
@@ -6734,6 +6700,40 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#, fuzzy
+#~| msgid ""
+#~| "You will not be able to re-upload a new distribution of the same type "
+#~| "with the same version number. Consider making a new release or a <a href="
+#~| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+#~| "release</a> instead."
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
+#~ "releases\">post release</a> instead."
+#~ msgstr ""
+#~ "Aynı sürüm numarasıyla aynı türdeki yeni bir dağıtımı yeniden "
+#~ "yükleyemeyeceksiniz. Yeni bir sürüm veya <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">post-relase</a> yapmayı "
+#~ "düşünün."
+
+#, fuzzy
+#~| msgid ""
+#~| "You will not be able to re-upload a new distribution of the same type "
+#~| "with the same version number. Consider making a new release or a <a href="
+#~| "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+#~| "release</a> instead."
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">post release</a> instead."
+#~ msgstr ""
+#~ "Aynı sürüm numarasıyla aynı türdeki yeni bir dağıtımı yeniden "
+#~ "yükleyemeyeceksiniz. Yeni bir sürüm veya <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">post-relase</a> yapmayı "
+#~ "düşünün."
 
 #, fuzzy
 #~| msgid "Security policy"
