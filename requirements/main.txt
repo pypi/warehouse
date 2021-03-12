@@ -237,9 +237,9 @@ elasticsearch-dsl==6.4.0 \
     --hash=sha256:26416f4dd46ceca43d62ef74970d9de4bdd6f4b0f163316f0b432c9e61a08bec \
     --hash=sha256:f60aea7fd756ac1fbe7ce114bbf4949aefbf495dfe8896640e787c67344f12f6
     # via -r requirements/main.in
-elasticsearch==6.8.1 \
-    --hash=sha256:540d633afcc0a32972e4b489c4559c9a96e294850853238f7a18b1cbd267c2ed \
-    --hash=sha256:a8062a00b61bc7babeea028530667583a68ecb1a9f59ab0b22ff7feaf70d3564
+elasticsearch==6.8.2 \
+    --hash=sha256:1aedf00b73f5d1e77cb4df70fec58f2efb664be4ce2686374239aa6c0373c65c \
+    --hash=sha256:c3a560bb83e4981b5a5c82080d2ceb99686d33692ef53365656129478aa5ddb2
     # via
     #   -r requirements/main.in
     #   elasticsearch-dsl
