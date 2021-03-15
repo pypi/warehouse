@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
 import collections
 import json
 import time
@@ -21,8 +20,6 @@ import requests
 
 from warehouse.integrations.github import tasks, utils
 
-basic_auth_pypi_1234 = base64.b64encode(b"__token__:pypi-1234").decode("utf-8")
-
 
 def test_token_leak_matcher_extract():
     with pytest.raises(NotImplementedError):
@@ -31,21 +28,6 @@ def test_token_leak_matcher_extract():
 
 def test_plain_text_token_leak_matcher_extract():
     assert utils.PlainTextTokenLeakMatcher().extract("a") == "a"
-
-
-def test_base64_basic_auth_token_leak_extract():
-    assert (
-        utils.Base64BasicAuthTokenLeakMatcher().extract(basic_auth_pypi_1234)
-        == "pypi-1234"
-    )
-
-
-@pytest.mark.parametrize(
-    "input", [base64.b64encode(b"pypi-1234").decode("utf-8"), "foo bar"]
-)
-def test_base64_basic_auth_token_leak_extract_error(input):
-    with pytest.raises(utils.ExtractionFailed):
-        utils.Base64BasicAuthTokenLeakMatcher().extract(input)
 
 
 def test_invalid_token_leak_request():
@@ -62,32 +44,35 @@ def test_invalid_token_leak_request():
         ({}, "Record is missing attribute(s): token, type, url", "format"),
         (
             {"type": "not_found", "token": "a", "url": "b"},
-            "Matcher with code not_found not found. "
-            "Available codes are: token, base64-basic-auth",
+            "Matcher with code not_found not found. Available codes are: failer, token",
             "invalid_matcher",
         ),
         (
-            {"type": "base64-basic-auth", "token": "foo bar", "url": "a"},
+            {"type": "failer", "token": "a", "url": "b"},
             "Cannot extract token from recieved match",
             "extraction",
         ),
     ],
 )
 def test_token_leak_disclosure_request_from_api_record_error(record, error, reason):
+    class MyFailingMatcher(utils.TokenLeakMatcher):
+        name = "failer"
+
+        def extract(self, text):
+            raise utils.ExtractionFailed()
+
     with pytest.raises(utils.InvalidTokenLeakRequest) as exc:
-        utils.TokenLeakDisclosureRequest.from_api_record(record)
+        utils.TokenLeakDisclosureRequest.from_api_record(
+            record, matchers={"failer": MyFailingMatcher(), **utils.TOKEN_LEAK_MATCHERS}
+        )
 
     assert str(exc.value) == error
     assert exc.value.reason == reason
 
 
-@pytest.mark.parametrize(
-    "type, token",
-    [("token", "pypi-1234"), ("base64-basic-auth", basic_auth_pypi_1234)],
-)
-def test_token_leak_disclosure_request_from_api_record(type, token):
+def test_token_leak_disclosure_request_from_api_record():
     request = utils.TokenLeakDisclosureRequest.from_api_record(
-        {"type": type, "token": token, "url": "http://example.com"}
+        {"type": "token", "token": "pypi-1234", "url": "http://example.com"}
     )
 
     assert request.token == "pypi-1234"

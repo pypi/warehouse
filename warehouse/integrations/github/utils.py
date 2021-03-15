@@ -63,27 +63,8 @@ class PlainTextTokenLeakMatcher(TokenLeakMatcher):
         return text
 
 
-class Base64BasicAuthTokenLeakMatcher(TokenLeakMatcher):
-    name = "base64-basic-auth"
-    # This is what we would expect to find if a basic auth value was leaked
-    # The following string was obtained by:
-    #     base64.b64encode(b"__token__:pypi-").decode("utf-8")
-    # Basic auth is standard base64, so non-alphanumeric chars are + and /
-    pattern = re.compile(r"X190b2tlbl9fOnB5cGkt[A-Za-z0-9+/=]+")
-
-    def extract(self, text):
-        try:
-            _, token = (
-                base64.b64decode(text.encode("utf-8")).decode("utf-8").split(":", 1)
-            )
-            return token
-        except Exception as exc:
-            raise ExtractionFailed from exc
-
-
 TOKEN_LEAK_MATCHERS = {
-    matcher.name: matcher
-    for matcher in [PlainTextTokenLeakMatcher(), Base64BasicAuthTokenLeakMatcher()]
+    matcher.name: matcher for matcher in [PlainTextTokenLeakMatcher()]
 }
 
 
