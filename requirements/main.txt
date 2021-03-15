@@ -218,9 +218,9 @@ cssutils==2.2.0 \
     --hash=sha256:5bef59f6b59bdccbea8e36cb292d2be1b6be1b485fc4a9f5886616f19eb31aaf \
     --hash=sha256:c76b08ac9ab92d258947dd74ca439c9bed8db8fbf3e1bfced7043abcfeeb0843
     # via premailer
-datadog==0.40.0 \
-    --hash=sha256:4bbd66a02bbcf9cd03ba05194d605a64c9efb7aed90d5e69c6ec42655c3c01a4 \
-    --hash=sha256:6104a24890eee4e09c45a64f617f5076f6ef9e4e53ba3f251ee9e76afe5cfe48
+datadog==0.40.1 \
+    --hash=sha256:2144e3c41ce15dae1d7db728f95b7494082f23c5f9de02e48f37b3fc204892d6 \
+    --hash=sha256:438c1dde5462e68c5c792b7b4a1d87a0ddd970af3db31b3cf15980eed0c44311
     # via -r requirements/main.in
 decorator==4.4.2 \
     --hash=sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760 \
