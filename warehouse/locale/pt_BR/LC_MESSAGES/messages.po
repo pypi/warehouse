@@ -2,13 +2,13 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Rafael Fontenelle <rafaelff@gnome.org>, 2019, 2020.
+# Rafael Fontenelle <rafaelff@gnome.org>, 2019, 2020, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-09-21 19:55+0000\n"
+"PO-Revision-Date: 2021-03-16 16:32+0000\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.5.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -1348,28 +1348,22 @@ msgstr ""
 "\">%(email_address)s</a> para se comunicar com os administradores do PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
 "Você foi adicionado como <strong>%(role)s</strong> para o projeto "
-"%(project)s do %(site)s por %(submitter)s."
+"%(project_name)s do %(site)s por %(initiator_username)s."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Você está recebendo isso porque você foi adicionado por %(submitter)s a um "
-"projeto em %(site)s."
+"Você está recebendo isso porque você foi adicionado por %(initiator_username)"
+"s a um projeto em %(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -5987,15 +5981,7 @@ msgid "Contact"
 msgstr "Contato"
 
 #: warehouse/templates/pages/help.html:855
-#, fuzzy, python-format
-#| msgid ""
-#| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-#| "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
-#| "work together to improve Python packaging. If you'd like to get in touch "
-#| "with a core packaging developer, use <a href=\"%(irc_href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC (freenode)</"
-#| "a>, or <a href=\"%(mailing_list_href)s\" title=\"%(title)s\" target="
-#| "\"_blank\" rel=\"noopener\">join the distutils-sig mailing list</a>."
+#, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Python Packaging Authority (PyPA)</a> is a working group who "
@@ -6010,9 +5996,9 @@ msgstr ""
 "que trabalha em conjunto para melhorar o empacotamento de Python. Se você "
 "quiser entrar em contato com um desenvolvedor de empacotamento principal, "
 "use<a href=\"%(irc_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">#pypa no IRC (freenode)</a> ou <a href=\"%(mailing_list_href)s"
-"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">junte-se à lista "
-"de discussão distutils-sig</a>."
+"\"noopener\">#pypa no IRC (freenode)</a> ou <a href=\"%(discuss_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">navegue no quadro "
+"online</a>."
 
 #: warehouse/templates/pages/security.html:15
 msgid "Security"
