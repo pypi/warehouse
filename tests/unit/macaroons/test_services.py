@@ -80,8 +80,20 @@ class TestDatabaseMacaroonService:
         assert isinstance(dm, Macaroon)
         assert macaroon.id == dm.id
 
-    def test_find_from_raw_not_found_or_invalid(self, macaroon_service):
-        assert macaroon_service.find_from_raw("pypi-aaa") is None
+    @pytest.mark.parametrize(
+        "macaroon_service",
+        [
+            "pypi-aaaa",  # Invalid macaroon
+            # Macaroon properly formatted but not found. The string is purposedly cut to
+            # avoid triggering the github token disclosure feature that this very
+            # function implements.
+            "py"
+            "pi-AgEIcHlwaS5vcmcCAWEAAAYgNh9pJUqVF-EtMCwGaZYcStFR07RbE8hyb9h2vYxifO8",
+        ],
+    )
+    def test_find_from_raw_not_found_or_invalid(self, macaroon_service, raw_macaroon):
+        with pytest.raises(services.InvalidMacaroon):
+            macaroon_service.find_from_raw(raw_macaroon)
 
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None

@@ -98,11 +98,13 @@ class DatabaseMacaroonService:
         return dm.user.id
 
     def find_from_raw(self, raw_macaroon):
-        try:
-            m = self._deserialize_raw_macaroon(raw_macaroon)
-            return self.find_macaroon(m.identifier.decode())
-        except InvalidMacaroon:
-            return None
+        """
+        Returns a DB macaroon matching the imput, or raises InvalidMacaroon
+        """
+        m = self._deserialize_raw_macaroon(raw_macaroon)
+        dm = self.find_macaroon(m.identifier.decode())
+        if not dm:
+            raise InvalidMacaroon("Macaroon not found")
 
     def verify(self, raw_macaroon, context, principals, permission):
         """
