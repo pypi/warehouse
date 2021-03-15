@@ -52,9 +52,9 @@ jobs:
                     repo: context.repo.repo,
                     ref: branch
                   });
-                  if(checks["total_count"] > 0) {
 
-                    for (const check of checks["check_runs"]) {
+                  if(checks.length > 0) {
+                    for (const check of checks) {
                       const latest_conclusion = check['conclusion'];
                       console.log('Validating conclusion: ' + latest_conclusion);
                       if(latest_conclusion == 'failure') {
