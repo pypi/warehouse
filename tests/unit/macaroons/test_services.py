@@ -10,22 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import binascii
-import struct
-
-from unittest import mock
 from uuid import uuid4
 
 import pretend
-import pymacaroons
+import pypitoken
 import pytest
-
-from pymacaroons.exceptions import MacaroonDeserializationException
 
 from warehouse.macaroons import services
 from warehouse.macaroons.models import Macaroon
 
 from ...common.db.accounts import UserFactory
+
+
+def test_generate_key():
+    key = services._generate_key()
+
+    assert isinstance(key, bytes)
+    assert len(key) == 32
 
 
 def test_database_macaroon_factory():
@@ -42,18 +43,6 @@ class TestDatabaseMacaroonService:
         service = services.DatabaseMacaroonService(session)
 
         assert service.db is session
-
-    @pytest.mark.parametrize(
-        ["raw_macaroon", "result"],
-        [
-            (None, None),
-            ("noprefixhere", None),
-            ("invalid:prefix", None),
-            ("pypi-validprefix", "validprefix"),
-        ],
-    )
-    def test_extract_raw_macaroon(self, macaroon_service, raw_macaroon, result):
-        assert macaroon_service._extract_raw_macaroon(raw_macaroon) == result
 
     def test_find_macaroon_invalid_macaroon(self, macaroon_service):
         assert macaroon_service.find_macaroon(str(uuid4())) is None
@@ -84,29 +73,23 @@ class TestDatabaseMacaroonService:
         "raw_macaroon",
         [
             "pypi-aaaa",  # Invalid macaroon
-            # Macaroon properly formatted but not found. The string is purposedly cut to
-            # avoid triggering the github token disclosure feature that this very
-            # function implements.
-            "py"
-            "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
-            "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g",
+            pypitoken.Token.create(
+                domain="example.com",
+                identifier=str(uuid4()),
+                key=b"fake key",
+            ).dump(),
         ],
     )
     def test_find_from_raw_not_found_or_invalid(self, macaroon_service, raw_macaroon):
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.find_from_raw(raw_macaroon)
 
-    def test_find_userid_no_macaroon(self, macaroon_service):
-        assert macaroon_service.find_userid(None) is None
-
     def test_find_userid_invalid_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
-            location="fake location",
+        raw_macaroon = pypitoken.Token.create(
+            domain="example.com",
             identifier=str(uuid4()),
             key=b"fake key",
-            version=pymacaroons.MACAROON_V2,
-        ).serialize()
-        raw_macaroon = f"pypi-{raw_macaroon}"
+        ).dump()
 
         assert macaroon_service.find_userid(raw_macaroon) is None
 
@@ -129,27 +112,18 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
-    def test_verify_unprefixed_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
-            location="fake location",
-            identifier=str(uuid4()),
-            key=b"fake key",
-            version=pymacaroons.MACAROON_V2,
-        ).serialize()
-
+    def test_verify_bad_macaroon(self, macaroon_service):
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.verify(
-                raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
+                "foo", pretend.stub(), pretend.stub(), pretend.stub()
             )
 
     def test_verify_no_macaroon(self, macaroon_service):
-        raw_macaroon = pymacaroons.Macaroon(
-            location="fake location",
+        raw_macaroon = pypitoken.Token.create(
+            domain="example.com",
             identifier=str(uuid4()),
             key=b"fake key",
-            version=pymacaroons.MACAROON_V2,
-        ).serialize()
-        raw_macaroon = f"pypi-{raw_macaroon}"
+        ).dump()
 
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.verify(
@@ -158,59 +132,50 @@ class TestDatabaseMacaroonService:
 
     def test_verify_invalid_macaroon(self, monkeypatch, user_service, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
+        raw_macaroon, dm = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
-        verifier_obj = pretend.stub(verify=pretend.call_recorder(lambda k: False))
-        verifier_cls = pretend.call_recorder(lambda *a: verifier_obj)
-        monkeypatch.setattr(services, "Verifier", verifier_cls)
+        token_obj = pretend.stub(
+            check=pretend.call_recorder(pretend.raiser(pypitoken.ValidationError)),
+            identifier=str(dm.id),
+            prefix="pypi",
+        )
+        token_cls = pretend.stub(load=lambda *a: token_obj)
 
-        context = pretend.stub()
+        monkeypatch.setattr(pypitoken, "Token", token_cls)
+
+        context = pretend.stub(normalized_name="foo")
         principals = pretend.stub()
         permissions = pretend.stub()
 
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.verify(raw_macaroon, context, principals, permissions)
-        assert verifier_cls.calls == [
-            pretend.call(mock.ANY, context, principals, permissions)
-        ]
+        assert token_obj.check.calls == [pretend.call(key=dm.key, project="foo")]
 
-    def test_deserialize_raw_macaroon_when_none(self, macaroon_service):
-        raw_macaroon = pretend.stub()
-        macaroon_service._extract_raw_macaroon = pretend.call_recorder(lambda a: None)
+    def test_deserialize_raw_macaroon(self, macaroon_service):
+        token = pypitoken.Token.create(domain="pypi.org", identifier="b", key="c")
+        serialized = token.dump()
 
-        with pytest.raises(services.InvalidMacaroonError):
-            macaroon_service._deserialize_raw_macaroon(raw_macaroon)
+        result = macaroon_service._deserialize_raw_macaroon(serialized)
 
-        assert macaroon_service._extract_raw_macaroon.calls == [
-            pretend.call(raw_macaroon),
-        ]
+        assert result.dump() == serialized
 
-    @pytest.mark.parametrize(
-        "exception",
-        [
-            IndexError,
-            TypeError,
-            UnicodeDecodeError,
-            ValueError,
-            binascii.Error,
-            struct.error,
-            MacaroonDeserializationException,
-            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
-        ],
-    )
-    def test_deserialize_raw_macaroon(self, monkeypatch, macaroon_service, exception):
-        raw_macaroon = pretend.stub()
-        macaroon_service._extract_raw_macaroon = pretend.call_recorder(
-            lambda a: raw_macaroon
+    def test_deserialize_raw_macaroon_wrong_prefix(self, macaroon_service):
+        token = pypitoken.Token.create(
+            domain="pypi.org", identifier="b", key="c", prefix="wrong"
         )
-        monkeypatch.setattr(
-            pymacaroons.Macaroon, "deserialize", pretend.raiser(exception)
-        )
-
+        serialized = token.dump()
         with pytest.raises(services.InvalidMacaroonError):
-            macaroon_service._deserialize_raw_macaroon(raw_macaroon)
+            macaroon_service._deserialize_raw_macaroon(serialized)
+
+    def test_deserialize_raw_macaroon_wrong_format(self, macaroon_service):
+        with pytest.raises(services.InvalidMacaroonError):
+            macaroon_service._deserialize_raw_macaroon("foo")
+
+    def test_deserialize_raw_macaroon_wrong_token(self, macaroon_service):
+        with pytest.raises(services.InvalidMacaroonError):
+            macaroon_service._deserialize_raw_macaroon("pypi-foo")
 
     def test_verify_malformed_macaroon(self, macaroon_service):
         with pytest.raises(services.InvalidMacaroonError):
@@ -218,22 +183,24 @@ class TestDatabaseMacaroonService:
 
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
+        raw_macaroon, dm = macaroon_service.create_macaroon(
             "fake location", user.id, "fake description", {"fake": "caveats"}
         )
 
-        verifier_obj = pretend.stub(verify=pretend.call_recorder(lambda k: True))
-        verifier_cls = pretend.call_recorder(lambda *a: verifier_obj)
-        monkeypatch.setattr(services, "Verifier", verifier_cls)
+        token_obj = pretend.stub(
+            check=pretend.call_recorder(lambda **a: None),
+            identifier=str(dm.id),
+            prefix="pypi",
+        )
+        token_cls = pretend.stub(load=pretend.call_recorder(lambda *a: token_obj))
+        monkeypatch.setattr(pypitoken, "Token", token_cls)
 
-        context = pretend.stub()
+        context = pretend.stub(normalized_name="foo")
         principals = pretend.stub()
         permissions = pretend.stub()
 
         assert macaroon_service.verify(raw_macaroon, context, principals, permissions)
-        assert verifier_cls.calls == [
-            pretend.call(mock.ANY, context, principals, permissions)
-        ]
+        assert token_obj.check.calls == [pretend.call(key=dm.key, project="foo")]
 
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
@@ -265,3 +232,18 @@ class TestDatabaseMacaroonService:
             macaroon_service.get_macaroon_by_description(user.id, macaroon.description)
             == dm
         )
+
+    @pytest.mark.parametrize(
+        "description",
+        [
+            {},
+            {"projects": ["baz", "yay"]},
+        ],
+    )
+    def test_describe_caveats(self, macaroon_service, description):
+        token = pypitoken.Token.create(
+            domain="example.com", identifier="foo", key="bar"
+        )
+        token.restrict(**description)
+        caveat = token.restrictions[0].dump()
+        assert macaroon_service.describe_caveats(caveat) == description

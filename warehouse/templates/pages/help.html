@@ -499,7 +499,7 @@
           Where you edit or add these values will depend on your individual use case. For example, some users may need to edit <a href="{{ pypirc_href }}" title="{{ title }}" target="_blank" rel="noopener">their <code>.pypirc</code> file</a>, while others may need to update their CI configuration file (e.g. <a href="{{ travis_href }}" title="{{ title }}" target="_blank" rel="noopener"><code>.travis.yml</code> if you are using Travis</a>).
           {% endtrans %}
         </p>
-        <p>{% trans %}Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.{% endtrans %}</p>
+        <p>{% trans trimmed pypitoken_href='https://pypitoken.readthedocs.io/', title=gettext('External link') %}Advanced users may wish to inspect their token by decoding it with <a href="{{ pypitoken_href }}" title="{{ title }}" target="_blank" rel="noopener">the <code>pypitoken</code> library</a>, and checking the identifier against the unique identifier displayed on PyPI. Please make sure to keep your token identifier private, though. Knowing just the identifier of a token is not enough to impersonate the user, but it's sufficient to have a token be disabled.{% endtrans %}</p>
 
         <h3 id="sensitiveactions">{{ sensitiveactions() }}</h3>
 

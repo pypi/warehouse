@@ -21,8 +21,8 @@ import requests
 from warehouse import integrations
 from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
-from warehouse.macaroons.caveats import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.macaroons.services import InvalidMacaroonError
 from warehouse.metrics import IMetricsService
 
 

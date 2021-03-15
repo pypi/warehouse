@@ -158,6 +158,7 @@
 {% endmacro %}
 
 {% macro api_row(macaroon) -%}
+  {% set restrictions = describe_caveats(macaroon.caveats) %}
   <tr>
     <th scope="row">
       <span class="table__mobile-label">{% trans %}Name{% endtrans %}</span>
@@ -165,10 +166,10 @@
     </th>
     <td>
       <span class="table__mobile-label">{% trans %}Scope{% endtrans %}</span>
-      {% if macaroon.caveats.get("permissions") == 'user' %}
+      {% if not restrictions %}
       {% trans %}All projects{% endtrans %}
       {% else %}
-        {% for project in macaroon.caveats.get("permissions")['projects'] %}
+        {% for project in restrictions.projects %}
         <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
         {% endfor %}
       {% endif %}
@@ -687,13 +688,14 @@
 
 
       {% elif event.tag  == "account:api_token:added" %}
+      {% set restrictions = describe_caveats(event.additional.caveats) %}
       <strong>{% trans %}API token added{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
-        {% if event.additional.caveats.permissions == "user" %}
+        {% if not restrictions %}
           {% trans %}Token scope: entire account{% endtrans %}
         {% else %}
-          {% trans project_name=event.additional.caveats.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+          {% trans project_name=restrictions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
         {% endif %}
       </small>
 
@@ -702,14 +704,15 @@
       <small>{% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}</small>
 
       {% elif event.tag  == "account:api_token:removed_leak" %}
+      {% set restrictions = describe_caveats(event.additional.caveats) %}
       <strong>{% trans %}API token automatically removed for security reasons{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
         {% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}<br>
-        {% if event.additional.permissions == "user" %}
+        {% if not restrictions %}
         {% trans %}Token scope: entire account{% endtrans %}
         {% else %}
-        {% trans project_name=event.additional.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+        {% trans project_name=restrictions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
         {% endif %}<br>
         {% trans public_url=event.additional.public_url %}Reason: Token found at <a href="{{ public_url }}">public url</a>{% endtrans %}
       </small>

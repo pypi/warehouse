@@ -34,14 +34,16 @@
   <h1 class="page-title">{{ title }}</h1>
 
   {% if serialized_macaroon %}
+  {% set restrictions = describe_caveats(macaroon.caveats) %}
   <section id="provisioned-key">
     <h2>{% trans macaroon_description=macaroon.description %}Token for "{{ macaroon_description }}"{% endtrans %}</h2>
     <p>
       <strong>{% trans %}Permissions:{% endtrans %}</strong> {% trans %}Upload packages{% endtrans %}<br>
-      {% if macaroon.caveats.permissions == "user" %}
-      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans %}Entire account (all projects){% endtrans %}
+      <strong>{% trans %}Scope:{% endtrans %}</strong>
+      {% if not restrictions %}
+        {% trans %}Entire account (all projects){% endtrans %}
       {% else %}
-      <strong>{% trans %}Scope:{% endtrans %}</strong> {% trans project=macaroon.caveats.permissions.projects[0] %}Project "{{ project }}"{% endtrans %}
+        {% trans project=restrictions.projects[0] %}Project "{{ project }}"{% endtrans %}
       {% endif %}
     </p>
 
@@ -78,7 +80,7 @@
       <li>{% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}</li>
     </ul>
 
-    {% if macaroon.caveats.permissions == "user" %}
+    {% if not restrictions %}
 
     <p>
       {% trans trimmed href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}

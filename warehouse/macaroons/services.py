@@ -11,43 +11,35 @@
 # limitations under the License.
 
 import datetime
-import json
+import os
 import uuid
 
-import pymacaroons
+import pypitoken
 
-from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
-from warehouse.macaroons.caveats import InvalidMacaroonError, Verifier
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
+
+
+def _generate_key():
+    return os.urandom(32)
+
+
+class InvalidMacaroonError(Exception):
+    ...
+
+
+TOKEN_PREFIX = "pypi"
 
 
 @implementer(IMacaroonService)
 class DatabaseMacaroonService:
     def __init__(self, db_session):
         self.db = db_session
-
-    def _extract_raw_macaroon(self, prefixed_macaroon):
-        """
-        Returns the base64-encoded macaroon component of a PyPI macaroon,
-        dropping the prefix.
-
-        Returns None if the macaroon is None, has no prefix, or has the
-        wrong prefix.
-        """
-        if prefixed_macaroon is None:
-            return None
-
-        prefix, _, raw_macaroon = prefixed_macaroon.partition("-")
-        if prefix != "pypi" or not raw_macaroon:
-            return None
-
-        return raw_macaroon
 
     def find_macaroon(self, macaroon_id):
         """
@@ -67,32 +59,25 @@ class DatabaseMacaroonService:
         return dm
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
-        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
-
-        if raw_macaroon is None:
-            raise InvalidMacaroonError("malformed or nonexistent macaroon")
-
         try:
-            return pymacaroons.Macaroon.deserialize(raw_macaroon)
-        except (
-            MacaroonDeserializationException,
-            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
-        ):
-            raise InvalidMacaroonError("malformed macaroon")
+            token = pypitoken.Token.load(raw_macaroon)
+        except pypitoken.LoaderError as exc:
+            raise InvalidMacaroonError(str(exc))
+        if token.prefix != TOKEN_PREFIX:
+            raise InvalidMacaroonError(
+                f"Token has wrong prefix: {token.prefix} (expected {TOKEN_PREFIX}"
+            )
+        # We don't check the domain because it's checks as part of the signature check
+        return token
 
     def find_userid(self, raw_macaroon):
         """
         Returns the id of the user associated with the given raw (serialized)
-        macaroon.
+        macaroon or None.
         """
         try:
-            m = self._deserialize_raw_macaroon(raw_macaroon)
+            dm = self.find_from_raw(raw_macaroon)
         except InvalidMacaroonError:
-            return None
-
-        dm = self.find_macaroon(m.identifier.decode())
-
-        if dm is None:
             return None
 
         return dm.user.id
@@ -102,7 +87,7 @@ class DatabaseMacaroonService:
         Returns a DB macaroon matching the imput, or raises InvalidMacaroonError
         """
         m = self._deserialize_raw_macaroon(raw_macaroon)
-        dm = self.find_macaroon(m.identifier.decode())
+        dm = self.find_macaroon(m.identifier)
         if not dm:
             raise InvalidMacaroonError("Macaroon not found")
         return dm
@@ -114,20 +99,23 @@ class DatabaseMacaroonService:
 
         Raises InvalidMacaroonError if the macaroon is not valid.
         """
-        m = self._deserialize_raw_macaroon(raw_macaroon)
-        dm = self.find_macaroon(m.identifier.decode())
+        token = self._deserialize_raw_macaroon(raw_macaroon)
+        dm = self.find_macaroon(token.identifier)
 
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
-        verifier = Verifier(m, context, principals, permission)
-        if verifier.verify(dm.key):
-            dm.last_used = datetime.datetime.now()
-            return True
+        project = context.normalized_name
 
-        raise InvalidMacaroonError("invalid macaroon")
+        try:
+            token.check(key=dm.key, project=project)
+        except pypitoken.ValidationError as exc:
+            raise InvalidMacaroonError(str(exc))
 
-    def create_macaroon(self, location, user_id, description, caveats):
+        dm.last_used = datetime.datetime.now()
+        return True
+
+    def create_macaroon(self, domain, user_id, description, restrictions):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
@@ -135,19 +123,42 @@ class DatabaseMacaroonService:
         """
         user = self.db.query(User).filter(User.id == user_id).one()
 
-        dm = Macaroon(user=user, description=description, caveats=caveats)
+        identifier = uuid.uuid4()
+        key = _generate_key()
+
+        token = pypitoken.Token.create(
+            domain=domain, identifier=str(identifier), key=key, prefix="pypi"
+        )
+        # even if projects is None, this will create a NoopRestriction. With
+        # the current implementation, we need to always have a restriction in place.
+        token.restrict(
+            # We're likely to copy restrictions into this function kwargs as-is, but
+            # it's good to avoid **restrictions here to maintain the abstraction layer.
+            # If something break because the pypitoken lib expects new arguments, we'd
+            # rather it fails here and be sure to see it in the tests.
+            projects=restrictions.get("projects", None),
+        )
+
+        dm = Macaroon(
+            id=identifier,
+            user=user,
+            key=key,
+            description=description,
+            caveats=token.restrictions[0].dump(),
+        )
         self.db.add(dm)
         self.db.flush()
 
-        m = pymacaroons.Macaroon(
-            location=location,
-            identifier=str(dm.id),
-            key=dm.key,
-            version=pymacaroons.MACAROON_V2,
-        )
-        m.add_first_party_caveat(json.dumps(caveats))
-        serialized_macaroon = f"pypi-{m.serialize()}"
-        return serialized_macaroon, dm
+        return token.dump(), dm
+
+    def describe_caveats(self, caveats):
+        description = {}
+        restriction = pypitoken.Restriction.load(caveats)
+
+        if isinstance(restriction, pypitoken.ProjectsRestriction):
+            description["projects"] = restriction.projects
+
+        return description
 
     def delete_macaroon(self, macaroon_id):
         """

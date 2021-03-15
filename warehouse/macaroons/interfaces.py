@@ -26,7 +26,7 @@ class IMacaroonService(Interface):
     def find_from_raw(raw_macaroon):
         """
         Returns a macaroon model from the DB from a raw macaroon, or raises
-        InvalidMacaroon if not found or for malformed macaroons.
+        InvalidMacaroonError if not found or for malformed macaroons.
         """
 
     def find_macaroon(macaroon_id):
@@ -49,10 +49,16 @@ class IMacaroonService(Interface):
         Raises InvalidMacaroon if the macaroon is not valid.
         """
 
-    def create_macaroon(location, user_id, description, caveats):
+    def create_macaroon(domain, user_id, description, restrictions):
         """
-        Returns a new raw (serialized) macaroon. The description provided
-        is not embedded into the macaroon, only stored in the DB model.
+        Returns a tuple with:
+
+        - the raw (serialized) macaroon string,
+        - the database macaroon
+
+        The description provided is not embedded into the macaroon, only stored in the
+        DB model.
+        Restrictions has the same format as in describe_caveats.
         """
 
     def delete_macaroon(macaroon_id):
@@ -66,4 +72,13 @@ class IMacaroonService(Interface):
         if one exists for the given user.
 
         Returns None if the user doesn't have a macaroon with this description.
+        """
+
+    def describe_caveats(self, caveats):
+        """
+        Given a value of macaroon caveats (like the one stored in DB), return a
+        description of the caveats, as a dict:
+
+        - No key: no restriction (user-wide token)
+        - "projects" key: contains a list of normalized project names.
         """

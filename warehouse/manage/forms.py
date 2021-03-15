@@ -252,7 +252,7 @@ class CreateMacaroonForm(forms.Form):
             raise wtforms.ValidationError("Specify the token scope")
 
         if scope_kind == "user":
-            self.validated_scope = scope_kind
+            self.validated_restrictions = {}
             return
 
         try:
@@ -267,7 +267,7 @@ class CreateMacaroonForm(forms.Form):
                 f"Unknown or invalid project name: {scope_value}"
             )
 
-        self.validated_scope = {"projects": [scope_value]}
+        self.validated_restrictions = {"projects": [scope_value]}
 
 
 class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):

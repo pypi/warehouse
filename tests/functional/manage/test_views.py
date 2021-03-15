@@ -15,6 +15,8 @@ import pretend
 from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.macaroons.services import database_macaroon_factory
 from warehouse.manage import views
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -27,6 +29,8 @@ class TestManageAccount:
         pyramid_services.register_service(
             breach_service, IPasswordBreachedService, None
         )
+        macaroon_service = database_macaroon_factory(context={}, request=db_request)
+        pyramid_services.register_service(macaroon_service, IMacaroonService, None)
         user = UserFactory.create(name="old name")
         EmailFactory.create(primary=True, verified=True, public=True, user=user)
         db_request.user = user
