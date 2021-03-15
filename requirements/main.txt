@@ -925,9 +925,9 @@ structlog==20.2.0 \
     --hash=sha256:33dd6bd5f49355e52c1c61bb6a4f20d0b48ce0328cc4a45fe872d38b97a05ccd \
     --hash=sha256:af79dfa547d104af8d60f86eac12fb54825f54a46bc998e4504ef66177103174
     # via -r requirements/main.in
-tenacity==6.3.1 \
-    --hash=sha256:baed357d9f35ec64264d8a4bbf004c35058fad8795c5b0d8a7dc77ecdcbb8f39 \
-    --hash=sha256:e14d191fb0a309b563904bbc336582efe2037de437e543b38da749769b544d7f
+tenacity==7.0.0 \
+    --hash=sha256:5bd16ef5d3b985647fe28dfa6f695d343aa26479a04e8792b9d3c8f49e361ae1 \
+    --hash=sha256:a0ce48587271515db7d3a5e700df9ae69cce98c4b57c23a4886da15243603dd8
     # via celery-redbeat
 transaction==3.0.1 \
     --hash=sha256:0c15ef0b7ff3518357ceea75722a30d974c3f85e11aa5cec5d5a2b6a40cfcf68 \
