@@ -699,9 +699,9 @@ pycparser==2.20 \
 pycurl==7.43.0.6 \
     --hash=sha256:8301518689daefa53726b59ded6b48f33751c383cf987b0ccfbbc4ed40281325
     # via -r requirements/main.in
-pygments==2.8.0 \
-    --hash=sha256:37a13ba168a02ac54cc5891a42b1caec333e59b66addb7fa633ea8a6d73445c0 \
-    --hash=sha256:b21b072d0ccdf29297a82a2363359d99623597b8a265b8081760e4d0f7153c88
+pygments==2.8.1 \
+    --hash=sha256:2656e1a6edcdabf4275f9a3640db59fd5de107d88e8663c5d4e9a0fa62f77f94 \
+    --hash=sha256:534ef71d539ae97d4c3a4cf7d6f110f214b0e687e92f9cb9d2a3b0d3101289c8
     # via readme-renderer
 pymacaroons==0.13.0 \
     --hash=sha256:1e6bba42a5f66c245adf38a5a4006a99dcc06a0703786ea636098667d42903b8 \
