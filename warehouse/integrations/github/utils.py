@@ -237,6 +237,7 @@ class GitHubTokenScanningPayloadVerifier:
             )
 
         expected_attributes = {"key", "key_identifier"}
+        result = []
         for public_key in public_keys:
 
             if not isinstance(public_key, dict):
@@ -253,9 +254,12 @@ class GitHubTokenScanningPayloadVerifier:
                     "public_key_api.format_error",
                 )
 
-            yield {"key": public_key["key"], "key_id": public_key["key_identifier"]}
+            result.append(
+                {"key": public_key["key"], "key_id": public_key["key_identifier"]}
+            )
 
         self.public_keys_cache = public_keys
+        return result
 
     def _check_public_key(self, github_public_keys, key_id):
         for record in github_public_keys:
