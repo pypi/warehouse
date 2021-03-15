@@ -2819,12 +2819,11 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/release.html:175
-#: warehouse/templates/manage/releases.html:140
 #, python-format
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">yanking</a> this release, making a new release or a <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
 
@@ -2899,6 +2898,15 @@ msgid ""
 "will be displayed by pip to users who install "
 "<code>%(project_name)s==%(version)s</code>.\n"
 "            "
+msgstr ""
+
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">yanking</a> this release, making a new release or a <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">post release</a> instead."
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:151
