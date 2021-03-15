@@ -4003,11 +4003,11 @@ msgstr ""
 
 #: warehouse/templates/pages/help.html:292
 msgid ""
-"<p> A PyPI admin token linked to your account was posted on a public "
-"website (e.g GitHub). It was automatically revoked, but before "
-"regenerating a new one, please check the email you received and see if "
-"you can understand what happened. The <a href=\"#suspicious-"
-"activity\">suspicious activity</a> section applies too. </p>"
+"<p> A PyPI API token linked to your account was posted on a public "
+"website. It was automatically revoked, but before regenerating a new one,"
+" please check the email you received and attempt to determine the cause. "
+"The <a href=\"#suspicious-activity\">suspicious activity</a> section "
+"applies too. </p>"
 msgstr ""
 
 #: warehouse/templates/pages/help.html:302
