@@ -797,9 +797,9 @@ class TestPasswordCompromisedHIBPEmail:
         ]
 
 
-class TestTokenCompromisedLeakEmail:
+class TestTokenLeakEmail:
     @pytest.mark.parametrize("verified", [True, False])
-    def test_password_compromised_email(
+    def test_token_leak_email(
         self, pyramid_request, pyramid_config, monkeypatch, verified
     ):
         stub_user = pretend.stub(
