@@ -66,5 +66,5 @@ def github_disclose_token(request):
     except utils.InvalidTokenLeakRequest:
         return Response(status=400)
 
-    # 204 No Content: we acknowledge but we won't comment on the outcome.#
+    # 204 No Content: we acknowledge but we won't comment on the outcome.
     return Response(status=204)

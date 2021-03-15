@@ -289,11 +289,11 @@
         {% endtrans %}
 
         <h3 id="compromised-token">{{ compromised_token() }}</h3>
-        {% trans trimmed reset_pwd_href=request.route_url('accounts.request-password-reset'), admin_email='admin@pypi.org'%}
+        {% trans trimmed %}
           <p>
-            A PyPI admin token linked to your account was posted on a public website (e.g GitHub).
+            A PyPI API token linked to your account was posted on a public website.
             It was automatically revoked, but before regenerating a new one, please check the email
-            you received and see if you can understand what happened.
+            you received and attempt to determine the cause.
             The <a href="#suspicious-activity">suspicious activity</a> section applies too.
           </p>
         {% endtrans %}
