@@ -12,6 +12,7 @@
 
 import functools
 import logging
+import time
 import urllib.parse
 
 import celery
@@ -46,6 +47,10 @@ class TLSRedisBackend(celery.backends.redis.RedisBackend):
         params = super()._params_from_url(url, defaults)
         params.update({"connection_class": self.redis.SSLConnection})
         return params
+
+
+def time_ms():
+    return time.time() * 1000
 
 
 class WarehouseTask(celery.Task):
@@ -90,6 +95,7 @@ class WarehouseTask(celery.Task):
             registry = self.app.pyramid_config.registry
             env = pyramid.scripting.prepare(registry=registry)
             env["request"].tm = transaction.TransactionManager(explicit=True)
+            env["request"].timings = {"new_request_start": time_ms()}
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]
