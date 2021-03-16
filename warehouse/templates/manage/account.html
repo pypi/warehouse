@@ -666,7 +666,7 @@
       <small>{% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}</small>
 
       {% elif event.tag  == "account:api_token:removed_leak" %}
-      <strong>{% trans %}API token removed for security reasons{% endtrans %}</strong><br>
+      <strong>{% trans %}API token automatically removed for security reasons{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
         {% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}<br>

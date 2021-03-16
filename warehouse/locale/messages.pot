@@ -2235,7 +2235,7 @@ msgid "Unique identifier:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:669
-msgid "API token removed for security reasons"
+msgid "API token automatically removed for security reasons"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:678
