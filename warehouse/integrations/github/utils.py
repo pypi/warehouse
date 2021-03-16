@@ -122,7 +122,33 @@ class CacheMiss(Exception):
     pass
 
 
+class PublicKeysCache:
+    """
+    In-memory time-based cache. store with set(), retrieve with get().
+    """
+
+    def __init__(self, cache_time):
+        self.cached_at = 0
+        self.cache = None
+        self.cache_time = cache_time
+
+    def get(self, now):
+        if not self.cache:
+            raise CacheMiss
+
+        if self.cached_at + self.cache_time < now:
+            self.cache = None
+            raise CacheMiss
+
+        return self.cache
+
+    def set(self, now, value):
+        self.cached_at = now
+        self.cache = value
+
+
 PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
+PUBLIC_KEYS_CACHE = PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
 
 
 class GitHubTokenScanningPayloadVerifier:
@@ -132,13 +158,18 @@ class GitHubTokenScanningPayloadVerifier:
     - `cryptography` for signature verification
     """
 
-    def __init__(self, *, session, metrics, api_token: Optional[str] = None):
+    def __init__(
+        self,
+        *,
+        session,
+        metrics,
+        api_token: Optional[str] = None,
+        public_keys_cache=PUBLIC_KEYS_CACHE,
+    ):
         self._metrics = metrics
         self._session = session
         self._api_token = api_token
-
-        self.public_keys_cached_at = 0
-        self.public_keys_cache = None
+        self._public_keys_cache = public_keys_cache
 
     def verify(self, *, payload, key_id, signature):
 
@@ -177,13 +208,7 @@ class GitHubTokenScanningPayloadVerifier:
         return True
 
     def _get_cached_public_keys(self):
-        if not self.public_keys_cache:
-            raise CacheMiss
-
-        if self.public_keys_cached_at + PUBLIC_KEYS_CACHE_TIME < time.time():
-            raise CacheMiss
-
-        return self.public_keys_cache
+        return self._public_keys_cache.get(now=time.time())
 
     def _headers_auth(self):
         if not self._api_token:
@@ -257,8 +282,7 @@ class GitHubTokenScanningPayloadVerifier:
             result.append(
                 {"key": public_key["key"], "key_id": public_key["key_identifier"]}
             )
-
-        self.public_keys_cache = public_keys
+        self._public_keys_cache.set(now=time.time(), value=result)
         return result
 
     def _check_public_key(self, github_public_keys, key_id):
