@@ -96,6 +96,7 @@ class WarehouseTask(celery.Task):
             env = pyramid.scripting.prepare(registry=registry)
             env["request"].tm = transaction.TransactionManager(explicit=True)
             env["request"].timings = {"new_request_start": time_ms()}
+            env["request"].remote_addr = "127.0.0.1"
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]
