@@ -542,7 +542,7 @@ msgstr ""
 #: warehouse/templates/base.html:160 warehouse/templates/base.html:169
 #: warehouse/templates/base.html:179
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:739
+#: warehouse/templates/manage/account.html:753
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
@@ -2207,16 +2207,19 @@ msgid "API token added"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:656
+#: warehouse/templates/manage/account.html:671
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:674
 msgid "Token scope: entire account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:660
+#: warehouse/templates/manage/account.html:676
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr ""
@@ -2227,10 +2230,20 @@ msgid "API token removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:666
+#: warehouse/templates/manage/account.html:672
 msgid "Unique identifier:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:673
+#: warehouse/templates/manage/account.html:669
+msgid "API token removed for security reasons"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:678
+#, python-format
+msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:687
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If "
@@ -2238,42 +2251,42 @@ msgid ""
 "your account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:692
 msgid "Recent account activity"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:694
 #: warehouse/templates/manage/history.html:88
 msgid "Event"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:681
-#: warehouse/templates/manage/account.html:689
+#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:703
 #: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:682
-#: warehouse/templates/manage/account.html:693
+#: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/account.html:707
 #: warehouse/templates/manage/history.html:90
 #: warehouse/templates/manage/history.html:102
 msgid "IP address"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:715
 msgid "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/account.html:722
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:711
+#: warehouse/templates/manage/account.html:725
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:713
+#: warehouse/templates/manage/account.html:727
 #, python-format
 msgid ""
 "\n"
@@ -2288,7 +2301,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:718
+#: warehouse/templates/manage/account.html:732
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you "
@@ -2302,23 +2315,23 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:728
+#: warehouse/templates/manage/account.html:742
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:737
+#: warehouse/templates/manage/account.html:751
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/account.html:754
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:742
+#: warehouse/templates/manage/account.html:756
 msgid "Delete your PyPI account"
 msgstr ""
 
