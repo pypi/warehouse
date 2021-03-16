@@ -13,6 +13,7 @@
 import collections
 import json
 import time
+import uuid
 
 import pretend
 import pytest
@@ -536,16 +537,21 @@ def test_analyze_disclosure(monkeypatch):
     def metrics_increment(key):
         metrics.update([key])
 
-    user = pretend.stub()
-    database_macaroon = pretend.stub(user=user, id=12)
+    user_id = uuid.UUID(bytes=b"0" * 16)
+    user = pretend.stub(id=user_id)
+    database_macaroon = pretend.stub(
+        user=user, id=12, caveats={"permissions": "user"}, description="foo"
+    )
 
     find = pretend.call_recorder(lambda *a, **kw: database_macaroon)
     delete = pretend.call_recorder(lambda *a, **kw: None)
+    record_event = pretend.call_recorder(lambda *a, **kw: None)
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
         utils.IMacaroonService: pretend.stub(
             find_from_raw=find, delete_macaroon=delete
         ),
+        utils.IUserService: pretend.stub(record_event=record_event),
     }
 
     request = pretend.stub(find_service=lambda iface, context: svc[iface])
@@ -572,6 +578,19 @@ def test_analyze_disclosure(monkeypatch):
     ]
     assert find.calls == [pretend.call(raw_macaroon="pypi-1234")]
     assert delete.calls == [pretend.call(macaroon_id="12")]
+    assert record_event.calls == [
+        pretend.call(
+            user_id,
+            tag="account:api_token:removed_leak",
+            ip_address="127.0.0.1",
+            additional={
+                "macaroon_id": "12",
+                "public_url": "http://example.com",
+                "permissions": "user",
+                "description": "foo",
+            },
+        )
+    ]
 
 
 def test_analyze_disclosure_wrong_record():

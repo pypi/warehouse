@@ -25,6 +25,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ec import ECDSA
 from cryptography.hazmat.primitives.hashes import SHA256
 
+from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
 from warehouse.macaroons.caveats import InvalidMacaroon
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -349,6 +350,19 @@ def _analyze_disclosure(request, disclosure_record, origin):
         database_macaroon.user,
         public_url=disclosure.public_url,
         origin=origin,
+    )
+    user_service = request.find_service(IUserService, context=None)
+
+    user_service.record_event(
+        database_macaroon.user.id,
+        tag="account:api_token:removed_leak",
+        ip_address="127.0.0.1",
+        additional={
+            "macaroon_id": str(database_macaroon.id),
+            "public_url": disclosure.public_url,
+            "permissions": database_macaroon.caveats.get("permissions", "user"),
+            "description": database_macaroon.description,
+        },
     )
     metrics.increment(f"warehouse.token_leak.{origin}.processed")
 

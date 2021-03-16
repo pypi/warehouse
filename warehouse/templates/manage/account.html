@@ -664,6 +664,20 @@
       {% elif event.tag  == "account:api_token:removed" %}
       <strong>{% trans %}API token removed{% endtrans %}</strong><br>
       <small>{% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}</small>
+
+      {% elif event.tag  == "account:api_token:removed_leak" %}
+      <strong>{% trans %}API token removed for security reasons{% endtrans %}</strong><br>
+      <small>
+        {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
+        {% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}<br>
+        {% if event.additional.permissions == "user" %}
+        {% trans %}Token scope: entire account{% endtrans %}
+        {% else %}
+        {% trans project_name=event.additional.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+        {% endif %}<br>
+        {% trans public_url=event.additional.public_url %}Reason: Token found at <a href="{{ public_url }}">public url</a>{% endtrans %}
+      </small>
+
       {% else %}
       <strong>{{ event.tag }}</strong>
       {% endif %}
