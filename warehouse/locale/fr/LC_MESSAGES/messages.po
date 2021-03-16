@@ -9,7 +9,7 @@
 # Allan Nordhøy <epost@anotheragency.no>, 2019.
 # gabriel-tessier <tessier@luxeys.com>, 2019.
 # Matthieu Melot <matthieu.melot@gmail.com>, 2019.
-# Nathan <bonnemainsnathan@gmail.com>, 2019, 2020.
+# Nathan <bonnemainsnathan@gmail.com>, 2019, 2020, 2021.
 # Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020.
 # Bruno Alla <alla.brunoo@gmail.com>, 2020.
 # Jeannette L <j.lavoie@net-c.ca>, 2020.
@@ -22,7 +22,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-11-20 15:05+0000\n"
+"PO-Revision-Date: 2021-01-10 20:47+0000\n"
 "Last-Translator: Nathan <bonnemainsnathan@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
@@ -31,7 +31,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.4-dev\n"
+"X-Generator: Weblate 4.4.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -383,9 +383,9 @@ msgstr "Monty Python, le sketch de la fromagerie"
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -578,7 +578,7 @@ msgstr "Aide"
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
 msgid "Sponsor"
-msgstr "Sponsor"
+msgstr "Soutenir"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
@@ -1097,7 +1097,7 @@ msgstr "Date d'inscription"
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "Inscrit le %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1671,7 +1671,7 @@ msgstr "Masquer cette notification"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -3008,7 +3008,7 @@ msgid "No files found"
 msgstr "Aucun fichier trouvé"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3117,16 +3117,16 @@ msgid "Reason (optional)"
 msgstr "Raison (facultatif)"
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Version"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Supprimer la version"
@@ -3160,16 +3160,38 @@ msgstr ""
 "La suppression entraînera la suppression irréversible de cette version."
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
-"Vous ne serez pas en mesure de republier une nouvelle distribution du même "
-"type avec le même numéro de version. Pensez à remiser cette version et à en "
-"créer une nouvelle ou plutôt une <a href=\"https://www.python.org/dev/peps/"
-"pep-0440/#post-releases\">post-version</a>."
+"Vous n'aurez pas la possibilité de remettre en ligne une nouvelle version du "
+"même type avec le même numéro de version."
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+"La suppression cassera tous les projets basés sur une version épinglée de ce "
+"paquet. Cela est prévu en cas de dernier recours légal ou pour supprimer des "
+"version dangereuses."
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"Envisagez d' <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">archiver</a> cette version, où créer une nouvelle version "
+"ou <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">publier une version</a> à la place."
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3255,43 +3277,30 @@ msgstr ""
 "%(project_name)s==%(version)s</code>.\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-"Vous ne serez pas en mesure de republier une nouvelle distribution du même "
-"type avec le même numéro de version. Pensez à remiser cette version et à en "
-"créer une nouvelle ou plutôt une <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">post-version</a>."
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Gérer les versions de « %(project_name)s »"
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Versions (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Versions remisées (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Création d'une nouvelle version"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Aucune version trouvée"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -6227,11 +6236,11 @@ msgstr "Politique de sécurité"
 
 #: warehouse/templates/pages/sponsor.html:15
 msgid "Sponsor the Packaging Working Group"
-msgstr "Sponsoriser le groupe de travail d'empaquetage"
+msgstr "Soutenir le groupe de travail des paquets"
 
 #: warehouse/templates/pages/sponsor.html:23
 msgid "Sponsor PyPI and related projects"
-msgstr "Sponsoriser PyPI et les projets apparentés"
+msgstr "Soutenir PyPI et les projets apparentés"
 
 #: warehouse/templates/pages/sponsor.html:24
 msgid "Donate to the Packaging Working Group"
@@ -6419,7 +6428,7 @@ msgstr ""
 
 #: warehouse/templates/pages/sponsor.html:96
 msgid "Sponsorship packages"
-msgstr "Forfaits de parrainage"
+msgstr "Forfaits de soutien"
 
 #: warehouse/templates/pages/sponsor.html:97
 msgid "All figures are in USD"
@@ -6498,7 +6507,7 @@ msgid ""
 "Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI sponsors "
 "page</a>"
 msgstr ""
-"Logo <strong>et une note </strong> sur la <a href=\"%(href)s\"> page de "
+"Logo <strong>et une note </strong> sur la <a href=\"%(href)s\"> page des "
 "sponsors PyPI </a>"
 
 #: warehouse/templates/pages/sponsor.html:134
@@ -6565,8 +6574,8 @@ msgid ""
 msgstr ""
 "Inclusion dans un article de blog sur le <a href=\"%(href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\"> blog de la Python Sofware "
-"Foundation </a>, <strong> avec d'autres sponsors </strong> dont le "
-"parrainage a commencé au cours du même trimestre"
+"Foundation </a>, <strong> avec d'autres sponsors </strong> dont le soutien a "
+"commencé au cours du même trimestre"
 
 #: warehouse/templates/pages/sponsor.html:171
 msgid "Gold"
@@ -6604,8 +6613,7 @@ msgstr ""
 #: warehouse/templates/pages/sponsor.html:221
 #, python-format
 msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
-msgstr ""
-"Rendez-vous sur <a href=\"%(href)s\">réinitialiser votre mot de passe</a>"
+msgstr "Rendez-vous sur <a href=\"%(href)s\">la page des sponsors de PyPI</a>"
 
 #: warehouse/templates/pages/sponsor.html:202
 #, python-format
@@ -6646,7 +6654,7 @@ msgid ""
 msgstr ""
 "Tweet de remerciement <strong>unique</strong> de la part de la <a href="
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python "
-"Software Foundation</a> (au moment du parrainage initial, et à chaque "
+"Software Foundation</a> (au moment du soutien initial, et à chaque "
 "renouvellement)"
 
 #: warehouse/templates/pages/sponsor.html:224
@@ -6658,7 +6666,7 @@ msgid ""
 msgstr ""
 "Tweet de remerciement <strong>unique</strong> du <a href=\"%(href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">compte Twitter PyPI</a> (au "
-"moment du parrainage initial, et à chaque renouvellement)"
+"moment du soutien initial, et à chaque renouvellement)"
 
 #: warehouse/templates/pages/sponsor.html:238
 msgid "One time grants / custom donations"
@@ -6671,10 +6679,10 @@ msgid ""
 "at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
 "\" rel=\"noopener\">fundable packaging improvements</a> for ideas."
 msgstr ""
-"Parrainage d’une fonctionnalité spécifique, d’un ensemble de fonctionnalités "
-"ou d’un sprint communautaire, évalué à plus de 50 000 $. Voir <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> "
-"améliorations d'empaquetage financables </a> pour les idées."
+"Soutien d’une fonctionnalité spécifique, d’un ensemble de fonctionnalités ou "
+"d’un sprint communautaire, évalué à plus de 50 000 $. Voir <a href=\"%(href)s"
+"\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"> améliorations "
+"d'empaquetage financables </a> pour les idées."
 
 # | msgid ""
 # | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
@@ -6718,7 +6726,7 @@ msgid ""
 "sponsorship page in perpetuity."
 msgstr ""
 "Remarque : Un dossier des subventions des groupes de travail sera inscrit à "
-"perpétuité sur la page de parrainage pyPI."
+"perpétuité sur la page de soutien de PyPI."
 
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
@@ -6896,6 +6904,28 @@ msgstr[1] ""
 "\n"
 "                  Aucun résultat pour les filtres '%(filters)s'\n"
 "                "
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
+#~ "releases\">post release</a> instead."
+#~ msgstr ""
+#~ "Vous ne serez pas en mesure de republier une nouvelle distribution du "
+#~ "même type avec le même numéro de version. Pensez à remiser cette version "
+#~ "et à en créer une nouvelle ou plutôt une <a href=\"https://www.python.org/"
+#~ "dev/peps/pep-0440/#post-releases\">post-version</a>."
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">post release</a> instead."
+#~ msgstr ""
+#~ "Vous ne serez pas en mesure de republier une nouvelle distribution du "
+#~ "même type avec le même numéro de version. Pensez à remiser cette version "
+#~ "et à en créer une nouvelle ou plutôt une <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">post-version</a>."
 
 #~ msgid ""
 #~ "\n"

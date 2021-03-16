@@ -1,11 +1,12 @@
 # lu$er <team19devs@gmail.com>, 2020.
+# Beck Jacob <jp-beck@outlook.com>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-09 20:34+0200\n"
-"PO-Revision-Date: 2020-09-09 18:55+0000\n"
-"Last-Translator: lu$er <team19devs@gmail.com>\n"
+"PO-Revision-Date: 2021-02-06 17:50+0000\n"
+"Last-Translator: Beck Jacob <jp-beck@outlook.com>\n"
 "Language-Team: Uzbek (latin) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/uz_Latn/>\n"
 "Language: uz_Latn\n"
@@ -13,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.3-dev\n"
+"X-Generator: Weblate 4.5-dev\n"
 
 #: warehouse/views.py:254
 msgid "Locale updated"
@@ -47,7 +48,7 @@ msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"BU foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
+"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
 "Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #: warehouse/accounts/forms.py:124
@@ -57,7 +58,7 @@ msgstr "Parolingiz ma'qullanmadi. Qaytadan urinib ko'ring."
 #: warehouse/accounts/forms.py:128 warehouse/accounts/views.py:76
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
-"Kirishga urinishlar belgilangan miqdorga oshdi. Iltimos, keyinroq urinib "
+"Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
 "ko'ring."
 
 #: warehouse/accounts/forms.py:150
@@ -87,10 +88,14 @@ msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
+"Bu email manzili boshqa foydalanuvchi tomonidan sihlatilmoqda. Yangi "
+"manzildan foydalaning."
 
 #: warehouse/accounts/forms.py:240
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
+"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
+"miqdordagi ism tanlang."
 
 #: warehouse/accounts/forms.py:304
 msgid "Invalid TOTP code."
@@ -334,9 +339,9 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
 #: warehouse/templates/packaging/detail.html:312
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
@@ -1000,7 +1005,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1471,7 +1476,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2704,7 +2709,7 @@ msgid "No files found"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -2783,16 +2788,16 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr ""
@@ -2817,11 +2822,28 @@ msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#, python-format
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
 msgstr ""
 
 #: warehouse/templates/manage/releases.html:20
@@ -2897,39 +2919,30 @@ msgid ""
 "            "
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:138
-#, python-format
-msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
-msgstr ""
-
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
