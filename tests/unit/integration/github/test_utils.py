@@ -124,9 +124,9 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
 
         payload = (
-            '[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
         )
         assert (
             verifier.verify(payload=payload, key_id=key_id, signature=signature) is True
@@ -162,9 +162,9 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
 
         payload = (
-            '[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
         )
         assert (
             verifier.verify(payload=payload, key_id=key_id, signature=signature) is True
@@ -416,9 +416,9 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
 
         payload = (
-            '[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
         )
         assert (
             verifier._check_signature(
@@ -444,9 +444,9 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
 
         payload = (
-            '[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
-            'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
-            'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
+            b'[{"type":"github_oauth_token","token":"cb4985f91f740272c0234202299'
+            b'f43808034d7f5","url":" https://github.com/github/faketestrepo/blob/'
+            b'b0dd59c0b500650cacd4551ca5989a6194001b10/production.env"}]'
         )
         with pytest.raises(utils.InvalidTokenLeakRequest) as exc:
             verifier._check_signature(

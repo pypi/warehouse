@@ -277,7 +277,7 @@ class GitHubTokenScanningPayloadVerifier:
             )
             loaded_public_key.verify(
                 signature=base64.b64decode(signature),
-                data=payload.encode("utf-8"),
+                data=payload,
                 # This validates the ECDSA and SHA256 part
                 signature_algorithm=ECDSA(algorithm=SHA256()),
             )
