@@ -61,7 +61,10 @@ def github_disclose_token(request):
 
     try:
         utils.analyze_disclosures(
-            disclosure_records=disclosures, origin="github", metrics=metrics
+            request=request,
+            disclosure_records=disclosures,
+            origin="github",
+            metrics=metrics,
         )
     except utils.InvalidTokenLeakRequest:
         return Response(status=400)

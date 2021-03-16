@@ -342,7 +342,7 @@ def analyze_disclosure(request, disclosure_record, origin):
         raise
 
 
-def analyze_disclosures(disclosure_records, origin, metrics):
+def analyze_disclosures(request, disclosure_records, origin, metrics):
     from warehouse.integrations.github import tasks
 
     if not isinstance(disclosure_records, list):
@@ -350,6 +350,6 @@ def analyze_disclosures(disclosure_records, origin, metrics):
         raise InvalidTokenLeakRequest("Invalid format: payload is not a list", "format")
 
     for disclosure_record in disclosure_records:
-        tasks.analyze_disclosure_task.delay(
+        request.task(tasks.analyze_disclosure_task).delay(
             disclosure_record=disclosure_record, origin=origin
         )

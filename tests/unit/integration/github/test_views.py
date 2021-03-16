@@ -52,7 +52,12 @@ class TestGitHubDiscloseToken:
             pretend.call(payload="[1, 2, 3]", key_id="foo", signature="bar")
         ]
         assert analyze_disclosures.calls == [
-            pretend.call(disclosure_records=[1, 2, 3], origin="github", metrics=metrics)
+            pretend.call(
+                request=pyramid_request,
+                disclosure_records=[1, 2, 3],
+                origin="github",
+                metrics=metrics,
+            )
         ]
 
     def test_github_disclose_token_no_token(self, pyramid_request, monkeypatch):

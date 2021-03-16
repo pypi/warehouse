@@ -608,7 +608,10 @@ def test_analyze_disclosures_wrong_type():
 
     with pytest.raises(utils.InvalidTokenLeakRequest) as exc:
         utils.analyze_disclosures(
-            disclosure_records={}, origin="yay", metrics=metrics_service
+            request=pretend.stub(),
+            disclosure_records={},
+            origin="yay",
+            metrics=metrics_service,
         )
 
     assert str(exc.value) == "Invalid format: payload is not a list"
@@ -624,11 +627,15 @@ def test_analyze_disclosures_raise(monkeypatch):
     metrics_service = pretend.stub(increment=metrics_increment)
 
     task = pretend.stub(delay=pretend.call_recorder(lambda *a, **k: None))
+    request = pretend.stub(task=lambda x: task)
 
     monkeypatch.setattr(tasks, "analyze_disclosure_task", task)
 
     utils.analyze_disclosures(
-        disclosure_records=[1, 2, 3], origin="yay", metrics=metrics_service
+        request=request,
+        disclosure_records=[1, 2, 3],
+        origin="yay",
+        metrics=metrics_service,
     )
 
     assert task.delay.calls == [
