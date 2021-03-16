@@ -105,6 +105,7 @@ class DatabaseMacaroonService:
         dm = self.find_macaroon(m.identifier.decode())
         if not dm:
             raise InvalidMacaroon("Macaroon not found")
+        return dm
 
     def verify(self, raw_macaroon, context, principals, permission):
         """
