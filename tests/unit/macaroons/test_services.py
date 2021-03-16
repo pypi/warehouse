@@ -81,14 +81,15 @@ class TestDatabaseMacaroonService:
         assert macaroon.id == dm.id
 
     @pytest.mark.parametrize(
-        "macaroon_service",
+        "raw_macaroon",
         [
             "pypi-aaaa",  # Invalid macaroon
             # Macaroon properly formatted but not found. The string is purposedly cut to
             # avoid triggering the github token disclosure feature that this very
             # function implements.
             "py"
-            "pi-AgEIcHlwaS5vcmcCAWEAAAYgNh9pJUqVF-EtMCwGaZYcStFR07RbE8hyb9h2vYxifO8",
+            "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
+            "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g",
         ],
     )
     def test_find_from_raw_not_found_or_invalid(self, macaroon_service, raw_macaroon):
