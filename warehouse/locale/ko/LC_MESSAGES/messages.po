@@ -367,7 +367,7 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/packaging/detail.html:314
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:202
@@ -430,39 +430,11 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/pages/help.html:850
 #: warehouse/templates/pages/help.html:855
 #: warehouse/templates/pages/security.html:36
-#: warehouse/templates/pages/sponsor.html:27
-#: warehouse/templates/pages/sponsor.html:33
-#: warehouse/templates/pages/sponsor.html:37
-#: warehouse/templates/pages/sponsor.html:41
-#: warehouse/templates/pages/sponsor.html:45
-#: warehouse/templates/pages/sponsor.html:61
-#: warehouse/templates/pages/sponsor.html:112
-#: warehouse/templates/pages/sponsor.html:115
-#: warehouse/templates/pages/sponsor.html:133
-#: warehouse/templates/pages/sponsor.html:134
-#: warehouse/templates/pages/sponsor.html:135
-#: warehouse/templates/pages/sponsor.html:138
-#: warehouse/templates/pages/sponsor.html:156
-#: warehouse/templates/pages/sponsor.html:157
-#: warehouse/templates/pages/sponsor.html:158
-#: warehouse/templates/pages/sponsor.html:161
-#: warehouse/templates/pages/sponsor.html:179
-#: warehouse/templates/pages/sponsor.html:180
-#: warehouse/templates/pages/sponsor.html:181
-#: warehouse/templates/pages/sponsor.html:184
-#: warehouse/templates/pages/sponsor.html:201
-#: warehouse/templates/pages/sponsor.html:202
-#: warehouse/templates/pages/sponsor.html:203
-#: warehouse/templates/pages/sponsor.html:206
-#: warehouse/templates/pages/sponsor.html:222
-#: warehouse/templates/pages/sponsor.html:223
-#: warehouse/templates/pages/sponsor.html:224
-#: warehouse/templates/pages/sponsor.html:227
-#: warehouse/templates/pages/sponsor.html:239
-#: warehouse/templates/pages/sponsor.html:244
-#: warehouse/templates/pages/sponsor.html:245
-#: warehouse/templates/pages/sponsor.html:246
-#: warehouse/templates/pages/sponsor.html:249
+#: warehouse/templates/pages/sponsors.html:35
+#: warehouse/templates/pages/sponsors.html:39
+#: warehouse/templates/pages/sponsors.html:43
+#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:66
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "외부 링크"
@@ -555,7 +527,9 @@ msgstr "도움말"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
-msgid "Sponsor"
+#: warehouse/templates/pages/sitemap.html:41
+#: warehouse/templates/pages/sponsors.html:15
+msgid "Sponsors"
 msgstr "후원자"
 
 #: warehouse/templates/accounts/login.html:18
@@ -1085,8 +1059,9 @@ msgstr "프로젝트 없음"
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:73
-#, python-format
-msgid "Last released on %(release_date)s"
+#, fuzzy, python-format
+#| msgid "Last released on %(release_date)s"
+msgid "Last released %(release_date)s"
 msgstr "%(release_date)s에 마지막으로 릴리즈됨"
 
 #: warehouse/templates/accounts/profile.html:81
@@ -2282,7 +2257,7 @@ msgstr "2단계 인증 방법:"
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:346
 msgid "None"
 msgstr "없음"
 
@@ -2773,8 +2748,9 @@ msgstr "대기중인 초대 개수 (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
-#, python-format
-msgid "Created on %(creation_date)s"
+#, fuzzy, python-format
+#| msgid "Created on %(creation_date)s"
+msgid "Created %(creation_date)s"
 msgstr "%(creation_date)s에 생성됨"
 
 #: warehouse/templates/manage/projects.html:68
@@ -2799,7 +2775,7 @@ msgstr "이 프로젝트에는 릴리즈가 없습니다"
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:356
 msgid "View"
 msgstr "보기"
 
@@ -2845,8 +2821,8 @@ msgstr "%(project_name)s 프로젝트 %(version)s 릴리즈의 파일들"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:318
-#: warehouse/templates/packaging/detail.html:329
+#: warehouse/templates/packaging/detail.html:320
+#: warehouse/templates/packaging/detail.html:331
 msgid "Filename, size"
 msgstr "파일이름, 크기"
 
@@ -2857,15 +2833,15 @@ msgstr "타입"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:320
-#: warehouse/templates/packaging/detail.html:340
+#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:342
 msgid "Python version"
 msgstr "파이썬 버전"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:321
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:350
 msgid "Upload date"
 msgstr "업로드 날짜"
 
@@ -3041,7 +3017,6 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/release.html:175
-#: warehouse/templates/manage/releases.html:140
 #, fuzzy, python-format
 #| msgid ""
 #| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -3051,8 +3026,8 @@ msgstr ""
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">yanking</a> this release, making a new release or a <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-"release</a> instead."
+"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">post release</a> instead."
 msgstr ""
 "<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
@@ -3147,6 +3122,24 @@ msgid ""
 "%(version)s</code>.\n"
 "            "
 msgstr ""
+
+#: warehouse/templates/manage/releases.html:140
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or by "
+#| "using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">Google "
+#| "BigQuery</a>"
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Libraries.io</a> 또는 <a href=\"%(gbq_href)s\" target=\"_blank"
+"\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
+"인하세요"
 
 #: warehouse/templates/manage/releases.html:151
 #, python-format
@@ -3729,93 +3722,93 @@ msgid "Navigation"
 msgstr "메인 내비게이션"
 
 #: warehouse/templates/packaging/detail.html:170
-#: warehouse/templates/packaging/detail.html:200
+#: warehouse/templates/packaging/detail.html:202
 #, fuzzy, python-format
 #| msgid "History for %(project_name)s"
 msgid "Navigation for %(project)s"
 msgstr "%(project_name)s 이력"
 
 #: warehouse/templates/packaging/detail.html:173
-#: warehouse/templates/packaging/detail.html:203
+#: warehouse/templates/packaging/detail.html:205
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:175
-#: warehouse/templates/packaging/detail.html:205
-#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:207
+#: warehouse/templates/packaging/detail.html:235
 #, fuzzy
 #| msgid "Project documentation"
 msgid "Project description"
 msgstr "프로젝트 문서"
 
 #: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:217
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:181
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:257
 #, fuzzy
 #| msgid "Releases"
 msgid "Release history"
 msgstr "릴리즈"
 
 #: warehouse/templates/packaging/detail.html:186
-#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:224
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:188
-#: warehouse/templates/packaging/detail.html:224
-#: warehouse/templates/packaging/detail.html:311
+#: warehouse/templates/packaging/detail.html:226
+#: warehouse/templates/packaging/detail.html:313
 #, fuzzy
 #| msgid "Download file"
 msgid "Download files"
 msgstr "파일 다운로드"
 
-#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:211
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:211
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:213
+#: warehouse/templates/packaging/detail.html:249
 #, fuzzy
 #| msgid "Project settings"
 msgid "Project details"
 msgstr "프로젝트 설정"
 
-#: warehouse/templates/packaging/detail.html:240
+#: warehouse/templates/packaging/detail.html:242
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:259
 #, fuzzy
 #| msgid "Release settings"
 msgid "Release notifications"
 msgstr "릴리즈 설정"
 
-#: warehouse/templates/packaging/detail.html:258
+#: warehouse/templates/packaging/detail.html:260
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:270
+#: warehouse/templates/packaging/detail.html:272
 #, fuzzy
 #| msgid "Python version"
 msgid "This version"
 msgstr "파이썬 버전"
 
-#: warehouse/templates/packaging/detail.html:290
+#: warehouse/templates/packaging/detail.html:292
 #, fuzzy
 #| msgid "New releases"
 msgid "pre-release"
 msgstr "새 릴리즈"
 
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:297
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/packaging/detail.html:314
 #, fuzzy, python-format
 #| msgid ""
 #| "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -3830,19 +3823,19 @@ msgstr ""
 "지 배우고싶다면, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Pythoh Packaging User Guide</a>를 확인해주세요"
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:317
 #, fuzzy, python-format
 #| msgid "File removed from release version %(version)s"
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "릴리즈 버전 %(version)s으로부터 파일 제거됨"
 
-#: warehouse/templates/packaging/detail.html:319
-#: warehouse/templates/packaging/detail.html:336
+#: warehouse/templates/packaging/detail.html:321
+#: warehouse/templates/packaging/detail.html:338
 msgid "File type"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:322
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:354
 #, fuzzy
 #| msgid "View Hashes"
 msgid "Hashes"
@@ -5467,54 +5460,43 @@ msgstr "인증"
 msgid "Login"
 msgstr "로그인"
 
-#: warehouse/templates/pages/sitemap.html:41
-#: warehouse/templates/pages/sponsors.html:15
-msgid "Sponsors"
-msgstr "후원자"
-
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
 msgstr "보안 정책"
 
-#: warehouse/templates/pages/sponsor.html:15
-msgid "Sponsor the Packaging Working Group"
+#: warehouse/templates/pages/sponsors.html:25
+msgid "Support PyPI and related projects"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:23
-msgid "Sponsor PyPI and related projects"
+#: warehouse/templates/pages/sponsors.html:26
+msgid "Sponsor the Python Software Foundation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:24
-msgid "Donate to the Packaging Working Group"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:27
-#, fuzzy, python-format
+#: warehouse/templates/pages/sponsors.html:29
+#, fuzzy
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 #| "\">Upgrade your browser</a> to set up two factor authentication with a "
 #| "security device (e.g. USB key)"
 msgid ""
-"The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Packaging Working Group</a> is a work group of the Python Software "
-"Foundation which raises and distributes funds to improve Python's packaging "
-"ecosystem."
+"The Python Software Foundation raises and distributes funds to improve "
+"Python's packaging ecosystem."
 msgstr ""
 "인증 장치(예: USB키)로 2단계 인증을 설정하려면 <a href=\"%(href)s\" title="
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 업그레이드</a>하"
 "세요"
 
-#: warehouse/templates/pages/sponsor.html:29
-msgid "Recent projects funded through the working group include:"
+#: warehouse/templates/pages/sponsors.html:31
+msgid "Recent projects funded include:"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:32
+#: warehouse/templates/pages/sponsors.html:34
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:33
+#: warehouse/templates/pages/sponsors.html:35
 #, fuzzy, python-format
 #| msgid ""
 #| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -5532,13 +5514,13 @@ msgstr ""
 "\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
 "인하세요"
 
-#: warehouse/templates/pages/sponsor.html:36
+#: warehouse/templates/pages/sponsors.html:38
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:37
+#: warehouse/templates/pages/sponsors.html:39
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -5551,11 +5533,11 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
 "파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
 
-#: warehouse/templates/pages/sponsor.html:40
+#: warehouse/templates/pages/sponsors.html:42
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:41
+#: warehouse/templates/pages/sponsors.html:43
 #, fuzzy, python-format
 #| msgid ""
 #| "View statistics for this project via <a href=\"%(libs_io_href)s\" title="
@@ -5573,11 +5555,11 @@ msgstr ""
 "\" rel=\"noopener\">Google BigQuery</a>를 통해 당신 프로젝트의 통계 수치를 확"
 "인하세요"
 
-#: warehouse/templates/pages/sponsor.html:44
+#: warehouse/templates/pages/sponsors.html:46
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:45
+#: warehouse/templates/pages/sponsors.html:47
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -5588,376 +5570,73 @@ msgid ""
 "in 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:49
+#: warehouse/templates/pages/sponsors.html:51
 msgid ""
-"With your support, the working group can continue to fund packaging "
-"improvements, benefiting millions of Python users around the world."
+"With your support, the PSF can continue to fund packaging improvements, "
+"benefiting millions of Python users around the world."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:57
-msgid "Community donations"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:60
-msgid "We greatly appreciate both one-time and recurring donations."
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:61
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">your donation may be tax-deductible</a>."
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:62
-msgid "Every donation counts!"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:65
+#: warehouse/templates/pages/sponsors.html:59
 #, fuzzy
-#| msgid "Donate"
-msgid "Donate here"
-msgstr "후원하기"
+#| msgid "Sponsors"
+msgid "PSF Sponsorship"
+msgstr "후원자"
 
-#: warehouse/templates/pages/sponsor.html:66
-#, python-format
+#: warehouse/templates/pages/sponsors.html:62
 msgid ""
-"Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
+"All of these initiatives help maintain and support the tools that the Python "
+"community uses daily. This work can only be done with the generous financial "
+"support that you or your organization provides."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:77
+#: warehouse/templates/pages/sponsors.html:63
+msgid ""
+"Your contributions matter and they make an impact. Every donation counts!"
+msgstr ""
+
+#: warehouse/templates/pages/sponsors.html:67
+msgid "Become a sponsor"
+msgstr ""
+
+#: warehouse/templates/pages/sponsors.html:69
+msgid ""
+"The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
+"organization, and donations are tax-deductible for organizations that pay "
+"taxes in the United States."
+msgstr ""
+
+#: warehouse/templates/pages/sponsors.html:80
 msgid "Get your logo on PyPI.org"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:78
+#: warehouse/templates/pages/sponsors.html:81
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from "
 "237 countries visited PyPI.org."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:79
+#: warehouse/templates/pages/sponsors.html:82
 msgid "* Data as of March 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:82
+#: warehouse/templates/pages/sponsors.html:85
 msgid "Strengthen the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:83
+#: warehouse/templates/pages/sponsors.html:86
 msgid ""
-"Funds raised by the packaging working group go directly towards improving "
+"Funds raised by the Python Software Foundation go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:86
+#: warehouse/templates/pages/sponsors.html:89
 msgid "Boost your reputation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:87
+#: warehouse/templates/pages/sponsors.html:90
 msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:96
-#, fuzzy
-#| msgid "Uploading packages"
-msgid "Sponsorship packages"
-msgstr "패키지 업로드하기"
-
-#: warehouse/templates/pages/sponsor.html:97
-msgid "All figures are in USD"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:106
-msgid "Lifetime"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:107
-msgid "One time donation of $1,000,000"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:111
-msgid ""
-"Logo in a prominent position on the PyPI project detail page, <strong>in "
-"perpetuity</strong>"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:112
-#: warehouse/templates/pages/sponsor.html:133
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
-"blog</a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:116
-#: warehouse/templates/pages/sponsor.html:139
-#: warehouse/templates/pages/sponsor.html:162
-#: warehouse/templates/pages/sponsor.html:185
-#: warehouse/templates/pages/sponsor.html:207
-#: warehouse/templates/pages/sponsor.html:228
-#: warehouse/templates/pages/sponsor.html:250
-msgid "Become a sponsor"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:125
-msgid "Diamond"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:126
-msgid "$50,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:130
-msgid ""
-"Logo in a <strong>prominent position</strong> on the PyPI project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:131
-#: warehouse/templates/pages/sponsor.html:154
-#: warehouse/templates/pages/sponsor.html:177
-msgid "Logo on the PyPI footer"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:132
-#: warehouse/templates/pages/sponsor.html:155
-#: warehouse/templates/pages/sponsor.html:178
-#: warehouse/templates/pages/sponsor.html:243
-#, python-format
-msgid ""
-"Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI sponsors "
-"page</a>"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:134
-#: warehouse/templates/pages/sponsor.html:157
-#: warehouse/templates/pages/sponsor.html:180
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:135
-#: warehouse/templates/pages/sponsor.html:158
-#: warehouse/templates/pages/sponsor.html:181
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
-"a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:148
-msgid "Platinum"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:149
-msgid "$30,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:153
-msgid ""
-"Logo on <strong>high rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:156
-#: warehouse/templates/pages/sponsor.html:179
-#: warehouse/templates/pages/sponsor.html:201
-#: warehouse/templates/pages/sponsor.html:222
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
-"<strong>with other sponsors</strong> whose sponsorship commenced during the "
-"same quarter"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:171
-msgid "Gold"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:172
-msgid "$20,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:176
-msgid ""
-"Logo on <strong>medium rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:194
-msgid "Silver"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:195
-msgid "$10,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:199
-msgid ""
-"Logo on <strong>low rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:200
-#: warehouse/templates/pages/sponsor.html:221
-#, fuzzy, python-format
-#| msgid "Or <a href=\"%(href)s\">browse projects</a>"
-msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
-msgstr "또는,  <a href=\"%(href)s\">프로젝트를 둘러보세요</a>"
-
-#: warehouse/templates/pages/sponsor.html:202
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:203
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
-"a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:216
-msgid "Bronze"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:217
-msgid "$5,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:223
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
-"a> (on initial sponsorship, and on each subsequent renewal)"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:224
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a> "
-"(on initial sponsorship, and on each subsequent renewal)"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:238
-msgid "One time grants / custom donations"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:239
-#, fuzzy, python-format
-#| msgid ""
-#| "You have not uploaded any projects to PyPI, yet. To learn how to get "
-#| "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" target="
-#| "\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"Sponsorship of a specific feature, feature set, or community sprint, valued "
-"at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">fundable packaging improvements</a> for ideas."
-msgstr ""
-"당신은 어떤 프로젝트도 PyPI에 업로드해본 적이 없습니다. 어떻게 시작해야하는"
-"지 배우고싶다면, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Pythoh Packaging User Guide</a>를 확인해주세요"
-
-#: warehouse/templates/pages/sponsor.html:244
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
-"blog</a>, explaining what the funds will be used for"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:245
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
-"a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:246
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
-
-#: warehouse/templates/pages/sponsor.html:248
-msgid ""
-"Note: A record of working group grants will be listed on the PyPI "
-"sponsorship page in perpetuity."
 msgstr ""
 
 #: warehouse/templates/pages/stats.html:21
@@ -6115,6 +5794,183 @@ msgstr[0] ""
 "\n"
 "                  '%(filters)s' 필터의 결과는 없습니다\n"
 "                "
+
+#~ msgid "Sponsor"
+#~ msgstr "후원자"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+#~ "\" rel=\"noopener\">your donation may be tax-deductible</a>."
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid "Donate"
+#~ msgid "Donate here"
+#~ msgstr "후원하기"
+
+#, fuzzy
+#~| msgid "Uploading packages"
+#~ msgid "Sponsorship packages"
+#~ msgstr "패키지 업로드하기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation blog</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
+#~ "<strong>with other sponsors</strong> whose sponsorship commenced during "
+#~ "the same quarter"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid "Or <a href=\"%(href)s\">browse projects</a>"
+#~ msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
+#~ msgstr "또는,  <a href=\"%(href)s\">프로젝트를 둘러보세요</a>"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a> (on initial sponsorship, and on each subsequent renewal)"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a> (on initial sponsorship, and on each subsequent renewal)"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "You have not uploaded any projects to PyPI, yet. To learn how to get "
+#~| "started, visit the <a href=\"%(href)s\" title=\"%(title)s\" target="
+#~| "\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "Sponsorship of a specific feature, feature set, or community sprint, "
+#~ "valued at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">fundable packaging improvements</a> "
+#~ "for ideas."
+#~ msgstr ""
+#~ "당신은 어떤 프로젝트도 PyPI에 업로드해본 적이 없습니다. 어떻게 시작해야하"
+#~ "는지 배우고싶다면, <a href=\"%(href)s\" title=\"%(title)s\" target="
+#~ "\"_blank\" rel=\"noopener\">Pythoh Packaging User Guide</a>를 확인해주세요"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation blog</a>, explaining what the funds will be used for"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">파이썬 패키징 사용자 가이드</a>에서 파일을 어떻게 업로드하는지 배우기"
 
 #, fuzzy
 #~| msgid "Security policy"
