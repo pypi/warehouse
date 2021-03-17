@@ -447,6 +447,16 @@ def session_notifications(request):
     return {}
 
 
+@view_config(
+    route_name="includes.sidebar-sponsor-logo",
+    renderer="includes/sidebar-sponsor-logo.html",
+    uses_session=False,
+    has_translations=False,
+)
+def sidebar_sponsor_logo(request):
+    return {}
+
+
 @view_config(route_name="health", renderer="string")
 def health(request):
     # This will ensure that we can access the database and run queries against
