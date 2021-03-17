@@ -102,6 +102,11 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.sidebar-sponsor-logo",
+        "/_includes/sidebar-sponsor-logo/",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)

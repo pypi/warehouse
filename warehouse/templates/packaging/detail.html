@@ -193,6 +193,8 @@
           </nav>
         </div>
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
+        {% csi request.route_url("includes.sidebar-sponsor-logo") %}
+        {% endcsi %}
 
       </div>
       <div class="vertical-tabs__panel">
