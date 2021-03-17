@@ -187,9 +187,9 @@ requests==2.25.1 \
     --hash=sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804 \
     --hash=sha256:c210084e36a42ae6b9219e00e48287def368a26d03a048ddad7bfee44f75871e
     # via responses
-responses==0.12.1 \
-    --hash=sha256:2e5764325c6b624e42b428688f2111fea166af46623cb0127c05f6afb14d3457 \
-    --hash=sha256:ef265bd3200bdef5ec17912fc64a23570ba23597fd54ca75c18650fa1699213d
+responses==0.13.1 \
+    --hash=sha256:3b1ea9cf026edaaf25e853abc4d3b2687d25467e9d8d41e77ee525cad0673f3e \
+    --hash=sha256:cf62ab0f4119b81d485521b2c950d8aa55a885c90126488450b7acb8ee3f77ac
     # via -r requirements/tests.in
 selenium==3.141.0 \
     --hash=sha256:2d7131d7bc5a5b99a2d9b04aaf2612c411b03b8ca1b1ee8d3de5845a9be2cb3c \
