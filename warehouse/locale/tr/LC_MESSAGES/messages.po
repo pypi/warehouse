@@ -363,7 +363,7 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/manage/release.html:175
 #: warehouse/templates/manage/releases.html:140
 #: warehouse/templates/manage/releases.html:173
-#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/packaging/detail.html:314
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:202
@@ -426,39 +426,11 @@ msgstr "Monty Python - The Cheese Shop skeci"
 #: warehouse/templates/pages/help.html:850
 #: warehouse/templates/pages/help.html:855
 #: warehouse/templates/pages/security.html:36
-#: warehouse/templates/pages/sponsor.html:27
-#: warehouse/templates/pages/sponsor.html:33
-#: warehouse/templates/pages/sponsor.html:37
-#: warehouse/templates/pages/sponsor.html:41
-#: warehouse/templates/pages/sponsor.html:45
-#: warehouse/templates/pages/sponsor.html:61
-#: warehouse/templates/pages/sponsor.html:112
-#: warehouse/templates/pages/sponsor.html:115
-#: warehouse/templates/pages/sponsor.html:133
-#: warehouse/templates/pages/sponsor.html:134
-#: warehouse/templates/pages/sponsor.html:135
-#: warehouse/templates/pages/sponsor.html:138
-#: warehouse/templates/pages/sponsor.html:156
-#: warehouse/templates/pages/sponsor.html:157
-#: warehouse/templates/pages/sponsor.html:158
-#: warehouse/templates/pages/sponsor.html:161
-#: warehouse/templates/pages/sponsor.html:179
-#: warehouse/templates/pages/sponsor.html:180
-#: warehouse/templates/pages/sponsor.html:181
-#: warehouse/templates/pages/sponsor.html:184
-#: warehouse/templates/pages/sponsor.html:201
-#: warehouse/templates/pages/sponsor.html:202
-#: warehouse/templates/pages/sponsor.html:203
-#: warehouse/templates/pages/sponsor.html:206
-#: warehouse/templates/pages/sponsor.html:222
-#: warehouse/templates/pages/sponsor.html:223
-#: warehouse/templates/pages/sponsor.html:224
-#: warehouse/templates/pages/sponsor.html:227
-#: warehouse/templates/pages/sponsor.html:239
-#: warehouse/templates/pages/sponsor.html:244
-#: warehouse/templates/pages/sponsor.html:245
-#: warehouse/templates/pages/sponsor.html:246
-#: warehouse/templates/pages/sponsor.html:249
+#: warehouse/templates/pages/sponsors.html:35
+#: warehouse/templates/pages/sponsors.html:39
+#: warehouse/templates/pages/sponsors.html:43
+#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:66
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "Harici bağlantı"
@@ -553,8 +525,10 @@ msgstr "Yardım"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
-msgid "Sponsor"
-msgstr "Sponsor"
+#: warehouse/templates/pages/sitemap.html:41
+#: warehouse/templates/pages/sponsors.html:15
+msgid "Sponsors"
+msgstr "Sponsorlar"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
@@ -962,8 +936,8 @@ msgstr ""
 "değişiklik</a> yapmak üzeresiniz.\n"
 "              Eğer kişisel bilgisayarınızda değilseniz, oturumunuz "
 "bittiğinde çıkış yaptığınızdan emin olunuz.\n"
-"              Önümüzdeki saat için sizden doğrulama için şifre istemeyeceğiz."
-"\n"
+"              Önümüzdeki saat için sizden doğrulama için şifre "
+"istemeyeceğiz.\n"
 "              "
 
 #: warehouse/templates/upload.html:25
@@ -1093,8 +1067,9 @@ msgstr "Herhangi bir proje mevcut değil"
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:73
-#, python-format
-msgid "Last released on %(release_date)s"
+#, fuzzy, python-format
+#| msgid "Last released on %(release_date)s"
+msgid "Last released %(release_date)s"
 msgstr "En son %(release_date)s tarihinde yayınlandı"
 
 #: warehouse/templates/accounts/profile.html:81
@@ -2310,7 +2285,7 @@ msgstr "Çift Faktör Yöntemi:"
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:346
 msgid "None"
 msgstr "Mevcut değil"
 
@@ -2814,8 +2789,9 @@ msgstr "Davetiye bekleyenler (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
-#, python-format
-msgid "Created on %(creation_date)s"
+#, fuzzy, python-format
+#| msgid "Created on %(creation_date)s"
+msgid "Created %(creation_date)s"
 msgstr "%(creation_date)s tarihinde oluşturuldu"
 
 #: warehouse/templates/manage/projects.html:68
@@ -2840,7 +2816,7 @@ msgstr "Bu proje için hiçbir sürüm yayınlanmadı"
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:356
 msgid "View"
 msgstr "Görüntüle"
 
@@ -2886,8 +2862,8 @@ msgstr "%(project_name)s %(version)s Sürümünün Dosyaları"
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:318
-#: warehouse/templates/packaging/detail.html:329
+#: warehouse/templates/packaging/detail.html:320
+#: warehouse/templates/packaging/detail.html:331
 msgid "Filename, size"
 msgstr "Dosya Adı, Boyut"
 
@@ -2898,15 +2874,15 @@ msgstr "Tür"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:320
-#: warehouse/templates/packaging/detail.html:340
+#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:342
 msgid "Python version"
 msgstr "Python Sürümü"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:321
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:350
 msgid "Upload date"
 msgstr "Yüklenme Tarihi"
 
@@ -3098,7 +3074,6 @@ msgstr ""
 "kaldırmak için son çare olarak düşünülmüştür."
 
 #: warehouse/templates/manage/release.html:175
-#: warehouse/templates/manage/releases.html:140
 #, fuzzy, python-format
 #| msgid ""
 #| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -3107,8 +3082,8 @@ msgstr ""
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">yanking</a> this release, making a new release or a <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-"release</a> instead."
+"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">post release</a> instead."
 msgstr ""
 "<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
@@ -3198,6 +3173,22 @@ msgid ""
 "%(version)s</code>.\n"
 "            "
 msgstr ""
+
+#: warehouse/templates/manage/releases.html:140
+#, fuzzy, python-format
+#| msgid ""
+#| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
+#| "\"_blank\" rel=\"noopener\">Android</a> or <a href=\"%(ios_href)s\" title="
+#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">iOS</a>"
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
+msgstr ""
+"<a href=\"%(android_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
 
 #: warehouse/templates/manage/releases.html:151
 #, python-format
@@ -3842,78 +3833,78 @@ msgid "Navigation"
 msgstr "Navigasyon"
 
 #: warehouse/templates/packaging/detail.html:170
-#: warehouse/templates/packaging/detail.html:200
+#: warehouse/templates/packaging/detail.html:202
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s için navigasyon"
 
 #: warehouse/templates/packaging/detail.html:173
-#: warehouse/templates/packaging/detail.html:203
+#: warehouse/templates/packaging/detail.html:205
 msgid "Project description. Focus will be moved to the description."
 msgstr "Proje açıklaması. Dikkat, bu açıklamaya yönelir."
 
 #: warehouse/templates/packaging/detail.html:175
-#: warehouse/templates/packaging/detail.html:205
-#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:207
+#: warehouse/templates/packaging/detail.html:235
 msgid "Project description"
 msgstr "Proje açıklaması"
 
 #: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:217
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "Yayın geçmişi. Dikkat, tarih paneline yönelir."
 
 #: warehouse/templates/packaging/detail.html:181
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:257
 msgid "Release history"
 msgstr "Yayın geçmişi"
 
 #: warehouse/templates/packaging/detail.html:186
-#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:224
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Dosya indirme. Dikkat, proje dosyalarına yönelir."
 
 #: warehouse/templates/packaging/detail.html:188
-#: warehouse/templates/packaging/detail.html:224
-#: warehouse/templates/packaging/detail.html:311
+#: warehouse/templates/packaging/detail.html:226
+#: warehouse/templates/packaging/detail.html:313
 msgid "Download files"
 msgstr "Dosyaları indir"
 
-#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:211
 msgid "Project details. Focus will be moved to the project details."
 msgstr "Proje ayrıntıları. Dikkat, proje ayrıntılarına yönelir."
 
-#: warehouse/templates/packaging/detail.html:211
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:213
+#: warehouse/templates/packaging/detail.html:249
 msgid "Project details"
 msgstr "Proje ayrıntıları"
 
-#: warehouse/templates/packaging/detail.html:240
+#: warehouse/templates/packaging/detail.html:242
 msgid "The author of this package has not provided a project description"
 msgstr "Bu paketin yazarı herhangi bir proje açıklaması yazmamış"
 
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:259
 msgid "Release notifications"
 msgstr "Yayın bildirimleri"
 
-#: warehouse/templates/packaging/detail.html:258
+#: warehouse/templates/packaging/detail.html:260
 msgid "RSS feed"
 msgstr "RSS kaynağı"
 
-#: warehouse/templates/packaging/detail.html:270
+#: warehouse/templates/packaging/detail.html:272
 msgid "This version"
 msgstr "Bu sürüm"
 
-#: warehouse/templates/packaging/detail.html:290
+#: warehouse/templates/packaging/detail.html:292
 msgid "pre-release"
 msgstr "ön sürüm"
 
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:297
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/packaging/detail.html:314
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -3924,18 +3915,18 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">paket yüklemeleri</a> hakkında daha fazla bilgi edinin."
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:317
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "%(project_name)s için dosyalar, sürüm %(version)s"
 
-#: warehouse/templates/packaging/detail.html:319
-#: warehouse/templates/packaging/detail.html:336
+#: warehouse/templates/packaging/detail.html:321
+#: warehouse/templates/packaging/detail.html:338
 msgid "File type"
 msgstr "Dosya türü"
 
-#: warehouse/templates/packaging/detail.html:322
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:354
 msgid "Hashes"
 msgstr "Hash'ler"
 
@@ -3991,8 +3982,8 @@ msgid ""
 "\"_blank\" rel=\"noopener\">PSF Code of Conduct</a>."
 msgstr ""
 "Geri bildirim gönderen, sorunları bildiren veya Warehouse'a katkıda bulunan "
-"tüm kullanıcıların <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\""
-" rel=\"noopener\">PSF Davranış Kurallarını</a> izlemesi beklenmektedir."
+"tüm kullanıcıların <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+"\" rel=\"noopener\">PSF Davranış Kurallarını</a> izlemesi beklenmektedir."
 
 #: warehouse/templates/pages/help.html:31
 #, python-format
@@ -5398,7 +5389,8 @@ msgstr "Yüklemeler için bir kullanıcı adı ve parola kullanıyorsanız:"
 
 #: warehouse/templates/pages/help.html:624
 msgid "Ensure that your username and password are correct."
-msgstr "Kullanıcı adınızın veya parolanızın yanlış olup olmadığından emin olun."
+msgstr ""
+"Kullanıcı adınızın veya parolanızın yanlış olup olmadığından emin olun."
 
 #: warehouse/templates/pages/help.html:625
 msgid ""
@@ -6031,54 +6023,45 @@ msgstr "Kimlik doğrulama"
 msgid "Login"
 msgstr "Oturum aç"
 
-#: warehouse/templates/pages/sitemap.html:41
-#: warehouse/templates/pages/sponsors.html:15
-msgid "Sponsors"
-msgstr "Sponsorlar"
-
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
 msgstr "Güvenlik politikası"
 
-#: warehouse/templates/pages/sponsor.html:15
-msgid "Sponsor the Packaging Working Group"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:23
-msgid "Sponsor PyPI and related projects"
+#: warehouse/templates/pages/sponsors.html:25
+#, fuzzy
+#| msgid "Sponsor PyPI and related projects"
+msgid "Support PyPI and related projects"
 msgstr "PyPI ve ilişkili sürümlere sponsor ol"
 
-#: warehouse/templates/pages/sponsor.html:24
-msgid "Donate to the Packaging Working Group"
+#: warehouse/templates/pages/sponsors.html:26
+msgid "Sponsor the Python Software Foundation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:27
-#, fuzzy, python-format
+#: warehouse/templates/pages/sponsors.html:29
+#, fuzzy
 #| msgid ""
 #| "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 #| "\">Upgrade your browser</a> to set up two factor authentication with a "
 #| "security device (e.g. USB key)"
 msgid ""
-"The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Packaging Working Group</a> is a work group of the Python Software "
-"Foundation which raises and distributes funds to improve Python's packaging "
-"ecosystem."
+"The Python Software Foundation raises and distributes funds to improve "
+"Python's packaging ecosystem."
 msgstr ""
 "Güvenlik cihazıyla (örneğin USB anahtar) 2-aşamalı kimlik doğrulamayı kurmak "
 "için <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
 "\"noopener\"> tarayıcınızın güncelleyin </a>"
 
-#: warehouse/templates/pages/sponsor.html:29
-msgid "Recent projects funded through the working group include:"
+#: warehouse/templates/pages/sponsors.html:31
+msgid "Recent projects funded include:"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:32
+#: warehouse/templates/pages/sponsors.html:34
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:33
+#: warehouse/templates/pages/sponsors.html:35
 #, fuzzy, python-format
 #| msgid ""
 #| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -6094,13 +6077,13 @@ msgstr ""
 "\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
 
-#: warehouse/templates/pages/sponsor.html:36
+#: warehouse/templates/pages/sponsors.html:38
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:37
+#: warehouse/templates/pages/sponsors.html:39
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -6114,11 +6097,11 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
 "üzerinde öğren"
 
-#: warehouse/templates/pages/sponsor.html:40
+#: warehouse/templates/pages/sponsors.html:42
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:41
+#: warehouse/templates/pages/sponsors.html:43
 #, fuzzy, python-format
 #| msgid ""
 #| "Duo Mobile for <a href=\"%(android_href)s\" title=\"%(title)s\" target="
@@ -6134,11 +6117,11 @@ msgstr ""
 "\"noopener\">Android</a> yahut <a href=\"%(ios_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">iOS</a> için Duo Mobile"
 
-#: warehouse/templates/pages/sponsor.html:44
+#: warehouse/templates/pages/sponsors.html:46
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:45
+#: warehouse/templates/pages/sponsors.html:47
 #, fuzzy, python-format
 #| msgid ""
 #| "Popular keys include <a href=\"%(yubikey_href)s\" title=\"%(title)s\" "
@@ -6160,385 +6143,73 @@ msgstr ""
 "href=\"%(thetis_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Thetis</a>."
 
-#: warehouse/templates/pages/sponsor.html:49
+#: warehouse/templates/pages/sponsors.html:51
 msgid ""
-"With your support, the working group can continue to fund packaging "
-"improvements, benefiting millions of Python users around the world."
+"With your support, the PSF can continue to fund packaging improvements, "
+"benefiting millions of Python users around the world."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:57
+#: warehouse/templates/pages/sponsors.html:59
 #, fuzzy
-#| msgid "Common questions"
-msgid "Community donations"
-msgstr "Sık sorulan sorular"
+#| msgid "Sponsors"
+msgid "PSF Sponsorship"
+msgstr "Sponsorlar"
 
-#: warehouse/templates/pages/sponsor.html:60
-msgid "We greatly appreciate both one-time and recurring donations."
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:61
-#, python-format
+#: warehouse/templates/pages/sponsors.html:62
 msgid ""
-"For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">your donation may be tax-deductible</a>."
-msgstr ""
-"ABD vergi mükellefleri için, <a href=\"%(href)s\" title=\"%(title)s\" target="
-"\"_blank\" rel=\"noopener\">bağışınız vergiden düşülebilir</a>."
-
-#: warehouse/templates/pages/sponsor.html:62
-msgid "Every donation counts!"
+"All of these initiatives help maintain and support the tools that the Python "
+"community uses daily. This work can only be done with the generous financial "
+"support that you or your organization provides."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:65
-#, fuzzy
-#| msgid "Donate"
-msgid "Donate here"
-msgstr "Bağış"
-
-#: warehouse/templates/pages/sponsor.html:66
-#, fuzzy, python-format
-#| msgid "Go to <a href=\"%(href)s\">reset your password</a>."
+#: warehouse/templates/pages/sponsors.html:63
 msgid ""
-"Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
-msgstr "Şu link ile <a href=\"%(href)s\">parolanızı sıfırlayın</a>."
+"Your contributions matter and they make an impact. Every donation counts!"
+msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:77
+#: warehouse/templates/pages/sponsors.html:67
+msgid "Become a sponsor"
+msgstr ""
+
+#: warehouse/templates/pages/sponsors.html:69
+msgid ""
+"The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
+"organization, and donations are tax-deductible for organizations that pay "
+"taxes in the United States."
+msgstr ""
+
+#: warehouse/templates/pages/sponsors.html:80
 msgid "Get your logo on PyPI.org"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:78
+#: warehouse/templates/pages/sponsors.html:81
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from "
 "237 countries visited PyPI.org."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:79
+#: warehouse/templates/pages/sponsors.html:82
 msgid "* Data as of March 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:82
+#: warehouse/templates/pages/sponsors.html:85
 msgid "Strengthen the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:83
+#: warehouse/templates/pages/sponsors.html:86
 msgid ""
-"Funds raised by the packaging working group go directly towards improving "
+"Funds raised by the Python Software Foundation go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:86
+#: warehouse/templates/pages/sponsors.html:89
 msgid "Boost your reputation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:87
+#: warehouse/templates/pages/sponsors.html:90
 msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:96
-#, fuzzy
-#| msgid "Upload packages"
-msgid "Sponsorship packages"
-msgstr "Paketleri yükleme"
-
-#: warehouse/templates/pages/sponsor.html:97
-msgid "All figures are in USD"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:106
-msgid "Lifetime"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:107
-msgid "One time donation of $1,000,000"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:111
-msgid ""
-"Logo in a prominent position on the PyPI project detail page, <strong>in "
-"perpetuity</strong>"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:112
-#: warehouse/templates/pages/sponsor.html:133
-#, python-format
-msgid ""
-"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
-"blog</a>"
-msgstr ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Python Yazılım Vakfı blogunda</a> <strong>bireysel</strong> blog yazısı"
-
-#: warehouse/templates/pages/sponsor.html:116
-#: warehouse/templates/pages/sponsor.html:139
-#: warehouse/templates/pages/sponsor.html:162
-#: warehouse/templates/pages/sponsor.html:185
-#: warehouse/templates/pages/sponsor.html:207
-#: warehouse/templates/pages/sponsor.html:228
-#: warehouse/templates/pages/sponsor.html:250
-msgid "Become a sponsor"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:125
-msgid "Diamond"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:126
-msgid "$50,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:130
-msgid ""
-"Logo in a <strong>prominent position</strong> on the PyPI project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:131
-#: warehouse/templates/pages/sponsor.html:154
-#: warehouse/templates/pages/sponsor.html:177
-msgid "Logo on the PyPI footer"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:132
-#: warehouse/templates/pages/sponsor.html:155
-#: warehouse/templates/pages/sponsor.html:178
-#: warehouse/templates/pages/sponsor.html:243
-#, python-format
-msgid ""
-"Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI sponsors "
-"page</a>"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:134
-#: warehouse/templates/pages/sponsor.html:157
-#: warehouse/templates/pages/sponsor.html:180
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>"
-msgstr ""
-"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
-"üzerinde öğren"
-
-#: warehouse/templates/pages/sponsor.html:135
-#: warehouse/templates/pages/sponsor.html:158
-#: warehouse/templates/pages/sponsor.html:181
-#, fuzzy, python-format
-#| msgid ""
-#| "PyPI supports any device that adheres to the <a href=\"%(href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
-msgid ""
-"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
-"a>"
-msgstr ""
-"PyPI <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">FIDO standartını</a> uygulayan her cihazi destekler."
-
-#: warehouse/templates/pages/sponsor.html:148
-msgid "Platinum"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:149
-msgid "$30,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:153
-msgid ""
-"Logo on <strong>high rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:156
-#: warehouse/templates/pages/sponsor.html:179
-#: warehouse/templates/pages/sponsor.html:201
-#: warehouse/templates/pages/sponsor.html:222
-#, fuzzy, python-format
-#| msgid ""
-#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
-#| "available formats."
-msgid ""
-"Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
-"<strong>with other sponsors</strong> whose sponsorship commenced during the "
-"same quarter"
-msgstr ""
-"Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guide</a>' na bakınız."
-
-#: warehouse/templates/pages/sponsor.html:171
-msgid "Gold"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:172
-msgid "$20,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:176
-msgid ""
-"Logo on <strong>medium rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:194
-msgid "Silver"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:195
-msgid "$10,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:199
-msgid ""
-"Logo on <strong>low rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:200
-#: warehouse/templates/pages/sponsor.html:221
-#, python-format
-msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
-msgstr "<a href=\"%(href)s\">PyPI sponsorlar sayfasında</a> logo"
-
-#: warehouse/templates/pages/sponsor.html:202
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>"
-msgstr ""
-"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
-"üzerinde öğren"
-
-#: warehouse/templates/pages/sponsor.html:203
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
-"a>"
-msgstr ""
-"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
-"üzerinde öğren"
-
-#: warehouse/templates/pages/sponsor.html:216
-msgid "Bronze"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:217
-msgid "$5,000 per year, or equivalent in donated services"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:223
-#, fuzzy, python-format
-#| msgid ""
-#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
-#| "available formats."
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
-"a> (on initial sponsorship, and on each subsequent renewal)"
-msgstr ""
-"Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guide</a>' na bakınız."
-
-#: warehouse/templates/pages/sponsor.html:224
-#, fuzzy, python-format
-#| msgid ""
-#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
-#| "available formats."
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a> "
-"(on initial sponsorship, and on each subsequent renewal)"
-msgstr ""
-"Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guide</a>' na bakınız."
-
-#: warehouse/templates/pages/sponsor.html:238
-msgid "One time grants / custom donations"
-msgstr ""
-
-#: warehouse/templates/pages/sponsor.html:239
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to create a new release on the <a href=\"%(href)s\" title="
-#| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-#| "Guide</a>"
-msgid ""
-"Sponsorship of a specific feature, feature set, or community sprint, valued "
-"at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">fundable packaging improvements</a> for ideas."
-msgstr ""
-"Nasıl yeni bir sürüm oluşturacağınızı <a href=\"%(href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
-"a> üzerinde öğrenin"
-
-#: warehouse/templates/pages/sponsor.html:244
-#, fuzzy, python-format
-#| msgid ""
-#| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-#| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
-#| "available formats."
-msgid ""
-"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
-"blog</a>, explaining what the funds will be used for"
-msgstr ""
-"Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
-"Guide</a>' na bakınız."
-
-#: warehouse/templates/pages/sponsor.html:245
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
-"a>"
-msgstr ""
-"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
-"üzerinde öğren"
-
-#: warehouse/templates/pages/sponsor.html:246
-#, fuzzy, python-format
-#| msgid ""
-#| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a>"
-msgstr ""
-"Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</a> "
-"üzerinde öğren"
-
-#: warehouse/templates/pages/sponsor.html:248
-msgid ""
-"Note: A record of working group grants will be listed on the PyPI "
-"sponsorship page in perpetuity."
 msgstr ""
 
 #: warehouse/templates/pages/stats.html:21
@@ -6700,6 +6371,197 @@ msgid_plural ""
 "                "
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "Sponsor"
+#~ msgstr "Sponsor"
+
+#, fuzzy
+#~| msgid "Common questions"
+#~ msgid "Community donations"
+#~ msgstr "Sık sorulan sorular"
+
+#~ msgid ""
+#~ "For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+#~ "\" rel=\"noopener\">your donation may be tax-deductible</a>."
+#~ msgstr ""
+#~ "ABD vergi mükellefleri için, <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">bağışınız vergiden düşülebilir</a>."
+
+#, fuzzy
+#~| msgid "Donate"
+#~ msgid "Donate here"
+#~ msgstr "Bağış"
+
+#, fuzzy
+#~| msgid "Go to <a href=\"%(href)s\">reset your password</a>."
+#~ msgid ""
+#~ "Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
+#~ msgstr "Şu link ile <a href=\"%(href)s\">parolanızı sıfırlayın</a>."
+
+#, fuzzy
+#~| msgid "Upload packages"
+#~ msgid "Sponsorship packages"
+#~ msgstr "Paketleri yükleme"
+
+#~ msgid ""
+#~ "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation blog</a>"
+#~ msgstr ""
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">Python Yazılım Vakfı blogunda</a> <strong>bireysel</strong> blog yazısı"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
+#~ "a> üzerinde öğren"
+
+#, fuzzy
+#~| msgid ""
+#~| "PyPI supports any device that adheres to the <a href=\"%(href)s\" title="
+#~| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">FIDO standard</a>."
+#~ msgid ""
+#~ "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "PyPI <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#~ "\"noopener\">FIDO standartını</a> uygulayan her cihazi destekler."
+
+#, fuzzy
+#~| msgid ""
+#~| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#~| "available formats."
+#~ msgid ""
+#~ "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
+#~ "<strong>with other sponsors</strong> whose sponsorship commenced during "
+#~ "the same quarter"
+#~ msgstr ""
+#~ "Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
+#~ "User Guide</a>' na bakınız."
+
+#~ msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
+#~ msgstr "<a href=\"%(href)s\">PyPI sponsorlar sayfasında</a> logo"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
+#~ "a> üzerinde öğren"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
+#~ "a> üzerinde öğren"
+
+#, fuzzy
+#~| msgid ""
+#~| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#~| "available formats."
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a> (on initial sponsorship, and on each subsequent renewal)"
+#~ msgstr ""
+#~ "Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
+#~ "User Guide</a>' na bakınız."
+
+#, fuzzy
+#~| msgid ""
+#~| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#~| "available formats."
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a> (on initial sponsorship, and on each subsequent renewal)"
+#~ msgstr ""
+#~ "Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
+#~ "User Guide</a>' na bakınız."
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to create a new release on the <a href=\"%(href)s\" title="
+#~| "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging User "
+#~| "Guide</a>"
+#~ msgid ""
+#~ "Sponsorship of a specific feature, feature set, or community sprint, "
+#~ "valued at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">fundable packaging improvements</a> "
+#~ "for ideas."
+#~ msgstr ""
+#~ "Nasıl yeni bir sürüm oluşturacağınızı <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Paketleme "
+#~ "Kullanıcı Kılavuzu</a> üzerinde öğrenin"
+
+#, fuzzy
+#~| msgid ""
+#~| "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~| "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
+#~| "available formats."
+#~ msgid ""
+#~ "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation blog</a>, explaining what the funds will be used for"
+#~ msgstr ""
+#~ "Mevcut formatlar ile ilgili ayrıntılı bilgi için <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
+#~ "User Guide</a>' na bakınız."
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
+#~ "a> üzerinde öğren"
+
+#, fuzzy
+#~| msgid ""
+#~| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s"
+#~| "\" target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "Nasıl dosya yüklemen gerektiğini <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Paketleme Kullanıcı Kılavuzu</"
+#~ "a> üzerinde öğren"
 
 #, fuzzy
 #~| msgid ""
