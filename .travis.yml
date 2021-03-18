@@ -43,7 +43,7 @@ matrix:
   include:
     - env:
       - SUITE=Tests
-    - script: make lint BINDIR="$(dirname $(which python))"
+    - script: bin/lint
       env:
         - SUITE=Lint
     - script: make docs BINDIR="$(dirname $(which python))"
@@ -61,6 +61,9 @@ matrix:
     - script: bin/static_tests
       env:
         - SUITE="Static Tests"
+    - script: bin/static_lint
+      env:
+        - SUITE="Static Lint"
     - script: bin/static_pipeline
       env:
         - SUITE="Static Pipeline"

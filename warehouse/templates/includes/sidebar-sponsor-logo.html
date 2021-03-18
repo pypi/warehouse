@@ -11,5 +11,17 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+{% from "warehouse:templates/includes/sponsors.html" import sponsors %}
 
-{# Note: The actual content for this include is defined in pypi-theme #}
+{% set sponsor = sponsors | selectattr("sidebar", "equalto", true) | list | random %}
+
+<div class="sponsor-grid__sponsor">
+  <div class="sponsor-grid__sponsor-img">
+    <img src="{{ request.static_path('warehouse:static/dist/images/sponsors/color/' + sponsor.image) }}" alt="{{ sponsor.name }}">
+  </div>
+  <div class="sponsor-grid__sponsor-activity">
+  {% for paragraph in sponsor.activity %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+  </div>
+</div>
