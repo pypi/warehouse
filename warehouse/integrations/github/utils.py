@@ -164,6 +164,7 @@ class GitHubTokenScanningPayloadVerifier:
         *,
         session,
         metrics,
+        api_url: str,
         api_token: Optional[str] = None,
         public_keys_cache=PUBLIC_KEYS_CACHE,
     ):
@@ -171,6 +172,7 @@ class GitHubTokenScanningPayloadVerifier:
         self._session = session
         self._api_token = api_token
         self._public_keys_cache = public_keys_cache
+        self._api_url = api_url
 
     def verify(self, *, payload, key_id, signature):
 
@@ -217,15 +219,8 @@ class GitHubTokenScanningPayloadVerifier:
         return {"Authorization": f"token {self._api_token}"}
 
     def _retrieve_public_key_payload(self):
-
-        token_scanning_pubkey_api_url = (
-            "https://api.github.com/meta/public_keys/token_scanning"
-        )
-
         try:
-            response = self._session.get(
-                token_scanning_pubkey_api_url, headers=self._headers_auth()
-            )
+            response = self._session.get(self._api_url, headers=self._headers_auth())
             response.raise_for_status()
             return response.json()
         except requests.HTTPError as exc:
