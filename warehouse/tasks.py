@@ -12,6 +12,7 @@
 
 import functools
 import logging
+import time
 import urllib.parse
 
 import celery
@@ -90,6 +91,8 @@ class WarehouseTask(celery.Task):
             registry = self.app.pyramid_config.registry
             env = pyramid.scripting.prepare(registry=registry)
             env["request"].tm = transaction.TransactionManager(explicit=True)
+            env["request"].timings = {"new_request_start": time.time() * 1000}
+            env["request"].remote_addr = "127.0.0.1"
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]
