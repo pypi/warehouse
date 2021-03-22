@@ -51,7 +51,7 @@ class TokenLeakMatcher:
 
 
 class PlainTextTokenLeakMatcher(TokenLeakMatcher):
-    name = "token"
+    name = "pypi_api_token"
     # Macaroons are urlsafe_b64 encodeded so non-alphanumeric chars are - and _
     # https://github.com/ecordell/pymacaroons/blob/06b55110eda2fb192c130dee0bcedf8b124d1056/pymacaroons/serializers/binary_serializer.py#L32
     pattern = re.compile(r"pypi-[A-Za-z0-9-_=]+")

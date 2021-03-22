@@ -45,7 +45,8 @@ def test_invalid_token_leak_request():
         ({}, "Record is missing attribute(s): token, type, url", "format"),
         (
             {"type": "not_found", "token": "a", "url": "b"},
-            "Matcher with code not_found not found. Available codes are: failer, token",
+            "Matcher with code not_found not found. "
+            "Available codes are: failer, pypi_api_token",
             "invalid_matcher",
         ),
         (
@@ -73,7 +74,7 @@ def test_token_leak_disclosure_request_from_api_record_error(record, error, reas
 
 def test_token_leak_disclosure_request_from_api_record():
     request = utils.TokenLeakDisclosureRequest.from_api_record(
-        {"type": "token", "token": "pypi-1234", "url": "http://example.com"}
+        {"type": "pypi_api_token", "token": "pypi-1234", "url": "http://example.com"}
     )
 
     assert request.token == "pypi-1234"
@@ -562,7 +563,7 @@ def test_analyze_disclosure(monkeypatch):
     utils.analyze_disclosure(
         request=request,
         disclosure_record={
-            "type": "token",
+            "type": "pypi_api_token",
             "token": "pypi-1234",
             "url": "http://example.com",
         },
@@ -636,7 +637,7 @@ def test_analyze_disclosure_invalid_macaroon():
     utils.analyze_disclosure(
         request=request,
         disclosure_record={
-            "type": "token",
+            "type": "pypi_api_token",
             "token": "pypi-1234",
             "url": "http://example.com",
         },
