@@ -25,7 +25,7 @@ DOCS_URL="https://pythonhosted.org/{project}/"
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 
-MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=maildev port=25 ssl=false sender=noreply@pypi.org
+MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=maildev port=25 ssl=false sender=noreply@pypi.org
 
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 

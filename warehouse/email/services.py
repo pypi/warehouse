@@ -126,3 +126,16 @@ class SESEmailSender:
                 subject=message.subject,
             )
         )
+
+
+class ConsoleAndSMTPEmailSender(SMTPEmailSender):
+    def send(self, recipient, message):
+        super().send(recipient=recipient, message=message)
+        print(
+            f"""Email sent
+Subject: {message.subject}
+From: {self.sender}
+To: {recipient}
+HTML: Visualize at http://localhost:1080
+Text: {message.body_text}"""
+        )

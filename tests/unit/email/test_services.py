@@ -22,6 +22,7 @@ from zope.interface.verify import verifyClass
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import (
+    ConsoleAndSMTPEmailSender,
     EmailMessage,
     SESEmailSender,
     SMTPEmailSender,
@@ -94,11 +95,12 @@ class TestEmailMessage:
         )
 
 
+@pytest.mark.parametrize("sender_class", [SMTPEmailSender, ConsoleAndSMTPEmailSender])
 class TestSMTPEmailSender:
-    def test_verify_service(self):
-        assert verifyClass(IEmailSender, SMTPEmailSender)
+    def test_verify_service(self, sender_class):
+        assert verifyClass(IEmailSender, sender_class)
 
-    def test_creates_service(self):
+    def test_creates_service(self, sender_class):
         mailer = pretend.stub()
         context = pretend.stub()
         request = pretend.stub(
@@ -108,15 +110,15 @@ class TestSMTPEmailSender:
             )
         )
 
-        service = SMTPEmailSender.create_service(context, request)
+        service = sender_class.create_service(context, request)
 
-        assert isinstance(service, SMTPEmailSender)
+        assert isinstance(service, sender_class)
         assert service.mailer is mailer
         assert service.sender == "DevPyPI <noreply@example.com>"
 
-    def test_send(self):
+    def test_send(self, sender_class):
         mailer = DummyMailer()
-        service = SMTPEmailSender(mailer, sender="DevPyPI <noreply@example.com>")
+        service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
 
         service.send(
             "sombody@example.com",
@@ -134,6 +136,30 @@ class TestSMTPEmailSender:
         assert msg.html == "a html body"
         assert msg.recipients == ["sombody@example.com"]
         assert msg.sender == "DevPyPI <noreply@example.com>"
+
+
+class TestConsoleAndSMTPEmailSender:
+    def test_send(self, capsys):
+        mailer = DummyMailer()
+        service = ConsoleAndSMTPEmailSender(
+            mailer, sender="DevPyPI <noreply@example.com>"
+        )
+
+        service.send(
+            "sombody@example.com",
+            EmailMessage(
+                subject="a subject", body_text="a body", body_html="a html body"
+            ),
+        )
+        captured = capsys.readouterr()
+        expected = """
+Email sent
+Subject: a subject
+From: DevPyPI <noreply@example.com>
+To: sombody@example.com
+HTML: Visualize at http://localhost:1080
+Text: a body"""
+        assert captured.out.strip() == expected.strip()
 
 
 class TestSESEmailSender:
