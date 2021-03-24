@@ -31,6 +31,7 @@ or the `distutils-sig mailing list`_, to ask questions or get involved.
     legacy-application-structure
     development-database
     cloud
+    email
     malware-checks
     token-scanning
 
