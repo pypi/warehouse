@@ -17,12 +17,24 @@
 <div class="sponsors">
   <p class="sponsors__title">Supported by</p>
   {% for sponsor in sponsors | sort(attribute='name') %}
-    {% if sponsor.infra_sponsor and sponsor.image %}
-      <a class="sponsors__sponsor" target="_blank" rel="noopener" href="{{ sponsor.url }}">
-        <img class="sponsors__image" alt="{{ sponsor.name }}" src="{{ request.static_path('warehouse:static/dist/images/sponsors/white/' + sponsor.image) }}">
-        <span class="sponsors__name">{{ sponsor.name }}</span>
-        <span class="sponsors__service">{{ sponsor.service }}</span>
-      </a>
+    {# Short-circuit if we don't have an image for them #}
+    {% if sponsor.image %}
+      {# Check if they belong in the footer #}
+      {% if sponsor.infra_sponsor or sponsor.footer %}
+        <a class="sponsors__sponsor" target="_blank" rel="noopener" href="{{ sponsor.url }}">
+          <img class="sponsors__image" alt="{{ sponsor.name }}" src="{{ request.static_path('warehouse:static/dist/images/sponsors/white/' + sponsor.image) }}">
+          <span class="sponsors__name">{{ sponsor.name }}</span>
+          <span class="sponsors__service">
+          {# If they're an infra sponsor, we should have a service for them,
+          otherwise they're a PSF sponsor #}
+          {% if sponsor.infra_sponsor %}
+            {{ sponsor.service }}
+          {% elif sponsor.footer %}
+            PSF Sponsor
+          {% endif %}
+          </span>
+        </a>
+      {% endif %}
     {% endif %}
   {% endfor %}
 </div>
