@@ -13,7 +13,8 @@ Project
     the release name, URL, and MD5 and SHA256 hash digests, and are keyed by
     the release version string. Metadata returned comes from the values provided
     at upload time and does not necessarily match the content of the uploaded
-    files.
+    files. The first uploaded data for a release is stored, subsequent uploads
+    do not update it.
 
     **Example Request**:
 
