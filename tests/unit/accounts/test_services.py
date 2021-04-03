@@ -519,6 +519,19 @@ class TestDatabaseUserService:
         assert options["rp"]["id"] == rp_id
         assert "icon" not in options["user"]
 
+    def test_get_webauthn_credential_options_for_blank_name(self, user_service):
+        user = UserFactory.create(name="")
+
+        options = user_service.get_webauthn_credential_options(
+            user.id,
+            challenge="fake_challenge",
+            rp_name="fake_rp_name",
+            rp_id="fake_rp_id",
+        )
+
+        assert options["user"]["name"] == user.username
+        assert options["user"]["displayName"] == user.username
+
     def test_get_webauthn_assertion_options(self, user_service):
         user = UserFactory.create()
         user_service.add_webauthn(
