@@ -452,6 +452,9 @@ def session_notifications(request):
     renderer="includes/sidebar-sponsor-logo.html",
     uses_session=False,
     has_translations=False,
+    decorator=[
+        cache_control(30),  # 30 seconds
+    ],
 )
 def sidebar_sponsor_logo(request):
     return {}
