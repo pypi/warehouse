@@ -48,7 +48,7 @@ redis>=2.8.0
 rfc3986
 sentry-sdk
 setuptools
-sqlalchemy>=0.9,<1.4.0  # https://github.com/pypa/warehouse/pull/9228
+sqlalchemy>=0.9,<1.5.0  # https://github.com/pypa/warehouse/pull/9228
 sqlalchemy-citext
 stdlib-list
 structlog
