@@ -223,9 +223,9 @@ datadog==0.40.1 \
     --hash=sha256:2144e3c41ce15dae1d7db728f95b7494082f23c5f9de02e48f37b3fc204892d6 \
     --hash=sha256:438c1dde5462e68c5c792b7b4a1d87a0ddd970af3db31b3cf15980eed0c44311
     # via -r requirements/main.in
-decorator==4.4.2 \
-    --hash=sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760 \
-    --hash=sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7
+decorator==5.0.6 \
+    --hash=sha256:d9f2d2863183a3c0df05f4b786f2e6b8752c093b3547a558f287bf3022fd2bf4 \
+    --hash=sha256:f2e71efb39412bfd23d878e896a51b07744f2e2250b2e87d158e76828c5ae202
     # via datadog
 disposable-email-domains==0.0.64 \
     --hash=sha256:da4b9099542af33c854a2f482d825b759a7db43819c535bb3a20e37eb01a2534 \
