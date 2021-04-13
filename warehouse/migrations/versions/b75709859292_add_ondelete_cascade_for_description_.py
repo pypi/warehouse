@@ -24,9 +24,6 @@ down_revision = "7165e957cddc"
 
 
 def upgrade():
-    op.drop_constraint(
-        "description_urls_name_fkey", "description_urls", type_="foreignkey"
-    )
     op.create_foreign_key(
         "description_urls_name_fkey",
         "description_urls",
