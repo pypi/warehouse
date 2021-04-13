@@ -130,9 +130,10 @@ def database(request):
     pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 10.1)
+    pg_version = config.get("version", 12.6)
+    pg_pw = config.get("password", "password")
 
-    janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
+    janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version, pg_pw)
 
     # In case the database already exists, possibly due to an aborted test run,
     # attempt to drop it before creating
@@ -146,7 +147,7 @@ def database(request):
     def drop_database():
         janitor.drop()
 
-    return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
+    return "postgresql://{}:{}@{}:{}/{}".format(pg_user, pg_pw, pg_host, pg_port, pg_db)
 
 
 class MockManifestCacheBuster(ManifestCacheBuster):

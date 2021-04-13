@@ -23,10 +23,12 @@ services:
       - ./dev/vault:/etc/vault
 
   db:
-    image: postgres:10.1
+    image: postgres:12.6
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: password
 
   redis:
     image: redis:4.0
