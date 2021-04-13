@@ -124,7 +124,7 @@
                   <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
                   <td>{{ role.role_name }}</td>
                   <td>
-                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('admin') }}>
+                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('moderator') }}>
                       <i class="fa fa-trash"></i>
                     </button>
                     <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
@@ -163,10 +163,10 @@
                   <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
                   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                   <td>
-                    <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('admin') }}>
+                    <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('moderator') }}>
                   </td>
                   <td>
-                    <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('admin') }}>
+                    <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('moderator') }}>
                       <option disabled selected>Select a role</option>
                       {% for role_name in ['Maintainer', 'Owner'] %}
                       <option value="{{ role_name }}">
@@ -176,7 +176,7 @@
                     </select>
                   </td>
                   <td>
-                    <button type="submit" class="btn btn-primary btn-sm" {{ "disabled" if not request.has_permission('admin') }}>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ "disabled" if not request.has_permission('moderator') }}>
                       <i class="fa fa-plus"></i>
                     </button>
                   </td>
