@@ -24,9 +24,6 @@ down_revision = "701c2fba1f5f"
 
 
 def upgrade():
-    op.drop_constraint(
-        "release_dependencies_name_fkey", "release_dependencies", type_="foreignkey"
-    )
     op.create_foreign_key(
         "release_dependencies_name_fkey",
         "release_dependencies",
