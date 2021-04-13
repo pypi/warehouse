@@ -131,7 +131,7 @@ def database(request):
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
     pg_version = config.get("version", 12.6)
-    pg_pw = config.get("password", "password")
+    pg_pw = config.get("password") or os.environ.get("PGPASSWORD", "password")
 
     janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version, pg_pw)
 
