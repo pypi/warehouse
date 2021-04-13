@@ -176,7 +176,7 @@ class TestJSONRelease:
             r"unsafechars,http://example.com <>[]{}|\^%",
         ]
         expected_urls = []
-        for project_url in reversed(project_urls):
+        for project_url in project_urls:
             expected_urls.append(tuple(project_url.split(",")))
         expected_urls = OrderedDict(tuple(expected_urls))
 
