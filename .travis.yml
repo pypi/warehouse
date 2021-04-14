@@ -4,18 +4,15 @@ python: 3.8.2
 env:
   global:
     - TRAVIS_NODE_VERSION=14.4.0
-    - PGPORT=5433
 
 dist: bionic
 
 addons:
   hosts:
     - warehouse.local
-  postgresql: 12
+  postgresql: 10
   apt:
     packages:
-    - postgresql-12
-    - postgresql-client-12
     - nasm
     - libgnutls28-dev
 
