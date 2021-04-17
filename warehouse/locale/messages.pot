@@ -822,8 +822,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:153
-#: warehouse/templates/manage/roles.html:165
+#: warehouse/templates/manage/roles.html:170
+#: warehouse/templates/manage/roles.html:182
 #: warehouse/templates/manage/token.html:136
 #: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
@@ -912,7 +912,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:156
+#: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr ""
 
@@ -938,8 +938,8 @@ msgstr ""
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
-#: warehouse/templates/manage/roles.html:47
-#: warehouse/templates/manage/roles.html:109
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -1428,7 +1428,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
-#: warehouse/templates/manage/roles.html:24
+#: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
 msgid "Close"
@@ -1571,7 +1571,7 @@ msgid "Releases"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
-#: warehouse/templates/manage/roles.html:21
+#: warehouse/templates/manage/roles.html:35
 msgid "Collaborators"
 msgstr ""
 
@@ -2467,8 +2467,8 @@ msgstr ""
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
-#: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:151
+#: warehouse/templates/manage/roles.html:51
+#: warehouse/templates/manage/roles.html:168
 msgid "User"
 msgstr ""
 
@@ -2678,7 +2678,7 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
-#: warehouse/templates/manage/roles.html:24
+#: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
 msgstr ""
@@ -2932,93 +2932,105 @@ msgstr ""
 msgid "Manage '%(project_name)s' collaborators"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:22
+#: warehouse/templates/manage/roles.html:24
+msgid "2FA enabled"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:29
+msgid "No 2FA"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:36
 #, python-format
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:25
+#: warehouse/templates/manage/roles.html:39
 #: warehouse/templates/pages/help.html:556
 msgid "There are two possible roles for collaborators:"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:64
-#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:41
+#: warehouse/templates/manage/roles.html:79
+#: warehouse/templates/manage/roles.html:88
 msgid "Maintainer"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:28
+#: warehouse/templates/manage/roles.html:42
 msgid ""
 "Can upload releases for a package. Cannot invite collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:62
-#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:43
+#: warehouse/templates/manage/roles.html:77
+#: warehouse/templates/manage/roles.html:88
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:30
+#: warehouse/templates/manage/roles.html:44
 msgid ""
 "Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:34
+#: warehouse/templates/manage/roles.html:48
 #, python-format
 msgid "Users who can manage %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:163
+#: warehouse/templates/manage/roles.html:52
+#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:180
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:79
+#: warehouse/templates/manage/roles.html:53
+msgid "2FA"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:94
 msgid "Save role"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:93
+#: warehouse/templates/manage/roles.html:109
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:96
+#: warehouse/templates/manage/roles.html:112
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:123
+#: warehouse/templates/manage/roles.html:139
 msgid "Invite pending"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:141
 msgid "Invite expired"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:152
 #, python-format
 msgid "Revoke invitation for %(user)s"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:154
 msgid "Revoke invite"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:146
+#: warehouse/templates/manage/roles.html:163
 msgid "Invite collaborator"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:174
+#: warehouse/templates/manage/roles.html:191
 msgid "Invite"
 msgstr ""
 
