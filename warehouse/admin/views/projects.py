@@ -337,7 +337,7 @@ def set_total_size_limit(project, request):
 
 @view_config(
     route_name="admin.project.add_role",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -408,7 +408,7 @@ def add_role(project, request):
 
 @view_config(
     route_name="admin.project.delete_role",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
