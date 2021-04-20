@@ -50,9 +50,9 @@ you stay up-to-date with our repository:
 .. code-block:: console
 
     git remote add upstream https://github.com/pypa/warehouse.git
-    git checkout master
+    git checkout main
     git fetch upstream
-    git merge upstream/master
+    git merge upstream/main
 
 
 Configure the development environment

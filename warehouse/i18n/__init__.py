@@ -33,6 +33,7 @@ KNOWN_LOCALES = {
         "zh_Hans",  # Simplified Chinese
         "ru",  # Russian
         "he",  # Hebrew
+        "eo",  # Esperanto
     ]
 }
 

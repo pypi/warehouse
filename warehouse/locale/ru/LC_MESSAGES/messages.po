@@ -9,7 +9,7 @@
 # Древ Брагкин <rokree@yahoo.com>, 2019.
 # Aleksei Kozharin <1alekseik1@gmail.com>, 2019.
 # Alexandr Artemyev <mogost@gmail.com>, 2019.
-# Mingun <Alexander_Sergey@mail.ru>, 2020.
+# Mingun <Alexander_Sergey@mail.ru>, 2020, 2021.
 # anonymous <noreply@weblate.org>, 2020.
 # Artem <KovalevArtem.ru@gmail.com>, 2020.
 msgid ""
@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2020-11-19 23:58+0000\n"
+"PO-Revision-Date: 2021-02-18 09:39+0000\n"
 "Last-Translator: Mingun <Alexander_Sergey@mail.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
@@ -27,7 +27,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.4-dev\n"
+"X-Generator: Weblate 4.5\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:254
@@ -377,10 +377,10 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/release.html:119
-#: warehouse/templates/manage/release.html:173
-#: warehouse/templates/manage/releases.html:138
-#: warehouse/templates/manage/releases.html:171
-#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/manage/release.html:175
+#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:173
+#: warehouse/templates/packaging/detail.html:314
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:202
@@ -443,39 +443,11 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/pages/help.html:850
 #: warehouse/templates/pages/help.html:855
 #: warehouse/templates/pages/security.html:36
-#: warehouse/templates/pages/sponsor.html:27
-#: warehouse/templates/pages/sponsor.html:33
-#: warehouse/templates/pages/sponsor.html:37
-#: warehouse/templates/pages/sponsor.html:41
-#: warehouse/templates/pages/sponsor.html:45
-#: warehouse/templates/pages/sponsor.html:61
-#: warehouse/templates/pages/sponsor.html:112
-#: warehouse/templates/pages/sponsor.html:115
-#: warehouse/templates/pages/sponsor.html:133
-#: warehouse/templates/pages/sponsor.html:134
-#: warehouse/templates/pages/sponsor.html:135
-#: warehouse/templates/pages/sponsor.html:138
-#: warehouse/templates/pages/sponsor.html:156
-#: warehouse/templates/pages/sponsor.html:157
-#: warehouse/templates/pages/sponsor.html:158
-#: warehouse/templates/pages/sponsor.html:161
-#: warehouse/templates/pages/sponsor.html:179
-#: warehouse/templates/pages/sponsor.html:180
-#: warehouse/templates/pages/sponsor.html:181
-#: warehouse/templates/pages/sponsor.html:184
-#: warehouse/templates/pages/sponsor.html:201
-#: warehouse/templates/pages/sponsor.html:202
-#: warehouse/templates/pages/sponsor.html:203
-#: warehouse/templates/pages/sponsor.html:206
-#: warehouse/templates/pages/sponsor.html:222
-#: warehouse/templates/pages/sponsor.html:223
-#: warehouse/templates/pages/sponsor.html:224
-#: warehouse/templates/pages/sponsor.html:227
-#: warehouse/templates/pages/sponsor.html:239
-#: warehouse/templates/pages/sponsor.html:244
-#: warehouse/templates/pages/sponsor.html:245
-#: warehouse/templates/pages/sponsor.html:246
-#: warehouse/templates/pages/sponsor.html:249
+#: warehouse/templates/pages/sponsors.html:35
+#: warehouse/templates/pages/sponsors.html:39
+#: warehouse/templates/pages/sponsors.html:43
+#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:66
 #: warehouse/templates/upload.html:26
 msgid "External link"
 msgstr "Внешняя ссылка"
@@ -570,8 +542,10 @@ msgstr "Помощь"
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:61
-msgid "Sponsor"
-msgstr "Спонсорство"
+#: warehouse/templates/pages/sitemap.html:41
+#: warehouse/templates/pages/sponsors.html:15
+msgid "Sponsors"
+msgstr "Спонсоры"
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
@@ -1089,7 +1063,7 @@ msgstr "Дата регистрации"
 
 #: warehouse/templates/accounts/profile.html:44
 #, python-format
-msgid "Joined on %(start_date)s"
+msgid "Joined %(start_date)s"
 msgstr "Зарегистрировался %(start_date)s"
 
 #: warehouse/templates/accounts/profile.html:58
@@ -1122,8 +1096,9 @@ msgstr "Нет проектов"
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/manage/projects.html:34
 #: warehouse/templates/manage/projects.html:73
-#, python-format
-msgid "Last released on %(release_date)s"
+#, fuzzy, python-format
+#| msgid "Last released on %(release_date)s"
+msgid "Last released %(release_date)s"
 msgstr "Дата последнего выпуска %(release_date)s"
 
 #: warehouse/templates/accounts/profile.html:81
@@ -1378,28 +1353,22 @@ msgstr ""
 "\"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами PyPI."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project)s by %(submitter)s."
+#, python-format
 msgid ""
 "You have been added as <strong>%(role)s</strong> to the %(site)s project "
 "%(project_name)s by %(initiator_username)s."
 msgstr ""
-"Пользователь %(submitter)s добавил вас в проект %(project)s сайта %(site)s с "
-"ролью <strong>%(role)s</strong> ."
+"Пользователь %(initiator_username)s добавил вас в проект %(project_name)s "
+"сайта %(site)s с ролью <strong>%(role)s</strong> ."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by %(submitter)s to a "
-#| "project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because you have been added by %(initiator_username)s "
 "to a project on %(site)s."
 msgstr ""
-"Вы получили это сообщение, потому что %(submitter)s добавил вас в проект на "
-"сайте %(site)s."
+"Вы получили это сообщение, потому что %(initiator_username)s добавил вас в "
+"проект на сайте %(site)s."
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -1667,7 +1636,7 @@ msgstr "Скрыть это уведомление"
 #: warehouse/templates/manage/manage_base.html:94
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
@@ -2360,7 +2329,7 @@ msgstr "Метод двухфакторной аутентификации:"
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/release.html:58
-#: warehouse/templates/packaging/detail.html:344
+#: warehouse/templates/packaging/detail.html:346
 msgid "None"
 msgstr "Отсутствует"
 
@@ -2878,8 +2847,9 @@ msgstr "Ожидающие приглашения (%(project_count)s)"
 
 #: warehouse/templates/manage/projects.html:41
 #: warehouse/templates/manage/projects.html:80
-#, python-format
-msgid "Created on %(creation_date)s"
+#, fuzzy, python-format
+#| msgid "Created on %(creation_date)s"
+msgid "Created %(creation_date)s"
 msgstr "Создан %(creation_date)s"
 
 #: warehouse/templates/manage/projects.html:68
@@ -2904,7 +2874,7 @@ msgstr "Этот проект не имеет выпусков"
 
 #: warehouse/templates/manage/projects.html:104
 #: warehouse/templates/manage/releases.html:94
-#: warehouse/templates/packaging/detail.html:354
+#: warehouse/templates/packaging/detail.html:356
 msgid "View"
 msgstr "Посмотреть"
 
@@ -2950,8 +2920,8 @@ msgstr "Файлы проекта %(project_name)s для выпуска вер�
 
 #: warehouse/templates/manage/release.html:37
 #: warehouse/templates/manage/release.html:48
-#: warehouse/templates/packaging/detail.html:318
-#: warehouse/templates/packaging/detail.html:329
+#: warehouse/templates/packaging/detail.html:320
+#: warehouse/templates/packaging/detail.html:331
 msgid "Filename, size"
 msgstr "Название файла, размер"
 
@@ -2962,15 +2932,15 @@ msgstr "Тип"
 
 #: warehouse/templates/manage/release.html:39
 #: warehouse/templates/manage/release.html:57
-#: warehouse/templates/packaging/detail.html:320
-#: warehouse/templates/packaging/detail.html:340
+#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:342
 msgid "Python version"
 msgstr "Версия Python’а"
 
 #: warehouse/templates/manage/release.html:40
 #: warehouse/templates/manage/release.html:61
-#: warehouse/templates/packaging/detail.html:321
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:323
+#: warehouse/templates/packaging/detail.html:350
 msgid "Upload date"
 msgstr "Дата загрузки"
 
@@ -3012,7 +2982,7 @@ msgid "No files found"
 msgstr "Файлы не найдены"
 
 #: warehouse/templates/manage/release.html:118
-#: warehouse/templates/manage/releases.html:170
+#: warehouse/templates/manage/releases.html:172
 #: warehouse/templates/manage/roles.html:24
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
@@ -3125,16 +3095,16 @@ msgid "Reason (optional)"
 msgstr "Причина (необязательно)"
 
 #: warehouse/templates/manage/release.html:156
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:23
 #: warehouse/templates/manage/releases.html:120
 #: warehouse/templates/manage/releases.html:133
-#: warehouse/templates/manage/releases.html:140
+#: warehouse/templates/manage/releases.html:142
 msgid "Version"
 msgstr "Версия"
 
 #: warehouse/templates/manage/release.html:161
-#: warehouse/templates/manage/release.html:178
+#: warehouse/templates/manage/release.html:177
 #: warehouse/templates/manage/releases.html:136
 msgid "Delete release"
 msgstr "Удалить выпуск"
@@ -3172,16 +3142,42 @@ msgid "Deleting will irreversibly delete this release."
 msgstr "Удаление приведёт к необратимому удалению этого выпуска."
 
 #: warehouse/templates/manage/release.html:173
+#: warehouse/templates/manage/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new "
-"release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">post release</a> instead."
+"the same version number."
 msgstr ""
 "Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
-"номером версии. Вместо этого подумайте об изъятии данного выпуска, создании "
-"нового выпуска или <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
-"releases\">пост-выпуска</a>."
+"номером версии."
+
+#: warehouse/templates/manage/release.html:174
+#: warehouse/templates/manage/releases.html:139
+msgid ""
+"Deletion will break any downstream projects relying on a pinned version of "
+"this package. It is intended as a last resort to address legal issues or "
+"remove harmful releases."
+msgstr ""
+"Удаление сломает все зависимые проекты, полагающиеся на закреплённую версию "
+"данного пакета. Оно нужно лишь в качестве крайней меры для решения правовых "
+"вопросов или удаления вредоносных выпусков."
+
+#: warehouse/templates/manage/release.html:175
+#, fuzzy, python-format
+#| msgid ""
+#| "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">yanking</a> this release, making a new release or a <a "
+#| "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#| "\">post release</a> instead."
+msgid ""
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">post release</a> instead."
+msgstr ""
+"Лучше подумайте об <a href=\"%(yank_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">изъятии</a> этого выпуска, публикации нового "
+"выпуска или <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">пост-выпуска</a>."
 
 #: warehouse/templates/manage/releases.html:20
 #, python-format
@@ -3271,43 +3267,43 @@ msgstr ""
 "<code>%(project_name)s==%(version)s</code>.\n"
 "            "
 
-#: warehouse/templates/manage/releases.html:138
+#: warehouse/templates/manage/releases.html:140
 #, python-format
 msgid ""
-"You will not be able to re-upload a new distribution of the same type with "
-"the same version number. Consider yanking this release, making a new release "
-"or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">post release</a> instead."
+"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">yanking</a> this release, making a new release or a <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
+"release</a> instead."
 msgstr ""
-"Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
-"номером версии. Вместо этого подумайте об изъятии данного выпуска, создании "
-"нового выпуска или <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">пост-выпуска</a>."
+"Лучше подумайте об <a href=\"%(yank_href)s\" title=\"%(title)s\" target="
+"\"_blank\" rel=\"noopener\">изъятии</a> этого выпуска, публикации нового "
+"выпуска или <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+"\"noopener\">пост-выпуска</a>."
 
-#: warehouse/templates/manage/releases.html:149
+#: warehouse/templates/manage/releases.html:151
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr "Управление выпусками проекта «%(project_name)s»"
 
-#: warehouse/templates/manage/releases.html:154
+#: warehouse/templates/manage/releases.html:156
 #, python-format
 msgid "Releases (%(release_count)s)"
 msgstr "Выпуски (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:160
+#: warehouse/templates/manage/releases.html:162
 #, python-format
 msgid "Yanked Releases (%(release_count)s)"
 msgstr "Изъятые выпуски (%(release_count)s)"
 
-#: warehouse/templates/manage/releases.html:166
+#: warehouse/templates/manage/releases.html:168
 msgid "Creating a new release"
 msgstr "Создание нового выпуска"
 
-#: warehouse/templates/manage/releases.html:168
+#: warehouse/templates/manage/releases.html:170
 msgid "No releases found"
 msgstr "Выпусков не найдено"
 
-#: warehouse/templates/manage/releases.html:171
+#: warehouse/templates/manage/releases.html:173
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" title="
@@ -3935,79 +3931,79 @@ msgid "Navigation"
 msgstr "Навигация"
 
 #: warehouse/templates/packaging/detail.html:170
-#: warehouse/templates/packaging/detail.html:200
+#: warehouse/templates/packaging/detail.html:202
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Навигация для проекта %(project)s"
 
 #: warehouse/templates/packaging/detail.html:173
-#: warehouse/templates/packaging/detail.html:203
+#: warehouse/templates/packaging/detail.html:205
 msgid "Project description. Focus will be moved to the description."
 msgstr "Описание проекта. Фокус будет перенесён на описание."
 
 #: warehouse/templates/packaging/detail.html:175
-#: warehouse/templates/packaging/detail.html:205
-#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:207
+#: warehouse/templates/packaging/detail.html:235
 msgid "Project description"
 msgstr "Описание проекта"
 
 #: warehouse/templates/packaging/detail.html:179
-#: warehouse/templates/packaging/detail.html:215
+#: warehouse/templates/packaging/detail.html:217
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "История выпусков. Фокус будет перенесён на панель истории."
 
 #: warehouse/templates/packaging/detail.html:181
-#: warehouse/templates/packaging/detail.html:217
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:257
 msgid "Release history"
 msgstr "История выпусков"
 
 #: warehouse/templates/packaging/detail.html:186
-#: warehouse/templates/packaging/detail.html:222
+#: warehouse/templates/packaging/detail.html:224
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Загрузка файлов. Фокус будет перенесён на файлы проекта."
 
 #: warehouse/templates/packaging/detail.html:188
-#: warehouse/templates/packaging/detail.html:224
-#: warehouse/templates/packaging/detail.html:311
+#: warehouse/templates/packaging/detail.html:226
+#: warehouse/templates/packaging/detail.html:313
 msgid "Download files"
 msgstr "Загрузка файлов"
 
-#: warehouse/templates/packaging/detail.html:209
+#: warehouse/templates/packaging/detail.html:211
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 "Подробности проекта. Фокус будет перенесён на подробную информацию о проекте."
 
-#: warehouse/templates/packaging/detail.html:211
-#: warehouse/templates/packaging/detail.html:247
+#: warehouse/templates/packaging/detail.html:213
+#: warehouse/templates/packaging/detail.html:249
 msgid "Project details"
 msgstr "Подробности проекта"
 
-#: warehouse/templates/packaging/detail.html:240
+#: warehouse/templates/packaging/detail.html:242
 msgid "The author of this package has not provided a project description"
 msgstr "Автор данного пакета не предоставил описание проекта"
 
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:259
 msgid "Release notifications"
 msgstr "Уведомления о выпусках"
 
-#: warehouse/templates/packaging/detail.html:258
+#: warehouse/templates/packaging/detail.html:260
 msgid "RSS feed"
 msgstr "Лента RSS"
 
-#: warehouse/templates/packaging/detail.html:270
+#: warehouse/templates/packaging/detail.html:272
 msgid "This version"
 msgstr "Эта версия"
 
-#: warehouse/templates/packaging/detail.html:290
+#: warehouse/templates/packaging/detail.html:292
 msgid "pre-release"
 msgstr "предварительный выпуск"
 
-#: warehouse/templates/packaging/detail.html:295
+#: warehouse/templates/packaging/detail.html:297
 msgid "yanked"
 msgstr "изъятый"
 
-#: warehouse/templates/packaging/detail.html:312
+#: warehouse/templates/packaging/detail.html:314
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -4018,18 +4014,18 @@ msgstr ""
 "узнайте больше об <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">установке пакетов</a>."
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:317
 #, python-format
 msgid "Files for %(project_name)s, version %(version)s"
 msgstr "Файлы для проекта %(project_name)s версии %(version)s"
 
-#: warehouse/templates/packaging/detail.html:319
-#: warehouse/templates/packaging/detail.html:336
+#: warehouse/templates/packaging/detail.html:321
+#: warehouse/templates/packaging/detail.html:338
 msgid "File type"
 msgstr "Тип файла"
 
-#: warehouse/templates/packaging/detail.html:322
-#: warehouse/templates/packaging/detail.html:352
+#: warehouse/templates/packaging/detail.html:324
+#: warehouse/templates/packaging/detail.html:354
 msgid "Hashes"
 msgstr "Хеши"
 
@@ -6214,47 +6210,45 @@ msgstr "Аутентификация"
 msgid "Login"
 msgstr "Вход"
 
-#: warehouse/templates/pages/sitemap.html:41
-#: warehouse/templates/pages/sponsors.html:15
-msgid "Sponsors"
-msgstr "Спонсоры"
-
 #: warehouse/templates/pages/sitemap.html:42
 msgid "Security policy"
 msgstr "Политика безопасности"
 
-#: warehouse/templates/pages/sponsor.html:15
-msgid "Sponsor the Packaging Working Group"
-msgstr "Спонсирование Рабочей группы по пакетированию"
-
-#: warehouse/templates/pages/sponsor.html:23
-msgid "Sponsor PyPI and related projects"
+#: warehouse/templates/pages/sponsors.html:25
+#, fuzzy
+#| msgid "Sponsor PyPI and related projects"
+msgid "Support PyPI and related projects"
 msgstr "Спонсирование PyPI и связанных проектов"
 
-#: warehouse/templates/pages/sponsor.html:24
-msgid "Donate to the Packaging Working Group"
-msgstr "Пожертвовать на деятельность Рабочей группы по пакетированию"
+#: warehouse/templates/pages/sponsors.html:26
+msgid "Sponsor the Python Software Foundation"
+msgstr ""
 
-#: warehouse/templates/pages/sponsor.html:27
-#, python-format
+#: warehouse/templates/pages/sponsors.html:29
+#, fuzzy
+#| msgid ""
+#| "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#| "\"noopener\">Packaging Working Group</a> is a work group of the Python "
+#| "Software Foundation which raises and distributes funds to improve "
+#| "Python's packaging ecosystem."
 msgid ""
-"The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Packaging Working Group</a> is a work group of the Python Software "
-"Foundation which raises and distributes funds to improve Python's packaging "
-"ecosystem."
+"The Python Software Foundation raises and distributes funds to improve "
+"Python's packaging ecosystem."
 msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Рабочая группа по пакетированию</a> является рабочей группой Фонда "
 "программного обеспечения Python’а, которая собирает и распределяет средства "
 "для улучшения экосистемы создания и распространения Python’ьих пакетов."
 
-#: warehouse/templates/pages/sponsor.html:29
-msgid "Recent projects funded through the working group include:"
+#: warehouse/templates/pages/sponsors.html:31
+#, fuzzy
+#| msgid "Recent projects funded through the working group include:"
+msgid "Recent projects funded include:"
 msgstr ""
 "Среди последних проектов, профинансированных через рабочую группу, можно "
 "отметить следующие:"
 
-#: warehouse/templates/pages/sponsor.html:32
+#: warehouse/templates/pages/sponsors.html:34
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
@@ -6262,7 +6256,7 @@ msgstr ""
 "Успешный перезапуск Указателя пакетов Python’а, основанного на новой кодовой "
 "базе «Warehouse» («Хранилище»)"
 
-#: warehouse/templates/pages/sponsor.html:33
+#: warehouse/templates/pages/sponsors.html:35
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6276,7 +6270,7 @@ msgstr ""
 "\">Программы Mozilla по поддержке ПО с открытым исходным кодом</a> в 2018 "
 "году"
 
-#: warehouse/templates/pages/sponsor.html:36
+#: warehouse/templates/pages/sponsors.html:38
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for multiple "
 "locales"
@@ -6284,7 +6278,7 @@ msgstr ""
 "Улучшения в безопасности и доступности PyPI, а также добавление поддержки "
 "нескольких языков"
 
-#: warehouse/templates/pages/sponsor.html:37
+#: warehouse/templates/pages/sponsors.html:39
 #, python-format
 msgid ""
 "With $80,000 in funding from the <a href=\"%(funder_href)s\" title="
@@ -6295,12 +6289,12 @@ msgstr ""
 "\"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Open Technology Fund</a> в 2019 году"
 
-#: warehouse/templates/pages/sponsor.html:40
+#: warehouse/templates/pages/sponsors.html:42
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 "Дополнительные функции PyPI, направленные на повышение его безопасности"
 
-#: warehouse/templates/pages/sponsor.html:41
+#: warehouse/templates/pages/sponsors.html:43
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6313,13 +6307,13 @@ msgstr ""
 "\"%(funder_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">Facebook Research</a> в 2019 и 2020 годах"
 
-#: warehouse/templates/pages/sponsor.html:44
+#: warehouse/templates/pages/sponsors.html:46
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 "Пересмотр процесса взаимодействия с пользователем и разрешения зависимостей "
 "в pip"
 
-#: warehouse/templates/pages/sponsor.html:45
+#: warehouse/templates/pages/sponsors.html:47
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6336,54 +6330,53 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Программы Mozilla по "
 "поддержке ПО с открытым исходным кодом</a> в 2020 году"
 
-#: warehouse/templates/pages/sponsor.html:49
+#: warehouse/templates/pages/sponsors.html:51
+#, fuzzy
+#| msgid ""
+#| "With your support, the working group can continue to fund packaging "
+#| "improvements, benefiting millions of Python users around the world."
 msgid ""
-"With your support, the working group can continue to fund packaging "
-"improvements, benefiting millions of Python users around the world."
+"With your support, the PSF can continue to fund packaging improvements, "
+"benefiting millions of Python users around the world."
 msgstr ""
 "С вашей поддержкой рабочая группа может продолжать финансировать "
 "усовершенствование инструментов создания и распространения Python’ьих "
 "пакетов, принося пользу миллионам пользователей Python’а по всему миру."
 
-#: warehouse/templates/pages/sponsor.html:57
-msgid "Community donations"
-msgstr "Общественные пожертвования"
+#: warehouse/templates/pages/sponsors.html:59
+#, fuzzy
+#| msgid "Sponsors"
+msgid "PSF Sponsorship"
+msgstr "Спонсоры"
 
-#: warehouse/templates/pages/sponsor.html:60
-msgid "We greatly appreciate both one-time and recurring donations."
-msgstr "Мы высоко ценим как разовые, так и периодические пожертвования."
-
-#: warehouse/templates/pages/sponsor.html:61
-#, python-format
+#: warehouse/templates/pages/sponsors.html:62
 msgid ""
-"For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">your donation may be tax-deductible</a>."
+"All of these initiatives help maintain and support the tools that the Python "
+"community uses daily. This work can only be done with the generous financial "
+"support that you or your organization provides."
 msgstr ""
-"К сведению налогоплательщиков в США: <a href=\"%(href)s\" title=\"%(title)s"
-"\" target=\"_blank\" rel=\"noopener\">ваше пожертвование может быть вычтено "
-"из налогооблагаемой базы</a>."
 
-#: warehouse/templates/pages/sponsor.html:62
-msgid "Every donation counts!"
-msgstr "Важно каждое пожертвование!"
-
-#: warehouse/templates/pages/sponsor.html:65
-msgid "Donate here"
-msgstr "Жертвовать здесь"
-
-#: warehouse/templates/pages/sponsor.html:66
-#, python-format
+#: warehouse/templates/pages/sponsors.html:63
 msgid ""
-"Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
+"Your contributions matter and they make an impact. Every donation counts!"
 msgstr ""
-"Жертвуете более $5 000? Вместо этого <a href=\"%(href)s\">станьте спонсором</"
-"a>."
 
-#: warehouse/templates/pages/sponsor.html:77
+#: warehouse/templates/pages/sponsors.html:67
+msgid "Become a sponsor"
+msgstr "Стать спонсором"
+
+#: warehouse/templates/pages/sponsors.html:69
+msgid ""
+"The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
+"organization, and donations are tax-deductible for organizations that pay "
+"taxes in the United States."
+msgstr ""
+
+#: warehouse/templates/pages/sponsors.html:80
 msgid "Get your logo on PyPI.org"
 msgstr "Ваш логотип на PyPI.org"
 
-#: warehouse/templates/pages/sponsor.html:78
+#: warehouse/templates/pages/sponsors.html:81
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from "
 "237 countries visited PyPI.org."
@@ -6391,338 +6384,38 @@ msgstr ""
 "Ищете, как повысить узнаваемость бренда? За последний год* сайт PyPI.org "
 "посетило 21,1 миллиона человек из 237 стран мира."
 
-#: warehouse/templates/pages/sponsor.html:79
+#: warehouse/templates/pages/sponsors.html:82
 msgid "* Data as of March 2020"
 msgstr "* Данные по состоянию на март 2020 года"
 
-#: warehouse/templates/pages/sponsor.html:82
+#: warehouse/templates/pages/sponsors.html:85
 msgid "Strengthen the Python ecosystem"
 msgstr "Укрепление Python’ьей экосистемы"
 
-#: warehouse/templates/pages/sponsor.html:83
+#: warehouse/templates/pages/sponsors.html:86
+#, fuzzy
+#| msgid ""
+#| "Funds raised by the packaging working group go directly towards improving "
+#| "the tools your company uses every day."
 msgid ""
-"Funds raised by the packaging working group go directly towards improving "
+"Funds raised by the Python Software Foundation go directly towards improving "
 "the tools your company uses every day."
 msgstr ""
 "Средства, собранные рабочей группой по пакетированию, направляются "
 "непосредственно на совершенствование инструментов, которыми ваша компания "
 "пользуется каждый день."
 
-#: warehouse/templates/pages/sponsor.html:86
+#: warehouse/templates/pages/sponsors.html:89
 msgid "Boost your reputation"
 msgstr "Прокачайте свою репутацию"
 
-#: warehouse/templates/pages/sponsor.html:87
+#: warehouse/templates/pages/sponsors.html:90
 msgid ""
 "Enhance your company's reputation by investing in Python and the open source "
 "community."
 msgstr ""
 "Улучшите репутацию своей компании, инвестируя в Python и сообщество "
 "открытого исходного кода."
-
-#: warehouse/templates/pages/sponsor.html:96
-msgid "Sponsorship packages"
-msgstr "Пакеты спонсорства"
-
-#: warehouse/templates/pages/sponsor.html:97
-msgid "All figures are in USD"
-msgstr "Все цифры приведены в долларах США"
-
-#: warehouse/templates/pages/sponsor.html:106
-msgid "Lifetime"
-msgstr "Пожизненный"
-
-#: warehouse/templates/pages/sponsor.html:107
-msgid "One time donation of $1,000,000"
-msgstr "Единоразовое пожертвование в размере $1 000 000"
-
-#: warehouse/templates/pages/sponsor.html:111
-msgid ""
-"Logo in a prominent position on the PyPI project detail page, <strong>in "
-"perpetuity</strong>"
-msgstr ""
-"Логотип на видном месте страницы PyPI с подробными сведениями о проекте, "
-"<strong>навечно</strong>"
-
-# | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
-# title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
-# | "Foundation blog</a>"
-#: warehouse/templates/pages/sponsor.html:112
-#: warehouse/templates/pages/sponsor.html:133
-#, python-format
-msgid ""
-"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
-"blog</a>"
-msgstr ""
-"<strong>Отдельная</strong> запись в <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">блоге Фонда программного обеспечения "
-"Python’а</a>"
-
-#: warehouse/templates/pages/sponsor.html:116
-#: warehouse/templates/pages/sponsor.html:139
-#: warehouse/templates/pages/sponsor.html:162
-#: warehouse/templates/pages/sponsor.html:185
-#: warehouse/templates/pages/sponsor.html:207
-#: warehouse/templates/pages/sponsor.html:228
-#: warehouse/templates/pages/sponsor.html:250
-msgid "Become a sponsor"
-msgstr "Стать спонсором"
-
-#: warehouse/templates/pages/sponsor.html:125
-msgid "Diamond"
-msgstr "Бриллиантовый"
-
-#: warehouse/templates/pages/sponsor.html:126
-msgid "$50,000 per year, or equivalent in donated services"
-msgstr "$50 000 в год или эквивалент в пожертвованных услугах"
-
-#: warehouse/templates/pages/sponsor.html:130
-msgid ""
-"Logo in a <strong>prominent position</strong> on the PyPI project detail page"
-msgstr ""
-"Логотип <strong>на видном месте</strong> страницы PyPI с подробными "
-"сведениями о проекте"
-
-#: warehouse/templates/pages/sponsor.html:131
-#: warehouse/templates/pages/sponsor.html:154
-#: warehouse/templates/pages/sponsor.html:177
-msgid "Logo on the PyPI footer"
-msgstr "Логотип в подвале PyPI"
-
-#: warehouse/templates/pages/sponsor.html:132
-#: warehouse/templates/pages/sponsor.html:155
-#: warehouse/templates/pages/sponsor.html:178
-#: warehouse/templates/pages/sponsor.html:243
-#, python-format
-msgid ""
-"Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI sponsors "
-"page</a>"
-msgstr ""
-"Логотип <strong>и упоминание</strong> на <a href=\"%(href)s\">странице "
-"спонсоров PyPI</a>"
-
-#: warehouse/templates/pages/sponsor.html:134
-#: warehouse/templates/pages/sponsor.html:157
-#: warehouse/templates/pages/sponsor.html:180
-#, python-format
-msgid ""
-"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>"
-msgstr ""
-"<strong>Ежеквартальное</strong> выражение благодарности в виде твита от <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Фонда программного обеспечения Python’а</a>"
-
-#: warehouse/templates/pages/sponsor.html:135
-#: warehouse/templates/pages/sponsor.html:158
-#: warehouse/templates/pages/sponsor.html:181
-#, python-format
-msgid ""
-"<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
-"a>"
-msgstr ""
-"<strong>Ежеквартальное</strong> выражение благодарности в виде твита от <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">учётной записи PyPI в Twitter’е</a>"
-
-#: warehouse/templates/pages/sponsor.html:148
-msgid "Platinum"
-msgstr "Платиновый"
-
-#: warehouse/templates/pages/sponsor.html:149
-msgid "$30,000 per year, or equivalent in donated services"
-msgstr "$30 000 в год или эквивалент в пожертвованных услугах"
-
-#: warehouse/templates/pages/sponsor.html:153
-msgid ""
-"Logo on <strong>high rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-"Логотип с <strong>высокой частотой появления</strong> на видном месте "
-"страницы PyPI с подробными сведениями о проекте"
-
-# | msgid ""
-# | "Inclusion in a blog post on the <a href=\"%(href)s\"
-# title=\"%(title)s\"
-# "
-# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation
-# blog</a>, "
-# | "<strong>with other sponsors</strong> whose sponsorship commenced
-# during "
-# | "the same quarter"
-#: warehouse/templates/pages/sponsor.html:156
-#: warehouse/templates/pages/sponsor.html:179
-#: warehouse/templates/pages/sponsor.html:201
-#: warehouse/templates/pages/sponsor.html:222
-#, python-format
-msgid ""
-"Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
-"<strong>with other sponsors</strong> whose sponsorship commenced during the "
-"same quarter"
-msgstr ""
-"Упоминание в записи <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">блога Фонда программного обеспечения Python’а</a>, "
-"вместе <strong>с другими спонсорами</strong>, чья спонсорская поддержка "
-"началась в этом же квартале"
-
-#: warehouse/templates/pages/sponsor.html:171
-msgid "Gold"
-msgstr "Золотой"
-
-#: warehouse/templates/pages/sponsor.html:172
-msgid "$20,000 per year, or equivalent in donated services"
-msgstr "$20 000 в год или эквивалент в пожертвованных услугах"
-
-#: warehouse/templates/pages/sponsor.html:176
-msgid ""
-"Logo on <strong>medium rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-"Логотип со <strong>средней частотой появления</strong> на видном месте "
-"страницы PyPI с подробными сведениями о проекте"
-
-#: warehouse/templates/pages/sponsor.html:194
-msgid "Silver"
-msgstr "Серебряный"
-
-#: warehouse/templates/pages/sponsor.html:195
-msgid "$10,000 per year, or equivalent in donated services"
-msgstr "$10 000 в год или эквивалент в пожертвованных услугах"
-
-#: warehouse/templates/pages/sponsor.html:199
-msgid ""
-"Logo on <strong>low rotation</strong> in a prominent position on the PyPI "
-"project detail page"
-msgstr ""
-"Логотип с <strong>низкой частотой появления</strong> на видном месте "
-"страницы PyPI с подробными сведениями о проекте"
-
-#: warehouse/templates/pages/sponsor.html:200
-#: warehouse/templates/pages/sponsor.html:221
-#, python-format
-msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
-msgstr "Логотип на <a href=\"%(href)s\">странице спонсоров PyPI</a>"
-
-#: warehouse/templates/pages/sponsor.html:202
-#, python-format
-msgid ""
-"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a>"
-msgstr ""
-"Выражение благодарности <strong>два раза в год</strong> в виде твита от <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">Фонда программного обеспечения Python’а</a>"
-
-#: warehouse/templates/pages/sponsor.html:203
-#, python-format
-msgid ""
-"<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</"
-"a>"
-msgstr ""
-"Выражение благодарности <strong>два раза в год</strong> в виде твита от <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">учётной записи PyPI в Twitter’е</a>"
-
-#: warehouse/templates/pages/sponsor.html:216
-msgid "Bronze"
-msgstr "Бронзовый"
-
-#: warehouse/templates/pages/sponsor.html:217
-msgid "$5,000 per year, or equivalent in donated services"
-msgstr "$5 000 в год или эквивалент в пожертвованных услугах"
-
-#: warehouse/templates/pages/sponsor.html:223
-#, python-format
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
-"a> (on initial sponsorship, and on each subsequent renewal)"
-msgstr ""
-"<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Фонда "
-"программного обеспечения Python’а</a> (при первоначальном спонсорстве и при "
-"каждом последующем обновлении)"
-
-#: warehouse/templates/pages/sponsor.html:224
-#, python-format
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a> "
-"(on initial sponsorship, and on each subsequent renewal)"
-msgstr ""
-"<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">учётной "
-"записи PyPI в Twitter’е</a> (при первоначальном спонсорстве и при каждом "
-"последующем обновлении)"
-
-#: warehouse/templates/pages/sponsor.html:238
-msgid "One time grants / custom donations"
-msgstr "Разовые / индивидуальные пожертвования"
-
-#: warehouse/templates/pages/sponsor.html:239
-#, python-format
-msgid ""
-"Sponsorship of a specific feature, feature set, or community sprint, valued "
-"at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
-"\" rel=\"noopener\">fundable packaging improvements</a> for ideas."
-msgstr ""
-"Спонсорская поддержка конкретной функции, набора функций или спринта "
-"сообщества стоимостью более $50 000. Смотрите идеи на странице <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
-"\">желательных к финансированию улучшений в создании пакетов</a>."
-
-# | msgid ""
-# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
-# title="
-# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
-# | "Foundation blog</a>, explaining what the funds will be used for"
-#: warehouse/templates/pages/sponsor.html:244
-#, python-format
-msgid ""
-"<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation "
-"blog</a>, explaining what the funds will be used for"
-msgstr ""
-"<strong>Отдельная</strong> запись в <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">блоге Фонда программного обеспечения "
-"Python’а</a>, объясняющая, на что будут использованы эти средства"
-
-#: warehouse/templates/pages/sponsor.html:245
-#, python-format
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software Foundation</"
-"a>"
-msgstr ""
-"<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Фонда "
-"программного обеспечения Python’а</a>"
-
-#: warehouse/templates/pages/sponsor.html:246
-#, python-format
-msgid ""
-"<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter account</a>"
-msgstr ""
-"<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">учётной "
-"записи PyPI в Twitter’е</a>"
-
-#: warehouse/templates/pages/sponsor.html:248
-msgid ""
-"Note: A record of working group grants will be listed on the PyPI "
-"sponsorship page in perpetuity."
-msgstr ""
-"Примечание: запись о пожертвовании рабочей группе будет бессрочно внесена на "
-"страницу спонсорства PyPI."
 
 #: warehouse/templates/pages/stats.html:21
 msgid "PyPI statistics"
@@ -6909,6 +6602,297 @@ msgstr[2] ""
 "\n"
 "                  По фильтрам «%(filters)s» результатов не найдено\n"
 "                "
+
+#~ msgid "Sponsor"
+#~ msgstr "Спонсорство"
+
+#~ msgid "Sponsor the Packaging Working Group"
+#~ msgstr "Спонсирование Рабочей группы по пакетированию"
+
+#~ msgid "Donate to the Packaging Working Group"
+#~ msgstr "Пожертвовать на деятельность Рабочей группы по пакетированию"
+
+#~ msgid "Community donations"
+#~ msgstr "Общественные пожертвования"
+
+#~ msgid "We greatly appreciate both one-time and recurring donations."
+#~ msgstr "Мы высоко ценим как разовые, так и периодические пожертвования."
+
+#~ msgid ""
+#~ "For US taxpayers, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank"
+#~ "\" rel=\"noopener\">your donation may be tax-deductible</a>."
+#~ msgstr ""
+#~ "К сведению налогоплательщиков в США: <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">ваше пожертвование может "
+#~ "быть вычтено из налогооблагаемой базы</a>."
+
+#~ msgid "Every donation counts!"
+#~ msgstr "Важно каждое пожертвование!"
+
+#~ msgid "Donate here"
+#~ msgstr "Жертвовать здесь"
+
+#~ msgid ""
+#~ "Donating over $5,000? <a href=\"%(href)s\">Become a sponsor</a> instead."
+#~ msgstr ""
+#~ "Жертвуете более $5 000? Вместо этого <a href=\"%(href)s\">станьте "
+#~ "спонсором</a>."
+
+#~ msgid "Sponsorship packages"
+#~ msgstr "Пакеты спонсорства"
+
+#~ msgid "All figures are in USD"
+#~ msgstr "Все цифры приведены в долларах США"
+
+#~ msgid "Lifetime"
+#~ msgstr "Пожизненный"
+
+#~ msgid "One time donation of $1,000,000"
+#~ msgstr "Единоразовое пожертвование в размере $1 000 000"
+
+#~ msgid ""
+#~ "Logo in a prominent position on the PyPI project detail page, <strong>in "
+#~ "perpetuity</strong>"
+#~ msgstr ""
+#~ "Логотип на видном месте страницы PyPI с подробными сведениями о проекте, "
+#~ "<strong>навечно</strong>"
+
+# | msgid ""
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
+# | "Foundation blog</a>"
+#~ msgid ""
+#~ "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation blog</a>"
+#~ msgstr ""
+#~ "<strong>Отдельная</strong> запись в <a href=\"%(href)s\" title=\"%(title)s"
+#~ "\" target=\"_blank\" rel=\"noopener\">блоге Фонда программного "
+#~ "обеспечения Python’а</a>"
+
+#~ msgid "Diamond"
+#~ msgstr "Бриллиантовый"
+
+#~ msgid "$50,000 per year, or equivalent in donated services"
+#~ msgstr "$50 000 в год или эквивалент в пожертвованных услугах"
+
+#~ msgid ""
+#~ "Logo in a <strong>prominent position</strong> on the PyPI project detail "
+#~ "page"
+#~ msgstr ""
+#~ "Логотип <strong>на видном месте</strong> страницы PyPI с подробными "
+#~ "сведениями о проекте"
+
+#~ msgid "Logo on the PyPI footer"
+#~ msgstr "Логотип в подвале PyPI"
+
+#~ msgid ""
+#~ "Logo <strong>and write up</strong> on the <a href=\"%(href)s\">PyPI "
+#~ "sponsors page</a>"
+#~ msgstr ""
+#~ "Логотип <strong>и упоминание</strong> на <a href=\"%(href)s\">странице "
+#~ "спонсоров PyPI</a>"
+
+#~ msgid ""
+#~ "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "<strong>Ежеквартальное</strong> выражение благодарности в виде твита от "
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">Фонда программного обеспечения Python’а</a>"
+
+#~ msgid ""
+#~ "<strong>Quarterly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "<strong>Ежеквартальное</strong> выражение благодарности в виде твита от "
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">учётной записи PyPI в Twitter’е</a>"
+
+#~ msgid "Platinum"
+#~ msgstr "Платиновый"
+
+#~ msgid "$30,000 per year, or equivalent in donated services"
+#~ msgstr "$30 000 в год или эквивалент в пожертвованных услугах"
+
+#~ msgid ""
+#~ "Logo on <strong>high rotation</strong> in a prominent position on the "
+#~ "PyPI project detail page"
+#~ msgstr ""
+#~ "Логотип с <strong>высокой частотой появления</strong> на видном месте "
+#~ "страницы PyPI с подробными сведениями о проекте"
+
+# | msgid ""
+# | "Inclusion in a blog post on the <a href=\"%(href)s\"
+# title=\"%(title)s\"
+# "
+# | "target=\"_blank\" rel=\"noopener\">Python Sofware Foundation
+# blog</a>, "
+# | "<strong>with other sponsors</strong> whose sponsorship commenced
+# during "
+# | "the same quarter"
+#~ msgid ""
+#~ "Inclusion in a blog post on the <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">Python Software Foundation blog</a>, "
+#~ "<strong>with other sponsors</strong> whose sponsorship commenced during "
+#~ "the same quarter"
+#~ msgstr ""
+#~ "Упоминание в записи <a href=\"%(href)s\" title=\"%(title)s\" target="
+#~ "\"_blank\" rel=\"noopener\">блога Фонда программного обеспечения "
+#~ "Python’а</a>, вместе <strong>с другими спонсорами</strong>, чья "
+#~ "спонсорская поддержка началась в этом же квартале"
+
+#~ msgid "Gold"
+#~ msgstr "Золотой"
+
+#~ msgid "$20,000 per year, or equivalent in donated services"
+#~ msgstr "$20 000 в год или эквивалент в пожертвованных услугах"
+
+#~ msgid ""
+#~ "Logo on <strong>medium rotation</strong> in a prominent position on the "
+#~ "PyPI project detail page"
+#~ msgstr ""
+#~ "Логотип со <strong>средней частотой появления</strong> на видном месте "
+#~ "страницы PyPI с подробными сведениями о проекте"
+
+#~ msgid "Silver"
+#~ msgstr "Серебряный"
+
+#~ msgid "$10,000 per year, or equivalent in donated services"
+#~ msgstr "$10 000 в год или эквивалент в пожертвованных услугах"
+
+#~ msgid ""
+#~ "Logo on <strong>low rotation</strong> in a prominent position on the PyPI "
+#~ "project detail page"
+#~ msgstr ""
+#~ "Логотип с <strong>низкой частотой появления</strong> на видном месте "
+#~ "страницы PyPI с подробными сведениями о проекте"
+
+#~ msgid "Logo on the <a href=\"%(href)s\">PyPI sponsors page</a>"
+#~ msgstr "Логотип на <a href=\"%(href)s\">странице спонсоров PyPI</a>"
+
+#~ msgid ""
+#~ "<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "Выражение благодарности <strong>два раза в год</strong> в виде твита от "
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">Фонда программного обеспечения Python’а</a>"
+
+#~ msgid ""
+#~ "<strong>Bi-yearly</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "Выражение благодарности <strong>два раза в год</strong> в виде твита от "
+#~ "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">учётной записи PyPI в Twitter’е</a>"
+
+#~ msgid "Bronze"
+#~ msgstr "Бронзовый"
+
+#~ msgid "$5,000 per year, or equivalent in donated services"
+#~ msgstr "$5 000 в год или эквивалент в пожертвованных услугах"
+
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a> (on initial sponsorship, and on each subsequent renewal)"
+#~ msgstr ""
+#~ "<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
+#~ "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Фонда "
+#~ "программного обеспечения Python’а</a> (при первоначальном спонсорстве и "
+#~ "при каждом последующем обновлении)"
+
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a> (on initial sponsorship, and on each subsequent renewal)"
+#~ msgstr ""
+#~ "<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
+#~ "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">учётной записи PyPI в Twitter’е</a> (при первоначальном спонсорстве и "
+#~ "при каждом последующем обновлении)"
+
+#~ msgid "One time grants / custom donations"
+#~ msgstr "Разовые / индивидуальные пожертвования"
+
+#~ msgid ""
+#~ "Sponsorship of a specific feature, feature set, or community sprint, "
+#~ "valued at over $50,000. See <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">fundable packaging improvements</a> "
+#~ "for ideas."
+#~ msgstr ""
+#~ "Спонсорская поддержка конкретной функции, набора функций или спринта "
+#~ "сообщества стоимостью более $50 000. Смотрите идеи на странице <a href="
+#~ "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">желательных к финансированию улучшений в создании пакетов</a>."
+
+# | msgid ""
+# | "<strong>Individual</strong> blog post on the <a href=\"%(href)s\"
+# title="
+# | "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Sofware "
+# | "Foundation blog</a>, explaining what the funds will be used for"
+#~ msgid ""
+#~ "<strong>Individual</strong> blog post on the <a href=\"%(href)s\" title="
+#~ "\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation blog</a>, explaining what the funds will be used for"
+#~ msgstr ""
+#~ "<strong>Отдельная</strong> запись в <a href=\"%(href)s\" title=\"%(title)s"
+#~ "\" target=\"_blank\" rel=\"noopener\">блоге Фонда программного "
+#~ "обеспечения Python’а</a>, объясняющая, на что будут использованы эти "
+#~ "средства"
+
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Software "
+#~ "Foundation</a>"
+#~ msgstr ""
+#~ "<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
+#~ "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Фонда "
+#~ "программного обеспечения Python’а</a>"
+
+#~ msgid ""
+#~ "<strong>Single</strong> thank you tweet from the <a href=\"%(href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Twitter "
+#~ "account</a>"
+#~ msgstr ""
+#~ "<strong>Разовое</strong> выражение благодарности в виде твита от <a href="
+#~ "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">учётной записи PyPI в Twitter’е</a>"
+
+#~ msgid ""
+#~ "Note: A record of working group grants will be listed on the PyPI "
+#~ "sponsorship page in perpetuity."
+#~ msgstr ""
+#~ "Примечание: запись о пожертвовании рабочей группе будет бессрочно внесена "
+#~ "на страницу спонсорства PyPI."
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release, or a <a href=\"https://www.python.org/dev/peps/pep-0440/#post-"
+#~ "releases\">post release</a> instead."
+#~ msgstr ""
+#~ "Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
+#~ "номером версии. Вместо этого подумайте об изъятии данного выпуска, "
+#~ "создании нового выпуска или <a href=\"https://www.python.org/dev/peps/"
+#~ "pep-0440/#post-releases\">пост-выпуска</a>."
+
+#~ msgid ""
+#~ "You will not be able to re-upload a new distribution of the same type "
+#~ "with the same version number. Consider yanking this release, making a new "
+#~ "release or a <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">post release</a> instead."
+#~ msgstr ""
+#~ "Вы не сможете повторно загрузить новый дистрибутив того же типа с тем же "
+#~ "номером версии. Вместо этого подумайте об изъятии данного выпуска, "
+#~ "создании нового выпуска или <a href=\"%(href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">пост-выпуска</a>."
 
 #~ msgid ""
 #~ "\n"

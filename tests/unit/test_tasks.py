@@ -167,6 +167,8 @@ class TestWarehouseTask:
         assert obj.request.pyramid_env == pyramid_env
         assert request is pyramid_env["request"]
         assert isinstance(request.tm, transaction.TransactionManager)
+        assert 1.5e12 < request.timings["new_request_start"] < 1e13
+        assert request.remote_addr == "127.0.0.1"
 
     def test_reuses_request(self):
         pyramid_env = {"request": pretend.stub()}

@@ -79,8 +79,8 @@ see the `Translation Docs`_.
 Keeping your local branch updated
 ---------------------------------
 
-As you work, you will need to keep your local ``master`` branch up-to-date with
-the ``master`` branch in the main Warehouse repository, which moves forward as
+As you work, you will need to keep your local ``main`` branch up-to-date with
+the ``main`` branch in the main Warehouse repository, which moves forward as
 the maintainers merge pull requests. Most people working on the project use
 the following workflow.
 
@@ -110,23 +110,23 @@ First, fetch the latest changes from the main Warehouse repository,
 
   git fetch upstream
 
-Then, check out your local ``master`` branch, and rebase the changes on top of
+Then, check out your local ``main`` branch, and rebase the changes on top of
 it:
 
 .. code-block:: console
 
-  git checkout master
-  git rebase upstream/master
+  git checkout main
+  git rebase upstream/main
 
-Next, push the updates you have just made to your local ``master`` branch to
+Next, push the updates you have just made to your local ``main`` branch to
 your ``origin`` repository on GitHub:
 
 .. code-block:: console
 
-  git checkout master
-  git push origin master
+  git checkout main
+  git push origin main
 
-Now your local ``master`` branch and the ``master`` branch in your ``origin``
+Now your local ``main`` branch and the ``main`` branch in your ``origin``
 repo have been updated with the most recent changes from the main Warehouse
 repository.
 
@@ -136,10 +136,10 @@ To keep your feature branches updated, the process is similar:
 
    git checkout awesome-feature
    git fetch upstream
-   git rebase upstream/master
+   git rebase upstream/main
 
 Now your feature branch has been updated with the latest changes from the
-``master`` branch on the upstream Warehouse repository.
+``main`` branch on the upstream Warehouse repository.
 
 It's good practice to back up your feature branches by pushing them to your
 ``origin`` on GitHub as you are working on them. To push a feature branch,
@@ -179,7 +179,7 @@ If you get an error message like this:
 
 Try force-pushing your feature branch with ``push -f``.
 
-The ``master`` branch in the main Warehouse repository gets updated frequently
+The ``main`` branch in the main Warehouse repository gets updated frequently
 as dependency upgrades are merged, so you will probably have to update your
 feature branch at least once while you are working on it.
 

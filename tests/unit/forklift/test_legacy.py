@@ -82,11 +82,20 @@ _TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(
 ).hexdigest()
 
 
-def test_exc_with_message():
-    exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
-    assert isinstance(exc, HTTPBadRequest)
-    assert exc.status_code == 400
-    assert exc.status == "400 My Test Message."
+class TestExcWithMessage:
+    def test_exc_with_message(self):
+        exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
+        assert isinstance(exc, HTTPBadRequest)
+        assert exc.status_code == 400
+        assert exc.status == "400 My Test Message."
+
+    def test_exc_with_exotic_message(self):
+        exc = legacy._exc_with_message(
+            HTTPBadRequest, "look at these wild chars: аÃ¤â€—"
+        )
+        assert isinstance(exc, HTTPBadRequest)
+        assert exc.status_code == 400
+        assert exc.status == "400 look at these wild chars: ?Ã¤â??"
 
 
 class TestValidation:

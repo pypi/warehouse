@@ -47,24 +47,27 @@ jobs:
                 statusOK = true;
                 if(${{ github.event.inputs.mustBeGreen }}) {
                   console.log('Checking green status: ' + branch);
-                  const statuses = await github.paginate('GET /repos/{owner}/{repo}/commits/{ref}/status', {
+                  const checks = await github.paginate('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     ref: branch
                   });
-                  if(statuses.length > 0) {
-                    const latest_status = statuses[0]['state'];
-                    console.log('Validating status: ' + latest_status);
-                    if(latest_status != 'success') {
-                      console.log('Discarding ' + branch + ' with status ' + latest_status);
-                      statusOK = false;
+
+                  if(checks.length > 0) {
+                    for (const check of checks) {
+                      const latest_conclusion = check['conclusion'];
+                      console.log('Validating conclusion: ' + latest_conclusion);
+                      if(latest_conclusion == 'failure') {
+                        console.log('Discarding ' + branch + ' with failed check');
+                        statusOK = false;
+                      }
                     }
                   }
                 }
                 if (statusOK) {
                   console.log('Adding branch to array: ' + branch);
                   branches.push(branch);
-                  prs.push('#' + pull['number'] + ' ' + pull['title']);
+                  prs.push('Closes #' + pull['number'] + ' ' + pull['title']);
                   base_branch = pull['base']['ref'];
                 }
               }
@@ -114,7 +117,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prString = `${{ steps.fetch-branch-names.outputs.prs-string }}`;
-            const body = 'This PR was created by the Combine PRs action by combining the following PRs:\n' + prString;
+            const body = 'This PR was created by the Combine PRs action by combining the following PRs:\n\n' + prString;
             await github.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,

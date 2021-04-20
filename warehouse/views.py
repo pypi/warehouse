@@ -37,8 +37,8 @@ from pyramid.view import (
 )
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
-from sqlalchemy.sql import exists
-from trove_classifiers import classifiers, deprecated_classifiers
+from sqlalchemy.sql import exists, expression
+from trove_classifiers import deprecated_classifiers, sorted_classifiers
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -261,7 +261,7 @@ def locale(request):
     route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
 )
 def list_classifiers(request):
-    return {"classifiers": sorted(classifiers)}
+    return {"classifiers": sorted_classifiers}
 
 
 @view_config(
@@ -311,7 +311,12 @@ def search(request):
             ),
             Classifier.classifier.notin_(deprecated_classifiers.keys()),
         )
-        .order_by(Classifier.classifier)
+        .order_by(
+            expression.case(
+                {c: i for i, c in enumerate(sorted_classifiers)},
+                value=Classifier.classifier,
+            )
+        )
     )
 
     for cls in classifiers_q:
@@ -439,6 +444,19 @@ def flash_messages(request):
     has_translations=True,
 )
 def session_notifications(request):
+    return {}
+
+
+@view_config(
+    route_name="includes.sidebar-sponsor-logo",
+    renderer="includes/sidebar-sponsor-logo.html",
+    uses_session=False,
+    has_translations=False,
+    decorator=[
+        cache_control(30),  # 30 seconds
+    ],
+)
+def sidebar_sponsor_logo(request):
     return {}
 
 

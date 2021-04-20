@@ -1,0 +1,101 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      matrix:
+        include:
+          - name: Tests
+            command: bin/tests --postgresql-host localhost
+            needs-python: ${{ true }}
+            needs-node: ${{ false }}
+          - name: Lint
+            command: bin/lint
+            needs-python: ${{ true }}
+            needs-node: ${{ false }}
+          - name: Documentation
+            command: make docs BINDIR="$(dirname $(which python))"
+            needs-python: ${{ true }}
+            needs-node: ${{ false }}
+          - name: Dependencies
+            command: make github-actions-deps BINDIR="$(dirname $(which python))"
+            needs-python: ${{ true }}
+            needs-node: ${{ false }}
+          - name: Licenses
+            command: make licenses BINDIR="$(dirname $(which python))"
+            needs-python: ${{ true }}
+            needs-node: ${{ false }}
+          - name: Translations
+            command: make translations BINDIR="$(dirname $(which python))"
+            needs-python: ${{ true }}
+            needs-node: ${{ false }}
+          - name: Static Tests
+            command: bin/static_tests
+            needs-python: ${{ false }}
+            needs-node: ${{ true }}
+          - name: Static Lint
+            command: bin/static_lint
+            needs-python: ${{ false }}
+            needs-node: ${{ true }}
+          - name: Static Pipeline
+            command: bin/static_pipeline
+            needs-python: ${{ false }}
+            needs-node: ${{ true }}
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:10.1
+        ports:
+          - 5432:5432
+    name: ${{ matrix.name }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Install platform dependencies
+        run: |
+          sudo apt -y update
+          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config
+      - uses: actions/setup-python@v2
+        if: ${{ matrix.needs-python }}
+        with:
+          python-version: 3.8.2
+      - name: Cache Python dependencies
+        if: ${{ matrix.needs-python }}
+        uses: actions/cache@v2
+        env:
+          cache-name: warehouse-cache-pip
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-
+            ${{ runner.os }}-${{ github.job }}-
+            ${{ runner.os }}-
+      - name: Install Python dependencies
+        if: ${{ matrix.needs-python }}
+        run: |
+          pip install -U pip setuptools wheel
+          pip install -r requirements.txt
+          pip install -r requirements/dev.txt
+      - uses: actions/setup-node@v2
+        if: ${{ matrix.needs-node }}
+        with:
+          node-version: 14.4.0
+      - name: Cache Node dependencies
+        if: ${{ matrix.needs-node }}
+        uses: actions/cache@v2
+        env:
+          cache-name: warehouse-cache-npm
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-
+            ${{ runner.os }}-build-${{ github.job }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Node dependencies
+        if: ${{ matrix.needs-node }}
+        run: npm ci
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}

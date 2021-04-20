@@ -46,12 +46,8 @@ def includeme(config):
         "pages/security.html",
         view_kw={"has_translations": True},
     )
-    config.add_template_view(
-        "sponsor",
-        "/sponsor/",
-        "pages/sponsor.html",
-        view_kw={"has_translations": True},
-    )
+    # Redirect the old "sponsor PyPI" page to the sponsors page
+    config.add_redirect("/sponsor/", "/sponsors/", domain=warehouse)
     config.add_template_view(
         "sponsors",
         "/sponsors/",
@@ -104,6 +100,11 @@ def includeme(config):
         "/_includes/profile-public-email/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "includes.sidebar-sponsor-logo",
+        "/_includes/sidebar-sponsor-logo/",
         domain=warehouse,
     )
 
@@ -163,7 +164,6 @@ def includeme(config):
         "/account/verify-project-role/",
         domain=warehouse,
     )
-
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route(
@@ -344,6 +344,13 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
         read_only=True,
+        domain=warehouse,
+    )
+    # Integration URLs
+
+    config.add_route(
+        "integrations.github.disclose-token",
+        "/_/github/disclose-token",
         domain=warehouse,
     )
 

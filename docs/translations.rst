@@ -25,11 +25,7 @@ To add a new known locale:
    |warehouse/i18n/__init__.py|_.
    The key is the locale code, and corresponds to a directory in
    ``warehouse/locale``.
-3. Compile the MO file for the locale by running ``make build-mos``. This may
-   recompile some existing MO files as well, but should add a new MO file for
-   the new locale.
-4. Commit these changes (including all ``*.mo`` files) and  make a new pull
-   request which adds them.
+3. Commit these changes and make a new pull request.
 
 .. |warehouse/i18n/__init__.py| replace:: ``warehouse/i18n/__init__.py``
 .. _warehouse/i18n/__init__.py: https://github.com/pypa/warehouse/blob/master/warehouse/i18n/__init__.py

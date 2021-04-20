@@ -11,7 +11,10 @@ Project
     Returns metadata (info) about an individual project at the latest version,
     a list of all releases for that project, and project URLs. Releases include
     the release name, URL, and MD5 and SHA256 hash digests, and are keyed by
-    the release version string.
+    the release version string. Metadata returned comes from the values provided
+    at upload time and does not necessarily match the content of the uploaded
+    files. The first uploaded data for a release is stored, subsequent uploads
+    do not update it.
 
     **Example Request**:
 

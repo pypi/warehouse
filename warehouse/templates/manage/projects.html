@@ -31,14 +31,14 @@
           </h3>
           {% if release %}
           <p class="package-snippet__meta">
-            {% trans release_date=humanize(release.created) %}Last released on {{ release_date }}{% endtrans %}
+            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
           </p>
           <p class="package-snippet__description">
             {{ release.summary }}
           </p>
           {% else %}
           <p class="package-snippet__meta">
-            {% trans creation_date=humanize(project.created) %}Created on {{ creation_date }}{% endtrans %}
+            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
           </p>
           {% endif %}
         </div>
@@ -70,14 +70,14 @@
           </h3>
           {% if release %}
           <p class="package-snippet__meta">
-            {% trans release_date=humanize(release.created) %}Last released on {{ release_date }}{% endtrans %}
+            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
           </p>
           <p class="package-snippet__description">
             {{ release.summary }}
           </p>
           {% else %}
           <p class="package-snippet__meta">
-            {% trans creation_date=humanize(project.created) %}Created on {{ creation_date }}{% endtrans %}
+            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
           </p>
           {% endif %}
         </div>

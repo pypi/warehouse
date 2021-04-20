@@ -22,7 +22,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
 )
-from trove_classifiers import classifiers
+from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
 from warehouse import views
@@ -42,6 +42,7 @@ from warehouse.views import (
     search,
     service_unavailable,
     session_notifications,
+    sidebar_sponsor_logo,
     stats,
 )
 
@@ -247,16 +248,20 @@ class TestLocale:
             assert "Set-Cookie" not in result.headers
 
 
-def test_esi_current_user_indicator():
+def test_csi_current_user_indicator():
     assert current_user_indicator(pretend.stub()) == {}
 
 
-def test_esi_flash_messages():
+def test_csi_flash_messages():
     assert flash_messages(pretend.stub()) == {}
 
 
-def test_esi_session_notifications():
+def test_csi_session_notifications():
     assert session_notifications(pretend.stub()) == {}
+
+
+def test_csi_sidebar_sponsor_logo():
+    assert sidebar_sponsor_logo(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -425,7 +430,7 @@ class TestSearch:
 
 
 def test_classifiers(db_request):
-    assert list_classifiers(db_request) == {"classifiers": sorted(classifiers)}
+    assert list_classifiers(db_request) == {"classifiers": sorted_classifiers}
 
 
 def test_stats(db_request):

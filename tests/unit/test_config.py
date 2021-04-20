@@ -232,7 +232,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
         "warehouse.xmlrpc.search.enabled": True,
     }
-
     if environment == config.Environment.development:
         expected_settings.update(
             {
@@ -305,7 +304,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
-            pretend.call(".domain"),
+            pretend.call(".predicates"),
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".tasks"),

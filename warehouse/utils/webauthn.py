@@ -42,7 +42,7 @@ def _get_webauthn_users(user, *, rp_id):
         pywebauthn.WebAuthnUser(
             str(user.id),
             user.username,
-            user.name,
+            user.name or user.username,
             None,
             credential.credential_id,
             credential.public_key,
@@ -85,7 +85,7 @@ def get_credential_options(user, *, challenge, rp_name, rp_id):
         rp_id,
         str(user.id),
         user.username,
-        user.name,
+        user.name or user.username,
         None,
         user_verification="discouraged",
     )

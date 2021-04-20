@@ -124,7 +124,7 @@ class TestSearch:
             xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
 
         assert exc.value.faultString == (
-            "RuntimeError: PyPI's XMLRPC API has been temporarily disabled due to "
+            "RuntimeError: PyPI's XMLRPC API is currently disabled due to "
             "unmanageable load and will be deprecated in the near future. See "
             "https://status.python.org/ for more information."
         )

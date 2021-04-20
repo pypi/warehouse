@@ -12,4 +12,6 @@
  # limitations under the License.
 -#}
 
-{# Note: The actual content for this include is defined in pypi-theme #}
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}Your API credentials from {{ request.registry.settings["site.name"] }} were found on a public webpage{% endblock %}
