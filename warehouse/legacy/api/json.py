@@ -222,22 +222,23 @@ def json_release_slash(release, request):
 @view_config(
     route_name="legacy.api.json.latest",
     context=Project,
+    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_latest(project, request):
-    release = project.latest_version
+    version = project.latest_version.version
 
-    if release is None:
+    if version is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    return HTTPTemporaryRedirect(
-        request.route_path(
-            "legacy.api.json.release",
-            name=project.name,
-            version=release.version,
-        ),
-        headers=_CORS_HEADERS,
+    release = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .filter(Release.version == version)
+        .first()
     )
+
+    return json_release(release, request)
 
 
 @view_config(
@@ -267,14 +268,7 @@ def json_latest_stable(project, request):
     if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    return HTTPTemporaryRedirect(
-        request.route_path(
-            "legacy.api.json.release",
-            name=project.name,
-            version=release.version,
-        ),
-        headers=_CORS_HEADERS,
-    )
+    return json_release(release, request)
 
 
 @view_config(
@@ -304,14 +298,7 @@ def json_latest_unstable(project, request):
     if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    return HTTPTemporaryRedirect(
-        request.route_path(
-            "legacy.api.json.release",
-            name=project.name,
-            version=release.version,
-        ),
-        headers=_CORS_HEADERS,
-    )
+    return json_release(release, request)
 
 
 @view_config(
