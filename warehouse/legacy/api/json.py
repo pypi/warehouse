@@ -12,11 +12,7 @@
 
 from collections import OrderedDict
 
-from pyramid.httpexceptions import (
-    HTTPMovedPermanently,
-    HTTPNotFound,
-    HTTPTemporaryRedirect,
-)
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound
@@ -260,13 +256,21 @@ def json_latest_slash(project, request):
 @view_config(
     route_name="legacy.api.json.latest_stable",
     context=Project,
+    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_latest_stable(project, request):
-    release = project.latest_stable_version
+    version = project.latest_stable_version.version
 
-    if release is None:
+    if version is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
+
+    release = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .filter(Release.version == version)
+        .first()
+    )
 
     return json_release(release, request)
 
@@ -290,13 +294,21 @@ def json_latest_stable_slash(project, request):
 @view_config(
     route_name="legacy.api.json.latest_unstable",
     context=Project,
+    renderer="json",
     decorator=_CACHE_DECORATOR,
 )
 def json_latest_unstable(project, request):
-    release = project.latest_unstable_version
+    version = project.latest_unstable_version.version
 
-    if release is None:
+    if version is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
+
+    release = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .filter(Release.version == version)
+        .first()
+    )
 
     return json_release(release, request)
 
