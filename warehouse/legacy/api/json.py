@@ -222,7 +222,8 @@ def json_release_slash(release, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest(project, request):
-    version = project.latest_version.version
+    release = project.latest_version
+    version = release.version if release else None
 
     if version is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
@@ -260,7 +261,8 @@ def json_latest_slash(project, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest_stable(project, request):
-    version = project.latest_stable_version.version
+    release = project.latest_stable_version
+    version = release.version if release else None
 
     if version is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
@@ -298,7 +300,8 @@ def json_latest_stable_slash(project, request):
     decorator=_CACHE_DECORATOR,
 )
 def json_latest_unstable(project, request):
-    version = project.latest_unstable_version.version
+    release = project.latest_unstable_version
+    version = release.version if release else None
 
     if version is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
