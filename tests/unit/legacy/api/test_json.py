@@ -118,6 +118,23 @@ class TestJSONProject:
         assert resp is response
         assert json_release.calls == [pretend.call(release, db_request)]
 
+    def test_latest_release_yanked(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="3.0", yanked=True)
+
+        release = ReleaseFactory.create(project=project, version="2.0")
+
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        resp = json.json_project(project, db_request)
+
+        assert resp is response
+        assert json_release.calls == [pretend.call(release, db_request)]
+
     def test_all_releases_yanked(self, monkeypatch, db_request):
         project = ProjectFactory.create()
 
@@ -151,6 +168,7 @@ class TestJSONProject:
 
         assert resp is response
         assert json_release.calls == [pretend.call(release, db_request)]
+
 
 class TestJSONProjectSlash:
     def test_normalizing_redirects(self, db_request):
