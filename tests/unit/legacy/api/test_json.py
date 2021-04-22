@@ -118,6 +118,76 @@ class TestJSONProject:
         assert resp is response
         assert json_release.calls == [pretend.call(release, db_request)]
 
+    def test_all_releases_yanked(self, monkeypatch, db_request):
+        """
+        If all releases are yanked, the endpoint should return the same release as
+        if none of the releases are yanked.
+        """
+
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0", yanked=True)
+        ReleaseFactory.create(project=project, version="2.0", yanked=True)
+        ReleaseFactory.create(project=project, version="4.0.dev0", yanked=True)
+
+        release = ReleaseFactory.create(project=project, version="3.0", yanked=True)
+
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        resp = json.json_project(project, db_request)
+
+        assert resp is response
+        assert json_release.calls == [pretend.call(release, db_request)]
+
+    def test_latest_release_yanked(self, monkeypatch, db_request):
+        """
+        If the latest version is yanked, the endpoint should fall back on the
+        latest non-prerelease version that is not yanked, if one is available.
+        """
+
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="3.0", yanked=True)
+        ReleaseFactory.create(project=project, version="3.0.dev0")
+
+        release = ReleaseFactory.create(project=project, version="2.0")
+
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        resp = json.json_project(project, db_request)
+
+        assert resp is response
+        assert json_release.calls == [pretend.call(release, db_request)]
+
+    def test_all_non_prereleases_yanked(self, monkeypatch, db_request):
+        """
+        If all non-prerelease versions are yanked, the endpoint should return the
+        latest prerelease version that is not yanked.
+        """
+
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0", yanked=True)
+        ReleaseFactory.create(project=project, version="2.0", yanked=True)
+        ReleaseFactory.create(project=project, version="3.0", yanked=True)
+        ReleaseFactory.create(project=project, version="3.0.dev0", yanked=True)
+
+        release = ReleaseFactory.create(project=project, version="2.0.dev0")
+
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        resp = json.json_project(project, db_request)
+
+        assert resp is response
+        assert json_release.calls == [pretend.call(release, db_request)]
+
 
 class TestJSONProjectSlash:
     def test_normalizing_redirects(self, db_request):
