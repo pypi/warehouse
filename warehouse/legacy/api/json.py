@@ -236,7 +236,7 @@ def json_latest(project, request):
         request.db.query(Release)
         .filter(Release.project == project)
         .filter(Release.version == version)
-        .first()
+        .one()
     )
 
     return json_release(release, request)
@@ -275,7 +275,7 @@ def json_latest_stable(project, request):
         request.db.query(Release)
         .filter(Release.project == project)
         .filter(Release.version == version)
-        .first()
+        .one()
     )
 
     return json_release(release, request)
@@ -314,7 +314,7 @@ def json_latest_unstable(project, request):
         request.db.query(Release)
         .filter(Release.project == project)
         .filter(Release.version == version)
-        .first()
+        .one()
     )
 
     return json_release(release, request)
