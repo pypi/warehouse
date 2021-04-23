@@ -340,88 +340,100 @@ class TestEditProjectButton:
 
 
 class TestProjectLatestRedirects:
-    def check_release(self, db_request, project, release, endpoint):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/project/the-redirect"
-        )
+    @pytest.fixture
+    def check_latest_release(self, db_request, monkeypatch):
+        route_path = pretend.call_recorder(lambda *a, **kw: "/project/the-redirect")
+        monkeypatch.setattr(db_request, "route_path", route_path)
 
-        resp = getattr(views, endpoint)(project, db_request)
+        def check_function(db_request, project, release, endpoint):
+            resp = getattr(views, endpoint)(project, db_request)
 
-        assert isinstance(resp, HTTPTemporaryRedirect)
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "packaging.release", name=project.name, version=release.version
-            )
-        ]
-        assert resp.headers["Location"] == "/project/the-redirect"
+            assert isinstance(resp, HTTPTemporaryRedirect)
+            assert db_request.route_path.calls == [
+                pretend.call(
+                    "packaging.release", name=project.name, version=release.version
+                )
+            ]
+            assert resp.headers["Location"] == "/project/the-redirect"
 
-    def test_latest_no_pre(self, db_request, project_no_pre):
-        self.check_release(
+        return check_function
+
+    def test_latest_no_pre(self, db_request, project_no_pre, check_latest_release):
+        check_latest_release(
             db_request,
             project_no_pre.project,
             project_no_pre.latest_stable,
             "project_latest",
         )
 
-    def test_latest_with_pre(self, db_request, project_with_pre):
-        self.check_release(
+    def test_latest_with_pre(self, db_request, project_with_pre, check_latest_release):
+        check_latest_release(
             db_request,
             project_with_pre.project,
             project_with_pre.latest_stable,
             "project_latest",
         )
 
-    def test_latest_only_pre(self, db_request, project_only_pre):
-        self.check_release(
+    def test_latest_only_pre(self, db_request, project_only_pre, check_latest_release):
+        check_latest_release(
             db_request,
             project_only_pre.project,
             project_only_pre.latest_pre,
             "project_latest",
         )
 
-    def test_latest_stable_no_pre(self, db_request, project_no_pre):
-        self.check_release(
+    def test_latest_stable_no_pre(
+        self, db_request, project_no_pre, check_latest_release
+    ):
+        check_latest_release(
             db_request,
             project_no_pre.project,
             project_no_pre.latest_stable,
             "project_latest_stable",
         )
 
-    def test_latest_stable_with_pre(self, db_request, project_with_pre):
-        self.check_release(
+    def test_latest_stable_with_pre(
+        self, db_request, project_with_pre, check_latest_release
+    ):
+        check_latest_release(
             db_request,
             project_with_pre.project,
             project_with_pre.latest_stable,
             "project_latest_stable",
         )
 
-    def test_latest_stable_only_pre(self, db_request, project_only_pre):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/project/the-redirect"
-        )
+    def test_latest_stable_only_pre(self, db_request, project_only_pre, monkeypatch):
+        route_path = pretend.call_recorder(lambda *a, **kw: "/project/the-redirect")
+        monkeypatch.setattr(db_request, "route_path", route_path)
 
         resp = views.project_latest_stable(project_only_pre.project, db_request)
 
         assert isinstance(resp, HTTPNotFound)
 
-    def test_latest_unstable_no_pre(self, db_request, project_no_pre):
-        self.check_release(
+    def test_latest_unstable_no_pre(
+        self, db_request, project_no_pre, check_latest_release
+    ):
+        check_latest_release(
             db_request,
             project_no_pre.project,
             project_no_pre.latest_stable,
             "project_latest_unstable",
         )
 
-    def test_latest_unstable_with_pre(self, db_request, project_with_pre):
-        self.check_release(
+    def test_latest_unstable_with_pre(
+        self, db_request, project_with_pre, check_latest_release
+    ):
+        check_latest_release(
             db_request,
             project_with_pre.project,
             project_with_pre.latest_pre,
             "project_latest_unstable",
         )
 
-    def test_latest_unstable_only_pre(self, db_request, project_only_pre):
-        self.check_release(
+    def test_latest_unstable_only_pre(
+        self, db_request, project_only_pre, check_latest_release
+    ):
+        check_latest_release(
             db_request,
             project_only_pre.project,
             project_only_pre.latest_pre,

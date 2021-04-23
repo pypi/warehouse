@@ -191,22 +191,21 @@ class TestJSONProjectSlash:
         assert resp.headers["Location"] == "/project/the-redirect"
 
 
-@pytest.fixture
-def check_json_release(monkeypatch):
-    response = pretend.stub()
-    json_release = pretend.call_recorder(lambda ctx, request: response)
-    monkeypatch.setattr(json, "json_release", json_release)
-
-    def check_function(db_request, project, release, endpoint):
-        resp = getattr(json, endpoint)(project, db_request)
-
-        assert resp is response
-        assert json_release.calls == [pretend.call(release, db_request)]
-
-    return check_function
-
-
 class TestJSONLatestReleases:
+    @pytest.fixture
+    def check_json_release(self, monkeypatch):
+        response = pretend.stub()
+        json_release = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(json, "json_release", json_release)
+
+        def check_function(db_request, project, release, endpoint):
+            resp = getattr(json, endpoint)(project, db_request)
+
+            assert resp is response
+            assert json_release.calls == [pretend.call(release, db_request)]
+
+        return check_function
+
     def test_latest_no_pre(self, db_request, project_no_pre, check_json_release):
         """Confirm 'latest' gives latest-stable for project with no pre-releases."""
         check_json_release(

@@ -340,8 +340,10 @@ def monkeypatch_session():
     m.undo()
 
 
-# Standardized dummy projects for testing version-search behavior
-# under different stable/prerelease circumstances
+# Standardized dummy projects for testing version-search
+# behavior under different stable/prerelease circumstances.
+# In particular, created to support the 'latest' endpoints of
+# https://github.com/pypa/warehouse/pull/8615
 
 ProjectData = namedtuple("ProjectData", ["project", "latest_stable", "latest_pre"])
 
