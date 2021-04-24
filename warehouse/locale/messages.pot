@@ -2932,12 +2932,18 @@ msgstr ""
 msgid "Manage '%(project_name)s' collaborators"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:24
+#: warehouse/templates/manage/roles.html:22
 msgid "2FA enabled"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:29
-msgid "No 2FA"
+#: warehouse/templates/manage/roles.html:23
+#: warehouse/templates/manage/roles.html:28
+#: warehouse/templates/manage/roles.html:53
+msgid "2FA"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:27
+msgid "2FA disabled"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:36
@@ -2985,10 +2991,6 @@ msgstr ""
 #: warehouse/templates/manage/roles.html:86
 #: warehouse/templates/manage/roles.html:180
 msgid "Role"
-msgstr ""
-
-#: warehouse/templates/manage/roles.html:53
-msgid "2FA"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:94
