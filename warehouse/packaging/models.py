@@ -264,7 +264,7 @@ class Project(SitemapMixin, db.Model):
         # If only pre-releases exist, supply the latest pre-release version.
         return (
             orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            .query(Release)
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
@@ -276,7 +276,7 @@ class Project(SitemapMixin, db.Model):
         # available, return None.
         return (
             orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            .query(Release)
             .filter(
                 Release.project == self,
                 Release.yanked.is_(False),
@@ -291,7 +291,7 @@ class Project(SitemapMixin, db.Model):
         # Supply the latest available version, regardless of pre-release status.
         return (
             orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            .query(Release)
             .filter(
                 Release.project == self,
                 Release.yanked.is_(False),
