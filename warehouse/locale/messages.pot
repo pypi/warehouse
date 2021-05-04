@@ -2230,21 +2230,21 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:694
-#: warehouse/templates/manage/history.html:88
+#: warehouse/templates/manage/history.html:93
 msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/account.html:703
-#: warehouse/templates/manage/history.html:89
-#: warehouse/templates/manage/history.html:98
+#: warehouse/templates/manage/history.html:94
+#: warehouse/templates/manage/history.html:103
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/account.html:707
-#: warehouse/templates/manage/history.html:90
-#: warehouse/templates/manage/history.html:102
+#: warehouse/templates/manage/history.html:95
+#: warehouse/templates/manage/history.html:107
 msgid "IP address"
 msgstr ""
 
@@ -2423,7 +2423,16 @@ msgstr ""
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:85
+#: warehouse/templates/manage/history.html:79
+#, python-format
+msgid "Release version %(version)s yanked"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:81
+msgid "Yanked by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:90
 #, python-format
 msgid "Security history for %(project_name)s"
 msgstr ""
