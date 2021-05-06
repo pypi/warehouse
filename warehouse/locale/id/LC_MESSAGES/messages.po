@@ -11,13 +11,22 @@
 # Habib Rohman <revolusi147id@gmail.com>, 2020, 2021.
 # Syahmin Sukhairi <syahmin@gmail.com>, 2021.
 # Erikson <erikson99.id@gmail.com>, 2021.
+<<<<<<< HEAD
+=======
+# Jacque Fresco <aidter@use.startmail.com>, 2021.
+>>>>>>> 78cbf723 (Translations update from Weblate)
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
+<<<<<<< HEAD
 "PO-Revision-Date: 2021-04-07 13:37+0000\n"
 "Last-Translator: Erikson <erikson99.id@gmail.com>\n"
+=======
+"PO-Revision-Date: 2021-05-06 13:46+0000\n"
+"Last-Translator: Jacque Fresco <aidter@use.startmail.com>\n"
+>>>>>>> 78cbf723 (Translations update from Weblate)
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/pypa/"
 "warehouse/id/>\n"
 "Language: id\n"
@@ -25,7 +34,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+<<<<<<< HEAD
 "X-Generator: Weblate 4.6-dev\n"
+=======
+"X-Generator: Weblate 4.7-dev\n"
+>>>>>>> 78cbf723 (Translations update from Weblate)
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:254
@@ -3234,17 +3247,29 @@ msgstr "Kelola kolaborator %(project_name)s"
 
 #: warehouse/templates/manage/roles.html:22
 msgid "2FA enabled"
+<<<<<<< HEAD
 msgstr ""
+=======
+msgstr "2FA bernyala"
+>>>>>>> 78cbf723 (Translations update from Weblate)
 
 #: warehouse/templates/manage/roles.html:23
 #: warehouse/templates/manage/roles.html:28
 #: warehouse/templates/manage/roles.html:53
 msgid "2FA"
+<<<<<<< HEAD
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:27
 msgid "2FA disabled"
 msgstr ""
+=======
+msgstr "2FA"
+
+#: warehouse/templates/manage/roles.html:27
+msgid "2FA disabled"
+msgstr "2FA gak nyala"
+>>>>>>> 78cbf723 (Translations update from Weblate)
 
 #: warehouse/templates/manage/roles.html:36
 #, python-format
@@ -4511,6 +4536,7 @@ msgstr ""
 "langkah-langkah berikut: <ul> <li><a href=\"%(reset_pwd_href)s\">Setel ulang "
 "password Anda</a></li> <li>Hubungi admin PyPI tentang kejadian di <a href="
 "\"mailto:%(admin_email)s\">%(admin_email)s</a></li> </ul> </p>"
+<<<<<<< HEAD
 
 #: warehouse/templates/pages/help.html:292
 msgid ""
@@ -4525,6 +4551,22 @@ msgstr ""
 "Bagian <a href=\"#suspicious-activity\">aktivitas mencurigakan</a> juga "
 "berlaku. </p>"
 
+=======
+
+#: warehouse/templates/pages/help.html:292
+msgid ""
+"<p> A PyPI API token linked to your account was posted on a public website. "
+"It was automatically revoked, but before regenerating a new one, please "
+"check the email you received and attempt to determine the cause. The <a href="
+"\"#suspicious-activity\">suspicious activity</a> section applies too. </p>"
+msgstr ""
+"<p> Token API PyPI yang ditautkan ke akun Anda telah diposting di situs "
+"publik. Ini secara otomatis dicabut, tetapi sebelum membuat ulang yang baru, "
+"harap periksa email yang Anda terima dan coba untuk menentukan penyebabnya. "
+"Bagian <a href=\"#suspicious-activity\">aktivitas mencurigakan</a> juga "
+"berlaku. </p>"
+
+>>>>>>> 78cbf723 (Translations update from Weblate)
 #: warehouse/templates/pages/help.html:302
 #, python-format
 msgid ""
