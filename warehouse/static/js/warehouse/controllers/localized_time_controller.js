@@ -49,6 +49,8 @@ export default class extends Controller {
       }
     }
 
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    isoDate = isoDate + ` (${userTimezone})`;
     this.element.setAttribute("title", isoDate);
     this.element.setAttribute("aria-label", isoDate);
   }
