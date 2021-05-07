@@ -80,10 +80,10 @@
     <small>
       {% trans %}Yanked by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
-    {% if event.additional.yanked_reason %}<br/><small>
+    {% if event.additional.yanked_reason %}<p><small>
       {% trans %}Reason:{% endtrans %} {{ event.additional.yanked_reason }}
+    </small></p>
     {% endif %}
-    </small>
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}
