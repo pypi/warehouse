@@ -78,14 +78,10 @@
     {% set index_url = " -i https://test.pypi.org/simple/" %}
   {%- endif -%}
 
-  {%- if request_route == "packaging.release" -%}
-    {% set project_version = "==" + release.version %}
-  {%- endif -%}
-
   {%- if release.version.epoch -%}
-    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
+    pip install{{ index_url }} '{{ release.project.name }}=={{ release.version }}'
   {%- else -%}
-    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+    pip install{{ index_url }} {{ release.project.name }}=={{ release.version }}
   {%- endif -%}
 {%- endmacro -%}
 
