@@ -22,7 +22,7 @@ class Sponsor(db.Model):
     __repr__ = make_repr("name")
 
     name = Column(String, nullable=False)
-    service = Column(String, nullable=False)
+    service = Column(String)
     # activity should be a list of strings
     activity = Column(PickleType, nullable=False)
 
