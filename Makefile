@@ -155,6 +155,7 @@ initdb:
 	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
 	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
+	docker-compose run web python -m warehouse sponsors populate-db
 
 reindex:
 	docker-compose run --rm web python -m warehouse search reindex
