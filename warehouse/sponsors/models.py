@@ -12,6 +12,7 @@
 
 from sqlalchemy import Boolean, Column, String, sql
 from sqlalchemy.types import PickleType
+from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
@@ -26,9 +27,9 @@ class Sponsor(db.Model):
     # activity should be a list of strings
     activity = Column(PickleType, nullable=False)
 
-    url = Column(String, nullable=False)  # TODO use URL field
-    color_logo_url = Column(String, nullable=False)  # TODO use URL field
-    white_logo_url = Column(String)  # TODO use URL field
+    url = Column(URLType, nullable=False)
+    color_logo_url = Column(URLType, nullable=False)
+    white_logo_url = Column(URLType)
 
     # control flags
     footer = Column(Boolean, server_default=sql.false(), nullable=False)

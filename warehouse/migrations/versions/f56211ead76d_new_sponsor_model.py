@@ -10,18 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-New sponsors model
+New sponsor model
 
-Revision ID: 752389dc7d00
+Revision ID: f56211ead76d
 Revises: 69b928240b2f
-Create Date: 2021-05-11 14:13:15.372363
+Create Date: 2021-05-12 17:32:05.359728
 """
 
 from alembic import op
 import sqlalchemy as sa
+import sqlalchemy_utils
 from sqlalchemy.dialects import postgresql
 
-revision = '752389dc7d00'
+
+revision = 'f56211ead76d'
 down_revision = '69b928240b2f'
 
 # Note: It is VERY important to ensure that a migration does not lock for a
@@ -38,11 +40,11 @@ def upgrade():
     op.create_table('sponsors',
     sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('service', sa.String(), nullable=False),
+    sa.Column('service', sa.String(), nullable=True),
     sa.Column('activity', sa.PickleType(), nullable=False),
-    sa.Column('url', sa.String(), nullable=False),
-    sa.Column('color_logo_url', sa.String(), nullable=False),
-    sa.Column('white_logo_url', sa.String(), nullable=True),
+    sa.Column('url', sqlalchemy_utils.types.url.URLType(), nullable=False),
+    sa.Column('color_logo_url', sqlalchemy_utils.types.url.URLType(), nullable=False),
+    sa.Column('white_logo_url', sqlalchemy_utils.types.url.URLType(), nullable=True),
     sa.Column('footer', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('psf_sponsor', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('infra_sponsor', sa.Boolean(), server_default=sa.text('false'), nullable=False),
