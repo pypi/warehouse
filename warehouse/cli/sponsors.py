@@ -551,6 +551,9 @@ SPONSORS_DICTS = [
 ]
 
 
+WHITE_BASE_URL = "https://pypi.org/static/images/sponsors/white/"
+BLACK_BASE_URL = "https://pypi.org/static/images/sponsors/color/"
+
 @warehouse.group()  # pragma: no branch
 def sponsors():
     """
@@ -578,8 +581,8 @@ def populate_db(config):
 
         params = data.copy()
         img = params.pop('image')
-        params["color_logo_url"] = img
-        params["white_logo_url"] = f"white/{img}"
+        params["color_logo_url"] = BLACK_BASE_URL + img
+        params["white_logo_url"] = WHITE_BASE_URL + img
 
         sponsor = Sponsor(**params)
         try:
