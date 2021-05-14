@@ -25,7 +25,7 @@ describe("Localized time controller", () => {
       <time
         id="element"
         data-controller="localized-time"
-        datetime="2019-09-20T19:06:58+0000"
+        datetime="2019-09-20T19:06:58+0100"
         data-localized-time-relative="false"
         data-localized-time-show-time="false">
       </time>
@@ -42,6 +42,7 @@ describe("Localized time controller", () => {
       const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
+      expect(expectedDate.endsWith("(+01:00)")).toBeTruthy();
     });
   });
 
@@ -73,6 +74,7 @@ describe("Localized time controller", () => {
       const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
+      expect(expectedDate.endsWith("(+00:00)")).toBeTruthy();
     });
   });
 });
