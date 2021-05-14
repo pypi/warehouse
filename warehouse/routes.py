@@ -48,13 +48,9 @@ def includeme(config):
     )
     # Redirect the old "sponsor PyPI" page to the sponsors page
     config.add_redirect("/sponsor/", "/sponsors/", domain=warehouse)
-    config.add_template_view(
+    config.add_route(
         "sponsors",
         "/sponsors/",
-        # Use the full resource path here to make it able to be overridden by
-        # pypi-theme.
-        "warehouse:templates/pages/sponsors.html",
-        view_kw={"has_translations": True},
     )
 
     # Our legal policies
