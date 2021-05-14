@@ -136,22 +136,22 @@
 {% macro twofa_buttons() %}
   <div class="wrap-children">
     {% if not user.totp_secret %}
-    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
+    <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">{% trans %}Add <abbr title="two-factor authentication">2FA</abbr> with authentication application{% endtrans %}</a>
     {% endif %}
-    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
+    <a href="{{ request.route_path('manage.account.webauthn-provision') }}" class="button button--primary" id="webauthn-button" aria-describedby="webauthn-errors">{% trans %}Add <abbr title="two-factor authentication">2FA</abbr> with security device (e.g. USB key){% endtrans %}</a>
     {% if user.has_two_factor and not user.has_recovery_codes %}
     <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}" class="button button--primary">{% trans %}Generate recovery codes{% endtrans %}</a>
     {% endif %}
   </div>
 
   <noscript>
-    <p>{% trans %}Enable JavaScript to set up two factor authentication with a security device (e.g. USB key){% endtrans %}</p>
+    <p>{% trans %}Enable JavaScript to set up two-factor authentication with a security device (e.g. USB key){% endtrans %}</p>
   </noscript>
 
   <ul id="webauthn-errors" class="form-errors form-errors--full-width">
     <li id="webauthn-browser-support" class="hidden margin-top--large">
       {% trans trimmed href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}
-      <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+      <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your web browser</a> to set up two-factor authentication with a security device (e.g. USB key)
       {% endtrans %}
     </li>
   </ul>
@@ -444,16 +444,16 @@
 
   <hr>
   <section id="two-factor">
-    <h2 class="sub-title">{% trans %}Two factor authentication (2FA){% endtrans %}</h2>
-    <p>{% trans href='/help#twofa' %}Two factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.{% endtrans %}</p>
+    <h2 class="sub-title">{% trans %}Two-factor authentication (2FA){% endtrans %}</h2>
+    <p>{% trans href='/help#twofa' %}Two-factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two-factor authentication">2FA</abbr></a>.{% endtrans %}</p>
 
     {% if user.has_primary_verified_email %}
       {% if user.totp_secret or user.webauthn %}
       <table class="table table--2fa">
-        <caption class="sr-only">{% trans %}Two factor authentication methods enabled{% endtrans %}</caption>
+        <caption class="sr-only">{% trans %}Two-factor authentication methods enabled{% endtrans %}</caption>
         <thead>
           <tr>
-            <th scope="col" colspan="2">{% trans %}Two factor method{% endtrans %}</th>
+            <th scope="col" colspan="2">{% trans %}Two-factor method{% endtrans %}</th>
           </tr>
         </thead>
         <tbody>
@@ -476,7 +476,7 @@
             </th>
             <td class="table__align-right">
               <a href="#disable-webauthn-{{ credential.id }}" class="button button--primary">{% trans %}Remove{% endtrans %}</a>
-              {% set title=gettext("Remove two factor security device") + " - " + credential.label %}
+              {% set title=gettext("Remove two-factor security device") + " - " + credential.label %}
               {% set confirm_button_label=gettext("Remove device") %}
               {% set action=request.route_path('manage.account.webauthn-provision.delete') %}
               {% set slug="disable-webauthn-" + credential.id | string %}
@@ -506,12 +506,12 @@
       {{ twofa_buttons() }}
       {% else %}
       <div class="callout-block">
-        <p>{% trans %}You have not enabled two factor authentication on your account.{% endtrans %}</p>
+        <p>{% trans %}You have not enabled two-factor authentication on your account.{% endtrans %}</p>
         {{ twofa_buttons() }}
       </div>
       {% endif %}
     {% else %}
-      <p><strong>{% trans href='#account-emails' %}<a href="{{ href }}">Verify your primary email address</a> to add two factor authentication to your account.{% endtrans %}</strong></p>
+      <p><strong>{% trans href='#account-emails' %}<a href="{{ href }}">Verify your primary email address</a> to add two-factor authentication to your account.{% endtrans %}</strong></p>
     {% endif %}
   </section>
 
@@ -563,7 +563,7 @@
       {% elif event.tag == "account:login:success" %}
       <strong>{% trans %}Logged in{% endtrans %}</strong><br>
       <small>
-        {% trans %}Two factor method:{% endtrans %}
+        {% trans %}Two-factor method:{% endtrans %}
         {% if event.additional.two_factor_method == None %}
           {% trans %}None{% endtrans %}
         {% elif event.additional.two_factor_method  == "webauthn" %}
@@ -616,7 +616,7 @@
       <strong>{% trans %}Password successfully changed{% endtrans %}</strong>
 
       {% elif event.tag  == "account:two_factor:method_added" %}
-      <strong>{% trans %}Two factor authentication added{% endtrans %}</strong><br>
+      <strong>{% trans %}Two-factor authentication added{% endtrans %}</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
           {% trans %}Method: Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}<br>
@@ -626,7 +626,7 @@
         {% endif %}
       </small>
       {% elif event.tag  == "account:two_factor:method_removed" %}
-      <strong>{% trans %}Two factor authentication removed{% endtrans %}</strong><br>
+      <strong>{% trans %}Two-factor authentication removed{% endtrans %}</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
           {% trans %}Method: Security device (<abbr title="web authentication">WebAuthn</abbr>){% endtrans %}<br>
@@ -675,7 +675,7 @@
         {% else %}
         {% trans project_name=event.additional.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
         {% endif %}<br>
-        {% trans public_url=event.additional.public_url %}Reason: Token found at <a href="{{ public_url }}">public url</a>{% endtrans %}
+        {% trans public_url=event.additional.public_url %}Reason: Token found at <a href="{{ public_url }}">public URL</a>{% endtrans %}
       </small>
 
       {% else %}
