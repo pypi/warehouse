@@ -283,13 +283,13 @@ msgstr ""
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:261 warehouse/templates/base.html:262
-#: warehouse/templates/base.html:263 warehouse/templates/base.html:273
-#: warehouse/templates/base.html:274 warehouse/templates/base.html:275
-#: warehouse/templates/base.html:286 warehouse/templates/base.html:287
-#: warehouse/templates/base.html:288 warehouse/templates/base.html:297
-#: warehouse/templates/base.html:299 warehouse/templates/base.html:310
-#: warehouse/templates/base.html:319
+#: warehouse/templates/base.html:270 warehouse/templates/base.html:271
+#: warehouse/templates/base.html:272 warehouse/templates/base.html:282
+#: warehouse/templates/base.html:283 warehouse/templates/base.html:284
+#: warehouse/templates/base.html:295 warehouse/templates/base.html:296
+#: warehouse/templates/base.html:297 warehouse/templates/base.html:306
+#: warehouse/templates/base.html:308 warehouse/templates/base.html:319
+#: warehouse/templates/base.html:328
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -452,7 +452,7 @@ msgid "Main navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:258
+#: warehouse/templates/base.html:267
 #: warehouse/templates/includes/current-user-indicator.html:55
 #: warehouse/templates/pages/help.html:103
 #: warehouse/templates/pages/sitemap.html:27
@@ -514,7 +514,7 @@ msgid "Switch to mobile version"
 msgstr ""
 
 #: warehouse/templates/base.html:160 warehouse/templates/base.html:169
-#: warehouse/templates/base.html:179
+#: warehouse/templates/base.html:188
 #: warehouse/templates/includes/session-notifications.html:19
 #: warehouse/templates/manage/account.html:753
 #: warehouse/templates/manage/documentation.html:27
@@ -536,145 +536,145 @@ msgid ""
 " the real index."
 msgstr ""
 
-#: warehouse/templates/base.html:181
+#: warehouse/templates/base.html:190
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if "
 "you encounter problems."
 msgstr ""
 
-#: warehouse/templates/base.html:214 warehouse/templates/base.html:235
+#: warehouse/templates/base.html:223 warehouse/templates/base.html:244
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:53
 msgid "Search PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:215 warehouse/templates/base.html:236
+#: warehouse/templates/base.html:224 warehouse/templates/base.html:245
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:56
 msgid "Search projects"
 msgstr ""
 
-#: warehouse/templates/base.html:219 warehouse/templates/base.html:240
+#: warehouse/templates/base.html:228 warehouse/templates/base.html:249
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:60
 msgid "Search"
 msgstr ""
 
-#: warehouse/templates/base.html:259
+#: warehouse/templates/base.html:268
 msgid "Help navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:261
+#: warehouse/templates/base.html:270
 msgid "Installing packages"
 msgstr ""
 
-#: warehouse/templates/base.html:262
+#: warehouse/templates/base.html:271
 msgid "Uploading packages"
 msgstr ""
 
-#: warehouse/templates/base.html:263
+#: warehouse/templates/base.html:272
 msgid "User guide"
 msgstr ""
 
-#: warehouse/templates/base.html:264
+#: warehouse/templates/base.html:273
 msgid "FAQs"
 msgstr ""
 
-#: warehouse/templates/base.html:270 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:279 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:280
 msgid "About PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:273
+#: warehouse/templates/base.html:282
 msgid "PyPI on Twitter"
 msgstr ""
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:283
 msgid "Infrastructure dashboard"
 msgstr ""
 
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:284
 msgid "Package index name retention"
 msgstr ""
 
-#: warehouse/templates/base.html:276
+#: warehouse/templates/base.html:285
 msgid "Our sponsors"
 msgstr ""
 
-#: warehouse/templates/base.html:282
+#: warehouse/templates/base.html:291
 msgid "Contributing to PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:283
+#: warehouse/templates/base.html:292
 msgid "How to contribute navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:294
 msgid "Bugs and feedback"
 msgstr ""
 
-#: warehouse/templates/base.html:286
+#: warehouse/templates/base.html:295
 msgid "Contribute on GitHub"
 msgstr ""
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:296
 msgid "Translate PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:288
+#: warehouse/templates/base.html:297
 msgid "Development credits"
 msgstr ""
 
-#: warehouse/templates/base.html:294 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:303 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:295
+#: warehouse/templates/base.html:304
 msgid "Using PyPI navigation"
 msgstr ""
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:306
 msgid "Code of conduct"
 msgstr ""
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:307
 msgid "Report security issue"
 msgstr ""
 
-#: warehouse/templates/base.html:299
+#: warehouse/templates/base.html:308
 msgid "Privacy policy"
 msgstr ""
 
-#: warehouse/templates/base.html:300 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:309 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr ""
 
-#: warehouse/templates/base.html:310
+#: warehouse/templates/base.html:319
 msgid "Status: "
 msgstr ""
 
-#: warehouse/templates/base.html:311
+#: warehouse/templates/base.html:320
 msgid "all systems operational"
 msgstr ""
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:324
 msgid ""
 "Developed and maintained by the Python community, for the Python "
 "community."
 msgstr ""
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:326
 msgid "Donate today!"
 msgstr ""
 
-#: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:329 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr ""
 
-#: warehouse/templates/base.html:326
+#: warehouse/templates/base.html:335
 msgid "Switch to desktop version"
 msgstr ""
 
@@ -822,8 +822,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/roles.html:153
-#: warehouse/templates/manage/roles.html:165
+#: warehouse/templates/manage/roles.html:170
+#: warehouse/templates/manage/roles.html:182
 #: warehouse/templates/manage/token.html:136
 #: warehouse/templates/manage/token.html:153
 #: warehouse/templates/re-auth.html:51
@@ -912,7 +912,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
 #: warehouse/templates/manage/account/recovery_codes-provision.html:81
-#: warehouse/templates/manage/roles.html:156
+#: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr ""
 
@@ -938,8 +938,8 @@ msgstr ""
 
 #: warehouse/templates/accounts/profile.html:23
 #: warehouse/templates/manage/account.html:247
-#: warehouse/templates/manage/roles.html:47
-#: warehouse/templates/manage/roles.html:109
+#: warehouse/templates/manage/roles.html:62
+#: warehouse/templates/manage/roles.html:125
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
@@ -1428,7 +1428,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:96
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
-#: warehouse/templates/manage/roles.html:24
+#: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/settings.html:70
 #: warehouse/templates/search/results.html:199
 msgid "Close"
@@ -1571,7 +1571,7 @@ msgid "Releases"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:25
-#: warehouse/templates/manage/roles.html:21
+#: warehouse/templates/manage/roles.html:35
 msgid "Collaborators"
 msgstr ""
 
@@ -2230,21 +2230,21 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:694
-#: warehouse/templates/manage/history.html:88
+#: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/account.html:703
-#: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/history.html:98
+#: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/account.html:707
-#: warehouse/templates/manage/history.html:90
-#: warehouse/templates/manage/history.html:102
+#: warehouse/templates/manage/history.html:99
+#: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr ""
 
@@ -2423,7 +2423,20 @@ msgstr ""
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/history.html:85
+#: warehouse/templates/manage/history.html:79
+#, python-format
+msgid "Release version %(version)s yanked"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:81
+msgid "Yanked by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:84
+msgid "Reason:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:94
 #, python-format
 msgid "Security history for %(project_name)s"
 msgstr ""
@@ -2467,8 +2480,8 @@ msgstr ""
 
 #: warehouse/templates/manage/journal.html:37
 #: warehouse/templates/manage/journal.html:52
-#: warehouse/templates/manage/roles.html:37
-#: warehouse/templates/manage/roles.html:151
+#: warehouse/templates/manage/roles.html:51
+#: warehouse/templates/manage/roles.html:168
 msgid "User"
 msgstr ""
 
@@ -2678,7 +2691,7 @@ msgstr ""
 
 #: warehouse/templates/manage/release.html:118
 #: warehouse/templates/manage/releases.html:172
-#: warehouse/templates/manage/roles.html:24
+#: warehouse/templates/manage/roles.html:38
 #: warehouse/templates/manage/settings.html:70
 msgid "Dismiss"
 msgstr ""
@@ -2933,92 +2946,106 @@ msgid "Manage '%(project_name)s' collaborators"
 msgstr ""
 
 #: warehouse/templates/manage/roles.html:22
+msgid "2FA enabled"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:23
+#: warehouse/templates/manage/roles.html:28
+#: warehouse/templates/manage/roles.html:53
+msgid "2FA"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:27
+msgid "2FA disabled"
+msgstr ""
+
+#: warehouse/templates/manage/roles.html:36
 #, python-format
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:25
+#: warehouse/templates/manage/roles.html:39
 #: warehouse/templates/pages/help.html:556
 msgid "There are two possible roles for collaborators:"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:27
-#: warehouse/templates/manage/roles.html:64
-#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:41
+#: warehouse/templates/manage/roles.html:79
+#: warehouse/templates/manage/roles.html:88
 msgid "Maintainer"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:28
+#: warehouse/templates/manage/roles.html:42
 msgid ""
 "Can upload releases for a package. Cannot invite collaborators. Cannot "
 "delete files, releases, or the project."
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:29
-#: warehouse/templates/manage/roles.html:62
-#: warehouse/templates/manage/roles.html:73
+#: warehouse/templates/manage/roles.html:43
+#: warehouse/templates/manage/roles.html:77
+#: warehouse/templates/manage/roles.html:88
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:30
+#: warehouse/templates/manage/roles.html:44
 msgid ""
 "Can upload releases. Can invite other collaborators. Can delete files, "
 "releases, or the entire project."
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:34
+#: warehouse/templates/manage/roles.html:48
 #, python-format
 msgid "Users who can manage %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:38
-#: warehouse/templates/manage/roles.html:71
-#: warehouse/templates/manage/roles.html:163
+#: warehouse/templates/manage/roles.html:52
+#: warehouse/templates/manage/roles.html:86
+#: warehouse/templates/manage/roles.html:180
 msgid "Role"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:79
+#: warehouse/templates/manage/roles.html:94
 msgid "Save role"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:65
-#: warehouse/templates/manage/roles.html:80
+#: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:93
+#: warehouse/templates/manage/roles.html:109
 msgid "Cannot remove yourself as owner"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:96
+#: warehouse/templates/manage/roles.html:112
 #, python-format
 msgid "Remove %(user)s from this project"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:123
+#: warehouse/templates/manage/roles.html:139
 msgid "Invite pending"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:125
+#: warehouse/templates/manage/roles.html:141
 msgid "Invite expired"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:135
+#: warehouse/templates/manage/roles.html:152
 #, python-format
 msgid "Revoke invitation for %(user)s"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:137
+#: warehouse/templates/manage/roles.html:154
 msgid "Revoke invite"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:146
+#: warehouse/templates/manage/roles.html:163
 msgid "Invite collaborator"
 msgstr ""
 
-#: warehouse/templates/manage/roles.html:174
+#: warehouse/templates/manage/roles.html:191
 msgid "Invite"
 msgstr ""
 
