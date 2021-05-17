@@ -62,7 +62,7 @@
                 {% trans %}Copy{% endtrans %}
               </button>
               {% set _recovery_codes_filename = "PyPI-Recovery-Codes.txt" %}
-              {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+              {% if testPyPI %}
                 {% set _recovery_codes_filename = "TestPyPI-Recovery-Codes.txt" %}
               {% endif %}
               <a href="data:text/plain;,{{ recovery_codes|join('%0A') }}" download="{{ _recovery_codes_filename }}" class="button button--small" data-tooltip-label="{% trans %}Download as file{% endtrans %}">
