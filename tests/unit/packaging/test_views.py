@@ -382,6 +382,14 @@ class TestProjectLatestRedirects:
             "project_latest",
         )
 
+    def test_latest_no_releases(self, db_request, monkeypatch):
+        route_path = pretend.call_recorder(lambda *a, **kw: "/project/the-redirect")
+        monkeypatch.setattr(db_request, "route_path", route_path)
+
+        resp = views.project_latest(ProjectFactory.create(), db_request)
+
+        assert isinstance(resp, HTTPNotFound)
+
     def test_latest_stable_no_pre(
         self, db_request, project_no_pre, check_latest_release
     ):
@@ -439,3 +447,11 @@ class TestProjectLatestRedirects:
             project_only_pre.latest_pre,
             "project_latest_unstable",
         )
+
+    def test_latest_unstable_no_releases(self, db_request, monkeypatch):
+        route_path = pretend.call_recorder(lambda *a, **kw: "/project/the-redirect")
+        monkeypatch.setattr(db_request, "route_path", route_path)
+
+        resp = views.project_latest_unstable(ProjectFactory.create(), db_request)
+
+        assert isinstance(resp, HTTPNotFound)
