@@ -274,23 +274,24 @@ Release
 
     * ``/pypi/<project_name>/latest/json``
 
-        Redirects to the latest non-prerelease version of ``<project_name>``,
-        if any exists. If none does exist, redirects instead to the latest
+        Supplies the latest non-prerelease version of ``<project_name>``,
+        if any exists. If none does exist, supplies instead the latest
         pre-release version of ``<project_name>``.
 
-        As of Oct 2020, this behavior is identical to that of the
-        `Project`_ endpoint, and should return an identical JSON response.
+        As of May 2021, this behavior matches that of the
+        `Project`_ endpoint, and *should* return an identical JSON response.
 
     * ``/pypi/<project_name>/latest-stable/json``
 
-        Redirects to the latest non-prerelease version of ``<project_name>``.
+        Supplies the latest non-prerelease version of ``<project_name>``.
         If no non-prerelease versions exist, returns |http404|_.
 
     * ``/pypi/<project_name>/latest-unstable/json``
 
-        Redirects to a JSON query for the latest version of ``<project_name>``,
+        Supplies the latest version of ``<project_name>``,
         regardless of pre-release status.
 
+    In all cases, if a project has no releases, returns |http404|_.
 
 
 .. |http404| replace:: ``404 Not Found``
