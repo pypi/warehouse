@@ -231,13 +231,6 @@ def json_latest(project, request):
     if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    release = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .filter(Release.version == release.version)
-        .one()
-    )
-
     return json_release(release, request)
 
 
@@ -269,13 +262,6 @@ def json_latest_stable(project, request):
     if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    release = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .filter(Release.version == release.version)
-        .one()
-    )
-
     return json_release(release, request)
 
 
@@ -306,13 +292,6 @@ def json_latest_unstable(project, request):
 
     if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
-
-    release = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .filter(Release.version == release.version)
-        .one()
-    )
 
     return json_release(release, request)
 
