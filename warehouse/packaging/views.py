@@ -62,13 +62,18 @@ def project_detail(project, request):
     context=Project,
 )
 def project_latest(project, request):
-    return HTTPTemporaryRedirect(
-        request.route_path(
-            "packaging.release",
-            name=project.name,
-            version=project.latest_version.version,
+    release = project.latest_version
+
+    if release:
+        return HTTPTemporaryRedirect(
+            request.route_path(
+                "packaging.release",
+                name=project.name,
+                version=release.version,
+            )
         )
-    )
+    else:
+        return HTTPNotFound()
 
 
 @view_config(
@@ -83,7 +88,7 @@ def project_latest_stable(project, request):
             request.route_path(
                 "packaging.release",
                 name=project.name,
-                version=project.latest_stable_version.version,
+                version=release.version,
             )
         )
     else:
@@ -95,13 +100,18 @@ def project_latest_stable(project, request):
     context=Project,
 )
 def project_latest_unstable(project, request):
-    return HTTPTemporaryRedirect(
-        request.route_path(
-            "packaging.release",
-            name=project.name,
-            version=project.latest_unstable_version.version,
+    release = project.latest_unstable_version
+
+    if release:
+        return HTTPTemporaryRedirect(
+            request.route_path(
+                "packaging.release",
+                name=project.name,
+                version=release.version,
+            )
         )
-    )
+    else:
+        return HTTPNotFound()
 
 
 @view_config(
