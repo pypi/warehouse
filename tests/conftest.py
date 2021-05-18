@@ -27,7 +27,8 @@ import webtest as _webtest
 
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
-from pytest_postgresql.factories import DatabaseJanitor, get_config
+from pytest_postgresql.config import get_config
+from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
 
 from warehouse import admin, config, static
