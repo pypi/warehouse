@@ -348,7 +348,7 @@ def monkeypatch_session():
 ProjectData = namedtuple("ProjectData", ["project", "latest_stable", "latest_pre"])
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def project_no_pre():
     project = ProjectFactory.create()
 
@@ -359,7 +359,7 @@ def project_no_pre():
     return ProjectData(project=project, latest_stable=latest_stable, latest_pre=None)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def project_with_pre():
     project = ProjectFactory.create()
 
@@ -374,7 +374,7 @@ def project_with_pre():
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def project_only_pre():
     project = ProjectFactory.create()
 

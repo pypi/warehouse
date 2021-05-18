@@ -227,17 +227,9 @@ def json_release_slash(release, request):
 )
 def json_latest(project, request):
     release = project.latest_version
-    version = release.version if release else None
 
-    if version is None:
+    if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
-
-    release = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .filter(Release.version == version)
-        .one()
-    )
 
     return json_release(release, request)
 
@@ -266,17 +258,9 @@ def json_latest_slash(project, request):
 )
 def json_latest_stable(project, request):
     release = project.latest_stable_version
-    version = release.version if release else None
 
-    if version is None:
+    if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
-
-    release = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .filter(Release.version == version)
-        .one()
-    )
 
     return json_release(release, request)
 
@@ -305,17 +289,9 @@ def json_latest_stable_slash(project, request):
 )
 def json_latest_unstable(project, request):
     release = project.latest_unstable_version
-    version = release.version if release else None
 
-    if version is None:
+    if release is None:
         return HTTPNotFound(headers=_CORS_HEADERS)
-
-    release = (
-        request.db.query(Release)
-        .filter(Release.project == project)
-        .filter(Release.version == version)
-        .one()
-    )
 
     return json_release(release, request)
 
