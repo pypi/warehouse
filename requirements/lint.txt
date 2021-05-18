@@ -72,9 +72,9 @@ pathspec==0.8.1 \
     # via
     #   black
     #   curlylint
-pbr==5.5.1 \
-    --hash=sha256:5fad80b613c402d5b7df7bd84812548b2a61e9977387a80a5fc5c396492b13c9 \
-    --hash=sha256:b236cde0ac9a6aedd5e3c34517b423cd4fd97ef723849da6b0d2231142d89c00
+pbr==5.6.0 \
+    --hash=sha256:42df03e7797b796625b1029c0400279c7c34fd7df24a7d7818a1abb5b38710dd \
+    --hash=sha256:c68c661ac5cc81058ac94247278eeda6d2e6aecb3e227b0387c30d277e7ef8d4
     # via stevedore
 pep8-naming==0.11.1 \
     --hash=sha256:a1dd47dd243adfe8a83616e27cf03164960b507530f155db94e10b36a6cd6724 \
