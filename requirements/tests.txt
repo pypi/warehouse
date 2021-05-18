@@ -164,8 +164,9 @@ pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
     --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b
     # via packaging
-pytest-postgresql==2.6.1 \
-    --hash=sha256:5e24cc87d3a955a5ebe919ee5c1c15bd7300823a362269327b63526e6718cbdb
+pytest-postgresql==3.0.0 \
+    --hash=sha256:321ae3e4980898642b0f17907b94f52d959d3d161d23a2f4844c219e69100ca3 \
+    --hash=sha256:3bc7cdf3f6a70c76a92679e4965833d13572195225d7c98e65b04d95d11c40ab
     # via -r requirements/tests.in
 pytest==6.2.2 \
     --hash=sha256:9d1edf9e7d0b84d72ea3dbcdfd22b35fb543a5e8f2a60092dd578936bf63d7f9 \
