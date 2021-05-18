@@ -266,11 +266,6 @@ google-api-core[grpc]==1.26.3 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-core
-google-api-core==1.26.3 \
-    --hash=sha256:099762d4b4018cd536bcf85136bf337957da438807572db52f21dc61251be089 \
-    --hash=sha256:b914345c7ea23861162693a27703bab804a55504f7e6e9abcaff174d80df32ac
-    # duplicated from requirement immediately above to
-    # temporarily sidestep https://github.com/pypa/pip/issues/9644
 google-auth==1.30.0 \
     --hash=sha256:588bdb03a41ecb4978472b847881e5518b5d9ec6153d3d679aa127a55e13b39f \
     --hash=sha256:9ad25fba07f46a628ad4d0ca09f38dcb262830df2ac95b217f9b0129c9e42206
