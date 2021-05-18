@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from sqlalchemy import Boolean, Column, String, sql
-from sqlalchemy.types import PickleType
+from sqlalchemy.types import ARRAY
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
@@ -24,8 +24,7 @@ class Sponsor(db.Model):
 
     name = Column(String, nullable=False)
     service = Column(String)
-    # activity should be a list of strings
-    activity = Column(PickleType, nullable=False)
+    activity = Column(ARRAY(String), nullable=False)
 
     link_url = Column(URLType, nullable=False)
     color_logo_url = Column(URLType, nullable=False)
