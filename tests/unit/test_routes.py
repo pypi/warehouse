@@ -343,6 +343,11 @@ def test_routes(warehouse):
             "/_/github/disclose-token",
             domain=warehouse,
         ),
+        pretend.call(
+            "integrations.vulnerabilities.report",
+            "/_/vulnerabilities/report",
+            domain=warehouse,
+        ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
