@@ -911,7 +911,7 @@ msgstr ""
 #: warehouse/templates/accounts/profile.html:32
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:272
-#: warehouse/templates/manage/account/recovery_codes-provision.html:81
+#: warehouse/templates/manage/account/recovery_codes-provision.html:85
 #: warehouse/templates/manage/roles.html:173
 msgid "Username"
 msgstr ""
@@ -3010,7 +3010,7 @@ msgstr ""
 msgid "Save role"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:65
+#: warehouse/templates/manage/account/recovery_codes-provision.html:69
 #: warehouse/templates/manage/roles.html:95
 msgid "Save"
 msgstr ""
@@ -3309,21 +3309,21 @@ msgstr ""
 msgid "Save your recovery codes"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:64
+#: warehouse/templates/manage/account/recovery_codes-provision.html:68
 msgid "Download as file"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:67
-#: warehouse/templates/manage/account/recovery_codes-provision.html:69
+#: warehouse/templates/manage/account/recovery_codes-provision.html:71
 #: warehouse/templates/manage/account/recovery_codes-provision.html:73
+#: warehouse/templates/manage/account/recovery_codes-provision.html:77
 msgid "Continue"
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:76
+#: warehouse/templates/manage/account/recovery_codes-provision.html:80
 msgid "These codes will not be visible again."
 msgstr ""
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:79
+#: warehouse/templates/manage/account/recovery_codes-provision.html:83
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
