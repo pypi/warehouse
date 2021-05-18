@@ -27,7 +27,7 @@ class Sponsor(db.Model):
     # activity should be a list of strings
     activity = Column(PickleType, nullable=False)
 
-    url = Column(URLType, nullable=False)
+    link_url = Column(URLType, nullable=False)
     color_logo_url = Column(URLType, nullable=False)
     white_logo_url = Column(URLType)
 
