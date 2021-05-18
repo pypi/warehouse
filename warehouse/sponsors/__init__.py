@@ -9,3 +9,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from warehouse.sponsors.models import Sponsor
+
+
+def _sponsors(request):
+    return request.db.query(Sponsor).all()
+
+
+def includeme(config):
+    # Add a request method which will allow to list sponsors
+    config.add_request_method(_sponsors, name="sponsors", reify=True)

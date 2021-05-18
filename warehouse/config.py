@@ -431,6 +431,9 @@ def configure(settings=None):
     # Register all our URL routes for Warehouse.
     config.include(".routes")
 
+    # Allow the sponsors app to list sponsors
+    config.include(".sponsors")
+
     # Include our admin application
     config.include(".admin")
 
