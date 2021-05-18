@@ -16,7 +16,7 @@
 
 <div class="sponsor-grid__sponsor">
   <div class="sponsor-grid__sponsor-img">
-    <img src="{{ sponsor.color_logo_url }}" alt="{{ sponsor.name }}">
+    {{ sponsor.color_logo_img|camoify|safe }}
   </div>
   <div class="sponsor-grid__sponsor-activity">
   {% for paragraph in sponsor.activity %}

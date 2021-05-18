@@ -36,3 +36,13 @@ class Sponsor(db.Model):
     infra_sponsor = Column(Boolean, server_default=sql.false(), nullable=False)
     one_time = Column(Boolean, server_default=sql.false(), nullable=False)
     sidebar = Column(Boolean, server_default=sql.false(), nullable=False)
+
+    @property
+    def color_logo_img(self):
+        return f'<img src="{ self.color_logo_url }" alt="{ self.name }">'
+
+    @property
+    def white_logo_img(self):
+        if not self.white_logo_url:
+            return ""
+        return f'<img class="sponsors__image" src="{ self.white_logo_url }" alt="{ self.name }">'
