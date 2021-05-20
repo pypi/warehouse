@@ -20,7 +20,6 @@ from warehouse.packaging.models import Project
     context=Project,
     renderer="includes/admin/administer-project-include.html",
     uses_session=True,
-    permission="moderator",
 )
 def administer_project_include(project, request):
     return {"project": project}

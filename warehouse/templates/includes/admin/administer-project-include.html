@@ -12,6 +12,7 @@
  # limitations under the License.
 -#}
 
+{% if request.has_permission("moderator") %}
 <div class="admin-include">
 <h4>Admin tools:</h4>
   <a href="{{ request.route_path('admin.project.detail', project_name=project.name) }}" class="button button--primary package-description__edit-button">View project in admin</a>
@@ -22,3 +23,4 @@
     <button type="submit" class="button button--danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Remove project as spam</button>
   </form>
 </div>
+{% endif %}
