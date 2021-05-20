@@ -10,15 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import shlex
-
-from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
-from sqlalchemy import or_
 
 from warehouse.sponsors.models import Sponsor
-from warehouse.utils.paginate import paginate_url_factory
 
 
 @view_config(
