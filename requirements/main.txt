@@ -618,9 +618,8 @@ plaster==1.0 \
     # via
     #   plaster-pastedeploy
     #   pyramid
-premailer==3.7.0 \
-    --hash=sha256:5eec9603e84cee583a390de69c75192e50d76e38ef0292b027bd64923766aca7 \
-    --hash=sha256:c7ac48986984a810afea5147bc8410a8fe0659bf52f357e78b28a1b949209b91
+premailer==3.8.0 \
+    --hash=sha256:4d4e157244cee945a00c14feaa9e6a3aeb2faf2623ff6a8ba08afdf505fa0f25
     # via -r requirements/main.in
 proto-plus==1.17.0 \
     --hash=sha256:72283578d6f72801049329652dfbfd7f14f3a0658afcf3adca5ab7609abefcbc \
