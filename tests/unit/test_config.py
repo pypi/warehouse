@@ -231,6 +231,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "token.default.max_age": 21600,
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
         "warehouse.xmlrpc.search.enabled": True,
+        "github.token_scanning_meta_api.url": (
+            "https://api.github.com/meta/public_keys/token_scanning"
+        ),
     }
     if environment == config.Environment.development:
         expected_settings.update(

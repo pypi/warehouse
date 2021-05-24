@@ -130,6 +130,10 @@ deps: .state/env/pyvenv.cfg
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
+requirements/%.txt: requirements/%.in
+	$(BINDIR)/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $< > /dev/null
+
+
 github-actions-deps:
 ifneq ($(GITHUB_BASE_REF), false)
 	git fetch origin $(GITHUB_BASE_REF):refs/remotes/origin/$(GITHUB_BASE_REF)
