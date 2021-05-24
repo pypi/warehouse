@@ -11,17 +11,21 @@
 # limitations under the License.
 
 import wtforms
-from pyramid.view import view_config
+
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.sponsors.models import Sponsor
 from warehouse.forms import Form, URIValidator
+from warehouse.sponsors.models import Sponsor
 
 
 class SponsorForm(Form):
     name = wtforms.fields.StringField(
-        validators=[wtforms.validators.Length(max=100), wtforms.validators.DataRequired()],
+        validators=[
+            wtforms.validators.Length(max=100),
+            wtforms.validators.DataRequired(),
+        ],
     )
     service = wtforms.fields.StringField(
         validators=[wtforms.validators.Length(max=256), wtforms.validators.Optional()]
