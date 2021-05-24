@@ -166,3 +166,4 @@ def includeme(config):
 
     # Sponsor related Admin pages
     config.add_route("admin.sponsor.list", "/admin/sponsors/", domain=warehouse)
+    config.add_route("admin.sponsor.edit", "/admin/sponsors/{sponsor_id}/", domain=warehouse)

@@ -10,9 +10,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import wtforms
 from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.sponsors.models import Sponsor
+from warehouse.forms import Form, URIValidator
+
+
+class SponsorForm(Form):
+    name = wtforms.fields.StringField(
+        validators=[wtforms.validators.Length(max=100), wtforms.validators.DataRequired()],
+    )
+    service = wtforms.fields.StringField(
+        validators=[wtforms.validators.Length(max=256), wtforms.validators.Optional()]
+    )
+
+    link_url = wtforms.fields.StringField(
+        validators=[URIValidator(), wtforms.validators.DataRequired()]
+    )
+    color_logo_url = wtforms.fields.StringField(
+        validators=[URIValidator(), wtforms.validators.DataRequired()]
+    )
+    white_logo_url = wtforms.fields.StringField(
+        validators=[URIValidator(), wtforms.validators.Optional()]
+    )
+
+    activity = wtforms.fields.FieldList(wtforms.fields.StringField())
+
+    footer = wtforms.fields.BooleanField()
+    psf_sponsor = wtforms.fields.BooleanField()
+    infra_sponsor = wtforms.fields.BooleanField()
+    one_time = wtforms.fields.BooleanField()
+    sidebar = wtforms.fields.BooleanField()
 
 
 @view_config(
@@ -25,3 +56,37 @@ from warehouse.sponsors.models import Sponsor
 def sponsor_list(request):
     sponsors = request.db.query(Sponsor).order_by(Sponsor.name).all()
     return {"sponsors": sponsors}
+
+
+@view_config(
+    route_name="admin.sponsor.edit",
+    renderer="admin/sponsors/edit.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.sponsor.edit",
+    renderer="admin/sponsors/edit.html",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def edit_sponsor(request):
+    id_ = request.matchdict["sponsor_id"]
+    try:
+        sponsor = request.db.query(Sponsor).filter(Sponsor.id == id_).one()
+    except NoResultFound:
+        raise HTTPNotFound
+
+    form = SponsorForm(request.POST if request.method == "POST" else None, sponsor)
+
+    if request.method == "POST" and form.validate():
+        form.populate_obj(sponsor)
+        return HTTPSeeOther(location=request.current_route_path())
+
+    return {"sponsor": sponsor, "form": form}

@@ -21,7 +21,7 @@
 
 {% block content %}
 
-<div class="box">
+<div class="box box-primary">
   <div class="box-body table-responsive no-padding">
     <table class="table table-hover">
       <tr>
@@ -36,7 +36,7 @@
       {% for sponsor in sponsors %}
       <tr>
         <td>
-          <a href="#">{{ sponsor.name }}</a>
+          <a href="{{ request.route_path('admin.sponsor.edit', sponsor_id=sponsor.id) }}">{{ sponsor.name }}</a>
         </td>
         <td>{% if sponsor.psf_sponsor %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if sponsor.infra_sponsor %}<i class="fa fa-check text-green"></i>{% endif %}</td>
