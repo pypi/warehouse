@@ -45,7 +45,8 @@ class Sponsor(db.Model):
     def white_logo_img(self):
         if not self.white_logo_url:
             return ""
-        return f'<img class="sponsors__image" src="{ self.white_logo_url }" alt="{ self.name }">'
+        return f'<img class="sponsors__image" \
+                  src="{ self.white_logo_url }" alt="{ self.name }">'
 
     @property
     def activity(self):

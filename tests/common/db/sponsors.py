@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
-
 from factory import fuzzy
 
 from warehouse.sponsors.models import Sponsor
