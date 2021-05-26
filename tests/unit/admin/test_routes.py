@@ -165,4 +165,14 @@ def test_includeme():
             "/admin/sponsors/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.sponsor.create",
+            "/admin/sponsors/create/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.edit",
+            "/admin/sponsors/{sponsor_id}/",
+            domain=warehouse,
+        ),
     ]
