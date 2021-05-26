@@ -94,3 +94,37 @@ def edit_sponsor(request):
         return HTTPSeeOther(location=request.current_route_path())
 
     return {"sponsor": sponsor, "form": form}
+
+
+@view_config(
+    route_name="admin.sponsor.create",
+    renderer="admin/sponsors/edit.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.sponsor.create",
+    renderer="admin/sponsors/edit.html",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def create_sponsor(request):
+    form = SponsorForm(request.POST if request.method == "POST" else None)
+
+    if request.method == "POST" and form.validate():
+        sponsor = Sponsor(**form.data)
+        request.db.add(sponsor)
+        request.session.flash(
+            f"Added new sponsor '{sponsor.name}'",
+            queue="success",
+        )
+        redirect_url = request.route_url("admin.sponsor.list")
+        return HTTPSeeOther(location=redirect_url)
+
+    return {"form": form}
