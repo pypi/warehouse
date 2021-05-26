@@ -153,3 +153,15 @@ class TestSponsorForm(TestCase):
     def test_valid_data(self):
         form = views.SponsorForm(data=self.data)
         assert form.validate() is True
+
+    def test_white_logo_is_required_for_footer_display(self):
+        self.data["footer"] = True
+
+        # don't validate without logo
+        form = views.SponsorForm(data=self.data)
+        assert form.validate() is False
+        assert "white_logo_url" in form.errors
+
+        self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
+        form = views.SponsorForm(data=self.data)
+        assert form.validate() is True

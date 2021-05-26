@@ -58,6 +58,18 @@ class SponsorForm(Form):
     one_time = wtforms.fields.BooleanField()
     sidebar = wtforms.fields.BooleanField()
 
+    def validate(self, *args, **kwargs):
+        if not super().validate(*args, **kwargs):
+            return False
+
+        if self.footer.data and not self.white_logo_url.data:
+            self.white_logo_url.errors.append(
+                "Must have white logo if is a footer sponsor."
+            )
+            return False
+
+        return True
+
 
 @view_config(
     route_name="admin.sponsor.list",
