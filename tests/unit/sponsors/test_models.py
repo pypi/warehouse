@@ -29,3 +29,10 @@ def test_sponsor_white_logo_img_tag(db_request):
     # should return empty string if no white logo
     sponsor.white_logo_url = None
     assert sponsor.white_logo_img == ""
+
+
+def test_activity_property_render_markdown_content(db_request):
+    sponsor = SponsorFactory.create()
+    sponsor.activity_markdown = "Paragraph1\n\nParagraph2"
+    expected = f"<p>Paragraph1</p>\n<p>Paragraph2</p>"
+    assert sponsor.activity.strip() == expected.strip()

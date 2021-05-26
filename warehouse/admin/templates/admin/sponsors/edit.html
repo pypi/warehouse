@@ -68,7 +68,7 @@
             {{ render_field("Landing URL", form.link_url, "sponsor-link-url", class="form-control", placeholder="Landing URL") }}
             {{ render_field("Color logo", form.color_logo_url, "sponsor-color-logo-url", class="form-control", placeholder="Color logo") }}
             {{ render_field("White logo", form.white_logo_url, "sponsor-white-logo-url", class="form-control", placeholder="White logo") }}
-            {{ render_field("Activity", form.activity, "sponsor-activity") }}
+            {{ render_field("Activity (as Markdown text)", form.activity_markdown, "sponsor-activity-markdown") }}
 
             {{ render_field("Footer", form.footer, "sponsor-footer") }}
             {{ render_field("PSF Sponsor", form.psf_sponsor, "sponsor-psf-sponsor") }}

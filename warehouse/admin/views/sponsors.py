@@ -50,7 +50,7 @@ class SponsorForm(Form):
         ]
     )
 
-    activity = wtforms.fields.FieldList(wtforms.fields.StringField())
+    activity_markdown = wtforms.fields.TextAreaField(render_kw={"rows": 10, "cols": 60})
 
     footer = wtforms.fields.BooleanField()
     psf_sponsor = wtforms.fields.BooleanField()

@@ -119,9 +119,7 @@
           </div>
           <h2 class="sponsor-grid__sponsor-name">{{ sponsor.name }}</h2>
           <div class="sponsor-grid__sponsor-activity">
-          {% for paragraph in sponsor.activity %}
-          <p>{{ paragraph }}</p>
-          {% endfor %}
+          {{ sponsor.activity|safe }}
           </div>
           <a href="{{ sponsor.link_url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
         </div>
@@ -145,9 +143,7 @@
           <div class="sponsor-grid__sponsor-description">
             <h2>{{ sponsor.name }}</h2>
             <div class="sponsor-grid__sponsor-activity">
-            {% for paragraph in sponsor.activity %}
-            <p>{{ paragraph }}</p>
-            {% endfor %}
+            {{ sponsor.activity|safe }}
             </div>
           </div>
           <a href="{{ sponsor.link_url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
@@ -183,9 +179,7 @@
           <div class="sponsor-grid__sponsor-description">
             <h2>{{ sponsor.name }}</h2>
             <div class="sponsor-grid__sponsor-activity">
-            {% for paragraph in sponsor.activity %}
-            <p>{{ paragraph }}</p>
-            {% endfor %}
+            {{ sponsor.activity|safe }}
             </div>
           </div>
           <a href="{{ sponsor.link_url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>

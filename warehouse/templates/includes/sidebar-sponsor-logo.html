@@ -19,8 +19,6 @@
     {{ sponsor.color_logo_img|camoify|safe }}
   </div>
   <div class="sponsor-grid__sponsor-activity">
-  {% for paragraph in sponsor.activity %}
-  <p>{{ paragraph }}</p>
-  {% endfor %}
+  {{ sponsor.activity|safe }}
   </div>
 </div>

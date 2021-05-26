@@ -16,7 +16,7 @@ from factory import fuzzy
 
 from warehouse.sponsors.models import Sponsor
 
-from .base import FuzzyList, FuzzyUrl, WarehouseFactory
+from .base import FuzzyUrl, WarehouseFactory
 
 
 class SponsorFactory(WarehouseFactory):
@@ -25,7 +25,7 @@ class SponsorFactory(WarehouseFactory):
 
     name = fuzzy.FuzzyText(length=12)
     service = fuzzy.FuzzyText(length=12)
-    activity = FuzzyList(fuzzy.FuzzyText, {"length": 30}, size=2)
+    activity_markdown = fuzzy.FuzzyText(length=12)
 
     link_url = FuzzyUrl()
     color_logo_url = FuzzyUrl()

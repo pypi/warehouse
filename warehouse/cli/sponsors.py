@@ -566,6 +566,7 @@ def populate_db(config):
         params = data.copy()
         img = params.pop("image")
         params["link_url"] = params.pop("url")
+        params["activity_markdown"] = "\n\n".join(params.pop("activity", [])).strip()
         params["color_logo_url"] = BLACK_BASE_URL + img
         params["white_logo_url"] = WHITE_BASE_URL + img
 

@@ -46,3 +46,12 @@ class Sponsor(db.Model):
         if not self.white_logo_url:
             return ""
         return f'<img class="sponsors__image" src="{ self.white_logo_url }" alt="{ self.name }">'
+
+    @property
+    def activity(self):
+        """
+        Render raw activity markdown as HTML
+        """
+        if not self.activity_markdown:
+            return ""
+        return readme.render(self.activity_markdown, "text/markdown")
