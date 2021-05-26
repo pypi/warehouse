@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, String, Text, sql
+from sqlalchemy import Boolean, Column, String, Text
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
@@ -31,11 +31,12 @@ class Sponsor(db.Model):
     white_logo_url = Column(URLType)
 
     # control flags
-    footer = Column(Boolean, server_default=sql.false(), nullable=False)
-    psf_sponsor = Column(Boolean, server_default=sql.false(), nullable=False)
-    infra_sponsor = Column(Boolean, server_default=sql.false(), nullable=False)
-    one_time = Column(Boolean, server_default=sql.false(), nullable=False)
-    sidebar = Column(Boolean, server_default=sql.false(), nullable=False)
+    is_active = Column(Boolean, default=False, nullable=False)
+    footer = Column(Boolean, default=False, nullable=False)
+    psf_sponsor = Column(Boolean, default=False, nullable=False)
+    infra_sponsor = Column(Boolean, default=False, nullable=False)
+    one_time = Column(Boolean, default=False, nullable=False)
+    sidebar = Column(Boolean, default=False, nullable=False)
 
     @property
     def color_logo_img(self):

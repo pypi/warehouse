@@ -12,9 +12,9 @@
 """
 Sponsor model
 
-Revision ID: cbd9d3f6d8eb
+Revision ID: d0c22553b338
 Revises: 69b928240b2f
-Create Date: 2021-05-26 15:49:13.454975
+Create Date: 2021-05-26 18:23:27.021443
 """
 
 import sqlalchemy as sa
@@ -23,7 +23,7 @@ import sqlalchemy_utils
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "cbd9d3f6d8eb"
+revision = "d0c22553b338"
 down_revision = "69b928240b2f"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
@@ -56,24 +56,12 @@ def upgrade():
         sa.Column(
             "white_logo_url", sqlalchemy_utils.types.url.URLType(), nullable=True
         ),
-        sa.Column(
-            "footer", sa.Boolean(), server_default=sa.text("false"), nullable=False
-        ),
-        sa.Column(
-            "psf_sponsor", sa.Boolean(), server_default=sa.text("false"), nullable=False
-        ),
-        sa.Column(
-            "infra_sponsor",
-            sa.Boolean(),
-            server_default=sa.text("false"),
-            nullable=False,
-        ),
-        sa.Column(
-            "one_time", sa.Boolean(), server_default=sa.text("false"), nullable=False
-        ),
-        sa.Column(
-            "sidebar", sa.Boolean(), server_default=sa.text("false"), nullable=False
-        ),
+        sa.Column("is_active", sa.Boolean(), nullable=False),
+        sa.Column("footer", sa.Boolean(), nullable=False),
+        sa.Column("psf_sponsor", sa.Boolean(), nullable=False),
+        sa.Column("infra_sponsor", sa.Boolean(), nullable=False),
+        sa.Column("one_time", sa.Boolean(), nullable=False),
+        sa.Column("sidebar", sa.Boolean(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
