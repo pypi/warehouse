@@ -28,24 +28,18 @@
   <div class="box-body table-responsive no-padding">
     <table class="table table-hover">
       <tr>
+        <th>Active?</th>
         <th>Name</th>
-        <th>PSF Sponsor</th>
-        <th>Infra Sponsor</th>
-        <th>One Time Sponsor</th>
-        <th>Footer</th>
-        <th>Sidebar</th>
+        <th>Visibility</th>
       </tr>
 
       {% for sponsor in sponsors %}
       <tr>
+        <td><i class="fa {% if sponsor.is_active %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
         <td>
           <a href="{{ request.route_path('admin.sponsor.edit', sponsor_id=sponsor.id) }}">{{ sponsor.name }}</a>
         </td>
-        <td>{% if sponsor.psf_sponsor %}<i class="fa fa-check text-green"></i>{% endif %}</td>
-        <td>{% if sponsor.infra_sponsor %}<i class="fa fa-check text-green"></i>{% endif %}</td>
-        <td>{% if sponsor.one_time %}<i class="fa fa-check text-green"></i>{% endif %}</td>
-        <td>{% if sponsor.footer %}<i class="fa fa-check text-green"></i>{% endif %}</td>
-        <td>{% if sponsor.sidebar %}<i class="fa fa-check text-green"></i>{% endif %}</td>
+        <td>{{ sponsor.visibility }}</td>
       </tr>
       {% endfor %}
     </table>

@@ -52,6 +52,7 @@ class SponsorForm(Form):
 
     activity_markdown = wtforms.fields.TextAreaField(render_kw={"rows": 10, "cols": 60})
 
+    is_active = wtforms.fields.BooleanField(default=False)
     footer = wtforms.fields.BooleanField()
     psf_sponsor = wtforms.fields.BooleanField()
     infra_sponsor = wtforms.fields.BooleanField()
@@ -67,7 +68,16 @@ class SponsorForm(Form):
     uses_session=True,
 )
 def sponsor_list(request):
-    sponsors = request.db.query(Sponsor).order_by(Sponsor.name).all()
+    sponsors = request.db.query(Sponsor).order_by(Sponsor.is_active.desc(), Sponsor.name).all()
+    for sponsor in sponsors:
+        visibility = [
+            "PSF Sponsor" if sponsor.psf_sponsor else None,
+            "Infra Sponsor" if sponsor.infra_sponsor else None,
+            "One time" if sponsor.one_time else None,
+            "Footer" if sponsor.footer else None,
+            "Sidebar" if sponsor.sidebar else None,
+        ]
+        sponsor.visibility = " | ".join([v for v in visibility if v])
     return {"sponsors": sponsors}
 
 
