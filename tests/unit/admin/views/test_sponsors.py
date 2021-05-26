@@ -58,6 +58,7 @@ class TestCreateSponsor:
         db_request.method = "POST"
         db_request.POST["name"] = "Sponsor"
         db_request.POST["link_url"] = "https://newsponsor.com"
+        db_request.POST["color_logo_url"] = "https://newsponsor.com/logo.jpg"
         db_request.POST = MultiDict(db_request.POST)
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -136,12 +137,13 @@ class TestSponsorForm(TestCase):
         self.data = {
             "name": "Sponsor",
             "link_url": "https://newsponsor.com",
+            "color_logo_url": "http://domain.com/image.jpg",
         }
 
     def test_required_fields(self):
-        required_fields = ["name", "link_url"]
+        required_fields = ["name", "link_url", "color_logo_url"]
 
-        form = views.SponsorForm(data={})
+        form = views.SponsorForm(data={"color_logo_url": ""})
 
         assert form.validate() is False
         assert len(form.errors) == len(required_fields)

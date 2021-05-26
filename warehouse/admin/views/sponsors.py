@@ -39,7 +39,6 @@ class SponsorForm(Form):
     )
     color_logo_url = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.Optional(),
             URIValidator(),
         ]
     )
