@@ -32,13 +32,22 @@ class SponsorForm(Form):
     )
 
     link_url = wtforms.fields.StringField(
-        validators=[URIValidator(), wtforms.validators.DataRequired()]
+        validators=[
+            wtforms.validators.DataRequired(),
+            URIValidator(),
+        ]
     )
     color_logo_url = wtforms.fields.StringField(
-        validators=[URIValidator(), wtforms.validators.DataRequired()]
+        validators=[
+            wtforms.validators.Optional(),
+            URIValidator(),
+        ]
     )
     white_logo_url = wtforms.fields.StringField(
-        validators=[URIValidator(), wtforms.validators.Optional()]
+        validators=[
+            wtforms.validators.Optional(),
+            URIValidator(),
+        ]
     )
 
     activity = wtforms.fields.FieldList(wtforms.fields.StringField())
