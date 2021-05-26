@@ -12,6 +12,8 @@
 
 import pretend
 
+from sqlalchemy import true
+
 from warehouse import sponsors
 from warehouse.sponsors.models import Sponsor
 
@@ -31,9 +33,11 @@ def test_includeme():
 
 
 def test_list_sponsors(db_request):
-    [SponsorFactory.create() for i in range(3)]
+    [SponsorFactory.create() for i in range(5)]
+    [SponsorFactory.create(is_active=False) for i in range(3)]
 
     result = sponsors._sponsors(db_request)
-    expected = db_request.db.query(Sponsor).all()
+    expected = db_request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
 
     assert result == expected
+    assert len(result) == 5

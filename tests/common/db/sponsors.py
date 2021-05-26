@@ -29,6 +29,7 @@ class SponsorFactory(WarehouseFactory):
     color_logo_url = FuzzyUrl()
     white_logo_url = FuzzyUrl()
 
+    is_active = True
     footer = True
     psf_sponsor = True
     infra_sponsor = False

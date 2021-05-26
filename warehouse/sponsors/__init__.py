@@ -10,11 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sqlalchemy import true
+
 from warehouse.sponsors.models import Sponsor
 
 
 def _sponsors(request):
-    return request.db.query(Sponsor).all()
+    return request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
 
 
 def includeme(config):
