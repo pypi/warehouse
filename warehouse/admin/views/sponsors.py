@@ -68,7 +68,9 @@ class SponsorForm(Form):
     uses_session=True,
 )
 def sponsor_list(request):
-    sponsors = request.db.query(Sponsor).order_by(Sponsor.is_active.desc(), Sponsor.name).all()
+    sponsors = (
+        request.db.query(Sponsor).order_by(Sponsor.is_active.desc(), Sponsor.name).all()
+    )
     for sponsor in sponsors:
         visibility = [
             "PSF Sponsor" if sponsor.psf_sponsor else None,
@@ -110,6 +112,7 @@ def edit_sponsor(request):
 
     if request.method == "POST" and form.validate():
         form.populate_obj(sponsor)
+        request.session.flash("Sponsor updated", queue="success")
         return HTTPSeeOther(location=request.current_route_path())
 
     return {"sponsor": sponsor, "form": form}

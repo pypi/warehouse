@@ -103,6 +103,9 @@ class TestEditSponsor:
         db_request.current_route_path = pretend.call_recorder(
             lambda: f"/admin/sponsors/{sponsor.id}/"
         )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
 
         resp = views.edit_sponsor(db_request)
         db_sponsor = db_request.db.query(Sponsor).filter(Sponsor.id == sponsor.id).one()
@@ -110,6 +113,9 @@ class TestEditSponsor:
         assert resp.status_code == 303
         assert resp.location == f"/admin/sponsors/{sponsor.id}/"
         assert db_sponsor.name == "New Name"
+        assert db_request.session.flash.calls == [
+            pretend.call("Sponsor updated", queue="success")
+        ]
 
     def test_form_errors_if_invalid_post_data(self, db_request):
         sponsor = SponsorFactory.create()
