@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-New sponsor model
+Sponsor model
 
-Revision ID: f11651b341d6
+Revision ID: cbd9d3f6d8eb
 Revises: 69b928240b2f
-Create Date: 2021-05-18 13:23:23.340518
+Create Date: 2021-05-26 15:49:13.454975
 """
 
 import sqlalchemy as sa
@@ -23,7 +23,7 @@ import sqlalchemy_utils
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "f11651b341d6"
+revision = "cbd9d3f6d8eb"
 down_revision = "69b928240b2f"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
@@ -48,7 +48,7 @@ def upgrade():
         ),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("service", sa.String(), nullable=True),
-        sa.Column("activity", sa.ARRAY(sa.String()), nullable=False),
+        sa.Column("activity_markdown", sa.Text(), nullable=True),
         sa.Column("link_url", sqlalchemy_utils.types.url.URLType(), nullable=False),
         sa.Column(
             "color_logo_url", sqlalchemy_utils.types.url.URLType(), nullable=False

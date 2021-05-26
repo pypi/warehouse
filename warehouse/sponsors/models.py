@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, String, sql
-from sqlalchemy.types import ARRAY
+from sqlalchemy import Boolean, Column, String, Text, sql
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
+from warehouse.utils import readme
 from warehouse.utils.attrs import make_repr
 
 
@@ -24,7 +24,7 @@ class Sponsor(db.Model):
 
     name = Column(String, nullable=False)
     service = Column(String)
-    activity = Column(ARRAY(String), nullable=False)
+    activity_markdown = Column(Text)
 
     link_url = Column(URLType, nullable=False)
     color_logo_url = Column(URLType, nullable=False)
