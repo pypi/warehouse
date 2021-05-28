@@ -62,7 +62,8 @@ class SponsorForm(Form):
         if not super().validate(*args, **kwargs):
             return False
 
-        if self.footer.data and not self.white_logo_url.data:
+        require_white_logo = self.footer.data or self.infra_sponsor.data
+        if require_white_logo and not self.white_logo_url.data:
             self.white_logo_url.errors.append(
                 "Must have white logo if is a footer sponsor."
             )
