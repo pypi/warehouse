@@ -35,3 +35,6 @@ def test_activity_property_render_markdown_content(db_request):
     sponsor.activity_markdown = "Paragraph1\n\nParagraph2"
     expected = "<p>Paragraph1</p>\n<p>Paragraph2</p>"
     assert sponsor.activity.strip() == expected.strip()
+    # empty string if no data
+    sponsor.activity_markdown = None
+    assert sponsor.activity == ""
