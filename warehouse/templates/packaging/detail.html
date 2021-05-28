@@ -100,6 +100,8 @@
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
 {% block content %}
+{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
+{% endcsi %}
 <div class="banner">
   <div class="package-header">
     <div class="package-header__left">
