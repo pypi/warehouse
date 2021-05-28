@@ -170,5 +170,8 @@ def includeme(config):
         "admin.sponsor.create", "/admin/sponsors/create/", domain=warehouse
     )
     config.add_route(
+        "admin.sponsor.delete", "/admin/sponsors/{sponsor_id}/delete/", domain=warehouse
+    )
+    config.add_route(
         "admin.sponsor.edit", "/admin/sponsors/{sponsor_id}/", domain=warehouse
     )

@@ -171,6 +171,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.sponsor.delete",
+            "/admin/sponsors/{sponsor_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.sponsor.edit",
             "/admin/sponsors/{sponsor_id}/",
             domain=warehouse,

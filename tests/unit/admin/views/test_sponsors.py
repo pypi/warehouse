@@ -17,6 +17,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
+from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.admin.views import sponsors as views
@@ -130,6 +131,59 @@ class TestEditSponsor:
         result = views.edit_sponsor(db_request)
 
         assert "name" in result["form"].errors
+
+
+class TestDeleteSponsor:
+    def test_404_if_sponsor_does_not_exist(self, db_request):
+        db_request.matchdict["sponsor_id"] = str(uuid.uuid4())
+
+        with pytest.raises(HTTPNotFound):
+            views.delete_sponsor(db_request)
+
+    def test_delete_sponsor(self, db_request):
+        sponsor = SponsorFactory.create()
+        db_request.matchdict["sponsor_id"] = sponsor.id
+        db_request.params = {"sponsor": sponsor.name}
+        db_request.method = "POST"
+        db_request.route_url = pretend.call_recorder(lambda s: "/admin/sponsors/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        resp = views.delete_sponsor(db_request)
+        with pytest.raises(NoResultFound):
+            db_request.db.query(Sponsor).filter(Sponsor.id == sponsor.id).one()
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/sponsors/"
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Deleted sponsor {sponsor.name}", queue="success")
+        ]
+        assert db_request.route_url.calls == [pretend.call("admin.sponsor.list")]
+
+    def test_do_not_delete_sponsor_if_invalid_confirmation_param(self, db_request):
+        sponsor = SponsorFactory.create()
+        db_request.matchdict["sponsor_id"] = sponsor.id
+        db_request.params = {"sponsor": "not the sponsor name"}
+        db_request.method = "POST"
+        db_request.route_url = pretend.call_recorder(
+            lambda s, sponsor_id: f"/admin/sponsors/{sponsor_id}"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        resp = views.delete_sponsor(db_request)
+        sponsor = db_request.db.query(Sponsor).filter(Sponsor.id == sponsor.id).one()
+
+        assert resp.status_code == 303
+        assert resp.location == f"/admin/sponsors/{sponsor.id}"
+        assert db_request.session.flash.calls == [
+            pretend.call("Wrong confirmation input", queue="error")
+        ]
+        assert db_request.route_url.calls == [
+            pretend.call("admin.sponsor.edit", sponsor_id=sponsor.id)
+        ]
 
 
 class TestSponsorForm(TestCase):

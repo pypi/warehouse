@@ -161,3 +161,30 @@ def create_sponsor(request):
         return HTTPSeeOther(location=redirect_url)
 
     return {"form": form}
+
+
+@view_config(
+    route_name="admin.sponsor.delete",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def delete_sponsor(request):
+    id_ = request.matchdict["sponsor_id"]
+    try:
+        sponsor = request.db.query(Sponsor).filter(Sponsor.id == id_).one()
+    except NoResultFound:
+        raise HTTPNotFound
+
+    # Safeguard check on sponsor name
+    if sponsor.name != request.params.get("sponsor"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_url("admin.sponsor.edit", sponsor_id=sponsor.id)
+        )
+
+    # Delete the sponsor
+    request.db.delete(sponsor)
+    request.session.flash(f"Deleted sponsor {sponsor.name}", queue="success")
+    return HTTPSeeOther(request.route_url("admin.sponsor.list"))
