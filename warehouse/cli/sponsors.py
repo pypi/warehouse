@@ -552,6 +552,8 @@ def populate_db(config):
     Once this command is executed once, you shouldn't need to run
     it again.
     """
+    # Imported here because we don't want to trigger an import from anything
+    # but warehouse.cli at the module scope.
     from warehouse.db import Session
 
     session = Session(bind=config.registry["sqlalchemy.engine"])
