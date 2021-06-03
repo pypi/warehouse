@@ -38,3 +38,16 @@ def test_activity_property_render_markdown_content(db_request):
     # empty string if no data
     sponsor.activity_markdown = None
     assert sponsor.activity == ""
+
+
+# sanitization is implemented internally in readme library
+# ref: https://github.com/pypa/readme_renderer/blob/main/readme_renderer/clean.py
+# this test is just so we can be more secure about it
+def test_ensure_activity_markdown_is_safe_against_xss(db_request):
+    sponsor = SponsorFactory.create()
+    sponsor.activity_markdown = r"[XSS](javascript://www.google.com%0Aprompt(1))"
+    expected = "<p><a>XSS</a></p>"
+    assert sponsor.activity.strip() == expected.strip()
+    # empty string if no data
+    sponsor.activity_markdown = None
+    assert sponsor.activity == ""
