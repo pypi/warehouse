@@ -1,4 +1,3 @@
-|travis-badge|_
 
 Warehouse
 =========
@@ -58,5 +57,3 @@ rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 .. |BrowserStackImg| image:: docs/_static/browserstack-logo.png
 .. _BrowserStackImg: https://browserstack.com/
 .. _`PSF Code of Conduct`: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md
-.. |travis-badge| image:: https://api.travis-ci.org/pypa/warehouse.svg?branch=master
-.. _travis-badge: https://travis-ci.org/pypa/warehouse

@@ -84,7 +84,7 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Travis, and Makefile commands
+- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Continuous Integration, and Makefile commands
 - `dev/ <https://github.com/pypa/warehouse/tree/master/dev>`_ - assets for developer environment
 - `tests/ <https://github.com/pypa/warehouse/tree/master/tests>`_ - tests
 - `warehouse/ <https://github.com/pypa/warehouse/tree/master/warehouse>`_ - code in modules
