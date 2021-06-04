@@ -1,7 +1,4 @@
 BINDIR = $(PWD)/.state/env/bin
-TRAVIS := $(shell echo "$${TRAVIS:-false}")
-PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
-BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 GITHUB_ACTIONS := $(shell echo "$${GITHUB_ACTIONS:-false}")
 GITHUB_BASE_REF := $(shell echo "$${GITHUB_BASE_REF:-false}")
 DB := example
@@ -143,15 +140,6 @@ ifneq ($(GITHUB_BASE_REF), false)
 	git diff --name-only FETCH_HEAD | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
-travis-deps:
-ifneq ($(PR), false)
-	git fetch origin $(BRANCH):refs/remotes/origin/$(BRANCH)
-	# Check that the following diff will exit with 0 or 1
-	git diff --name-only $(BRANCH) || test $? -le 1 || exit 1
-	# Make the dependencies if any changed files are requirements files, otherwise exit
-	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
-endif
-
 initdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
@@ -208,9 +196,9 @@ build-mos: compile-pot
 		done
 
 translations: compile-pot
-ifneq ($(filter false,$(TRAVIS) $(GITHUB_ACTIONS)),)
+ifneq ($(filter false,$(GITHUB_ACTIONS)),)
 	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
 else
 endif
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop compile-pot
+.PHONY: default build serve initdb shell tests docs deps clean purge debug stop compile-pot
