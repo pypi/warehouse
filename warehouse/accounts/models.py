@@ -75,6 +75,7 @@ class User(SitemapMixin, db.Model):
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     is_moderator = Column(Boolean, nullable=False, server_default=sql.false())
+    is_psf_staff = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
