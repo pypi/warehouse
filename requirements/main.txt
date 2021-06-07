@@ -273,9 +273,9 @@ google-auth==1.30.0 \
     #   google-api-core
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==2.18.0 \
-    --hash=sha256:d092f259f40a37b9189d75bf0d1269dd91fe11eb0bbfbfc25c93e6c5762d6f83 \
-    --hash=sha256:ecfc6aec99da83662126285a08c0802d104553552a489d8c46e9ca9eb8228bfb
+google-cloud-bigquery==2.20.0 \
+    --hash=sha256:bbe41300cc931a00649d4e7c59b86e6c1e9fab94e1ba958e1a27c5b330172490 \
+    --hash=sha256:ff728f9a4a64d6b4ec5beb7fd2f6ed550b49bfe2b8bb3755c00821716e0d1f91
     # via -r requirements/main.in
 google-cloud-core==1.6.0 \
     --hash=sha256:40d9c2da2d03549b5ac3dcccf289d4f15e6d1210044c6381ce45c92913e62904 \
