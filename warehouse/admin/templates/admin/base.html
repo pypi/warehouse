@@ -85,6 +85,7 @@
 
       <ul class="sidebar-menu">
         <li class="header">MAIN NAVIGATION</li>
+        {% if request.has_permission('moderator') %}
         <li>
           <a href="{{ request.route_path('admin.user.list') }}">
             <i class="fa fa-users"></i> <span>Users</span>
@@ -125,6 +126,7 @@
             <i class="fa fa-gavel"></i> <span>Verdicts</span>
           </a>
         </li>
+        {% endif %}
         <li>
           <a href="{{ request.route_path('admin.sponsor.list') }}">
             <i class="fa fa-ad"></i> <span>Sponsors</span>

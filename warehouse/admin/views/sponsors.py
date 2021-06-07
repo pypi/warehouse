@@ -107,7 +107,7 @@ def sponsor_list(request):
 @view_config(
     route_name="admin.sponsor.edit",
     renderer="admin/sponsors/edit.html",
-    permission="admin",
+    permission="psf_staff",
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -142,7 +142,7 @@ def edit_sponsor(request):
 @view_config(
     route_name="admin.sponsor.create",
     renderer="admin/sponsors/edit.html",
-    permission="admin",
+    permission="psf_staff",
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -167,7 +167,7 @@ def create_sponsor(request):
 @view_config(
     route_name="admin.sponsor.delete",
     require_methods=["POST"],
-    permission="admin",
+    permission="psf_staff",
     uses_session=True,
     require_csrf=True,
 )
