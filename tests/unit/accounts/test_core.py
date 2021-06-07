@@ -227,16 +227,32 @@ class TestLogin:
 
 class TestAuthenticate:
     @pytest.mark.parametrize(
-        ("is_superuser", "is_moderator", "expected"),
+        ("is_superuser", "is_moderator", "is_psf_staff", "expected"),
         [
-            (False, False, []),
-            (True, False, ["group:admins", "group:moderators"]),
-            (False, True, ["group:moderators"]),
-            (True, True, ["group:admins", "group:moderators"]),
+            (False, False, False, []),
+            (
+                True,
+                False,
+                False,
+                ["group:admins", "group:moderators", "group:psf_staff"],
+            ),
+            (False, True, False, ["group:moderators"]),
+            (
+                True,
+                True,
+                False,
+                ["group:admins", "group:moderators", "group:psf_staff"],
+            ),
+            (False, False, True, ["group:psf_staff"]),
+            (False, True, True, ["group:moderators", "group:psf_staff"]),
         ],
     )
-    def test_with_user(self, is_superuser, is_moderator, expected):
-        user = pretend.stub(is_superuser=is_superuser, is_moderator=is_moderator)
+    def test_with_user(self, is_superuser, is_moderator, is_psf_staff, expected):
+        user = pretend.stub(
+            is_superuser=is_superuser,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
         service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
         request = pretend.stub(find_service=lambda iface, context: service)
 

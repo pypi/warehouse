@@ -16,6 +16,7 @@ import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
@@ -413,3 +414,13 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
 
     assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]
+
+
+def test_root_factory_access_control_list():
+    acl = config.RootFactory.__acl__
+
+    assert len(acl) == 4
+    assert acl[0] == (Allow, "group:admins", "admin")
+    assert acl[1] == (Allow, "group:moderators", "moderator")
+    assert acl[2] == (Allow, "group:psf_staff", "psf_staff")
+    assert acl[3] == (Allow, Authenticated, "manage:user")
