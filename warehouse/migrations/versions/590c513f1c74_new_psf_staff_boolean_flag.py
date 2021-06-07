@@ -41,7 +41,7 @@ def upgrade():
         sa.Column(
             "is_psf_staff",
             sa.Boolean(),
-            server_default=sa.text("false"),
+            server_default=sa.sql.false(),
             nullable=False,
         ),
     )
