@@ -419,8 +419,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
 def test_root_factory_access_control_list():
     acl = config.RootFactory.__acl__
 
-    assert len(acl) == 4
+    assert len(acl) == 5
     assert acl[0] == (Allow, "group:admins", "admin")
     assert acl[1] == (Allow, "group:moderators", "moderator")
     assert acl[2] == (Allow, "group:psf_staff", "psf_staff")
-    assert acl[3] == (Allow, Authenticated, "manage:user")
+    assert acl[3] == (Allow, "group:with_admin_access", "admin_access")
+    assert acl[4] == (Allow, Authenticated, "manage:user")

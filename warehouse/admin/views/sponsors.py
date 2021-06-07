@@ -75,7 +75,7 @@ class SponsorForm(Form):
 @view_config(
     route_name="admin.sponsor.list",
     renderer="admin/sponsors/list.html",
-    permission="moderator",
+    permission="admin_access",
     request_method="GET",
     uses_session=True,
 )
@@ -98,7 +98,7 @@ def sponsor_list(request):
 @view_config(
     route_name="admin.sponsor.edit",
     renderer="admin/sponsors/edit.html",
-    permission="moderator",
+    permission="admin_access",
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -133,7 +133,7 @@ def edit_sponsor(request):
 @view_config(
     route_name="admin.sponsor.create",
     renderer="admin/sponsors/edit.html",
-    permission="moderator",
+    permission="admin_access",
     request_method="GET",
     uses_session=True,
     require_csrf=True,

@@ -234,17 +234,32 @@ class TestAuthenticate:
                 True,
                 False,
                 False,
-                ["group:admins", "group:moderators", "group:psf_staff"],
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_access",
+                ],
             ),
-            (False, True, False, ["group:moderators"]),
+            (False, True, False, ["group:moderators", "group:with_admin_access"]),
             (
                 True,
                 True,
                 False,
-                ["group:admins", "group:moderators", "group:psf_staff"],
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_access",
+                ],
             ),
-            (False, False, True, ["group:psf_staff"]),
-            (False, True, True, ["group:moderators", "group:psf_staff"]),
+            (False, False, True, ["group:psf_staff", "group:with_admin_access"]),
+            (
+                False,
+                True,
+                True,
+                ["group:moderators", "group:psf_staff", "group:with_admin_access"],
+            ),
         ],
     )
     def test_with_user(self, is_superuser, is_moderator, is_psf_staff, expected):

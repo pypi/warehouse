@@ -109,6 +109,10 @@ def _authenticate(userid, request):
     if user.is_psf_staff or user.is_superuser:
         principals.append("group:psf_staff")
 
+    # user must have base admin access if any admin permission
+    if principals:
+        principals.append("group:with_admin_access")
+
     return principals
 
 

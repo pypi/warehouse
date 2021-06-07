@@ -60,6 +60,7 @@ class RootFactory:
         (Allow, "group:admins", "admin"),
         (Allow, "group:moderators", "moderator"),
         (Allow, "group:psf_staff", "psf_staff"),
+        (Allow, "group:with_admin_access", "admin_access"),
         (Allow, Authenticated, "manage:user"),
     ]
 
