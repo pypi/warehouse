@@ -163,3 +163,15 @@ def includeme(config):
     config.add_route(
         "admin.verdicts.review", "/admin/verdicts/{verdict_id}/review", domain=warehouse
     )
+
+    # Sponsor related Admin pages
+    config.add_route("admin.sponsor.list", "/admin/sponsors/", domain=warehouse)
+    config.add_route(
+        "admin.sponsor.create", "/admin/sponsors/create/", domain=warehouse
+    )
+    config.add_route(
+        "admin.sponsor.delete", "/admin/sponsors/{sponsor_id}/delete/", domain=warehouse
+    )
+    config.add_route(
+        "admin.sponsor.edit", "/admin/sponsors/{sponsor_id}/", domain=warehouse
+    )

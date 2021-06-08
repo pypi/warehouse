@@ -10,21 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.view import forbidden_view_config, view_config
+from sqlalchemy import true
 
-from warehouse.views import forbidden as forbidden_view
-
-
-@forbidden_view_config(path_info=r"^/admin/")
-def forbidden(exc, request):
-    return forbidden_view(exc, request, redirect_to="admin.login")
+from warehouse.sponsors.models import Sponsor
 
 
-@view_config(
-    route_name="admin.dashboard",
-    renderer="admin/dashboard.html",
-    permission="admin_dashboard_access",
-    uses_session=True,
-)
-def dashboard(request):
-    return {}
+def _sponsors(request):
+    return request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
+
+
+def includeme(config):
+    # Add a request method which will allow to list sponsors
+    config.add_request_method(_sponsors, name="sponsors", reify=True)

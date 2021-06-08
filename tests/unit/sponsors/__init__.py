@@ -9,22 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from pyramid.view import forbidden_view_config, view_config
-
-from warehouse.views import forbidden as forbidden_view
-
-
-@forbidden_view_config(path_info=r"^/admin/")
-def forbidden(exc, request):
-    return forbidden_view(exc, request, redirect_to="admin.login")
-
-
-@view_config(
-    route_name="admin.dashboard",
-    renderer="admin/dashboard.html",
-    permission="admin_dashboard_access",
-    uses_session=True,
-)
-def dashboard(request):
-    return {}

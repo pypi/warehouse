@@ -106,6 +106,12 @@ def _authenticate(userid, request):
         principals.append("group:admins")
     if user.is_moderator or user.is_superuser:
         principals.append("group:moderators")
+    if user.is_psf_staff or user.is_superuser:
+        principals.append("group:psf_staff")
+
+    # user must have base admin access if any admin permission
+    if principals:
+        principals.append("group:with_admin_dashboard_access")
 
     return principals
 

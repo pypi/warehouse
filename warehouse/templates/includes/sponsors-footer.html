@@ -12,17 +12,15 @@
  # limitations under the License.
 -#}
 
-{% from "warehouse:templates/includes/sponsors.html" import sponsors %}
-
 <div class="sponsors">
   <p class="sponsors__title">Supported by</p>
-  {% for sponsor in sponsors | sort(attribute='name') %}
+  {% for sponsor in request.sponsors | sort(attribute='name') %}
     {# Short-circuit if we don't have an image for them #}
-    {% if sponsor.image %}
+    {% if sponsor.white_logo_url %}
       {# Check if they belong in the footer #}
       {% if sponsor.infra_sponsor or sponsor.footer %}
-        <a class="sponsors__sponsor" target="_blank" rel="noopener" href="{{ sponsor.url }}">
-          <img class="sponsors__image" alt="{{ sponsor.name }}" src="{{ request.static_path('warehouse:static/dist/images/sponsors/white/' + sponsor.image) }}">
+        <a class="sponsors__sponsor" target="_blank" rel="noopener" href="{{ sponsor.link_url }}">
+          {{ sponsor.white_logo_img|camoify|safe }}
           <span class="sponsors__name">{{ sponsor.name }}</span>
           <span class="sponsors__service">
           {# If they're an infra sponsor, we should have a service for them,

@@ -1,0 +1,51 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% block title %}Sponsors{% endblock %}
+
+{% block breadcrumb %}
+  <li class="active">Sponsors</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="box box-primary">
+  {% if request.has_permission('psf_staff') %}
+  <div class="box-header with-border">
+    <a class="btn btn-primary" href="{{ request.route_path('admin.sponsor.create') }}"><i class="fa fa-plus"></i> Create Sponsor</a>
+  </div>
+  {% endif %}
+  <div class="box-body table-responsive no-padding">
+    <table class="table table-hover">
+      <tr>
+        <th>Active?</th>
+        <th>Name</th>
+        <th>Visibility</th>
+      </tr>
+
+      {% for sponsor in sponsors %}
+      <tr>
+        <td><i class="fa {% if sponsor.is_active %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
+        <td>
+          <a href="{{ request.route_path('admin.sponsor.edit', sponsor_id=sponsor.id) }}">{{ sponsor.name }}</a>
+        </td>
+        <td>{{ sponsor.visibility }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+  </div>
+</div>
+{% endblock content %}

@@ -50,6 +50,7 @@ sentry-sdk
 setuptools
 sqlalchemy>=0.9,<1.4.0  # https://github.com/pypa/warehouse/pull/9228
 sqlalchemy-citext
+sqlalchemy-utils
 stdlib-list
 structlog
 transaction

@@ -59,6 +59,8 @@ class RootFactory:
     __acl__ = [
         (Allow, "group:admins", "admin"),
         (Allow, "group:moderators", "moderator"),
+        (Allow, "group:psf_staff", "psf_staff"),
+        (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
     ]
 
@@ -436,6 +438,9 @@ def configure(settings=None):
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
+
+    # Allow the sponsors app to list sponsors
+    config.include(".sponsors")
 
     # Include our admin application
     config.include(".admin")

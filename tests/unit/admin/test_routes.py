@@ -160,4 +160,24 @@ def test_includeme():
             "/admin/verdicts/{verdict_id}/review",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.sponsor.list",
+            "/admin/sponsors/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.create",
+            "/admin/sponsors/create/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.delete",
+            "/admin/sponsors/{sponsor_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.sponsor.edit",
+            "/admin/sponsors/{sponsor_id}/",
+            domain=warehouse,
+        ),
     ]
