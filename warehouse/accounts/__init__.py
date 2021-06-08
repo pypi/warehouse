@@ -111,7 +111,7 @@ def _authenticate(userid, request):
 
     # user must have base admin access if any admin permission
     if principals:
-        principals.append("group:with_admin_access")
+        principals.append("group:with_admin_dashboard_access")
 
     return principals
 
