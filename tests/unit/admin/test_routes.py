@@ -180,4 +180,9 @@ def test_includeme():
             "/admin/sponsors/{sponsor_id}/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.banner.list",
+            "/admin/banners/",
+            domain=warehouse,
+        ),
     ]
