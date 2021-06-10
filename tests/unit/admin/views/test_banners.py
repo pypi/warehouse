@@ -9,6 +9,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from unittest import TestCase
+
 from warehouse.admin.views import banners as views
 from warehouse.banners.models import Banner
 
@@ -23,3 +25,37 @@ class TestBannerList:
         result = views.banner_list(db_request)
 
         assert result == {"banners": banners}
+
+
+class TestBannerForm(TestCase):
+    def setUp(self):
+        self.data = {
+            "name": "Sample Banner",
+            "text": "This should be the correct text",
+            "link_url": "https://samplebanner.com",
+            "begin": "2021-06-30",
+            "end": "2021-07-30",
+        }
+
+    def test_required_fields(self):
+        required_fields = self.data.keys()  # all fields are required
+
+        form = views.BannerForm(data={})
+
+        assert form.validate() is False
+        assert len(form.errors) == len(required_fields)
+        for field in required_fields:
+            assert field in form.errors
+
+    def test_valid_data(self):
+        form = views.BannerForm(data=self.data)
+        assert form.validate() is True
+
+    def test_invalid_form_if_wrong_time_interval(self):
+        self.data["begin"], self.data["end"] = self.data["end"], self.data["begin"]
+
+        form = views.BannerForm(data=self.data)
+
+        assert form.validate() is False
+        assert "begin" in form.errors
+        assert "end" in form.errors

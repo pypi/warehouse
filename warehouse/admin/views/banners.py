@@ -10,9 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import wtforms
+
 from pyramid.view import view_config
 
 from warehouse.banners.models import Banner
+from warehouse.forms import Form, URIValidator
 
 
 @view_config(
@@ -25,3 +28,38 @@ from warehouse.banners.models import Banner
 def banner_list(request):
     banners = request.db.query(Banner).order_by(Banner.begin.desc()).all()
     return {"banners": banners}
+
+
+class BannerForm(Form):
+    name = wtforms.fields.StringField(
+        validators=[
+            wtforms.validators.Length(max=100),
+            wtforms.validators.DataRequired(),
+        ],
+    )
+    text = wtforms.fields.StringField(
+        validators=[
+            wtforms.validators.Length(max=280),
+            wtforms.validators.DataRequired(),
+        ],
+    )
+    link_url = wtforms.fields.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            URIValidator(),
+        ]
+    )
+    begin = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])
+    end = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])
+
+    def validate(self, *args, **kwargs):
+        if not super().validate(*args, **kwargs):
+            return False
+
+        begin, end = self.begin.data, self.end.data
+        if begin > end:
+            self.begin.errors.append("Begin date must be lower than end date")
+            self.end.errors.append("End date must be greater than begin date")
+            return False
+
+        return True
