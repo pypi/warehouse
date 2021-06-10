@@ -835,9 +835,9 @@ repoze.sendmail==4.4.1 \
     --hash=sha256:7a8ea37914a5d38bad38052a83eac1d867b171ff4cc8b4d4994e892c05b0d424 \
     --hash=sha256:f1396893d3aa43502624e88941a441233c06679ae50b1966ffbfccba05da6347
     # via pyramid-mailer
-requests-aws4auth==1.0.1 \
-    --hash=sha256:6ddc92476c0ebab6c90709966e0ff3b2f16ba1f296b7ea8573645bbbe5ef9444 \
-    --hash=sha256:9a4a5f4a61c49f098f5f669410308ac5b0ea2682fd511ee3a4f9ff73b5bb275a
+requests-aws4auth==1.1.1 \
+    --hash=sha256:c0883346ce30b5018903a67da88df72f73ff06e1a320845bba9cd85e811ba0ba \
+    --hash=sha256:dfd9f930ffde48a756b72b55698a8522875ea6358dcffbcc44a66700ace31783
     # via -r requirements/main.in
 requests==2.25.1 \
     --hash=sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804 \
@@ -888,6 +888,7 @@ six==1.16.0 \
     #   pyopenssl
     #   python-dateutil
     #   readme-renderer
+    #   requests-aws4auth
     #   sqlalchemy-utils
     #   tenacity
     #   webauthn
