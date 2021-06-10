@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from datetime import date
 
 from sqlalchemy import Column, Date, String, Text
 from sqlalchemy_utils.types.url import URLType
@@ -26,3 +27,7 @@ class Banner(db.Model):
     link_url = Column(URLType, nullable=False)
     begin = Column(Date, nullable=False)
     end = Column(Date, nullable=False)
+
+    @property
+    def is_live(self):
+        return self.begin <= date.today() <= self.end
