@@ -232,9 +232,9 @@ decorator==5.0.9 \
     --hash=sha256:6e5c199c16f7a9f0e3a61a4a54b3d27e7dad0dbdde92b944426cb20914376323 \
     --hash=sha256:72ecfba4320a893c53f9706bebb2d55c270c1e51a28789361aa93e4a21319ed5
     # via datadog
-disposable-email-domains==0.0.64 \
-    --hash=sha256:da4b9099542af33c854a2f482d825b759a7db43819c535bb3a20e37eb01a2534 \
-    --hash=sha256:f3b061bb80fe5923978e64d7fc20e0dc06173163b8e4d1da008e8557c8e3ad76
+disposable-email-domains==0.0.65 \
+    --hash=sha256:8ee5f52d7971c2b15e85c452d26be6dd8b520508807e4ed2f5bdb2c098a8da3c \
+    --hash=sha256:cca260936d0a9222d4319eba31ad83dd32a5801c8c0cba555721f879b5664570
     # via -r requirements/main.in
 dnspython==2.1.0 \
     --hash=sha256:95d12f6ef0317118d2a1a6fc49aac65ffec7eb8087474158f42f26a639135216 \
