@@ -802,7 +802,7 @@ class TestTokenService:
         assert token_service.loads(token) == {"foo": "bar"}
 
     def test_loads_return_timestamp(self, token_service):
-        sign_time = datetime.datetime.utcnow()
+        sign_time = datetime.datetime.now(datetime.timezone.utc)
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
 
