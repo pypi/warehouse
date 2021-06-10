@@ -75,9 +75,9 @@ packaging==20.9 \
     --hash=sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5 \
     --hash=sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a
     # via sphinx
-pygments==2.8.1 \
-    --hash=sha256:2656e1a6edcdabf4275f9a3640db59fd5de107d88e8663c5d4e9a0fa62f77f94 \
-    --hash=sha256:534ef71d539ae97d4c3a4cf7d6f110f214b0e687e92f9cb9d2a3b0d3101289c8
+pygments==2.9.0 \
+    --hash=sha256:a18f47b506a429f6f4b9df81bb02beab9ca21d0a5fee38ed15aef65f0545519f \
+    --hash=sha256:d66e804411278594d764fc69ec36ec13d9ae9147193a1740cd34d272ca383b8e
     # via sphinx
 pyparsing==2.4.7 \
     --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
@@ -102,12 +102,12 @@ snowballstemmer==2.1.0 \
 sphinx-rtd-theme==0.5.1 \
     --hash=sha256:eda689eda0c7301a80cf122dad28b1861e5605cbf455558f3775e1e8200e83a5 \
     --hash=sha256:fa6bebd5ab9a73da8e102509a86f3fcc36dec04a0b52ea80e5a033b2aba00113
-    # via -r docs.in
+    # via -r requirements/docs.in
 sphinx==3.5.2 \
     --hash=sha256:672cfcc24b6b69235c97c750cb190a44ecd72696b4452acaf75c2d9cc78ca5ff \
     --hash=sha256:ef64a814576f46ec7de06adf11b433a0d6049be007fefe7fd0d183d28b581fac
     # via
-    #   -r docs.in
+    #   -r requirements/docs.in
     #   sphinx-rtd-theme
     #   sphinxcontrib-httpdomain
 sphinxcontrib-applehelp==1.0.2 \
@@ -125,7 +125,7 @@ sphinxcontrib-htmlhelp==1.0.3 \
 sphinxcontrib-httpdomain==1.7.0 \
     --hash=sha256:1fb5375007d70bf180cdd1c79e741082be7aa2d37ba99efe561e1c2e3f38191e \
     --hash=sha256:ac40b4fba58c76b073b03931c7b8ead611066a6aebccafb34dc19694f4eb6335
-    # via -r docs.in
+    # via -r requirements/docs.in
 sphinxcontrib-jsmath==1.0.1 \
     --hash=sha256:2ec2eaebfb78f3f2078e73666b1415417a116cc848b72e5172e596c871103178 \
     --hash=sha256:a9925e4a4587247ed2191a22df5f6970656cb8ca2bd6284309578f2153e0c4b8
