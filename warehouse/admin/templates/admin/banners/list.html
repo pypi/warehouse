@@ -24,7 +24,7 @@
 <div class="box box-primary">
   {% if request.has_permission('admin') %}
   <div class="box-header with-border">
-    <a class="btn btn-primary" href="#"><i class="fa fa-plus"></i> Create Banner</a>
+    <a class="btn btn-primary" href="{{ request.route_path('admin.banner.create') }}"><i class="fa fa-plus"></i> Create Banner</a>
   </div>
   {% endif %}
   <div class="box-body table-responsive no-padding">
@@ -37,11 +37,11 @@
 
       {% for banner in banners %}
       <tr>
-        <td><i class="fa {% if banner.is_live %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
         <td>
           <a href="#">{{ banner.name }}</a>
         </td>
-        <td>{{ banner.begin }} - {{ banner.end }}</td>
+        <td><i class="fa {% if banner.is_live %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
+        <td>{{ banner.begin }} | {{ banner.end }}</td>
       </tr>
       {% endfor %}
     </table>

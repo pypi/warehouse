@@ -185,4 +185,9 @@ def test_includeme():
             "/admin/banners/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.banner.create",
+            "/admin/banners/create/",
+            domain=warehouse,
+        ),
     ]

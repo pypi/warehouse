@@ -12,6 +12,7 @@
 
 import wtforms
 
+from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.view import view_config
 
 from warehouse.banners.models import Banner
@@ -28,6 +29,40 @@ from warehouse.forms import Form, URIValidator
 def banner_list(request):
     banners = request.db.query(Banner).order_by(Banner.begin.desc()).all()
     return {"banners": banners}
+
+
+@view_config(
+    route_name="admin.banner.create",
+    renderer="admin/banners/edit.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.banner.create",
+    renderer="admin/banners/edit.html",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def create_banner(request):
+    form = BannerForm(request.POST if request.method == "POST" else None)
+
+    if request.method == "POST" and form.validate():
+        banner = Banner(**form.data)
+        request.db.add(banner)
+        request.session.flash(
+            f"Added new banner '{banner.name}'",
+            queue="success",
+        )
+        redirect_url = request.route_url("admin.banner.list")
+        return HTTPSeeOther(location=redirect_url)
+
+    return {"form": form}
 
 
 class BannerForm(Form):

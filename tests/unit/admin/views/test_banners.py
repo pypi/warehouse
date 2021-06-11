@@ -11,6 +11,10 @@
 # limitations under the License.
 from unittest import TestCase
 
+import pretend
+
+from webob.multidict import MultiDict
+
 from warehouse.admin.views import banners as views
 from warehouse.banners.models import Banner
 
@@ -25,6 +29,48 @@ class TestBannerList:
         result = views.banner_list(db_request)
 
         assert result == {"banners": banners}
+
+
+class TestCreateBanner:
+    def test_serialize_form_to_create_banner(self, db_request):
+        result = views.create_banner(db_request)
+
+        assert len(result) == 1
+        assert isinstance(result["form"], views.BannerForm)
+
+    def test_serialize_form_errors_if_invalid_post(self, db_request):
+        db_request.method = "POST"
+        db_request.POST["name"] = ""
+        db_request.POST["link_url"] = ""
+        db_request.POST = MultiDict(db_request.POST)
+
+        result = views.create_banner(db_request)
+
+        assert len(result) == 1
+        assert isinstance(result["form"], views.BannerForm)
+        assert result["form"].errors
+
+    def test_create_banner(self, db_request):
+        db_request.method = "POST"
+        db_request.POST["name"] = "Banner"
+        db_request.POST["link_url"] = "https://newbanner.com"
+        db_request.POST["text"] = "Bannert content"
+        db_request.POST["begin"] = "2021-06-30"
+        db_request.POST["end"] = "2021-07-30"
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_url = pretend.call_recorder(lambda r: "/admin/banners/")
+
+        resp = views.create_banner(db_request)
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/banners/"
+        assert db_request.session.flash.calls == [
+            pretend.call("Added new banner 'Banner'", queue="success")
+        ]
+        assert db_request.route_url.calls == [pretend.call("admin.banner.list")]
 
 
 class TestBannerForm(TestCase):

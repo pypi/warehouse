@@ -1,0 +1,76 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
+
+  <div class="col-sm-10">
+    {{ field(id=input_id, class=class, placeholder=placeholder)}}
+
+    {% if field.errors %}
+    <span class="help-block">
+        {% for error in field.errors %}
+        <div>{{ error }}</div>
+        {% endfor %}
+    </span>
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% block title %}Create banner{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="{{ request.route_path('admin.banner.list') }}">Banners</a></li>
+  <li class="active">Create banner</li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Create banner</h3>
+        </div>
+        <div class="box-body">
+          <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+            {% if form.errors.__all__ %}
+              {% for error in form.errors.__all__ %}
+              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+              {% endfor %}
+            {% endif %}
+
+            {{ render_field("Name", form.name, "banner-name", class="form-control", placeholder="Name") }}
+            {{ render_field("Text", form.text, "banner-text", class="form-control", placeholder="Banner text content") }}
+            {{ render_field("URL", form.link_url, "banner-link-url", class="form-control", placeholder="URL") }}
+            {{ render_field("Begin date", form.begin, "banner-begin", placeholder="YYYY-MM-DD") }}
+            {{ render_field("End date", form.end, "banner-end", placeholder="YYYY-MM-DD") }}
+
+
+            <div class="form-group">
+              <div class="col-sm-offset-10 col-sm-2">
+                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
