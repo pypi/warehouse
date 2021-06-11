@@ -79,7 +79,7 @@ _illegal_xml_chars_re = re.compile("[%s]" % "".join(_illegal_ranges))
 
 
 def _clean_for_xml(data):
-    """ Sanitize any user-submitted data to ensure that it can be used in XML """
+    """Sanitize any user-submitted data to ensure that it can be used in XML"""
 
     # If data is None or an empty string, don't bother
     if data:
