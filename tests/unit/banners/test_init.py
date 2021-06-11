@@ -10,13 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pretend
 
-def includeme(config):
-    warehouse = config.get_settings().get("warehouse.domain")
+from warehouse import banners
 
-    # route to async render banner messages
-    config.add_route(
-        "includes.db-banners",
-        "/_includes/notification-banners/",
-        domain=warehouse,
+
+def test_includeme():
+    config = pretend.stub(
+        get_settings=lambda: {"warehouse.domain": "pypi"},
+        add_route=pretend.call_recorder(lambda name, route, domain: None),
     )
+
+    banners.includeme(config)
+
+    assert config.add_route.calls == [
+        pretend.call(
+            "includes.db-banners",
+            "/_includes/notification-banners/",
+            domain="pypi",
+        ),
+    ]
