@@ -49,6 +49,47 @@
         <div class="box-header with-border">
           {% if banner %}
           <h3 class="box-title">Edit Banner</h3>
+
+          <div class="navbar-right">
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission('admin') }} value=>
+              <i class="icon fa fa-trash"></i> Delete banner
+            </button>
+            &nbsp &nbsp
+          </div>
+          <div class="modal fade" id="deleteBanner" tabindex="-1" role="dialog">
+            <form method="POST" action="{{ request.route_path('admin.banner.delete', banner_id=banner.id) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Delete banner {{ banner.name }}?</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p>
+                      This will permanently destroy the banner and cannot be undone.
+                    </p>
+                    {% if banner.is_live %}
+                    <p>
+                      <b>Important:</b> the banner is active and is being currently displayed.
+                    </p>
+                    {% endif %}
+                    <hr>
+                    <p>
+                      Type the banner '{{ banner.name }}' to confirm:
+                    </p>
+                    <input type="text" name="banner" placeholder="{{ banner.name }}">
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
           {% else %}
           <h3 class="box-title">Create banner</h3>
           {% endif %}

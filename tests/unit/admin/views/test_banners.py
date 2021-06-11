@@ -10,14 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import uuid
+
 from unittest import TestCase
 
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPNotFound
+from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
-from pyramid.httpexceptions import HTTPNotFound
 from warehouse.admin.views import banners as views
 from warehouse.banners.models import Banner
 
@@ -135,6 +137,61 @@ class TestEditBanner:
 
         assert "begin" in result["form"].errors
         assert "end" in result["form"].errors
+
+
+class TestDeleteBanner:
+    def test_404_if_banner_does_not_exist(self, db_request):
+        db_request.matchdict["banner_id"] = str(uuid.uuid4())
+
+        with pytest.raises(HTTPNotFound):
+            views.delete_banner(db_request)
+
+    def test_delete_banner(self, db_request):
+        banner = BannerFactory.create()
+        db_request.matchdict["banner_id"] = banner.id
+        db_request.params = {"banner": banner.name}
+        db_request.method = "POST"
+        db_request.route_url = pretend.call_recorder(lambda s: "/admin/banners/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        resp = views.delete_banner(db_request)
+        with pytest.raises(NoResultFound):
+            db_request.db.query(Banner).filter(Banner.id == banner.id).one()
+
+        assert resp.status_code == 303
+        assert resp.location == "/admin/banners/"
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Deleted banner {banner.name}", queue="success")
+        ]
+        assert db_request.route_url.calls == [pretend.call("admin.banner.list")]
+
+    def test_do_not_delete_banner_if_invalid_confirmation_param(self, db_request):
+        banner = BannerFactory.create()
+        db_request.matchdict["banner_id"] = banner.id
+        db_request.params = {"banner": "not the banner name"}
+        db_request.method = "POST"
+        db_request.route_url = pretend.call_recorder(
+            lambda s, banner_id: f"/admin/banners/{banner_id}"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        resp = views.delete_banner(db_request)
+        banner = db_request.db.query(Banner).filter(Banner.id == banner.id).one()
+
+        assert resp.status_code == 303
+        assert resp.location == f"/admin/banners/{banner.id}"
+        assert db_request.session.flash.calls == [
+            pretend.call("Wrong confirmation input", queue="error")
+        ]
+        assert db_request.route_url.calls == [
+            pretend.call("admin.banner.edit", banner_id=banner.id)
+        ]
+
+
 class TestBannerForm(TestCase):
     def setUp(self):
         self.data = {

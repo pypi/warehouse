@@ -12,7 +12,7 @@
 
 import wtforms
 
-from pyramid.httpexceptions import HTTPSeeOther, HTTPNotFound
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -99,6 +99,31 @@ def create_banner(request):
         return HTTPSeeOther(location=redirect_url)
 
     return {"form": form}
+
+
+@view_config(
+    route_name="admin.banner.delete",
+    require_methods=["POST"],
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+)
+def delete_banner(request):
+    id_ = request.matchdict["banner_id"]
+    try:
+        banner = request.db.query(Banner).filter(Banner.id == id_).one()
+    except NoResultFound:
+        raise HTTPNotFound
+
+    # Safeguard check on banner name
+    if banner.name != request.params.get("banner"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(request.route_url("admin.banner.edit", banner_id=banner.id))
+
+    # Delete the banner
+    request.db.delete(banner)
+    request.session.flash(f"Deleted banner {banner.name}", queue="success")
+    return HTTPSeeOther(request.route_url("admin.banner.list"))
 
 
 class BannerForm(Form):

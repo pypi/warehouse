@@ -191,6 +191,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.banner.delete",
+            "/admin/banners/{banner_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.banner.edit",
             "/admin/banners/{banner_id}/",
             domain=warehouse,
