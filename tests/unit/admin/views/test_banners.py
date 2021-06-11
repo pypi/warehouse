@@ -9,12 +9,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import uuid
 from unittest import TestCase
 
 import pretend
+import pytest
 
 from webob.multidict import MultiDict
 
+from pyramid.httpexceptions import HTTPNotFound
 from warehouse.admin.views import banners as views
 from warehouse.banners.models import Banner
 
@@ -73,6 +76,65 @@ class TestCreateBanner:
         assert db_request.route_url.calls == [pretend.call("admin.banner.list")]
 
 
+class TestEditBanner:
+    def test_serialize_form_and_banner(self, db_request):
+        banner = BannerFactory.create()
+        db_request.matchdict["banner_id"] = banner.id
+
+        result = views.edit_banner(db_request)
+
+        assert len(result) == 2
+        assert isinstance(result["form"], views.BannerForm)
+        assert result["form"].data["name"] == banner.name
+        assert result["banner"] == banner
+
+    def test_404_if_banner_does_not_exist(self, db_request):
+        db_request.matchdict["banner_id"] = str(uuid.uuid4())
+
+        with pytest.raises(HTTPNotFound):
+            views.edit_banner(db_request)
+
+    def test_update_banner(self, db_request):
+        banner = BannerFactory.create()
+        form = views.BannerForm(MultiDict({}), banner)
+        data = form.data.copy()
+        data["name"] = "New Name"
+        data["begin"] = str(data["begin"])
+        data["end"] = str(data["end"])
+        db_request.matchdict["banner_id"] = banner.id
+        db_request.method = "POST"
+        db_request.POST = MultiDict(data)
+        db_request.current_route_path = pretend.call_recorder(
+            lambda: f"/admin/banners/{banner.id}/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        resp = views.edit_banner(db_request)
+        db_banner = db_request.db.query(Banner).filter(Banner.id == banner.id).one()
+
+        assert resp.status_code == 303
+        assert resp.location == f"/admin/banners/{banner.id}/"
+        assert db_banner.name == "New Name"
+        assert db_request.session.flash.calls == [
+            pretend.call("Banner updated", queue="success")
+        ]
+
+    def test_form_errors_if_invalid_post_data(self, db_request):
+        banner = BannerFactory.create()
+        form = views.BannerForm(MultiDict({}), banner)
+        data = form.data.copy()
+        data["begin"] = ""
+        data["end"] = ""  # dates are required
+        db_request.matchdict["banner_id"] = banner.id
+        db_request.method = "POST"
+        db_request.POST = MultiDict(data)
+
+        result = views.edit_banner(db_request)
+
+        assert "begin" in result["form"].errors
+        assert "end" in result["form"].errors
 class TestBannerForm(TestCase):
     def setUp(self):
         self.data = {

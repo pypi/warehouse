@@ -179,3 +179,6 @@ def includeme(config):
     # Banner related Admin pages
     config.add_route("admin.banner.list", "/admin/banners/", domain=warehouse)
     config.add_route("admin.banner.create", "/admin/banners/create/", domain=warehouse)
+    config.add_route(
+        "admin.banner.edit", "/admin/banners/{banner_id}/", domain=warehouse
+    )

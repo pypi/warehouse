@@ -38,7 +38,7 @@
       {% for banner in banners %}
       <tr>
         <td>
-          <a href="#">{{ banner.name }}</a>
+          <a href="{{ request.route_path('admin.banner.edit', banner_id=banner.id) }}">{{ banner.name }}</a>
         </td>
         <td><i class="fa {% if banner.is_live %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
         <td>{{ banner.begin }} | {{ banner.end }}</td>

@@ -12,8 +12,9 @@
 
 import wtforms
 
-from pyramid.httpexceptions import HTTPSeeOther
+from pyramid.httpexceptions import HTTPSeeOther, HTTPNotFound
 from pyramid.view import view_config
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.banners.models import Banner
 from warehouse.forms import Form, URIValidator
@@ -29,6 +30,41 @@ from warehouse.forms import Form, URIValidator
 def banner_list(request):
     banners = request.db.query(Banner).order_by(Banner.begin.desc()).all()
     return {"banners": banners}
+
+
+@view_config(
+    route_name="admin.banner.edit",
+    renderer="admin/banners/edit.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+@view_config(
+    route_name="admin.banner.edit",
+    renderer="admin/banners/edit.html",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def edit_banner(request):
+    id_ = request.matchdict["banner_id"]
+    try:
+        banner = request.db.query(Banner).filter(Banner.id == id_).one()
+    except NoResultFound:
+        raise HTTPNotFound
+
+    form = BannerForm(request.POST if request.method == "POST" else None, banner)
+
+    if request.method == "POST" and form.validate():
+        form.populate_obj(banner)
+        request.session.flash("Banner updated", queue="success")
+        return HTTPSeeOther(location=request.current_route_path())
+
+    return {"banner": banner, "form": form}
 
 
 @view_config(
