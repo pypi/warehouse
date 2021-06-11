@@ -21,10 +21,18 @@ from warehouse.utils.attrs import make_repr
 class Banner(db.Model):
     __tablename__ = "banners"
     __repr__ = make_repr("text")
+    DEFAULT_FA_ICON = "fa-comment-alt"
 
+    # internal name
     name = Column(String, nullable=False)
+
+    # banner display configuration
     text = Column(Text, nullable=False)
     link_url = Column(URLType, nullable=False)
+    link_label = Column(String, nullable=False)
+    fa_icon = Column(String, nullable=False, default=DEFAULT_FA_ICON)
+
+    # dates to control visibility
     begin = Column(Date, nullable=False)
     end = Column(Date, nullable=False)
 

@@ -59,6 +59,7 @@ class TestCreateBanner:
         db_request.method = "POST"
         db_request.POST["name"] = "Banner"
         db_request.POST["link_url"] = "https://newbanner.com"
+        db_request.POST["link_label"] = "Open link"
         db_request.POST["text"] = "Bannert content"
         db_request.POST["begin"] = "2021-06-30"
         db_request.POST["end"] = "2021-07-30"
@@ -198,6 +199,7 @@ class TestBannerForm(TestCase):
             "name": "Sample Banner",
             "text": "This should be the correct text",
             "link_url": "https://samplebanner.com",
+            "link_label": "Open link",
             "begin": "2021-06-30",
             "end": "2021-07-30",
         }
@@ -215,6 +217,14 @@ class TestBannerForm(TestCase):
     def test_valid_data(self):
         form = views.BannerForm(data=self.data)
         assert form.validate() is True
+        data = form.data
+        assert data["name"] == self.data["name"]
+        assert data["text"] == self.data["text"]
+        assert data["link_url"] == self.data["link_url"]
+        assert data["link_label"] == self.data["link_label"]
+        assert data["begin"] == self.data["begin"]
+        assert data["end"] == self.data["end"]
+        assert data["fa_icon"] == Banner.DEFAULT_FA_ICON
 
     def test_invalid_form_if_wrong_time_interval(self):
         self.data["begin"], self.data["end"] = self.data["end"], self.data["begin"]

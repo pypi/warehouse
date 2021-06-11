@@ -145,6 +145,18 @@ class BannerForm(Form):
             URIValidator(),
         ]
     )
+    link_label = wtforms.fields.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+        ]
+    )
+    fa_icon = wtforms.fields.StringField(
+        validators=[
+            wtforms.validators.Length(max=20),
+            wtforms.validators.Optional(),
+        ],
+        default=Banner.DEFAULT_FA_ICON,
+    )
     begin = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])
     end = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])
 
