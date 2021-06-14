@@ -15,7 +15,6 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
-    Binary,
     Boolean,
     CheckConstraint,
     Column,
@@ -24,6 +23,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     String,
     UniqueConstraint,
     orm,
@@ -83,7 +83,7 @@ class User(SitemapMixin, db.Model):
         nullable=True,
     )
 
-    totp_secret = Column(Binary(length=20), nullable=True)
+    totp_secret = Column(LargeBinary(length=20), nullable=True)
     last_totp_value = Column(String, nullable=True)
 
     webauthn = orm.relationship(
