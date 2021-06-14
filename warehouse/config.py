@@ -59,6 +59,8 @@ class RootFactory:
     __acl__ = [
         (Allow, "group:admins", "admin"),
         (Allow, "group:moderators", "moderator"),
+        (Allow, "group:psf_staff", "psf_staff"),
+        (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
     ]
 
@@ -164,6 +166,12 @@ def configure(settings=None):
         settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE"
     )
     maybe_set(settings, "github.token", "GITHUB_TOKEN")
+    maybe_set(
+        settings,
+        "github.token_scanning_meta_api.url",
+        "GITHUB_TOKEN_SCANNING_META_API_URL",
+        default="https://api.github.com/meta/public_keys/token_scanning",
+    )
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
@@ -430,6 +438,9 @@ def configure(settings=None):
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
+
+    # Allow the sponsors app to list sponsors
+    config.include(".sponsors")
 
     # Include our admin application
     config.include(".admin")

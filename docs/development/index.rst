@@ -32,6 +32,7 @@ or the `distutils-sig mailing list`_, to ask questions or get involved.
     development-database
     cloud
     malware-checks
+    token-scanning
 
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`"What to put in your bug report"`: http://www.contribution-guide.org/#what-to-put-in-your-bug-report

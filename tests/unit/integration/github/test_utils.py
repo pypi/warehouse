@@ -114,15 +114,21 @@ class TestGitHubTokenScanningPayloadVerifier:
         metrics = pretend.stub()
         session = pretend.stub()
         token = "api_token"
+        url = "http://foo"
         cache = utils.PublicKeysCache(cache_time=12)
 
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=session, metrics=metrics, api_token=token, public_keys_cache=cache
+            api_url=url,
+            session=session,
+            metrics=metrics,
+            api_token=token,
+            public_keys_cache=cache,
         )
 
         assert verifier._session is session
         assert verifier._metrics is metrics
         assert verifier._api_token == token
+        assert verifier._api_url == url
         assert verifier._public_keys_cache is cache
 
     def test_verify_cache_miss(self):
@@ -148,6 +154,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
         cache = utils.PublicKeysCache(cache_time=12)
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=session,
             metrics=metrics,
             api_token="api-token",
@@ -189,6 +196,7 @@ class TestGitHubTokenScanningPayloadVerifier:
             }
         ]
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=session,
             metrics=metrics,
             api_token="api-token",
@@ -219,6 +227,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
         cache = utils.PublicKeysCache(cache_time=12)
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=metrics,
             api_token="api-token",
@@ -237,6 +246,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
     def test_headers_auth_no_token(self):
         headers = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             api_token=None,
@@ -246,6 +256,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
     def test_headers_auth_token(self):
         headers = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             api_token="api-token",
@@ -274,6 +285,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
 
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=session,
             metrics=metrics,
             api_token="api-token",
@@ -282,7 +294,7 @@ class TestGitHubTokenScanningPayloadVerifier:
         assert verifier._retrieve_public_key_payload() == meta_payload
         assert session.get.calls == [
             pretend.call(
-                "https://api.github.com/meta/public_keys/token_scanning",
+                "http://foo",
                 headers={"Authorization": "token api-token"},
             )
         ]
@@ -295,7 +307,10 @@ class TestGitHubTokenScanningPayloadVerifier:
         cache.set(now=time.time(), value=cache_value)
 
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=session, metrics=metrics, public_keys_cache=cache
+            api_url="http://foo",
+            session=session,
+            metrics=metrics,
+            public_keys_cache=cache,
         )
 
         assert verifier._get_cached_public_keys() is cache_value
@@ -306,7 +321,10 @@ class TestGitHubTokenScanningPayloadVerifier:
         cache = utils.PublicKeysCache(cache_time=12)
 
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=session, metrics=metrics, public_keys_cache=cache
+            api_url="http://foo",
+            session=session,
+            metrics=metrics,
+            public_keys_cache=cache,
         )
 
         with pytest.raises(utils.CacheMiss):
@@ -322,7 +340,10 @@ class TestGitHubTokenScanningPayloadVerifier:
             get=lambda *a, **k: response,
         )
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=session, metrics=pretend.stub(), public_keys_cache=pretend.stub()
+            api_url="http://foo",
+            session=session,
+            metrics=pretend.stub(),
+            public_keys_cache=pretend.stub(),
         )
         with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
             verifier._retrieve_public_key_payload()
@@ -338,7 +359,10 @@ class TestGitHubTokenScanningPayloadVerifier:
         )
         session = pretend.stub(get=lambda *a, **k: response)
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=session, metrics=pretend.stub(), public_keys_cache=pretend.stub()
+            api_url="http://foo",
+            session=session,
+            metrics=pretend.stub(),
+            public_keys_cache=pretend.stub(),
         )
         with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
             verifier._retrieve_public_key_payload()
@@ -350,7 +374,10 @@ class TestGitHubTokenScanningPayloadVerifier:
         session = pretend.stub(get=pretend.raiser(requests.ConnectionError))
 
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=session, metrics=pretend.stub(), public_keys_cache=pretend.stub()
+            api_url="http://foo",
+            session=session,
+            metrics=pretend.stub(),
+            public_keys_cache=pretend.stub(),
         )
 
         with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
@@ -375,7 +402,10 @@ class TestGitHubTokenScanningPayloadVerifier:
         }
         cache = utils.PublicKeysCache(cache_time=12)
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=pretend.stub(), metrics=pretend.stub(), public_keys_cache=cache
+            api_url="http://foo",
+            session=pretend.stub(),
+            metrics=pretend.stub(),
+            public_keys_cache=cache,
         )
 
         keys = verifier._extract_public_keys(pubkey_api_data=meta_payload)
@@ -415,7 +445,10 @@ class TestGitHubTokenScanningPayloadVerifier:
     def test_extract_public_keys_error(self, payload, expected):
         cache = utils.PublicKeysCache(cache_time=12)
         verifier = utils.GitHubTokenScanningPayloadVerifier(
-            session=pretend.stub(), metrics=pretend.stub(), public_keys_cache=cache
+            api_url="http://foo",
+            session=pretend.stub(),
+            metrics=pretend.stub(),
+            public_keys_cache=cache,
         )
 
         with pytest.raises(utils.GitHubPublicKeyMetaAPIError) as exc:
@@ -427,6 +460,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
     def test_check_public_key(self):
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
@@ -440,6 +474,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
     def test_check_public_key_error(self):
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
@@ -453,6 +488,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
     def test_check_signature(self):
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
@@ -482,6 +518,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
     def test_check_signature_invalid_signature(self):
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
@@ -513,6 +550,7 @@ class TestGitHubTokenScanningPayloadVerifier:
 
     def test_check_signature_invalid_crypto(self):
         verifier = utils.GitHubTokenScanningPayloadVerifier(
+            api_url="http://foo",
             session=pretend.stub(),
             metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),

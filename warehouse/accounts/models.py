@@ -15,7 +15,6 @@ import enum
 
 from citext import CIText
 from sqlalchemy import (
-    Binary,
     Boolean,
     CheckConstraint,
     Column,
@@ -24,6 +23,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     String,
     UniqueConstraint,
     orm,
@@ -75,6 +75,7 @@ class User(SitemapMixin, db.Model):
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     is_moderator = Column(Boolean, nullable=False, server_default=sql.false())
+    is_psf_staff = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
@@ -82,7 +83,7 @@ class User(SitemapMixin, db.Model):
         nullable=True,
     )
 
-    totp_secret = Column(Binary(length=20), nullable=True)
+    totp_secret = Column(LargeBinary(length=20), nullable=True)
     last_totp_value = Column(String, nullable=True)
 
     webauthn = orm.relationship(

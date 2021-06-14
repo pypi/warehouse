@@ -227,16 +227,61 @@ class TestLogin:
 
 class TestAuthenticate:
     @pytest.mark.parametrize(
-        ("is_superuser", "is_moderator", "expected"),
+        ("is_superuser", "is_moderator", "is_psf_staff", "expected"),
         [
-            (False, False, []),
-            (True, False, ["group:admins", "group:moderators"]),
-            (False, True, ["group:moderators"]),
-            (True, True, ["group:admins", "group:moderators"]),
+            (False, False, False, []),
+            (
+                True,
+                False,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
+            (
+                False,
+                True,
+                False,
+                ["group:moderators", "group:with_admin_dashboard_access"],
+            ),
+            (
+                True,
+                True,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
+            (
+                False,
+                False,
+                True,
+                ["group:psf_staff", "group:with_admin_dashboard_access"],
+            ),
+            (
+                False,
+                True,
+                True,
+                [
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
         ],
     )
-    def test_with_user(self, is_superuser, is_moderator, expected):
-        user = pretend.stub(is_superuser=is_superuser, is_moderator=is_moderator)
+    def test_with_user(self, is_superuser, is_moderator, is_psf_staff, expected):
+        user = pretend.stub(
+            is_superuser=is_superuser,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
         service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
         request = pretend.stub(find_service=lambda iface, context: service)
 
