@@ -38,4 +38,5 @@ class Banner(db.Model):
 
     @property
     def is_live(self):
+        # date.today is using the server timezone, not UTC or users' one
         return self.begin <= date.today() <= self.end

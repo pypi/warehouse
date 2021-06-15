@@ -11,23 +11,23 @@
 # limitations under the License.
 from datetime import date, timedelta
 
-from ...common.db.banners import BannerFactory
+import pytest
+
+from warehouse.banners.models import Banner
 
 
-def test_banner_is_live_property(db_request):
+@pytest.mark.parametrize(
+    ("begin_diff", "end_diff", "expected"),
+    [
+        (-20, -10, False),  # past banner (started 20 days ago, ended 10)
+        (10, 20, False),  # future banner (starts in 10 days, ends in 20)
+        (-5, 5, True),  # live banner (started 5 days ago, ends in 5)
+    ],
+)
+def test_banner_is_live_property(db_request, begin_diff, end_diff, expected):
     today = date.today()
-    ten_days = timedelta(days=10)
+    banner = Banner()
 
-    banner = BannerFactory.create()
-    assert banner.begin < today < banner.end
-    assert banner.is_live is True
-
-    # banner from the past
-    banner.begin = today - (ten_days * 2)
-    banner.end = today - ten_days
-    assert banner.is_live is False
-
-    # banner in the future
-    banner.begin = today + ten_days
-    banner.end = today + (ten_days * 2)
-    assert banner.is_live is False
+    banner.begin = today + timedelta(days=begin_diff)
+    banner.end = today + timedelta(days=end_diff)
+    assert banner.is_live is expected

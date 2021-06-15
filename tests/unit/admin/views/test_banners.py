@@ -218,13 +218,7 @@ class TestBannerForm(TestCase):
         form = views.BannerForm(data=self.data)
         assert form.validate() is True
         data = form.data
-        assert data["name"] == self.data["name"]
-        assert data["text"] == self.data["text"]
-        assert data["link_url"] == self.data["link_url"]
-        assert data["link_label"] == self.data["link_label"]
-        assert data["begin"] == self.data["begin"]
-        assert data["end"] == self.data["end"]
-        assert data["fa_icon"] == Banner.DEFAULT_FA_ICON
+        assert data == {**self.data, **{"fa_icon": Banner.DEFAULT_FA_ICON}}
 
     def test_invalid_form_if_wrong_time_interval(self):
         self.data["begin"], self.data["end"] = self.data["end"], self.data["begin"]

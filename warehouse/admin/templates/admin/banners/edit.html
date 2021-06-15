@@ -13,9 +13,15 @@
 -#}
 {% extends "admin/base.html" %}
 
-{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+{% macro render_field(label, field, input_id, placeholder=None, class=None, helper=None) %}
 <div class="form-group{% if field.errors %} has-error{% endif %}">
-  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
+  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}
+  {% if helper %}
+    <br>
+    {{ helper|safe }}
+  {% endif %}
+  </label>
+
 
   <div class="col-sm-10">
     {{ field(id=input_id, class=class, placeholder=placeholder)}}
@@ -106,7 +112,7 @@
 
             {{ render_field("Name", form.name, "banner-name", class="form-control", placeholder="Name") }}
 
-            {{ render_field("fa_icon", form.fa_icon, "banner-fa-icon", class="form-control", placeholder="Fontawesome class") }}
+            {{ render_field("Icon Name", form.fa_icon, "banner-fa-icon", placeholder="Fontawesome class", helper="<a href='https://fontawesome.com/v5.15/icons?d=gallery&p=2' target='_blank'>Icons list</a>") }}
             {{ render_field("Text", form.text, "banner-text", class="form-control", placeholder="Banner text content") }}
             {{ render_field("Button URL", form.link_url, "banner-link-url", class="form-control", placeholder="https://sample.com") }}
             {{ render_field("Button label", form.link_label, "banner-link-label", class="form-control", placeholder="Click to open!") }}
