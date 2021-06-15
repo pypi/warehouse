@@ -193,6 +193,21 @@ class TestDeleteBanner:
         ]
 
 
+class TestPreviewBanner:
+    def test_404_if_banner_does_not_exist(self, db_request):
+        db_request.matchdict["banner_id"] = str(uuid.uuid4())
+
+        with pytest.raises(HTTPNotFound):
+            views.preview_banner(db_request)
+
+    def test_preview_banner(self, db_request):
+        banner = BannerFactory.create()
+        db_request.matchdict["banner_id"] = str(banner.id)
+
+        resp = views.preview_banner(db_request)
+        assert {"banner": banner} == resp
+
+
 class TestBannerForm(TestCase):
     def setUp(self):
         self.data = {

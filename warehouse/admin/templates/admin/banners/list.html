@@ -41,7 +41,8 @@
           <a href="{{ request.route_path('admin.banner.edit', banner_id=banner.id) }}">{{ banner.name }}</a>
         </td>
         <td><i class="fa {% if banner.is_live %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
-        <td>{{ banner.begin }} | {{ banner.end }}</td>
+        <td>{{ banner.begin }} | {{ banner.end }} - <a target="_blank" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}">preview</a></td>
+
       </tr>
       {% endfor %}
     </table>

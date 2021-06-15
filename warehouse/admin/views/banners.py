@@ -126,6 +126,24 @@ def delete_banner(request):
     return HTTPSeeOther(request.route_url("admin.banner.list"))
 
 
+@view_config(
+    route_name="admin.banner.preview",
+    require_methods=["GET"],
+    permission="moderator",
+    uses_session=True,
+    require_csrf=True,
+    has_translations=True,
+    renderer="admin/banners/preview.html",
+)
+def preview_banner(request):
+    id_ = request.matchdict["banner_id"]
+    try:
+        banner = request.db.query(Banner).filter(Banner.id == id_).one()
+        return {"banner": banner}
+    except NoResultFound:
+        raise HTTPNotFound
+
+
 class BannerForm(Form):
     name = wtforms.fields.StringField(
         validators=[

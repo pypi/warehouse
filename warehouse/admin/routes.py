@@ -183,5 +183,8 @@ def includeme(config):
         "admin.banner.delete", "/admin/banners/{banner_id}/delete/", domain=warehouse
     )
     config.add_route(
+        "admin.banner.preview", "/admin/banners/{banner_id}/preview/", domain=warehouse
+    )
+    config.add_route(
         "admin.banner.edit", "/admin/banners/{banner_id}/", domain=warehouse
     )

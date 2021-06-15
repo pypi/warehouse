@@ -37,3 +37,21 @@ def test_list_active_banners(db_request):
 
     assert len(result["banners"]) == 1
     assert result["banners"][0] == active_baner
+
+
+def test_list_specific_banner_for_preview(db_request):
+    today = date.today()
+    ten_days = timedelta(days=10)
+
+    BannerFactory.create()  # active banner
+    # past banner
+    past_banner = BannerFactory.create(
+        begin=today - (ten_days * 2),
+        end=today - ten_days,
+    )
+
+    db_request.params = {"single_banner": str(past_banner.id)}
+    result = views.list_banner_messages(db_request)
+
+    assert len(result["banners"]) == 1
+    assert result["banners"][0] == past_banner
