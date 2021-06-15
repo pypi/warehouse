@@ -31,6 +31,7 @@ KNOWN_LOCALES = {
         "el",  # Greek
         "de",  # German
         "zh_Hans",  # Simplified Chinese
+        "zh_Hant",  # Traditional Chinese
         "ru",  # Russian
         "he",  # Hebrew
         "eo",  # Esperanto
