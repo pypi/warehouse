@@ -533,7 +533,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for macaroon in user.macaroons %}
+        {% for macaroon in user.macaroons | sort(attribute="description") %}
           {{ api_row(macaroon) }}
         {% endfor %}
       </tbody>
