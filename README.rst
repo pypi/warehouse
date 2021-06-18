@@ -18,9 +18,10 @@ The canonical deployment of Warehouse is in production at `pypi.org`_.
 Discussion
 ----------
 
-If you run into bugs, you can file them in our `issue tracker`_.
+
 You can find help or get involved on:
 
+- `Github issue tracker`_ for filing issues
 - IRC: on `Libera`_, channel ``#pypa`` for general packaging discussion and user support, and
   ``#pypa-dev`` for discussions about development of packaging tools
 - The `PyPA Discord`_ for live discussions
@@ -48,7 +49,7 @@ rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 .. _`architectural overview`: https://warehouse.readthedocs.io/application/
 .. _`documentation`: https://warehouse.readthedocs.io
 .. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/
-.. _`issue tracker`: https://github.com/pypa/warehouse/issues
+.. _`Github issue tracker`: https://github.com/pypa/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
 .. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
