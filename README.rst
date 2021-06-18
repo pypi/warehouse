@@ -21,7 +21,7 @@ Discussion
 
 You can find help or get involved on:
 
-- `Github issue tracker`_ for filing issues
+- `Github issue tracker`_ for reporting issues
 - IRC: on `Libera`_, channel ``#pypa`` for general packaging discussion and user support, and ``#pypa-dev`` for discussions about development of packaging tools
 - The `PyPA Discord`_ for live discussions
 - The Packaging category on `Discourse`_ for discussing new ideas and community initiatives
