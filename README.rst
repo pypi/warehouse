@@ -19,6 +19,7 @@ Discussion
 ----------
 
 If you run into bugs, you can file them in our `issue tracker`_.
+You can find help or get involved on:
 
 - IRC: on `Libera`_, channel ``#pypa`` for general packaging discussion and user support, and
   ``#pypa-dev`` for discussions about development of packaging tools
