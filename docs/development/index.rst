@@ -24,7 +24,6 @@ Get involved or find help using:
 You can also join ``#pypa`` (general packaging discussion and user support) and
 ``#pypa-dev`` (discussion about development of packaging tools) `on Freenode`_, `Libera Chat`_, `Discord`_,
 or the `distutils-sig mailing list`_, to ask questions or get involved.
->>>>>>> 7d9fe0cfa78fda5834c57831f21d36c90e4585b6
 
 
 .. toctree::
