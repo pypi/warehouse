@@ -16,13 +16,11 @@ check out `"What to put in your bug report"`_ for guidance.
 
 Get involved or find help using:
 
-- IRC: on `Libera`_, channel ``#pypa`` for general 
-  packaging discussion and user support, 
+- IRC: on `Libera`_, channel ``#pypa`` for general
+  packaging discussion and user support,
   and ``#pypa-dev`` for discussions about development of packaging tools
-
 - The `PyPA Discord`_ for live discussions
-
-- The Packaging category on `Discourse`_ for 
+- The Packaging category on `Discourse`_ for
   discussing new ideas and community initiatives
 
 
