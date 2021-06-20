@@ -44,4 +44,3 @@ Get involved or find help using:
 .. _`Libera`: https://web.libera.chat/#pypa,#pypa-dev
 .. _`PyPA Discord`: https://discord.gg/pypa
 .. _`Discourse`: https://discuss.python.org/c/packaging/14
-.. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
