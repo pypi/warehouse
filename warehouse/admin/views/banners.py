@@ -23,7 +23,7 @@ from warehouse.forms import Form, URIValidator
 @view_config(
     route_name="admin.banner.list",
     renderer="admin/banners/list.html",
-    permission="moderator",
+    permission="admin_dashboard_access",
     request_method="GET",
     uses_session=True,
 )
@@ -35,7 +35,7 @@ def banner_list(request):
 @view_config(
     route_name="admin.banner.edit",
     renderer="admin/banners/edit.html",
-    permission="moderator",
+    permission="admin_dashboard_access",
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -44,7 +44,7 @@ def banner_list(request):
 @view_config(
     route_name="admin.banner.edit",
     renderer="admin/banners/edit.html",
-    permission="admin",
+    permission="psf_staff",
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -70,7 +70,7 @@ def edit_banner(request):
 @view_config(
     route_name="admin.banner.create",
     renderer="admin/banners/edit.html",
-    permission="moderator",
+    permission="admin_dashboard_access",
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -79,7 +79,7 @@ def edit_banner(request):
 @view_config(
     route_name="admin.banner.create",
     renderer="admin/banners/edit.html",
-    permission="admin",
+    permission="psf_staff",
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -104,7 +104,7 @@ def create_banner(request):
 @view_config(
     route_name="admin.banner.delete",
     require_methods=["POST"],
-    permission="admin",
+    permission="psf_staff",
     uses_session=True,
     require_csrf=True,
 )

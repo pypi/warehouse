@@ -126,12 +126,12 @@
             <i class="fa fa-gavel"></i> <span>Verdicts</span>
           </a>
         </li>
+        {% endif %}
         <li>
           <a href="{{ request.route_path('admin.banner.list') }}">
             <i class="fa fa-quote-right"></i> <span>Banners</span>
           </a>
         </li>
-        {% endif %}
         <li>
           <a href="{{ request.route_path('admin.sponsor.list') }}">
             <i class="fa fa-ad"></i> <span>Sponsors</span>
