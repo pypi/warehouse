@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import date, timedelta
-
 from warehouse.banners import views
 
 from ...common.db.banners import BannerFactory

@@ -11,8 +11,6 @@
 # limitations under the License.
 import uuid
 
-from unittest import TestCase
-
 import pretend
 import pytest
 
