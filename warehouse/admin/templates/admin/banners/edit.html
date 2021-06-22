@@ -84,13 +84,10 @@
                     </p>
                     {% endif %}
                     <hr>
-                    <p>
-                      Type the banner '{{ banner.name }}' to confirm:
-                    </p>
-                    <input type="text" name="banner" placeholder="{{ banner.name }}">
+                    <input type="hidden" name="banner" value="{{ banner.name }}">
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
                   </div>
                 </div>
