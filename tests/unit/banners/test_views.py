@@ -23,7 +23,6 @@ def test_list_active_banners(db_request):
 
     result = views.list_banner_messages(db_request)
 
-    assert len(result["banners"]) == 1
     assert result["banners"] == [active_banner]
 
 
@@ -36,5 +35,4 @@ def test_list_specific_banner_for_preview(db_request):
     db_request.params = {"single_banner": str(inactive_banner.id)}
     result = views.list_banner_messages(db_request)
 
-    assert len(result["banners"]) == 1
     assert result["banners"] == [inactive_banner]
