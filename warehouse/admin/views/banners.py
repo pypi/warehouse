@@ -165,8 +165,9 @@ class BannerForm(Form):
     )
     link_label = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
-        ]
+            wtforms.validators.Optional(),
+        ],
+        default=Banner.DEFAULT_BTN_LABEL,
     )
     fa_icon = wtforms.fields.StringField(
         validators=[

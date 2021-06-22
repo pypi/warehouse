@@ -31,7 +31,6 @@ def banner_data():
         "name": "Sample Banner",
         "text": "This should be the correct text",
         "link_url": "https://samplebanner.com",
-        "link_label": "Open link",
         "end": "2021-07-30",
     }
 
@@ -227,5 +226,9 @@ class TestBannerForm:
         form = views.BannerForm(data=banner_data)
         assert form.validate() is True
         data = form.data
-        defaults = {"fa_icon": Banner.DEFAULT_FA_ICON, "active": False}
+        defaults = {
+            "fa_icon": Banner.DEFAULT_FA_ICON,
+            "active": False,
+            "link_label": Banner.DEFAULT_BTN_LABEL,
+        }
         assert data == {**banner_data, **defaults}

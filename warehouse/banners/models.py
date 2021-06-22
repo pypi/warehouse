@@ -22,6 +22,7 @@ class Banner(db.Model):
     __tablename__ = "banners"
     __repr__ = make_repr("text")
     DEFAULT_FA_ICON = "fa-comment-alt"
+    DEFAULT_BTN_LABEL = "See more"
 
     # internal name
     name = Column(String, nullable=False)
@@ -29,7 +30,7 @@ class Banner(db.Model):
     # banner display configuration
     text = Column(Text, nullable=False)
     link_url = Column(URLType, nullable=False)
-    link_label = Column(String, nullable=False)
+    link_label = Column(String, nullable=False, default=DEFAULT_BTN_LABEL)
     fa_icon = Column(String, nullable=False, default=DEFAULT_FA_ICON)
 
     # visibility control
