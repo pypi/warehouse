@@ -117,9 +117,11 @@
           <div class="sponsor-grid__sponsor-img">
             {{ sponsor.color_logo_img|camoify|safe }}
           </div>
-          <h2 class="sponsor-grid__sponsor-name">{{ sponsor.name }}</h2>
-          <div class="sponsor-grid__sponsor-activity">
-          {{ sponsor.activity|safe }}
+          <div class="sponsor-grid__sponsor-description">
+            <h2 class="sponsor-grid__sponsor-name">{{ sponsor.name }}</h2>
+            <div class="sponsor-grid__sponsor-activity">
+            {{ sponsor.activity|safe }}
+            </div>
           </div>
           <a href="{{ sponsor.link_url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
         </div>
