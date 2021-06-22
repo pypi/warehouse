@@ -31,8 +31,10 @@
     <table class="table table-hover">
       <tr>
         <th>Name</th>
-        <th>Is live?</th>
-        <th>Visibility period</th>
+        <th>Is active?</th>
+        <th>End date</th>
+        <th>Is visible now?</th>
+        <th>Preview link</th>
       </tr>
 
       {% for banner in banners %}
@@ -40,9 +42,10 @@
         <td>
           <a href="{{ request.route_path('admin.banner.edit', banner_id=banner.id) }}">{{ banner.name }}</a>
         </td>
-        <td><i class="fa {% if banner.is_live %}fa-check text-green{% else %}fa-times text-red{% endif %}"></i></td>
-        <td>{{ banner.begin }} | {{ banner.end }} - <a target="_blank" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}">preview</a></td>
-
+        <td><i class="fa {% if banner.active %}fa-check text-green{% else %}fa-times{% endif %}"></i></td>
+        <td>Until {{ banner.end }}</td>
+        <td><i class="fa {% if banner.is_live %}fa-check text-green{% else %}fa-times{% endif %}"></i></td>
+        <td><a target="_blank" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}">Click to preview</a></td>
       </tr>
       {% endfor %}
     </table>

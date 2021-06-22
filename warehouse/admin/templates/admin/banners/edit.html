@@ -16,10 +16,6 @@
 {% macro render_field(label, field, input_id, placeholder=None, class=None, helper=None) %}
 <div class="form-group{% if field.errors %} has-error{% endif %}">
   <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}
-  {% if helper %}
-    <br>
-    {{ helper|safe }}
-  {% endif %}
   </label>
 
 
@@ -32,6 +28,10 @@
         <div>{{ error }}</div>
         {% endfor %}
     </span>
+    {% endif %}
+    {% if helper %}
+      <br>
+      {{ helper|safe }}
     {% endif %}
   </div>
 </div>
@@ -118,8 +118,8 @@
             {{ render_field("Button URL", form.link_url, "banner-link-url", class="form-control", placeholder="https://sample.com") }}
             {{ render_field("Button label", form.link_label, "banner-link-label", class="form-control", placeholder="Click to open!") }}
 
-            {{ render_field("Begin date", form.begin, "banner-begin", placeholder="YYYY-MM-DD") }}
-            {{ render_field("End date", form.end, "banner-end", placeholder="YYYY-MM-DD") }}
+            {{ render_field("Active", form.active, "banner-active", helper="<small>Only active banners are displayed.</small>") }}
+            {{ render_field("End date", form.end, "banner-end", placeholder="YYYY-MM-DD", helper="<small>UTC date to work as a safeguard to hide the banner if past this date.</small>")}}
 
 
             <div class="form-group">

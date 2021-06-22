@@ -26,10 +26,22 @@ from warehouse.banners.models import Banner
 from ....common.db.banners import BannerFactory
 
 
+@pytest.fixture
+def banner_data():
+    """Fixture with minimal required data to create a banner"""
+    return {
+        "name": "Sample Banner",
+        "text": "This should be the correct text",
+        "link_url": "https://samplebanner.com",
+        "link_label": "Open link",
+        "end": "2021-07-30",
+    }
+
+
 class TestBannerList:
     def test_list_all_banners(self, db_request):
-        [BannerFactory.create() for _ in range(5)]
-        banners = db_request.db.query(Banner).order_by(Banner.begin.desc()).all()
+        BannerFactory.create_batch(5)
+        banners = db_request.db.query(Banner).all()
 
         result = views.banner_list(db_request)
 
@@ -55,26 +67,22 @@ class TestCreateBanner:
         assert isinstance(result["form"], views.BannerForm)
         assert result["form"].errors
 
-    def test_create_banner(self, db_request):
+    def test_create_banner(self, db_request, banner_data):
         db_request.method = "POST"
-        db_request.POST["name"] = "Banner"
-        db_request.POST["link_url"] = "https://newbanner.com"
-        db_request.POST["link_label"] = "Open link"
-        db_request.POST["text"] = "Bannert content"
-        db_request.POST["begin"] = "2021-06-30"
-        db_request.POST["end"] = "2021-07-30"
-        db_request.POST = MultiDict(db_request.POST)
+        db_request.POST = MultiDict(banner_data)
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_url = pretend.call_recorder(lambda r: "/admin/banners/")
 
+        assert db_request.db.query(Banner).count() == 0
         resp = views.create_banner(db_request)
+        assert db_request.db.query(Banner).count() == 1
 
         assert resp.status_code == 303
         assert resp.location == "/admin/banners/"
         assert db_request.session.flash.calls == [
-            pretend.call("Added new banner 'Banner'", queue="success")
+            pretend.call("Added new banner 'Sample Banner'", queue="success")
         ]
         assert db_request.route_url.calls == [pretend.call("admin.banner.list")]
 
@@ -97,13 +105,14 @@ class TestEditBanner:
         with pytest.raises(HTTPNotFound):
             views.edit_banner(db_request)
 
-    def test_update_banner(self, db_request):
-        banner = BannerFactory.create()
+    def test_update_banner(self, db_request, banner_data):
+        banner = BannerFactory.create(fa_icon="custom", **banner_data)
+        assert banner.is_live
         form = views.BannerForm(MultiDict({}), banner)
         data = form.data.copy()
         data["name"] = "New Name"
-        data["begin"] = str(data["begin"])
         data["end"] = str(data["end"])
+        data.pop("fa_icon")  # do not send fa icon within post data
         db_request.matchdict["banner_id"] = banner.id
         db_request.method = "POST"
         db_request.POST = MultiDict(data)
@@ -120,6 +129,7 @@ class TestEditBanner:
         assert resp.status_code == 303
         assert resp.location == f"/admin/banners/{banner.id}/"
         assert db_banner.name == "New Name"
+        assert db_banner.fa_icon == "custom"  # keep previous value
         assert db_request.session.flash.calls == [
             pretend.call("Banner updated", queue="success")
         ]
@@ -128,16 +138,16 @@ class TestEditBanner:
         banner = BannerFactory.create()
         form = views.BannerForm(MultiDict({}), banner)
         data = form.data.copy()
-        data["begin"] = ""
-        data["end"] = ""  # dates are required
+        data["name"] = "New name"
+        data["end"] = ""  # date is required
         db_request.matchdict["banner_id"] = banner.id
         db_request.method = "POST"
         db_request.POST = MultiDict(data)
 
         result = views.edit_banner(db_request)
 
-        assert "begin" in result["form"].errors
         assert "end" in result["form"].errors
+        assert "New name" == result["form"].data["name"]
 
 
 class TestDeleteBanner:
@@ -208,38 +218,16 @@ class TestPreviewBanner:
         assert {"banner": banner} == resp
 
 
-class TestBannerForm(TestCase):
-    def setUp(self):
-        self.data = {
-            "name": "Sample Banner",
-            "text": "This should be the correct text",
-            "link_url": "https://samplebanner.com",
-            "link_label": "Open link",
-            "begin": "2021-06-30",
-            "end": "2021-07-30",
-        }
-
-    def test_required_fields(self):
-        required_fields = self.data.keys()  # all fields are required
-
+class TestBannerForm:
+    def test_required_fields(self, banner_data):
         form = views.BannerForm(data={})
 
         assert form.validate() is False
-        assert len(form.errors) == len(required_fields)
-        for field in required_fields:
-            assert field in form.errors
+        assert set(form.errors) == set(banner_data)
 
-    def test_valid_data(self):
-        form = views.BannerForm(data=self.data)
+    def test_valid_data(self, banner_data):
+        form = views.BannerForm(data=banner_data)
         assert form.validate() is True
         data = form.data
-        assert data == {**self.data, **{"fa_icon": Banner.DEFAULT_FA_ICON}}
-
-    def test_invalid_form_if_wrong_time_interval(self):
-        self.data["begin"], self.data["end"] = self.data["end"], self.data["begin"]
-
-        form = views.BannerForm(data=self.data)
-
-        assert form.validate() is False
-        assert "begin" in form.errors
-        assert "end" in form.errors
+        defaults = {"fa_icon": Banner.DEFAULT_FA_ICON, "active": False}
+        assert data == {**banner_data, **defaults}

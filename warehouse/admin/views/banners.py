@@ -28,7 +28,7 @@ from warehouse.forms import Form, URIValidator
     uses_session=True,
 )
 def banner_list(request):
-    banners = request.db.query(Banner).order_by(Banner.begin.desc()).all()
+    banners = request.db.query(Banner).all()
     return {"banners": banners}
 
 
@@ -175,17 +175,7 @@ class BannerForm(Form):
         ],
         default=Banner.DEFAULT_FA_ICON,
     )
-    begin = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])
+    active = wtforms.fields.BooleanField(
+        validators=[wtforms.validators.Optional()], default=False
+    )
     end = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])
-
-    def validate(self, *args, **kwargs):
-        if not super().validate(*args, **kwargs):
-            return False
-
-        begin, end = self.begin.data, self.end.data
-        if begin > end:
-            self.begin.errors.append("Begin date must be lower than end date")
-            self.end.errors.append("End date must be greater than begin date")
-            return False
-
-        return True
