@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Create banner table
+Create banner model
 
-Revision ID: 046698d48d0d
+Revision ID: 10825786b3df
 Revises: 590c513f1c74
-Create Date: 2021-06-11 14:19:48.397294
+Create Date: 2021-06-22 18:16:50.425481
 """
 
 import sqlalchemy as sa
@@ -23,7 +23,7 @@ import sqlalchemy_utils
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "046698d48d0d"
+revision = "10825786b3df"
 down_revision = "590c513f1c74"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
@@ -51,7 +51,7 @@ def upgrade():
         sa.Column("link_url", sqlalchemy_utils.types.url.URLType(), nullable=False),
         sa.Column("link_label", sa.String(), nullable=False),
         sa.Column("fa_icon", sa.String(), nullable=False),
-        sa.Column("begin", sa.Date(), nullable=False),
+        sa.Column("active", sa.Boolean(), nullable=False),
         sa.Column("end", sa.Date(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )

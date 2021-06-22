@@ -28,5 +28,5 @@ class BannerFactory(WarehouseFactory):
     link_url = FuzzyUrl()
     link_label = fuzzy.FuzzyText(length=10)
 
-    begin = date.today() - timedelta(days=2)
+    active = True
     end = date.today() + timedelta(days=2)

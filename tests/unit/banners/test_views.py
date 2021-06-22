@@ -18,40 +18,25 @@ from ...common.db.banners import BannerFactory
 
 
 def test_list_active_banners(db_request):
-    today = date.today()
-    ten_days = timedelta(days=10)
-
-    active_baner = BannerFactory.create()
-    # past banner
-    BannerFactory.create(
-        begin=today - (ten_days * 2),
-        end=today - ten_days,
-    )
-    # future banner
-    BannerFactory.create(
-        begin=today + ten_days,
-        end=today + (ten_days * 2),
-    )
+    active_banner = BannerFactory.create()
+    assert active_banner.is_live
+    inactive_banner = BannerFactory.create(active=False)
+    assert inactive_banner.is_live is False
 
     result = views.list_banner_messages(db_request)
 
     assert len(result["banners"]) == 1
-    assert result["banners"][0] == active_baner
+    assert result["banners"] == [active_banner]
 
 
 def test_list_specific_banner_for_preview(db_request):
-    today = date.today()
-    ten_days = timedelta(days=10)
+    active_banner = BannerFactory.create()
+    assert active_banner.is_live
+    inactive_banner = BannerFactory.create(active=False)
+    assert inactive_banner.is_live is False
 
-    BannerFactory.create()  # active banner
-    # past banner
-    past_banner = BannerFactory.create(
-        begin=today - (ten_days * 2),
-        end=today - ten_days,
-    )
-
-    db_request.params = {"single_banner": str(past_banner.id)}
+    db_request.params = {"single_banner": str(inactive_banner.id)}
     result = views.list_banner_messages(db_request)
 
     assert len(result["banners"]) == 1
-    assert result["banners"][0] == past_banner
+    assert result["banners"] == [inactive_banner]

@@ -11,7 +11,7 @@
 # limitations under the License.
 from datetime import date
 
-from sqlalchemy import Column, Date, String, Text
+from sqlalchemy import Boolean, Column, Date, String, Text
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
@@ -32,11 +32,11 @@ class Banner(db.Model):
     link_label = Column(String, nullable=False)
     fa_icon = Column(String, nullable=False, default=DEFAULT_FA_ICON)
 
-    # dates to control visibility
-    begin = Column(Date, nullable=False)
+    # visibility control
+    active = Column(Boolean, nullable=False, default=False)
     end = Column(Date, nullable=False)
 
     @property
     def is_live(self):
-        # date.today is using the server timezone, not UTC or users' one
-        return self.begin <= date.today() <= self.end
+        # date.today is using the server timezone which is UTC
+        return self.active and date.today() <= self.end

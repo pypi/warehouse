@@ -17,17 +17,16 @@ from warehouse.banners.models import Banner
 
 
 @pytest.mark.parametrize(
-    ("begin_diff", "end_diff", "expected"),
+    ("active", "end_diff", "expected"),
     [
-        (-20, -10, False),  # past banner (started 20 days ago, ended 10)
-        (10, 20, False),  # future banner (starts in 10 days, ends in 20)
-        (-5, 5, True),  # live banner (started 5 days ago, ends in 5)
+        (False, -10, False),  # past inactive banner (ended 10 days ago)
+        (True, -10, False),  # past active banner using end date as safeguard
+        (False, 20, False),  # future inactive banner (ends in 20 days)
+        (True, 20, True),  # future active banner (ends in 20 days)
     ],
 )
-def test_banner_is_live_property(db_request, begin_diff, end_diff, expected):
-    today = date.today()
+def test_banner_is_live_property(db_request, active, end_diff, expected):
     banner = Banner()
-
-    banner.begin = today + timedelta(days=begin_diff)
-    banner.end = today + timedelta(days=end_diff)
+    banner.active = active
+    banner.end = date.today() + timedelta(days=end_diff)
     assert banner.is_live is expected
