@@ -90,7 +90,7 @@
     }
 
     &__sponsor-img {
-      height: 150px;
+      height: 200px;
       width: 250px;
       max-width: 100%;
       margin: 0 auto;
@@ -100,6 +100,10 @@
 
       @media screen and (max-width: $mobile) {
         height: 130px;
+      }
+
+      img {
+        padding: 2em;
       }
     }
 
