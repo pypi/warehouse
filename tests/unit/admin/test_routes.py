@@ -180,4 +180,29 @@ def test_includeme():
             "/admin/sponsors/{sponsor_id}/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.banner.list",
+            "/admin/banners/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.create",
+            "/admin/banners/create/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.delete",
+            "/admin/banners/{banner_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.preview",
+            "/admin/banners/{banner_id}/preview/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.banner.edit",
+            "/admin/banners/{banner_id}/",
+            domain=warehouse,
+        ),
     ]

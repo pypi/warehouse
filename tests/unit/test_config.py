@@ -330,6 +330,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".redirects"),
             pretend.call(".routes"),
             pretend.call(".sponsors"),
+            pretend.call(".banners"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
             pretend.call(".sentry"),
