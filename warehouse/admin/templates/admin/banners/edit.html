@@ -121,7 +121,7 @@
 
             <div class="form-group">
               <div class="col-sm-offset-10 col-sm-2">
-                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires staff privileges" if not request.has_permission('psf_staff') }}" {{ "disabled" if not request.has_permission('psf_staff') }}>Submit</button>
               </div>
             </div>
           </form>
