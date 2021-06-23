@@ -22,7 +22,7 @@
 {% block content %}
 
 <div class="box box-primary">
-  {% if request.has_permission('admin') %}
+  {% if request.has_permission('psf_staff') %}
   <div class="box-header with-border">
     <a class="btn btn-primary" href="{{ request.route_path('admin.banner.create') }}"><i class="fa fa-plus"></i> Create Banner</a>
   </div>
