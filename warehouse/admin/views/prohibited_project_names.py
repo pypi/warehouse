@@ -233,3 +233,59 @@ def remove_prohibited_project_names(request):
         redirect_to = request.route_path("admin.prohibited_project_names.list")
 
     return HTTPSeeOther(redirect_to)
+
+
+@view_config(
+    route_name="admin.prohibited_project_names.bulk_add",
+    renderer="admin/prohibited_project_names/bulk.html",
+    permission="admin",
+    uses_session=True,
+    require_methods=False,
+)
+def bulk_add_prohibited_project_names(request):
+    if request.method == "POST":
+        project_names = request.POST.get("projects", "").split()
+        comment = request.POST.get("comment", "")
+
+        for project_name in project_names:
+
+            # Check to make sure the object doesn't already exist.
+            if (
+                request.db.query(literal(True))
+                .filter(
+                    request.db.query(ProhibitedProjectName)
+                    .filter(ProhibitedProjectName.name == project_name)
+                    .exists()
+                )
+                .scalar()
+            ):
+                continue
+
+            # Add our requested prohibition.
+            request.db.add(
+                ProhibitedProjectName(
+                    name=project_name, comment=comment, prohibited_by=request.user
+                )
+            )
+
+            # Go through and delete the project and everything related to it so that
+            # our prohibition actually blocks things and isn't ignored (since the
+            # prohibition only takes effect on new project registration).
+            project = (
+                request.db.query(Project)
+                .filter(
+                    Project.normalized_name == func.normalize_pep426_name(project_name)
+                )
+                .first()
+            )
+            if project is not None:
+                remove_project(project, request, flash=False)
+
+        request.session.flash(
+            f"Prohibited {len(project_names)!r} projects", queue="success"
+        )
+
+        return HTTPSeeOther(
+            request.route_path("admin.prohibited_project_names.bulk_add")
+        )
+    return {}
