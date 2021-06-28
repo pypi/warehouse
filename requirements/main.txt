@@ -949,9 +949,9 @@ six==1.16.0 \
 sqlalchemy-citext==1.8.0 \
     --hash=sha256:a1740e693a9a334e7c8f60ae731083fe75ce6c1605bb9ca6644a6f1f63b15b77
     # via -r requirements/main.in
-sqlalchemy-utils==0.37.6 \
-    --hash=sha256:5b48d8c57d5bedab8633cd94cf0e97b49895270adadfbb9e66e2fa4c4058a6ad \
-    --hash=sha256:be857f494b29a74f048f1f6ab23ed179cb869300acac79bfbe42f5b5fe087c38
+sqlalchemy-utils==0.37.8 \
+    --hash=sha256:a6aaee154f798be4e479af0ceffaa5034d35fcf6f40707c0947d21bde64e05e5 \
+    --hash=sha256:b1bf67d904fed16b16ef1dc07f03e5e93a6b23899f920f6b41c09be45fbb85f2
     # via -r requirements/main.in
 sqlalchemy==1.4.18 \
     --hash=sha256:0653d444d52f2b9a0cba1ea5cd0fc64e616ee3838ee86c1863781b2a8670fc0c \
