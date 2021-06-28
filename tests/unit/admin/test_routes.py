@@ -135,6 +135,11 @@ def test_includeme():
             "/admin/prohibited_project_names/remove/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.prohibited_project_names.release",
+            "/admin/prohibited_project_names/release/",
+            domain=warehouse,
+        ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
         pretend.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),
         pretend.call(

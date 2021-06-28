@@ -16,10 +16,10 @@ import pretend
 import pytest
 
 from packaging.utils import canonicalize_name
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import prohibited_project_names as views
-from warehouse.packaging.models import ProhibitedProjectName, Project
+from warehouse.packaging.models import ProhibitedProjectName, Project, Role
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
@@ -406,3 +406,128 @@ class TestRemoveProhibitedProjectName:
             .filter(ProhibitedProjectName.id == prohibited_project_name.id)
             .count()
         )
+
+
+class TestReleaseProhibitedProjectName:
+    def test_no_prohibited_project_name(self, db_request):
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
+
+        result = views.release_prohibited_project_name(db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call("Provide a project name", queue="error")
+        ]
+
+    def test_prohibited_project_name_does_not_exist(self, db_request):
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
+
+        db_request.POST["project_name"] = "wu"
+
+        result = views.release_prohibited_project_name(db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "'wu' does not exist on prohibited project name list.", queue="error"
+            )
+        ]
+
+    def test_project_exists(self, db_request):
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
+
+        ProhibitedProjectFactory.create(name="tang")
+        ProjectFactory.create(name="tang")
+
+        db_request.POST["project_name"] = "tang"
+        db_request.POST["username"] = "rza"
+
+        result = views.release_prohibited_project_name(db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "'tang' exists and is not on the prohibited project name list.",
+                queue="error",
+            )
+        ]
+
+    def test_no_username(self, db_request):
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
+
+        ProhibitedProjectFactory.create(name="wutang")
+
+        db_request.POST["project_name"] = "wutang"
+
+        result = views.release_prohibited_project_name(db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call("Provide a username", queue="error")
+        ]
+
+    def test_user_does_not_exist(self, db_request):
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
+
+        ProhibitedProjectFactory.create(name="wutang")
+
+        db_request.POST["project_name"] = "wutang"
+        db_request.POST["username"] = "methodman"
+
+        result = views.release_prohibited_project_name(db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call("Unknown username 'methodman'", queue="error")
+        ]
+
+    def test_creates_project_and_assigns_role(self, db_request):
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = (
+            lambda *a, **kw: f"/admin/projects/{kw['project_name']}/"
+        )
+
+        user = UserFactory.create(username="methodman")
+        ProhibitedProjectFactory.create(name="wutangclan")
+
+        db_request.POST["project_name"] = "wutangclan"
+        db_request.POST["username"] = "methodman"
+
+        result = views.release_prohibited_project_name(db_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/admin/projects/wutangclan/"
+        assert db_request.session.flash.calls == [
+            pretend.call("'wutangclan' released to 'methodman'.", queue="success")
+        ]
+
+        assert not (
+            db_request.db.query(ProhibitedProjectName)
+            .filter(ProhibitedProjectName.name == "wutangclan")
+            .count()
+        )
+        project = (
+            db_request.db.query(Project).filter(Project.name == "wutangclan").one()
+        )
+        assert project is not None
+        role = (
+            db_request.db.query(Role)
+            .filter(
+                Role.user == user, Role.project == project, Role.role_name == "Owner"
+            )
+            .first()
+        )
+        assert role is not None
+        all_roles = db_request.db.query(Role).filter(Role.project == project).count()
+        assert all_roles == 1

@@ -134,6 +134,11 @@ def includeme(config):
         "/admin/prohibited_project_names/remove/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.prohibited_project_names.release",
+        "/admin/prohibited_project_names/release/",
+        domain=warehouse,
+    )
 
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
