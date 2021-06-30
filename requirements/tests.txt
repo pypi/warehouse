@@ -83,9 +83,9 @@ factory-boy==3.2.0 \
     --hash=sha256:1d3db4b44b8c8c54cdd8b83ae4bdb9aeb121e464400035f1f03ae0e1eade56a4 \
     --hash=sha256:401cc00ff339a022f84d64a4339503d1689e8263a4478d876e58a3295b155c5b
     # via -r requirements/tests.in
-faker==8.8.0 \
-    --hash=sha256:0129599c0d35e79471d116460b1c51d8c183980f28e14517228be4601cf87192 \
-    --hash=sha256:7be0d9309bde6624e1a6062d0dc37859f95ca883fa047a11db8e5e305b1446a1
+faker==8.9.0 \
+    --hash=sha256:08c08ce6e4d3ae5859e11f6d2e4e7652f513565bb805ebd7b97d6becce9d8b90 \
+    --hash=sha256:28ae027ce17b0d938dc0adcb827b81eea814050acd6d08f9ccacbd43cdf3c600
     # via factory-boy
 fakeredis==1.5.2 \
     --hash=sha256:18fc1808d2ce72169d3f11acdb524a00ef96bd29970c6d34cfeb2edb3fc0c020 \
