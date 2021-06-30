@@ -16,7 +16,8 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.integrations.vulnerabilities import utils
+from warehouse.integrations import vulnerabilities
+from warehouse.integrations.vulnerabilities import osv, utils
 from warehouse.metrics import IMetricsService
 
 
@@ -24,7 +25,7 @@ from warehouse.metrics import IMetricsService
     require_methods=["POST"],
     require_csrf=False,
     renderer="json",
-    route_name="integrations.vulnerabilities.report",
+    route_name="integrations.vulnerabilities.osv.report",
     # If those headers are missing, response will be a 404
     require_headers=["VULN-PUBLIC-KEY-IDENTIFIER", "VULN-PUBLIC-KEY-SIGNATURE"],
     has_translations=False,
@@ -40,7 +41,7 @@ def report_vulnerabilities(request):
     signature = request.headers.get("VULN-PUBLIC-KEY-SIGNATURE")
     metrics = request.find_service(IMetricsService, context=None)
 
-    verifier = utils.VulnerabilityVerifier(
+    verifier = osv.VulnerabilityReportVerifier(
         session=request.http,
         metrics=metrics,
     )
@@ -51,7 +52,7 @@ def report_vulnerabilities(request):
     try:
         vuln_reports = request.json_body
     except json.decoder.JSONDecodeError:
-        metrics.increment("warehouse.vulnerabilties.error.payload.json_error")
+        metrics.increment("warehouse.vulnerabilties.osv.error.payload.json_error")
         return Response(status=400)
 
     try:
@@ -61,7 +62,7 @@ def report_vulnerabilities(request):
             origin="osv",
             metrics=metrics,
         )
-    except utils.InvalidVulnerabilityReportRequest:
+    except vulnerabilities.InvalidVulnerabilityReportRequest:
         return Response(status=400)
     except NoResultFound:
         return Response(status=404)

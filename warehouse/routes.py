@@ -341,8 +341,8 @@ def includeme(config):
     )
 
     config.add_route(
-        "integrations.vulnerabilities.report",
-        "/_/vulnerabilities/report",
+        "integrations.vulnerabilities.osv.report",
+        "/_/vulnerabilities/osv/report",
         domain=warehouse,
     )
 

@@ -18,9 +18,9 @@ from typing import Optional
 
 import requests
 
+from warehouse import integrations
 from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
-from warehouse.integrations import verifier
 from warehouse.macaroons.caveats import InvalidMacaroon
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -114,10 +114,10 @@ class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
 
 
 PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
-PUBLIC_KEYS_CACHE = verifier.PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
+PUBLIC_KEYS_CACHE = integrations.PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
 
 
-class GitHubTokenScanningPayloadVerifier(verifier.PayloadVerifier):
+class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
     """
     Checks payload signature using:
     - `requests` for HTTP calls

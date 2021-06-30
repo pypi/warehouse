@@ -344,8 +344,8 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "integrations.vulnerabilities.report",
-            "/_/vulnerabilities/report",
+            "integrations.vulnerabilities.osv.report",
+            "/_/vulnerabilities/osv/report",
             domain=warehouse,
         ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),

@@ -13,32 +13,32 @@
 import pretend
 import pytest
 
-from warehouse.integrations import verifier
+from warehouse import integrations
 
 
 class TestCache:
     def test_set(self):
-        cache = verifier.PublicKeysCache(cache_time=10)
+        cache = integrations.PublicKeysCache(cache_time=10)
         cache.set(now=1, value="foo")
 
         assert cache.cached_at == 1
         assert cache.cache == "foo"
 
     def test_get_no_cache(self):
-        cache = verifier.PublicKeysCache(cache_time=10)
+        cache = integrations.PublicKeysCache(cache_time=10)
 
-        with pytest.raises(verifier.CacheMiss):
+        with pytest.raises(integrations.CacheMiss):
             cache.get(now=1)
 
     def test_get_old_cache(self):
-        cache = verifier.PublicKeysCache(cache_time=10)
+        cache = integrations.PublicKeysCache(cache_time=10)
         cache.set(now=5, value="foo")
 
-        with pytest.raises(verifier.CacheMiss):
+        with pytest.raises(integrations.CacheMiss):
             cache.get(now=20)
 
     def test_get_valid(self):
-        cache = verifier.PublicKeysCache(cache_time=10)
+        cache = integrations.PublicKeysCache(cache_time=10)
         cache.set(now=5, value="foo")
 
         assert cache.get(now=10) == "foo"
@@ -47,8 +47,8 @@ class TestCache:
 class TestPayloadVerifier:
     def test_unimplemented(self):
         metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
-        cache = verifier.PublicKeysCache(cache_time=10)
-        payload_verifier = verifier.PayloadVerifier(
+        cache = integrations.PublicKeysCache(cache_time=10)
+        payload_verifier = integrations.PayloadVerifier(
             metrics=metrics, public_keys_cache=cache
         )
 

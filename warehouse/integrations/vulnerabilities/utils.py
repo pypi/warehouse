@@ -10,165 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import time
-
-from typing import List
-
-import requests
 
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.integrations import verifier
+from warehouse.integrations import vulnerabilities
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.packaging.models import Project, Release
 
 
-class InvalidVulnerabilityReportRequest(Exception):
-    def __init__(self, message, reason):
-        self.reason = reason
-        super().__init__(message)
-
-
-class OSVPublicKeyAPIError(InvalidVulnerabilityReportRequest):
-    pass
-
-
-class VulnerabilityReportRequest:
-    def __init__(
-        self,
-        project: str,
-        versions: List[str],
-        vulnerability_id: str,
-        advisory_link: str,
-        aliases: List[str],
-    ):
-        self.project = project
-        self.versions = versions
-        self.vulnerability_id = vulnerability_id
-        self.advisory_link = advisory_link
-        self.aliases = aliases
-
-    @classmethod
-    def from_api_request(cls, request):
-
-        if not isinstance(request, dict):
-            raise InvalidVulnerabilityReportRequest(
-                f"Record is not a dict but: {str(request)[:100]}", reason="format"
-            )
-
-        missing_keys = sorted(
-            {"project", "versions", "id", "link", "aliases"} - set(request)
-        )
-        if missing_keys:
-            raise InvalidVulnerabilityReportRequest(
-                f"Record is missing attribute(s): {', '.join(missing_keys)}",
-                reason="format",
-            )
-
-        return cls(
-            request["project"],
-            request["versions"],
-            request["id"],
-            request["link"],
-            request["aliases"],
-        )
-
-
-OSV_PUBLIC_KEYS_URL = "https://osv.dev/public_keys/pypa"
-PUBLIC_KEYS_CACHE_TIME = 60 * 30  # 30 minutes
-PUBLIC_KEYS_CACHE = verifier.PublicKeysCache(cache_time=PUBLIC_KEYS_CACHE_TIME)
-
-
-class VulnerabilityVerifier(verifier.PayloadVerifier):
-    """
-    Checks payload signature using:
-    - `requests` for HTTP calls
-    - `cryptography` for signature verification
-    """
-
-    def __init__(
-        self,
-        session,
-        metrics,
-        public_keys_api_url: str = OSV_PUBLIC_KEYS_URL,
-        public_keys_cache=PUBLIC_KEYS_CACHE,
-    ):
-        super().__init__(metrics=metrics, public_keys_cache=public_keys_cache)
-        self._session = session
-        self._metrics = metrics
-        self._public_key_url = public_keys_api_url
-
-    @property
-    def metric_name(self):
-        return "vulnerabilities.osv"
-
-    def retrieve_public_key_payload(self):
-        try:
-            response = self._session.get(self._public_key_url)
-            response.raise_for_status()
-            return response.json()
-        except requests.HTTPError as exc:
-            raise OSVPublicKeyAPIError(
-                f"Invalid response code {response.status_code}: {response.text[:100]}",
-                f"public_key_api.status.{response.status_code}",
-            ) from exc
-        except json.JSONDecodeError as exc:
-            raise OSVPublicKeyAPIError(
-                f"Non-JSON response received: {response.text[:100]}",
-                "public_key_api.invalid_json",
-            ) from exc
-        except requests.RequestException as exc:
-            raise OSVPublicKeyAPIError(
-                "Could not connect to GitHub", "public_key_api.network_error"
-            ) from exc
-
-    def extract_public_keys(self, pubkey_api_data):
-        if not isinstance(pubkey_api_data, dict):
-            raise OSVPublicKeyAPIError(
-                f"Payload is not a dict but: {str(pubkey_api_data)[:100]}",
-                "public_key_api.format_error",
-            )
-        try:
-            public_keys = pubkey_api_data["public_keys"]
-        except KeyError:
-            raise OSVPublicKeyAPIError(
-                "Payload misses 'public_keys' attribute", "public_key_api.format_error"
-            )
-
-        if not isinstance(public_keys, list):
-            raise OSVPublicKeyAPIError(
-                "Payload 'public_keys' attribute is not a list",
-                "public_key_api.format_error",
-            )
-
-        expected_attributes = {"key", "key_identifier"}
-        result = []
-        for public_key in public_keys:
-
-            if not isinstance(public_key, dict):
-                raise OSVPublicKeyAPIError(
-                    f"Key is not a dict but: {public_key}",
-                    "public_key_api.format_error",
-                )
-
-            attributes = set(public_key)
-            if not expected_attributes <= attributes:
-                raise OSVPublicKeyAPIError(
-                    "Missing attribute in key: "
-                    f"{sorted(expected_attributes - attributes)}",
-                    "public_key_api.format_error",
-                )
-
-            result.append(
-                {"key": public_key["key"], "key_id": public_key["key_identifier"]}
-            )
-        self._public_keys_cache.set(now=time.time(), value=result)
-        return result
-
-
-def _get_project(request, vuln_report: VulnerabilityReportRequest):
+def _get_project(request, vuln_report: vulnerabilities.VulnerabilityReportRequest):
     return (
         request.db.query(Project)
         .filter(
@@ -187,7 +38,9 @@ def _get_release(request, project: Project, version):
     )
 
 
-def _get_vuln_record(request, vuln_report: VulnerabilityReportRequest, origin):
+def _get_vuln_record(
+    request, vuln_report: vulnerabilities.VulnerabilityReportRequest, origin
+):
     return (
         request.db.query(VulnerabilityRecord)
         .filter(VulnerabilityRecord.id == vuln_report.vulnerability_id)
@@ -206,10 +59,10 @@ def _add_vuln_record(request, vuln_record: VulnerabilityRecord):
 
 def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
     try:
-        report = VulnerabilityReportRequest.from_api_request(
+        report = vulnerabilities.VulnerabilityReportRequest.from_api_request(
             request=vulnerability_report
         )
-    except InvalidVulnerabilityReportRequest as exc:
+    except vulnerabilities.InvalidVulnerabilityReportRequest as exc:
         metrics.increment(f"warehouse.vulnerabilities.{origin}.error.{exc.reason}")
         raise
 
@@ -270,7 +123,7 @@ def analyze_vulnerability(request, vulnerability_report, origin, metrics):
             metrics=metrics,
         )
         metrics.increment(f"warehouse.vulnerabilities.{origin}.processed")
-    except (InvalidVulnerabilityReportRequest, NoResultFound):
+    except (vulnerabilities.InvalidVulnerabilityReportRequest, NoResultFound):
         raise
     except Exception:
         metrics.increment(f"warehouse.vulnerabilities.{origin}.error.unknown")
@@ -282,7 +135,7 @@ def analyze_vulnerabilities(request, vulnerability_reports, origin, metrics):
 
     if not isinstance(vulnerability_reports, list):
         metrics.increment(f"warehouse.vulnerabilities.{origin}.error.format")
-        raise InvalidVulnerabilityReportRequest(
+        raise vulnerabilities.InvalidVulnerabilityReportRequest(
             "Invalid format: payload is not a list", "format"
         )
 

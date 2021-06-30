@@ -17,7 +17,8 @@ import pretend
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.integrations.vulnerabilities import utils, views
+from warehouse.integrations.vulnerabilities import osv, utils
+from warehouse.integrations.vulnerabilities.osv import views
 
 
 class TestReportVulnerabilities:
@@ -57,7 +58,7 @@ class TestReportVulnerabilities:
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "VulnerabilityVerifier", verifier_cls)
+        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
 
         analyze_vulnerabilities = pretend.call_recorder(lambda **k: None)
         monkeypatch.setattr(utils, "analyze_vulnerabilities", analyze_vulnerabilities)
@@ -126,7 +127,7 @@ class TestReportVulnerabilities:
         verify = pretend.call_recorder(lambda **k: False)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "VulnerabilityVerifier", verifier_cls)
+        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
 
         response = views.report_vulnerabilities(pyramid_request)
 
@@ -137,7 +138,7 @@ class TestReportVulnerabilities:
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "VulnerabilityVerifier", verifier_cls)
+        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
 
         metrics = collections.Counter()
 
@@ -166,7 +167,7 @@ class TestReportVulnerabilities:
         response = views.report_vulnerabilities(request)
 
         assert response.status_int == 400
-        assert metrics == {"warehouse.vulnerabilties.error.payload.json_error": 1}
+        assert metrics == {"warehouse.vulnerabilties.osv.error.payload.json_error": 1}
 
     def test_report_vulnerabilities_verify_invalid_vuln(
         self, monkeypatch, pyramid_request
@@ -185,7 +186,7 @@ class TestReportVulnerabilities:
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "VulnerabilityVerifier", verifier_cls)
+        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
 
         response = views.report_vulnerabilities(pyramid_request)
 
@@ -196,7 +197,7 @@ class TestReportVulnerabilities:
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "VulnerabilityVerifier", verifier_cls)
+        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
 
         def raise_not_found():
             raise NoResultFound()
