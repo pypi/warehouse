@@ -442,6 +442,9 @@ def configure(settings=None):
     # Allow the sponsors app to list sponsors
     config.include(".sponsors")
 
+    # Allow the banners app to list banners
+    config.include(".banners")
+
     # Include our admin application
     config.include(".admin")
 

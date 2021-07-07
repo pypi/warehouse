@@ -128,6 +128,11 @@
         </li>
         {% endif %}
         <li>
+          <a href="{{ request.route_path('admin.banner.list') }}">
+            <i class="fa fa-quote-right"></i> <span>Banners</span>
+          </a>
+        </li>
+        <li>
           <a href="{{ request.route_path('admin.sponsor.list') }}">
             <i class="fa fa-ad"></i> <span>Sponsors</span>
           </a>

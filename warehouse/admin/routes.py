@@ -125,8 +125,18 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.prohibited_project_names.bulk_add",
+        "/admin/prohibited_project_names/bulk/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.prohibited_project_names.remove",
         "/admin/prohibited_project_names/remove/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.prohibited_project_names.release",
+        "/admin/prohibited_project_names/release/",
         domain=warehouse,
     )
 
@@ -174,4 +184,17 @@ def includeme(config):
     )
     config.add_route(
         "admin.sponsor.edit", "/admin/sponsors/{sponsor_id}/", domain=warehouse
+    )
+
+    # Banner related Admin pages
+    config.add_route("admin.banner.list", "/admin/banners/", domain=warehouse)
+    config.add_route("admin.banner.create", "/admin/banners/create/", domain=warehouse)
+    config.add_route(
+        "admin.banner.delete", "/admin/banners/{banner_id}/delete/", domain=warehouse
+    )
+    config.add_route(
+        "admin.banner.preview", "/admin/banners/{banner_id}/preview/", domain=warehouse
+    )
+    config.add_route(
+        "admin.banner.edit", "/admin/banners/{banner_id}/", domain=warehouse
     )
