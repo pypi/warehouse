@@ -111,6 +111,16 @@ def project_detail(project, request):
         )
     ]
     maintainers = sorted(maintainers, key=lambda x: (x.role_name, x.user.username))
+    package_roles = [
+        role
+        for role in (
+            request.db.query(Role)
+            .join(User, Project)
+            .filter(Project.normalized_name == project)
+            .order_by(Role.role_name.desc(), User.username)
+            .all()
+        )
+    ]
     journal = [
         entry
         for entry in (
@@ -126,6 +136,7 @@ def project_detail(project, request):
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
+        "package_roles": package_roles,
         "journal": journal,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,

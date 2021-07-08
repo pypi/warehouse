@@ -99,6 +99,7 @@ class TestProjectDetail:
             "project": project,
             "releases": [],
             "maintainers": roles,
+            "package_roles": [],
             "journal": journals[:30],
             "ONE_MB": views.ONE_MB,
             "MAX_FILESIZE": views.MAX_FILESIZE,
