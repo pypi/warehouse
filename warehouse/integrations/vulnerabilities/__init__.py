@@ -54,11 +54,11 @@ class VulnerabilityReportRequest:
             )
 
         return cls(
-            request["project"],
-            request["versions"],
-            request["id"],
-            request["link"],
-            request["aliases"],
+            project=request["project"],
+            versions=request["versions"],
+            vulnerability_id=request["id"],
+            advisory_link=request["link"],
+            aliases=request["aliases"],
         )
 
 
