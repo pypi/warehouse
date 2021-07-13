@@ -76,6 +76,9 @@ class User(SitemapMixin, db.Model):
     is_superuser = Column(Boolean, nullable=False, server_default=sql.false())
     is_moderator = Column(Boolean, nullable=False, server_default=sql.false())
     is_psf_staff = Column(Boolean, nullable=False, server_default=sql.false())
+    prohibit_password_reset = Column(
+        Boolean, nullable=False, server_default=sql.false()
+    )
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
     disabled_for = Column(
@@ -161,6 +164,17 @@ class User(SitemapMixin, db.Model):
             .filter((UserEvent.user_id == self.id) & (UserEvent.time >= last_ninety))
             .order_by(UserEvent.time.desc())
             .all()
+        )
+
+    @property
+    def password_reset_prohibited(self):
+        return any(
+            [
+                self.is_superuser,
+                self.is_moderator,
+                self.is_psf_staff,
+                self.prohibit_password_reset,
+            ]
         )
 
 

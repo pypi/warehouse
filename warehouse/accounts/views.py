@@ -541,12 +541,30 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     form = _form_class(request.POST, user_service=user_service)
     if request.method == "POST" and form.validate():
         user = user_service.get_user_by_username(form.username_or_email.data)
+
         email = None
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
             email = first(
                 user.emails, key=lambda e: e.email == form.username_or_email.data
             )
+
+        if user.password_reset_prohibited:
+            user_service.record_event(
+                user.id,
+                tag="account:password:reset:attempt",
+                ip_address=request.remote_addr,
+            )
+            request.session.flash(
+                request._(
+                    (
+                        "Automated password reset prohibited for your user. "
+                        "Contact a PyPI administrator for assistance"
+                    ),
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(request.route_path("accounts.request-password-reset"))
 
         send_password_reset_email(request, (user, email))
         user_service.record_event(
