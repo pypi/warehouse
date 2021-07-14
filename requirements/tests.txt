@@ -21,9 +21,9 @@ certifi==2021.5.30 \
     --hash=sha256:2bbf76fd432960138b3ef6dda3dde0544f27cbf8546c458e60baf371917ba9ee \
     --hash=sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8
     # via requests
-charset-normalizer==2.0.1 \
-    --hash=sha256:ad0da505736fc7e716a8da15bf19a985db21ac6415c26b34d2fafd3beb3d927e \
-    --hash=sha256:b68b38179052975093d71c1b5361bf64afd80484697c1f27056e50593e695ceb
+charset-normalizer==2.0.2 \
+    --hash=sha256:3c502a35807c9df35697b0f44b1d65008f83071ff29c69677c7c22573bc5a45a \
+    --hash=sha256:951567c2f7433a70ab63f1be67e5ee05d3925d9423306ecb71a3b272757bcc95
     # via requests
 coverage==5.5 \
     --hash=sha256:004d1880bed2d97151facef49f08e255a20ceb6f9432df75f4eef018fdd5a78c \
