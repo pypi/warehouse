@@ -21,12 +21,13 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
     monkeypatch.setattr(admin, "ManifestCacheBuster", mock_manifest_cache_buster)
+    _sponsorlogos_backend = "warehouse.admin.services.LocalSponsorLogoStorage"
     config = pretend.stub(
         get_settings=lambda: {},
         registry=pretend.stub(
             settings={
                 "pyramid.reload_assets": False,
-                "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
+                "sponsorlogos.backend": _sponsorlogos_backend,
             }
         ),
         add_cache_buster=pretend.call_recorder(lambda *a, **kw: None),
