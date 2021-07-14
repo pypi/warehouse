@@ -20,15 +20,11 @@ class ISponsorLogoStorage(Interface):
         created for, passing a name for settings.
         """
 
-    def get(path):
-        """
-        Return a file like object that can be read to access the file located
-        at the given path.
-        """
-
     def store(path, file_path, *, meta=None):
         """
         Save the file located at file_path to the file storage at the location
         specified by path. An additional meta keyword argument may contain
         extra information that an implementation may or may not store.
+
+        Returns public URL for the stored file.
         """
