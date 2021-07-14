@@ -167,8 +167,8 @@ class User(SitemapMixin, db.Model):
         )
 
     @property
-    def password_reset_prohibited(self):
-        return any(
+    def can_reset_password(self):
+        return not any(
             [
                 self.is_superuser,
                 self.is_moderator,

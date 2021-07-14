@@ -1327,7 +1327,7 @@ class TestRequestPasswordReset:
     ):
 
         stub_user = pretend.stub(
-            id=pretend.stub(), username=pretend.stub(), password_reset_prohibited=False
+            id=pretend.stub(), username=pretend.stub(), can_reset_password=True
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
@@ -1385,7 +1385,7 @@ class TestRequestPasswordReset:
             id=pretend.stub(),
             email="foo@example.com",
             emails=[pretend.stub(email="foo@example.com")],
-            password_reset_prohibited=False,
+            can_reset_password=True,
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
@@ -1448,7 +1448,7 @@ class TestRequestPasswordReset:
                 pretend.stub(email="foo@example.com"),
                 pretend.stub(email="other@example.com"),
             ],
-            password_reset_prohibited=False,
+            can_reset_password=True,
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
@@ -1506,7 +1506,7 @@ class TestRequestPasswordReset:
         self, monkeypatch, pyramid_request, pyramid_config, user_service
     ):
         stub_user = pretend.stub(
-            id=pretend.stub(), username=pretend.stub(), password_reset_prohibited=True
+            id=pretend.stub(), username=pretend.stub(), can_reset_password=False
         )
         pyramid_request.method = "POST"
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
