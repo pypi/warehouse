@@ -17,6 +17,7 @@ import wtforms
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
+from slugify import slugify
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
@@ -102,20 +103,22 @@ def sponsor_list(request):
 
 
 def _handle_images(request, form):
-    if request.POST.get("white_logo", b"") != b"":
+    sponsor_name = slugify(form.name.data)
+    if request.POST.get("white_logo") not in [None, b""]:
         with tempfile.NamedTemporaryFile() as fp:
             fp.write(request.POST["white_logo"].file.read())
             storage = request.find_service(ISponsorLogoStorage)
             extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
-            filename = f"{sponsor.id}-white-logo{extension}"
+            filename = f"{sponsor_name}-white-logo{extension}"
             form.white_logo_url.data = storage.store(filename, fp.name)
-    if request.POST.get("color_logo", b"") != b"":
+    if request.POST.get("color_logo") not in [None, b""]:
         with tempfile.NamedTemporaryFile() as fp:
             storage = request.find_service(ISponsorLogoStorage)
             fp.write(request.POST["color_logo"].file.read())
-            extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
-            filename = f"{sponsor.id}-color-logo{extension}"
+            extension = os.path.splitext(request.POST["color_logo"].filename)[-1]
+            filename = f"{sponsor_name}-color-logo{extension}"
             form.color_logo_url.data = storage.store(filename, fp.name)
+
 
 @view_config(
     route_name="admin.sponsor.edit",
@@ -178,6 +181,8 @@ def create_sponsor(request):
     if request.method == "POST":
         _handle_images(request, form)
         if form.validate():
+            del form.color_logo
+            del form.white_logo
             sponsor = Sponsor(**form.data)
             request.db.add(sponsor)
             request.session.flash(

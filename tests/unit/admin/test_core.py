@@ -23,7 +23,12 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
     monkeypatch.setattr(admin, "ManifestCacheBuster", mock_manifest_cache_buster)
     config = pretend.stub(
         get_settings=lambda: {},
-        registry=pretend.stub(settings={"pyramid.reload_assets": False, "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage"}),
+        registry=pretend.stub(
+            settings={
+                "pyramid.reload_assets": False,
+                "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
+            }
+        ),
         add_cache_buster=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
@@ -77,6 +82,10 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
         ),
     ]
 
-    assert config.maybe_dotted.calls == [pretend.call('warehouse.admin.services.LocalSponsorLogoStorage')]
-    assert config.register_service_factory.calls == [pretend.call(storage_class.create_service, admin.interfaces.ISponsorLogoStorage)]
+    assert config.maybe_dotted.calls == [
+        pretend.call("warehouse.admin.services.LocalSponsorLogoStorage")
+    ]
+    assert config.register_service_factory.calls == [
+        pretend.call(storage_class.create_service, admin.interfaces.ISponsorLogoStorage)
+    ]
     assert storage_class.create_service.calls == []

@@ -9,8 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import io
 import uuid
 
+from cgi import FieldStorage
 from unittest import TestCase
 
 import pretend
@@ -20,10 +22,25 @@ from pyramid.httpexceptions import HTTPNotFound
 from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
+from warehouse.admin.interfaces import ISponsorLogoStorage
 from warehouse.admin.views import sponsors as views
 from warehouse.sponsors.models import Sponsor
 
 from ....common.db.sponsors import SponsorFactory
+
+COLOR_LOGO_FILE = FieldStorage()
+COLOR_LOGO_FILE.filename = "colorlogo.png"
+COLOR_LOGO_FILE.file = io.BytesIO(
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+COLOR_LOGO_FILE.type = "image/png"
+
+WHITE_LOGO_FILE = FieldStorage()
+WHITE_LOGO_FILE.filename = "whitelogo.png"
+WHITE_LOGO_FILE.file = io.BytesIO(
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+WHITE_LOGO_FILE.type = "image/png"
 
 
 class TestSponsorList:
@@ -59,12 +76,22 @@ class TestCreateSponsor:
         db_request.method = "POST"
         db_request.POST["name"] = "Sponsor"
         db_request.POST["link_url"] = "https://newsponsor.com"
-        db_request.POST["color_logo_url"] = "https://newsponsor.com/logo.jpg"
+        db_request.POST["color_logo"] = COLOR_LOGO_FILE
         db_request.POST = MultiDict(db_request.POST)
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_url = pretend.call_recorder(lambda r: "/admin/sponsors/")
+        storage_service = pretend.stub(
+            store=pretend.call_recorder(
+                lambda path, file_path: f"http://files/sponsorlogos/{path}"
+            )
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                ISponsorLogoStorage: storage_service,
+            }.get(svc)
+        )
 
         resp = views.create_sponsor(db_request)
 
@@ -214,7 +241,7 @@ class TestSponsorForm(TestCase):
         # don't validate without logo
         form = views.SponsorForm(data=self.data)
         assert form.validate() is False
-        assert "white_logo_url" in form.errors
+        assert "white_logo" in form.errors
 
         self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
         form = views.SponsorForm(data=self.data)
@@ -226,7 +253,7 @@ class TestSponsorForm(TestCase):
         # don't validate without logo
         form = views.SponsorForm(data=self.data)
         assert form.validate() is False
-        assert "white_logo_url" in form.errors
+        assert "white_logo" in form.errors
 
         self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
         form = views.SponsorForm(data=self.data)
