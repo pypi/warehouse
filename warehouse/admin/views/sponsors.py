@@ -144,14 +144,10 @@ def edit_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None, sponsor)
 
     if request.method == "POST":
-        _color_logo_url = _upload_image("color_logo", request, form)
-        _white_logo_url = _upload_image("white_logo", request, form)
-        form.color_logo_url.data = (
-            _color_logo_url if _color_logo_url else sponsor.color_logo_url
-        )
-        form.white_logo_url.data = (
-            _white_logo_url if _white_logo_url else sponsor.white_logo_url
-        )
+        if _color_logo_url := _upload_image("color_logo", request, form):
+            form.color_logo_url.data = _color_logo_url
+        if _white_logo_url := _upload_image("white_logo", request, form):
+            form.white_logo_url.data = _white_logo_url
         if form.validate():
             form.populate_obj(sponsor)
             request.session.flash("Sponsor updated", queue="success")
