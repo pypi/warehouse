@@ -942,7 +942,6 @@ six==1.16.0 \
     #   readme-renderer
     #   requests-aws4auth
     #   sqlalchemy-utils
-    #   tenacity
     #   webauthn
 sqlalchemy-citext==1.8.0 \
     --hash=sha256:a1740e693a9a334e7c8f60ae731083fe75ce6c1605bb9ca6644a6f1f63b15b77
@@ -993,9 +992,9 @@ structlog==21.1.0 \
     --hash=sha256:62f06fc0ee32fb8580f0715eea66cb87271eb7efb0eaf9af6b639cba8981de47 \
     --hash=sha256:d9d2d890532e8db83c6977a2a676fb1889922ff0c26ad4dc0ecac26f9fafbc57
     # via -r requirements/main.in
-tenacity==7.0.0 \
-    --hash=sha256:5bd16ef5d3b985647fe28dfa6f695d343aa26479a04e8792b9d3c8f49e361ae1 \
-    --hash=sha256:a0ce48587271515db7d3a5e700df9ae69cce98c4b57c23a4886da15243603dd8
+tenacity==8.0.1 \
+    --hash=sha256:43242a20e3e73291a28bcbcacfd6e000b02d3857a9a9fff56b297a27afdc932f \
+    --hash=sha256:f78f4ea81b0fabc06728c11dc2a8c01277bfc5181b321a4770471902e3eb844a
     # via celery-redbeat
 text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
