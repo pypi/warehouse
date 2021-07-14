@@ -179,6 +179,7 @@ def app_config(database):
         "elasticsearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+        "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "malware_check.backend": (
             "warehouse.malware.services.PrinterMalwareCheckService"
