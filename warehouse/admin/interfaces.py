@@ -20,7 +20,7 @@ class ISponsorLogoStorage(Interface):
         created for, passing a name for settings.
         """
 
-    def store(path, file_path, *, meta=None):
+    def store(path, file_path, content_type=None, *, meta=None):
         """
         Save the file located at file_path to the file storage at the location
         specified by path. An additional meta keyword argument may contain

@@ -80,6 +80,7 @@ class TestGCSSponsorLogoStorage:
             upload_from_filename=pretend.call_recorder(lambda file_path: None),
             make_public=pretend.call_recorder(lambda: None),
             public_url="http://files/sponsorlogos/thelogo.png",
+            content_type=None,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSSponsorLogoStorage(bucket)
@@ -99,6 +100,7 @@ class TestGCSSponsorLogoStorage:
             upload_from_filename=pretend.call_recorder(lambda file_path: None),
             make_public=pretend.call_recorder(lambda: None),
             public_url="http://files/sponsorlogos/thelogo.png",
+            content_type=pretend.call_recorder(lambda x: None),
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSSponsorLogoStorage(bucket, prefix="sponsorlogos")
@@ -119,12 +121,14 @@ class TestGCSSponsorLogoStorage:
             make_public=pretend.call_recorder(lambda: None),
             public_url="http://files/sponsorlogos/thelogo.png",
             patch=pretend.call_recorder(lambda: None),
+            content_type=None,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSSponsorLogoStorage(bucket)
         meta = {"foo": "bar"}
-        result = storage.store("foo/bar.txt", filename, meta=meta)
+        result = storage.store("foo/bar.txt", filename, "image/png", meta=meta)
 
         assert result == "http://files/sponsorlogos/thelogo.png"
         assert blob.make_public.calls == [pretend.call()]
+        assert blob.content_type == "image/png"
         assert blob.metadata == meta
