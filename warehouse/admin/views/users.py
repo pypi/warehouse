@@ -91,6 +91,8 @@ class UserForm(forms.Form):
     is_moderator = wtforms.fields.BooleanField()
     is_psf_staff = wtforms.fields.BooleanField()
 
+    prohibit_password_reset = wtforms.fields.BooleanField()
+
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
 
 
