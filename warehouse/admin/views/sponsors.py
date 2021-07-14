@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import os
+import secrets
 import tempfile
 
 import wtforms
@@ -102,22 +103,17 @@ def sponsor_list(request):
     return {"sponsors": sponsors}
 
 
-def _handle_images(request, form):
+def _upload_image(image_name, request, form):
     sponsor_name = slugify(form.name.data)
-    if request.POST.get("white_logo") not in [None, b""]:
+    if request.POST.get(image_name) not in [None, b""]:
         with tempfile.NamedTemporaryFile() as fp:
-            fp.write(request.POST["white_logo"].file.read())
+            fp.write(request.POST[image_name].file.read())
             storage = request.find_service(ISponsorLogoStorage)
-            extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
-            filename = f"{sponsor_name}-white-logo{extension}"
-            form.white_logo_url.data = storage.store(filename, fp.name)
-    if request.POST.get("color_logo") not in [None, b""]:
-        with tempfile.NamedTemporaryFile() as fp:
-            storage = request.find_service(ISponsorLogoStorage)
-            fp.write(request.POST["color_logo"].file.read())
-            extension = os.path.splitext(request.POST["color_logo"].filename)[-1]
-            filename = f"{sponsor_name}-color-logo{extension}"
-            form.color_logo_url.data = storage.store(filename, fp.name)
+            extension = os.path.splitext(request.POST[image_name].filename)[-1]
+            fingerprint = secrets.token_urlsafe(6)
+            filename = f"{sponsor_name}-{slugify(image_name)}-{fingerprint}{extension}"
+            return storage.store(filename, fp.name)
+    return ""
 
 
 @view_config(
@@ -148,7 +144,10 @@ def edit_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None, sponsor)
 
     if request.method == "POST":
-        _handle_images(request, form)
+        if _color_logo_url := _upload_image("color_logo", request, form):
+            form.color_logo_url.data = _color_logo_url
+        if _white_logo_url := _upload_image("white_logo", request, form):
+            form.white_logo_url.data = _white_logo_url
         if form.validate():
             form.populate_obj(sponsor)
             request.session.flash("Sponsor updated", queue="success")
@@ -179,7 +178,8 @@ def create_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None)
 
     if request.method == "POST":
-        _handle_images(request, form)
+        form.color_logo_url.data = _upload_image("color_logo", request, form)
+        form.white_logo_url.data = _upload_image("white_logo", request, form)
         if form.validate():
             del form.color_logo
             del form.white_logo

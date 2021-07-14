@@ -81,6 +81,8 @@ class GCSSponsorLogoStorage(GenericSponsorLogoStorage):
         )
     )
     def store(self, path, file_path, *, meta=None):
+        if self.prefix is not None:
+            path = os.path.join(self.prefix, path)
         blob = self.bucket.blob(path)
         if meta is not None:
             blob.metadata = meta

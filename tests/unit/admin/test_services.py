@@ -90,6 +90,25 @@ class TestGCSSponsorLogoStorage:
         assert blob.make_public.calls == [pretend.call()]
         assert blob.upload_from_filename.calls == [pretend.call(filename)]
 
+    def test_stores_file_with_prefix(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            make_public=pretend.call_recorder(lambda: None),
+            public_url="http://files/sponsorlogos/thelogo.png",
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSSponsorLogoStorage(bucket, prefix="sponsorlogos")
+        result = storage.store("foo/bar.txt", filename)
+
+        assert result == "http://files/sponsorlogos/thelogo.png"
+        assert bucket.blob.calls == [pretend.call("sponsorlogos/foo/bar.txt")]
+        assert blob.make_public.calls == [pretend.call()]
+        assert blob.upload_from_filename.calls == [pretend.call(filename)]
+
     def test_stores_metadata(self, tmpdir):
         filename = str(tmpdir.join("testfile.txt"))
         with open(filename, "wb") as fp:

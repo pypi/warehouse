@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import io
+import secrets
 import uuid
 
 from cgi import FieldStorage
@@ -129,12 +130,13 @@ class TestEditSponsor:
         with pytest.raises(HTTPNotFound):
             views.edit_sponsor(db_request)
 
-    def test_update_sponsor(self, db_request):
+    def test_update_sponsor(self, monkeypatch, db_request):
         sponsor = SponsorFactory.create()
         form = views.SponsorForm(MultiDict({}), sponsor)
         data = form.data.copy()
         data["name"] = "New Name"
         data["white_logo"] = WHITE_LOGO_FILE
+        data["color_logo"] = COLOR_LOGO_FILE
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
         db_request.POST = MultiDict(data)
@@ -155,7 +157,10 @@ class TestEditSponsor:
             }.get(svc)
         )
 
+        monkeypatch.setattr(secrets, "token_urlsafe", lambda x: "deadbeef")
+
         resp = views.edit_sponsor(db_request)
+
         db_sponsor = db_request.db.query(Sponsor).filter(Sponsor.id == sponsor.id).one()
 
         assert resp.status_code == 303
@@ -163,7 +168,11 @@ class TestEditSponsor:
         assert db_sponsor.name == "New Name"
         assert (
             db_sponsor.white_logo_url
-            == "http://files/sponsorlogos/new-name-white-logo.png"
+            == "http://files/sponsorlogos/new-name-white-logo-deadbeef.png"
+        )
+        assert (
+            db_sponsor.color_logo_url
+            == "http://files/sponsorlogos/new-name-color-logo-deadbeef.png"
         )
         assert db_request.session.flash.calls == [
             pretend.call("Sponsor updated", queue="success")
