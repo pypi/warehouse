@@ -93,7 +93,7 @@ class TestCreateSponsor:
         db_request.route_url = pretend.call_recorder(lambda r: "/admin/sponsors/")
         storage_service = pretend.stub(
             store=pretend.call_recorder(
-                lambda path, file_path, content_type: f"http://files/sponsorlogos/{path}"
+                lambda path, file_path, ct: f"http://files/sponsorlogos/{path}"
             )
         )
         db_request.find_service = pretend.call_recorder(
@@ -148,7 +148,7 @@ class TestEditSponsor:
         )
         storage_service = pretend.stub(
             store=pretend.call_recorder(
-                lambda path, file_path, content_type: f"http://files/sponsorlogos/{path}"
+                lambda path, file_path, ct: f"http://files/sponsorlogos/{path}"
             )
         )
         db_request.find_service = pretend.call_recorder(
