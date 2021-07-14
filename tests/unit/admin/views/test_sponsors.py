@@ -136,6 +136,7 @@ class TestEditSponsor:
         data = form.data.copy()
         data["name"] = "New Name"
         data["white_logo"] = WHITE_LOGO_FILE
+        data["color_logo"] = COLOR_LOGO_FILE
         db_request.matchdict["sponsor_id"] = sponsor.id
         db_request.method = "POST"
         db_request.POST = MultiDict(data)
@@ -168,6 +169,10 @@ class TestEditSponsor:
         assert (
             db_sponsor.white_logo_url
             == "http://files/sponsorlogos/new-name-white-logo-deadbeef.png"
+        )
+        assert (
+            db_sponsor.color_logo_url
+            == "http://files/sponsorlogos/new-name-color-logo-deadbeef.png"
         )
         assert db_request.session.flash.calls == [
             pretend.call("Sponsor updated", queue="success")
