@@ -101,7 +101,7 @@ class TestGCSSponsorLogoStorage:
             public_url="http://files/sponsorlogos/thelogo.png",
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
-        storage = GCSSponsorLogoStorage(bucket, prefix='sponsorlogos')
+        storage = GCSSponsorLogoStorage(bucket, prefix="sponsorlogos")
         result = storage.store("foo/bar.txt", filename)
 
         assert result == "http://files/sponsorlogos/thelogo.png"
