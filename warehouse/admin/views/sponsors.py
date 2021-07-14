@@ -10,12 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import tempfile
+
 import wtforms
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
+from warehouse.admin.interfaces import ISponsorLogoStorage
 from warehouse.forms import Form, URIValidator
 from warehouse.sponsors.models import Sponsor
 
@@ -37,11 +41,13 @@ class SponsorForm(Form):
             URIValidator(),
         ]
     )
+    color_logo = wtforms.fields.FileField()
     color_logo_url = wtforms.fields.StringField(
         validators=[
             URIValidator(),
         ]
     )
+    white_logo = wtforms.fields.FileField()
     white_logo_url = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Optional(),
@@ -64,8 +70,8 @@ class SponsorForm(Form):
 
         require_white_logo = self.footer.data or self.infra_sponsor.data
         if require_white_logo and not self.white_logo_url.data:
-            self.white_logo_url.errors.append(
-                "Must have white logo if is a footer sponsor."
+            self.white_logo.errors.append(
+                "Must upload white logo if is a footer sponsor."
             )
             return False
 
@@ -122,10 +128,25 @@ def edit_sponsor(request):
 
     form = SponsorForm(request.POST if request.method == "POST" else None, sponsor)
 
-    if request.method == "POST" and form.validate():
-        form.populate_obj(sponsor)
-        request.session.flash("Sponsor updated", queue="success")
-        return HTTPSeeOther(location=request.current_route_path())
+    if request.method == "POST":
+        if request.POST.get("white_logo") != b"":
+            with tempfile.NamedTemporaryFile() as fp:
+                fp.write(request.POST["white_logo"].file.read())
+                storage = request.find_service(ISponsorLogoStorage)
+                extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
+                filename = f"{sponsor.id}-white-logo{extension}"
+                form.white_logo_url.data = storage.store(filename, fp.name)
+        if request.POST.get("color_logo") != b"":
+            with tempfile.NamedTemporaryFile() as fp:
+                storage = request.find_service(ISponsorLogoStorage)
+                fp.write(request.POST["color_logo"].file.read())
+                extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
+                filename = f"{sponsor.id}-color-logo{extension}"
+                form.color_logo_url.data = storage.store(filename, fp.name)
+        if form.validate():
+            form.populate_obj(sponsor)
+            request.session.flash("Sponsor updated", queue="success")
+            return HTTPSeeOther(location=request.current_route_path())
 
     return {"sponsor": sponsor, "form": form}
 

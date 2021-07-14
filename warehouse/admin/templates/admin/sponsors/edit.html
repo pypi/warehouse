@@ -95,7 +95,7 @@
           {% endif %}
         </div>
         <div class="box-body">
-          <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
+          <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}" enctype="multipart/form-data">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
             {% if form.errors.__all__ %}
@@ -110,8 +110,20 @@
             {% endif %}
             {{ render_field("Service", form.service, "sponsor-service", class="form-control", placeholder="Service") }}
             {{ render_field("Landing URL", form.link_url, "sponsor-link-url", class="form-control", placeholder="Landing URL") }}
-            {{ render_field("Color logo", form.color_logo_url, "sponsor-color-logo-url", class="form-control", placeholder="Color logo") }}
-            {{ render_field("White logo", form.white_logo_url, "sponsor-white-logo-url", class="form-control", placeholder="White logo") }}
+            {{ render_field("Color logo Upload", form.color_logo, "sponsor-color-logo-upload", class="form-control") }}
+            <div class="form-group">
+              <label for="color-logo-url" class="col-sm-2 control-label">Color Logo URL</label>
+              <div class="col-sm-10">
+                <pre>{{ sponsor.color_logo_url }}</pre>
+              </div>
+            </div>
+            {{ render_field("White logo Upload", form.white_logo, "sponsor-white-logo-upload", class="form-control") }}
+            <div class="form-group">
+              <label for="color-logo-url" class="col-sm-2 control-label">White Logo URL</label>
+              <div class="col-sm-10">
+                <pre>{{ sponsor.white_logo_url }}</pre>
+              </div>
+            </div>
             {{ render_field("Activity (as Markdown text)", form.activity_markdown, "sponsor-activity-markdown", placeholder="Activity text as markdown format") }}
 
             {{ render_field("Footer", form.footer, "sponsor-footer") }}
