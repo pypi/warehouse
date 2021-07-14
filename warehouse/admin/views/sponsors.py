@@ -101,6 +101,22 @@ def sponsor_list(request):
     return {"sponsors": sponsors}
 
 
+def _handle_images(request, form):
+    if request.POST.get("white_logo", b"") != b"":
+        with tempfile.NamedTemporaryFile() as fp:
+            fp.write(request.POST["white_logo"].file.read())
+            storage = request.find_service(ISponsorLogoStorage)
+            extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
+            filename = f"{sponsor.id}-white-logo{extension}"
+            form.white_logo_url.data = storage.store(filename, fp.name)
+    if request.POST.get("color_logo", b"") != b"":
+        with tempfile.NamedTemporaryFile() as fp:
+            storage = request.find_service(ISponsorLogoStorage)
+            fp.write(request.POST["color_logo"].file.read())
+            extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
+            filename = f"{sponsor.id}-color-logo{extension}"
+            form.color_logo_url.data = storage.store(filename, fp.name)
+
 @view_config(
     route_name="admin.sponsor.edit",
     renderer="admin/sponsors/edit.html",
@@ -129,20 +145,7 @@ def edit_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None, sponsor)
 
     if request.method == "POST":
-        if request.POST.get("white_logo") != b"":
-            with tempfile.NamedTemporaryFile() as fp:
-                fp.write(request.POST["white_logo"].file.read())
-                storage = request.find_service(ISponsorLogoStorage)
-                extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
-                filename = f"{sponsor.id}-white-logo{extension}"
-                form.white_logo_url.data = storage.store(filename, fp.name)
-        if request.POST.get("color_logo") != b"":
-            with tempfile.NamedTemporaryFile() as fp:
-                storage = request.find_service(ISponsorLogoStorage)
-                fp.write(request.POST["color_logo"].file.read())
-                extension = os.path.splitext(request.POST["white_logo"].filename)[-1]
-                filename = f"{sponsor.id}-color-logo{extension}"
-                form.color_logo_url.data = storage.store(filename, fp.name)
+        _handle_images(request, form)
         if form.validate():
             form.populate_obj(sponsor)
             request.session.flash("Sponsor updated", queue="success")
@@ -172,15 +175,17 @@ def edit_sponsor(request):
 def create_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None)
 
-    if request.method == "POST" and form.validate():
-        sponsor = Sponsor(**form.data)
-        request.db.add(sponsor)
-        request.session.flash(
-            f"Added new sponsor '{sponsor.name}'",
-            queue="success",
-        )
-        redirect_url = request.route_url("admin.sponsor.list")
-        return HTTPSeeOther(location=redirect_url)
+    if request.method == "POST":
+        _handle_images(request, form)
+        if form.validate():
+            sponsor = Sponsor(**form.data)
+            request.db.add(sponsor)
+            request.session.flash(
+                f"Added new sponsor '{sponsor.name}'",
+                queue="success",
+            )
+            redirect_url = request.route_url("admin.sponsor.list")
+            return HTTPSeeOther(location=redirect_url)
 
     return {"form": form}
 
