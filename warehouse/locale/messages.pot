@@ -109,98 +109,98 @@ msgid ""
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:589
+#: warehouse/accounts/views.py:607
 msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:591
+#: warehouse/accounts/views.py:609
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:593 warehouse/accounts/views.py:676
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:611 warehouse/accounts/views.py:694
+#: warehouse/accounts/views.py:790
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:597
+#: warehouse/accounts/views.py:615
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:602
+#: warehouse/accounts/views.py:620
 msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:609
+#: warehouse/accounts/views.py:627
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:618
+#: warehouse/accounts/views.py:636
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:645
+#: warehouse/accounts/views.py:663
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:672
+#: warehouse/accounts/views.py:690
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:674
+#: warehouse/accounts/views.py:692
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:680
+#: warehouse/accounts/views.py:698
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:689
+#: warehouse/accounts/views.py:707
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:710
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:725
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:711
+#: warehouse/accounts/views.py:729
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:716
+#: warehouse/accounts/views.py:734
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/accounts/views.py:768
+#: warehouse/accounts/views.py:786
 msgid "Expired token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:770
+#: warehouse/accounts/views.py:788
 msgid "Invalid token: request a new project role invite"
 msgstr ""
 
-#: warehouse/accounts/views.py:776
+#: warehouse/accounts/views.py:794
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:780
+#: warehouse/accounts/views.py:798
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:795
+#: warehouse/accounts/views.py:813
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:825
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:874
+#: warehouse/accounts/views.py:892
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
@@ -520,7 +520,7 @@ msgstr ""
 #: warehouse/templates/base.html:160 warehouse/templates/base.html:169
 #: warehouse/templates/base.html:179
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:753
+#: warehouse/templates/manage/account.html:755
 #: warehouse/templates/manage/documentation.html:27
 #: warehouse/templates/manage/manage_base.html:106
 #: warehouse/templates/manage/manage_base.html:158
@@ -2133,95 +2133,99 @@ msgid "Password reset requested"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:614
-msgid "Password successfully reset"
+msgid "Password reset attempted"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:616
+msgid "Password successfully reset"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:618
 msgid "Password successfully changed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:619
+#: warehouse/templates/manage/account.html:621
 msgid "Two factor authentication added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:622
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:624
+#: warehouse/templates/manage/account.html:634
 msgid ""
 "Method: Security device (<abbr title=\"web "
 "authentication\">WebAuthn</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:623
-#: warehouse/templates/manage/account.html:633
+#: warehouse/templates/manage/account.html:625
+#: warehouse/templates/manage/account.html:635
 msgid "Device name:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:625
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:627
+#: warehouse/templates/manage/account.html:637
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:631
 msgid "Two factor authentication removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:640
+#: warehouse/templates/manage/account.html:642
 msgid "Recovery codes generated"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:644
+#: warehouse/templates/manage/account.html:646
 msgid "Recovery codes regenerated"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:648
+#: warehouse/templates/manage/account.html:650
 msgid "Recovery code used for login"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:654
+#: warehouse/templates/manage/account.html:656
 #: warehouse/templates/manage/history.html:65
 msgid "API token added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:656
-#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/account.html:673
 #: warehouse/templates/manage/history.html:69
 #: warehouse/templates/manage/history.html:76
 msgid "Token name:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:674
+#: warehouse/templates/manage/account.html:660
+#: warehouse/templates/manage/account.html:676
 msgid "Token scope: entire account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:660
-#: warehouse/templates/manage/account.html:676
+#: warehouse/templates/manage/account.html:662
+#: warehouse/templates/manage/account.html:678
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:667
 #: warehouse/templates/manage/history.html:72
 msgid "API token removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/account.html:672
+#: warehouse/templates/manage/account.html:668
+#: warehouse/templates/manage/account.html:674
 msgid "Unique identifier:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:669
+#: warehouse/templates/manage/account.html:671
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:680
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:687
+#: warehouse/templates/manage/account.html:689
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If "
@@ -2229,42 +2233,42 @@ msgid ""
 "your account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:692
+#: warehouse/templates/manage/account.html:694
 msgid "Recent account activity"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/history.html:97
 msgid "Event"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:695
-#: warehouse/templates/manage/account.html:703
+#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:705
 #: warehouse/templates/manage/history.html:98
 #: warehouse/templates/manage/history.html:107
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:696
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:698
+#: warehouse/templates/manage/account.html:709
 #: warehouse/templates/manage/history.html:99
 #: warehouse/templates/manage/history.html:111
 msgid "IP address"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:715
+#: warehouse/templates/manage/account.html:717
 msgid "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:722
+#: warehouse/templates/manage/account.html:724
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:725
+#: warehouse/templates/manage/account.html:727
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:727
+#: warehouse/templates/manage/account.html:729
 #, python-format
 msgid ""
 "\n"
@@ -2279,7 +2283,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:732
+#: warehouse/templates/manage/account.html:734
 msgid ""
 "\n"
 "          You must transfer ownership or delete this project before you "
@@ -2293,23 +2297,23 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:742
+#: warehouse/templates/manage/account.html:744
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:751
+#: warehouse/templates/manage/account.html:753
 #: warehouse/templates/manage/token.html:169
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:754
+#: warehouse/templates/manage/account.html:756
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:756
+#: warehouse/templates/manage/account.html:758
 msgid "Delete your PyPI account"
 msgstr ""
 
