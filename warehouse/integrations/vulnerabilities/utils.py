@@ -11,7 +11,7 @@
 # limitations under the License.
 
 
-from sqlalchemy import func
+from sqlalchemy import func, orm
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.integrations import vulnerabilities
@@ -45,6 +45,7 @@ def _get_vuln_record(
         request.db.query(VulnerabilityRecord)
         .filter(VulnerabilityRecord.id == vuln_report.vulnerability_id)
         .filter(VulnerabilityRecord.source == origin)
+        .options(orm.joinedload(VulnerabilityRecord.releases))
         .one()
     )
 
