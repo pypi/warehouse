@@ -52,7 +52,9 @@ def report_vulnerabilities(request):
     try:
         vuln_reports = request.json_body
     except json.decoder.JSONDecodeError:
-        metrics.increment("warehouse.vulnerabilties.osv.error.payload.json_error")
+        metrics.increment(
+            "warehouse.vulnerabilties.error.payload.json_error", tags=["origin:osv"]
+        )
         return Response(status=400)
 
     try:

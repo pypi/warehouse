@@ -142,8 +142,8 @@ class TestReportVulnerabilities:
 
         metrics = collections.Counter()
 
-        def metrics_increment(key):
-            metrics.update([key])
+        def metrics_increment(key, tags):
+            metrics.update([(key, tuple(tags))])
 
         # We need to raise on a property access, can't do that with a stub.
         class Request:
@@ -167,7 +167,12 @@ class TestReportVulnerabilities:
         response = views.report_vulnerabilities(request)
 
         assert response.status_int == 400
-        assert metrics == {"warehouse.vulnerabilties.osv.error.payload.json_error": 1}
+        assert metrics == {
+            (
+                "warehouse.vulnerabilties.error.payload.json_error",
+                ("origin:osv",),
+            ): 1,
+        }
 
     def test_report_vulnerabilities_verify_invalid_vuln(
         self, monkeypatch, pyramid_request

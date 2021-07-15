@@ -63,10 +63,12 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             request=vulnerability_report
         )
     except vulnerabilities.InvalidVulnerabilityReportRequest as exc:
-        metrics.increment(f"warehouse.vulnerabilities.{origin}.error.{exc.reason}")
+        metrics.increment(
+            f"warehouse.vulnerabilities.error.{exc.reason}", tags=[f"origin:{origin}"]
+        )
         raise
 
-    metrics.increment(f"warehouse.vulnerabilities.{origin}.valid")
+    metrics.increment("warehouse.vulnerabilities.valid", tags=[f"origin:{origin}"])
 
     try:
         vulnerability_record = _get_vuln_record(request, report, origin)
@@ -92,7 +94,10 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
     try:
         project = _get_project(request, report)
     except NoResultFound:
-        metrics.increment(f"warehouse.vulnerabilities.{origin}.error.project_not_found")
+        metrics.increment(
+            "warehouse.vulnerabilities.error.project_not_found",
+            tags=[f"origin:{origin}"],
+        )
         raise
 
     for version in report.versions:
@@ -100,7 +105,8 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
             release = _get_release(request, project, version)
         except NoResultFound:
             metrics.increment(
-                f"warehouse.vulnerabilities.{origin}.error.release_not_found"
+                "warehouse.vulnerabilities.error.release_not_found",
+                tags=[f"origin:{origin}"],
             )
             raise
 
@@ -114,7 +120,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
 
 
 def analyze_vulnerability(request, vulnerability_report, origin, metrics):
-    metrics.increment(f"warehouse.vulnerabilities.{origin}.received")
+    metrics.increment("warehouse.vulnerabilities.received", tags=[f"origin:{origin}"])
     try:
         _analyze_vulnerability(
             request=request,
@@ -122,11 +128,15 @@ def analyze_vulnerability(request, vulnerability_report, origin, metrics):
             origin=origin,
             metrics=metrics,
         )
-        metrics.increment(f"warehouse.vulnerabilities.{origin}.processed")
+        metrics.increment(
+            "warehouse.vulnerabilities.processed", tags=[f"origin:{origin}"]
+        )
     except (vulnerabilities.InvalidVulnerabilityReportRequest, NoResultFound):
         raise
     except Exception:
-        metrics.increment(f"warehouse.vulnerabilities.{origin}.error.unknown")
+        metrics.increment(
+            "warehouse.vulnerabilities.error.unknown", tags=[f"origin:{origin}"]
+        )
         raise
 
 
@@ -134,7 +144,9 @@ def analyze_vulnerabilities(request, vulnerability_reports, origin, metrics):
     from warehouse.integrations.vulnerabilities import tasks
 
     if not isinstance(vulnerability_reports, list):
-        metrics.increment(f"warehouse.vulnerabilities.{origin}.error.format")
+        metrics.increment(
+            "warehouse.vulnerabilities.error.format", tags=[f"origin:{origin}"]
+        )
         raise vulnerabilities.InvalidVulnerabilityReportRequest(
             "Invalid format: payload is not a list", "format"
         )

@@ -31,8 +31,8 @@ def test_analyze_vulnerability(db_request):
 
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -65,9 +65,9 @@ def test_analyze_vulnerability(db_request):
     assert "vuln_alias2" in vuln_record.aliases
 
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.processed": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
     }
 
 
@@ -78,8 +78,8 @@ def test_analyze_vulnerability_add_release(db_request):
 
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -99,9 +99,9 @@ def test_analyze_vulnerability_add_release(db_request):
     assert len(release1.vulnerabilities) == 1
     assert len(release2.vulnerabilities) == 0
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.processed": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
     }
 
     metrics_counter.clear()
@@ -124,9 +124,9 @@ def test_analyze_vulnerability_add_release(db_request):
     assert release1.vulnerabilities[0] == release2.vulnerabilities[0]
 
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.processed": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
     }
 
 
@@ -137,8 +137,8 @@ def test_analyze_vulnerability_delete_releases(db_request):
 
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -160,9 +160,9 @@ def test_analyze_vulnerability_delete_releases(db_request):
     assert release1.vulnerabilities[0] == release2.vulnerabilities[0]
 
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.processed": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
     }
 
     metrics_counter.clear()
@@ -183,9 +183,9 @@ def test_analyze_vulnerability_delete_releases(db_request):
     assert len(release1.vulnerabilities) == 1
     assert len(release2.vulnerabilities) == 0
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.processed": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
     }
 
     metrics_counter.clear()
@@ -208,9 +208,9 @@ def test_analyze_vulnerability_delete_releases(db_request):
     # assert len(release1.vulnerabilities) == 0
     assert len(release2.vulnerabilities) == 0
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.processed": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
     }
 
 
@@ -219,8 +219,8 @@ def test_analyze_vulnerability_invalid_request(db_request):
 
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -241,16 +241,16 @@ def test_analyze_vulnerability_invalid_request(db_request):
     assert str(exc.value) == "Record is missing attribute(s): id"
     assert exc.value.reason == "format"
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.error.format": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.error.format", ("origin:test_report_source",)): 1,
     }
 
 
 def test_analyze_vulnerability_project_not_found(db_request):
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -269,9 +269,12 @@ def test_analyze_vulnerability_project_not_found(db_request):
         )
 
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
-        "warehouse.vulnerabilities.test_report_source.error.project_not_found": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        (
+            "warehouse.vulnerabilities.error.project_not_found",
+            ("origin:test_report_source",),
+        ): 1,
     }
 
 
@@ -281,8 +284,8 @@ def test_analyze_vulnerability_release_not_found(db_request):
 
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -301,9 +304,12 @@ def test_analyze_vulnerability_release_not_found(db_request):
         )
 
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
-        "warehouse.vulnerabilities.test_report_source.error.release_not_found": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        (
+            "warehouse.vulnerabilities.error.release_not_found",
+            ("origin:test_report_source",),
+        ): 1,
     }
 
 
@@ -312,8 +318,8 @@ def test_analyze_vulnerability_no_versions(db_request):
 
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -331,17 +337,17 @@ def test_analyze_vulnerability_no_versions(db_request):
     )
 
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.valid": 1,
-        "warehouse.vulnerabilities.test_report_source.processed": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
     }
 
 
 def test_analyze_vulnerability_unknown_error(db_request, monkeypatch):
     metrics_counter = collections.Counter()
 
-    def metrics_increment(key):
-        metrics_counter.update([key])
+    def metrics_increment(key, tags):
+        metrics_counter.update([(key, tuple(tags))])
 
     metrics = pretend.stub(increment=metrics_increment)
 
@@ -372,8 +378,8 @@ def test_analyze_vulnerability_unknown_error(db_request, monkeypatch):
         )
 
     assert metrics_counter == {
-        "warehouse.vulnerabilities.test_report_source.received": 1,
-        "warehouse.vulnerabilities.test_report_source.error.unknown": 1,
+        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
+        ("warehouse.vulnerabilities.error.unknown", ("origin:test_report_source",)): 1,
     }
 
 
