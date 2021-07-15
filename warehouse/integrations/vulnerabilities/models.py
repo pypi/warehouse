@@ -49,7 +49,13 @@ class VulnerabilityRecord(db.Model):
 
     source = Column(String, primary_key=True)
     id = Column(String, primary_key=True)
+
+    # The URL for the vulnerability report at the source
+    # e.g. "https://osv.dev/vulnerability/PYSEC-2021-314"
     link = Column(String)
+
+    # Alternative IDs for this vulnerability
+    # e.g. "CVE-2021-12345"
     aliases = Column(ARRAY(String))
 
     releases = orm.relationship(
