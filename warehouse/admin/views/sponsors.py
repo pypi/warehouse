@@ -103,19 +103,29 @@ def sponsor_list(request):
     return {"sponsors": sponsors}
 
 
+class ImageNotProvided(Exception):
+    pass
+
+
 def _upload_image(image_name, request, form):
     sponsor_name = slugify(form.name.data)
-    if request.POST.get(image_name) not in [None, b""]:
-        with tempfile.NamedTemporaryFile() as fp:
-            fp.write(request.POST[image_name].file.read())
-            fp.flush()
-            content_type = request.POST[image_name].type
-            storage = request.find_service(ISponsorLogoStorage)
-            extension = os.path.splitext(request.POST[image_name].filename)[-1]
-            fingerprint = secrets.token_urlsafe(6)
-            filename = f"{sponsor_name}-{slugify(image_name)}-{fingerprint}{extension}"
-            return storage.store(filename, fp.name, content_type)
-    return ""
+    image = request.POST.get(image_name)
+    # If the image is provided, it's a webob.compat.cgi_FieldStorage object
+    # which doesn support __bool__(). Otherwise it's b"". If the form is
+    # submitted without the field being filled in, it's None.
+    if image in (None, b""):
+        raise ImageNotProvided
+
+    content_type = image.type
+    storage = request.find_service(ISponsorLogoStorage)
+    _, extension = os.path.splitext(image.filename)
+    fingerprint = secrets.token_urlsafe(6)
+    filename = f"{sponsor_name}-{slugify(image_name)}-{fingerprint}{extension}"
+
+    with tempfile.NamedTemporaryFile() as fp:
+        fp.write(image.file.read())
+        fp.flush()
+        return storage.store(filename, fp.name, content_type)
 
 
 @view_config(
@@ -146,10 +156,16 @@ def edit_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None, sponsor)
 
     if request.method == "POST":
-        if _color_logo_url := _upload_image("color_logo", request, form):
-            form.color_logo_url.data = _color_logo_url
-        if _white_logo_url := _upload_image("white_logo", request, form):
-            form.white_logo_url.data = _white_logo_url
+        try:
+            form.color_logo_url.data = _upload_image("color_logo", request, form)
+        except ImageNotProvided:
+            pass
+
+        try:
+            form.white_logo_url.data = _upload_image("white_logo", request, form)
+        except ImageNotProvided:
+            pass
+
         if form.validate():
             form.populate_obj(sponsor)
             request.session.flash("Sponsor updated", queue="success")
@@ -180,8 +196,16 @@ def create_sponsor(request):
     form = SponsorForm(request.POST if request.method == "POST" else None)
 
     if request.method == "POST":
-        form.color_logo_url.data = _upload_image("color_logo", request, form)
-        form.white_logo_url.data = _upload_image("white_logo", request, form)
+        try:
+            form.color_logo_url.data = _upload_image("color_logo", request, form)
+        except ImageNotProvided:
+            form.color_logo_url.data = ""
+
+        try:
+            form.white_logo_url.data = _upload_image("white_logo", request, form)
+        except ImageNotProvided:
+            form.white_logo_url.data = ""
+
         if form.validate():
             del form.color_logo
             del form.white_logo
