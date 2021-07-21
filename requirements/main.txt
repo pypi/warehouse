@@ -1014,9 +1014,9 @@ translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
     --hash=sha256:bf947538d76e69ba12ab17283b10355a9ecfbc078e6123443f43f2107f6376f3
     # via pyramid
-trove-classifiers==2021.4.5 \
-    --hash=sha256:3c382f0faa21d33cead3851a4bf04fb56ce6107d262c0f9d98a7b9e89b7aaebf \
-    --hash=sha256:d9a297dda35fef8c09d0b7a7225e5d7fea9b4befdd0e85e0c4b0c17a81a30f1c
+trove-classifiers==2021.7.10 \
+    --hash=sha256:5a2cbd1def324b2fd1f43cd9472667caca1293e710f975db27aab1052b230ca5 \
+    --hash=sha256:ec3931212db4c0471d792aec1566b633cebae50d07706123399a94afc5141a97
     # via -r requirements/main.in
 typeguard==2.12.1 \
     --hash=sha256:c2af8b9bdd7657f4bd27b45336e7930171aead796711bc4cfc99b4731bb9d051 \
