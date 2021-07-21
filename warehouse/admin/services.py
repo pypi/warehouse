@@ -44,7 +44,7 @@ class LocalSponsorLogoStorage:
     def create_service(cls, context, request):
         return cls(request.registry.settings["sponsorlogos.path"])
 
-    def store(self, path, file_path, *, meta=None):
+    def store(self, path, file_path, content_type=None, *, meta=None):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         with open(destination, "wb") as dest_fp:
@@ -80,8 +80,11 @@ class GCSSponsorLogoStorage(GenericSponsorLogoStorage):
             google.api_core.exceptions.ServiceUnavailable
         )
     )
-    def store(self, path, file_path, *, meta=None):
+    def store(self, path, file_path, content_type=None, *, meta=None):
+        if self.prefix is not None:
+            path = os.path.join(self.prefix, path)
         blob = self.bucket.blob(path)
+        blob.content_type = content_type
         if meta is not None:
             blob.metadata = meta
         blob.upload_from_filename(file_path)
