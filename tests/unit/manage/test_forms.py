@@ -224,7 +224,7 @@ class TestProvisionWebAuthnForm:
     def test_verify_assertion_invalid(self):
         user_service = pretend.stub(
             verify_webauthn_credential=pretend.raiser(
-                webauthn.RegistrationRejectedException("Fake exception")
+                webauthn.RegistrationRejectedError("Fake exception")
             ),
             get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
         )

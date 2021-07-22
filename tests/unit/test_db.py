@@ -27,7 +27,7 @@ from warehouse import db
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.db import (
     DEFAULT_ISOLATION,
-    DatabaseNotAvailable,
+    DatabaseNotAvailableError,
     ModelBase,
     _configure_alembic,
     _create_engine,
@@ -158,7 +158,7 @@ def test_raises_db_available_error(pyramid_services, metrics):
         registry={"sqlalchemy.engine": engine},
     )
 
-    with pytest.raises(DatabaseNotAvailable):
+    with pytest.raises(DatabaseNotAvailableError):
         _create_session(request)
 
     assert metrics.increment.calls == [

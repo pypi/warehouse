@@ -330,7 +330,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
                 rp_id=self.rp_id,
             )
 
-        except webauthn.AuthenticationRejectedException as e:
+        except webauthn.AuthenticationRejectedError as e:
             raise wtforms.validators.ValidationError(str(e))
 
         self.validated_credential = validated_credential

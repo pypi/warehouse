@@ -27,12 +27,12 @@ from cryptography.hazmat.primitives.hashes import SHA256
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
-from warehouse.macaroons.caveats import InvalidMacaroon
+from warehouse.macaroons.caveats import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 
 
-class ExtractionFailed(Exception):
+class ExtractionFailedError(Exception):
     pass
 
 
@@ -69,7 +69,7 @@ TOKEN_LEAK_MATCHERS = {
 }
 
 
-class InvalidTokenLeakRequest(Exception):
+class InvalidTokenLeakRequestError(Exception):
     def __init__(self, message, reason):
         self.reason = reason
         super().__init__(message)
@@ -84,13 +84,13 @@ class TokenLeakDisclosureRequest:
     def from_api_record(cls, record, *, matchers=TOKEN_LEAK_MATCHERS):
 
         if not isinstance(record, dict):
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 f"Record is not a dict but: {str(record)[:100]}", reason="format"
             )
 
         missing_keys = sorted({"token", "type", "url"} - set(record))
         if missing_keys:
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 f"Record is missing attribute(s): {', '.join(missing_keys)}",
                 reason="format",
             )
@@ -99,7 +99,7 @@ class TokenLeakDisclosureRequest:
 
         matcher = matchers.get(matcher_code)
         if not matcher:
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 f"Matcher with code {matcher_code} not found. "
                 f"Available codes are: {', '.join(matchers)}",
                 reason="invalid_matcher",
@@ -107,19 +107,19 @@ class TokenLeakDisclosureRequest:
 
         try:
             extracted_token = matcher.extract(record["token"])
-        except ExtractionFailed:
-            raise InvalidTokenLeakRequest(
+        except ExtractionFailedError:
+            raise InvalidTokenLeakRequestError(
                 "Cannot extract token from recieved match", reason="extraction"
             )
 
         return cls(token=extracted_token, public_url=record["url"])
 
 
-class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequest):
+class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
     pass
 
 
-class CacheMiss(Exception):
+class CacheMissError(Exception):
     pass
 
 
@@ -135,11 +135,11 @@ class PublicKeysCache:
 
     def get(self, now):
         if not self.cache:
-            raise CacheMiss
+            raise CacheMissError
 
         if self.cached_at + self.cache_time < now:
             self.cache = None
-            raise CacheMiss
+            raise CacheMissError
 
         return self.cache
 
@@ -182,7 +182,7 @@ class GitHubTokenScanningPayloadVerifier:
             public_key = self._check_public_key(
                 github_public_keys=public_keys, key_id=key_id
             )
-        except (CacheMiss, InvalidTokenLeakRequest):
+        except (CacheMissError, InvalidTokenLeakRequestError):
             # No cache or outdated cache, it's ok, we'll do a real call.
             # Just record a metric so that we can know if all calls lead to
             # cache misses
@@ -201,7 +201,7 @@ class GitHubTokenScanningPayloadVerifier:
             self._check_signature(
                 payload=payload, public_key=public_key, signature=signature
             )
-        except InvalidTokenLeakRequest as exc:
+        except InvalidTokenLeakRequestError as exc:
             self._metrics.increment(
                 f"warehouse.token_leak.github.auth.error.{exc.reason}"
             )
@@ -286,7 +286,7 @@ class GitHubTokenScanningPayloadVerifier:
             if record["key_id"] == key_id:
                 return record["key"]
 
-        raise InvalidTokenLeakRequest(
+        raise InvalidTokenLeakRequestError(
             f"Key {key_id} not found in github public keys", reason="wrong_key_id"
         )
 
@@ -302,13 +302,13 @@ class GitHubTokenScanningPayloadVerifier:
                 signature_algorithm=ECDSA(algorithm=SHA256()),
             )
         except InvalidSignature as exc:
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 "Invalid signature", "invalid_signature"
             ) from exc
         except Exception as exc:
             # Maybe the key is not a valid ECDSA key, maybe the data is not properly
             # padded, etc. So many things can go wrong...
-            raise InvalidTokenLeakRequest(
+            raise InvalidTokenLeakRequestError(
                 "Invalid cryptographic values", "invalid_crypto"
             ) from exc
 
@@ -323,7 +323,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
         disclosure = TokenLeakDisclosureRequest.from_api_record(
             record=disclosure_record
         )
-    except InvalidTokenLeakRequest as exc:
+    except InvalidTokenLeakRequestError as exc:
         metrics.increment(f"warehouse.token_leak.{origin}.error.{exc.reason}")
         return
 
@@ -332,7 +332,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
         database_macaroon = macaroon_service.find_from_raw(
             raw_macaroon=disclosure.token
         )
-    except InvalidMacaroon:
+    except InvalidMacaroonError:
         metrics.increment(f"warehouse.token_leak.{origin}.error.invalid")
         return
 
@@ -380,7 +380,9 @@ def analyze_disclosures(request, disclosure_records, origin, metrics):
 
     if not isinstance(disclosure_records, list):
         metrics.increment(f"warehouse.token_leak.{origin}.error.format")
-        raise InvalidTokenLeakRequest("Invalid format: payload is not a list", "format")
+        raise InvalidTokenLeakRequestError(
+            "Invalid format: payload is not a list", "format"
+        )
 
     for disclosure_record in disclosure_records:
         request.task(tasks.analyze_disclosure_task).delay(

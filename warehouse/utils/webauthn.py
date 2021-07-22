@@ -16,16 +16,16 @@ import os
 import webauthn as pywebauthn
 
 from webauthn.webauthn import (
-    AuthenticationRejectedException as _AuthenticationRejectedException,
-    RegistrationRejectedException as _RegistrationRejectedException,
+    AuthenticationRejectedError as _AuthenticationRejectedError,
+    RegistrationRejectedError as _RegistrationRejectedError,
 )
 
 
-class AuthenticationRejectedException(Exception):
+class AuthenticationRejectedError(Exception):
     pass
 
 
-class RegistrationRejectedException(Exception):
+class RegistrationRejectedError(Exception):
     pass
 
 
@@ -111,7 +111,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     sent from the client during device registration.
 
     Returns a WebAuthnCredential on success.
-    Raises RegistrationRejectedException on failire.
+    Raises RegistrationRejectedError on failire.
     """
     # NOTE: We re-encode the challenge below, because our
     # response's clientData.challenge is encoded twice:
@@ -123,8 +123,8 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     )
     try:
         return response.verify()
-    except _RegistrationRejectedException as e:
-        raise RegistrationRejectedException(str(e))
+    except _RegistrationRejectedError as e:
+        raise RegistrationRejectedError(str(e))
 
 
 def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
@@ -133,7 +133,7 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
     sent from the client during authentication.
 
     Returns an updated signage count on success.
-    Raises AuthenticationRejectedException on failure.
+    Raises AuthenticationRejectedError on failure.
     """
     webauthn_users = _get_webauthn_users(user, rp_id=rp_id)
     cred_ids = [cred.credential_id for cred in webauthn_users]
@@ -149,9 +149,9 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
         )
         try:
             return (webauthn_user.credential_id, response.verify())
-        except _AuthenticationRejectedException:
+        except _AuthenticationRejectedError:
             pass
 
     # If we exit the loop, then we've failed to verify the assertion against
     # any of the user's WebAuthn credentials. Fail.
-    raise AuthenticationRejectedException("Invalid WebAuthn credential")
+    raise AuthenticationRejectedError("Invalid WebAuthn credential")
