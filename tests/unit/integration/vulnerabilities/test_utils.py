@@ -23,7 +23,7 @@ from warehouse.integrations import vulnerabilities
 from warehouse.integrations.vulnerabilities import tasks, utils
 
 
-def test_analyze_vulnerability(db_request):
+def test_analyze_vulnerability(db_request, metrics):
     project = ProjectFactory.create()
     release1 = ReleaseFactory.create(project=project, version="1.0")
     release2 = ReleaseFactory.create(project=project, version="2.0")
@@ -34,7 +34,7 @@ def test_analyze_vulnerability(db_request):
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     utils.analyze_vulnerability(
         request=db_request,
@@ -71,7 +71,7 @@ def test_analyze_vulnerability(db_request):
     }
 
 
-def test_analyze_vulnerability_add_release(db_request):
+def test_analyze_vulnerability_add_release(db_request, metrics):
     project = ProjectFactory.create()
     release1 = ReleaseFactory.create(project=project, version="1.0")
     release2 = ReleaseFactory.create(project=project, version="2.0")
@@ -81,7 +81,7 @@ def test_analyze_vulnerability_add_release(db_request):
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     utils.analyze_vulnerability(
         request=db_request,
@@ -130,7 +130,7 @@ def test_analyze_vulnerability_add_release(db_request):
     }
 
 
-def test_analyze_vulnerability_delete_releases(db_request):
+def test_analyze_vulnerability_delete_releases(db_request, metrics):
     project = ProjectFactory.create()
     release1 = ReleaseFactory.create(project=project, version="1.0")
     release2 = ReleaseFactory.create(project=project, version="2.0")
@@ -140,7 +140,7 @@ def test_analyze_vulnerability_delete_releases(db_request):
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     utils.analyze_vulnerability(
         request=db_request,
@@ -214,7 +214,7 @@ def test_analyze_vulnerability_delete_releases(db_request):
     }
 
 
-def test_analyze_vulnerability_invalid_request(db_request):
+def test_analyze_vulnerability_invalid_request(db_request, metrics):
     project = ProjectFactory.create()
 
     metrics_counter = collections.Counter()
@@ -222,7 +222,7 @@ def test_analyze_vulnerability_invalid_request(db_request):
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     with pytest.raises(vulnerabilities.InvalidVulnerabilityReportRequest) as exc:
         utils.analyze_vulnerability(
@@ -246,13 +246,13 @@ def test_analyze_vulnerability_invalid_request(db_request):
     }
 
 
-def test_analyze_vulnerability_project_not_found(db_request):
+def test_analyze_vulnerability_project_not_found(db_request, metrics):
     metrics_counter = collections.Counter()
 
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     with pytest.raises(NoResultFound):
         utils.analyze_vulnerability(
@@ -278,7 +278,7 @@ def test_analyze_vulnerability_project_not_found(db_request):
     }
 
 
-def test_analyze_vulnerability_release_not_found(db_request):
+def test_analyze_vulnerability_release_not_found(db_request, metrics):
     project = ProjectFactory.create()
     ReleaseFactory.create(project=project, version="1.0")
 
@@ -287,7 +287,7 @@ def test_analyze_vulnerability_release_not_found(db_request):
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     with pytest.raises(NoResultFound):
         utils.analyze_vulnerability(
@@ -313,7 +313,7 @@ def test_analyze_vulnerability_release_not_found(db_request):
     }
 
 
-def test_analyze_vulnerability_no_versions(db_request):
+def test_analyze_vulnerability_no_versions(db_request, metrics):
     project = ProjectFactory.create()
 
     metrics_counter = collections.Counter()
@@ -321,7 +321,7 @@ def test_analyze_vulnerability_no_versions(db_request):
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     utils.analyze_vulnerability(
         request=db_request,
@@ -343,13 +343,13 @@ def test_analyze_vulnerability_no_versions(db_request):
     }
 
 
-def test_analyze_vulnerability_unknown_error(db_request, monkeypatch):
+def test_analyze_vulnerability_unknown_error(db_request, monkeypatch, metrics):
     metrics_counter = collections.Counter()
 
     def metrics_increment(key, tags):
         metrics_counter.update([(key, tuple(tags))])
 
-    metrics = pretend.stub(increment=metrics_increment)
+    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
 
     class UnknownError(Exception):
         pass

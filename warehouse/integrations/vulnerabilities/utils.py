@@ -123,12 +123,16 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
 def analyze_vulnerability(request, vulnerability_report, origin, metrics):
     metrics.increment("warehouse.vulnerabilities.received", tags=[f"origin:{origin}"])
     try:
-        _analyze_vulnerability(
-            request=request,
-            vulnerability_report=vulnerability_report,
-            origin=origin,
-            metrics=metrics,
-        )
+        with metrics.timed(
+            "warehouse.vulnerabilities.analysis", tags=[f"origin:{origin}"]
+        ):
+            _analyze_vulnerability(
+                request=request,
+                vulnerability_report=vulnerability_report,
+                origin=origin,
+                metrics=metrics,
+            )
+
         metrics.increment(
             "warehouse.vulnerabilities.processed", tags=[f"origin:{origin}"]
         )
