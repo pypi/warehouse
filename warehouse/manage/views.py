@@ -1771,6 +1771,7 @@ def delete_project_role(project, request):
         role = (
             request.db.query(Role)
             .join(User)
+            .filter(Role.project == project)
             .filter(Role.id == request.POST["role_id"])
             .one()
         )
