@@ -29,7 +29,10 @@ class TestGitHubDiscloseToken:
 
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
-        pyramid_request.registry.settings = {"github.token": "token"}
+        pyramid_request.registry.settings = {
+            "github.token": "token",
+            "github.token_scanning_meta_api.url": "http://foo",
+        }
         pyramid_request.find_service = lambda *a, **k: metrics
 
         http = pyramid_request.http = pretend.stub()
@@ -46,7 +49,9 @@ class TestGitHubDiscloseToken:
 
         assert response.status_code == 204
         assert verifier_cls.calls == [
-            pretend.call(session=http, metrics=metrics, api_token="token")
+            pretend.call(
+                session=http, metrics=metrics, api_token="token", api_url="http://foo"
+            )
         ]
         assert verify.calls == [
             pretend.call(payload="[1, 2, 3]", key_id="foo", signature="bar")
@@ -70,7 +75,9 @@ class TestGitHubDiscloseToken:
 
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
-        pyramid_request.registry.settings = {}
+        pyramid_request.registry.settings = {
+            "github.token_scanning_meta_api.url": "http://foo"
+        }
         pyramid_request.find_service = lambda *a, **k: metrics
         pyramid_request.http = pretend.stub()
 
@@ -96,7 +103,10 @@ class TestGitHubDiscloseToken:
 
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.find_service = lambda *a, **k: metrics
-        pyramid_request.registry.settings = {"github.token": "token"}
+        pyramid_request.registry.settings = {
+            "github.token": "token",
+            "github.token_scanning_meta_api.url": "http://foo",
+        }
 
         pyramid_request.http = pretend.stub()
 
@@ -137,7 +147,12 @@ class TestGitHubDiscloseToken:
 
             response = pretend.stub(status_int=200)
             http = pretend.stub()
-            registry = pretend.stub(settings={"github.token": "token"})
+            registry = pretend.stub(
+                settings={
+                    "github.token": "token",
+                    "github.token_scanning_meta_api.url": "http://foo",
+                }
+            )
 
         request = Request()
         response = views.github_disclose_token(request)
@@ -160,7 +175,10 @@ class TestGitHubDiscloseToken:
 
         pyramid_request.body = "{}"
         pyramid_request.json_body = {}
-        pyramid_request.registry.settings = {"github.token": "token"}
+        pyramid_request.registry.settings = {
+            "github.token": "token",
+            "github.token_scanning_meta_api.url": "http://foo",
+        }
         pyramid_request.find_service = lambda *a, **k: metrics_service
 
         pyramid_request.http = pretend.stub()

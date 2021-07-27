@@ -666,10 +666,10 @@
         <p>{% trans %}If you see an error like <code>There was a problem confirming the ssl certificate</code> or <code>tlsv1 alert protocol version</code> or <code>TLSV1_ALERT_PROTOCOL_VERSION</code>, you need to be connecting to PyPI with a newer TLS support library.{% endtrans %}</p>
         <p>{% trans %}The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <code>setuptools</code>, and <code>pip</code>.{% endtrans %}</p>
         <p>
-          {% trans trimmed irc_href='https://webchat.freenode.net/?channels=%23pypa', issue_tracker_href='https://github.com/pypa/packaging-problems/issues', mailing_list_href='https://www.python.org/community/lists/', title=gettext('External link'), command='pip install --upgrade -vvv pip' %}
-            For help, go to <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">the <code>#pypa</code> IRC channel on Freenode</a>,
+          {% trans trimmed irc_href='https://web.libera.chat/#pypa', issue_tracker_href='https://github.com/pypa/packaging-problems/issues', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link'), command='pip install --upgrade -vvv pip' %}
+            For help, go to <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">the <code>#pypa</code> IRC channel on Libera</a>,
             file an issue at <a href="{{ issue_tracker_href }}" title="{{ title }}" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>,
-            or <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">post to the python-help mailing list</a>,
+            or <a href="{{ discourse_href }}" title="{{ title }}" target="_blank" rel="noopener">discuss on the Discourse</a>,
             including your OS and installation details and the output of <code>{{ command }}</code>.
           {% endtrans %}
         </p>
@@ -864,11 +864,11 @@
 
       <h3>{% trans %}Contact{% endtrans %}</h3>
       <p>
-        {% trans trimmed pypa_href='https://pypa.io', irc_href='https://webchat.freenode.net/?channels=%23pypa', discuss_href='https://discuss.python.org/c/packaging/14', title=gettext('External link') %}
+        {% trans trimmed pypa_href='https://pypa.io', irc_href='https://web.libera.chat/#pypa', discourse_href='https://discuss.python.org/c/packaging/14', title=gettext('External link') %}
           The <a href="{{ pypa_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging Authority (PyPA)</a>
           is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer,
-          use <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">#pypa on IRC (freenode)</a>,
-          or <a href="{{ discuss_href }}" title="{{ title }}" target="_blank" rel="noopener">browse the online board</a>.
+          use <a href="{{ irc_href }}" title="{{ title }}" target="_blank" rel="noopener">#pypa on IRC (Libera)</a>,
+          or <a href="{{ discourse_href }}" title="{{ title }}" target="_blank" rel="noopener">browse the online board</a>.
         {% endtrans %}
       </p>
 

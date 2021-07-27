@@ -181,6 +181,11 @@
         <span class="notification-bar__message">{% trans %}Some features may not work without JavaScript. Please try enabling it if you encounter problems.{% endtrans %}</span>
       </div>
       </noscript>
+
+      {% block banner_messages %}
+        {% csi request.route_path("includes.db-banners") %}
+        {% endcsi %}
+      {% endblock %}
     </div>
 
     {% block flash_messages %}

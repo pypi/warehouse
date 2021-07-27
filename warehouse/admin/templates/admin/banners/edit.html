@@ -1,0 +1,133 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% macro render_field(label, field, input_id, placeholder=None, class=None, helper=None) %}
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}
+  </label>
+
+
+  <div class="col-sm-10">
+    {{ field(id=input_id, class=class, placeholder=placeholder)}}
+
+    {% if field.errors %}
+    <span class="help-block">
+        {% for error in field.errors %}
+        <div>{{ error }}</div>
+        {% endfor %}
+    </span>
+    {% endif %}
+    {% if helper %}
+      <br>
+      {{ helper|safe }}
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% block title %}{% if banner %}{{ banner.name }}{% else %}Create banner{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="{{ request.route_path('admin.banner.list') }}">Banners</a></li>
+  {% if banner %}
+  <li class="active">{{ banner.name }}</li>
+  {% else %}
+  <li class="active">Create banner</li>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          {% if banner %}
+          <h3 class="box-title">Edit Banner</h3>
+
+          <div class="navbar-right">
+            <a class="btn btn-primary" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}" target="_blank"><i class="icon fa fa-eye"></i> Preview</a>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission('psf_staff') }} value=>
+              <i class="icon fa fa-trash"></i> Delete banner
+            </button>
+            &nbsp &nbsp
+          </div>
+          <div class="modal fade" id="deleteBanner" tabindex="-1" role="dialog">
+            <form method="POST" action="{{ request.route_path('admin.banner.delete', banner_id=banner.id) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Delete banner {{ banner.name }}?</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p>
+                      This will permanently destroy the banner and cannot be undone.
+                    </p>
+                    {% if banner.is_live %}
+                    <p>
+                      <b>Important:</b> the banner is active and is being currently displayed.
+                    </p>
+                    {% endif %}
+                    <hr>
+                    <input type="hidden" name="banner" value="{{ banner.name }}">
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <h3 class="box-title">Create banner</h3>
+          {% endif %}
+        </div>
+        <div class="box-body">
+          <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+            {% if form.errors.__all__ %}
+              {% for error in form.errors.__all__ %}
+              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+              {% endfor %}
+            {% endif %}
+
+            {{ render_field("Name", form.name, "banner-name", class="form-control", placeholder="Name") }}
+
+            {{ render_field("Icon Name", form.fa_icon, "banner-fa-icon", placeholder="Fontawesome class", helper="<a href='https://fontawesome.com/v5.15/icons?d=gallery&p=1&s=regular&m=free' target='_blank'>Icons list</a>") }}
+            {{ render_field("Text", form.text, "banner-text", class="form-control", placeholder="Banner text content") }}
+            {{ render_field("Button URL", form.link_url, "banner-link-url", class="form-control", placeholder="https://sample.com") }}
+            {{ render_field("Button label", form.link_label, "banner-link-label", class="form-control", placeholder="See more") }}
+
+            {{ render_field("Active", form.active, "banner-active", helper="<small>Only active banners are displayed.</small>") }}
+            {{ render_field("End date", form.end, "banner-end", placeholder="YYYY-MM-DD", helper="<small>UTC date to work as a safeguard to hide the banner if past this date.</small>")}}
+
+
+            <div class="form-group">
+              <div class="col-sm-offset-10 col-sm-2">
+                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires staff privileges" if not request.has_permission('psf_staff') }}" {{ "disabled" if not request.has_permission('psf_staff') }}>Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

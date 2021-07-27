@@ -75,6 +75,15 @@
       {% trans %}Controlled by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.user) }}">{{ event.additional.user }}</a><br>
       {% trans %}Token name:{% endtrans %} {{ event.additional.description }}
     </small>
+    {% elif event.tag == "project:release:yank" %}
+    <strong>{% trans version=event.additional.canonical_version %}Release version {{ version }} yanked{% endtrans %}</strong><br>
+    <small>
+      {% trans %}Yanked by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+    {% if event.additional.yanked_reason %}<p><small>
+      {% trans %}Reason:{% endtrans %} {{ event.additional.yanked_reason }}
+    </small></p>
+    {% endif %}
     {% else %}
     <strong>{{ event.tag }}</strong>
     {% endif %}
