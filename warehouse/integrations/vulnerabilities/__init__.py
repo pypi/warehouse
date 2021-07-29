@@ -13,6 +13,8 @@
 
 from typing import List
 
+import packaging.utils
+
 from warehouse import integrations
 
 
@@ -55,7 +57,10 @@ class VulnerabilityReportRequest:
 
         return cls(
             project=request["project"],
-            versions=request["versions"],
+            versions=[
+                packaging.utils.canonicalize_version(version)
+                for version in request["versions"]
+            ],
             vulnerability_id=request["id"],
             advisory_link=request["link"],
             aliases=request["aliases"],
