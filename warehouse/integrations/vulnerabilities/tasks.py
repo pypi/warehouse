@@ -13,10 +13,12 @@
 
 from warehouse import tasks
 from warehouse.integrations.vulnerabilities import utils
+from warehouse.metrics import IMetricsService
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def analyze_vulnerability_task(request, vulnerability_report, origin, metrics):
+def analyze_vulnerability_task(request, vulnerability_report, origin):
+    metrics = request.find_service(IMetricsService, context=None)
     utils.analyze_vulnerability(
         request=request,
         vulnerability_report=vulnerability_report,
