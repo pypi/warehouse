@@ -20,13 +20,13 @@ def test_analyze_disclosure_task(monkeypatch):
     monkeypatch.setattr(utils, "analyze_vulnerability", analyze_vulnerability)
 
     request = pretend.stub()
-    vulnerability_record = pretend.stub()
+    vulnerability_report = pretend.stub()
     origin = pretend.stub()
     metrics = pretend.stub()
 
     tasks.analyze_vulnerability_task(
         request=request,
-        vulnerability_record=vulnerability_record,
+        vulnerability_report=vulnerability_report,
         origin=origin,
         metrics=metrics,
     )
@@ -34,7 +34,7 @@ def test_analyze_disclosure_task(monkeypatch):
     assert analyze_vulnerability.calls == [
         pretend.call(
             request=request,
-            vulnerability_record=vulnerability_record,
+            vulnerability_report=vulnerability_report,
             origin=origin,
             metrics=metrics,
         )

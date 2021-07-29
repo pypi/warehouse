@@ -16,10 +16,10 @@ from warehouse.integrations.vulnerabilities import utils
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def analyze_vulnerability_task(request, vulnerability_record, origin, metrics):
+def analyze_vulnerability_task(request, vulnerability_report, origin, metrics):
     utils.analyze_vulnerability(
         request=request,
-        vulnerability_record=vulnerability_record,
+        vulnerability_report=vulnerability_report,
         origin=origin,
         metrics=metrics,
     )
