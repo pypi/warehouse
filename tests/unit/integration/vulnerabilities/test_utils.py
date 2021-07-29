@@ -399,7 +399,7 @@ def test_analyze_vulnerabilities(monkeypatch):
     )
 
     assert task.delay.calls == [
-        pretend.call(vulnerability_report=1, origin="whatever", metrics=metrics),
-        pretend.call(vulnerability_report=2, origin="whatever", metrics=metrics),
-        pretend.call(vulnerability_report=3, origin="whatever", metrics=metrics),
+        pretend.call(vulnerability_report=1, origin="whatever"),
+        pretend.call(vulnerability_report=2, origin="whatever"),
+        pretend.call(vulnerability_report=3, origin="whatever"),
     ]

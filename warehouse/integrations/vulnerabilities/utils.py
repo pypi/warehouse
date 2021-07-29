@@ -160,5 +160,4 @@ def analyze_vulnerabilities(request, vulnerability_reports, origin, metrics):
         request.task(tasks.analyze_vulnerability_task).delay(
             vulnerability_report=vulnerability_report,
             origin=origin,
-            metrics=metrics,
         )
