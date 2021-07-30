@@ -40,7 +40,7 @@ def test_analyze_vulnerability(db_request, metrics):
         request=db_request,
         vulnerability_report={
             "project": project.name,
-            "versions": ["1", "2"],
+            "versions": ["1.0", "2.0"],
             "id": "vuln_id",
             "link": "vulns.com/vuln_id",
             "aliases": ["vuln_alias1", "vuln_alias2"],
@@ -87,7 +87,7 @@ def test_analyze_vulnerability_add_release(db_request, metrics):
         request=db_request,
         vulnerability_report={
             "project": project.name,
-            "versions": ["1"],
+            "versions": ["1.0"],
             "id": "vuln_id",
             "link": "vulns.com/vuln_id",
             "aliases": ["vuln_alias"],
@@ -110,7 +110,7 @@ def test_analyze_vulnerability_add_release(db_request, metrics):
         request=db_request,
         vulnerability_report={
             "project": project.name,
-            "versions": ["1", "2"],  # Add v2
+            "versions": ["1.0", "2.0"],  # Add 2.0
             "id": "vuln_id",
             "link": "vulns.com/vuln_id",
             "aliases": ["vuln_alias"],
@@ -146,7 +146,7 @@ def test_analyze_vulnerability_delete_releases(db_request, metrics):
         request=db_request,
         vulnerability_report={
             "project": project.name,
-            "versions": ["1", "2"],
+            "versions": ["1.0", "2.0"],
             "id": "vuln_id",
             "link": "vulns.com/vuln_id",
             "aliases": ["vuln_alias"],
@@ -171,7 +171,7 @@ def test_analyze_vulnerability_delete_releases(db_request, metrics):
         request=db_request,
         vulnerability_report={
             "project": project.name,
-            "versions": ["1"],  # Remove v2 as vulnerable
+            "versions": ["1.0"],  # Remove v2 as vulnerable
             "id": "vuln_id",
             "link": "vulns.com/vuln_id",
             "aliases": ["vuln_alias"],
@@ -399,7 +399,7 @@ def test_analyze_vulnerabilities(monkeypatch):
     )
 
     assert task.delay.calls == [
-        pretend.call(vulnerability_report=1, origin="whatever", metrics=metrics),
-        pretend.call(vulnerability_report=2, origin="whatever", metrics=metrics),
-        pretend.call(vulnerability_report=3, origin="whatever", metrics=metrics),
+        pretend.call(vulnerability_report=1, origin="whatever"),
+        pretend.call(vulnerability_report=2, origin="whatever"),
+        pretend.call(vulnerability_report=3, origin="whatever"),
     ]
