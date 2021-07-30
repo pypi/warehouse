@@ -33,7 +33,7 @@ def _get_release(request, project: Project, version):
     return (
         request.db.query(Release)
         .filter(Release.project_id == project.id)
-        .filter(Release.canonical_version == version)
+        .filter(Release.version == version)
         .one()
     )
 
@@ -116,7 +116,7 @@ def _analyze_vulnerability(request, vulnerability_report, origin, metrics):
 
     # Unassociate any releases that no longer apply.
     for release in list(vulnerability_record.releases):
-        if release.canonical_version not in report.versions:
+        if release.version not in report.versions:
             vulnerability_record.releases.remove(release)
 
 
