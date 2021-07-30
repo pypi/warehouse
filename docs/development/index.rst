@@ -14,9 +14,14 @@ check out `"What to put in your bug report"`_ for guidance.
                GitHub issue tracker. Read the :ref:`security` documentation for
                details.
 
-You can also join ``#pypa`` (general packaging discussion and user support) and
-``#pypa-dev`` (discussion about development of packaging tools) `on Freenode`_,
-or the `distutils-sig mailing list`_, to ask questions or get involved.
+Get involved or find help using:
+
+- IRC: on `Libera`_, channel ``#pypa`` for general
+  packaging discussion and user support,
+  and ``#pypa-dev`` for discussions about development of packaging tools
+- The `PyPA Discord`_ for live discussions
+- The Packaging category on `Discourse`_ for
+  discussing new ideas and community initiatives
 
 
 .. toctree::
@@ -32,8 +37,10 @@ or the `distutils-sig mailing list`_, to ask questions or get involved.
     development-database
     cloud
     malware-checks
+    token-scanning
 
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`"What to put in your bug report"`: http://www.contribution-guide.org/#what-to-put-in-your-bug-report
-.. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
-.. _`distutils-sig mailing list`: https://mail.python.org/mailman3/lists/distutils-sig.python.org/
+.. _`Libera`: https://web.libera.chat/#pypa,#pypa-dev
+.. _`PyPA Discord`: https://discord.gg/pypa
+.. _`Discourse`: https://discuss.python.org/c/packaging/14

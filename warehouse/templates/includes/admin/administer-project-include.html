@@ -1,0 +1,26 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+
+{% if request.has_permission("moderator") %}
+<div class="admin-include">
+<h4>Admin tools:</h4>
+  <a href="{{ request.route_path('admin.project.detail', project_name=project.name) }}" class="button button--primary package-description__edit-button">View project in admin</a>
+
+  <form class="form-inline" method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
+    <input name="project" type="hidden" value="{{ project.normalized_name }}">
+    <input name="comment" type="hidden" value="SPAM SPAM SPAM SPAM" id="prohibitedComment">
+    <button type="submit" class="button button--danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') }}>Remove project as spam</button>
+  </form>
+</div>
+{% endif %}

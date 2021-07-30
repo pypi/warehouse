@@ -47,6 +47,7 @@ def github_disclose_token(request):
     verifier = utils.GitHubTokenScanningPayloadVerifier(
         session=request.http,
         metrics=metrics,
+        api_url=request.registry.settings["github.token_scanning_meta_api.url"],
         api_token=request.registry.settings.get("github.token"),
     )
 

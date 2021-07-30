@@ -14,8 +14,6 @@
 {% extends "base.html" %}
 {% block title %}{% trans %}Sponsors{% endtrans %}{% endblock %}
 
-{% from "warehouse:templates/includes/sponsors.html" import sponsors %}
-
 {% block content %}
 <div class="horizontal-section">
   <div class="site-container">
@@ -113,19 +111,19 @@
         </div>
         <a href="https://www.python.org/sponsors/application/" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button button--primary">See sponsorship packages</a>
       </div>
-      {% for sponsor in sponsors %}
+      {% for sponsor in request.sponsors %}
         {% if sponsor.psf_sponsor %}
         <div class="sponsor-grid__sponsor">
           <div class="sponsor-grid__sponsor-img">
-            <img src="{{ request.static_path('warehouse:static/dist/images/sponsors/color/' + sponsor.image) }}" alt="{{ sponsor.name }}">
+            {{ sponsor.color_logo_img|camoify|safe }}
           </div>
-          <h2 class="sponsor-grid__sponsor-name">{{ sponsor.name }}</h2>
-          <div class="sponsor-grid__sponsor-activity">
-          {% for paragraph in sponsor.activity %}
-          <p>{{ paragraph }}</p>
-          {% endfor %}
+          <div class="sponsor-grid__sponsor-description">
+            <h2 class="sponsor-grid__sponsor-name">{{ sponsor.name }}</h2>
+            <div class="sponsor-grid__sponsor-activity">
+            {{ sponsor.activity|safe }}
+            </div>
           </div>
-          <a href="{{ sponsor.url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
+          <a href="{{ sponsor.link_url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
         </div>
         {% endif %}
       {% endfor %}
@@ -138,21 +136,19 @@
     </div>
 
     <div class="sponsor-grid sponsor-grid--bottom-margin">
-      {% for sponsor in sponsors | sort(attribute="name") %}
+      {% for sponsor in request.sponsors | sort(attribute="name") %}
         {% if sponsor.infra_sponsor %}
         <div class="sponsor-grid__sponsor">
           <div class="sponsor-grid__sponsor-img">
-            <img src="{{ request.static_path('warehouse:static/dist/images/sponsors/color/' + sponsor.image) }}" alt="{{ sponsor.name }}">
+            {{ sponsor.color_logo_img|camoify|safe }}
           </div>
           <div class="sponsor-grid__sponsor-description">
             <h2>{{ sponsor.name }}</h2>
             <div class="sponsor-grid__sponsor-activity">
-            {% for paragraph in sponsor.activity %}
-            <p>{{ paragraph }}</p>
-            {% endfor %}
+            {{ sponsor.activity|safe }}
             </div>
           </div>
-          <a href="{{ sponsor.url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
+          <a href="{{ sponsor.link_url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
         </div>
         {% endif %}
       {% endfor %}
@@ -176,21 +172,19 @@
         </div>
         <a href="https://github.com/psf/fundable-packaging-improvements/blob/master/FUNDABLES.md" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button button--primary">See funding suggestions</a>
       </div>
-      {% for sponsor in sponsors %}
+      {% for sponsor in request.sponsors %}
         {% if sponsor.one_time %}
         <div class="sponsor-grid__sponsor">
           <div class="sponsor-grid__sponsor-img">
-            <img src="{{ request.static_path('warehouse:static/dist/images/sponsors/color/' + sponsor.image) }}" alt="{{ sponsor.name }}">
+            {{ sponsor.color_logo_img|camoify|safe }}
           </div>
           <div class="sponsor-grid__sponsor-description">
             <h2>{{ sponsor.name }}</h2>
             <div class="sponsor-grid__sponsor-activity">
-            {% for paragraph in sponsor.activity %}
-            <p>{{ paragraph }}</p>
-            {% endfor %}
+            {{ sponsor.activity|safe }}
             </div>
           </div>
-          <a href="{{ sponsor.url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
+          <a href="{{ sponsor.link_url }}" target="_blank" rel="noopener" class="sponsor-grid__sponsor-link button">Visit {{ sponsor.name }}</a>
         </div>
         {% endif %}
       {% endfor %}

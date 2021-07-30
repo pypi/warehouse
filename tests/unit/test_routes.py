@@ -127,6 +127,13 @@ def test_routes(warehouse):
             "/_includes/sidebar-sponsor-logo/",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.administer-project-include",
+            "/_includes/administer-project-include/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -334,6 +341,11 @@ def test_routes(warehouse):
         pretend.call(
             "integrations.github.disclose-token",
             "/_/github/disclose-token",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "integrations.vulnerabilities.osv.report",
+            "/_/vulnerabilities/osv/report",
             domain=warehouse,
         ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),

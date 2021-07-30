@@ -107,6 +107,13 @@ def includeme(config):
         "/_includes/sidebar-sponsor-logo/",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.administer-project-include",
+        "/_includes/administer-project-include/{project_name}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)
@@ -330,6 +337,12 @@ def includeme(config):
     config.add_route(
         "integrations.github.disclose-token",
         "/_/github/disclose-token",
+        domain=warehouse,
+    )
+
+    config.add_route(
+        "integrations.vulnerabilities.osv.report",
+        "/_/vulnerabilities/osv/report",
         domain=warehouse,
     )
 

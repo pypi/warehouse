@@ -84,7 +84,7 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Travis, and Makefile commands
+- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Continuous Integration, and Makefile commands
 - `dev/ <https://github.com/pypa/warehouse/tree/master/dev>`_ - assets for developer environment
 - `tests/ <https://github.com/pypa/warehouse/tree/master/tests>`_ - tests
 - `warehouse/ <https://github.com/pypa/warehouse/tree/master/warehouse>`_ - code in modules
@@ -110,6 +110,7 @@ Directories within the repository:
   - `rss/ <https://github.com/pypa/warehouse/tree/master/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
   - `search/ <https://github.com/pypa/warehouse/tree/master/warehouse/search>`_ - utilities for building and querying the search index
   - `sitemap/ <https://github.com/pypa/warehouse/tree/master/warehouse/sitemap>`_ - site maps
+  - `sponsors/ <https://github.com/pypa/warehouse/tree/master/warehouse/sponsors>`_ - sponsors management
   - `templates/ <https://github.com/pypa/warehouse/tree/master/warehouse/templates>`_ - Jinja templates for web pages, emails, etc.
   - `utils/ <https://github.com/pypa/warehouse/tree/master/warehouse/utils>`_ - various utilities Warehouse uses
 
